@@ -155,7 +155,7 @@ def update_bundle_sample_xml(sample, bundlefile):
     tag = ET.SubElement(sample_attribute, 'TAG')
     tag.text = 'project name'
     value = ET.SubElement(sample_attribute, 'VALUE')
-    value.text = Profile().get_record(sample["profile_id"])["title"]
+    value.text = 'DTOL'#Profile().get_record(sample["profile_id"])["title"]
     ##### for item in obj_id: if item in checklist (or similar according to some criteria).....
     for item in sample.items():
         if item[1]:
