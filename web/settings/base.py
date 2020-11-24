@@ -20,7 +20,7 @@ LOGIN_URL = '/accounts/auth/'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if str(resolve_env.get_env('DEBUG')).lower() == 'true' else False
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org', '.demo.copo-project.org', 'localhost', '10.0.0.*']
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org', '.demo.copo-project.org', 'localhost', '10.0.0.*', '.copodev.cyverseuk.org']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://0.0.0.0:8000",
