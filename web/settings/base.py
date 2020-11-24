@@ -27,7 +27,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:80",
     "http://127.0.0.1:8000",
     "https://copo-project.org",
-    "http://demo.copo-project.org"
+    "http://demo.copo-project.org",
+    "http://copo_dev0.cyverseuk.org"
 ]
 DEBUG_PROPAGATE_EXCEPTIONS = True
 # Django's base applications definition
