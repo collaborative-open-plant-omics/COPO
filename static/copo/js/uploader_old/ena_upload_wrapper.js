@@ -3,7 +3,7 @@
 var upload_size = 0;
 var chunk_size = 0;
 //var chunk_threshold = 200000000; // size of chunks in bytes
-var chunk_threshold = 100000000;
+var chunk_threshold = 1000000;
 
 function get_chunk_size(event) {
     upload_size = event.currentTarget.files[0].size;

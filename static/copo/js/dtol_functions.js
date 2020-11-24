@@ -316,16 +316,18 @@ function row_select(ev) {
                 console.log("data tables running")
                 $("#profile_samples").DataTable(dt_options);
             } else {
-                if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                    $("#profile_samples").DataTable().clear().destroy();
-                    $("#sample_panel").find("thead").empty()
-                    $("#sample_panel").find("tbody").empty()
+                var content
+                if (data.hasOwnProperty("locked")) {
+                    content = $("<h4/>", {
+                        html: "View is locked by another User. Try again later."
+                    })
+                } else {
+                    content = $("<h4/>", {
+                        html: "No Samples Found"
+                    })
                 }
-                var no_data = $("<h4/>", {
-                    html: "No Samples Found"
-                })
                 $("#sample_panel").find(".labelling").empty().html(
-                    no_data
+                    content
                 )
                 $("#accept_reject_button").find("button").prop("disabled", true)
 

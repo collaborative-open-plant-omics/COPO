@@ -194,7 +194,7 @@ class DtolSpreadsheet:
                                     errors.append(self.validation_msg_invalid_data % (
                                         c_value, header, str(cellcount + 1), allowed_vals))
                                     flag = False
-                                if header == "ORGANISM_PART" and c_value.strip() == "WHOLE ORGANISM":
+                                if header == "ORGANISM_PART" and c_value.strip() == "WHOLE_ORGANISM":
                                     # send specimen in used whole specimens set
                                     #print(c_value)
                                     current_specimen = self.data.at[cellcount - 1, "SPECIMEN_ID"]

@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django_tools.middlewares.ThreadLocal import get_current_user
+from datetime import datetime, timedelta
+import pytz
 
 
 class UserDetails(models.Model):
@@ -19,8 +22,8 @@ class UserDetails(models.Model):
         null=True,
     )
 
-    #class Meta:
-        #app_label = 'django.contrib.auth'
+    # class Meta:
+    # app_label = 'django.contrib.auth'
 
 
 @receiver(post_save, sender=User)
@@ -31,6 +34,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         ud = instance.userdetails
     except:
         UserDetails.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_details(sender, instance, **kwargs):
@@ -47,3 +51,62 @@ class Repository(models.Model):
             ('vendor_rights', 'Global vendor rights'),
             ('any_rights', 'Global any rights'),
         )
+
+
+class test_model(models.Model):
+    url = models.URLField()
+    c = models.CharField(max_length=10, default="a")
+
+
+
+class ViewLock(models.Model):
+    url = models.URLField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    timeLocked = models.DateTimeField()
+    timeout = timedelta(seconds=300)
+
+    def lockView(self, url):
+        # method will throw error if lock already exists for url
+        self.url = url
+        self.user = get_current_user()
+        self.timeLocked = datetime.utcnow()
+        try:
+            self.save()
+            return True
+        except ViewLock.MultipleObjectsReturned:
+            return False
+
+    def delete_self(self):
+        self.delete()
+        return True
+
+    def unlockView(self, url):
+        lock = ViewLock.objects.get(url=url)
+        if lock:
+            lock.delete()
+            return True
+        else:
+            return False
+
+    def isViewLockedCreate(self, url):
+        # if this view is locked return True, if not, create lock and return False
+        try:
+            lock = ViewLock.objects.filter(url=url).get()
+        except ViewLock.DoesNotExist as e:
+            # view not locked
+            self.lockView(url=url)
+            return False
+        if lock.user == get_current_user():
+            # lock is owned by page requester, update timeLocked
+            lock.timeLocked = datetime.utcnow()
+            lock.save()
+            return False
+        else:
+            if datetime.utcnow().replace(tzinfo=pytz.utc) - lock.timeLocked > self.timeout:
+                # lock has expired
+                lock.delete()
+                self.lockView(url=url)
+                return False
+            else:
+                # view is locked
+                return True

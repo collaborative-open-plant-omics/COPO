@@ -6,7 +6,7 @@ import os
 import time
 import urllib.parse
 from datetime import datetime
-
+from web.apps.web_copo.models import ViewLock
 import jsonpickle
 import pandas as pd
 import requests
@@ -1341,12 +1341,16 @@ def update_pending_samples_table(request):
 
 
 def get_samples_for_profile(request):
-    profile_id = request.GET["profile_id"]
-    filter = request.GET["filter"]
-    samples = Sample().get_dtol_from_profile_id(profile_id, filter)
-    # notify_dtol_status(msg="Creating Sample: " + "sprog", action="info",
-    #                     html_id="dtol_sample_info")
-    return HttpResponse(json_util.dumps(samples))
+    url = request.build_absolute_uri()
+    if not ViewLock().isViewLockedCreate(url=url):
+        profile_id = request.GET["profile_id"]
+        filter = request.GET["filter"]
+        samples = Sample().get_dtol_from_profile_id(profile_id, filter)
+        # notify_dtol_status(msg="Creating Sample: " + "sprog", action="info",
+        #                     html_id="dtol_sample_info")
+        return HttpResponse(json_util.dumps(samples))
+    else:
+        return HttpResponse(json_util.dumps({"locked":True}))
 
 
 def mark_sample_rejected(request):

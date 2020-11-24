@@ -87,9 +87,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     'django_brotli.middleware.BrotliMiddleware',
-
-    # 'web.apps.web_copo.copo_middleware.FigshareMiddleware.SetFigshareOauth',
-    # 'web.apps.web_copo.copo_middleware.OrcidMiddleware.OrcidOAuth',
+    'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -141,10 +139,6 @@ TEMPLATES = [
                 'django.template.context_processors.csrf',
                 'django.template.context_processors.request',
                 'django.template.context_processors.static',
-                # processor for base page status template tags
-                "web.apps.web_copo.context_processors.get_status",
-                "web.apps.web_copo.context_processors.add_partial_submissions_to_context",
-
                 'django.contrib.auth.context_processors.auth',
             ],
             'debug': DEBUG,
