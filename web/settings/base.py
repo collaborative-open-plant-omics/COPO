@@ -204,3 +204,7 @@ CACHES = {
 
     }
 }
+
+MIGRATION_MODULES = {
+    'chunked_upload': 'web.chunked_upload_migrations'
+}
