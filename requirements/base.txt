@@ -7,7 +7,7 @@ asn1crypto==0.24.0
 astroid==2.2.5
 async-timeout
 attrs==19.2.0
-autobahn==19.10.1
+autobahn==20.12.3
 Automat==0.7.0
 autopep8==1.4.4
 Babel==2.7.0
