@@ -141,6 +141,7 @@ qtconsole==4.5.5
 rauth==0.7.3
 rcssmin==1.0.6
 rdflib==4.2.1
+recommonmark==0.7.1
 redis
 requests==2.20.0
 requests-oauthlib==0.7.0
@@ -155,6 +156,7 @@ six==1.11.0
 snowballstemmer==1.2.1
 soupsieve==1.9.2
 sphinxcontrib-websupport==1.0.1
+sphinx==3.4.1
 supervisor==4.0.4
 tables
 terminado==0.8.2

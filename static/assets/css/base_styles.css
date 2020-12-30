@@ -142,7 +142,7 @@ body {
 }
 
 section {
-    height: 100vh
+    /**height: 100vh**/
 }
 
 .secondary-container {
@@ -250,7 +250,8 @@ p {
 }
 
 .shade {
-    background-color: rgba(65, 65, 65, 0.5);
+    background-color: rgba(65, 65, 65, 0.5) !important;
+    width: 100%;
 }
 
 .statistic {

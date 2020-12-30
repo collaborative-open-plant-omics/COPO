@@ -136,6 +136,7 @@ def process_pending_dtol_samples():
                 "submission_accession"]  # + " - Biosample ID: " + accessions["biosample_accession"]
             notify_dtol_status(data={"profile_id": profile_id}, msg=msg, action="info",
                                html_id="dtol_sample_info")
+
         else:
             msg = "Submission Rejected: " + sam["SPECIMEN_ID"] + "<p>" + accessions["msg"] + "</p>"
             notify_dtol_status(data={"profile_id": profile_id}, msg=msg, action="info",
