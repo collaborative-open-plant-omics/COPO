@@ -146,7 +146,7 @@ redis
 requests==2.20.0
 requests-oauthlib==0.7.0
 rjsmin==1.1.0
-rsa==3.4.2
+rsa==4.7
 s3transfer==0.1.9
 selenium==3.141.0
 Send2Trash==1.5.0
