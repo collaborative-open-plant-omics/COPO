@@ -28,7 +28,7 @@ chardet==3.0.4
 colorama==0.4.1
 configparser==3.7.4
 constantly==15.1.0
-cryptography==2.7
+cryptography==3.3.2
 daphne==2.3.0
 -e git+https://github.com/IQSS/dataverse-client-python.git@5f95a11e2f32bcfabe28e6ad43b2f7edac60d983#egg=dataverse
 decorator==4.4.0
