@@ -29,6 +29,11 @@ function upload_image_files(file) {
     })
 }
 
+
+function upload_barcode(file) {
+    alert("wank")
+}
+
 function upload_spreadsheet(file) {
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
@@ -60,6 +65,11 @@ function upload_spreadsheet(file) {
 
 $(document).ready(function () {
 
+    $(document, "#barcode_file").on("change", function () {
+        let f = document.getElementById('barcode_file').files[0]
+        console.log(f)
+
+    })
 
     $(document).on("click", "#finish_button", function (el) {
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
@@ -269,9 +279,11 @@ $(document).ready(function () {
 
 $(document).on("click", ".new-samples-spreadsheet-template", function (event) {
     $("#sample_spreadsheet_modal").modal("show")
-
     $("#warning_info").fadeOut("fast")
-
+})
+$(document).on("click", ".barcoding_manifest", function (event) {
+    $("#sample_barcoding_modal").modal("show")
+    $("#warning_info").fadeOut("fast")
 })
 $(document).on("click", "#export_errors_button", function (event) {
     var data = $("#sample_info").html()

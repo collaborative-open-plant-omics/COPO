@@ -271,7 +271,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Upload Spreadsheet</h4>
+                    <h4 class="modal-title">Upload ToL Manifest</h4>
                 </div>
                 <div class="modal-body" style="width: 100%">
                     <div id="upload_buttons">
@@ -280,22 +280,7 @@
                                    onchange="upload_spreadsheet(this.files[0])">
                             Upload Sample Manifest
                         </label>
-                        <!--
-                        <label class="ui violet button" for="images" id="files_label" disabled>
 
-                            <input enctype='multipart/formdata' id="images" name="images" type="file"
-                                   accept=".png,.jpg, .jpeg" multiple style="display:none"
-                                   onchange="upload_image_files(this.files)" disabled>
-                            Upload Barcoding Data
-                        </label>
-                        -->
-                        <label class="ui teal button" for="images" id="files_label" disabled>
-
-                            <input enctype='multipart/formdata' id="images" name="images" type="file"
-                                   accept=".png,.jpg, .jpeg" multiple style="display:none"
-                                   onchange="" disabled>
-                            Upload Images
-                        </label>
                         <button class="ui green button" id="finish_button" style="display:none">Finish</button>
                         <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
 
@@ -331,12 +316,7 @@
                     <li class="active">
                         <a data-toggle="tab" id="meta_table_nav_tab" href="#meta">Sample Metadata</a>
                     </li>
-                    <!--<li>
-                        <a data-toggle="tab" id="barcode_table_nav_tab" href="#image">Sample Images</a>
-                    </li>-->
-                    <li>
-                        <a data-toggle="tab" id="image_table_nav_tab" href="#image">Sample Images</a>
-                    </li>
+
 
                 </ul>
                 <div class="tab-content" style="padding:30px">
@@ -371,6 +351,38 @@
         </div><!-- /.modal-dialog -->
     </div>
 
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="sample_barcoding_modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload Barcoding Manifest</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="upload_buttons">
+                        <label class="ui blue button" for="file" id="upload_label">
+                            <input id="barcode_file" type="file" style="display:none"
+                            >
+                            Upload Barcoding Manifest
+                        </label>
+
+                        <button class="ui green button" id="finish_button" style="display:none">Finish</button>
+                        <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
+
+                        </div>
+                        <button class="ui red button pull-right" style="display:none" id="export_errors_button">Export
+                            Errors
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
