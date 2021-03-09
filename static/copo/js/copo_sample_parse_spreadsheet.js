@@ -63,13 +63,16 @@ function upload_spreadsheet(file) {
     })
 }
 
+function handleFiles(data) {
+    let f = this.files[0];
+    console.log(f)
+}
+
 $(document).ready(function () {
 
-    $(document, "#barcode_file").on("change", function () {
-        let f = document.getElementById('barcode_file').files[0]
-        console.log(f)
-
-    })
+    // event listener for barcoding file upload button
+    const barcode_input = document.getElementById("barcode_file");
+    barcode_input.addEventListener("change", handleFiles, false);
 
     $(document).on("click", "#finish_button", function (el) {
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
@@ -162,8 +165,6 @@ $(document).ready(function () {
             s_id = d.html_id
             //$('tr[sample_id=s_id]').fadeOut()
             $('tr[sample_id="' + s_id + '"]').remove()
-
-
 
 
         }

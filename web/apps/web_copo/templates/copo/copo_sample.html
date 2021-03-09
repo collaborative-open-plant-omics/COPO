@@ -39,6 +39,10 @@
         #image_table img {
             height: 100px
         }
+
+        [hidden] {
+            display: none !important;
+        }
     </style>
 {% endblock %}
 
@@ -362,11 +366,10 @@
                 </div>
                 <div class="modal-body">
                     <div id="upload_buttons">
-                        <label class="ui blue button" for="file" id="upload_label">
-                            <input id="barcode_file" type="file" style="display:none"
-                            >
-                            Upload Barcoding Manifest
+                        <label class="button blue ui btn-default">
+                            Upload Barcode Manifest <input type="file" id="barcode_file" hidden>
                         </label>
+
 
                         <button class="ui green button" id="finish_button" style="display:none">Finish</button>
                         <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
