@@ -30,10 +30,6 @@ function upload_image_files(file) {
 }
 
 
-function upload_barcode(file) {
-    alert("wank")
-}
-
 function upload_spreadsheet(file) {
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
@@ -303,12 +299,17 @@ function handleBarcodeUpload(data) {
     form = new FormData()
     form.append("file", f)
     $.ajax({
-        url: "/copo/upload_barcoding_manifest",
+        url: "/copo/upload_barcoding_manifest/",
         data: form,
+        cache: false,
+        contentType: false,
+        processData: false,
         method: 'POST',
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
+    }).error(function (data) {
+        console.log(data)
     }).done(function (data) {
-        alert(data)
+        console.log(data)
     })
 }

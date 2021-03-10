@@ -36,6 +36,7 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 
 DV_STRING = 'HARVARD_TEST_API'
@@ -1408,6 +1409,10 @@ def sample_images(request):
     matchings = dtol.check_image_names(files)
     return HttpResponse(json.dumps(matchings))
 
+
 def upload_barcoding_manifest(request):
-    data = request.FILES
+    file = request.FILES["file"]
+    b = Barcoding(file)
+    b.do_bold()
+
     return HttpResponse("Hello World!")
