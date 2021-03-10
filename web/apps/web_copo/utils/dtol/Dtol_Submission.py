@@ -491,7 +491,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
         return False
 
     os.remove(submissionfile)
-    os.remove(samplefile)
+    #os.remove(samplefile) #TODO bring this back after debug
     success_status = tree.get('success')
     if success_status == 'false':  ####todo
 
