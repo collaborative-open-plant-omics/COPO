@@ -63,16 +63,12 @@ function upload_spreadsheet(file) {
     })
 }
 
-function handleFiles(data) {
-    let f = this.files[0];
-    console.log(f)
-}
 
 $(document).ready(function () {
 
     // event listener for barcoding file upload button
     const barcode_input = document.getElementById("barcode_file");
-    barcode_input.addEventListener("change", handleFiles, false);
+    barcode_input.addEventListener("change", handleBarcodeUpload, false);
 
     $(document).on("click", "#finish_button", function (el) {
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
@@ -128,24 +124,20 @@ $(document).ready(function () {
     if (window.location.protocol === "https:") {
         wsprotocol = 'wss://';
     }
-
     socket = new WebSocket(
         wsprotocol + window.location.host +
         '/ws/sample_status/' + profileId);
     socket2 = new WebSocket(
         wsprotocol + window.location.host +
         '/ws/dtol_status');
-
     socket2.onopen = function (e) {
         console.log("opened ", e)
     }
     socket2.onmessage = function (e) {
         //d = JSON.parse(e.data)
         //console.log(d)
-
+        //
     }
-
-
     socket.onerror = function (e) {
         console.log("error ", e)
     }
@@ -165,10 +157,7 @@ $(document).ready(function () {
             s_id = d.html_id
             //$('tr[sample_id=s_id]').fadeOut()
             $('tr[sample_id="' + s_id + '"]').remove()
-
-
         }
-
         //actions here should only be performed by sockets with matching profile_id
         if (d.data.hasOwnProperty("profile_id")) {
             if ($("#profile_id").val() == d.data.profile_id) {
@@ -186,7 +175,6 @@ $(document).ready(function () {
                         $("#" + d.html_id).fadeIn("50")
                     }
                     $("#" + d.html_id).removeClass("alert-danger").addClass("alert-info")
-
                     $("#" + d.html_id).html(d.message)
                     $("#spinner").fadeOut()
                 } else if (d.action === "warning") {
@@ -307,4 +295,20 @@ function download(filename, text) {
     } else {
         pom.click();
     }
+}
+
+function handleBarcodeUpload(data) {
+    let f = this.files[0];
+    var csrftoken = $.cookie('csrftoken');
+    form = new FormData()
+    form.append("file", f)
+    $.ajax({
+        url: "/copo/upload_barcoding_manifest",
+        data: form,
+        method: 'POST',
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+    }).done(function (data) {
+        alert(data)
+    })
 }

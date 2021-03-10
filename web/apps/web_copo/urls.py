@@ -8,7 +8,6 @@ app_name = 'web_copo'
 
 urlpatterns = [
     path('', views.index, name='index'),
-
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
@@ -180,4 +179,6 @@ urlpatterns = [
          name="add_sample_to_dtol_submission"),
     path('delete_dtol_samples/', ajax_handlers.delete_dtol_samples,
          name="delete_dtol_samples"),
+    path('upload_barcoding_manifest/', ajax_handlers.upload_barcoding_manifest,
+         name="upload_barcoding_manifest"),
 ]

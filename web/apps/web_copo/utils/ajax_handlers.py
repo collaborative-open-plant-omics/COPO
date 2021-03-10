@@ -1406,6 +1406,8 @@ def sample_images(request):
     files = request.FILES
     dtol = DtolSpreadsheet()
     matchings = dtol.check_image_names(files)
-
     return HttpResponse(json.dumps(matchings))
 
+def upload_barcoding_manifest(request):
+    data = request.FILES
+    return HttpResponse("Hello World!")
