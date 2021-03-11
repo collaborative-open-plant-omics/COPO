@@ -631,8 +631,8 @@ class Sample(DAComponent):
 
     def update_public_name(self, name):
         self.get_collection_handle().update_many(
-            {"SPECIMEN_ID": name['specimen']["specimenId"], "species_list" : {
-                '$elemMatch' : {"TAXON_ID": str(name['species']["taxonomyId"]), "SYMBIONT": "target"}}},
+            {"SPECIMEN_ID": name['specimen']["specimenId"], "species_list": {
+                '$elemMatch': {"TAXON_ID": str(name['species']["taxonomyId"]), "SYMBIONT": "target"}}},
             {"$set": {"public_name": name.get("tolId", "")}})
 
     def delete_sample(self, sample_id):
@@ -801,7 +801,7 @@ class Sample(DAComponent):
             [
                 {
                     "$match": {
-                        "sample_type": "dtol"
+                        "sample_type": {"$in": ["dtol", "asg"]}
                     }
                 },
                 {"$sort":
@@ -819,7 +819,7 @@ class Sample(DAComponent):
     def get_manifests_by_date(self, d_from, d_to):
         ids = self.get_collection_handle().aggregate(
             [
-                {"$match": {"sample_type": "dtol", "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$match": {"sample_type": {"$in": ["dtol", "asg"]}, "time_created": {"$gte": d_from, "$lt": d_to}}},
                 {"$sort": {"time_created": -1}},
                 {"$group":
                     {
@@ -898,16 +898,12 @@ class Submission(DAComponent):
                 self.get_collection_handle().update({"_id": ObjectId(s["_id"])}, {"$set": {"dtol_status": "sending"}})
         return out
 
-
     def get_awaiting_tolids(self):
         sub = self.get_collection_handle().find({"type": "dtol", "dtol_status": {"$in": ["awaiting_tolids"]}},
                                                 {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
                                                  "date_modified": 1})
         sub = cursor_to_list(sub)
-        out=list()
-
-
-
+        out = list()
 
     def get_incomplete_submissions_for_user(self, user_id, repo):
         doc = self.get_collection_handle().find(

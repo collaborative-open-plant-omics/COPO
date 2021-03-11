@@ -117,7 +117,6 @@ def process_pending_dtol_samples():
             notify_dtol_status(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
                                action="info",
                                html_id="dtol_sample_info")
-        update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
 
         # query for public names and update
         notify_dtol_status(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
@@ -134,6 +133,7 @@ def process_pending_dtol_samples():
         for name in public_names:
             Sample().update_public_name(name)
 
+        update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
         build_submission_xml(file_subfix, release=True)
 
         # store accessions, remove sample id from bundle and on last removal, set status of submission

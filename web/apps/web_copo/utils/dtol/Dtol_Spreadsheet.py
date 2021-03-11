@@ -23,13 +23,12 @@ from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
+from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
 from .tol_validators import optional_field_dtol_validators as optional_validators
 from .tol_validators import required_field_dtol_validators as required_validators
 from .tol_validators import taxon_validators
 from .tol_validators.tol_validator import TolValidtor
-from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
-
 
 
 def make_target_sample(sample):
@@ -335,15 +334,15 @@ class DtolSpreadsheet:
             if s["SYMBIONT"].lower() == "symbiont":
                 self.check_for_target_or_add_to_symbiont_list(s)
             else:
-                #SOP 2.2 DTOL symbiont to be a scientific name
+                # SOP 2.2 DTOL symbiont to be a scientific name
                 s = make_target_sample(s)
                 sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
                 Sample().timestamp_dtol_sample_created(sampl["_id"])
                 self.add_from_symbiont_list(s)
 
-            public_name_list.append(
-                {"taxonomyId": int(s["species_list"][0]["TAXON_ID"]), "specimenId": s["SPECIMEN_ID"],
-                 "sample_id": str(sampl["_id"])})
+                public_name_list.append(
+                    {"taxonomyId": int(s["species_list"][0]["TAXON_ID"]), "specimenId": s["SPECIMEN_ID"],
+                     "sample_id": str(sampl["_id"])})
 
             for im in image_data:
                 # create matching DataFile object for image is provided
