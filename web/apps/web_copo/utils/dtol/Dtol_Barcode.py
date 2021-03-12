@@ -1,6 +1,9 @@
+import uuid
 import xml.etree.ElementTree as ET
 
 import pandas
+import xmljson
+from django_tools.middlewares import ThreadLocal
 
 
 class Barcoding:
@@ -21,7 +24,7 @@ class Barcoding:
             if r not in actual_columns:
                 raise AssertionError(r + " not Found in Barcoding Manifest")
 
-    def do_bold(self):
+    def query_bold(self):
         bold_ids = self.data["BOLD_ID"].unique()
         bold_url_param = ""
         for bid in bold_ids:
@@ -32,6 +35,51 @@ class Barcoding:
         # resp = bold_xml.content
         with open('/home/fshaw/Downloads/bold_data.xml') as f:
             xml = ET.fromstring(f.read())
-        # xml = ET.fromstring(resp)
-        for child in xml:
-            print(child)
+            d = xmljson.badgerfish.data(xml)["bold_records"]["record"]
+
+        output = list()
+        for record in d:
+            r = dict()
+            r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]["$"]
+            # phylum
+            taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["phylum"]["taxon"]["name"]["$"]
+            r["phylum"] = {"taxid": taxid, "name": name}
+            # class
+            taxid = record["taxonomy"]["class"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["class"]["taxon"]["name"]["$"]
+            r["class"] = {"taxid": taxid, "name": name}
+            # order
+            taxid = record["taxonomy"]["order"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["order"]["taxon"]["name"]["$"]
+            r["order"] = {"taxid": taxid, "name": name}
+            # family
+            taxid = record["taxonomy"]["family"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["family"]["taxon"]["name"]["$"]
+            r["family"] = {"taxid": taxid, "name": name}
+            # subfamily
+            taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["subfamily"]["taxon"]["name"]["$"]
+            r["subfamily"] = {"taxid": taxid, "name": name}
+            # genus
+            taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["genus"]["taxon"]["name"]["$"]
+            r["genus"] = {"taxid": taxid, "name": name}
+            # species
+            taxid = record["taxonomy"]["species"]["taxon"]["taxID"]["$"]
+            name = record["taxonomy"]["species"]["taxon"]["name"]["$"]
+            r["species"] = {"taxid": taxid, "name": name}
+            # sequences
+            sequence_id = record["sequences"]["sequence"]["sequenceID"]["$"]
+            markercode = record["sequences"]["sequence"]["markercode"]["$"]
+            nucleotides = record["sequences"]["sequence"]["nucleotides"]["$"]
+            r["sequence"] = {"sequence_id": sequence_id, "markercode": markercode, "nucleotides": nucleotides}
+            output.append(r)
+
+        df = pandas.DataFrame.from_dict(output)
+        b_id = str(uuid.uuid4())
+        retval = {"uid": b_id, "data": df.to_json()}
+        # store this object in the session to calling later by uuid
+        req = ThreadLocal.get_current_request()
+        req.session[b_id] = retval
+        return retval

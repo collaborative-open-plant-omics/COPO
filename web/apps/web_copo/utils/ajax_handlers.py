@@ -1413,6 +1413,5 @@ def sample_images(request):
 def upload_barcoding_manifest(request):
     file = request.FILES["file"]
     b = Barcoding(file)
-    b.do_bold()
-
-    return HttpResponse("Hello World!")
+    barcoding_data = b.query_bold()
+    return HttpResponse(json.dumps(barcoding_data))

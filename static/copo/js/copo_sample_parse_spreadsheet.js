@@ -305,11 +305,33 @@ function handleBarcodeUpload(data) {
         contentType: false,
         processData: false,
         method: 'POST',
+        dataType: "json",
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
     }).error(function (data) {
-        console.log(data)
+        console.error(data)
     }).done(function (data) {
-        console.log(data)
+        $(document).data("barcode_uid", data.uid)
+        table_data = JSON.parse(data.data)
+        let row = $("<tr>")
+        for (t in table_data) {
+            let head = $("<th/>", {
+                html: t
+            })
+            $(row).append(head)
+        }
+        $("#barcode_table").find("thead").append(row)
+        for (t in table_data) {
+            d = table_data[t]
+            let row = $("<tr>")
+            for (cell in d) {
+                let head = $("<td/>", {
+                    html: d[cell]
+                })
+                $(row).append(head)
+            }
+            $("#barcode_table").find("tbody").append(row)
+        }
+
     })
 }
