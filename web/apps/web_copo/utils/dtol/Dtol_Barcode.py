@@ -2,6 +2,7 @@ import uuid
 import xml.etree.ElementTree as ET
 
 import pandas
+import requests
 import xmljson
 from django_tools.middlewares import ThreadLocal
 
@@ -31,11 +32,12 @@ class Barcoding:
             # concatenate bold ids
             bold_url_param = bold_url_param + bid + '|'
         url = "http://www.boldsystems.org/index.php/API_Public/combined?ids=" + bold_url_param
-        # bold_xml = requests.get(url)
-        # resp = bold_xml.content
-        with open('/home/fshaw/Downloads/bold_data.xml') as f:
-            xml = ET.fromstring(f.read())
-            d = xmljson.badgerfish.data(xml)["bold_records"]["record"]
+        bold_xml = requests.get(url)
+        resp = bold_xml.content
+        xml = ET.fromstring(resp)
+        # with open('/home/fshaw/Downloads/bold_data.xml') as f:
+        #    xml = ET.fromstring(f.read())
+        d = xmljson.badgerfish.data(xml)["bold_records"]["record"]
 
         output = list()
         for record in d:
@@ -78,7 +80,7 @@ class Barcoding:
 
         df = pandas.DataFrame.from_dict(output)
         b_id = str(uuid.uuid4())
-        retval = {"uid": b_id, "data": df.to_json()}
+        retval = {"uid": b_id, "data": df.to_json(), "num_records": len(output)}
         # store this object in the session to calling later by uuid
         req = ThreadLocal.get_current_request()
         req.session[b_id] = retval

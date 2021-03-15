@@ -115,6 +115,7 @@ class DtolSpreadsheet:
                 elif m_format == "csv":
                     self.data = pandas.read_csv(self.file, keep_default_na=False,
                                                 na_values=lookup.na_vals)
+                self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
                 '''
                 for column in self.allowed_empty:
                     self.data[column] = self.data[column].fillna("")
@@ -324,7 +325,7 @@ class DtolSpreadsheet:
             if s["SYMBIONT"].lower() == "symbiont":
                 self.check_for_target_or_add_to_symbiont_list(s)
             else:
-                #SOP 2.2 DTOL symbiont to be a scientific name
+                # SOP 2.2 DTOL symbiont to be a scientific name
                 s = make_target_sample(s)
                 sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
                 Sample().timestamp_dtol_sample_created(sampl["_id"])

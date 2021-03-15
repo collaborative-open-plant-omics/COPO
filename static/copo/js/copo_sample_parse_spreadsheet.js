@@ -63,8 +63,9 @@ function upload_spreadsheet(file) {
 $(document).ready(function () {
 
     // event listener for barcoding file upload button
-    const barcode_input = document.getElementById("barcode_file");
-    barcode_input.addEventListener("change", handleBarcodeUpload, false);
+    //const barcode_input = document.getElementById("barcode_file");
+    //barcode_input.addEventListener("change", handleBarcodeUpload, false);
+    $(document).on("change", "#barcode_file", handleBarcodeUpload)
 
     $(document).on("click", "#finish_button", function (el) {
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
@@ -311,27 +312,45 @@ function handleBarcodeUpload(data) {
     }).error(function (data) {
         console.error(data)
     }).done(function (data) {
+        var rows = new Array()
+        for (var i = 0; i < data.num_records; i++) {
+            rows.push(
+                ""
+            )
+        }
         $(document).data("barcode_uid", data.uid)
         table_data = JSON.parse(data.data)
-        let row = $("<tr>")
+        var row = $("<tr>", {})
         for (t in table_data) {
-            let head = $("<th/>", {
-                html: t
-            })
+            if (typeof table_data[t][0] != "string") {
+                var head = $("<th/>", {
+                    html: t + " / Taxon ID",
+                    "colspan": 2
+                })
+            } else {
+                var head = $("<th/>", {
+                    html: t
+                })
+            }
             $(row).append(head)
         }
         $("#barcode_table").find("thead").append(row)
-        for (t in table_data) {
-            d = table_data[t]
-            let row = $("<tr>")
-            for (cell in d) {
-                let head = $("<td/>", {
-                    html: d[cell]
-                })
-                $(row).append(head)
+        for (group in table_data) {
+            g = table_data[group]
+            var l = Object.keys(g).length
+            for (var i = 0; i < l; i++) {
+                if (typeof g[0] != "string") {
+                    rows[i] = rows[i] + "<td>" + g[i]["name"] + "</td><td>" + g[i]["taxid"] + "</td>"
+                } else {
+                    rows[i] = rows[i] + "<td>" + g[i] + "</td>"
+                }
             }
-            $("#barcode_table").find("tbody").append(row)
         }
+
+        $(rows).each(function (idx, row) {
+            $("#barcode_table").find("tbody").append("<tr>" + row + "</tr>")
+        })
+
 
     })
 }
