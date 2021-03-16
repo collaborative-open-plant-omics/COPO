@@ -33,7 +33,7 @@ class DtolEnumerationValidator(TolValidtor):
                 ena_taxon_errors = check_taxon_ena_submittable(taxon)
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
-                    flag = False
+                    self.flag = False
 
         if any(id for id in taxon_id_list):
             i = 0
@@ -51,7 +51,7 @@ class DtolEnumerationValidator(TolValidtor):
                     "Missing data: both TAXON_ID and SCIENTIFIC_NAME missing from row <strong>%s</strong>. "
                     "Provide at least one" % (
                         str(index + 2)))
-                flag = False
+                self.flag = False
                 continue
             notify_dtol_status(data={"profile_id": self.profile_id},
                                msg="Checking taxonomy information at row <strong>%s</strong> - "
@@ -73,7 +73,7 @@ class DtolEnumerationValidator(TolValidtor):
                         "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
                         "<strong>%s</strong>" % (
                             scientific_name, str(index + 2)))
-                    flag = False
+                    self.flag = False
                     continue
                 self.warnings.append(msg["validation_warning_field"] % (
                     "TAXON_ID", str(index + 2), "TAXON_ID", scientific_name, records['IdList'][0]))
@@ -144,7 +144,7 @@ class DtolEnumerationValidator(TolValidtor):
                         elif row['GENUS'].strip().upper() != element.get('ScientificName').upper():
                             self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
                                 row['GENUS'], "GENUS", str(index + 2), element.get('ScientificName').upper()))
-                            flag = False
+                            self.flag = False
                     elif rank == 'family':
                         if not row['FAMILY'].strip():
                             self.warnings.append(msg["validation_warning_field"] % (
