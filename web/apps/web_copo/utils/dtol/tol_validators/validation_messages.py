@@ -40,6 +40,8 @@ MESSAGES = {
                                    "name and taxon id should be species.",
 
     "validation_msg_invalid_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
-                                   "<strong>%s</strong>. Dates should be in format YYYY-MM-DD"
+                                   "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
+    "barcode_msg_missing_specimen": "Samples not for found specimen <strong>%s</strong>. Barcodes can only be "
+                                    "uploaded for previously registered TOL samples."
 
 }

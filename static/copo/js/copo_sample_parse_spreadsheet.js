@@ -299,6 +299,7 @@ function handleBarcodeUpload(data) {
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
     form.append("file", f)
+    $("#barcode_upload_spinner").fadeIn("fast")
     $.ajax({
         url: "/copo/upload_barcoding_manifest/",
         data: form,
@@ -310,8 +311,9 @@ function handleBarcodeUpload(data) {
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
     }).error(function (data) {
-        console.error(data)
+        $("#barcode_upload_spinner").fadeOut("fast")
     }).done(function (data) {
+
         var rows = new Array()
         for (var i = 0; i < data.num_records; i++) {
             rows.push(
@@ -324,12 +326,12 @@ function handleBarcodeUpload(data) {
         for (t in table_data) {
             if (typeof table_data[t][0] != "string") {
                 var head = $("<th/>", {
-                    html: t + " / Taxon ID",
+                    html: t.replace(/_/g, " ") + " / Taxon ID",
                     "colspan": 2
                 })
             } else {
                 var head = $("<th/>", {
-                    html: t
+                    html: t.replace(/_/g, " ")
                 })
             }
             $(row).append(head)
@@ -351,6 +353,7 @@ function handleBarcodeUpload(data) {
             $("#barcode_table").find("tbody").append("<tr>" + row + "</tr>")
         })
 
-
+        $("#barcode_upload_spinner").fadeOut("fast")
+        $("#barcode_notify").fadeOut("fast")
     })
 }

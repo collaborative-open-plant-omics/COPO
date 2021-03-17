@@ -1411,7 +1411,14 @@ def sample_images(request):
 
 
 def upload_barcoding_manifest(request):
+    flag = True
     file = request.FILES["file"]
     b = Barcoding(file)
-    barcoding_data = b.query_bold()
-    return HttpResponse(json.dumps(barcoding_data))
+    flag = b.load_manifest()
+    if flag:
+        flag = b.check_specimen_ids()
+    if flag:
+        barcoding_data = b.query_bold_and_store_in_session()
+        out = json.dumps(barcoding_data)
+        return HttpResponse(out)
+    return HttpResponse(status=400)

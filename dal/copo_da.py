@@ -618,6 +618,9 @@ class Sample(DAComponent):
     def __init__(self, profile_id=None):
         super(Sample, self).__init__(profile_id, "sample")
 
+    def count_samples_by_specimen_id(self, specimen_id):
+        return self.get_collection_handle().count({"SPECIMEN_ID": specimen_id})
+
     def find_incorrectly_rejected_samples(self):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
