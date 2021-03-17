@@ -55,7 +55,7 @@ class DtolEnumerationValidator(TolValidtor):
                                 self.data.at[cellcount - 1, "TIME_OF_COLLECTION"] = c
 
                         if allowed_vals:
-                            if header == "COLLECTION_LOCATION":
+                            if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                                 # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                                 c_value = str(c).split('|')[0].strip()
                                 location_2part = str(c).split('|')[1:]
