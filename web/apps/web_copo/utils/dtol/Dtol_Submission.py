@@ -44,6 +44,7 @@ def process_pending_dtol_samples():
 
     # get all pending dtol submissions
     sub_id_list = Submission().get_pending_dtol_samples()
+    tolidflag = True
     # send each to ENA for Biosample ids
     for submission in sub_id_list:
         # check if study exist for this submission and/or create one
@@ -93,6 +94,22 @@ def process_pending_dtol_samples():
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
                 assert len(sour) == 1
                 sour = sour[0]
+                if not sour['public_name']:
+                    #retrieve public name
+                    spec_tolid = query_public_name_service([{"taxonomyId": int(sam["species_list"][0]["TAXON_ID"]), "specimenId": sam["SPECIMEN_ID"],
+                             "sample_id": str(sam["_id"])}])
+                    assert len(spec_tolid) == 1
+                    if not spec_tolid[0].get("tolId", ""):
+                        # hadle failure to get public names and halt submission
+                        # change dtol_status to "awaiting_tolids"
+                        msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, COPO will try again in 24 hours"
+                        notify_dtol_status(data={"profile_id": profile_id}, msg=msg, action="info",
+                                           html_id="dtol_sample_info")
+                        Submission().make_dtol_status_awaiting_tolids(submission['_id'])
+                        tolidflag = False
+                        break
+                    Source().update_public_name(spec_tolid)
+
                 build_specimen_sample_xml(sour)
                 build_submission_xml(str(sour['_id']), release=True)
                 accessions = submit_biosample(str(sour['_id']), Source(), submission['_id'], type="source")
@@ -122,16 +139,22 @@ def process_pending_dtol_samples():
         notify_dtol_status(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
                            html_id="dtol_sample_info")
         public_names = query_public_name_service(public_name_list)
-        if public_name_list and not public_names:
+        if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
             #hadle failure to get public names and halt submission
             #change dtol_status to "awaiting_tolids"
             msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, COPO will try again in 24 hours"
             notify_dtol_status(data={"profile_id": profile_id}, msg=msg, action="info",
                                html_id="dtol_sample_info")
             Submission().make_dtol_status_awaiting_tolids(submission['_id'])
-            break
+            tolidflag = False
+
         for name in public_names:
-            Sample().update_public_name(name)
+            if name.get("tolId", ""):
+                Sample().update_public_name(name)
+
+        #if tolid missing for specimen skip
+        if not tolidflag:
+            break
 
         update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
         build_submission_xml(file_subfix, release=True)
