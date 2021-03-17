@@ -1628,5 +1628,71 @@
     "show_in_table": true,
     "control": "text",
     "default_value": ""
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "versions": [
+      "ORIGINAL_FIELD_COLLECTION_LOCATION"
+    ],
+    "specifications": [
+      "dtol"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "label": "Original Field Collection Location",
+    "show_in_form": true,
+    "id": "copo.sample.ORIGINAL_FIELD_COLLECTION_LOCATION",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": ""
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "versions": [
+      "ORIGINAL_FIELD_COLLECTION_DATE"
+    ],
+    "specifications": [
+      "dtol"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "label": "Original Field Collection Date",
+    "show_in_form": true,
+    "id": "copo.sample.ORIGINAL_FIELD_COLLECTION_DATE",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": ""
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "versions": [
+      "BARCODE_HUB"
+    ],
+    "specifications": [
+      "dtol"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "label": "Barcode Hub",
+    "show_in_form": true,
+    "id": "copo.sample.BARCODE_HUB",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": ""
   }
 ]

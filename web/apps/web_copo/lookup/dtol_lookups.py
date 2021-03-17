@@ -56,6 +56,9 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
         "SYMBIONT",
+        "BARCODE_HUB",
+        "ORIGINAL_FIELD_COLLECTION_LOCATION",
+        "ORIGINAL_FIELD_COLLECTION_DATE",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -844,5 +847,5 @@ blank_vals = ['NOT_COLLECTED', 'NOT_PROVIDED', 'NOT_APPLICABLE']
 symbiont_vals = ["TARGET", "SYMBIONT"]
 na_vals = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
-date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
+date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_FIELD_COLLECTION_DATE"]
 
