@@ -285,14 +285,18 @@ DTOL_ENUMS = {
         "THALLUS_PLANT",
         "THORAX",
         "WHOLE_ORGANISM",
-        "WHOLE_PLANT"
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
     ],
     "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE": [
         "HIGH_PRIORITY",
         "NOT_APPLICABLE",
         "DIFFICULT",
         "NOT_PROVIDED",
-        "NOT_COLLECTED"
+        "NOT_COLLECTED",
+        "FULL_CURATION"
     ],
     "TO_BE_USED_FOR": [
         "RNAseq",
@@ -304,7 +308,8 @@ DTOL_ENUMS = {
         "REFERENCE_GENOME",
         "SHORT_READ_SEQUENCING",
         "DNA_BARCODING_ONLY",
-        "RNA_SEQUENCING"
+        "RNA_SEQUENCING",
+        "R&D"
     ],
     "SIZE_OF_TISSUE_IN_TUBE": [
         "VS",
@@ -386,7 +391,10 @@ DTOL_ENUMS = {
         "THALLUS_PLANT",
         "THORAX",
         "WHOLE_ORGANISM",
-        "WHOLE_PLANT"
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
     ],
     "TISSUE_REMOVED_FOR_BARCODING": [
         "Y",
