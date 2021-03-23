@@ -181,4 +181,8 @@ urlpatterns = [
          name="delete_dtol_samples"),
     path('upload_barcoding_manifest/', ajax_handlers.upload_barcoding_manifest,
          name="upload_barcoding_manifest"),
+    path('compare_barcode_with_sample/', ajax_handlers.compare_barcode_with_sample,
+         name="compare_barcode_with_sample"),
+    path('accept_barcoding_manifest/', ajax_handlers.accept_barcoding_manifest,
+         name="accept_barcoding_manifest"),
 ]

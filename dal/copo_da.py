@@ -618,6 +618,9 @@ class Sample(DAComponent):
     def __init__(self, profile_id=None):
         super(Sample, self).__init__(profile_id, "sample")
 
+    def get_sample_by_specimen_id(self, specimen_id):
+        return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
+
     def count_samples_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().count({"SPECIMEN_ID": specimen_id})
 

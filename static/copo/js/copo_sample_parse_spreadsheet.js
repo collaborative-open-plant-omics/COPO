@@ -56,15 +56,49 @@ function upload_spreadsheet(file) {
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
+
     })
 }
 
 
 $(document).ready(function () {
 
-    // event listener for barcoding file upload button
-    //const barcode_input = document.getElementById("barcode_file");
-    //barcode_input.addEventListener("change", handleBarcodeUpload, false);
+    $(document).on("click", "#finish_button_barcode", function (event) {
+        let uid = $(document).data("barcode_uid")
+        var csrftoken = $.cookie('csrftoken');
+        $("#barcode_upload_spinner").fadeIn("fast")
+        $.ajax({
+            url: "/copo/accept_barcoding_manifest/",
+            data: {"uid": uid},
+            method: 'POST',
+
+            type: 'POST', // For jQuery < 1.9
+            headers: {"X-CSRFToken": csrftoken},
+        }).done(function (data) {
+            $("#barcode_upload_spinner").fadeOut("fast")
+            $("#barcode_notify").html("Complete")
+            setTimeout(() => {
+                $('#sample_barcoding_modal').modal('hide')
+            }, 1000);
+        })
+    })
+
+    // COMMENT FOR GIT MERGE - FELIX'S
+    $(document).on("click", ".new-samples-spreadsheet-template", function (event) {
+        $("#sample_spreadsheet_modal").modal("show")
+        $("#warning_info").fadeOut("fast")
+    })
+    $(document).on("click", ".barcoding_manifest", function (event) {
+        $("#sample_barcoding_modal").modal("show")
+        $("#warning_info").fadeOut("fast")
+    })
+    $(document).on("click", "#export_errors_button", function (event) {
+        var data = $("#sample_info").html()
+        //data = data.replace("<br>", "\r\n")
+        //data = data.replace(/<[^>]*>/g, '');
+        download("errors.html", data)
+    })
+
     $(document).on("change", "#barcode_file", handleBarcodeUpload)
 
     $(document).on("click", "#finish_button", function (el) {
@@ -263,21 +297,6 @@ $(document).ready(function () {
 })
 
 
-$(document).on("click", ".new-samples-spreadsheet-template", function (event) {
-    $("#sample_spreadsheet_modal").modal("show")
-    $("#warning_info").fadeOut("fast")
-})
-$(document).on("click", ".barcoding_manifest", function (event) {
-    $("#sample_barcoding_modal").modal("show")
-    $("#warning_info").fadeOut("fast")
-})
-$(document).on("click", "#export_errors_button", function (event) {
-    var data = $("#sample_info").html()
-    //data = data.replace("<br>", "\r\n")
-    //data = data.replace(/<[^>]*>/g, '');
-    download("errors.html", data)
-})
-
 function download(filename, text) {
     // make filename
     f = $("#sample_info").find("h4").html().replace(/\.[^/.]+$/, "_errors.html")
@@ -313,20 +332,23 @@ function handleBarcodeUpload(data) {
     }).error(function (data) {
         $("#barcode_upload_spinner").fadeOut("fast")
     }).done(function (data) {
-
+        // put uuid on page to pass back to server, for session retrieval of data
+        $(document).data("barcode_uid", data.uid)
+        $("#barcode_table").find("thead").empty()
+        $("#barcode_table").find("tbody").empty()
         var rows = new Array()
         for (var i = 0; i < data.num_records; i++) {
             rows.push(
                 ""
             )
         }
-        $(document).data("barcode_uid", data.uid)
+
         table_data = JSON.parse(data.data)
         var row = $("<tr>", {})
         for (t in table_data) {
             if (typeof table_data[t][0] != "string") {
                 var head = $("<th/>", {
-                    html: t.replace(/_/g, " ") + " / Taxon ID",
+                    html: t.replace(/_/g, " ") + " / Bold Taxon ID",
                     "colspan": 2
                 })
             } else {
@@ -350,10 +372,16 @@ function handleBarcodeUpload(data) {
         }
 
         $(rows).each(function (idx, row) {
-            $("#barcode_table").find("tbody").append("<tr>" + row + "</tr>")
+            $("#barcode_table").find("tbody").append("<tr data-specimen_id='" + table_data["specimen_id"][idx] + "' " +
+                "data-bold_sample_id='" + table_data["bold_sample_id"][idx] + "'>" + row + "</tr>")
         })
 
         $("#barcode_upload_spinner").fadeOut("fast")
         $("#barcode_notify").fadeOut("fast")
+        $("#barcode_file").parent().hide()
+        $("#finish_button_barcode").show()
     })
 }
+
+
+

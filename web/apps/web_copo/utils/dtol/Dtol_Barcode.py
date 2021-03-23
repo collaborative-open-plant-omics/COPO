@@ -76,47 +76,47 @@ class Barcoding:
         # xml = ET.fromstring(resp)
         with open('/home/fshaw/Downloads/bold_data.xml') as f:
             xml = ET.fromstring(f.read())
-        d = xmljson.badgerfish.data(xml)["bold_records"]["record"]
+        d = xmljson.parker.data(xml)["record"]
 
         output = list()
         full_records = list()
-        counter = 0
+
         for record in d:
             r = dict()
             full_records.append(record)
-            r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]["$"]
+            r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
             row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
             r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
             # phylum
-            taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["phylum"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]
+            name = record["taxonomy"]["phylum"]["taxon"]["name"]
             r["phylum"] = {"taxid": taxid, "name": name}
             # class
-            taxid = record["taxonomy"]["class"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["class"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["class"]["taxon"]["taxID"]
+            name = record["taxonomy"]["class"]["taxon"]["name"]
             r["class"] = {"taxid": taxid, "name": name}
             # order
-            taxid = record["taxonomy"]["order"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["order"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["order"]["taxon"]["taxID"]
+            name = record["taxonomy"]["order"]["taxon"]["name"]
             r["order"] = {"taxid": taxid, "name": name}
             # family
-            taxid = record["taxonomy"]["family"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["family"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["family"]["taxon"]["taxID"]
+            name = record["taxonomy"]["family"]["taxon"]["name"]
             r["family"] = {"taxid": taxid, "name": name}
             # subfamily
-            taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["subfamily"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]
+            name = record["taxonomy"]["subfamily"]["taxon"]["name"]
             r["subfamily"] = {"taxid": taxid, "name": name}
             # genus
-            taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["genus"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]
+            name = record["taxonomy"]["genus"]["taxon"]["name"]
             r["genus"] = {"taxid": taxid, "name": name}
             # species
-            taxid = record["taxonomy"]["species"]["taxon"]["taxID"]["$"]
-            name = record["taxonomy"]["species"]["taxon"]["name"]["$"]
+            taxid = record["taxonomy"]["species"]["taxon"]["taxID"]
+            name = record["taxonomy"]["species"]["taxon"]["name"]
             r["species"] = {"taxid": taxid, "name": name}
-            counter = counter + 1
+
             output.append(r)
 
         df = pandas.DataFrame.from_dict(output)

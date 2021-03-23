@@ -1422,3 +1422,24 @@ def upload_barcoding_manifest(request):
         out = json.dumps(barcoding_data)
         return HttpResponse(out)
     return HttpResponse(status=400)
+
+
+def compare_barcode_with_sample(request):
+    sample = Sample().get_sample_by_specimen_id(request.POST["specimen_id"])
+
+
+def accept_barcoding_manifest(request):
+    uid = request.POST["uid"]
+    profile_id = request.session["profile_id"]
+    bc_data = request.session[uid]
+    specimen_data = json.loads(bc_data["data"])
+
+    for idx, bc in enumerate(specimen_data["specimen_id"]):
+        s_id = specimen_data["specimen_id"][bc]
+        for record in bc_data["full_records"]:
+            if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
+                notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
+                                   action="info",
+                                   html_id="barcode_notify")
+                Sample().get_collection_handle().update_many({"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record}})
+    return HttpResponse()
