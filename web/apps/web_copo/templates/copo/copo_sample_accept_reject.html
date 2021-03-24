@@ -114,20 +114,19 @@
 
     <hr/>
 
-    <div class="row">
 
-        <div class="col-lg-2 col-md-2 col-sm-2">
-            <table id="profile_titles" class="table table-hover table-condensed">
-                <thead>
-                <tr>
-                    <th>Profile Title</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <span class="col-lg-10 col-md-10 col-sm-10" id="sample_panel">
-            <div class="ui buttons" id="accept_reject_button" style="margin-bottom: 10px">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <table id="profile_titles" class="table table-hover table-condensed">
+            <thead>
+            <tr>
+                <th>Profile Title</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <span class="col-lg-10 col-md-10 col-sm-10" id="sample_panel">
+    <div class="ui buttons" id="accept_reject_button" style="margin-bottom: 10px">
                 <button type="button" disabled="true" class="ui negative button">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Reject
                 </button>
@@ -136,7 +135,7 @@
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Accept
                 </button>
             </div>
-            <span style="margin-left:20px">
+    <span style="margin-left:20px">
                 <button class="select-all tiny ui basic button" tabindex="0" aria-controls="" type="button"><span>Select all visible</span></button>
                 <button class="select-none tiny ui basic button" tabindex="0" aria-controls="" type="button"><span>Select None</span></button>
                 <button class="delete-selected tiny ui red basic button" tabindex="0" aria-controls=""
@@ -144,18 +143,21 @@
 
             </span>
 
-            <span class="pull-right">
+    <span class="pull-right">
                 <h4 class="h4">Status</h4>
 
                 <span class="alert alert-info pull-right" style="min-width: 400px; min-height: 55px" role="alert">
                     <span id="spinner" style="display:none" class="pull-right ui tiny active inline loader"></span>
-                    <div  id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
+                    <div id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
                     <p id="dtol_sample_info">Idle</p>
                 </span>
             </span>
-            <ul class="nav nav-tabs" id="sample_filter">
+    <ul class="nav nav-tabs" id="sample_filter">
                 <li class="hot_tab in active">
                     <a data-toggle="tab" href="pending">Pending Samples</a>
+                </li>
+                <li class="hot_tab in">
+                    <a data-toggle="tab" href="pending_barcode">Samples Needing Barcodes</a>
                 </li>
                 <li class="hot_tab in">
                     <a data-toggle="tab" href="accepted">Accepted Samples</a>
@@ -166,14 +168,14 @@
             </ul>
 
 
-            <!--<div class="table_viewport">-->
-            <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
-            <table id="profile_samples" class="table table-hover table-bordered display compact">
+    <!--<div class="table_viewport">-->
+    <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
+    <table id="profile_samples" class="table table-hover table-bordered display compact">
                 <thead></thead>
                 <tbody></tbody>
             </table>
-            <!--</div>-->
-        </div>
+    <!--</div>-->
+
 
 
     </div>

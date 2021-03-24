@@ -621,8 +621,10 @@ class Sample(DAComponent):
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
 
-    def count_samples_by_specimen_id(self, specimen_id):
-        return self.get_collection_handle().count({"SPECIMEN_ID": specimen_id})
+    def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
+        # specimens must not have already been submitted to ENA so should have status of pending
+        return self.get_collection_handle().count(
+            {"SPECIMEN_ID": specimen_id, "status": {"$nin": ["rejected", "accepted", "processing"]}})
 
     def find_incorrectly_rejected_samples(self):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
@@ -752,7 +754,12 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}, "barcoding": {
+                    "$exists": True}})
+        elif filter == "pending_barcode":
+            cursor = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}, "barcoding": {
+                    "$exists": False}})
         else:
             # else return samples who's status simply mathes the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})

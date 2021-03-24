@@ -1,6 +1,6 @@
 import uuid
 import xml.etree.ElementTree as ET
-
+import requests
 import pandas
 import xmljson
 from django_tools.middlewares import ThreadLocal
@@ -36,6 +36,8 @@ class Barcoding:
         return flag
 
     def check_specimen_ids(self):
+        # method to check if specimen ids already exist in COPO, i.e. has manifest been uploaded and accepted
+        # these specimen ids will be used for matching to barcoding information
         flag = True
         errors = []
 
@@ -43,7 +45,7 @@ class Barcoding:
             notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
                                action="info",
                                html_id="barcode_notify")
-            num = Sample().count_samples_by_specimen_id(s_id)
+            num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
             if int(num) < 1:
                 flag = False
                 errors.append(msg["barcode_msg_missing_specimen"] % (s_id))
@@ -71,11 +73,11 @@ class Barcoding:
             # concatenate bold ids
             bold_url_param = bold_url_param + bid + '|'
         url = "http://www.boldsystems.org/index.php/API_Public/combined?ids=" + bold_url_param
-        # bold_xml = requests.get(url)
-        # resp = bold_xml.content
-        # xml = ET.fromstring(resp)
-        with open('/home/fshaw/Downloads/bold_data.xml') as f:
-            xml = ET.fromstring(f.read())
+        bold_xml = requests.get(url)
+        resp = bold_xml.content
+        xml = ET.fromstring(resp)
+        # with open('/home/fshaw/Downloads/bold_data.xml') as f:
+        #    xml = ET.fromstring(f.read())
         d = xmljson.parker.data(xml)["record"]
 
         output = list()
@@ -85,6 +87,9 @@ class Barcoding:
             r = dict()
             full_records.append(record)
             r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
+
+            # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
+            # this step is becuase bold api does not return results in order
             row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
             r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
