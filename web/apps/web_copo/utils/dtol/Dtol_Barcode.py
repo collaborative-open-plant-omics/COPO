@@ -4,7 +4,7 @@ import requests
 import pandas
 import xmljson
 from django_tools.middlewares import ThreadLocal
-
+from collections import OrderedDict
 from dal.copo_da import Sample
 from submission.helpers.generic_helper import notify_dtol_status
 from .tol_validators.validation_messages import MESSAGES as msg
@@ -79,7 +79,10 @@ class Barcoding:
         # with open('/home/fshaw/Downloads/bold_data.xml') as f:
         #    xml = ET.fromstring(f.read())
         d = xmljson.parker.data(xml)["record"]
-
+        x = list()
+        if type(d) == OrderedDict:
+            x.append(d)
+            d = x
         output = list()
         full_records = list()
 
