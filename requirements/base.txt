@@ -46,7 +46,7 @@ django-extensions==2.2.3
 django-gollum==1.0.1
 django-redis-sessions==0.5.6
 django-tools==0.39.0
-djangorestframework==3.7.7
+djangorestframework==3.11.2
 docopt==0.6.2
 docutils==0.12
 elasticsearch==7.0.2
