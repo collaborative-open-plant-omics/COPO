@@ -8,8 +8,9 @@ from allauth.socialaccount.models import SocialAccount
 from bson import ObjectId
 from bson import json_util as j
 from django.contrib.admin.views.decorators import staff_member_required
+
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from jsonpickle import encode
 from pexpect import run
@@ -22,7 +23,7 @@ from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals
 from dal.copo_da import DataFile
 from dal.copo_da import ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate
-from web.apps.web_copo.decorators import user_is_staff
+from web.apps.web_copo.decorators import user_is_staff, user_allowed_access
 from web.apps.web_copo.lookup.lookup import REPO_NAME_LOOKUP
 from web.apps.web_copo.models import banner_view
 from web.apps.web_copo.schemas.utils import data_utils
@@ -49,6 +50,8 @@ def login(request):
     }
     return render(request, 'copo/auth/login.html', context)
 
+
+@user_passes_test(user_allowed_access)
 def test_view(request):
     Sample().save_record()
     return render(request, "copo/test_1.html")
@@ -83,6 +86,7 @@ def test_dataverse_submit(request):
     return render(request, 'copo/copo_annotate_pdf.html', {})
 
 
+@user_passes_test(user_allowed_access)
 @login_required
 def view_copo_profile(request, profile_id):
     request.session["profile_id"] = profile_id
@@ -138,6 +142,8 @@ def copo_repositories(request):
     user = request.user.id
     return render(request, 'copo/my_repositories.html')
 
+
+@user_passes_test(user_allowed_access)
 @login_required
 def copo_samples(request, profile_id):
     request.session["profile_id"] = profile_id
@@ -188,6 +194,7 @@ def annotate_meta(request, file_id):
 
 
 @login_required
+@user_passes_test(user_allowed_access)
 def copo_data(request, profile_id):
     request.session['datafile_url'] = request.path
     request.session["profile_id"] = profile_id
