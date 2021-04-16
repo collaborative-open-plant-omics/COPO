@@ -732,6 +732,10 @@ DTOL_RULES = {
     "public_name": {
         "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}[0-9]*$)",
         "human_readable": "Public name"
+    },
+    "ORIGINAL_FIELD_COLLECTION_DATE" : {
+        "strict_regex" : "^1\d{3}(-0\d|-1[0-2](-[0-2]\d|-3[0-1])?)?$",
+        "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     }
 }
 DTOL_UNITS = {
@@ -861,5 +865,5 @@ blank_vals = ['NOT_COLLECTED', 'NOT_PROVIDED', 'NOT_APPLICABLE']
 symbiont_vals = ["TARGET", "SYMBIONT"]
 na_vals = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
-date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_FIELD_COLLECTION_DATE"]
+date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 
