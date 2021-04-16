@@ -78,21 +78,13 @@ class RackPlateUniquenessValidator(TolValidtor):
         dup = Sample().check_dtol_unique(rack_tube)
         # duplicated returns a boolean array, false for not duplicate, true for duplicate
         u = list(rack_tube[rack_tube.duplicated()])
-        '''
-        TODO - 25/03/2021 - leaving this check in for the time being as status of DTOL symbiots is still not clear
-        if "ASG" not in p_type or "DTOL" not in p_type:
 
-            if len(u) > 0:
-                self.errors.append(msg["validation_msg_duplicate_tube_or_well_id"] % (u))
-                self.flag = False
+        if len(dup) > 0:
+            # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
+            err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
+            self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+            self.flag = False
 
-            if len(dup) > 0:
-                # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-                err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
-                self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
-                self.flag = False
-        else:
-        '''
         # duplicates are allowed for asg (and possibily dtol) but one element of duplicate set must have one
         # and only one target in
         # sybiont fields
@@ -100,12 +92,16 @@ class RackPlateUniquenessValidator(TolValidtor):
             rack, tube = i.split('/')
             rows = self.data.loc[
                 (self.data["RACK_OR_PLATE_ID"] == rack) & (self.data["TUBE_OR_WELL_ID"] == tube)]
-            counts = Counter(rows["SYMBIONT"].values)
+            counts = Counter([x.upper() for x in list(rows["SYMBIONT"].values)])
             if "TARGET" not in counts:
                 self.errors.append(msg["validation_msg_duplicate_without_target"] % (
                     str(rows["RACK_OR_PLATE_ID"] + "/" + rows["TUBE_OR_WELL_ID"])))
                 self.flag = False
             if counts["TARGET"] > 1:
+                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
+                self.flag = False
+            #TODO this can go at version 2.3 of DTOL
+            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
         return self.errors, self.flag
