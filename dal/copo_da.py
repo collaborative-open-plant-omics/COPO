@@ -760,6 +760,9 @@ class Sample(DAComponent):
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}, "barcoding": {
                     "$exists": False}})
+        elif filter == "conflicting_barcode":
+            cursor = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "conflicting"})
         else:
             # else return samples who's status simply mathes the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})

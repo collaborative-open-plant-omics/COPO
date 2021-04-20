@@ -699,7 +699,7 @@ def get_repo_info(request, sub=None):
             elif repo["type"] == "dspace":
                 dspace().dc_dict_to_dc(sub_id)
     except Exception as e:
-        #print(e)
+        # print(e)
         return HttpResponse(json.dumps({"status": 404, "message": "error getting dataverse"}))
     s = Submission().get_record(ObjectId(sub_id))
     out = dict(repo_type=repo['type'], repo_url=repo['url'], meta=s.get("meta", list()))
@@ -1354,7 +1354,7 @@ def get_samples_for_profile(request):
         #                     html_id="dtol_sample_info")
         return HttpResponse(json_util.dumps(samples))
     else:
-        return HttpResponse(json_util.dumps({"locked":True}))
+        return HttpResponse(json_util.dumps({"locked": True}))
 
 
 def mark_sample_rejected(request):
@@ -1397,11 +1397,13 @@ def add_sample_to_dtol_submission(request):
     else:
         return HttpResponse(status=500, content="Sample IDs or profile_id not provided")
 
+
 def delete_dtol_samples(request):
     ids = json.loads(request.POST.get("sample_ids"))
     dtol = DtolSpreadsheet()
     dtol.delete_sample(sample_ids=ids)
     return HttpResponse(json.dumps({}))
+
 
 def sample_images(request):
     files = request.FILES
@@ -1441,5 +1443,14 @@ def accept_barcoding_manifest(request):
                 notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
                                    action="info",
                                    html_id="barcode_notify")
-                Sample().get_collection_handle().update_many({"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record}})
+                db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": s_id})
+                for s in db_sample:
+                    # check bold reported scientific name with manifest reported and record any conflicts
+                    if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                            record["taxonomy"]["species"]["taxon"]["name"]).lower():
+                        Sample().get_collection_handle().update_many(
+                            {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "pending"}})
+                    else:
+                        Sample().get_collection_handle().update_many(
+                            {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "conflicting"}})
     return HttpResponse()
