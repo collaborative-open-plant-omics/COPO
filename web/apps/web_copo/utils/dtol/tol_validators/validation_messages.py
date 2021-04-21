@@ -83,5 +83,7 @@ MESSAGES = {
     "validation_message_wrong_specimen_taxon_pair" : "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
                                                        "SPECIMEN_ID <strong>%s</strong> has already been used for "
                                                      "a specimen with TAXON_ID "
-                                                       "<strong>%s</strong>"
+                                                       "<strong>%s</strong>",
+    "validation_msg_isupdate" : "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will " 
+                                "perform an update."
 }

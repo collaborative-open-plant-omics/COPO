@@ -82,6 +82,7 @@ class DtolSpreadsheet:
             self.file = file
         else:
             self.sample_data = self.req.session.get("sample_data", "")
+            self.isupdate = self.req.session.get("isupdate", False)
 
         # get type of manifest
         t = Profile().get_type(self.profile_id)
@@ -141,6 +142,7 @@ class DtolSpreadsheet:
         flag = True
         errors = []
         warnings = []
+        self.isupdate = False
 
         try:
             # get definitive list of mandatory DTOL fields from schema
@@ -151,8 +153,8 @@ class DtolSpreadsheet:
 
             # validate for required fields
             for v in self.required_field_validators:
-                errors, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag).validate()
+                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
+                                 errors=errors, warnings=warnings, flag=flag, isupdate=self.isupdate).validate()
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
@@ -314,6 +316,7 @@ class DtolSpreadsheet:
             sample_data.append(r)
         # store sample data in the session to be used to create mongo objects
         self.req.session["sample_data"] = sample_data
+        self.req.session["isupdate"] = self.isupdate
         notify_dtol_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
                            html_id="sample_table")
 
@@ -324,59 +327,105 @@ class DtolSpreadsheet:
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
         public_name_list = list()
-        for p in range(1, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
-            # store manifest version for posterity. If unknown store as 0
-            if "asg" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_ASG_VERSION
-            elif "dtol" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_DTOL_VERSION
-            else:
-                s["manifest_version"] = 0
+        if self.isupdate:
+            #todo move this into its own function
+            print("we are only updating")
+            updates = {}
+            for p in range(1, len(sample_data)):
+                s = (map_to_dict(sample_data[0], sample_data[p]))
+                rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+                if s["SYMBIONT"].upper() == "SYMBIONT":
+                    #this requires different logic to discriminate between symbionts
+                    return False
+                exsam = Sample().get_target_by_field("rack_tube", rack_tube)
+                assert len(exsam) == 1
+                exsam = exsam[0]
+                updates[rack_tube] = {}
+                s["updates"] = []
+                for field in s.keys():
+                    #this fields are store into  species_list
+                    if field == "updates":
+                        #skip, add it at the end
+                        #TODO add it at the end if not empty
+                        pass
+                    elif field in ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
+                                 "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
+                                "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
+                        if field == "SYMBIONT":
+                            #TODO skip for now, consider the symbiont_2dot2 thing
+                            pass
+                        else:
+                            if s[field] != exsam["species_list"][0][field]:
+                                updates[rack_tube][field] = {}
+                                updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                                updates[rack_tube][field]["new_value"] = s[field]
+                                s["updates"].append({field: exsam[field]})
+                                # todo update public name if taxonomy changed
+                                #Sample().add_field(field, value, exsam["_id"])
+                                #TODO update species list
+                                pass
+                    elif s[field] != exsam.get(field, ""):
+                        updates[rack_tube][field] = {}
+                        updates[rack_tube][field]["old_value"] = exsam[field]
+                        updates[rack_tube][field]["new_value"] = s[field]
+                        s["updates"].append({field : exsam[field]})
+                        Sample().add_field(field, s[field], exsam["_id"])
+                #todo use updates to show what was updated
 
-            s["sample_type"] = self.type.lower()
-            s["tol_project"] = self.type
-            s["biosample_accession"] = []
-            s["manifest_id"] = manifest_id
-            s["status"] = "pending"
-            s["rack_tube"] = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="Creating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
-                               action="info",
-                               html_id="sample_info")
+        else:
+            for p in range(1, len(sample_data)):
+                s = (map_to_dict(sample_data[0], sample_data[p]))
+                # store manifest version for posterity. If unknown store as 0
+                if "asg" in self.type.lower():
+                    s["manifest_version"] = settings.CURRENT_ASG_VERSION
+                elif "dtol" in self.type.lower():
+                    s["manifest_version"] = settings.CURRENT_DTOL_VERSION
+                else:
+                    s["manifest_version"] = 0
 
-            #change fields for symbiont
-            if s["SYMBIONT"] == "SYMBIONT":
-                s["ORGANISM_PART"] = "WHOLE_ORGANISM"
-                #if ASG change also sex to not collected
-                if s["tol_project"] == "ASG":
-                    s["SEX"] = "NOT_COLLECTED"
-            s = make_target_sample(s)
-            sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-            Sample().timestamp_dtol_sample_created(sampl["_id"])
-            if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                public_name_list.append(
-                    {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
-                     "sample_id": str(sampl["_id"])})
+                s["sample_type"] = self.type.lower()
+                s["tol_project"] = self.type
+                s["biosample_accession"] = []
+                s["manifest_id"] = manifest_id
+                s["status"] = "pending"
+                s["rack_tube"] = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+                notify_dtol_status(data={"profile_id": self.profile_id},
+                                   msg="Creating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
+                                   action="info",
+                                   html_id="sample_info")
 
-            for im in image_data:
-                # create matching DataFile object for image is provided
-                if s["SPECIMEN_ID"] in im["specimen_id"]:
-                    fields = {"file_location": im["file_name"]}
-                    df = DataFile().save_record({}, **fields)
-                    DataFile().insert_sample_id(df["_id"], sampl["_id"])
-                    break;
+                #change fields for symbiont
+                if s["SYMBIONT"] == "SYMBIONT":
+                    s["ORGANISM_PART"] = "WHOLE_ORGANISM"
+                    #if ASG change also sex to not collected
+                    if s["tol_project"] == "ASG":
+                        s["SEX"] = "NOT_COLLECTED"
+                s = make_target_sample(s)
+                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+                Sample().timestamp_dtol_sample_created(sampl["_id"])
+                if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                    public_name_list.append(
+                        {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
+                         "sample_id": str(sampl["_id"])})
 
-        uri = request.build_absolute_uri('/')
-        #query public service service a first time now to trigger request for public names that don't exist
-        public_names = query_public_name_service(public_name_list)
-        for name in public_names:
-            Sample().update_public_name(name)
-        profile_id = request.session["profile_id"]
-        profile = Profile().get_record(profile_id)
-        title = profile["title"]
-        description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
+                for im in image_data:
+                    # create matching DataFile object for image is provided
+                    if s["SPECIMEN_ID"] in im["specimen_id"]:
+                        fields = {"file_location": im["file_name"]}
+                        df = DataFile().save_record({}, **fields)
+                        DataFile().insert_sample_id(df["_id"], sampl["_id"])
+                        break;
+
+            uri = request.build_absolute_uri('/')
+            #query public service service a first time now to trigger request for public names that don't exist
+            public_names = query_public_name_service(public_name_list)
+            for name in public_names:
+                Sample().update_public_name(name)
+            profile_id = request.session["profile_id"]
+            profile = Profile().get_record(profile_id)
+            title = profile["title"]
+            description = profile["description"]
+            CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
 
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report
