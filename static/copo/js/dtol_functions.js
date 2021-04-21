@@ -47,7 +47,7 @@ $(document).ready(function () {
 
                         var csrftoken = $.cookie('csrftoken');
                         var checked = $(".form-check-input:checked").closest("tr")
-                        var sample_ids = new Array()
+                        var sample_ids = []
                         $(checked).each(function (it) {
                             sample_ids.push($(checked[it]).data("id"))
                         })
@@ -215,6 +215,26 @@ function row_select(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
+
+        if (filter == "conflicting_barcode") {
+            if ($.fn.DataTable.isDataTable('#profile_samples')) {
+                $("#profile_samples").DataTable().clear().destroy();
+
+            }
+            $("#sample_panel").find("thead").empty()
+            $("#sample_panel").find("tbody").empty()
+            var th = "<tr><th>Manifest Species</th><th>Bold Species</th></tr>"
+            var body = ""
+            $(data).each(function (idx, el) {
+                var manifest_tax = el.species_list
+                var bold_tax = el.barcoding
+                console.log(manifest_tax)
+                console.log(bold_tax)
+                body = body + "<tr><td>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+            })
+            $("#sample_panel").find("thead").append(th)
+            $("#sample_panel").find("tbody").append(body)
+        } else {
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
 
@@ -336,6 +356,7 @@ function row_select(ev) {
             $("#spinner").fadeOut("fast")
 
         }
+        }
     )
 }
 
@@ -377,7 +398,7 @@ function handle_accept_reject(el) {
     } else {
         action = "reject"
     }
-    var sample_ids = new Array()
+    var sample_ids = []
     $(checked).each(function (it) {
         sample_ids.push($(checked[it]).data("id"))
     })

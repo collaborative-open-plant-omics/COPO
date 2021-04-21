@@ -921,6 +921,30 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences"
   },
   {
+    "help_tip": "barcoding",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": false,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "barcoding"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg"
+    ],
+    "deprecated": false,
+    "hidden": "true",
+    "type": "string",
+    "show_in_form": false,
+    "id": "copo.sample.barcoding",
+    "label": "",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences"
+  },
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
