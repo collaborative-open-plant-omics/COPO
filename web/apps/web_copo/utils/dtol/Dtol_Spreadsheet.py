@@ -328,50 +328,7 @@ class DtolSpreadsheet:
         image_data = request.session.get("image_specimen_match", [])
         public_name_list = list()
         if self.isupdate:
-            #todo move this into its own function
-            print("we are only updating")
-            updates = {}
-            for p in range(1, len(sample_data)):
-                s = (map_to_dict(sample_data[0], sample_data[p]))
-                rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
-                if s["SYMBIONT"].upper() == "SYMBIONT":
-                    #this requires different logic to discriminate between symbionts
-                    return False
-                exsam = Sample().get_target_by_field("rack_tube", rack_tube)
-                assert len(exsam) == 1
-                exsam = exsam[0]
-                updates[rack_tube] = {}
-                s["updates"] = []
-                for field in s.keys():
-                    #this fields are store into  species_list
-                    if field == "updates":
-                        #skip, add it at the end
-                        #TODO add it at the end if not empty
-                        pass
-                    elif field in ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
-                                 "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
-                                "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
-                        if field == "SYMBIONT":
-                            #TODO skip for now, consider the symbiont_2dot2 thing
-                            pass
-                        else:
-                            if s[field] != exsam["species_list"][0][field]:
-                                updates[rack_tube][field] = {}
-                                updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
-                                updates[rack_tube][field]["new_value"] = s[field]
-                                s["updates"].append({field: exsam[field]})
-                                # todo update public name if taxonomy changed
-                                #Sample().add_field(field, value, exsam["_id"])
-                                #TODO update species list
-                                pass
-                    elif s[field] != exsam.get(field, ""):
-                        updates[rack_tube][field] = {}
-                        updates[rack_tube][field]["old_value"] = exsam[field]
-                        updates[rack_tube][field]["new_value"] = s[field]
-                        s["updates"].append({field : exsam[field]})
-                        Sample().add_field(field, s[field], exsam["_id"])
-                #todo use updates to show what was updated
-
+            DtolSpreadsheet().update_samples()
         else:
             for p in range(1, len(sample_data)):
                 s = (map_to_dict(sample_data[0], sample_data[p]))
@@ -426,6 +383,64 @@ class DtolSpreadsheet:
             title = profile["title"]
             description = profile["description"]
             CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
+
+    def update_samples(self):
+        sample_data = self.sample_data
+        request = ThreadLocal.get_current_request()
+        public_name_list = list()
+        print("we are only updating")
+        updates = {}
+        for p in range(1, len(sample_data)):
+            s = (map_to_dict(sample_data[0], sample_data[p]))
+            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            if s["SYMBIONT"].upper() == "SYMBIONT":
+                # this requires different logic to discriminate between symbionts
+                return False
+            exsam = Sample().get_target_by_field("rack_tube", rack_tube)
+            assert len(exsam) == 1
+            exsam = exsam[0]
+            updates[rack_tube] = {}
+            s["updates"] = []
+            for field in s.keys():
+                # this fields are store into  species_list
+                if field == "updates":
+                    # skip, add it at the end
+                    # TODO add it at the end if not empty
+                    pass
+                elif field in ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
+                               "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
+                               "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
+                    if field == "SYMBIONT":
+                        # TODO skip for now, consider the symbiont_2dot2 thing
+                        pass
+                    else:
+                        if s[field] != exsam["species_list"][0][field]:
+                            updates[rack_tube][field] = {}
+                            updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                            updates[rack_tube][field]["new_value"] = s[field]
+                            s["updates"].append({field: exsam[field]})
+                            # todo update public name if taxonomy changed
+                            # Sample().add_field(field, value, exsam["_id"])
+                            # TODO update species list
+                            pass
+                elif s[field] != exsam.get(field, ""):
+                    updates[rack_tube][field] = {}
+                    updates[rack_tube][field]["old_value"] = exsam[field]
+                    updates[rack_tube][field]["new_value"] = s[field]
+                    s["updates"].append({field: exsam[field]})
+            #show upcoming updates here todo
+            msg=""
+            for sample in updates:
+                msg += "<li>Updating sample " + sample + ":"
+                for field in updates[sample]:
+                    msg += "<li> " + field + " from " + updates[sample][field]["old_value"] + " to " + \
+                        updates[sample][field]["new_value"] + "<\li>"
+                msg += "<\li>"
+
+            notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="warning",
+                                       html_id="warning_info")
+            #todo - button to confirm changes and uncomment saves here
+            #Sample().add_field(field, s[field], exsam["_id"])
 
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report
