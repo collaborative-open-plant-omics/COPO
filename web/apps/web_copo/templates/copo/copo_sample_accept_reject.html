@@ -80,6 +80,34 @@
             background-color: #fff3ce !important;
         }
 
+        .filter_margin {
+            margin-top: 46px
+        }
+
+        .background_violet_trans {
+            background-color: rgba(88, 41, 187, 0.5);
+            font-weight: bold;
+            color: white
+        }
+
+        .background_violet {
+            background-color: rgba(88, 41, 187, 1);
+            font-weight: bold;
+            color: white
+        }
+
+        .background_pink_trans {
+            background-color: rgba(230, 26, 141, 0.5);
+            font-weight: bold;
+            color: white;
+        }
+
+        .background_pink {
+            background-color: rgba(230, 26, 141, 1);
+            font-weight: bold;
+            color: white;
+        }
+
     </style>
 {% endblock %}
 
@@ -135,7 +163,17 @@
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Accept
                 </button>
             </div>
-    <span style="margin-left:20px">
+
+    <div class="ui buttons" id="barcode_select" style="margin-bottom: 10px; display: none">
+                <button type="button" disabled="true" class="ui violet button">
+                    <span class="" aria-hidden="true"></span> Accept Manifest
+                </button>
+                <div class="or"></div>
+                <button type="button" disabled="true" class="ui pink button">
+                    <span class="" aria-hidden="true"></span> Accept Bold
+                </button>
+            </div>
+    <span id="edit_buttons" style="margin-left:20px">
                 <button class="select-all tiny ui basic button" tabindex="0" aria-controls="" type="button"><span>Select all visible</span></button>
                 <button class="select-none tiny ui basic button" tabindex="0" aria-controls="" type="button"><span>Select None</span></button>
                 <button class="delete-selected tiny ui red basic button" tabindex="0" aria-controls=""

@@ -78,11 +78,15 @@ $(document).ready(function () {
 
         if ($(".form-check-input:checked").length) {
             $("#accept_reject_button").find("button").prop("disabled", false)
+            $("#barcode_select").find("button").prop("disabled", false)
         } else {
             $("#accept_reject_button").find("button").prop("disabled", true)
+            $("#barcode_select").find("button").prop("disabled", true)
         }
+
         $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
-            $(el).toggleClass("selected_row")
+            $(el).not(".background_violet, .background_pink").toggleClass("selected_row")
+
         })
     })
 
@@ -201,6 +205,25 @@ function row_select(ev) {
 
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
 
+    if (filter == "conflicting_barcode") {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").show()
+        $("#edit_buttons").show()
+        $("#sample_filter").removeClass("filter_margin")
+    } else if (filter == "pending") {
+        $("#accept_reject_button").show()
+        $("#barcode_select").hide()
+        $("#edit_buttons").show()
+        $("#sample_filter").removeClass("filter_margin")
+
+    } else {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").hide()
+        $("#edit_buttons").hide()
+        $("#sample_filter").addClass("filter_margin")
+    }
+
+
     var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
     $("#profile_id").val(d.profile_id)
 
@@ -219,25 +242,35 @@ function row_select(ev) {
         if (filter == "conflicting_barcode") {
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
-
             }
             $("#sample_panel").find("thead").empty()
             $("#sample_panel").find("tbody").empty()
-            var th = "<tr><th>Manifest Species</th><th>Bold Species</th></tr>"
+            var th = "<tr><th></th><th>Specimen ID</th><th>Manifest Species</th><th>Bold Species</th></tr>"
             var body = ""
             $(data).each(function (idx, el) {
                 var manifest_tax = el.species_list
                 var bold_tax = el.barcoding
                 console.log(manifest_tax)
                 console.log(bold_tax)
-                body = body + "<tr><td>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+                body = ""
+                var td = $("<td/>", {
+                    class: "tickbox"
+                })
+                var tickbox = $("<input/>",
+                    {
+                        "type": "checkbox",
+                        class: "form-check-input"
+                    })
+                $(td).append(tickbox)
+
+                body = body + "<tr><td>" + td.html() + "</td><td>" + el.SPECIMEN_ID + "</td><td class='background_violet'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='background_pink'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
             })
             $("#sample_panel").find("thead").append(th)
             $("#sample_panel").find("tbody").append(body)
+            $("#profile_samples").DataTable(dt_options);
         } else {
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
-
             }
             $("#sample_panel").find("thead").empty()
             $("#sample_panel").find("tbody").empty()
@@ -333,7 +366,6 @@ function row_select(ev) {
                         $("#profile_samples").find("tbody").append(td_row)
                     }
                 })
-                console.log("data tables running")
                 $("#profile_samples").DataTable(dt_options);
             } else {
                 var content
