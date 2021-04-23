@@ -83,11 +83,14 @@ $(document).ready(function () {
             $("#accept_reject_button").find("button").prop("disabled", true)
             $("#barcode_select").find("button").prop("disabled", true)
         }
-
+        //$(".background_violet").removeClass("background_violet")
+        //$(".background_pink").removeClass("background_pink")
         $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
-            $(el).not(".background_violet, .background_pink").toggleClass("selected_row")
+            $(el).not(".manifest, .bold").toggleClass("selected_row")
 
         })
+        $(el.currentTarget).parent().parent().find(".manifest").toggleClass("background_violet")
+        $(el.currentTarget).parent().parent().find(".bold").toggleClass("background_pink")
     })
 
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
@@ -263,7 +266,7 @@ function row_select(ev) {
                     })
                 $(td).append(tickbox)
 
-                body = body + "<tr><td>" + td.html() + "</td><td>" + el.SPECIMEN_ID + "</td><td class='background_violet'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='background_pink'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+                body = body + "<tr><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
             })
             $("#sample_panel").find("thead").append(th)
             $("#sample_panel").find("tbody").append(body)

@@ -63,6 +63,7 @@ class DtolSpreadsheet:
         self.data = None
         self.required_field_validators = list()
         self.optional_field_validators = list()
+        self.optional_field_validators = list()
         self.taxon_field_validators = list()
         self.optional_validators = optional_validators
         self.required_validators = required_validators
