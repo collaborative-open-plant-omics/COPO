@@ -185,4 +185,6 @@ urlpatterns = [
          name="compare_barcode_with_sample"),
     path('accept_barcoding_manifest/', ajax_handlers.accept_barcoding_manifest,
          name="accept_barcoding_manifest"),
+    path('set_barcoding_status/', ajax_handlers.set_barcoding_status,
+         name="set_barcoding_status"),
 ]

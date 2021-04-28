@@ -253,9 +253,6 @@ function row_select(ev) {
             $(data).each(function (idx, el) {
                 var manifest_tax = el.species_list
                 var bold_tax = el.barcoding
-                console.log(manifest_tax)
-                console.log(bold_tax)
-                body = ""
                 var td = $("<td/>", {
                     class: "tickbox"
                 })
@@ -266,7 +263,7 @@ function row_select(ev) {
                     })
                 $(td).append(tickbox)
 
-                body = body + "<tr><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+                body = body + "<tr data-id='" + el._id.$oid + "'><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
             })
             $("#sample_panel").find("thead").append(th)
             $("#sample_panel").find("tbody").append(body)

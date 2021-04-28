@@ -1453,4 +1453,15 @@ def accept_barcoding_manifest(request):
                     else:
                         Sample().get_collection_handle().update_many(
                             {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "conflicting"}})
-    return HttpResponse()
+    return HttpResponse("")
+
+
+def set_barcoding_status(request):
+    # set sample to use manifest or barcoding taxonomic information as a result of supervisor intervention
+    ids = request.POST["ids"].split(",")
+    use = request.POST["use"]
+    for id in ids:
+        Sample().get_collection_handle().update({"_id": ObjectId(id)}, {"$set": {"submit_as_taxon": use,
+                                                                                 "status": "pending"}})
+        print(id)
+    return HttpResponse(json.dumps({}), status=200)

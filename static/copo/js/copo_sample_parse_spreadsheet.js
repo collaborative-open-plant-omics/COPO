@@ -60,6 +60,45 @@ function upload_spreadsheet(file) {
     })
 }
 
+function handle_accept_barcode(e) {
+    // handler to pass ids of conflicted barcodes to backend for resolution
+    var use = ""
+    if (e.currentTarget.id == "accept_bold") {
+        use = "bold"
+    } else {
+        use = "manifest"
+    }
+    $("#spinner").fadeIn(fadeSpeed)
+    var checked = $(".form-check-input:checked").closest("tr")
+    var ids = []
+    $(checked).each(function (idx, el) {
+        ids.push($(el).data("id"))
+    })
+    var csrftoken = $.cookie('csrftoken');
+    var form = new FormData()
+    form.append("use", use)
+    form.append("ids", ids)
+    jQuery.ajax({
+        url: '/copo/set_barcoding_status/',
+        data: form,
+        method: 'POST',
+        dataType: "json",
+        cache: false,
+        contentType: false,
+        processData: false,
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+    }).done(function () {
+        $("#sample_filter").find(".active").click()
+        $("#spinner").fadeOut(fadeSpeed)
+    }).error(function (e) {
+        console.error(e)
+    })
+}
+
+function handle_accept_manifest(e) {
+    alert("manifest_clicked")
+}
 
 $(document).ready(function () {
 
@@ -98,6 +137,8 @@ $(document).ready(function () {
         //data = data.replace(/<[^>]*>/g, '');
         download("errors.html", data)
     })
+    $(document).on("click", "#accept_bold", handle_accept_barcode)
+    $(document).on("click", "#accept_manifest", handle_accept_barcode)
 
     $(document).on("change", "#barcode_file", handleBarcodeUpload)
 
@@ -372,7 +413,7 @@ function handleBarcodeUpload(data) {
         }
 
         $(rows).each(function (idx, row) {
-            $("#barcode_table").find("tbody").append("<tr data-specimen_id='" + table_data["specimen_id"][idx] + "' " +
+            $("#barcode_table").find("tbody").append("<tr sammple_id='" + table_data["specimen_id"][idx] + "' " +
                 "data-bold_sample_id='" + table_data["bold_sample_id"][idx] + "'>" + row + "</tr>")
         })
 
