@@ -10,7 +10,7 @@ attrs==19.2.0
 autobahn==19.10.1
 Automat==0.7.0
 autopep8==1.4.4
-Babel==2.7.0
+Babel==2.9.1
 backcall==0.1.0
 beautifulsoup4==4.7.1
 billiard==3.6.1.0
