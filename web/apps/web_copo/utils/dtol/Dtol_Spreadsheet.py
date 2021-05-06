@@ -317,8 +317,11 @@ class DtolSpreadsheet:
         # store sample data in the session to be used to create mongo objects
         self.req.session["sample_data"] = sample_data
         self.req.session["isupdate"] = self.isupdate
+        if self.isupdate:
+            DtolSpreadsheet().detect_updates()
+        #todo if isupdate call another function detectupdates() and show in the notify below + add different button
         notify_dtol_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                           html_id="sample_table")
+                           html_id="sample_table") #todo different parameters
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
@@ -328,7 +331,8 @@ class DtolSpreadsheet:
         image_data = request.session.get("image_specimen_match", [])
         public_name_list = list()
         if self.isupdate:
-            DtolSpreadsheet().update_samples()
+            #DtolSpreadsheet().update_samples()
+            pass
         else:
             for p in range(1, len(sample_data)):
                 s = (map_to_dict(sample_data[0], sample_data[p]))
@@ -384,7 +388,63 @@ class DtolSpreadsheet:
             description = profile["description"]
             CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
 
+    def detect_updates(self):
+        sample_data = self.sample_data
+        request = ThreadLocal.get_current_request()
+        public_name_list = list()
+        updates = {}
+        for p in range(1, len(sample_data)):
+            s = (map_to_dict(sample_data[0], sample_data[p]))
+            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            if s["SYMBIONT"].upper() == "SYMBIONT":
+                # this requires different logic to discriminate between symbionts
+                return False
+            exsam = Sample().get_target_by_field("rack_tube", rack_tube)
+            assert len(exsam) == 1
+            exsam = exsam[0]
+            updates[rack_tube] = {}
+            s["updates"] = []
+            for field in s.keys():
+                # this fields are store into  species_list
+                if field == "updates" or field == "SYMBIONT":
+                    # skip, add it at the end
+                    # TODO add it at the end if not empty
+                    pass
+                elif field in ["TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
+                               "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
+                               "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
+
+                    if s[field] != exsam["species_list"][0][field]:
+                        updates[rack_tube][field] = {}
+                        updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                        updates[rack_tube][field]["new_value"] = s[field]
+                        s["updates"].append({field: exsam[field]})
+                        # todo update public name if taxonomy changed
+                        if field == "TAXON":
+                            
+                        # TODO update species list
+                        pass
+                elif s[field] != exsam.get(field, ""):
+                    updates[rack_tube][field] = {}
+                    updates[rack_tube][field]["old_value"] = exsam[field]
+                    updates[rack_tube][field]["new_value"] = s[field]
+                    s["updates"].append({field: exsam[field]})
+            # show upcoming updates here todo
+            msg = "<ul>"
+            for sample in updates:
+                msg += "<li>Updating sample <strong>" + sample + "</strong>: <ul>"
+                for field in updates[sample]:
+                    msg += "<li><strong> " + field + "</strong> from " + updates[sample][field]["old_value"] + " " \
+                            "to <strong>" + \
+                           updates[sample][field]["new_value"] + "</strong></li>"
+                msg += "</li></ul>"
+            msg+="</ul>"
+            notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="warning",
+                               html_id="warning_info")
+            #TODO THIS SHOULD GO INTO WARNING3 NOT TO OVER-WRITE TAXONOMIC WARNINGS
+
     def update_samples(self):
+        #todo rewrite
         sample_data = self.sample_data
         request = ThreadLocal.get_current_request()
         public_name_list = list()
