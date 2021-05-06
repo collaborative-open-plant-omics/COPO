@@ -92,21 +92,7 @@
     "show_in_form": true,
     "id": "copo.sample.LIFESTAGE",
     "type": "string",
-    "show_in_table": true,
-    "control": "select",
-    "default_value": "Adult",
-    "option_values": [
-      "adult",
-      "embryo",
-      "gamete",
-      "gametophyte",
-      "juvenile",
-      "larva",
-      "pupa",
-      "spore",
-      "sporophyte",
-      "zygote"
-    ]
+    "show_in_table": true
   },
   {
     "help_tip": "Separate multiple names with '|'",
