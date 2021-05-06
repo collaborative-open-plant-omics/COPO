@@ -57,8 +57,8 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "OTHER_INFORMATION",
         "SYMBIONT",
         "BARCODE_HUB",
-        "ORIGINAL_FIELD_COLLECTION_LOCATION",
-        "ORIGINAL_FIELD_COLLECTION_DATE",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "ORIGINAL_COLLECTION_DATE",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -124,6 +124,8 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "SIZE_OF_TISSUE_IN_TUBE",
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "ORIGINAL_COLLECTION_DATE",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -733,8 +735,9 @@ DTOL_RULES = {
         "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}[0-9]*$)",
         "human_readable": "Public name"
     },
-    "ORIGINAL_FIELD_COLLECTION_DATE" : {
-        "strict_regex" : "^1\d{3}(-0\d|-1[0-2](-[0-2]\d|-3[0-1])?)?$",
+    "ORIGINAL_COLLECTION_DATE" : {
+        "ena_regex" : "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
+        "strict_regex" : "^(1\d{3}(-0\d|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
         "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     }
 }
@@ -826,6 +829,12 @@ DTOL_ENA_MAPPINGS = {
     },
     "public_name": {
         "ena": "tolid"
+    },
+    "ORIGINAL_COLLECTION_DATE": {
+        "ena": "original collection date"
+    },
+    "ORIGINAL_GEOGRAPHIC_LOCATION": {
+        "ena": "original collection location"
     }
 }
 

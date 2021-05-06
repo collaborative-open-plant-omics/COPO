@@ -62,6 +62,9 @@ MESSAGES = {
                                            "%s</strong> followed by 7 digits.",
     "validation_msg_warning_barcoding": "Warning: Overwriting PLATE_ID_FOR_BARCODING, "
                                         "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and BARCODE_PLATE_PRESERVATIVE"
-                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>"
+                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>",
+    "validation_msg_original_field_missing": "Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row <strong>%s</strong>"
+                                             ". If ORIGINAL_COLLECTION_DATE is provided, ORIGINAL_GEOGRAPHIC_LOCATION"
+                                             " must also be provided."
 
 }

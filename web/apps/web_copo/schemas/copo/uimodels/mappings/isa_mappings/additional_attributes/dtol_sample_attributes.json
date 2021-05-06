@@ -1635,17 +1635,18 @@
     "control_meta": {},
     "dwc": "",
     "versions": [
-      "ORIGINAL_FIELD_COLLECTION_LOCATION"
+      "ORIGINAL_GEOGRAPHIC_LOCATION"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
-    "label": "Original Field Collection Location",
+    "label": "Original Geographic Location",
     "show_in_form": true,
-    "id": "copo.sample.ORIGINAL_FIELD_COLLECTION_LOCATION",
+    "id": "copo.sample.ORIGINAL_GEOGRAPHIC_LOCATION",
     "type": "string",
     "show_in_table": true,
     "control": "text",
@@ -1657,17 +1658,18 @@
     "control_meta": {},
     "dwc": "",
     "versions": [
-      "ORIGINAL_FIELD_COLLECTION_DATE"
+      "ORIGINAL_COLLECTION_DATE"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
-    "label": "Original Field Collection Date",
+    "label": "Original Collection Date",
     "show_in_form": true,
-    "id": "copo.sample.ORIGINAL_FIELD_COLLECTION_DATE",
+    "id": "copo.sample.ORIGINAL_COLLECTION_DATE",
     "type": "string",
     "show_in_table": true,
     "control": "text",

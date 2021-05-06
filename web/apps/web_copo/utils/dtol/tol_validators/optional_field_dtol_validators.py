@@ -137,7 +137,7 @@ class DtolEnumerationValidator(TolValidtor):
                                 ))
                                 self.flag = False
                     #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
-                    if header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
+                    elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
                         barcoding_flag = True
                         for barfield in barcoding_fields:
                             if self.data.at[cellcount-1, barfield] != "NOT_APPLICABLE":
@@ -147,6 +147,13 @@ class DtolEnumerationValidator(TolValidtor):
                             self.warnings.append(msg["validation_msg_warning_barcoding"] % (
                                 str(cellcount+1), c
                             ))
+                    #if original collection date is provided so must be the orginal geographic collection
+                    elif header == "ORIGINAL_COLLECTION_DATE" and c.strip():
+                        if not self.data.at[cellcount-1, "ORIGINAL_GEOGRAPHIC_LOCATION"]:
+                            self.errors.append(msg["validation_msg_original_field_missing"] % (
+                                str(cellcount+1)
+                            ))
+                            self.flag = False
                     # validation checks for date types
                     if header in lookup.date_fields and c_value.strip() not in lookup.blank_vals:
                         try:
