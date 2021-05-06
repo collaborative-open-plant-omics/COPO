@@ -79,8 +79,6 @@ def filter_for_STS(sample_list):
             if k in export:
                 if k in time_fields:
                     s_out[k] = format_date(v)
-                elif k=="sampleSameAs": #TODO temp remove this
-                    s_out["sampleDerivedFrom"] = v #TODO temp remove this
                 else:
                     s_out[k] = v
         out.append(s_out)
