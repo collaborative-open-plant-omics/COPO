@@ -166,7 +166,8 @@
     ],
     "ref": "",
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1274,7 +1275,7 @@
   },
   {
     "help_tip": "",
-    "required": "false",
+    "required": "true",
     "control_meta": {},
     "dwc": "",
     "versions": [
@@ -1602,6 +1603,29 @@
     "label": "TOL Project",
     "show_in_form": false,
     "id": "copo.sample.tol_project",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": ""
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "versions": [
+      "manifest_version"
+    ],
+    "specifications": [
+      "dtol",
+      "asg"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "true",
+    "label": "TOL Project",
+    "show_in_form": false,
+    "id": "copo.sample.manifest_version",
     "type": "string",
     "show_in_table": true,
     "control": "text",

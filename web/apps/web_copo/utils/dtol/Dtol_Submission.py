@@ -233,25 +233,30 @@ def query_awaiting_tolids():
     sub_id_list = Submission().get_awaiting_tolids()
     for submission in sub_id_list:
         public_name_list = list()
-        sam = Sample().get_record(s_id)
-        if not sam["public_name"]:
-            try:
-                public_name_list.append(
-                    {"taxonomyId": int(sam["species_list"][0]["TAXON_ID"]), "specimenId": sam["SPECIMEN_ID"],
-                     "sample_id": str(sam["_id"])})
-            except ValueError:
-                return False
-        assert len(public_name_list)>0
-        public_names = query_public_name_service(public_name_list)
-        #still no response, do nothing
-        #NOTE the query fails even if only one TAXON_ID can't be found
-        if not public_names:
-            pass
-        #update samples and set dtol_sattus to pending
-        else:
-            for name in public_names:
-                Sample().update_public_name(name)
-            Submission().make_dtol_status_pending()
+        samplelist = submission["dtol_samples"]
+        for samid in samplelist:
+            sam = Sample().get_record(samid)
+            if not sam["public_name"]:
+                try:
+                    public_name_list.append(
+                        {"taxonomyId": int(sam["species_list"][0]["TAXON_ID"]), "specimenId": sam["SPECIMEN_ID"],
+                         "sample_id": str(sam["_id"])})
+                except ValueError:
+                    return False
+            assert len(public_name_list)>0
+            public_names = query_public_name_service(public_name_list)
+            #still no response, do nothing
+            #NOTE the query fails even if only one TAXON_ID can't be found
+            if not public_names:
+                return
+            #update samples and set dtol_sattus to pending
+            else:
+                for name in public_names:
+                    if name.get("tolId", ""):
+                        Sample().update_public_name(name)
+                    else:
+                        return
+        Submission().make_dtol_status_pending(submission["_id"])
 
 def populate_source_fields(sampleobj):
     '''populate source in db to copy most of sample fields

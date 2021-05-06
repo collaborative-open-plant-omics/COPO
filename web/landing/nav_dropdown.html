@@ -1,32 +1,38 @@
 <div class="ui dropdown pull-right margin-30 dropdown-text floating">
     <input type="hidden" name="filters">
 
-    {% if request.path != "/" %}
-        <i class="ellipsis vertical big icon dot-color"></i>
-    {% else %}
-        <i class="bars big icon dot-color"></i>
-    {% endif %}
-    <div class="menu">
+    <i class="ellipsis vertical big icon dot-color"></i>
 
-        <div class="item">
-            <a href="/">Home</a>
-        </div>
-        <div class="item">
-            <a href="/about">About</a>
-        </div>
+    <div class="menu">
+        <a class="item" href="/">
+            <div class="item">
+                Home
+            </div>
+        </a>
+        <a class="item" href="/about">
+            <div class="item">
+                About
+            </div>
+        </a>
+        <a class="item" href="/manifests">
+            <div class="item">
+                Manifests
+            </div>
+        </a>
         <!--
-        <div class="item">
-            News
-        </div>
         <div class="item">
             Darwin Tree of Life
         </div>
         -->
-        <div class="item">
-            <a href="http://demo.copo-project.org/copo">Try Demo</a>
-        </div>
-        <div class="item">
-            <a href="https://copo-project.org/copo">Submit Data</a>
-        </div>
+        <a class="item" href="http://demo.copo-project.org/copo">
+            <div class="item">
+                Try Demo
+            </div>
+        </a>
+        <a class="item" href="https://copo-project.org/copo">
+            <div class="item">
+                Submit Data
+            </div>
+        </a>
     </div>
 </div>

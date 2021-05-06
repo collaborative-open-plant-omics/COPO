@@ -721,6 +721,14 @@ DTOL_RULES = {
         "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
         "human_readable": "Specimen accession"
     },
+    "SAMPLE_SAME_AS": {
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "human_readable": "Specimen accession"
+    },
+    "SAMPLE_SYMBIONT_OF": {
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "human_readable": "Specimen accession"
+    },
     "RACK_OR_PLATE_ID": {
         "optional_regex": "^[a-zA-Z]{2}\d{8}$"
     },
@@ -761,9 +769,6 @@ DTOL_ENA_MAPPINGS = {
     },
     "LIFESTAGE": {
         "ena": "lifestage"
-    },
-    "profile.title": {
-        "ena": "project name"
     },
     "COLLECTED_BY": {
         "ena": "collected_by"
@@ -812,6 +817,9 @@ DTOL_ENA_MAPPINGS = {
     "GAL": {
         "ena": "GAL"
     },
+    "PARTNER": {
+        "ena": "GAL"
+    },
     "VOUCHER_ID": {
         "ena": "specimen_voucher"
     },
@@ -821,11 +829,20 @@ DTOL_ENA_MAPPINGS = {
     "GAL_SAMPLE_ID": {
         "ena": "GAL_sample_id"
     },
+    "PARTNER_SAMPLE_ID": {
+        "ena": "GAL_sample_id"
+    },
     "CULTURE_OR_STRAIN_ID": {
         "ena": "culture_or_strain_id"
     },
-    "SAMPLE_DERIVED_FROM": {
+    "sampleDerivedFrom": {
         "ena": "sample derived from"
+    },
+    "sampleSameAs": {
+        "ena": "sample same as"
+    },
+    "sampleSymbiontOf": {
+        "ena": "sample symbiont of"
     },
     "public_name": {
         "ena": "tolid"
@@ -842,7 +859,7 @@ SPECIMEN_PREFIX = {
     "GAL" : {
         "UNIVERSITY OF OXFORD" : "Ox",
         "MARINE BIOLOGICAL ASSOCIATION" : "MBA",
-        "ROYAL BOTANIC GARDENS KEW" : "KEW",
+        "ROYAL BOTANIC GARDENS KEW" : "KDTOL",
         "ROYAL BOTANIC GARDEN EDINBURGH" : "EDTOL",
         "EARLHAM INSTITUTE" : "EI_",
         "NATURAL HISTORY MUSEUM": "NHMUK",
@@ -863,6 +880,18 @@ SPECIMEN_PREFIX = {
         "SENCKENBERG RESEARCH INSTITUTE" : "SENCK",
         "UNIVERSITY OF VIENNA (CEPHALOPOD)" : "VIEC",
         "UNIVERSITY OF ORGEON" : "UOREG"
+    }
+}
+
+SPECIMEN_SUFFIX = {
+    "GAL": {
+        "UNIVERSITY OF OXFORD": '\d{6}',
+        "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+        "ROYAL BOTANIC GARDENS KEW": '\d{5}',
+        "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
+        "EARLHAM INSTITUTE": '\d{5}',
+        "NATURAL HISTORY MUSEUM": '\d{9}',
+        "SANGER INSTITUTE": '\d{7}'
     }
 }
 

@@ -1,6 +1,6 @@
 import re
 
-from dal.copo_da import Profile
+from dal.copo_da import Profile, Sample
 from submission.helpers.generic_helper import notify_dtol_status
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
@@ -12,6 +12,7 @@ class DtolEnumerationValidator(TolValidtor):
 
     def validate(self):
         whole_used_specimens = set()
+        manifest_specimen_taxon_pairs = {}
         regex_human_readable = ""
         p_type = Profile().get_type(profile_id=self.profile_id)
         barcoding_fields = ["PLATE_ID_FOR_BARCODING", "TUBE_OR_WELL_ID_FOR_BARCODING",
@@ -28,7 +29,7 @@ class DtolEnumerationValidator(TolValidtor):
 
                 # check if there's a regex rule for the header and exceptional handling
                 if lookup.DTOL_RULES.get(header, ""):
-                    #control for when ENA regex is too permissive
+                    # control for when ENA regex is too permissive
                     if lookup.DTOL_RULES[header].get("strict_regex", ""):
                         regex_rule = lookup.DTOL_RULES[header].get("strict_regex", "")
                     else:
@@ -44,7 +45,7 @@ class DtolEnumerationValidator(TolValidtor):
 
                     c_value = c
 
-                    #reformat time of collection to handle excel format
+                    # reformat time of collection to handle excel format
                     if header == "TIME_OF_COLLECTION":
                         csplit = c.split(":")
                         if len(csplit) == 3 and csplit[2] == "00":
@@ -88,12 +89,12 @@ class DtolEnumerationValidator(TolValidtor):
                                 c, header, str(cellcount + 1), regex_human_readable))
                             self.flag = False
                     if optional_regex:
-                        #handle regular expression that will only trigger a warning
+                        # handle regular expression that will only trigger a warning
                         if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE):
                             if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID']:
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
-                            else: #not in use atm, here in case we add more optional validations
+                            else:  # not in use atm, here in case we add more optional validations
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
 
@@ -120,23 +121,48 @@ class DtolEnumerationValidator(TolValidtor):
                     elif header == "SPECIMEN_ID":
                         if "DTOL" in p_type:
                             current_gal = self.data.at[cellcount - 1, "GAL"]
-                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][current_gal]+'[\d\-_]') #TODO make this more specific for each gal
+                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"].get(current_gal,
+                                                                                              "") + '[\d\-_]')
                             if not re.match(specimen_regex, c.strip()):
-                                self.errors.append(msg["validation_msg_error_specimen_regex"] % (
+                                self.errors.append(msg["validation_msg_error_specimen_regex_dtol"] % (
                                     c, header, str(cellcount + 1), "GAL", current_gal,
-                                    lookup.SPECIMEN_PREFIX["GAL"][current_gal]
+                                    lookup.SPECIMEN_PREFIX["GAL"].get(current_gal, "XXX"),
+                                        lookup.SPECIMEN_SUFFIX["GAL"].get(current_gal, "XXX")
                                 ))
                                 self.flag = False
                         elif "ASG" in p_type:
                             current_partner = self.data.at[cellcount - 1, "PARTNER"]
-                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["PARTNER"][current_partner] + '\d{7}')
+                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["PARTNER"].get(current_partner, "") + '\d{7}')
                             if not re.match(specimen_regex, c.strip()):
                                 self.errors.append(msg["validation_msg_error_specimen_regex"] % (
                                     c, header, str(cellcount + 1), "PARTNER", current_partner,
-                                    lookup.SPECIMEN_PREFIX["GAL"][current_partner]
+                                    lookup.SPECIMEN_PREFIX["PARTNER"].get(current_partner, "XXX")
                                 ))
                                 self.flag = False
-                    #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
+                    #only do this if this is target
+                            if self.data.at[cellcount - 1, "SYMBIONT"].strip().upper() != "SYMBIONT":
+                                #check if SPECIMEN_ID in db, if it is check it refers to the same TAXON_ID if target
+                                existing_samples = Sample().get_target_by_specimen_id(c.strip())
+                                if existing_samples:
+                                    for exsam in existing_samples:
+                                        if exsam["species_list"][0]["TAXON_ID"] != self.data.at[cellcount -1, "TAXON_ID"]:
+                                            self.errors.append(msg["validation_message_wrong_specimen_taxon_pair"] % (
+                                                str(cellcount + 1), c.strip(), exsam["species_list"][0]["TAXON_ID"]
+                                            ))
+                                            self.flag = False
+                                            break
+                                #check the same in spreadsheet
+                                if c.strip() in manifest_specimen_taxon_pairs:
+                                    if manifest_specimen_taxon_pairs[c.strip()] != self.data.at[cellcount -1, "TAXON_ID"]:
+                                        self.errors.append(msg["validation_message_wrong_specimen_taxon_pair"] % (
+                                                str(cellcount + 1), c.strip(), manifest_specimen_taxon_pairs[c.strip()]+
+                                                " in this manifest"
+                                            ))
+                                        self.flag = False
+                                else:
+                                    manifest_specimen_taxon_pairs[c.strip()] = self.data.at[cellcount -1, "TAXON_ID"]
+
+                        #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
                     elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
                         barcoding_flag = True
                         for barfield in barcoding_fields:

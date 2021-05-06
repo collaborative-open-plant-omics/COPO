@@ -1317,6 +1317,10 @@ def sample_spreadsheet(request):
     elif name.endswith("csv"):
         fmt = 'csv'
 
+    if format not in ["xls", "csv"]:
+        #TODO return sensible error here
+        pass
+
     if dtol.loadManifest(m_format=fmt):
         if dtol.validate_taxonomy() and dtol.validate():
             dtol.collect()
@@ -1377,8 +1381,12 @@ def add_sample_to_dtol_submission(request):
     if sample_ids and profile_id:
         # check for submission object, and create if absent
         sub = Submission().get_dtol_submission_for_profile(profile_id)
+        type_sub = Profile().get_record(profile_id)["type"]
         if not sub:
-            sub = Submission(profile_id).save_record(dict(), **{"type": "dtol"})
+            if type_sub == "Aquatic Symbiosis Genomics (ASG)":
+                sub = Submission(profile_id).save_record(dict(), **{"type": "asg"})
+            else:
+                sub = Submission(profile_id).save_record(dict(), **{"type": "dtol"})
         sub["dtol_status"] = "pending"
         sub["target_id"] = sub.pop("_id")
 

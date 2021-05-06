@@ -1,0 +1,45 @@
+
+{% extends "secondary.html" %}
+{% load static %}
+
+
+{% block topbanner %}
+
+    Manifests
+
+{% endblock %}
+
+{% block content %}
+
+    <p>
+        Here are the current Tree of Life manifests COPO will accept.
+    </p>
+
+
+    <div style="margin-left: 40px">
+        <table class="ui padded table">
+            <thead>
+            <tr>
+                <th>Manifest Type</th>
+                <th>Version</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>DTOL - (Darwin Tree of Life)</td>
+                <td>2.2</td>
+                <td><a href="{% static 'assets/manifests/DTOL_MANIFEST_v2.2.xlsx' %}">DTOL_MANIFEST_v2.2.xlsx</a></td>
+            </tr>
+            <tr>
+                <td>ASG - (Aquatic Symbiosis Genommics)</td>
+                <td>2.3</td>
+                <td><a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}

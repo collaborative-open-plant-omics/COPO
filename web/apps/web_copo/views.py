@@ -50,7 +50,6 @@ def login(request):
     return render(request, 'copo/auth/login.html', context)
 
 def test_view(request):
-    Sample().save_record()
     return render(request, "copo/test_1.html")
 
 '''

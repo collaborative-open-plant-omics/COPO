@@ -573,7 +573,7 @@ class Source(DAComponent):
         return self.get_collection_handle().find({'profile_id': profile_id})
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": "dtol_specimen",
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in" : ["dtol_specimen", "asg_specimen"]},
                                                                  "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
@@ -646,8 +646,7 @@ class Sample(DAComponent):
 
     def update_public_name(self, name):
         self.get_collection_handle().update_many(
-            {"SPECIMEN_ID": name['specimen']["specimenId"], "species_list": {
-                '$elemMatch': {"TAXON_ID": str(name['species']["taxonomyId"]), "SYMBIONT": "target"}}},
+            {"SPECIMEN_ID": name['specimen']["specimenId"]},
             {"$set": {"public_name": name.get("tolId", "")}})
 
     def delete_sample(self, sample_id):
@@ -808,8 +807,13 @@ class Sample(DAComponent):
         return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value}}))
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": "dtol_specimen",
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
                                                                  "SPECIMEN_ID": value}))
+
+    def get_target_by_specimen_id(self, specimenid):
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
+                                                                 "species_list": {'$elemMatch': {"SYMBIONT": "TARGET"}},
+                                                                 "SPECIMEN_ID" : specimenid}))
 
     def get_manifests(self):
         cursor = self.get_collection_handle().aggregate(
@@ -890,9 +894,9 @@ class Submission(DAComponent):
         # called by celery to get samples the supeprvisor has set to be sent to ENA
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
-        sub = self.get_collection_handle().find({"type": "dtol", "dtol_status": {"$in": ["sending", "pending"]}},
+        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
                                                 {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
-                                                 "date_modified": 1})
+                                                 "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)
         out = list()
 
@@ -914,11 +918,11 @@ class Submission(DAComponent):
         return out
 
     def get_awaiting_tolids(self):
-        sub = self.get_collection_handle().find({"type": "dtol", "dtol_status": {"$in": ["awaiting_tolids"]}},
+        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["awaiting_tolids"]}},
                                                 {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
                                                  "date_modified": 1})
         sub = cursor_to_list(sub)
-        out = list()
+        return sub
 
     def get_incomplete_submissions_for_user(self, user_id, repo):
         doc = self.get_collection_handle().find(

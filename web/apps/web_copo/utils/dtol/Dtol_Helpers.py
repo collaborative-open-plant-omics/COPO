@@ -12,11 +12,11 @@ from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.utils.dtol.tol_validators.validation_messages import MESSAGES as msg
 from tools import resolve_env
-
+from exceptions_and_logging import logger
 from web.apps.web_copo.lookup.dtol_lookups import API_KEY
 
 public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
-
+l = logger.Logger("exceptions_and_logging/logs")
 def make_tax_from_sample(s):
     out = dict()
     out["SYMBIONT"] = "symbiont"
@@ -59,7 +59,7 @@ def check_taxon_ena_submittable(taxon):
             try:
                 errors.append(
                     "ENA returned - " + taxinfo.get("error", "no error returned") + " - for TAXON_ID " + taxon)
-            except NameError:
+            except (NameError, AttributeError):
                 errors.append(
                     "ENA returned - " + receipt.decode("utf-8") + " - for TAXON_ID " + taxon)
         else:
@@ -107,6 +107,7 @@ def create_barcoding_spreadsheet():
 def query_public_name_service(sample_list):
     headers = {"api-key": API_KEY}
     url = urljoin(public_name_service, 'tol-ids')  # public-name
+    l.log("name service urls: " + url)
     try:
         r = requests.post(url=url, json=sample_list, headers=headers, verify=False)
         if r.status_code == 200:
@@ -114,7 +115,8 @@ def query_public_name_service(sample_list):
         else:
             # in the case there is a network issue, just return an empty dict
             resp = {}
+        l.log("name service response: " + str(resp))
         return resp
     except Exception as e:
-        print("PUBLIC NAME SERVER ERROR: " + str(e))
+        l.log("PUBLIC NAME SERVER ERROR: " + str(e))
         return {}

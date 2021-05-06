@@ -20,7 +20,8 @@ urlpatterns = [
     path('about/', TemplateView.as_view(template_name="about.html"), name='about'),
     path('people/', TemplateView.as_view(template_name="people.html"), name='people'),
     path('dtol/', TemplateView.as_view(template_name="dtol.html"), name='dtol'),
-    path('news/', TemplateView.as_view(template_name="news.html"), name='news')
+    path('news/', TemplateView.as_view(template_name="news.html"), name='news'),
+    path('manifests/', TemplateView.as_view(template_name="manifests.html"), name='manifests')
 ]
 
 if settings.DEBUG is False:  # if DEBUG is True it will be served automatically

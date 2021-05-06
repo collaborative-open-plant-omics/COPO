@@ -42,24 +42,35 @@ MESSAGES = {
     "validation_msg_invalid_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
                                    "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
     "validation_msg_invalid_taxon": "TAXON_ID <strong>%s</strong> at row <strong>%s</strong> is invalid. "
-                                            "Check SCIENTIFIC_NAME and TAXON_ID match at NCBI <a "
-                                            "href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi'>here</a> or "
-                                            "<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi'>"
-                                            "here</a>. Please refer to the DTOL/ASG SOP. Contact ena-dtol@ebi.ac.uk or "
-                                            "ena-asg@ebi.ac.uk for assistance.",
-    "validation_msg_not_submittable_taxon": "TAXON_ID <strong>%s</strong> is not 'submittable' to ENA. Please see <a href="
-                                            "'https://ena-docs.readthedocs.io/en/latest/faq/taxonomy_requests.html#creating-taxon-requests'>"
-                                            "here</a> and contact ena-dtol@ebi.ac.uk or ena-asg@ebi.ac.uk to request an "
+                                    "Check SCIENTIFIC_NAME and TAXON_ID match at NCBI <a "
+                                    "href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi'>here</a> or "
+                                    "<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi'>"
+                                    "here</a>. Please refer to the DTOL/ASG SOP. Contact ena-dtol@ebi.ac.uk or "
+                                    "ena-asg@ebi.ac.uk for assistance.",
+    "validation_msg_not_submittable_taxon": "TAXON_ID <strong>%s</strong> is not 'submittable' to ENA. Please see <a "
+                                            "href="
+                                            "'https://ena-docs.readthedocs.io/en/latest/faq/taxonomy_requests.html"
+                                            "#creating-taxon-requests'>"
+                                            "here</a> and contact ena-dtol@ebi.ac.uk or ena-asg@ebi.ac.uk to request "
+                                            "an "
                                             "informal placeholder "
                                             "species name. Please also refer to the DTOL/ASG SOP.",
-    "validation_msg_warning_racktube_format": "Warning: <strong>%s</strong> <strong>%s</strong> at row <strong>%s</strong> "
+    "validation_msg_warning_racktube_format": "Warning: <strong>%s</strong> <strong>%s</strong> at row "
+                                              "<strong>%s</strong> "
                                               "does not look like  FluidX format. Please check this is "
                                               "correct before clicking 'Finish'.",
-    "validation_msg_warning_regex_gen": "Warning: <strong>%s</strong> <strong>%s</strong> at row <strong>%s</strong> is "
-                                        "not in the expected format. Please check this is correct before clicking 'Finish'.",
+    "validation_msg_warning_regex_gen": "Warning: <strong>%s</strong> <strong>%s</strong> at row <strong>%s</strong> "
+                                        "is "
+                                        "not in the expected format. Please check this is correct before clicking "
+                                        "'Finish'.",
     "validation_msg_error_specimen_regex": "Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row"
-                                           " <strong>%s</strong>. Expected format for %s <strong>%s</strong> is <strong>"
+                                           " <strong>%s</strong>. Expected format for %s <strong>%s</strong> is "
+                                           "<strong>"
                                            "%s</strong> followed by 7 digits.",
+    "validation_msg_error_specimen_regex_dtol": "Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row"
+                                                " <strong>%s</strong>. Expected format for %s <strong>%s</strong> is "
+                                                "<strong>"
+                                                "%s</strong> followed by <strong>%s</strong>.",
     "validation_msg_warning_barcoding": "Warning: Overwriting PLATE_ID_FOR_BARCODING, "
                                         "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and BARCODE_PLATE_PRESERVATIVE"
                                         "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>",
@@ -67,4 +78,16 @@ MESSAGES = {
                                              ". If ORIGINAL_COLLECTION_DATE is provided, ORIGINAL_GEOGRAPHIC_LOCATION"
                                              " must also be provided."
 
+                                        "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and "
+                                        "BARCODE_PLATE_PRESERVATIVE"
+                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is "
+                                        "<strong>%s</strong>",
+    "validation_msg_multiple_targets_with_same_id": "Multiple Targets found for RACK_OR_PLATE_ID/TUBE_OR_WELL_ID: "
+                                                    "<strong>%s</strong>",
+    "validation_msg_orphaned_symbiont": "Sybiont(s) found with TUBE_OR_WELL_ID: <strong>%s</strong> has no associated "
+                                        "Target",
+    "validation_message_wrong_specimen_taxon_pair" : "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
+                                                       "SPECIMEN_ID <strong>%s</strong> has already been used for "
+                                                     "a specimen with TAXON_ID "
+                                                       "<strong>%s</strong>"
 }

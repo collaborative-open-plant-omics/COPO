@@ -36,7 +36,13 @@ def make_target_sample(sample):
     if not "species_list" in sample:
         sample["species_list"] = list()
     out = dict()
-    out["SYMBIONT"] = "target"
+    symbiont = sample.pop("SYMBIONT")
+    if symbiont.upper() not in ["SYMBIONT", "TARGET"]:
+        if symbiont:
+            out["SYMBIONT_SOP2dot2"] = symbiont
+        symbiont = "TARGET"
+
+    out["SYMBIONT"] = symbiont.upper()
     out["TAXON_ID"] = sample.pop("TAXON_ID")
     out["ORDER_OR_GROUP"] = sample.pop("ORDER_OR_GROUP")
     out["FAMILY"] = sample.pop("FAMILY")
@@ -320,6 +326,14 @@ class DtolSpreadsheet:
         public_name_list = list()
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
+            # store manifest version for posterity. If unknown store as 0
+            if "asg" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_ASG_VERSION
+            elif "dtol" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_DTOL_VERSION
+            else:
+                s["manifest_version"] = 0
+
             s["sample_type"] = self.type.lower()
             s["tol_project"] = self.type
             s["biosample_accession"] = []
@@ -331,17 +345,18 @@ class DtolSpreadsheet:
                                action="info",
                                html_id="sample_info")
 
-            if s["SYMBIONT"].lower() == "symbiont":
-                self.check_for_target_or_add_to_symbiont_list(s)
-            else:
-                # SOP 2.2 DTOL symbiont to be a scientific name
-                s = make_target_sample(s)
-                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-                Sample().timestamp_dtol_sample_created(sampl["_id"])
-                self.add_from_symbiont_list(s)
-
+            #change fields for symbiont
+            if s["SYMBIONT"] == "SYMBIONT":
+                s["ORGANISM_PART"] = "WHOLE_ORGANISM"
+                #if ASG change also sex to not collected
+                if s["tol_project"] == "ASG":
+                    s["SEX"] = "NOT_COLLECTED"
+            s = make_target_sample(s)
+            sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+            Sample().timestamp_dtol_sample_created(sampl["_id"])
+            if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
                 public_name_list.append(
-                    {"taxonomyId": int(s["species_list"][0]["TAXON_ID"]), "specimenId": s["SPECIMEN_ID"],
+                    {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
                      "sample_id": str(sampl["_id"])})
 
             for im in image_data:
@@ -373,6 +388,7 @@ class DtolSpreadsheet:
                            action="info",
                            html_id="sample_info")
 
+    '''
     def add_from_symbiont_list(self, s):
         for idx, el in enumerate(self.symbiont_list):
             if el.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") \
@@ -381,6 +397,7 @@ class DtolSpreadsheet:
                 out.pop("RACK_OR_PLATE_ID")
                 out.pop("TUBE_OR_WELL_ID")
                 Sample().add_symbiont(s, out)
+    '''
 
     def check_for_target_or_add_to_symbiont_list(self, s):
         # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,

@@ -150,7 +150,7 @@ class Command(BaseCommand):
         scname_block = tree.find('SAMPLE').find('SAMPLE_NAME').find('SCIENTIFIC_NAME')
         scname_block.text = " "
         comname_block = tree.find('SAMPLE').find('SAMPLE_NAME').find('COMMON_NAME')
-        if comname_block.text:
+        if comname_block and comname_block.text:
             comname_block.text = " "
 
         ET.dump(tree)

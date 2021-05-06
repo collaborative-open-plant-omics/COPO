@@ -2,7 +2,7 @@ from dal.copo_da import Sample, Profile
 from submission.helpers.generic_helper import notify_dtol_status
 from .tol_validator import TolValidtor
 from .validation_messages import MESSAGES as msg
-
+from collections import Counter
 blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE", "NA"]
 
 
@@ -56,6 +56,19 @@ class RackTubeNotNullValidator(TolValidtor):
         return self.errors, self.flag
 
 
+class OrphanedSymbiontValidator(TolValidtor):
+    def validate(self):
+        # check that if sample is a symbiont, there is a target with matching RACK_OR_PLATE_ID and TUBE_OR_WELL_ID
+        syms = self.data.loc[(self.data["SYMBIONT"] == "SYMBIONT")]
+        tid = syms["TUBE_OR_WELL_ID"]
+        for el in list(tid):
+            target = self.data.loc[(self.data["SYMBIONT"] == "TARGET") & (self.data["TUBE_OR_WELL_ID"] == el)]
+            if len(target) == 0:
+                self.errors.append(msg["validation_msg_orphaned_symbiont"] % el)
+                self.flag = False
+        return self.errors, self.flag
+
+
 class RackPlateUniquenessValidator(TolValidtor):
     def validate(self):
         # check for uniqueness of RACK_OR_PLATE_ID and TUBE_OR_WELL_ID in this manifest
@@ -65,25 +78,30 @@ class RackPlateUniquenessValidator(TolValidtor):
         dup = Sample().check_dtol_unique(rack_tube)
         # duplicated returns a boolean array, false for not duplicate, true for duplicate
         u = list(rack_tube[rack_tube.duplicated()])
-        if "ASG" not in p_type:
 
-            if len(u) > 0:
-                self.errors.append(msg["validation_msg_duplicate_tube_or_well_id"] % (u))
-                self.flag = False
+        if len(dup) > 0:
+            # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
+            err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
+            self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+            self.flag = False
 
-            if len(dup) > 0:
-                # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-                err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
-                self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+        # duplicates are allowed for asg (and possibily dtol) but one element of duplicate set must have one
+        # and only one target in
+        # sybiont fields
+        for i in u:
+            rack, tube = i.split('/')
+            rows = self.data.loc[
+                (self.data["RACK_OR_PLATE_ID"] == rack) & (self.data["TUBE_OR_WELL_ID"] == tube)]
+            counts = Counter([x.upper() for x in list(rows["SYMBIONT"].values)])
+            if "TARGET" not in counts:
+                self.errors.append(msg["validation_msg_duplicate_without_target"] % (
+                    str(rows["RACK_OR_PLATE_ID"] + "/" + rows["TUBE_OR_WELL_ID"])))
                 self.flag = False
-        else:
-            # duplicates are allowed for asg but one element of duplicate set must have target in sybiont fields
-            for i in u:
-                rack, tube = i.split('/')
-                rows = self.data.loc[
-                    (self.data["RACK_OR_PLATE_ID"] == rack) & (self.data["TUBE_OR_WELL_ID"] == tube)]
-                if "TARGET" not in rows["SYMBIONT"].values:
-                    self.errors.append(msg["validation_msg_duplicate_without_target"] % (
-                        str(rows["RACK_OR_PLATE_ID"] + "/" + rows["TUBE_OR_WELL_ID"])))
-                    self.flag = False
+            if counts["TARGET"] > 1:
+                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
+                self.flag = False
+            #TODO this can go at version 2.3 of DTOL
+            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
+                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
+                self.flag = False
         return self.errors, self.flag
