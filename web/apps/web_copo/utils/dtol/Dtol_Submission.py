@@ -125,7 +125,10 @@ def process_pending_dtol_samples():
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
-                assert len(sour) == 1
+                try:
+                    assert len(sour) == 1, "more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"]
+                except AssertionError:
+                    l.log("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 sour = sour[0]
                 if not sour['public_name']:
                     #retrieve public name
