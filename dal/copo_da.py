@@ -573,7 +573,7 @@ class Source(DAComponent):
         return self.get_collection_handle().find({'profile_id': profile_id})
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": "dtol_specimen",
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in" : ["dtol_specimen", "asg_specimen"]},
                                                                  "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
@@ -591,6 +591,9 @@ class Source(DAComponent):
 
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
+
+    def get_by_field(self, field, value):
+        return cursor_to_list(self.get_collection_handle().find({field: value}))
 
     def add_fields(self, fieldsdict, oid):
         return self.get_collection_handle().update(
@@ -612,6 +615,21 @@ class Source(DAComponent):
                   'status': "rejected"}
              }
         )
+
+    def add_field(self, field, value, oid):
+        return self.get_collection_handle().update(
+            {
+                "_id": ObjectId(oid)
+            },
+            {"$set":
+                {
+                    field: value}
+            })
+
+    def update_public_name(self, name):
+        self.get_collection_handle().update_many(
+            {"SPECIMEN_ID": name['specimen']["specimenId"], "TAXON_ID": str(name['species']["taxonomyId"])},
+            {"$set": {"public_name": name.get("tolId", "")}})
 
 
 class Sample(DAComponent):
@@ -636,8 +654,7 @@ class Sample(DAComponent):
 
     def update_public_name(self, name):
         self.get_collection_handle().update_many(
-            {"SPECIMEN_ID": name['specimen']["specimenId"], "species_list" : {
-                '$elemMatch' : {"TAXON_ID": str(name['species']["taxonomyId"]), "SYMBIONT": "target"}}},
+            {"SPECIMEN_ID": name['specimen']["specimenId"]},
             {"$set": {"public_name": name.get("tolId", "")}})
 
     def delete_sample(self, sample_id):
@@ -806,15 +823,20 @@ class Sample(DAComponent):
         return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value}}))
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": "dtol_specimen",
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
                                                                  "SPECIMEN_ID": value}))
+
+    def get_target_by_specimen_id(self, specimenid):
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
+                                                                 "species_list": {'$elemMatch': {"SYMBIONT": "TARGET"}},
+                                                                 "SPECIMEN_ID" : specimenid}))
 
     def get_manifests(self):
         cursor = self.get_collection_handle().aggregate(
             [
                 {
                     "$match": {
-                        "sample_type": "dtol"
+                        "sample_type": {"$in": ["dtol", "asg"]}
                     }
                 },
                 {"$sort":
@@ -832,7 +854,7 @@ class Sample(DAComponent):
     def get_manifests_by_date(self, d_from, d_to):
         ids = self.get_collection_handle().aggregate(
             [
-                {"$match": {"sample_type": "dtol", "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$match": {"sample_type": {"$in": ["dtol", "asg"]}, "time_created": {"$gte": d_from, "$lt": d_to}}},
                 {"$sort": {"time_created": -1}},
                 {"$group":
                     {
@@ -888,9 +910,9 @@ class Submission(DAComponent):
         # called by celery to get samples the supeprvisor has set to be sent to ENA
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
-        sub = self.get_collection_handle().find({"type": "dtol", "dtol_status": {"$in": ["sending", "pending"]}},
+        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
                                                 {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
-                                                 "date_modified": 1})
+                                                 "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)
         out = list()
 
@@ -911,6 +933,13 @@ class Submission(DAComponent):
                 self.get_collection_handle().update({"_id": ObjectId(s["_id"])}, {"$set": {"dtol_status": "sending"}})
         return out
 
+    def get_awaiting_tolids(self):
+        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["awaiting_tolids"]}},
+                                                {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
+                                                 "date_modified": 1})
+        sub = cursor_to_list(sub)
+        return sub
+
     def get_incomplete_submissions_for_user(self, user_id, repo):
         doc = self.get_collection_handle().find(
             {"user_id": user_id,
@@ -922,6 +951,10 @@ class Submission(DAComponent):
     def make_dtol_status_pending(self, sub_id):
         doc = self.get_collection_handle().update({"_id": ObjectId(sub_id)}, {
             "$set": {"dtol_status": "pending", "date_modified": data_utils.get_datetime()}})
+
+    def make_dtol_status_awaiting_tolids(self, sub_id):
+        doc = self.get_collection_handle().update({"_id": ObjectId(sub_id)}, {
+            "$set": {"dtol_status": "awaiting_tolids", "date_modified": data_utils.get_datetime()}})
 
     def save_record(self, auto_fields=dict(), **kwargs):
         if not kwargs.get("target_id", str()):
@@ -1483,6 +1516,9 @@ class DataFile(DAComponent):
                                                    {"$pull": {"file_level_annotation": {"sheet_name": sheet_name,
                                                                                         "column_idx": str(col_idx)}}})
         return docs
+
+    def get_num_pending_samples(self, sub_id):
+        doc = self.get_collection_handle().find_one({"_id", ObjectId(sub_id)})
 
 
 class Profile(DAComponent):

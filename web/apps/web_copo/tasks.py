@@ -37,3 +37,8 @@ def find_incorrectly_rejected_samples(self):
 def update_stats(self):
     Stats().update_stats()
     return True
+
+@app.task(bind=True)
+def poll_missing_tolids(self):
+    dtol.query_awaiting_tolids()
+    return True

@@ -13,27 +13,27 @@ regex_human_readable = ""
 
 class DtolEnumerationValidator(TolValidtor):
 
-    def __init__(self, profile_id, fields, data, errors, flag, **kwargs):
-        super().__init__(profile_id, fields, data, errors, flag, **kwargs)
-        self.warnings = list()
+    def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
+        super().__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
+        #self.warnings = list()
         self.taxonomy_dict = {}
 
     def validate(self):
         Entrez.api_key = lookup.NIH_API_KEY
         # build dictioanry of species in this manifest  max 200 IDs per query
-        taxon_id_set = set(self.data['TAXON_ID'].tolist())
+        taxon_id_set = set([x for x in self.data['TAXON_ID'].tolist() if x])
         notify_dtol_status(data={"profile_id": self.profile_id},
                            msg="Querying NCBI for TAXON_IDs in manifest ",
                            action="info",
                            html_id="sample_info")
         taxon_id_list = list(taxon_id_set)
-        if "ASG" in Profile().get_type(self.profile_id):
+        if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
                 # check if taxon is submittable
                 ena_taxon_errors = check_taxon_ena_submittable(taxon)
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
-                    flag = False
+                    self.flag = False
 
         if any(id for id in taxon_id_list):
             i = 0
@@ -51,7 +51,7 @@ class DtolEnumerationValidator(TolValidtor):
                     "Missing data: both TAXON_ID and SCIENTIFIC_NAME missing from row <strong>%s</strong>. "
                     "Provide at least one" % (
                         str(index + 2)))
-                flag = False
+                self.flag = False
                 continue
             notify_dtol_status(data={"profile_id": self.profile_id},
                                msg="Checking taxonomy information at row <strong>%s</strong> - "
@@ -73,18 +73,17 @@ class DtolEnumerationValidator(TolValidtor):
                         "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
                         "<strong>%s</strong>" % (
                             scientific_name, str(index + 2)))
-                    flag = False
+                    self.flag = False
                     continue
                 self.warnings.append(msg["validation_warning_field"] % (
                     "TAXON_ID", str(index + 2), "TAXON_ID", scientific_name, records['IdList'][0]))
                 self.data.at[index, "TAXON_ID"] = records['IdList'][0]
                 taxon_id = records['IdList'][0]
-                if "ASG" in Profile().get_type(self.profile_id):
-                    # check if taxon is submittable
-                    ena_taxon_errors = check_taxon_ena_submittable(taxon_id)
-                    if ena_taxon_errors:
-                        self.errors += ena_taxon_errors
-                        self.flag = False
+                # check if taxon is submittable
+                ena_taxon_errors = check_taxon_ena_submittable(taxon_id)
+                if ena_taxon_errors:
+                    self.errors += ena_taxon_errors
+                    self.flag = False
                 handle = Entrez.efetch(db="Taxonomy", id=taxon_id, retmode="xml")
                 records = Entrez.read(handle)
                 if records:
@@ -129,7 +128,8 @@ class DtolEnumerationValidator(TolValidtor):
                         continue
 
                 if self.taxonomy_dict[taxon_id]['Rank'] != 'species':
-                    if not "ASG" in Profile().get_type(self.profile_id):  # ASG is allowed rank level ids
+                    # if not "ASG" in Profile().get_type(self.profile_id):  # ASG is allowed non species level ids
+                    if "TARGET" in self.data.at[index, "SYMBIONT"]:
                         self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
                         self.flag = False
                         continue
@@ -144,7 +144,7 @@ class DtolEnumerationValidator(TolValidtor):
                         elif row['GENUS'].strip().upper() != element.get('ScientificName').upper():
                             self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
                                 row['GENUS'], "GENUS", str(index + 2), element.get('ScientificName').upper()))
-                            flag = False
+                            self.flag = False
                     elif rank == 'family':
                         if not row['FAMILY'].strip():
                             self.warnings.append(msg["validation_warning_field"] % (
@@ -168,7 +168,7 @@ class DtolEnumerationValidator(TolValidtor):
                             self.flag = False
             else:
                 self.errors.append(
-                    "Invalid data: couldn't retrieve TAXON_ID <strong>%s</strong> at row <strong>%s</strong>"
+                    msg['validation_msg_invalid_taxon']
                     % (
                         row['TAXON_ID'], str(index + 2)))
                 self.flag = False

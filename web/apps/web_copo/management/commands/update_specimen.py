@@ -18,9 +18,9 @@ class Command(BaseCommand):
     # Show this when the user types help
     help = "change the cutoff date"
     def __init__(self):
-        self.pass_word = resolve_env('WEBIN_USER_PASSWORD')
-        self.user_token = resolve_env('WEBIN_USER').split("@")[0]
-        self.ena_service = resolve_env('ENA_SERVICE') #'https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/'
+        self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
+        self.user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
+        self.ena_service = resolve_env.get_env('ENA_SERVICE') #'https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/'
         self.ena_sample_retrieval = self.ena_service[:-len('submit/')]+"samples/" #https://devwww.ebi.ac.uk/ena/submit/drop-box/samples/" \
 
     # A command must define handle()

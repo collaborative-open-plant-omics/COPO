@@ -53,7 +53,6 @@ def login(request):
 
 @user_passes_test(user_allowed_access)
 def test_view(request):
-    Sample().save_record()
     return render(request, "copo/test_1.html")
 
 '''

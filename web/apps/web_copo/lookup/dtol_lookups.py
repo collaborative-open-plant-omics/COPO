@@ -144,8 +144,6 @@ DTOL_ENUMS = {
         "SANGER INSTITUTE",
         "UNIVERSITY OF OXFORD",
         "MARINE BIOLOGICAL ASSOCIATION",
-        "UNIVERSITY OF CAMBRIDGE",
-        "UNIVERSITY OF EDINBURGH",
         "ROYAL BOTANIC GARDENS KEW",
         "ROYAL BOTANIC GARDEN EDINBURGH",
         "EARLHAM INSTITUTE",
@@ -157,10 +155,14 @@ DTOL_ENUMS = {
         "GEOMAR HELMHOLTZ CENTRE",
         "NOVA SOUTHEASTERN UNIVERSITY",
         "UNIVERSITY OF BRITISH COLUMBIA",
-        "UNIVERSITY OF VIENNA",
+        "UNIVERSITY OF VIENNA (MOLLUSC)",
         "QUEEN MARY UNIVERSITY OF LONDON",
         "THE SAINSBURY LABORATORY",
-        "PORTLAND STATE UNIVERSITY"
+        "PORTLAND STATE UNIVERSITY",
+        "UNIVERSITY OF RHODE ISLAND",
+        "SENCKENBERG RESEARCH INSTITUTE",
+        "UNIVERSITY OF VIENNA (CEPHALOPOD)",
+        "UNIVERSITY OF ORGEON"
     ],
     "SYMBIONT": [
         "TARGET",
@@ -678,10 +680,12 @@ DTOL_RULES = {
     },
     "DECIMAL_LATITUDE": {
         "ena_regex": "(^.*[+-]?[0-9]+.?[0-9]*.*$)|(^not collected$)|(^not provided$)",
+        "strict_regex": "(^[+-]?[0-9]+(.[0-9]+)*$)|(^not collected$)|(^not provided$)",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LONGITUDE": {
         "ena_regex": "(^.*[+-]?[0-9]+.?[0-9]*.*$)|(^not collected$)|(^not provided$)",
+        "strict_regex": "(^[+-]?[0-9]+(.[0-9]+)*$)|(^not collected$)|(^not provided$)",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
 
     },
@@ -697,6 +701,28 @@ DTOL_RULES = {
     "SAMPLE_DERIVED_FROM": {
         "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
         "human_readable": "Specimen accession"
+    },
+    "SAMPLE_SAME_AS": {
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "human_readable": "Specimen accession"
+    },
+    "SAMPLE_SYMBIONT_OF": {
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "human_readable": "Specimen accession"
+    },
+    "RACK_OR_PLATE_ID": {
+        "optional_regex": "^[a-zA-Z]{2}\d{8}$"
+    },
+    "TUBE_OR_WELL_ID": {
+        "optional_regex": "^[a-zA-Z]{2}\d{8}$"
+    },
+    "TIME_OF_COLLECTION" : {
+        "strict_regex" : "^([0-1][0-9]|2[0-4]):[0-5]\d$",
+        "human_readable" : "24-hour format with hours and minutes separated by colon"
+    },
+    "public_name": {
+        "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}[0-9]*$)",
+        "human_readable": "Public name"
     }
 }
 DTOL_UNITS = {
@@ -719,9 +745,6 @@ DTOL_ENA_MAPPINGS = {
     },
     "LIFESTAGE": {
         "ena": "lifestage"
-    },
-    "profile.title": {
-        "ena": "project name"
     },
     "COLLECTED_BY": {
         "ena": "collected_by"
@@ -770,6 +793,9 @@ DTOL_ENA_MAPPINGS = {
     "GAL": {
         "ena": "GAL"
     },
+    "PARTNER": {
+        "ena": "GAL"
+    },
     "VOUCHER_ID": {
         "ena": "specimen_voucher"
     },
@@ -779,11 +805,63 @@ DTOL_ENA_MAPPINGS = {
     "GAL_SAMPLE_ID": {
         "ena": "GAL_sample_id"
     },
+    "PARTNER_SAMPLE_ID": {
+        "ena": "GAL_sample_id"
+    },
     "CULTURE_OR_STRAIN_ID": {
         "ena": "culture_or_strain_id"
     },
-    "SAMPLE_DERIVED_FROM": {
+    "sampleDerivedFrom": {
         "ena": "sample derived from"
+    },
+    "sampleSameAs": {
+        "ena": "sample same as"
+    },
+    "sampleSymbiontOf": {
+        "ena": "sample symbiont of"
+    },
+    "public_name": {
+        "ena": "tolid"
+    }
+}
+
+SPECIMEN_PREFIX = {
+    "GAL" : {
+        "UNIVERSITY OF OXFORD" : "Ox",
+        "MARINE BIOLOGICAL ASSOCIATION" : "MBA",
+        "ROYAL BOTANIC GARDENS KEW" : "KDTOL",
+        "ROYAL BOTANIC GARDEN EDINBURGH" : "EDTOL",
+        "EARLHAM INSTITUTE" : "EI_",
+        "NATURAL HISTORY MUSEUM": "NHMUK",
+        "SANGER INSTITUTE": "SAN"
+    },
+    "PARTNER" : {
+        "UNIVERSITY OF DERBY" : "UDUK",
+        "DALHOUSIE UNIVERSITY" : "DU",
+        "NOVA SOUTHEASTERN UNIVERSITY" : "NSU",
+        "GEOMAR HELMHOLTZ CENTRE" : "GHC",
+        "UNIVERSITY OF BRITISH COLUMBIA" : "UOBC",
+        "UNIVERSITY OF VIENNA (MOLLUSC)" : "VIEM",
+        "QUEEN MARY UNIVERSITY OF LONDON" : "QMOUL",
+        "THE SAINSBURY LABORATORY" : "SL",
+        "PORTLAND STATE UNIVERSITY" : "PORT",
+        "UNIVERSITY OF RHODE ISLAND" : "URI",
+        "UNIVERSITY OF CALIFORNIA" : "UCALI",
+        "SENCKENBERG RESEARCH INSTITUTE" : "SENCK",
+        "UNIVERSITY OF VIENNA (CEPHALOPOD)" : "VIEC",
+        "UNIVERSITY OF ORGEON" : "UOREG"
+    }
+}
+
+SPECIMEN_SUFFIX = {
+    "GAL": {
+        "UNIVERSITY OF OXFORD": '\d{6}',
+        "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+        "ROYAL BOTANIC GARDENS KEW": '\d{5}',
+        "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
+        "EARLHAM INSTITUTE": '\d{5}',
+        "NATURAL HISTORY MUSEUM": '\d{9}',
+        "SANGER INSTITUTE": '\d{7}'
     }
 }
 

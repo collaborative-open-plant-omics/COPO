@@ -2081,4 +2081,9 @@ $(document).ready(function () {
         return dialog;
     }
 
+    let profile_type = $("#profile_type").val()
+    if (!profile_type.includes("Stand-alone")) {
+        $("#edit_button").hide()
+    }
+
 }); //end document ready

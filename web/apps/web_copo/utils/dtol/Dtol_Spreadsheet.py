@@ -23,6 +23,7 @@ from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
+from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
 from .tol_validators import optional_field_dtol_validators as optional_validators
 from .tol_validators import required_field_dtol_validators as required_validators
@@ -35,7 +36,13 @@ def make_target_sample(sample):
     if not "species_list" in sample:
         sample["species_list"] = list()
     out = dict()
-    out["SYMBIONT"] = "target"
+    symbiont = sample.pop("SYMBIONT")
+    if symbiont.upper() not in ["SYMBIONT", "TARGET"]:
+        if symbiont:
+            out["SYMBIONT_SOP2dot2"] = symbiont
+        symbiont = "TARGET"
+
+    out["SYMBIONT"] = symbiont.upper()
     out["TAXON_ID"] = sample.pop("TAXON_ID")
     out["ORDER_OR_GROUP"] = sample.pop("ORDER_OR_GROUP")
     out["FAMILY"] = sample.pop("FAMILY")
@@ -134,6 +141,7 @@ class DtolSpreadsheet:
     def validate(self):
         flag = True
         errors = []
+        warnings = []
 
         try:
             # get definitive list of mandatory DTOL fields from schema
@@ -145,7 +153,7 @@ class DtolSpreadsheet:
             # validate for required fields
             for v in self.required_field_validators:
                 errors, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, flag=flag).validate()
+                                 errors=errors, warnings=warnings, flag=flag).validate()
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
@@ -153,9 +161,15 @@ class DtolSpreadsheet:
 
             # validate for optional dtol fields
             for v in self.optional_field_validators:
-                errors, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, flag=flag).validate()
+                errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
+                                 errors=errors, warnings=warnings, flag=flag).validate()
 
+            # send warnings
+            if warnings:
+                notify_dtol_status(data={"profile_id": self.profile_id},
+                                   msg="<br>".join(warnings),
+                                   action="warning",
+                                   html_id="warning_info2")
             # if flag is false, compile list of errors
             if not flag:
                 errors = list(map(lambda x: "<li>" + x + "</li>", errors))
@@ -195,7 +209,7 @@ class DtolSpreadsheet:
             # validate for optional dtol fields
             for v in self.taxon_field_validators:
                 errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                           errors=errors, flag=flag).validate()
+                                           errors=errors, warnings=warnings, flag=flag).validate()
 
             # send warnings
             if warnings:
@@ -310,8 +324,17 @@ class DtolSpreadsheet:
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
+        public_name_list = list()
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
+            # store manifest version for posterity. If unknown store as 0
+            if "asg" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_ASG_VERSION
+            elif "dtol" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_DTOL_VERSION
+            else:
+                s["manifest_version"] = 0
+
             s["sample_type"] = self.type.lower()
             s["tol_project"] = self.type
             s["biosample_accession"] = []
@@ -323,14 +346,19 @@ class DtolSpreadsheet:
                                action="info",
                                html_id="sample_info")
 
-            if s["SYMBIONT"].lower() == "symbiont":
-                self.check_for_target_or_add_to_symbiont_list(s)
-            else:
-                # SOP 2.2 DTOL symbiont to be a scientific name
-                s = make_target_sample(s)
-                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-                Sample().timestamp_dtol_sample_created(sampl["_id"])
-                self.add_from_symbiont_list(s)
+            #change fields for symbiont
+            if s["SYMBIONT"] == "SYMBIONT":
+                s["ORGANISM_PART"] = "WHOLE_ORGANISM"
+                #if ASG change also sex to not collected
+                if s["tol_project"] == "ASG":
+                    s["SEX"] = "NOT_COLLECTED"
+            s = make_target_sample(s)
+            sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+            Sample().timestamp_dtol_sample_created(sampl["_id"])
+            if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                public_name_list.append(
+                    {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
+                     "sample_id": str(sampl["_id"])})
 
             for im in image_data:
                 # create matching DataFile object for image is provided
@@ -341,6 +369,10 @@ class DtolSpreadsheet:
                     break;
 
         uri = request.build_absolute_uri('/')
+        #query public service service a first time now to trigger request for public names that don't exist
+        public_names = query_public_name_service(public_name_list)
+        for name in public_names:
+            Sample().update_public_name(name)
         profile_id = request.session["profile_id"]
         profile = Profile().get_record(profile_id)
         title = profile["title"]
@@ -357,6 +389,7 @@ class DtolSpreadsheet:
                            action="info",
                            html_id="sample_info")
 
+    '''
     def add_from_symbiont_list(self, s):
         for idx, el in enumerate(self.symbiont_list):
             if el.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") \
@@ -365,6 +398,7 @@ class DtolSpreadsheet:
                 out.pop("RACK_OR_PLATE_ID")
                 out.pop("TUBE_OR_WELL_ID")
                 Sample().add_symbiont(s, out)
+    '''
 
     def check_for_target_or_add_to_symbiont_list(self, s):
         # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,

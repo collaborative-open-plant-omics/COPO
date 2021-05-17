@@ -13,21 +13,14 @@ class Logger():
 
 
 
-    def __init__(self, logfile_path, system_level=Loglvl.ERROR, log_type=Logtype.FILE):
+    def __init__(self, logfile_path, system_level=Loglvl.INFO, log_type=Logtype.FILE):
         self.level = system_level
         self.log_type = log_type
         self.logfile_path = logfile_path
 
+    def log(self, msg, level=Loglvl.INFO, type=Logtype.CONSOLE):
 
-
-    def log(self, msg, level=Loglvl.ERROR, type=Logtype.CONSOLE):
-
-        if level.value >= self.level.value:
-            # pass to relevant logger handler
-            if type.value == Logtype.CONSOLE.value:
-                return self._log_to_console(msg, level)
-            elif type.value == Logtype.FILE.value:
-                return self._log_to_file(msg, level)
+        return self._log_to_file(msg, level)
 
 
 
@@ -44,18 +37,12 @@ class Logger():
 
 
 
-    def _log_to_file(self, msg, lvl=Loglvl.ERROR):
+    def _log_to_file(self, msg, lvl=Loglvl.WARNING):
         msg = str(msg)
         with open(os.path.join(self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
             time = datetime.now()
-            time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
-            if lvl.value == Loglvl.ERROR.value:
-                file.write("ERROR - [" + time + "]: " + msg + "\n")
-                raise CopoRuntimeError(message="Whoops! - Something went wrong.")
-            elif lvl.value == Loglvl.WARNING.value:
-                file.write("WARNING - [" + time + "]: " + msg + "\n")
-            elif lvl.value == Loglvl.INFO.value:
-                file.write("INFO - [" + time + "]: " + msg + "\n")
+            # time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
+            file.write("INFO - [" + str(time) + "]: " + msg + "\n")
 
 
     '''

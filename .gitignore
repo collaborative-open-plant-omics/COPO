@@ -137,5 +137,5 @@ submission/data/.gitignore
 web/src/tools/reposit/aspera/AsperaConnect.app/Contents/Resources/aspera_mac_plugin/
 tools/reposit/aspera/AsperaConnect.app/Contents/Resources/aspera_mac_plugin/
 
-
+bundle_*.xml
 
