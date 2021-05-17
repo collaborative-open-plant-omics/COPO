@@ -70,10 +70,14 @@ class DtolEnumerationValidator(TolValidtor):
                                     ))
                                     self.flag = False
                         elif c_value.strip() not in allowed_vals:
+                            #extra handling for empty SYMBIONT ind DTOL manifest, which means TARGET
+                            if not c_value.strip() and header == "SYMBIONT" and "DTOL" in p_type:
+                                self.data.at[cellcount - 1, "SYMBIONT"] = "TARGET"
                             # check value is in allowed enum
-                            self.errors.append(msg["validation_msg_invalid_data"] % (
-                                c_value, header, str(cellcount + 1), allowed_vals))
-                            self.flag = False
+                            else:
+                                self.errors.append(msg["validation_msg_invalid_data"] % (
+                                    c_value, header, str(cellcount + 1), allowed_vals))
+                                self.flag = False
                         if header == "ORGANISM_PART" and c_value.strip() == "WHOLE_ORGANISM":
                             # send specimen in used whole specimens set
                             current_specimen = self.data.at[cellcount - 1, "SPECIMEN_ID"]
