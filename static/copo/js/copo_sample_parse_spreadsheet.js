@@ -236,6 +236,7 @@ $(document).ready(function () {
             if ($("#profile_id").val() == d.data.profile_id) {
                 if (d.action == "hide_sub_spinner") {
                     $("#sub_spinner").fadeOut(fadeSpeed)
+                    $("#barcode_upload_spinner").fadeOut(fadeSpeed)
                 }
                 if (d.action === "close") {
                     $("#" + d.html_id).fadeOut("50")

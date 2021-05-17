@@ -41,14 +41,16 @@ class Barcoding:
         flag = True
         errors = []
 
-        for s_id in self.data["SPECIMEN_ID"]:
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
-                               action="info",
-                               html_id="barcode_notify")
-            num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
-            if int(num) < 1:
-                flag = False
-                errors.append(msg["barcode_msg_missing_specimen"] % (s_id))
+        for ids in self.data["SPECIMEN_ID"]:
+            for s_id in ids.split(","):
+                s_id = s_id.strip()
+                notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
+                                   action="info",
+                                   html_id="barcode_notify")
+                num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
+                if int(num) < 1:
+                    flag = False
+                    errors.append(msg["barcode_msg_missing_specimen"] % (s_id))
 
         # if flag is false, compile list of errors
         if not flag:
@@ -75,62 +77,72 @@ class Barcoding:
         url = "http://www.boldsystems.org/index.php/API_Public/combined?ids=" + bold_url_param
         bold_xml = requests.get(url)
         resp = bold_xml.content
-        xml = ET.fromstring(resp)
-        # with open('/home/fshaw/Downloads/bold_data.xml') as f:
-        #    xml = ET.fromstring(f.read())
-        d = xmljson.parker.data(xml)["record"]
-        x = list()
-        if type(d) == OrderedDict:
-            x.append(d)
-            d = x
-        output = list()
-        full_records = list()
+        try:
+            xml = ET.fromstring(resp)
+            # with open('/home/fshaw/Downloads/bold_data.xml') as f:
+            #    xml = ET.fromstring(f.read())
+            d = xmljson.parker.data(xml)["record"]
+            x = list()
+            if type(d) == OrderedDict:
+                x.append(d)
+                d = x
+            output = list()
+            full_records = list()
 
-        for record in d:
-            r = dict()
-            full_records.append(record)
-            r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
+            for record in d:
+                r = dict()
+                full_records.append(record)
+                r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
 
-            # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
-            # this step is becuase bold api does not return results in order
-            row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
-            r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
+                # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
+                # this step is becuase bold api does not return results in order
+                row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
+                r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
-            # phylum
-            taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]
-            name = record["taxonomy"]["phylum"]["taxon"]["name"]
-            r["phylum"] = {"taxid": taxid, "name": name}
-            # class
-            taxid = record["taxonomy"]["class"]["taxon"]["taxID"]
-            name = record["taxonomy"]["class"]["taxon"]["name"]
-            r["class"] = {"taxid": taxid, "name": name}
-            # order
-            taxid = record["taxonomy"]["order"]["taxon"]["taxID"]
-            name = record["taxonomy"]["order"]["taxon"]["name"]
-            r["order"] = {"taxid": taxid, "name": name}
-            # family
-            taxid = record["taxonomy"]["family"]["taxon"]["taxID"]
-            name = record["taxonomy"]["family"]["taxon"]["name"]
-            r["family"] = {"taxid": taxid, "name": name}
-            # subfamily
-            taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]
-            name = record["taxonomy"]["subfamily"]["taxon"]["name"]
-            r["subfamily"] = {"taxid": taxid, "name": name}
-            # genus
-            taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]
-            name = record["taxonomy"]["genus"]["taxon"]["name"]
-            r["genus"] = {"taxid": taxid, "name": name}
-            # species
-            taxid = record["taxonomy"]["species"]["taxon"]["taxID"]
-            name = record["taxonomy"]["species"]["taxon"]["name"]
-            r["species"] = {"taxid": taxid, "name": name}
+                # phylum
+                taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]
+                name = record["taxonomy"]["phylum"]["taxon"]["name"]
+                r["phylum"] = {"taxid": taxid, "name": name}
+                # class
+                taxid = record["taxonomy"]["class"]["taxon"]["taxID"]
+                name = record["taxonomy"]["class"]["taxon"]["name"]
+                r["class"] = {"taxid": taxid, "name": name}
+                # order
+                taxid = record["taxonomy"]["order"]["taxon"]["taxID"]
+                name = record["taxonomy"]["order"]["taxon"]["name"]
+                r["order"] = {"taxid": taxid, "name": name}
+                # family
+                taxid = record["taxonomy"]["family"]["taxon"]["taxID"]
+                name = record["taxonomy"]["family"]["taxon"]["name"]
+                r["family"] = {"taxid": taxid, "name": name}
+                # subfamily
+                taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]
+                name = record["taxonomy"]["subfamily"]["taxon"]["name"]
+                r["subfamily"] = {"taxid": taxid, "name": name}
+                # genus
+                taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]
+                name = record["taxonomy"]["genus"]["taxon"]["name"]
+                r["genus"] = {"taxid": taxid, "name": name}
+                # species
+                taxid = record["taxonomy"]["species"]["taxon"]["taxID"]
+                name = record["taxonomy"]["species"]["taxon"]["name"]
+                r["species"] = {"taxid": taxid, "name": name}
 
-            output.append(r)
+                output.append(r)
 
-        df = pandas.DataFrame.from_dict(output)
-        b_id = str(uuid.uuid4())
-        retval = {"uid": b_id, "full_records": full_records, "data": df.to_json(), "num_records": len(output)}
-        # store this object in the session to calling later by uuid
-        req = ThreadLocal.get_current_request()
-        req.session[b_id] = retval
-        return retval
+            df = pandas.DataFrame.from_dict(output)
+            b_id = str(uuid.uuid4())
+            retval = {"uid": b_id, "full_records": full_records, "data": df.to_json(), "num_records": len(output)}
+            # store this object in the session to calling later by uuid
+            req = ThreadLocal.get_current_request()
+            req.session[b_id] = retval
+            return retval
+        except Exception as e:
+            notify_dtol_status(data={"profile_id": self.profile_id},
+                               msg="Samples not found in Bold. Please try again Later.",
+                               action="info",
+                               html_id="barcode_notify")
+            notify_dtol_status(data={"profile_id": self.profile_id},
+                               msg="",
+                               action="hide_sub_spinner",
+                               html_id="")
