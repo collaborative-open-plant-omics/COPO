@@ -1687,14 +1687,15 @@
   },
   {
     "help_tip": "",
-    "required": "false",
+    "required": "true",
     "control_meta": {},
     "dwc": "",
     "versions": [
       "BARCODE_HUB"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg"
     ],
     "ref": "",
     "deprecated": false,

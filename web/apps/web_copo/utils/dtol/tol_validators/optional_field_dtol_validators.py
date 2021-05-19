@@ -53,6 +53,10 @@ class DtolEnumerationValidator(TolValidtor):
                             self.data.at[cellcount - 1, "TIME_OF_COLLECTION"] = c
 
                     if allowed_vals:
+                        #extra handling of barcode hubs for ASG
+                        #todo move this in lookups and re-structure, this is in interest of time
+                        if header == "BARCODE_HUB" and "ASG" in p_type:
+                            allowed_vals = lookup.DTOL_ENUMS.get("PARTNER", "")
                         if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                             # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                             c_value = str(c).split('|')[0].strip()
