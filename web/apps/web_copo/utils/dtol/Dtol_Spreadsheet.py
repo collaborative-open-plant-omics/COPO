@@ -130,6 +130,7 @@ class DtolSpreadsheet:
                 '''
                 self.data = self.data.apply(lambda x: x.astype(str))
                 self.data = self.data.apply(lambda x: x.str.strip())
+                self.data.columns = self.data.columns.str.replace(" ", "")
             except Exception as e:
                 # if error notify via web socket
                 notify_dtol_status(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),

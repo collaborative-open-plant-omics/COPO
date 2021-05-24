@@ -100,32 +100,32 @@ class Barcoding:
                 r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
                 # phylum
-                taxid = record["taxonomy"]["phylum"]["taxon"]["taxID"]
-                name = record["taxonomy"]["phylum"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("phylum", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("phylum", dict()).get("taxon", dict()).get("name", "")
                 r["phylum"] = {"taxid": taxid, "name": name}
                 # class
-                taxid = record["taxonomy"]["class"]["taxon"]["taxID"]
-                name = record["taxonomy"]["class"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("class", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("class", dict()).get("taxon", dict()).get("name", "")
                 r["class"] = {"taxid": taxid, "name": name}
                 # order
-                taxid = record["taxonomy"]["order"]["taxon"]["taxID"]
-                name = record["taxonomy"]["order"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("order", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("order", dict()).get("taxon", dict()).get("name", "")
                 r["order"] = {"taxid": taxid, "name": name}
                 # family
-                taxid = record["taxonomy"]["family"]["taxon"]["taxID"]
-                name = record["taxonomy"]["family"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("family", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("family", dict()).get("taxon", dict()).get("name", "")
                 r["family"] = {"taxid": taxid, "name": name}
                 # subfamily
-                taxid = record["taxonomy"]["subfamily"]["taxon"]["taxID"]
-                name = record["taxonomy"]["subfamily"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("subfamily", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("subfamily", dict()).get("taxon", dict()).get("name", "")
                 r["subfamily"] = {"taxid": taxid, "name": name}
                 # genus
-                taxid = record["taxonomy"]["genus"]["taxon"]["taxID"]
-                name = record["taxonomy"]["genus"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("genus", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("genus", dict()).get("taxon", dict()).get("name", "")
                 r["genus"] = {"taxid": taxid, "name": name}
                 # species
-                taxid = record["taxonomy"]["species"]["taxon"]["taxID"]
-                name = record["taxonomy"]["species"]["taxon"]["name"]
+                taxid = record.get("taxonomy", dict()).get("species", dict()).get("taxon", dict()).get("taxID", "")
+                name = record.get("taxonomy", dict()).get("species", dict()).get("taxon", dict()).get("name", "")
                 r["species"] = {"taxid": taxid, "name": name}
 
                 output.append(r)
@@ -137,6 +137,15 @@ class Barcoding:
             req = ThreadLocal.get_current_request()
             req.session[b_id] = retval
             return retval
+        except KeyError as e:
+            notify_dtol_status(data={"profile_id": self.profile_id},
+                               msg="KeyError Encountered: " + str(e),
+                               action="info",
+                               html_id="barcode_notify")
+            notify_dtol_status(data={"profile_id": self.profile_id},
+                               msg="",
+                               action="hide_sub_spinner",
+                               html_id="")
         except Exception as e:
             notify_dtol_status(data={"profile_id": self.profile_id},
                                msg="Samples not found in Bold. Please try again Later.",
