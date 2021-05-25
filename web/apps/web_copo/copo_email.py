@@ -42,9 +42,17 @@ class CopoEmail:
         # get users in group
         users = User.objects.filter(groups__name='dtol_sample_notifiers')
         email_addresses = list()
-        print("here")
+        sub = ""
         if len(users) > 0:
             for u in users:
                 email_addresses.append(u.email)
-            msg = self.messages["new_manifest"].format(kwargs["title"], kwargs["description"], data, data)
-            self.send(to=email_addresses, sub="New DToL Manifest - " + kwargs["title"], content=msg, html=True)
+            if "demo" in data:
+                # if this is running on the demo server, add note into subject and content of email
+                msg = self.messages["new_manifest"].format(kwargs["title"],
+                                                           "DEMO SERVER NOTIFICATION - " + kwargs["description"], data,
+                                                           data)
+                sub = "DEMO SERVER NOTIFICATION: New DToL Manifest - " + kwargs["title"]
+            else:
+                msg = self.messages["new_manifest"].format(kwargs["title"], kwargs["description"], data, data)
+                sub = "New DToL Manifest - " + kwargs["title"]
+            self.send(to=email_addresses, sub=sub, content=msg, html=True)

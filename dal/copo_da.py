@@ -812,7 +812,7 @@ class Sample(DAComponent):
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
-                                                                 "species_list": {'$elemMatch': {"SYMBIONT": "TARGET"}},
+                                                                 "species_list.SYMBIONT": {'$in': ["TARGET", "target"]},
                                                                  "SPECIMEN_ID" : specimenid}))
 
     def get_manifests(self):
@@ -1500,6 +1500,9 @@ class DataFile(DAComponent):
                                                    {"$pull": {"file_level_annotation": {"sheet_name": sheet_name,
                                                                                         "column_idx": str(col_idx)}}})
         return docs
+
+    def get_num_pending_samples(self, sub_id):
+        doc = self.get_collection_handle().find_one({"_id", ObjectId(sub_id)})
 
 
 class Profile(DAComponent):

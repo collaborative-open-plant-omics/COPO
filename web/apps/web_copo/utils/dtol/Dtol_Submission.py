@@ -18,16 +18,18 @@ from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS as settings
 from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_SAMPLE_TEMPLATE, SRA_PROJECT_TEMPLATE
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
+from bson import ObjectId
+from django_tools.middlewares.ThreadLocal import get_current_request
 
 with open(settings, "r") as settings_stream:
     sra_settings = json.loads(settings_stream.read())["properties"]
 
-#logger = get_task_logger(__name__)
+# logger = get_task_logger(__name__)
 l = logger.Logger("exceptions_and_logging/logs")
 exclude_from_sample_xml = []  # todo list of keys that shouldn't end up in the sample.xml file
 ena_service = resolve_env.get_env('ENA_SERVICE')
 
-#public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
+# public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
 
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
@@ -51,8 +53,9 @@ def process_pending_dtol_samples():
         # check if study exist for this submission and/or create one
         profile_id = submission["profile_id"]
         type_submission = submission["type"]
-        if not Submission().get_study(submission['_id']):
-            create_study(submission['profile_id'], collection_id=submission['_id'])
+        #removing study for general case, will be useful for subset of submissions
+        '''if not Submission().get_study(submission['_id']):
+            create_study(submission['profile_id'], collection_id=submission['_id'])'''
         file_subfix = str(uuid.uuid4())  # use this to recover bundle sample file
         build_bundle_sample_xml(file_subfix)
         s_ids = []
@@ -91,14 +94,19 @@ def process_pending_dtol_samples():
 
             # check if specimen ID biosample was already registered, if not do it
             specimen_sample = Source().get_specimen_biosample(sam["SPECIMEN_ID"])
-            assert len(specimen_sample) <= 1
-            specimen_accession=""
+            try:
+                assert len(specimen_sample) <= 1
+            except AssertionError:
+                l.log("Multiple sources for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                return False
+            specimen_accession = ""
             if specimen_sample:
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
             else:
                 # create sample object and submit
                 notify_dtol_status(data={"profile_id": profile_id},
-                                   msg="Creating Sample for SPECIMEN_ID " + sam["RACK_OR_PLATE_ID"] + "/" + sam["SPECIMEN_ID"],
+                                   msg="Creating Sample for SPECIMEN_ID " + sam["RACK_OR_PLATE_ID"] + "/" + sam[
+                                       "SPECIMEN_ID"],
                                    action="info",
                                    html_id="dtol_sample_info")
                 if type_submission == "asg":
@@ -168,6 +176,7 @@ def process_pending_dtol_samples():
                 msg="Connection issue - please try resubmit later"
                 notify_dtol_status(data={"profile_id": profile_id}, msg=msg, action="info",
                                    html_id="dtol_sample_info")
+                Submission().make_dtol_status_pending(submission['_id'])
                 break
             #set appropriate relationship to specimen level sample
             if issymbiont == "SYMBIONT":
@@ -179,6 +188,15 @@ def process_pending_dtol_samples():
             else:
                 Sample().add_field("sampleDerivedFrom", specimen_accession, sam['_id'])
                 sam["sampleDerivedFrom"] = specimen_accession
+
+            #making sure relationship between sample and specimen level sample is set
+            try:
+                updated_sample = Sample().get_record(sam['_id'])
+                assert any([updated_sample.get("sampleSymbiontOf", ""), updated_sample.get("sampleSameAs", ""), updated_sample.get("sampleDerivedFrom", "")])
+            except AssertionError:
+                l.log("Missing relationship to parent sample for sample " + sam["_id"], type=Logtype.FILE)
+                Submission().make_dtol_status_pending(submission['_id'])
+                return False
 
             notify_dtol_status(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
                                action="info",
@@ -556,9 +574,10 @@ def build_validate_xml(sample_id):
 
 def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
     # register project to the ENA service using XML files previously created
+
     submissionfile = "submission_" + str(subfix) + ".xml"
     samplefile = "bundle_" + str(subfix) + ".xml"
-    curl_cmd = 'curl -u ' + user_token + ':' + pass_word \
+    curl_cmd = 'curl -m 300 -u ' + user_token + ':' + pass_word \
                + ' -F "SUBMISSION=@' \
                + submissionfile \
                + '" -F "SAMPLE=@' \
@@ -572,24 +591,29 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
         l.log("ENA RECEIPT " + str(receipt), type=Logtype.FILE)
         print(receipt)
     except Exception as e:
+        l.log("General Error " + str(e), type=Logtype.FILE)
         message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
             pass_word, "xxxxxx")
         notify_dtol_status(data={"profile_id": profile_id}, msg=message, action="error",
                            html_id="dtol_sample_info")
         os.remove(submissionfile)
         os.remove(samplefile)
+
+        reset_submission_status(collection_id)
         return False
         # print(message)
 
     try:
         tree = ET.fromstring(receipt)
     except ET.ParseError as e:
+        l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
         message = " Unrecognized response from ENA - " + str(
             receipt) + " Please try again later, if it persists contact admins"
         notify_dtol_status(data={"profile_id": profile_id}, msg=message, action="error",
                            html_id="dtol_sample_info")
         os.remove(submissionfile)
         os.remove(samplefile)
+        reset_submission_status(collection_id)
         return False
 
     os.remove(submissionfile)
@@ -611,6 +635,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
                 sampleobj.add_rejected_status(status, sample_id)
 
         # print('error')
+        l.log("Success False" + str(msg), type=Logtype.FILE)
         return status
     else:
         # retrieve id and update record
@@ -654,6 +679,16 @@ def get_studyId(receipt, collection_id):
     return accessions
 
 
+def reset_submission_status(submission_id):
+    doc = Submission().get_collection_handle().find_one({"_id": ObjectId(submission_id)})
+    l = len(doc["dtol_samples"])
+    if l > 0:
+        status = "pending"
+    else:
+        status = "complete"
+    Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
+
+
 def create_study(profile_id, collection_id):
     # build study XML
     profile = Profile().get_record(profile_id)
@@ -678,7 +713,7 @@ def create_study(profile_id, collection_id):
     submissionfile = "submission_" + profile_id + ".xml"
     build_submission_xml(profile_id, hold=date.today().strftime("%Y-%m-%d"))
 
-    curl_cmd = 'curl -u ' + user_token + ':' + pass_word \
+    curl_cmd = 'curl -u -m 300' + user_token + ':' + pass_word \
                + ' -F "SUBMISSION=@' \
                + submissionfile \
                + '" -F "PROJECT=@' \
@@ -707,6 +742,7 @@ def create_study(profile_id, collection_id):
         os.remove(submissionfile)
         os.remove(studyfile)
         return False
+
     os.remove(submissionfile)
     os.remove(studyfile)
     success_status = tree.get('success')
