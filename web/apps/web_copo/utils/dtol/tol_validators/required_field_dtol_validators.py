@@ -8,6 +8,7 @@ blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE", "NA"]
 
 class ColumnValidator(TolValidtor):
     def validate(self):
+        p_type = Profile().get_type(profile_id=self.profile_id)
         columns = list(self.data.columns)
         # check required fields are present in spreadsheet
         for item in self.fields:
@@ -15,6 +16,10 @@ class ColumnValidator(TolValidtor):
                                action="info",
                                html_id="sample_info")
             if item not in columns:
+                #TODO remove once all 2.2 manifests are gone!!!!
+                if item == "BARCODE_HUB" and "DTOL" in p_type:
+                    self.data["BARCODE_HUB"] = ["NOT_PROVIDED" for x in range(self.data.shape[0])]
+                    continue
                 # invalid or missing field, inform user and return false
                 self.errors.append("Field not found - " + item)
                 self.flag = False
