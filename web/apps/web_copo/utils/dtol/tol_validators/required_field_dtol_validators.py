@@ -8,6 +8,7 @@ blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE", "NA"]
 
 class ColumnValidator(TolValidtor):
     def validate(self):
+        p_type = Profile().get_type(profile_id=self.profile_id)
         columns = list(self.data.columns)
         # check required fields are present in spreadsheet
         for item in self.fields:
@@ -15,6 +16,10 @@ class ColumnValidator(TolValidtor):
                                action="info",
                                html_id="sample_info")
             if item not in columns:
+                #TODO remove once all 2.2 manifests are gone!!!!
+                if item == "BARCODE_HUB" and "DTOL" in p_type:
+                    self.data["BARCODE_HUB"] = ["NOT_PROVIDED" for x in range(self.data.shape[0])]
+                    continue
                 # invalid or missing field, inform user and return false
                 self.errors.append("Field not found - " + item)
                 self.flag = False
@@ -98,10 +103,6 @@ class RackPlateUniquenessValidator(TolValidtor):
                     str(rows["RACK_OR_PLATE_ID"] + "/" + rows["TUBE_OR_WELL_ID"])))
                 self.flag = False
             if counts["TARGET"] > 1:
-                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
-                self.flag = False
-            #TODO this can go at version 2.3 of DTOL
-            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
         return self.errors, self.flag

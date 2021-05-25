@@ -71,8 +71,10 @@ class Command(BaseCommand):
                 sourceindb = da.Source().get_by_field("biosampleAccession", source_biosample)
                 assert len(sourceindb)==1
                 for field in d_updates[sample['biosampleAccession']]:
-                    value = d_updates[sample['biosampleAccession']][field]
-                    da.Source().add_field(field, value, sourceindb[0]['_id'])
+                    #only update in source fields that are there -ENA submittable- and not organism part
+                    if field != "ORGANISM_PART" and DTOL_ENA_MAPPINGS.get(field, ""):
+                        value = d_updates[sample['biosampleAccession']][field]
+                        da.Source().add_field(field, value, sourceindb[0]['_id'])
             #if fields are submitted to ENA update them
             print(d_updates[sample['biosampleAccession']])
             print(list(d_updates[sample['biosampleAccession']].keys()))

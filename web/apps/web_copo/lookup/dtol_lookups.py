@@ -56,6 +56,9 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
         "SYMBIONT",
+        "BARCODE_HUB",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "ORIGINAL_COLLECTION_DATE",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -68,6 +71,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "status",
         "sampleDerivedFrom",
         "sampleSameAs",
+        "sampleSymbiontOf",
         "copo_profile_title",
         "species_list",
         "tol_project"
@@ -121,6 +125,9 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "SIZE_OF_TISSUE_IN_TUBE",
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
+        "BARCODE_HUB",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "ORIGINAL_COLLECTION_DATE",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -133,6 +140,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "status",
         "sampleDerivedFrom",
         "sampleSameAs",
+        "sampleSymbiontOf",
         "copo_profile_title",
         "species_list",
         "tol_project"
@@ -282,14 +290,18 @@ DTOL_ENUMS = {
         "THALLUS_PLANT",
         "THORAX",
         "WHOLE_ORGANISM",
-        "WHOLE_PLANT"
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
     ],
     "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE": [
         "HIGH_PRIORITY",
         "NOT_APPLICABLE",
         "DIFFICULT",
         "NOT_PROVIDED",
-        "NOT_COLLECTED"
+        "NOT_COLLECTED",
+        "FULL_CURATION"
     ],
     "TO_BE_USED_FOR": [
         "RNAseq",
@@ -301,7 +313,8 @@ DTOL_ENUMS = {
         "REFERENCE_GENOME",
         "SHORT_READ_SEQUENCING",
         "DNA_BARCODING_ONLY",
-        "RNA_SEQUENCING"
+        "RNA_SEQUENCING",
+        "R&D"
     ],
     "SIZE_OF_TISSUE_IN_TUBE": [
         "VS",
@@ -383,7 +396,10 @@ DTOL_ENUMS = {
         "THALLUS_PLANT",
         "THORAX",
         "WHOLE_ORGANISM",
-        "WHOLE_PLANT"
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
     ],
     "TISSUE_REMOVED_FOR_BARCODING": [
         "Y",
@@ -671,6 +687,15 @@ DTOL_ENUMS = {
         "NOT APPLICABLE",
         "NOT COLLECTED",
         "NOT PROVIDED"
+    ],
+    "BARCODE_HUB" : [
+        "UNIVERSITY OF OXFORD",
+        "MARINE BIOLOGICAL ASSOCIATION",
+        "ROYAL BOTANIC GARDEN EDINBURGH",
+        "NATURAL HISTORY MUSEUM",
+        "NOT_COLLECTED",
+        "NOT_APPLICABLE",
+        "NOT_PROVIDED"
     ]
 }
 DTOL_RULES = {
@@ -723,6 +748,11 @@ DTOL_RULES = {
     "public_name": {
         "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}[0-9]*$)",
         "human_readable": "Public name"
+    },
+    "ORIGINAL_COLLECTION_DATE" : {
+        "ena_regex" : "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
+        "strict_regex" : "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
+        "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     }
 }
 DTOL_UNITS = {
@@ -822,6 +852,12 @@ DTOL_ENA_MAPPINGS = {
     },
     "public_name": {
         "ena": "tolid"
+    },
+    "ORIGINAL_COLLECTION_DATE": {
+        "ena": "original collection date"
+    },
+    "ORIGINAL_GEOGRAPHIC_LOCATION": {
+        "ena": "original collection location"
     }
 }
 

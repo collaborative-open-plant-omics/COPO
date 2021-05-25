@@ -4,7 +4,7 @@ MESSAGES = {
                                        "empty rows. Values of <strong>%s</strong> are allowed.",
     "validation_msg_missing_data": "Missing data detected in column <strong>%s</strong> at row <strong>%s</strong>. "
                                    "All required fields must have a value. There must be no empty rows. Values of "
-                                   "<strong>%s</strong> are allowed.",
+                                   "<strong>%s</strong> are allowed, unless otherwise stated in the SOP.",
     "validation_msg_missing_scientific_name": "Missing data detected in column <strong>%s</strong> at row "
                                               "<strong>%s</strong>. "
                                               "All required fields must have a value. There must be no empty rows.",
@@ -76,10 +76,11 @@ MESSAGES = {
                                                 "<strong>"
                                                 "%s</strong> followed by <strong>%s</strong>.",
     "validation_msg_warning_barcoding": "Warning: Overwriting PLATE_ID_FOR_BARCODING, "
-                                        "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and "
-                                        "BARCODE_PLATE_PRESERVATIVE"
-                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is "
-                                        "<strong>%s</strong>",
+                                        "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and BARCODE_PLATE_PRESERVATIVE"
+                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>",
+    "validation_msg_original_field_missing": "Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row <strong>%s</strong>"
+                                             ". If ORIGINAL_COLLECTION_DATE is provided, ORIGINAL_GEOGRAPHIC_LOCATION"
+                                             " must also be provided.",
     "validation_msg_multiple_targets_with_same_id": "Multiple Targets found for RACK_OR_PLATE_ID/TUBE_OR_WELL_ID: "
                                                     "<strong>%s</strong>",
     "validation_msg_orphaned_symbiont": "Sybiont(s) found with TUBE_OR_WELL_ID: <strong>%s</strong> has no associated "
