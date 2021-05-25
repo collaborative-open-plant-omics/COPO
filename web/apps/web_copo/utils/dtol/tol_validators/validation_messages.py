@@ -4,7 +4,7 @@ MESSAGES = {
                                        "empty rows. Values of <strong>%s</strong> are allowed.",
     "validation_msg_missing_data": "Missing data detected in column <strong>%s</strong> at row <strong>%s</strong>. "
                                    "All required fields must have a value. There must be no empty rows. Values of "
-                                   "<strong>%s</strong> are allowed.",
+                                   "<strong>%s</strong> are allowed, unless otherwise stated in the SOP.",
     "validation_msg_missing_scientific_name": "Missing data detected in column <strong>%s</strong> at row "
                                               "<strong>%s</strong>. "
                                               "All required fields must have a value. There must be no empty rows.",
