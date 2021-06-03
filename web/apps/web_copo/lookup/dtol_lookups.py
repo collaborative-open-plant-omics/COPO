@@ -694,7 +694,6 @@ DTOL_ENUMS = {
         "ROYAL BOTANIC GARDEN EDINBURGH",
         "NATURAL HISTORY MUSEUM",
         "NOT_COLLECTED",
-        "NOT_APPLICABLE",
         "NOT_PROVIDED"
     ]
 }
