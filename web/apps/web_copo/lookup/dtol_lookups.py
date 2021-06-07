@@ -11,6 +11,15 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "RACK_OR_PLATE_ID",
         "TUBE_OR_WELL_ID",
         "SPECIMEN_ID",
+        "TAXON_ID",
+        "ORDER_OR_GROUP",
+        "FAMILY",
+        "GENUS",
+        "SCIENTIFIC_NAME",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
+        "TAXON_REMARKS",
         "LIFESTAGE",
         "SEX",
         "ORGANISM_PART",
@@ -56,6 +65,11 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
         "SYMBIONT",
+        "BARCODE_HUB",
+        "ORIGINAL_COLLECTION_DATE",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "boldAccession",
+
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -69,14 +83,23 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleDerivedFrom",
         "sampleSameAs",
         "copo_profile_title",
-        "species_list",
-        "tol_project"
+        "tol_project",
+
     ],
     "asg": [
         "SERIES",
         "RACK_OR_PLATE_ID",
         "TUBE_OR_WELL_ID",
         "SPECIMEN_ID",
+        "TAXON_ID",
+        "ORDER_OR_GROUP",
+        "FAMILY",
+        "GENUS",
+        "SCIENTIFIC_NAME",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
+        "TAXON_REMARKS",
         "LIFESTAGE",
         "SEX",
         "ORGANISM_PART",
@@ -121,6 +144,10 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "SIZE_OF_TISSUE_IN_TUBE",
         "TISSUE_REMOVED_FOR_BARCODING",
         "OTHER_INFORMATION",
+        "BARCODE_HUB",
+        "ORIGINAL_COLLECTION_DATE",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "boldAccession",
         "public_name",
         "biosampleAccession",
         "created_by",
@@ -134,7 +161,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleDerivedFrom",
         "sampleSameAs",
         "copo_profile_title",
-        "species_list",
+
         "tol_project"
     ]
 }
@@ -675,7 +702,9 @@ DTOL_ENUMS = {
 }
 DTOL_RULES = {
     "DATE_OF_COLLECTION": {
-        "ena_regex": "(^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$)|(^not collected$)|(^not provided$)",
+        "ena_regex": "(^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{"
+                     "4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$)|(^not "
+                     "collected$)|(^not provided$)",
         "human_readable": "YYYY-MM-DD, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LATITUDE": {
@@ -699,15 +728,21 @@ DTOL_RULES = {
         "human_readable": "numeric, or empty string"
     },
     "SAMPLE_DERIVED_FROM": {
-        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{"
+                     "11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END]["
+                     "AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
         "human_readable": "Specimen accession"
     },
     "SAMPLE_SAME_AS": {
-        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{"
+                     "11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END]["
+                     "AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
         "human_readable": "Specimen accession"
     },
     "SAMPLE_SYMBIONT_OF": {
-        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END][AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
+        "ena_regex": "(^[ESD]R[SR]\d{6,}(,[ESD]R[SR]\d{6,})*$)|(^SAM[END][AG]?\d+(,SAM[END][AG]?\d+)*$)|(^EGA[NR]\d{"
+                     "11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END]["
+                     "AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
         "human_readable": "Specimen accession"
     },
     "RACK_OR_PLATE_ID": {
@@ -716,12 +751,13 @@ DTOL_RULES = {
     "TUBE_OR_WELL_ID": {
         "optional_regex": "^[a-zA-Z]{2}\d{8}$"
     },
-    "TIME_OF_COLLECTION" : {
-        "strict_regex" : "^([0-1][0-9]|2[0-4]):[0-5]\d$",
-        "human_readable" : "24-hour format with hours and minutes separated by colon"
+    "TIME_OF_COLLECTION": {
+        "strict_regex": "^([0-1][0-9]|2[0-4]):[0-5]\d$",
+        "human_readable": "24-hour format with hours and minutes separated by colon"
     },
     "public_name": {
-        "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}[0-9]*$)",
+        "ena_regex": "(^[a-z]{1}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{2}[0-9]*$)|(^[a-z]{2}[A-Z]{1}[a-z]{2}[A-Z]{1}[a-z]{3}["
+                     "0-9]*$)",
         "human_readable": "Public name"
     }
 }
@@ -763,7 +799,8 @@ DTOL_ENA_MAPPINGS = {
         "ena": "geographic location (longitude)"
     },
     "COLLECTION_LOCATION_2": {
-        "info": "split COLLECTION_LOCATION on first '|' and put right hand side here (should be a list of '|' separated locations)",
+        "info": "split COLLECTION_LOCATION on first '|' and put right hand side here (should be a list of '|' "
+                "separated locations)",
         "ena": "geographic location (region and locality)"
     },
     "IDENTIFIED_BY": {
@@ -826,30 +863,30 @@ DTOL_ENA_MAPPINGS = {
 }
 
 SPECIMEN_PREFIX = {
-    "GAL" : {
-        "UNIVERSITY OF OXFORD" : "Ox",
-        "MARINE BIOLOGICAL ASSOCIATION" : "MBA",
-        "ROYAL BOTANIC GARDENS KEW" : "KDTOL",
-        "ROYAL BOTANIC GARDEN EDINBURGH" : "EDTOL",
-        "EARLHAM INSTITUTE" : "EI_",
+    "GAL": {
+        "UNIVERSITY OF OXFORD": "Ox",
+        "MARINE BIOLOGICAL ASSOCIATION": "MBA",
+        "ROYAL BOTANIC GARDENS KEW": "KDTOL",
+        "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
+        "EARLHAM INSTITUTE": "EI_",
         "NATURAL HISTORY MUSEUM": "NHMUK",
         "SANGER INSTITUTE": "SAN"
     },
-    "PARTNER" : {
-        "UNIVERSITY OF DERBY" : "UDUK",
-        "DALHOUSIE UNIVERSITY" : "DU",
-        "NOVA SOUTHEASTERN UNIVERSITY" : "NSU",
-        "GEOMAR HELMHOLTZ CENTRE" : "GHC",
-        "UNIVERSITY OF BRITISH COLUMBIA" : "UOBC",
-        "UNIVERSITY OF VIENNA (MOLLUSC)" : "VIEM",
-        "QUEEN MARY UNIVERSITY OF LONDON" : "QMOUL",
-        "THE SAINSBURY LABORATORY" : "SL",
-        "PORTLAND STATE UNIVERSITY" : "PORT",
-        "UNIVERSITY OF RHODE ISLAND" : "URI",
-        "UNIVERSITY OF CALIFORNIA" : "UCALI",
-        "SENCKENBERG RESEARCH INSTITUTE" : "SENCK",
-        "UNIVERSITY OF VIENNA (CEPHALOPOD)" : "VIEC",
-        "UNIVERSITY OF ORGEON" : "UOREG"
+    "PARTNER": {
+        "UNIVERSITY OF DERBY": "UDUK",
+        "DALHOUSIE UNIVERSITY": "DU",
+        "NOVA SOUTHEASTERN UNIVERSITY": "NSU",
+        "GEOMAR HELMHOLTZ CENTRE": "GHC",
+        "UNIVERSITY OF BRITISH COLUMBIA": "UOBC",
+        "UNIVERSITY OF VIENNA (MOLLUSC)": "VIEM",
+        "QUEEN MARY UNIVERSITY OF LONDON": "QMOUL",
+        "THE SAINSBURY LABORATORY": "SL",
+        "PORTLAND STATE UNIVERSITY": "PORT",
+        "UNIVERSITY OF RHODE ISLAND": "URI",
+        "UNIVERSITY OF CALIFORNIA": "UCALI",
+        "SENCKENBERG RESEARCH INSTITUTE": "SENCK",
+        "UNIVERSITY OF VIENNA (CEPHALOPOD)": "VIEC",
+        "UNIVERSITY OF ORGEON": "UOREG"
     }
 }
 
@@ -865,7 +902,6 @@ SPECIMEN_SUFFIX = {
     }
 }
 
-
 API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
 
@@ -874,4 +910,3 @@ symbiont_vals = ["TARGET", "SYMBIONT"]
 na_vals = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
 date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
-

@@ -69,8 +69,10 @@ def filter_for_STS(sample_list):
     for s in sample_list:
         if isinstance(s, InvalidId):
             break
+        species_list = s.pop("species_list")
+        z = {**s, **species_list[0]}
         s_out = dict()
-        for k, v in s.items():
+        for k, v in z.items():
             # always export copo id
             if k == "_id":
                 s_out["copo_id"] = str(v)
@@ -79,10 +81,14 @@ def filter_for_STS(sample_list):
             if k in export:
                 if k in time_fields:
                     s_out[k] = format_date(v)
-                elif k=="sampleSameAs": #TODO temp remove this
-                    s_out["sampleDerivedFrom"] = v #TODO temp remove this
+                elif k == "sampleSameAs":  # TODO temp remove this
+                    s_out["sampleDerivedFrom"] = v  # TODO temp remove this
                 else:
                     s_out[k] = v
+        # iterate through fields to be exported and add them in blank if not present in the sample object
+        for k in export:
+            if k not in s_out.keys():
+                s_out[k] = ""
         out.append(s_out)
     return out
 
