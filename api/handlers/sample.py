@@ -81,8 +81,6 @@ def filter_for_STS(sample_list):
             if k in export:
                 if k in time_fields:
                     s_out[k] = format_date(v)
-                elif k == "sampleSameAs":  # TODO temp remove this
-                    s_out["sampleDerivedFrom"] = v  # TODO temp remove this
                 else:
                     s_out[k] = v
         # iterate through fields to be exported and add them in blank if not present in the sample object
