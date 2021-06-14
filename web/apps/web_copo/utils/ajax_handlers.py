@@ -1340,6 +1340,13 @@ def create_spreadsheet_samples(request):
     dtol.save_records()
     return HttpResponse(status=200)
 
+def update_spreadsheet_samples(request):
+    sample_data = request.session["sample_data"]
+    # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
+    dtol = DtolSpreadsheet()
+    dtol.update_records()
+    return HttpResponse(status=200)
+
 
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
