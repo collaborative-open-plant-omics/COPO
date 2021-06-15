@@ -88,6 +88,12 @@ class Command(BaseCommand):
         out["TAXON_ID"] = taxon
         out["SCIENTIFIC_NAME"] = name
 
+        oldsample = da.Sample().get_record(sample)
+        for tax_field in self.TAXONOMY_FIELDS:
+            oldvalue = oldsample["species_list"][0].get(tax_field, "")
+            newvalue = out[tax_field]
+            if oldvalue != newvalue:
+                da.Sample().record_manual_update(tax_field, oldvalue, newvalue, sample)
         da.Sample().add_field("species_list.0", out, sample)
 
         #query public name (skip this for now)
@@ -109,6 +115,7 @@ class Command(BaseCommand):
         #update db record
         source = da.Source().get_by_field("biosampleAccession", accession)
         assert len(source)==1
+        da.Source().record_manual_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
         da.Source().add_field("TAXON_ID", taxon, source[0]['_id'])
         #update ENA record
         updatedrecord = da.Source().get_record(source[0]['_id'])
