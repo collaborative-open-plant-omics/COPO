@@ -58,6 +58,8 @@ class Command(BaseCommand):
         for sample in samplesindb:
             for field in d_updates[sample['biosampleAccession']]:
                 value = d_updates[sample['biosampleAccession']][field]
+                oldvalue = da.Sample().get_record(sample['_id'])
+                da.Sample().record_manual_update(field, oldvalue, value, sample['_id'])
                 da.Sample().add_field(field, value, sample['_id'])
 
             #if there's source update it
@@ -72,6 +74,7 @@ class Command(BaseCommand):
                 assert len(sourceindb)==1
                 for field in d_updates[sample['biosampleAccession']]:
                     value = d_updates[sample['biosampleAccession']][field]
+                    da.Source().record_manual_update(field, oldvalue, value, sourceindb[0]['_id'])
                     da.Source().add_field(field, value, sourceindb[0]['_id'])
             #if fields are submitted to ENA update them
             print(d_updates[sample['biosampleAccession']])

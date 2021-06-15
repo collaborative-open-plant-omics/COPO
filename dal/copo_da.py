@@ -631,6 +631,25 @@ class Source(DAComponent):
             {"SPECIMEN_ID": name['specimen']["specimenId"], "TAXON_ID": str(name['species']["taxonomyId"])},
             {"$set": {"public_name": name.get("tolId", "")}})
 
+    def record_manual_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "manual",
+            "user" : "copo@earlham.ac.uk"
+        }}})
+
 
 class Sample(DAComponent):
     def __init__(self, profile_id=None):
@@ -888,6 +907,25 @@ class Sample(DAComponent):
             "date" : datetime.now(timezone.utc).replace(microsecond=0),
             "type" : "user",
             "user" : ThreadLocal.get_current_user().email
+        }}})
+
+    def record_manual_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "manual",
+            "user" : "copo@earlham.ac.uk"
         }}})
 
 
