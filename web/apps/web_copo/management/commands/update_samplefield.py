@@ -58,7 +58,7 @@ class Command(BaseCommand):
         for sample in samplesindb:
             for field in d_updates[sample['biosampleAccession']]:
                 value = d_updates[sample['biosampleAccession']][field]
-                oldvalue = da.Sample().get_record(sample['_id'])
+                oldvalue = da.Sample().get_record(sample['_id']).get(field, "")
                 da.Sample().record_manual_update(field, oldvalue, value, sample['_id'])
                 da.Sample().add_field(field, value, sample['_id'])
 
