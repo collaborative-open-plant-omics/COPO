@@ -1445,7 +1445,7 @@ def accept_barcoding_manifest(request):
     specimen_data = json.loads(bc_data["data"])
 
     for idx, bc in enumerate(specimen_data["specimen_id"]):
-        s_id = specimen_data["specimen_id"][bc]
+        s_id = specimen_data["specimen_id"][bc].strip()
         for record in bc_data["full_records"]:
             if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
                 notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
