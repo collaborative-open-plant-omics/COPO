@@ -399,12 +399,8 @@ class DtolSpreadsheet:
             rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
-                #todo handle fields in species_list
-                if field in ["TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
-                             "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
-                             "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
-                    pass
-                elif s[field] != recorded_sample.get(field, ""):
+                #todo handle few fields in species_list
+                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
                     #record change
                     Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
                     #update sample
@@ -437,28 +433,17 @@ class DtolSpreadsheet:
             exsam = exsam[0]
             updates[rack_tube] = {}
             for field in s.keys():
-                # this fields are store into  species_list
-                if field == "SYMBIONT":
-                    # skip, add it at the end
-                    # TODO return error
-                    pass
-                elif field in ["TAXON_ID", "ORDER_OR_GROUP", "ORDER_OR_GROUP",
-                               "FAMILY", "GENUS", "SCIENTIFIC_NAME", "SCIENTIFIC_NAME", "INFRASPECIFIC_EPITHET",
-                               "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "TAXON_REMARKS"]:
-
-                    if s[field] != exsam["species_list"][0][field]:
+                #todo handling few cases of updatable fields in species_list
+                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
+                    if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
                         updates[rack_tube][field] = {}
-                        updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                        updates[rack_tube][field]["old_value"] = exsam[field]
                         updates[rack_tube][field]["new_value"] = s[field]
-                        # todo warn update public name if taxonomy changed
-                        if field == "TAXON":
-                            
-                            # TODO update species list
-                            pass
-                elif s[field] != exsam.get(field, ""):
-                    updates[rack_tube][field] = {}
-                    updates[rack_tube][field]["old_value"] = exsam[field]
-                    updates[rack_tube][field]["new_value"] = s[field]
+                    else:
+                        msg = "Field " + field + " cannot be updated as it is part of the compliance process"
+                        notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="error",
+                                           html_id="sample_info")
+                        return False
             # show upcoming updates here
             msg = "<ul>"
             for sample in updates:
