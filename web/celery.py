@@ -39,7 +39,7 @@ app.conf.beat_schedule = {
     },
     'poll_missing_tolids' :{
         'task': 'web.apps.web_copo.tasks.poll_missing_tolids',
-        'schedule': timedelta(hours=24) #leave time for human creation of tolid
+        'schedule': timedelta(seconds=60) #leave time for human creation of tolid
     }
 }
 

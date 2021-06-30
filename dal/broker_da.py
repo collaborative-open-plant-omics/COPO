@@ -566,8 +566,7 @@ class BrokerVisuals:
 
         # context help, relevant to the current component (e.g., datafile)
         if "context_help" in paths_dict:
-            help_dict = d_utils.json_to_pytype(
-                lkup.MESSAGES_LKUPS['HELP_MESSAGES']["context_help"])
+            help_dict = d_utils.json_to_pytype(lkup.MESSAGES_LKUPS['HELP_MESSAGES']["context_help"])
             properties_temp = help_dict['properties']
             v = [x for x in properties_temp if len(x['context']) > 0 and x['context'][0] == self.component]
             if v:

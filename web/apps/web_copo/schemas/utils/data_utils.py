@@ -95,9 +95,14 @@ def get_isajson_refactor_type(key):
     return out_dict
 
 
-def json_to_pytype(path_to_json):
+def json_to_pytype(path_to_json, compatibility_mode=True):
+    # use compatability mode if jsonref is causing problems
     with open(path_to_json, encoding='utf-8') as data_file:
-        data = jsonref.loads(data_file.read())
+        f = data_file.read()
+        if compatibility_mode:
+            data = json.loads(f)
+        else:
+            data = jsonref.loads(f)
         if "properties" in data and isinstance(data["properties"], list):
             cp = list(data["properties"])
             idxes = list()

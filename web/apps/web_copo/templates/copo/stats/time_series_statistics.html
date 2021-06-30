@@ -1,0 +1,155 @@
+{% extends 'copo/base_1col.html' %}
+
+{% load static %}
+{% load web_tags %}
+
+
+{% block stylesheet_block %}
+
+    <style> /* set the CSS */
+    .ul_style {
+        list-style-type: none;
+        padding-left: 0;
+        cursor: pointer;
+    }
+
+    #graph {
+        width: 100%
+    }
+
+    .listening-rect {
+        fill: transparent
+    }
+
+    .tooltip {
+        opacity: 0;
+        position: absolute;
+        top: -14px;
+        left: 0;
+        padding: 0.6em 1em;
+        background: #fff;
+        text-align: center;
+        line-height: 1.4em;
+        font-size: 0.9em;
+        border: 1px solid #ddd;
+        z-index: 10;
+        transition: all 0.1s ease-out;
+        pointer-events: none;
+    }
+
+    .tooltip:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 12px;
+        height: 12px;
+        background: white;
+        border: 1px solid #ddd;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        transform: translate(-50%, 50%) rotate(45deg);
+        transform-origin: center center;
+        z-index: 10;
+    }
+
+    .tooltip-date {
+        margin-bottom: 0.2em;
+        font-weight: 600;
+        font-size: 1.1em;
+        line-height: 1.4em;
+    }
+
+
+    </style>
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block title_block %} Index {% endblock %}
+
+{% block tagline_block %}
+
+
+
+{% endblock %}
+
+{% block page_banner %}
+    <!--
+    <div class="page-header warning-banner">
+        <div class="icon">
+            <i class="fa fa-cloud-upload fa-4x"></i>
+        </div>
+        <div class="resume-text">
+            <h3 class="h3">Resume Submission?</h3>
+            It looks like you were in the middle of a submission. <a href="http://www.google.com"> Click here to resume</a>
+        </div>
+
+    </div>
+    -->
+{% endblock %}
+
+
+{% block breadcrumb_block %}
+
+{% endblock %}
+
+{% block browse_header_block %}
+
+
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+
+
+
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <h2 class="h2">COPO Statistics</h2>
+
+            {% include "./nav.html" %}
+
+
+        </div>
+        <div class="col-lg-10 col-md-2 col-sm-10">
+            <div id="tooltip" class="tooltip">
+                <div class="tooltip-date">
+                    <span id="date"></span>
+                </div>
+                <div class="tooltip-temperature">
+                    Number of <span id="metric"></span>: <span id="num_metric"></span>
+                </div>
+            </div>
+            <div id="graph"></div>
+            <label for="changeChartMetric">Change Element</label>
+            <select autocomplete="off" class="form-control" id="changeChartMetric" style="width: 200px">
+                <option value="0" selected>Samples</option>
+                <option value="1">Datafiles</option>
+                <option value="2">Profiles</option>
+                <option value="3">Users</option>
+            </select>
+        </div>
+
+    </div>
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block js_block %}
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <script src="{% static 'copo/js/stats_time_series.js' %}" defer></script>
+
+{% endblock %}

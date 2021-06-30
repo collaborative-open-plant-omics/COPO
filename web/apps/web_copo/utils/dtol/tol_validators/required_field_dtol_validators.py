@@ -121,4 +121,8 @@ class RackPlateUniquenessValidator(TolValidtor):
             if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
+            #TODO this can go at version 2.3 of DTOL
+            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
+                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
+                self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

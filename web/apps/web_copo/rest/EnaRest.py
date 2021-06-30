@@ -3,7 +3,7 @@ import gzip
 import hashlib
 import os
 import uuid
-
+import json
 import jsonpickle
 from chunked_upload.models import ChunkedUpload
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
@@ -155,7 +155,7 @@ def hash_upload(request):
              auto_fields=auto_fields
              ).do_save_edit()
 
-    out = jsonpickle.encode(output_dict)
+    out = json.dumps(output_dict)
     print('hash complete ' + file_id)
     return HttpResponse(out, content_type='json')
 
