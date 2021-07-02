@@ -69,7 +69,8 @@ $(document).ready(function () {
         BootstrapDialog.show({
 
             title: "Submit Samples",
-            message: "Do you really want to submit these samples? This must be the " +
+            message: "Do you really want to submit these samples? " +
+                "This must be the " +
                 "definitive version of the manifest. You won't be able to update any field " +
                 "involved in the compliance process. " +
                 "The samples will be sent to a Darwin Tree of Life curator for checking",
