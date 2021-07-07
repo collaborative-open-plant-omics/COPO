@@ -56,7 +56,7 @@ def format_date(input_date):
     return input_date.replace(tzinfo=datetime.timezone.utc).isoformat()
 
 
-def filter_for_STS(sample_list):
+def filter_for_STS(sample_list, add_all_fields=False):
     # add field here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
@@ -69,6 +69,9 @@ def filter_for_STS(sample_list):
     for s in sample_list:
         if isinstance(s, InvalidId):
             break
+        species_list = s.pop("species_list", "")
+        if species_list:
+            s = {**s, **species_list[0]}
         s_out = dict()
         for k, v in s.items():
             # always export copo id
@@ -83,6 +86,12 @@ def filter_for_STS(sample_list):
                     s_out[k] = "*****@"+v.split("@")[1]
                 else:
                     s_out[k] = v
+
+        # iterate through fields to be exported and add them in blank if not present in the sample object
+        if add_all_fields:
+            for k in export:
+                if k not in s_out.keys():
+                    s_out[k] = ""
         out.append(s_out)
     return out
 
@@ -107,7 +116,7 @@ def get_dtol_manifests_between_dates(request, d_from, d_to):
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
-    out = filter_for_STS(sample_list)
+    out = filter_for_STS(sample_list, add_all_fields=True)
     return finish_request(out)
 
 
@@ -156,7 +165,7 @@ def get_by_copo_ids(request, copo_ids):
     out = list()
     if samples:
         if not type(samples) == InvalidId:
-            out = filter_for_STS(samples)
+            out = filter_for_STS(samples, add_all_fields=True)
         else:
             return HttpResponse(status=400, content="InvalidId found in request")
     return finish_request(out)
@@ -172,7 +181,7 @@ def get_by_field(request, dtol_field, value):
     out = list()
     sample_list = Sample().get_by_field(dtol_field, vals)
     if sample_list:
-        out = filter_for_STS(sample_list)
+        out = filter_for_STS(sample_list, add_all_fields=True)
     return finish_request(out)
 
 
