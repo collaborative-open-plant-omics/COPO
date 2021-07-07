@@ -593,6 +593,14 @@ components:
           type: string
         OTHER_INFORMATION:
           type: string
+        BARCODE_HUB:
+          type: string
+        ORIGINAL_GEOGRAPHIC_LOCATION:
+          type: string
+        ORIGINAL_COLLECTION_DATE:
+          type: string
+        boldAccession:
+          type: string
         public_name:
           type: string
         biosampleAccession:
@@ -624,7 +632,23 @@ components:
           type: string
         copo_profile_title:
           type: string
-        species_list:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpeciesList'
+        SYMBIONT:
+          type: string
+        TAXON_ID:
+          type: string
+        ORDER_OR_GROUP:
+          type: string
+        FAMILY:
+          type: string
+        GENUS:
+          type: string
+        SCIENTIFIC_NAME:
+          type: string
+        INFRASPECIFIC_EPITHET:
+          type: string
+        CULTURE_OR_STRAIN_ID:
+          type: string
+        COMMON_NAME:
+          type: string
+        TAXON_REMARKS:
+          type: string
