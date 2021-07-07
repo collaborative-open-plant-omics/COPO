@@ -37,11 +37,16 @@ app.conf.beat_schedule = {
         'task': 'web.apps.web_copo.tasks.update_stats',
         'schedule': timedelta(hours=24)
     },
-    'poll_missing_tolids' :{
+    'poll_missing_tolids': {
         'task': 'web.apps.web_copo.tasks.poll_missing_tolids',
-        'schedule': timedelta(hours=24) #leave time for human creation of tolid
+        'schedule': timedelta(seconds=60)  # leave time for human creation of tolid
+    },
+    'poll_expired_viewlocks': {
+        'task': 'web.apps.web_copo.tasks.poll_expired_viewlocks',
+        'schedule': timedelta(seconds=60)
     }
 }
+
 
 
 @app.task(bind=True)

@@ -47,7 +47,7 @@ $(document).ready(function () {
 
                         var csrftoken = $.cookie('csrftoken');
                         var checked = $(".form-check-input:checked").closest("tr")
-                        var sample_ids = new Array()
+                        var sample_ids = []
                         $(checked).each(function (it) {
                             sample_ids.push($(checked[it]).data("id"))
                         })
@@ -182,7 +182,13 @@ $(document).ready(function () {
 var fadeSpeed = 'fast'
 var dt_options = {
     "scrollY": 400,
-    "scrollX": true
+    "scrollX": true,
+    "bSortClasses": false,
+    "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
+    select: {
+        style: 'os',
+        selector: 'td:first-child'
+    },
 }
 
 function row_select(ev) {
@@ -377,7 +383,7 @@ function handle_accept_reject(el) {
     } else {
         action = "reject"
     }
-    var sample_ids = new Array()
+    var sample_ids = []
     $(checked).each(function (it) {
         sample_ids.push($(checked[it]).data("id"))
     })

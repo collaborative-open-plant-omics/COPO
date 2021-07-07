@@ -1587,10 +1587,12 @@ $(document).ready(function () {
                 var table = $('#' + tableID).DataTable({
                     data: dtRows,
                     dom: 'Bfr<"row"><"row info-rw" i>tlp',
+                    "bSortClasses": false,
                     searchHighlight: true,
                     lengthChange: true,
+                    "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
                     select: {
-                        style: 'multi',
+                        style: 'os',
                         selector: 'td:first-child'
                     },
                     order: [[0, 'asc']],

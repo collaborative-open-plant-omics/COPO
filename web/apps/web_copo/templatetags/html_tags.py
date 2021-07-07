@@ -16,7 +16,8 @@ import web.apps.web_copo.lookup.lookup as lkup
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_base_da import DataSchemas
-from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publication, Source, Person, Sample, Submission, \
+from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publication, Source, Person, Sample, \
+    Submission, \
     DataFile, DAComponent, Annotation, CGCore, MetadataTemplate
 from allauth.socialaccount import providers
 from hurry.filesize import size as hurrysize
@@ -403,15 +404,27 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     # function generates component records for building an UI table - please note that for effective tabular display,
     # all array and object-type fields (e.g., characteristics) are deferred to sub-table display.
     # please define such in the schema as "show_in_table": false and "show_as_attribute": true
-
+    type = Profile().get_type(profile_id=profile_id)
     columns = list()
     data_set = list()
 
     # instantiate data access object
     da_object = DAComponent(profile_id, component)
 
-    # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)"]
+    # get and filter schema elements based on displayable columns and profile type
+    if get_dtol_fields:
+        schema = list()
+        for x in da_object.get_schema().get("schema_dict"):
+            if (x.get("show_in_table", True) and ("asg" in x.get("specifications", []) or "dtol" in x.get(
+                    "specifications", []))):
+                schema.append(x)
+    else:
+        schema = list()
+        for x in da_object.get_schema().get("schema_dict"):
+            if (x.get("show_in_table", True) and ("biosample" in x.get("specifications", []) or "isasample" in x.get(
+                    "specifications", []))):
+                schema.append(x)
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -448,9 +461,7 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
                 df[x["id"]] = str()
             df[x["id"]] = df[x["id"]].fillna('')
 
-
-            if "dtol" not in x.get("specifications", []):
-
+            if "dtol" not in x.get("specifications", []) or "asg" not in x.get("specifications", []):
                 df[x["id"]] = df[x["id"]].apply(resolve_control_output_apply, args=(x,))
 
         data_set = df.to_dict('records')
@@ -970,12 +981,10 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
     # get relevant user repositories given metadata template
     user = User.objects.get(pk=user_id)
     user_repo_ids = user.userdetails.repo_submitter
-    if user_repo_ids==None:
+    if user_repo_ids == None:
         user_repo_ids = []
     else:
         user_repo_ids = {ObjectId(x) for x in list(user_repo_ids) if x}
-
-
 
     repository_projection = [('name', 1), ('type', 1), ('templates', 1), ('url', 1)]
     repository_schema = [x for x in Repository().get_schema().get("schema_dict") if
@@ -1228,7 +1237,8 @@ def generate_submission_accessions_data(submission_id=str()):
 
         elif repository == "ckan":
             columns = [{"title": "Title"}, {"title": "Metadata Link"}, {"title": "Resource Link"}, {"title": "Name"}]
-            retrieve_link = '<a target="_blank" href="' + accessions["url"] + '/dataset/'+ accessions["dataset_name"] + '">' + accessions["url"] + '/dataset/'+ accessions["dataset_name"] + '</a>'
+            retrieve_link = '<a target="_blank" href="' + accessions["url"] + '/dataset/' + accessions[
+                "dataset_name"] + '">' + accessions["url"] + '/dataset/' + accessions["dataset_name"] + '</a>'
             meta_link = '<a target="_blank" href="' + accessions["repo_url"] + 'package_show?id=' + accessions[
                 'dataset_id'] + '">' + 'Show Metadata' + '</a>'
             data_set.append(
@@ -1607,8 +1617,11 @@ def resolve_copo_lookup2_data(data, elem):
 
     if option_values:
         resolved_value = [x[
-                              'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{data_source}' data-accession='{data_accession}' >" \
-                                         "<i title='click for related information' style='cursor: pointer;' class='fa fa-info-circle'></i></span>".format(
+                              'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{" \
+                                         "data_source}' data-accession='{data_accession}' >" \
+                                         "<i title='click for related information' style='cursor: pointer;' class='fa " \
+                                         "" \
+                                         "fa-info-circle'></i></span>".format(
             data_source=elem['data_source'], data_accession=x['accession']) for x in option_values]
 
     return resolved_value

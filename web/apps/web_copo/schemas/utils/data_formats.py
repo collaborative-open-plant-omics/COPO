@@ -46,7 +46,7 @@ class DataFormats:
         new_list = []
         json_files_handle = self.get_mapping_files()
         for file_name in json_files_handle:
-            file_dict = d_utils.json_to_pytype(file_name)
+            file_dict = d_utils.json_to_pytype(file_name, compatibility_mode=False)
             self.resource_objects.append(dict(file_handle=file_name, file_dict=file_dict))
 
             mapped_list = self.dispatch[

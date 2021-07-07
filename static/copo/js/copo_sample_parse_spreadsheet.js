@@ -110,7 +110,7 @@ $(document).ready(function () {
     var socket;
     var socket2;
     window.addEventListener("beforeunload", function (event) {
-        socket.close()
+        //socket.close()
     });
 
     if (window.location.protocol === "https:") {

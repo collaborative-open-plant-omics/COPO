@@ -124,7 +124,7 @@ pycparser==2.19
 Pygments==2.2.0
 PyHamcrest==1.9.0
 pylint==1.7.2
-pymongo==3.6.1
+pymongo==3.11.4
 pyOpenSSL==19.0.0
 pyparsing==2.1.10
 PyPDF2==1.26.0
@@ -175,3 +175,4 @@ zope.interface==4.6.0
 jsonpath-rw==1.4.0
 jsonpath-rw-ext==1.2.2
 jsonref
+django-allow-cidr

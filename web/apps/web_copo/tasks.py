@@ -1,5 +1,6 @@
 import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
 from dal.copo_da import Sample, Stats
+from web.apps.web_copo.models import ViewLock
 from submission import enareadSubmission
 from web.celery import app
 
@@ -38,7 +39,14 @@ def update_stats(self):
     Stats().update_stats()
     return True
 
+
 @app.task(bind=True)
 def poll_missing_tolids(self):
     dtol.query_awaiting_tolids()
+    return True
+
+
+@app.task(bind=True)
+def poll_expired_viewlocks(self):
+    ViewLock().remove_expired_locks()
     return True

@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_tools.middlewares.ThreadLocal import get_current_user
+from web.settings.base import VIEWLOCK_TIMEOUT
+from django.utils import timezone
 
 
 class UserDetails(models.Model):
@@ -64,6 +66,7 @@ class banner_view(models.Model):
     body_txt = models.TextField(max_length=2000, blank=False, default="")
     active = models.BooleanField()
 
+
 class ViewLock(models.Model):
     url = models.URLField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -115,3 +118,10 @@ class ViewLock(models.Model):
             else:
                 # view is locked
                 return True
+
+    def remove_expired_locks(self):
+        time_threshold = timezone.now() - VIEWLOCK_TIMEOUT
+        locks = ViewLock.objects.filter(timeLocked__lte=time_threshold)
+        for l in locks:
+            l.delete()
+        print(locks)

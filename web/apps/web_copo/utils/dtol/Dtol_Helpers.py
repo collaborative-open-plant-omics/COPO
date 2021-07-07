@@ -14,6 +14,8 @@ from web.apps.web_copo.utils.dtol.tol_validators.validation_messages import MESS
 from tools import resolve_env
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup.dtol_lookups import API_KEY
+from web.apps.web_copo.lookup.copo_enums import *
+
 
 public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
 l = logger.Logger("exceptions_and_logging/logs")
@@ -107,7 +109,7 @@ def create_barcoding_spreadsheet():
 def query_public_name_service(sample_list):
     headers = {"api-key": API_KEY}
     url = urljoin(public_name_service, 'tol-ids')  # public-name
-    l.log("name service urls: " + url)
+    l.log("name service urls: " + url, type=Logtype.FILE)
     try:
         r = requests.post(url=url, json=sample_list, headers=headers, verify=False)
         if r.status_code == 200:
@@ -115,8 +117,8 @@ def query_public_name_service(sample_list):
         else:
             # in the case there is a network issue, just return an empty dict
             resp = {}
-        l.log("name service response: " + str(resp))
+        l.log("name service response: " + str(resp), type=Logtype.FILE)
         return resp
     except Exception as e:
-        l.log("PUBLIC NAME SERVER ERROR: " + str(e))
+        l.log("PUBLIC NAME SERVER ERROR: " + str(e), type=Logtype.FILE)
         return {}

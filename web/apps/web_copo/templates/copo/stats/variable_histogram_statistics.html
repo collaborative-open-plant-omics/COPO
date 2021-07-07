@@ -1,0 +1,179 @@
+{% extends 'copo/base_1col.html' %}
+
+{% load static %}
+{% load web_tags %}
+
+
+{% block stylesheet_block %}
+
+    <style> /* set the CSS */
+    .wrapper {
+        position: relative;
+    }
+
+    .freezing {
+        fill: #e0f3f3;
+    }
+
+    .line {
+        fill: none;
+        stroke: #af9358;
+        stroke-width: 2;
+    }
+
+    .y-axis-label {
+        fill: black;
+        font-size: 1.4em;
+        text-anchor: middle;
+        transform: rotate(-90deg);
+    }
+
+    .listening-rect {
+        fill: transparent;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        padding: 5em 1em;
+        font-family: sans-serif;
+    }
+
+    .tooltip {
+        opacity: 0;
+        position: absolute;
+        top: -14px;
+        left: 0;
+        padding: 0.6em 1em;
+        background: #fff;
+        text-align: center;
+        line-height: 1.4em;
+        font-size: 0.9em;
+        border: 1px solid #ddd;
+        z-index: 10;
+        transition: all 0.1s ease-out;
+        pointer-events: none;
+    }
+
+    .tooltip:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 12px;
+        height: 12px;
+        background: white;
+        border: 1px solid #ddd;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        transform: translate(-50%, 50%) rotate(45deg);
+        transform-origin: center center;
+        z-index: 10;
+    }
+
+    .tooltip-date {
+        margin-bottom: 0.2em;
+        font-weight: 600;
+        font-size: 1.1em;
+        line-height: 1.4em;
+    }
+
+
+    </style>
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block title_block %} Index {% endblock %}
+
+{% block tagline_block %}
+
+
+
+{% endblock %}
+
+{% block page_banner %}
+    <!--
+    <div class="page-header warning-banner">
+        <div class="icon">
+            <i class="fa fa-cloud-upload fa-4x"></i>
+        </div>
+        <div class="resume-text">
+            <h3 class="h3">Resume Submission?</h3>
+            It looks like you were in the middle of a submission. <a href="http://www.google.com"> Click here to resume</a>
+        </div>
+
+    </div>
+    -->
+{% endblock %}
+
+
+{% block breadcrumb_block %}
+
+{% endblock %}
+
+{% block browse_header_block %}
+
+
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+
+
+
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <h2 class="h2">COPO Statistics</h2>
+
+            {% include "./nav.html" %}
+
+
+        </div>
+        <div class="col-lg-10 col-md-2 col-sm-10">
+
+            <div id="graph"></div>
+
+            <label for="changeChartMetric">Change Element</label>
+            <select autocomplete="off" class="form-control" id="changeHistMetric" style="width: 200px">
+                <option value="DATE_OF_COLLECTION" selected>Date of Collection</option>
+                <option value="SEX">Sex</option>
+                <option value="LIFESTAGE">Lifestage</option>
+                <option value="IDENTIFIER_AFFILIATION">Indentifier Affiliation</option>
+                <option value="COLLECTOR_AFFILIATION">Collector Affiliation</option>
+                <option value="HAZARD_GROUP">Hazard Group</option>
+                <option value="TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION">Time Elapsed from Collection to
+                    Preservation
+                </option>
+                <option value="PRESERVATION_APPROACH">Preservation Approach</option>
+                <option value="PRESERVATIVE_SOLUTION">Preservation Solution</option>
+                <option value="GAL">GAL/PARTNER</option>
+                <option value="ORGANISM_PART">Organism Part</option>
+                <option value="IDENTIFIED_HOW">Identified How</option>
+                <option value="PURPOSE_OF_SPECIMEN">Purpose of Specimen</option>
+                <option value="TISSUE_FOR_BARCODING">Tissue for Barcoding</option>
+            </select>
+        </div>
+    </div>
+
+
+
+
+
+
+
+{% endblock %}
+
+
+{% block js_block %}
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <script src="{% static 'copo/js/stats_histogram_statistics.js' %}" defer></script>
+
+{% endblock %}

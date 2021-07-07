@@ -2,6 +2,8 @@
 import os
 from tools import resolve_env
 
+from datetime import timedelta
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 SCHEMA_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schemas')
@@ -20,7 +22,10 @@ LOGIN_URL = '/accounts/auth/'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if str(resolve_env.get_env('DEBUG')).lower() == 'true' else False
 
-ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org', '.demo.copo-project.org', 'localhost', '10.0.0.*']
+# ALLOWED_HOSTS = [ gethostname(), gethostbyname(gethostname()), ]
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org',
+                 '.demo.copo-project.org', 'localhost']
+ALLOWED_CIDR_NETS = ['10.0.0.0/24']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://0.0.0.0:8000",
@@ -87,7 +92,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     'django_brotli.middleware.BrotliMiddleware',
-    'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware'
+    'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware',
+    'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -203,3 +209,5 @@ CACHES = {
 
     }
 }
+
+VIEWLOCK_TIMEOUT = timedelta(seconds=1800)

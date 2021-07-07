@@ -1,5 +1,10 @@
 $(document).ready(function () {
 
+
+    $(document).on("click", ".card", function () {
+        window.location = "/copo/stats#"
+    })
+
     $('.ui.dropdown').dropdown();
     var image = getRandomInt(images.length)
     $('body').css("background-image", "url(" + images[image] + ")")

@@ -58,7 +58,7 @@ def make_target_sample(sample):
 
 class DtolSpreadsheet:
     fields = ""
-    sra_settings = d_utils.json_to_pytype(SRA_SETTINGS).get("properties", dict())
+    sra_settings = d_utils.json_to_pytype(SRA_SETTINGS, compatibility_mode=False).get("properties", dict())
 
     def __init__(self, file=None):
         self.req = ThreadLocal.get_current_request()
@@ -145,7 +145,7 @@ class DtolSpreadsheet:
 
         try:
             # get definitive list of mandatory DTOL fields from schema
-            s = json_to_pytype(lk.WIZARD_FILES["sample_details"])
+            s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
             self.fields = jp.match(
                 '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
                 s)
