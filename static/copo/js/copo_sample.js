@@ -1682,8 +1682,23 @@ $(document).ready(function () {
 
 
                 customButtons.append(applyButton);
-                // customButtons.append($("#file_upload_template1").clone().html());
 
+                var applyCsvButton = $('<button/>',
+                    {
+                        class: "tiny ui basic primary button",
+                        id: "updating_column_button",
+                        type: "button",
+                        html: '<span>Update column from CSV</span>',
+                        click: function (event) {
+                            event.preventDefault();
+
+                            if (!$(this).hasClass('updating')) {
+                                $(this).addClass('updating');
+                                update_column_from_csv(table);
+                            }
+                        }
+                    });
+                customButtons.append(applyCsvButton);
 
                 refresh_tool_tips();
 
@@ -1730,6 +1745,10 @@ $(document).ready(function () {
                 alert("Couldn't generate samples!");
             }
         });
+    }
+
+    function update_column_from_csv(table) {
+        console.table(table)
     }
 
     function batch_update_records(table) {
