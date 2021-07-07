@@ -857,6 +857,9 @@ DTOL_ENA_MAPPINGS = {
     },
     "ORIGINAL_GEOGRAPHIC_LOCATION": {
         "ena": "original collection location"
+    },
+    "BARCODE_HUB" : {
+        "ena": "barcoding center"
     }
 }
 
