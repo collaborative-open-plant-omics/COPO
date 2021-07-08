@@ -1692,10 +1692,7 @@ $(document).ready(function () {
                         click: function (event) {
                             event.preventDefault();
 
-                            if (!$(this).hasClass('updating')) {
-                                $(this).addClass('updating');
-                                update_column_from_csv(table);
-                            }
+                            handle_csv_button_click(table)
                         }
                     });
                 customButtons.append(applyCsvButton);
@@ -1747,8 +1744,15 @@ $(document).ready(function () {
         });
     }
 
-    function update_column_from_csv(table) {
+    function handle_csv_button_click(table) {
         console.table(table)
+        const headers = $(table.header()[0].innerHTML).find("th")
+        $(headers).each(function (idx, el) {
+            if (idx > 0 && el.innerHTML != "Source") {
+                $("#csv_update_modal").find("select").append('<option value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
+            }
+        })
+        $("#csv_update_modal").modal()
     }
 
     function batch_update_records(table) {
@@ -2103,5 +2107,10 @@ $(document).ready(function () {
     if (!profile_type.includes("Stand-alone")) {
         $("#edit_button").hide()
     }
+
+    $(document).on("click", "#csv_submit", function (evt) {
+        evt.preventDefault()
+        alert("cock")
+    })
 
 }); //end document ready
