@@ -402,10 +402,16 @@ class DtolSpreadsheet:
             for field in s.keys():
                 #todo handle few fields in species_list
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
-                    #record change
-                    Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
-                    #update sample
-                    Sample().add_field(field, s[field], recorded_sample["_id"])
+                    if field in lookup.species_list_fields:
+                        # record change
+                        Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field], recorded_sample["_id"])
+                        # update sample
+                        Sample().add_field("species_list.0."+str(field), s[field], recorded_sample["_id"])
+                    else:
+                        #record change
+                        Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
+                        #update sample
+                        Sample().add_field(field, s[field], recorded_sample["_id"])
 
 
             uri = request.build_absolute_uri('/')
@@ -434,12 +440,15 @@ class DtolSpreadsheet:
             exsam = exsam[0]
             updates[rack_tube] = {}
             for field in s.keys():
-                #todo handling few cases of updatable fields in species_list
                 if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
                         updates[rack_tube][field] = {}
-                        updates[rack_tube][field]["old_value"] = exsam[field]
-                        updates[rack_tube][field]["new_value"] = s[field]
+                        if field in lookup.species_list_fields:
+                            updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                            updates[rack_tube][field]["new_value"] = s[field]
+                        else:
+                            updates[rack_tube][field]["old_value"] = exsam[field]
+                            updates[rack_tube][field]["new_value"] = s[field]
                     else:
                         msg = "Field " + field + " cannot be updated as it is part of the compliance process"
                         notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="error",
@@ -459,7 +468,6 @@ class DtolSpreadsheet:
                                html_id="warning_info3")
             notify_dtol_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
                                html_id="sample_table")
-            #TODO THIS SHOULD GO INTO WARNING3 NOT TO OVER-WRITE TAXONOMIC WARNINGS
 
 
 

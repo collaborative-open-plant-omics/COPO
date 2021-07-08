@@ -870,7 +870,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
     "dtol": [
         "SPECIMEN_ID",
         "TAXON_REMARKS",
-        "INTRASPECIFIC_EPITHET",
+        "INFRASPECIFIC_EPITHET",
         "CULTURE_OR_STRAIN_ID",
         "COMMON_NAME",
         "SEX",
@@ -903,10 +903,10 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         ],
         "asg": [
         "SPECIMEN_ID",
- #       "TAXON_REMARKS",
-#        "INTRASPECIFIC_EPITHET",
-#        "CULTURE_OR_STRAIN_ID",
-#        "COMMON_NAME",
+        "TAXON_REMARKS",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
         "SEX",
         "RELATIONSHIP",
         "GAL_SAMPLE_ID",
@@ -945,4 +945,6 @@ symbiont_vals = ["TARGET", "SYMBIONT"]
 na_vals = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
 date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
+species_list_fields = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
+                       "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
 
