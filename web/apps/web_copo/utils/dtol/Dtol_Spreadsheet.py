@@ -400,7 +400,6 @@ class DtolSpreadsheet:
             rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
-                #todo handle few fields in species_list
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
                     if field in lookup.species_list_fields:
                         # record change
