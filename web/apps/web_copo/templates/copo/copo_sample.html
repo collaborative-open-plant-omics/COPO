@@ -386,7 +386,7 @@
                 <div class="modal-body">
                     <p>Choose a column to update and provide a valid csv file.</p>
 
-                    <form class="form">
+                    <form class="form" id="csv_upload_form">
                         <div class="form-group">
                             <label for="column_dropdown">Column Name</label>
                             <select class="form-control" id="column_dropdown" placeholder="">
@@ -395,7 +395,7 @@
                         </div>
                         <div class="form-group">
                             <label for="csv_upload_button">File input</label>
-                            <input type="file" id="csv_upload_button">
+                            <input type="file" enctype="multipart/formdata" id="csv_upload_button">
                             <!--<p class="help-block">Example block-level help text here.</p>-->
                         </div>
 

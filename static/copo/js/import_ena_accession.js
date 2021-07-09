@@ -2,7 +2,6 @@
  * Created by fshaw on 08/09/2017.
  */
 $(document).ready(function () {
-        console.log('out')
         var csrftoken = $.cookie('csrftoken');
         $(document).on('click', '#import-button', function (el) {
             text = $('#accessions-text-area').val()

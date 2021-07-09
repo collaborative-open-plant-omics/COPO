@@ -1417,3 +1417,8 @@ def sample_images(request):
 
     return HttpResponse(json.dumps(matchings))
 
+
+def inspect_csv_column_update(request):
+    file = request.FILES
+    column = request.POST["column"]
+    return HttpResponse()

@@ -2110,7 +2110,26 @@ $(document).ready(function () {
 
     $(document).on("click", "#csv_submit", function (evt) {
         evt.preventDefault()
-        alert("cock")
+        var csrftoken = $.cookie('csrftoken');
+        const files = document.getElementById("csv_upload_button").files[0];
+        const column = $("#column_dropdown").val()
+        const form = document.getElementById("csv_upload_form")
+        const fd = new FormData(form)
+        fd.append("file", files)
+        fd.append("column", column)
+        $.ajax({
+            headers: {'X-CSRFToken': csrftoken},
+            url: '/copo/inspect_csv_column_update/',
+            type: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            cache: false
+
+        })
+            .done(function (data) {
+                console.log(data)
+            })
     })
 
 }); //end document ready
