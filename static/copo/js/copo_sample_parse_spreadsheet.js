@@ -77,7 +77,8 @@ $(document).ready(function () {
             buttons: [
                 {
                     label: "Cancel",
-                    cssClass: "tiny ui basic button",
+                    cssClass: "tiny ui basicShouldTheFellowThingInvokeRapidlyAroundItsAmazigCat" +
+                        " button",
                     action: function (dialogRef) {
                         dialogRef.close();
                     }
