@@ -1,7 +1,7 @@
 import re
 
 from dal.copo_da import Profile, Sample
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from .tol_validator import TolValidtor
@@ -19,9 +19,9 @@ class DtolEnumerationValidator(TolValidtor):
                             "TISSUE_FOR_BARCODING", "BARCODE_PLATE_PRESERVATIVE"]
         for header, cells in self.data.iteritems():
 
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg="Validating Header- " + header,
-                               action="info",
-                               html_id="sample_info")
+            notify_frontend(data={"profile_id": self.profile_id}, msg="Validating Header- " + header,
+                            action="info",
+                            html_id="sample_info")
             if header in self.fields:
                 if header == "SYMBIONT" and "DTOL" in p_type:
                     # dtol manifests are allowed to have blank field in SYMBIONT

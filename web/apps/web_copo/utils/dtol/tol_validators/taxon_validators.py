@@ -1,7 +1,7 @@
 from Bio import Entrez
 
 from dal.copo_da import Profile
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from .tol_validator import TolValidtor
@@ -22,10 +22,10 @@ class DtolEnumerationValidator(TolValidtor):
         Entrez.api_key = lookup.NIH_API_KEY
         # build dictioanry of species in this manifest  max 200 IDs per query
         taxon_id_set = set([x for x in self.data['TAXON_ID'].tolist() if x])
-        notify_dtol_status(data={"profile_id": self.profile_id},
-                           msg="Querying NCBI for TAXON_IDs in manifest ",
-                           action="info",
-                           html_id="sample_info")
+        notify_frontend(data={"profile_id": self.profile_id},
+                        msg="Querying NCBI for TAXON_IDs in manifest ",
+                        action="info",
+                        html_id="sample_info")
         taxon_id_list = list(taxon_id_set)
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
@@ -53,12 +53,12 @@ class DtolEnumerationValidator(TolValidtor):
                         str(index + 2)))
                 self.flag = False
                 continue
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="Checking taxonomy information at row <strong>%s</strong> - "
-                                   "<strong>%s</strong>" % (
-                                       str(index + 2), row['SCIENTIFIC_NAME']),
-                               action="info",
-                               html_id="sample_info")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="Checking taxonomy information at row <strong>%s</strong> - "
+                                "<strong>%s</strong>" % (
+                                    str(index + 2), row['SCIENTIFIC_NAME']),
+                            action="info",
+                            html_id="sample_info")
             scientific_name = row['SCIENTIFIC_NAME'].strip()
             taxon_id = row['TAXON_ID'].strip()
 

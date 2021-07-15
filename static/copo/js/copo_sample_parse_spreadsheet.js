@@ -120,7 +120,7 @@ $(document).ready(function () {
     socket = new WebSocket(
         wsprotocol + window.location.host +
         '/ws/sample_status/' + profileId);
-    socket2 = new WebSocket(
+    socket2 = new ReconnectingWebSocket(
         wsprotocol + window.location.host +
         '/ws/dtol_status');
 
@@ -153,10 +153,6 @@ $(document).ready(function () {
             s_id = d.html_id
             //$('tr[sample_id=s_id]').fadeOut()
             $('tr[sample_id="' + s_id + '"]').remove()
-
-
-
-
         }
 
         //actions here should only be performed by sockets with matching profile_id
@@ -178,6 +174,20 @@ $(document).ready(function () {
                     $("#" + d.html_id).removeClass("alert-danger").addClass("alert-info")
 
                     $("#" + d.html_id).html(d.message)
+                    $("#spinner").fadeOut()
+                } else if (d.action === "csv_updates") {
+                    // show something on the info div
+                    // check info div is visible
+                    if (!$("#" + d.html_id).is(":visible")) {
+                        $("#" + d.html_id).fadeIn("50")
+                    }
+                    t = "<table>"
+                    t = t + "<th><td>Sample Name</td></th>"
+                    $(d.message.csv_samples).each(function (idx, el) {
+                        t = t + "<tr><td>" + el.name + "</td></tr>"
+                    })
+                    t = t + "</table>"
+                    $("#" + d.html_id).html(t)
                     $("#spinner").fadeOut()
                 } else if (d.action === "warning") {
                     // show something on the info div

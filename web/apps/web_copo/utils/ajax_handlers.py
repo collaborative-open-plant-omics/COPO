@@ -30,7 +30,7 @@ from submission.dataverseSubmission import DataverseSubmit as ds
 from submission.dspaceSubmission import DspaceSubmit as dspace
 from submission.figshareSubmission import FigshareSubmit
 from submission.helpers import generic_helper as ghlper
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
@@ -698,7 +698,7 @@ def get_repo_info(request, sub=None):
             elif repo["type"] == "dspace":
                 dspace().dc_dict_to_dc(sub_id)
     except Exception as e:
-        #print(e)
+        # print(e)
         return HttpResponse(json.dumps({"status": 404, "message": "error getting dataverse"}))
     s = Submission().get_record(ObjectId(sub_id))
     out = dict(repo_type=repo['type'], repo_url=repo['url'], meta=s.get("meta", list()))
@@ -1318,7 +1318,7 @@ def sample_spreadsheet(request):
         fmt = 'csv'
 
     if format not in ["xls", "csv"]:
-        #TODO return sensible error here
+        # TODO return sensible error here
         pass
 
     if dtol.loadManifest(m_format=fmt):
@@ -1357,7 +1357,7 @@ def get_samples_for_profile(request):
         #                     html_id="dtol_sample_info")
         return HttpResponse(json_util.dumps(samples))
     else:
-        return HttpResponse(json_util.dumps({"locked":True}))
+        return HttpResponse(json_util.dumps({"locked": True}))
 
 
 def mark_sample_rejected(request):
@@ -1392,7 +1392,7 @@ def add_sample_to_dtol_submission(request):
 
         for sample_id in sample_ids:
             # iterate over samples and add to submission
-            notify_dtol_status(action="delete_row", html_id=sample_id, data={})
+            notify_frontend(action="delete_row", html_id=sample_id, data={})
             if not sample_id in sub["dtol_samples"]:
                 sub["dtol_samples"].append(sample_id)
             Sample().mark_processing(sample_id)
@@ -1404,11 +1404,13 @@ def add_sample_to_dtol_submission(request):
     else:
         return HttpResponse(status=500, content="Sample IDs or profile_id not provided")
 
+
 def delete_dtol_samples(request):
     ids = json.loads(request.POST.get("sample_ids"))
     dtol = DtolSpreadsheet()
     dtol.delete_sample(sample_ids=ids)
     return HttpResponse(json.dumps({}))
+
 
 def sample_images(request):
     files = request.FILES
@@ -1421,4 +1423,20 @@ def sample_images(request):
 def inspect_csv_column_update(request):
     file = request.FILES
     column = request.POST["column"]
+    profile_id = request.POST["profile_id"]
+    if request.POST["update_type"] == "sample":
+        # we need to query the sample collection
+        if column == "Name":
+            samples = Sample().get_collection_handle().find({"name": {"$exists": True, "$ne": ""}}, {"name": 1})
+            d = json_util.dumps(list(samples))
+            d = json.loads(d)
+            out = dict()
+            out["csv_samples"] = d
+            out["profile_id"] = profile_id
+            data = dict()
+            data["profile_id"] = profile_id
+            notify_frontend(data=data, action="csv_updates", html_id="column_inspector", msg=out)
+    elif request.POST["update_type"] == "datafile":
+        # query datafile collection
+        pass
     return HttpResponse()

@@ -157,6 +157,7 @@ $(document).ready(function () {
         if ($(this).prop('files').length > 0) {
             var file = this.files[0];
             var file_type = file.type;
+
             var permitted_types = ["text/csv"];
 
             if (permitted_types.indexOf(file_type) > -1) {
@@ -1747,6 +1748,8 @@ $(document).ready(function () {
     function handle_csv_button_click(table) {
         console.table(table)
         const headers = $(table.header()[0].innerHTML).find("th")
+        const table_data = table.header()[0].innerHTML + table.body()[0].innerHTML
+        $("#csv_update_modal").find("#column_inspector").html(table_data)
         $(headers).each(function (idx, el) {
             if (idx > 0 && el.innerHTML != "Source") {
                 $("#csv_update_modal").find("select").append('<option value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
@@ -2074,6 +2077,7 @@ $(document).ready(function () {
         });
     }
 
+
     function trigger_csv_upload() {
         //function handles upload of description csv file
 
@@ -2114,9 +2118,12 @@ $(document).ready(function () {
         const files = document.getElementById("csv_upload_button").files[0];
         const column = $("#column_dropdown").val()
         const form = document.getElementById("csv_upload_form")
+        const profile_id = $("#profile_id").val()
         const fd = new FormData(form)
         fd.append("file", files)
         fd.append("column", column)
+        fd.append("update_type", "sample")
+        fd.append("profile_id", profile_id)
         $.ajax({
             headers: {'X-CSRFToken': csrftoken},
             url: '/copo/inspect_csv_column_update/',
