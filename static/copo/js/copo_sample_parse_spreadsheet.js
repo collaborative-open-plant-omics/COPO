@@ -73,7 +73,7 @@ $(document).ready(function () {
                 "</br><strong>This must be the " +
                 "definitive version of the manifest.</strong> You won't be able to update any field " +
                 "involved in the compliance process.</br> " +
-                "The samples will be sent to a Darwin Tree of Life curator for checking",
+                "The sample metadata will be sent to a Tree of Life curator for checking",
             cssClass: "copo-modal1",
             closable: true,
             animate: true,
