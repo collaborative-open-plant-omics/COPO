@@ -39,6 +39,10 @@
         #image_table img {
             height: 100px
         }
+
+        .cell_highlight_in_column {
+            background-color: #e0e1e2 !important;
+        }
     </style>
 {% endblock %}
 
@@ -424,7 +428,10 @@
                             <h1>Column Inspector</h1>
                             <div id="column_inspector">
 
-                                <p>Nothing to show</p>
+                                <table id="column_inspect_table" class="ui celled table">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

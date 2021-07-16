@@ -112,6 +112,12 @@ $(document).ready(function () {
         disable_rack_id(count)
     })
 
+    $(document).on("change", "#column_dropdown", function (evt) {
+        const column = $(evt.currentTarget).find("option:selected").data("order")
+        $(".cell_highlight_in_column").removeClass("cell_highlight_in_column")
+        $("#column_inspect_table tr td:nth-child(" + column + ")").addClass("cell_highlight_in_column")
+    })
+
     function disable_rack_id(count) {
         if (count > 1) {
             $("#rack_id").removeAttr("disabled")
@@ -1747,14 +1753,19 @@ $(document).ready(function () {
 
     function handle_csv_button_click(table) {
         console.table(table)
-        const headers = $(table.header()[0].innerHTML).find("th")
-        const table_data = table.header()[0].innerHTML + table.body()[0].innerHTML
-        $("#csv_update_modal").find("#column_inspector").html(table_data)
-        $(headers).each(function (idx, el) {
+        const headers = table.header()[0].innerHTML
+        const body = table.body()[0].innerHTML
+        $("#csv_update_modal").find("thead").append(headers)
+        $("#csv_update_modal").find("tbody").append(body)
+        $("#csv_update_modal").find("select").empty()
+        $(headers).find("th").each(function (idx, el) {
             if (idx > 0 && el.innerHTML != "Source") {
-                $("#csv_update_modal").find("select").append('<option value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
+                $("#csv_update_modal").find("select").append('<option data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
             }
         })
+
+        $("#csv_update_modal .select-checkbox").remove()
+        $("#column_inspect_table tr td:nth-child(1)").addClass("cell_highlight_in_column")
         $("#csv_update_modal").modal()
     }
 
