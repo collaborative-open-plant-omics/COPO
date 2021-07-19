@@ -1420,23 +1420,31 @@ def sample_images(request):
     return HttpResponse(json.dumps(matchings))
 
 
-def inspect_csv_column_update(request):
-    file = request.FILES
-    column = request.POST["column"]
-    profile_id = request.POST["profile_id"]
-    if request.POST["update_type"] == "sample":
-        # we need to query the sample collection
-        if column == "Name":
-            samples = Sample().get_collection_handle().find({"name": {"$exists": True, "$ne": ""}}, {"name": 1})
-            d = json_util.dumps(list(samples))
-            d = json.loads(d)
-            out = dict()
-            out["csv_samples"] = d
-            out["profile_id"] = profile_id
-            data = dict()
-            data["profile_id"] = profile_id
-            notify_frontend(data=data, action="csv_updates", html_id="column_inspector", msg=out)
-    elif request.POST["update_type"] == "datafile":
-        # query datafile collection
-        pass
+def handle_csv_column_update_spreadsheet(request):
+    if request.POST.get("task") == "get":
+        sample_ids = request.POST.get("records[]")
+        column = request.POST.get("column")
+        sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        if "Characteristics" in column:
+            samples = Sample().get_collection_handle().find({"_id": {"$in": sample_ids}})
+
+    elif request.POST.get("task") == "post":
+        file = request.FILES
+        column = request.POST["column"]
+        profile_id = request.POST["profile_id"]
+        if request.POST["update_type"] == "sample":
+            # we need to query the sample collection
+            if column == "Name":
+                samples = Sample().get_collection_handle().find({"name": {"$exists": True, "$ne": ""}}, {"name": 1})
+                d = json_util.dumps(list(samples))
+                d = json.loads(d)
+                out = dict()
+                out["csv_samples"] = d
+                out["profile_id"] = profile_id
+                data = dict()
+                data["profile_id"] = profile_id
+                notify_frontend(data=data, action="csv_updates", html_id="column_inspector", msg=out)
+        elif request.POST["update_type"] == "datafile":
+            # query datafile collection
+            pass
     return HttpResponse()
