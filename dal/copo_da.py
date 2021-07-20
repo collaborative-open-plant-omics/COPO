@@ -71,7 +71,6 @@ def to_object_id(id):
     return ObjectId(id)
 
 
-
 class ProfileInfo:
     def __init__(self, profile_id=None):
         self.profile_id = profile_id
@@ -314,6 +313,7 @@ class DAComponent:
 class TestObjectType(DAComponent):
     def __init__(self, profile_id=None):
         super(TestObjectType, self).__init__(profile_id, "test")
+
 
 class Publication(DAComponent):
     def __init__(self, profile_id=None):
@@ -651,6 +651,22 @@ class Sample(DAComponent):
             {"biosampleAccession": {"$ne": ""}},
             {"$set": {"status": "accepted"}}
         )
+
+    def get_characteristic(self, column, records):
+        return self.get_collection_handle().aggregate([
+            {"$match": {"_id": {"$in": records}}},
+            {"$unwind": "$characteristics"},
+            {"$match": {"characteristics.category.annotationValue": column}},
+            {"$project": {"characteristics": 1}}
+        ])
+
+    def get_factor(self, column, records):
+        return self.get_collection_handle().aggregate([
+            {"$match": {"_id": {"$in": records}}},
+            {"$unwind": "$factorValues"},
+            {"$match": {"factorValues.category.annotationValue": column}},
+            {"$project": {"factorValues": 1}}
+        ])
 
     def update_public_name(self, name):
         self.get_collection_handle().update_many(

@@ -1422,11 +1422,32 @@ def sample_images(request):
 
 def handle_csv_column_update_spreadsheet(request):
     if request.POST.get("task") == "get":
-        sample_ids = request.POST.get("records[]")
+        sample_ids = json.loads(request.POST.get("records"))
         column = request.POST.get("column")
+        column_p = column.split("[")[1].split("]")[0]
         sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
         if "Characteristics" in column:
-            samples = Sample().get_collection_handle().find({"_id": {"$in": sample_ids}})
+            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+        elif "Factors" in column:
+            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+        # sample_objects = list(map(lambda sample: json.loads(sample), list(samples)))
+        sample_object = list()
+        for s in samples:
+            row = {"_id": s["_id"],
+                   "label": s["characteristics"]["category"]["annotationValue"],
+                   "label_source": s["characteristics"]["category"]["termSource"],
+                   "value": s["characteristics"]["value"]["annotationValue"],
+                   "value_source": s["characteristics"]["value"]["termSource"],
+                   "unit": s["characteristics"]["unit"]["annotationValue"],
+                   "unit_source": s["characteristics"]["unit"]["termSource"],
+                   }
+            sample_object.append(row)
+        df = pd.DataFrame(sample_object)
+        ex = df.to_csv(index=False)
+        resp = HttpResponse(ex)
+        resp["content_type"] = "text/csv"
+        resp["Content-Disposition"] = 'attachment; filename="test.csv"'
+        return resp
 
     elif request.POST.get("task") == "post":
         file = request.FILES

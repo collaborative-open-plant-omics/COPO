@@ -50,11 +50,17 @@ $(document).on("click", "#ss_download_button", function (evt) {
         headers: {'X-CSRFToken': csrftoken},
         data: {
             'task': 'get',
-            'records': row_ids,
+            'records': JSON.stringify(row_ids),
             'column': selected_column_text
         }
     }).done(function (data) {
-        console.log(data)
+        let link = document.createElement('a');
+        let blob = new Blob([data], {});
+        blob = blob.slice(0, blob.size, "text/csv")
+        link.download = selected_column_text + ".csv"
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        window.URL.revokeObjectURL(link.href);
     }).fail(function (error) {
         console.log(error)
     })
