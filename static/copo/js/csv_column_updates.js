@@ -65,3 +65,30 @@ $(document).on("click", "#ss_download_button", function (evt) {
         console.log(error)
     })
 })
+$(document).on("click", "#csv_submit", function (evt) {
+    evt.preventDefault()
+    var csrftoken = $.cookie('csrftoken');
+    const files = document.getElementById("csv_upload_button").files[0];
+    const column = $("#column_dropdown").val()
+    const form = document.getElementById("csv_upload_form")
+    const profile_id = $("#profile_id").val()
+    const fd = new FormData(form)
+    fd.append("file", files)
+    fd.append("column", column)
+    fd.append("update_type", "sample")
+    fd.append("profile_id", profile_id)
+    fd.append("task", "post")
+    $.ajax({
+        headers: {'X-CSRFToken': csrftoken},
+        url: '/copo/handle_csv_column_update_spreadsheet/',
+        type: 'POST',
+        data: fd,
+        processData: false,
+        contentType: false,
+        cache: false
+
+    })
+        .done(function (data) {
+            console.log(data)
+        })
+})

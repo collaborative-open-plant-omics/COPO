@@ -652,12 +652,15 @@ class Sample(DAComponent):
             {"$set": {"status": "accepted"}}
         )
 
+    def get_name(self, column, records):
+        return self.get_collection_handle().find({"_id": {"$in": records}}, {"name": 1})
+
     def get_characteristic(self, column, records):
         return self.get_collection_handle().aggregate([
             {"$match": {"_id": {"$in": records}}},
             {"$unwind": "$characteristics"},
             {"$match": {"characteristics.category.annotationValue": column}},
-            {"$project": {"characteristics": 1}}
+            {"$project": {"characteristics": 1, "name": 1}}
         ])
 
     def get_factor(self, column, records):
@@ -665,7 +668,7 @@ class Sample(DAComponent):
             {"$match": {"_id": {"$in": records}}},
             {"$unwind": "$factorValues"},
             {"$match": {"factorValues.category.annotationValue": column}},
-            {"$project": {"factorValues": 1}}
+            {"$project": {"factorValues": 1, "name": 1}}
         ])
 
     def update_public_name(self, name):

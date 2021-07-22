@@ -9,6 +9,7 @@ from datetime import datetime
 
 import jsonpickle
 import pandas as pd
+import numpy as np
 import requests
 from bson import json_util, ObjectId
 from django.contrib.auth.models import Group
@@ -1420,28 +1421,53 @@ def sample_images(request):
     return HttpResponse(json.dumps(matchings))
 
 
+def process_column_name(column):
+    if "[" in column:
+        column_p = column.split("[")[1].split("]")[0]
+    else:
+        column_p = column
+    return column_p
+
+
 def handle_csv_column_update_spreadsheet(request):
     if request.POST.get("task") == "get":
         sample_ids = json.loads(request.POST.get("records"))
         column = request.POST.get("column")
-        column_p = column.split("[")[1].split("]")[0]
+        column_p = process_column_name(column)
         sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        if "Name" in column_p:
+            # if user wants name, just query for name field in provided ids
+            samples = Sample().get_name(column_p, records=sample_ids_bson)
+            sample_object = list(samples)
+            # create dataframe from returned data
+            df = pd.DataFrame(sample_object)
+            ex = df.to_csv(index=False)
+            # now server as csv
+            resp = HttpResponse(ex)
+            resp["content_type"] = "text/csv"
+            resp["Content-Disposition"] = 'attachment; filename="test.csv"'
+            return resp
         if "Characteristics" in column:
+            # otherwise user must query querying for characteristics or factors
             samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+            lookuptype = "characteristics"
         elif "Factors" in column:
             samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
-        # sample_objects = list(map(lambda sample: json.loads(sample), list(samples)))
+            lookuptype = "factorValues"
         sample_object = list()
+        # create the columns which should appear in the spreadsheet
         for s in samples:
             row = {"_id": s["_id"],
-                   "label": s["characteristics"]["category"]["annotationValue"],
-                   "label_source": s["characteristics"]["category"]["termSource"],
-                   "value": s["characteristics"]["value"]["annotationValue"],
-                   "value_source": s["characteristics"]["value"]["termSource"],
-                   "unit": s["characteristics"]["unit"]["annotationValue"],
-                   "unit_source": s["characteristics"]["unit"]["termSource"],
+                   "name": s["name"],
+                   "label": s[lookuptype]["category"]["annotationValue"],
+                   "label_source": s[lookuptype]["category"]["termSource"],
+                   "value": s[lookuptype]["value"]["annotationValue"],
+                   "value_source": s[lookuptype]["value"]["termSource"],
+                   "unit": s[lookuptype]["unit"]["annotationValue"],
+                   "unit_source": s[lookuptype]["unit"]["termSource"],
                    }
             sample_object.append(row)
+        # convert to csv and serve
         df = pd.DataFrame(sample_object)
         ex = df.to_csv(index=False)
         resp = HttpResponse(ex)
@@ -1450,22 +1476,66 @@ def handle_csv_column_update_spreadsheet(request):
         return resp
 
     elif request.POST.get("task") == "post":
-        file = request.FILES
+        file = request.FILES["file"]
         column = request.POST["column"]
+        column_p = process_column_name(column)
         profile_id = request.POST["profile_id"]
         if request.POST["update_type"] == "sample":
             # we need to query the sample collection
-            if column == "Name":
-                samples = Sample().get_collection_handle().find({"name": {"$exists": True, "$ne": ""}}, {"name": 1})
-                d = json_util.dumps(list(samples))
-                d = json.loads(d)
-                out = dict()
-                out["csv_samples"] = d
-                out["profile_id"] = profile_id
-                data = dict()
-                data["profile_id"] = profile_id
-                notify_frontend(data=data, action="csv_updates", html_id="column_inspector", msg=out)
-        elif request.POST["update_type"] == "datafile":
-            # query datafile collection
-            pass
+            out = dict()
+            df = pd.read_csv(file)
+            nans = pd.isna(df)
+            df = df.astype(str)
+
+            df[nans] = ""
+            ids = df["_id"]
+            sample_ids_bson = list(map(lambda id: ObjectId(id), ids))
+            if "Characteristics" in column:
+                # otherwise user must query querying for characteristics or factors
+                samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+                lookuptype = "characteristics"
+            elif "Factors" in column:
+                samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+                lookuptype = "factorValues"
+            # now iterate through returned samples to see what has changed
+            updates = list()
+            for saved_sample in list(samples):
+                # for sample in db, get the old field values
+                updated_sample = df.loc[df["_id"] == str(saved_sample["_id"])]
+                label = saved_sample[lookuptype]["category"]["annotationValue"]
+                label_source = saved_sample[lookuptype]["category"]["termSource"]
+                value = saved_sample[lookuptype]["value"]["annotationValue"]
+                value_source = saved_sample[lookuptype]["value"]["termSource"]
+                unit = saved_sample[lookuptype]["unit"]["annotationValue"]
+                unit_source = saved_sample[lookuptype]["unit"]["termSource"]
+
+                # now compare the old field values with what has been parsed out of the
+                # updated spreadsheet, and where there are differences, add them to
+                # the updates return object
+                if (label != updated_sample["label"]).bool():
+                    updates.append(
+                        {"_id": saved_sample["_id"], "updated_field": "label", "updated_value": updated_sample[
+                            "label"]})
+                if (label_source != updated_sample["label_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "label_source", "updated_value":
+                        updated_sample["label_source"]})
+                if (value != updated_sample["value"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "value", "updated_value":
+                        updated_sample["value"]})
+                if (value_source != updated_sample["value_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "value_source", "updated_value":
+                        updated_sample["value_source"]})
+                if (unit != updated_sample["unit"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "unit", "updated_value":
+                        updated_sample["unit"]})
+                if (unit_source != updated_sample["unit_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "unit_source", "updated_value":
+                        updated_sample["unit_source"]})
+            return HttpResponse(json_util.dumps(updates))
+
+
+    elif request.POST["update_type"] == "datafile":
+        # query datafile collection
+        pass
+
     return HttpResponse()
