@@ -17,6 +17,7 @@ function handle_csv_button_click(table) {
     })
     $("#csv_update_modal .select-checkbox").remove()
     $("#column_inspect_table tr td:nth-child(1)").addClass("cell_highlight_in_column")
+    $("#column_inspect_table tr th:nth-child(1)").addClass("cell_highlight_in_column")
     $("#csv_update_modal").modal()
 }
 
@@ -29,8 +30,11 @@ $(document).on("change", "#column_dropdown", function (evt) {
         // if charateristics or factors column selected, also select the unit column to the right
         $("#column_inspect_table tr td:nth-child(" + column + ")").addClass("cell_highlight_in_column")
         $("#column_inspect_table tr td:nth-child(" + (parseInt(column) + 1) + ")").addClass("cell_highlight_in_column")
+        $("#column_inspect_table tr th:nth-child(" + column + ")").addClass("cell_highlight_in_column")
+        $("#column_inspect_table tr th:nth-child(" + (parseInt(column) + 1) + ")").addClass("cell_highlight_in_column")
     } else {
         $("#column_inspect_table tr td:nth-child(" + column + ")").addClass("cell_highlight_in_column")
+        $("#column_inspect_table tr th:nth-child(" + column + ")").addClass("cell_highlight_in_column")
     }
 })
 
@@ -85,10 +89,28 @@ $(document).on("click", "#csv_submit", function (evt) {
         data: fd,
         processData: false,
         contentType: false,
-        cache: false
+        cache: false,
+        dataType: "json"
+    }).done(function (data) {
+        for (idx in data) {
+            const el = data[idx]
+            // get row in question
+            const row = $("#column_inspect_table [id$=" + el._id.$oid + "]")
+            const selection = $(row).find(".cell_highlight_in_column")
+            if (el["updated_field"] == "value") {
 
+                $($(selection)[0]).html(el["updated_value"][0])
+                $($(selection)[0]).addClass("cell_updated", 500)
+            } else if (el["updated_field"] == "value_source") {
+                $($(selection)[0]).addClass("cell_updated", 500)
+            } else if (el["updated_field"] == "unit") {
+                $($(selection)[1]).html(el["updated_value"][0])
+                $($(selection)[1]).addClass("cell_updated", 500)
+
+            } else if (el["updated_field"] == "unit_source") {
+                $($(selection)[1]).addClass("cell_updated", 500)
+            }
+        }
     })
-        .done(function (data) {
-            console.log(data)
-        })
+
 })
