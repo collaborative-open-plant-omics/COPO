@@ -418,7 +418,7 @@
                                 </div>
                                 <h4 class="ui horizontal header divider">
                                     <i class="bar chart icon"></i>
-                                    Download -> Edit -> Upload
+                                    Download -> Edit -> Upload -> Validate
                                 </h4>
                                 <div class="field">
                                     <button class="ui button" id="ss_download_button">Download Column Data</button>
@@ -431,6 +431,9 @@
                                 </div>
 
                                 <button id="csv_submit" class="ui button ">Upload Column Metadata</button>
+                                <button id="csv_validate" class="ui button ">Validate</button>
+                                <span id="validate_loader" style="display: none"><img height="30px"
+                                                                                      src="{% static "copo/img/loading.gif" %}"/></span>
                             </form>
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9">

@@ -99,18 +99,50 @@ $(document).on("click", "#csv_submit", function (evt) {
             const selection = $(row).find(".cell_highlight_in_column")
             if (el["updated_field"] == "value") {
 
-                $($(selection)[0]).html(el["updated_value"][0])
-                $($(selection)[0]).addClass("cell_updated", 500)
+                $($(selection)[0]).html(el["updated_value"])
+                $($(selection)[0]).addClass("warning", 500)
             } else if (el["updated_field"] == "value_source") {
-                $($(selection)[0]).addClass("cell_updated", 500)
+                $($(selection)[0]).addClass("warning", 500)
             } else if (el["updated_field"] == "unit") {
-                $($(selection)[1]).html(el["updated_value"][0])
-                $($(selection)[1]).addClass("cell_updated", 500)
+                $($(selection)[1]).html(el["updated_value"])
+                $($(selection)[1]).addClass("warning", 500)
 
             } else if (el["updated_field"] == "unit_source") {
-                $($(selection)[1]).addClass("cell_updated", 500)
+                $($(selection)[1]).addClass("warning", 500)
             }
         }
     })
 
+})
+$(document).on("click", "#csv_validate", function (evt) {
+    evt.preventDefault()
+    $("#validate_loader").fadeIn()
+    //get all cells marked as updated
+    const updated_cells = $(".warning")
+    var send = []
+    $(updated_cells).each(function (idx, cell) {
+        //for each get the record id, header, cell value
+        cell = $(cell)
+        var field = {}
+        var header = cell.closest('table').find('th').eq(cell.index()).text()
+        field.header = header
+        field.value = $(cell).html()
+        const tr = $(cell).parent()
+        var id = $(tr).attr("id")
+        id = id.split("_")[1]
+        field.record_id = id
+        field.column = $("#column_dropdown").find("option:selected").val()
+        send.push(field)
+    })
+    var csrftoken = $.cookie('csrftoken');
+    $.ajax({
+        url: '/copo/handle_csv_column_validate_spreadsheet/',
+        type: "POST",
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+            'task': 'validate',
+            'data': JSON.stringify(send)
+        }
+    })
+    $("#validate_loader").fadeOut()
 })

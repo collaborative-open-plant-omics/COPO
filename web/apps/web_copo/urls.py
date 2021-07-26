@@ -183,5 +183,7 @@ urlpatterns = [
     path('delete_dtol_samples/', ajax_handlers.delete_dtol_samples,
          name="delete_dtol_samples"),
     path('handle_csv_column_update_spreadsheet/', ajax_handlers.handle_csv_column_update_spreadsheet,
-         name="handle_csv_column_update_spreadsheet")
+         name="handle_csv_column_update_spreadsheet"),
+    path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
+         name="handle_csv_column_validate_spreadsheet")
 ]

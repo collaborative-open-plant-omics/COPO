@@ -1483,7 +1483,7 @@ def handle_csv_column_update_spreadsheet(request):
         if request.POST["update_type"] == "sample":
             # we need to query the sample collection
             out = dict()
-            df = pd.read_csv(file)
+            df = pd.read_csv(file, index_col=False)
             nans = pd.isna(df)
             df = df.astype(str)
 
@@ -1515,22 +1515,22 @@ def handle_csv_column_update_spreadsheet(request):
                 if (label != updated_sample["label"]).bool():
                     updates.append(
                         {"_id": saved_sample["_id"], "updated_field": "label", "updated_value": updated_sample[
-                            "label"]})
+                            "label"].to_string(index=False)})
                 if (label_source != updated_sample["label_source"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "label_source", "updated_value":
-                        updated_sample["label_source"]})
+                        updated_sample["label_source"].to_string(index=False)})
                 if (value != updated_sample["value"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "value", "updated_value":
-                        updated_sample["value"]})
+                        updated_sample["value"].to_string(index=False)})
                 if (value_source != updated_sample["value_source"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "value_source", "updated_value":
-                        updated_sample["value_source"]})
+                        updated_sample["value_source"].to_string(index=False)})
                 if (unit != updated_sample["unit"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "unit", "updated_value":
-                        updated_sample["unit"]})
+                        updated_sample["unit"].to_string(index=False)})
                 if (unit_source != updated_sample["unit_source"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "unit_source", "updated_value":
-                        updated_sample["unit_source"]})
+                        updated_sample["unit_source"].to_string(index=False)})
             return HttpResponse(json_util.dumps(updates))
 
 
@@ -1539,3 +1539,34 @@ def handle_csv_column_update_spreadsheet(request):
         pass
 
     return HttpResponse()
+
+
+def handle_csv_column_validate_spreadsheet(request):
+    data = json.loads(request.POST["data"])
+    for el in data:
+        column_p = process_column_name(el["column"])
+        sample_ids_bson = [ObjectId(el["record_id"])]
+        if "Characteristics" in el["column"]:
+            # otherwise user must query querying for characteristics or factors
+            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+            lookuptype = "characteristics"
+        elif "Factors" in el["column"]:
+            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+            lookuptype = "factorValues"
+
+        for s in samples:
+            row = {"_id": s["_id"],
+                   "name": s["name"],
+                   "label": s[lookuptype]["category"]["annotationValue"],
+                   "label_source": s[lookuptype]["category"]["termSource"],
+                   "value": s[lookuptype]["value"]["annotationValue"],
+                   "value_source": s[lookuptype]["value"]["termSource"],
+                   "unit": s[lookuptype]["unit"]["annotationValue"],
+                   "unit_source": s[lookuptype]["unit"]["termSource"],
+                   }
+        term = el["value"]
+        ontology_names = [row["label_source"]]
+        fields = ol.ONTOLOGY_LKUPS['fields_to_search']
+        query = ol.ONTOLOGY_LKUPS['ebi_ols_autocomplete'].format(**locals())
+        data = requests.get(query, timeout=2).text
+        return HttpResponse(data)
