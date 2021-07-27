@@ -100,15 +100,15 @@ $(document).on("click", "#csv_submit", function (evt) {
             if (el["updated_field"] == "value") {
 
                 $($(selection)[0]).html(el["updated_value"])
-                $($(selection)[0]).addClass("warning", 500)
+                $($(selection)[0]).addClass("cell_updated", 500)
             } else if (el["updated_field"] == "value_source") {
-                $($(selection)[0]).addClass("warning", 500)
+                $($(selection)[0]).addClass("cell_updated", 500)
             } else if (el["updated_field"] == "unit") {
                 $($(selection)[1]).html(el["updated_value"])
-                $($(selection)[1]).addClass("warning", 500)
+                $($(selection)[1]).addClass("cell_updated", 500)
 
             } else if (el["updated_field"] == "unit_source") {
-                $($(selection)[1]).addClass("warning", 500)
+                $($(selection)[1]).addClass("cell_updated", 500)
             }
         }
     })
@@ -118,14 +118,18 @@ $(document).on("click", "#csv_validate", function (evt) {
     evt.preventDefault()
     $("#validate_loader").fadeIn()
     //get all cells marked as updated
-    const updated_cells = $(".warning")
+    const updated_cells = $(".cell_updated")
     var send = []
     $(updated_cells).each(function (idx, cell) {
         //for each get the record id, header, cell value
         cell = $(cell)
+        const cell_uid = "cell_" + idx
+        // strore cell in document for later retrieval
+        $(document).data(cell_uid, cell)
         var field = {}
         var header = cell.closest('table').find('th').eq(cell.index()).text()
         field.header = header
+        field.uid = cell_uid
         field.value = $(cell).html()
         const tr = $(cell).parent()
         var id = $(tr).attr("id")
@@ -142,6 +146,30 @@ $(document).on("click", "#csv_validate", function (evt) {
         data: {
             'task': 'validate',
             'data': JSON.stringify(send)
+        }
+    }).done(function (data) {
+        const d = JSON.parse(data)
+        console.table(d)
+        for (x in d) {
+            const el = d[x]
+            if (el.status == "accepted") {
+                // this is probably a numeric change which should just be accepted
+                const id = el.uid
+                $(document).data(id).removeClass("cell_updated").addClass("cell_accepted")
+            } else if (el.status == "tentative") {
+                // this is probably an ontology change so user needs to double check
+                const id = el.uid
+                var cell = $($(document).data(id))
+                cell.removeClass("cell_updated").addClass("cell_tentative")
+                cell.html(el.label)
+                cell.data("iri", el.iri)
+                cell.data("ontology_prefix", el.ontology_prefix)
+                cell.attr("title", el.description)
+            } else if (el.status == "error") {
+                const id = el.uid
+                var cell = $($(document).data(id))
+                cell.removeClass("cell_updated").addClass("error")
+            }
         }
     })
     $("#validate_loader").fadeOut()
