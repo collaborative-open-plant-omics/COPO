@@ -1548,6 +1548,7 @@ def handle_csv_column_validate_spreadsheet(request):
     data = json.loads(request.POST["data"])
     out = list()
     for el in data:
+        # get characteristics or factors for the given column name for samples in the records parameter
         column_p = process_column_name(el["column"])
         sample_ids_bson = [ObjectId(el["record_id"])]
         is_unit = True
@@ -1573,14 +1574,15 @@ def handle_csv_column_validate_spreadsheet(request):
         term = el["value"]
         if not is_unit:
             if is_number(term):
-                # automatically accept numeric updates for category cells, these don't need ols validation
+                # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
+                # milimeters)
                 el["status"] = "accepted"
                 out.append(el)
                 continue;
         if is_unit:
-            ontology_names = row["label_source"]
+            ontology_names = row["unit_source"]
         else:
-            ontology_names = row["label_source"]
+            ontology_names = row["value_source"]
         ontology_names = ontology_names.lower()
         fields = ol.ONTOLOGY_LKUPS['fields_to_search']
         query = ol.ONTOLOGY_LKUPS['ebi_ols_autocomplete'].format(**locals())
@@ -1596,7 +1598,7 @@ def handle_csv_column_validate_spreadsheet(request):
                 out.append(el)
                 continue
 
-            el["description"] = ont["description"]
+            el["description"] = ont.get("description", "No Description")
             el["iri"] = ont["iri"]
             el["ontology_prefix"] = ont["ontology_prefix"]
             el["label"] = ont["label"]
