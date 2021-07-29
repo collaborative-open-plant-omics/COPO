@@ -1535,7 +1535,7 @@ class Profile(DAComponent):
     def get_type(self, profile_id):
         p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
         if p:
-            return p["type"]
+            return p.get("type", "")
         else:
             return False
 
