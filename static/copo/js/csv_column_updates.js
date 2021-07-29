@@ -7,11 +7,20 @@ function handle_csv_button_click(table) {
     $("#csv_update_modal").find("thead").append(headers)
     $("#csv_update_modal").find("tbody").append(body)
     $("#csv_update_modal").find("select").empty()
+    var char_counter = 0
+    var fac_counter = 0
     $(headers).find("th").each(function (idx, el) {
+
         if (idx > 0 && el.innerHTML != "Source") {
             // don't add units as these will be automatically selected for spreadsheet compilation
             if (el.innerHTML != "Unit") {
-                $("#csv_update_modal").find("select").append('<option data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
+                if (el.innerHTML.includes("Characteristics")) {
+                    $("#csv_update_modal").find("select").append('<option data-idx="' + char_counter + '" data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
+                    counter = char_counter + 1;
+                } else if (el.innerHTML.includes("Factors")) {
+                    $("#csv_update_modal").find("select").append('<option data-idx="' + fac_counter + '" data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
+                    counter = fac_counter + 1;
+                }
             }
         }
     })
@@ -185,15 +194,21 @@ $(document).on("click", "#csv_validate", function (evt) {
         // collect cells needing to be updated
         const cells = $(".cell_accepted, .cell_tentative")
         send = []
-        $(cells).each(function (idx, el) {
+        $(cells).each(function (idx, cell) {
             field = {}
+            var cell = $(cell)
             var header = cell.closest('table').find('th').eq(cell.index()).text()
-            field.value = $(cell).html()
-            const tr = $(cell).parent()
+            field.header = header
+            field.description = cell.attr("title")
+            field.iri = cell.data("iri")
+            field.ontology_prefix = cell.data("ontology_prefix")
+            field.value = cell.html()
+            const tr = cell.parent()
             var id = $(tr).attr("id")
             id = id.split("_")[1]
             field.record_id = id
             field.column = $("#column_dropdown").find("option:selected").val()
+            field.idx = $("#column_dropdown").find("option:selected").data("idx")
             send.push(field)
         })
         $.ajax({

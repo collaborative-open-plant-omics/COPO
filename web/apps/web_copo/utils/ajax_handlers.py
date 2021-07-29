@@ -1609,7 +1609,18 @@ def handle_csv_column_validate_spreadsheet(request):
 
 
 def handle_csv_column_update_samples(request):
-    return HttpResponse("blah")
+    data = json.loads(request.POST["data"])
+    for el in data:
+        sample_ids_bson = [ObjectId(el["record_id"])]
+        column_p = process_column_name(el["column"])
+        if "Characteristics" in el["column"]:
+            # otherwise user must query querying for characteristics or factors
+            lookuptype = "characteristics"
+        elif "Factors" in el["column"]:
+            lookuptype = "factorValues"
+        Sample().set_characteristic_or_factor(column=column_p, records=sample_ids_bson, element=el,
+                                              char_or_fac=lookuptype)
+    return HttpResponse("Complete")
 
 
 def is_number(s):

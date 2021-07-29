@@ -663,6 +663,44 @@ class Sample(DAComponent):
             {"$project": {"characteristics": 1, "name": 1}}
         ])
 
+    def set_characteristic_or_factor(self, column, records, char_or_fac, element):
+        # index value is obtained from the dropdown control which selects the column to be updated
+        index = str(element["idx"])
+        if "unit" in element["header"].lower():
+            # update unit with ontology data
+            return self.get_collection_handle().update({"_id": {"$in": records}},
+                                                       {"$set": {char_or_fac + "." + index +
+                                                                 ".unit.annotationValue":
+                                                                     element["value"],
+                                                                 char_or_fac + "." + index + ".unit.termSource":
+                                                                     element["ontology_prefix"],
+                                                                 char_or_fac + "." + index + ".unit.termAccession":
+                                                                     element["iri"],
+                                                                 char_or_fac + "." + index + ".unit.comments": element[
+                                                                     "description"]
+                                                                 }})
+        else:
+            if is_number(element["value"]):
+                # update value with simple numeric
+                return self.get_collection_handle().update({"_id": {"$in": records}},
+                                                           {"$set": {char_or_fac + "." + index +
+                                                                     ".value.annotationValue":
+                                                                         element["value"]}})
+            else:
+                # update value with ontology data
+                return self.get_collection_handle().update({"_id": {"$in": records}},
+                                                           {"$set": {char_or_fac + "." + index +
+                                                                     ".value.annotationValue":
+                                                                         element["value"],
+                                                                     char_or_fac + "." + index + ".value.termSource":
+                                                                         element["ontology_prefix"],
+                                                                     char_or_fac + "." + index + ".value.termAccession":
+                                                                         element["iri"],
+                                                                     char_or_fac + "." + index + ".value.comments":
+                                                                         element[
+                                                                             "description"]
+                                                                     }})
+
     def get_factor(self, column, records):
         return self.get_collection_handle().aggregate([
             {"$match": {"_id": {"$in": records}}},
@@ -2052,3 +2090,11 @@ class Description:
         if os.path.exists(object_path):
             import shutil
             shutil.rmtree(object_path)
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
