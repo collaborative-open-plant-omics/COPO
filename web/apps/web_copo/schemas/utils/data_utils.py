@@ -6,7 +6,9 @@ import os
 import xml.etree.ElementTree as ET
 from collections import namedtuple
 from datetime import datetime, tzinfo, timedelta
+from exceptions_and_logging import logger
 
+l = logger.Logger("exceptions_and_logging/logs")
 import jsonref
 import pandas as pd
 from bson.json_util import dumps
@@ -804,6 +806,7 @@ class DecoupleFormSubmission:
                         auto_dict[f.id.split(".")[-1]] = value_list
             else:
                 # handle non-array types
+                # l.log("line808: " + str(f))
                 object_type_control = object_type_control_map().get(f.control.lower(), str())
 
                 if object_type_control:
