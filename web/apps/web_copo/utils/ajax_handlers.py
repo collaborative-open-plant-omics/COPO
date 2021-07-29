@@ -1608,6 +1608,10 @@ def handle_csv_column_validate_spreadsheet(request):
     return HttpResponse(json.dumps(out))
 
 
+def handle_csv_column_update_samples(request):
+    return HttpResponse("blah")
+
+
 def is_number(s):
     try:
         float(s)

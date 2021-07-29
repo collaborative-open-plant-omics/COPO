@@ -69,7 +69,11 @@ $(document).on("click", "#ss_download_button", function (evt) {
         console.log(error)
     })
 })
-$(document).on("click", "#csv_submit", function (evt) {
+
+$(document).on("change", "#csv_upload_button", handle_csv_upload)
+$(document).on("click", "#csv_reload", handle_csv_upload)
+
+function handle_csv_upload(evt) {
     evt.preventDefault()
     var csrftoken = $.cookie('csrftoken');
     const files = document.getElementById("csv_upload_button").files[0];
@@ -111,13 +115,14 @@ $(document).on("click", "#csv_submit", function (evt) {
                 $($(selection)[1]).addClass("cell_updated", 500)
             }
         }
+        $("#csv_validate").removeClass("disabled")
     })
+}
 
-})
 $(document).on("click", "#csv_validate", function (evt) {
     evt.preventDefault()
     $("#validate_loader").fadeIn()
-    //get all cells marked as updated
+    //get all cells marked as updated and send to backend for validation
     const updated_cells = $(".cell_updated")
     var send = []
     $(updated_cells).each(function (idx, cell) {
@@ -171,6 +176,35 @@ $(document).on("click", "#csv_validate", function (evt) {
                 cell.removeClass("cell_updated").addClass("error")
             }
         }
+        $("#validate_loader").fadeOut()
+        $("#csv_save").removeClass("disabled")
     })
-    $("#validate_loader").fadeOut()
+
+    $(document).on("click", "#csv_save", function (evt) {
+        evt.preventDefault()
+        // collect cells needing to be updated
+        const cells = $(".cell_accepted, .cell_tentative")
+        send = []
+        $(cells).each(function (idx, el) {
+            field = {}
+            var header = cell.closest('table').find('th').eq(cell.index()).text()
+            field.value = $(cell).html()
+            const tr = $(cell).parent()
+            var id = $(tr).attr("id")
+            id = id.split("_")[1]
+            field.record_id = id
+            field.column = $("#column_dropdown").find("option:selected").val()
+            send.push(field)
+        })
+        $.ajax({
+            url: '/copo/handle_csv_column_update_samples/',
+            type: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+                'task': 'validate',
+                'data': JSON.stringify(send)
+            }
+        })
+    })
+
 })

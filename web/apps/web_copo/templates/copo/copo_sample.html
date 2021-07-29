@@ -433,15 +433,21 @@
                                 <div class="field">
                                     <button class="ui button" id="ss_download_button">Download Column Data</button>
                                 </div>
+                                <div class="fields">
+                                    <div class="field">
+                                        <label for="csv_upload_button">File input</label>
 
-                                <div class="field">
-                                    <label for="csv_upload_button">File input</label>
-                                    <input type="file" enctype="multipart/formdata" id="csv_upload_button">
-                                    <!--<p class="help-block">Example block-level help text here.</p>-->
+                                        <input type="file" enctype="multipart/formdata" id="csv_upload_button">
+                                    </div>
+                                    <div class="field" style="margin-top:30px">
+                                        <button id="csv_reload" class="ui icon button">
+                                            <i class="redo icon"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <button id="csv_submit" class="ui button ">Upload Column Metadata</button>
-                                <button id="csv_validate" class="ui button ">Validate</button>
+                                <button id="csv_validate" class="ui button disabled">Validate</button>
+                                <button id="csv_save" class="ui button disabled">Save</button>
                                 <span id="validate_loader" style="display: none"><img height="30px"
                                                                                       src="{% static "copo/img/loading.gif" %}"/></span>
                             </form>
