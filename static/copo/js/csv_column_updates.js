@@ -16,17 +16,19 @@ function handle_csv_button_click(table) {
             if (el.innerHTML != "Unit") {
                 if (el.innerHTML.includes("Characteristics")) {
                     $("#csv_update_modal").find("select").append('<option data-idx="' + char_counter + '" data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
-                    counter = char_counter + 1;
+                    char_counter = char_counter + 1;
                 } else if (el.innerHTML.includes("Factors")) {
                     $("#csv_update_modal").find("select").append('<option data-idx="' + fac_counter + '" data-order=" ' + idx + ' " value="' + el.innerHTML + '">' + el.innerHTML + '</option>')
-                    counter = fac_counter + 1;
+                    fac_counter = fac_counter + 1;
                 }
             }
         }
     })
     $("#csv_update_modal .select-checkbox").remove()
-    $("#column_inspect_table tr td:nth-child(1)").addClass("cell_highlight_in_column")
-    $("#column_inspect_table tr th:nth-child(1)").addClass("cell_highlight_in_column")
+    $("#column_inspect_table tr td:nth-child(2)").addClass("cell_highlight_in_column")
+    $("#column_inspect_table tr th:nth-child(2)").addClass("cell_highlight_in_column")
+    $("#column_inspect_table tr td:nth-child(3)").addClass("cell_highlight_in_column")
+    $("#column_inspect_table tr th:nth-child(3)").addClass("cell_highlight_in_column")
     $("#csv_update_modal").modal()
 }
 
@@ -219,7 +221,25 @@ $(document).on("click", "#csv_validate", function (evt) {
                 'task': 'validate',
                 'data': JSON.stringify(send)
             }
+        }).done(function (data) {
+            $("#csv_update_modal").modal("hide")
+            transfer_table_data()
+
         })
     })
 
 })
+
+function transfer_table_data() {
+    var output = $("#samples_editing_table tbody tr")
+    $("#column_inspect_table tbody td").each(function (idx, el) {
+        // paste all data back into the original table
+        const x = el.parentElement.rowIndex
+        const y = el.cellIndex
+
+        var tds = $(output[x - 1]).find("td")
+
+        $(tds[y + 1]).html($(el).html())
+
+    })
+}

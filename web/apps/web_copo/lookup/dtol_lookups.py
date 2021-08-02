@@ -741,7 +741,7 @@ DTOL_UNITS = {
 }
 DTOL_ENA_MAPPINGS = {
     "ORGANISM_PART": {
-        "ena": "organism part"
+        "ena": "organism part",
     },
     "LIFESTAGE": {
         "ena": "lifestage"
