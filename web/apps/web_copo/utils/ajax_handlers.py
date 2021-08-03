@@ -1480,6 +1480,7 @@ def handle_csv_column_update_spreadsheet(request):
         if request.POST["update_type"] == "sample":
             # we need to query the sample collection
             out = dict()
+            print("reading csv")
             df = pd.read_csv(file, index_col=False)
             nans = pd.isna(df)
             df = df.astype(str)
@@ -1546,8 +1547,11 @@ def handle_csv_column_update_spreadsheet(request):
 
 def handle_csv_column_validate_spreadsheet(request):
     data = json.loads(request.POST["data"])
+
     out = list()
-    for el in data:
+    to_lookup = list()
+    '''
+    for idx, el in enumerate(df_unique_vals):
         # get characteristics or factors for the given column name for samples in the records parameter
         column_p = process_column_name(el["column"])
         sample_ids_bson = [ObjectId(el["record_id"])]
@@ -1580,31 +1584,51 @@ def handle_csv_column_validate_spreadsheet(request):
                 out.append(el)
                 continue;
         if is_unit:
-            ontology_names = row["unit_source"]
+            row["ontology_names"] = row["unit_source"]
         else:
-            ontology_names = row["value_source"]
-        ontology_names = ontology_names.lower()
+            row["ontology_names"] = row["value_source"]
+        to_lookup.append(row)
+    '''
+    # make data frame out of to_lookup and unique it to minimize calls to ols
+    df = pd.DataFrame(data)
+    df["column"] = ""
+    df["description"] = ""
+    df["ontology_prefix"] = ""
+    df["label"] = ""
+    df["status"] = ""
+    u = df["value"].unique()
+    for idx, el in enumerate(u):
+        if is_number(el):
+            # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
+            # milimeters)
+            all = df.loc[df["value"] == el]
+            all["status"] = "accepted"
+            vals = all.to_dict(orient="records")
+            out.extend(vals)
+            continue;
         fields = ol.ONTOLOGY_LKUPS['fields_to_search']
-        query = ol.ONTOLOGY_LKUPS['ebi_ols_autocomplete'].format(**locals())
-        resp = requests.get(query, timeout=2)
+        q = 'http://www.ebi.ac.uk/ols/api/search?q=' + el
+        resp = requests.get(q, timeout=5)
         if resp.status_code == 200:
+            print(str(idx) + " Success: " + el)
             data = json.loads(resp.content)
             try:
                 ont = data["response"]["docs"][0]
             except IndexError:
-
-                el["label"] = "Invalid"
-                el["status"] = "error"
-                out.append(el)
-                continue
-
-            el["description"] = ont.get("description", "No Description")
-            el["iri"] = ont["iri"]
-            el["ontology_prefix"] = ont["ontology_prefix"]
-            el["label"] = ont["label"]
-            el["status"] = "tentative"
-            out.append(el)
-
+                e = dict()
+                e["label"] = "Invalid"
+                e["status"] = "error"
+                out.append(e)
+            all = df.loc[df["value"] == el]
+            all["description"] = ont.get("description", "No Description")[0]
+            all["iri"] = ont["iri"]
+            all["ontology_prefix"] = ont["ontology_prefix"]
+            all["label"] = ont["label"]
+            all["status"] = "tentative"
+            vals = all.to_dict(orient="records")
+            out.extend(vals)
+        else:
+            print(str(idx) + " Fail: " + resp.reason)
     return HttpResponse(json.dumps(out))
 
 

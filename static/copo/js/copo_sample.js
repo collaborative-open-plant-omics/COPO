@@ -1592,7 +1592,7 @@ $(document).ready(function () {
                     "bSortClasses": false,
                     searchHighlight: true,
                     lengthChange: true,
-                    "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
+                    "lengthMenu": [100000],
                     select: {
                         style: 'os',
                         selector: 'td:first-child'
