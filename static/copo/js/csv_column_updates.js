@@ -86,6 +86,7 @@ $(document).on("click", "#csv_reload", handle_csv_upload)
 
 function handle_csv_upload(evt) {
     evt.preventDefault()
+    $("#validate_loader").fadeIn()
     var csrftoken = $.cookie('csrftoken');
     const files = document.getElementById("csv_upload_button").files[0];
     const column = $("#column_dropdown").val()
@@ -107,26 +108,36 @@ function handle_csv_upload(evt) {
         cache: false,
         dataType: "json"
     }).done(function (data) {
-        for (idx in data) {
-            const el = data[idx]
-            // get row in question
-            const row = $("#column_inspect_table [id$=" + el._id.$oid + "]")
-            const selection = $(row).find(".cell_highlight_in_column")
-            if (el["updated_field"] == "value") {
+        fastdom.mutate(() => {
+            for (idx in data) {
+                const el = data[idx]
+                // get row in question
+                const row = $("#column_inspect_table [id$=" + el._id.$oid + "]")
+                const selection = $(row).find(".cell_highlight_in_column")
+                if (el["updated_field"] == "value") {
 
-                $($(selection)[0]).html(el["updated_value"])
-                $($(selection)[0]).addClass("cell_updated", 500)
-            } else if (el["updated_field"] == "value_source") {
-                $($(selection)[0]).addClass("cell_updated", 500)
-            } else if (el["updated_field"] == "unit") {
-                $($(selection)[1]).html(el["updated_value"])
-                $($(selection)[1]).addClass("cell_updated", 500)
+                    $($(selection)[0]).html(el["updated_value"])
+                    $($(selection)[0]).addClass("cell_updated")
 
-            } else if (el["updated_field"] == "unit_source") {
-                $($(selection)[1]).addClass("cell_updated", 500)
+                } else if (el["updated_field"] == "value_source") {
+
+                    $($(selection)[0]).addClass("cell_updated")
+
+                } else if (el["updated_field"] == "unit") {
+
+                    $($(selection)[1]).html(el["updated_value"])
+                    $($(selection)[1]).addClass("cell_updated")
+
+                } else if (el["updated_field"] == "unit_source") {
+
+                    $($(selection)[1]).addClass("cell_updated")
+
+
+                }
             }
-        }
+        })
         $("#csv_validate").removeClass("disabled")
+        $("#validate_loader").fadeOut()
     })
 }
 
@@ -166,36 +177,46 @@ $(document).on("click", "#csv_validate", function (evt) {
     }).done(function (data) {
         const d = JSON.parse(data)
         console.table(d)
-        for (x in d) {
-            const el = d[x]
-            if (el.status == "accepted") {
-                // this is probably a numeric change which should just be accepted
-                const id = el.uid
-                $(document).data(id).removeClass("cell_updated").addClass("cell_accepted")
-            } else if (el.status == "tentative") {
-                // this is probably an ontology change so user needs to double check
-                const id = el.uid
-                var cell = $($(document).data(id))
-                cell.removeClass("cell_updated").addClass("cell_tentative")
-                cell.html(el.label)
-                cell.data("iri", el.iri)
-                cell.data("ontology_prefix", el.ontology_prefix)
-                cell.attr("title", el.description)
-            } else if (el.status == "error") {
-                const id = el.uid
-                var cell = $($(document).data(id))
-                cell.removeClass("cell_updated").addClass("error")
+        fastdom.mutate(() => {
+            for (x in d) {
+                const el = d[x]
+                if (el.status == "accepted") {
+                    // this is probably a numeric change which should just be accepted
+                    const id = el.uid
+
+                    $(document).data(id).removeClass("cell_updated").addClass("cell_accepted")
+
+                } else if (el.status == "tentative") {
+                    // this is probably an ontology change so user needs to double check
+                    const id = el.uid
+                    var cell = $($(document).data(id))
+
+                    cell.removeClass("cell_updated").addClass("cell_tentative")
+                    cell.html(el.label)
+                    cell.data("iri", el.iri)
+                    cell.data("ontology_prefix", el.ontology_prefix)
+                    cell.attr("title", el.description)
+
+                } else if (el.status == "error") {
+                    const id = el.uid
+                    var cell = $($(document).data(id))
+
+                    cell.removeClass("cell_updated").addClass("error")
+
+                }
             }
-        }
+        })
         $("#validate_loader").fadeOut()
         $("#csv_save").removeClass("disabled")
     })
 
     $(document).on("click", "#csv_save", function (evt) {
         evt.preventDefault()
+        $("#validate_loader").fadeIn()
         // collect cells needing to be updated
         const cells = $(".cell_accepted, .cell_tentative")
         send = []
+        $("#validate_loader").fadeIn()
         $(cells).each(function (idx, cell) {
             field = {}
             var cell = $(cell)
@@ -222,7 +243,7 @@ $(document).on("click", "#csv_validate", function (evt) {
                 'data': JSON.stringify(send)
             }
         }).done(function (data) {
-            $("#csv_update_modal").modal("hide")
+
             transfer_table_data()
 
         })
@@ -238,8 +259,10 @@ function transfer_table_data() {
         const y = el.cellIndex
 
         var tds = $(output[x - 1]).find("td")
-
-        $(tds[y + 1]).html($(el).html())
-
+        fastdom.mutate(() => {
+            $(tds[y + 1]).html($(el).html())
+        })
     })
+    $("#validate_loader").fadeOut()
+    $("#csv_update_modal").modal("hide")
 }
