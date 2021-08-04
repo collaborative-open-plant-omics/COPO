@@ -214,7 +214,7 @@ def notify_sample_status(profile_id=str(), action="message", msg=str(), data={},
     return True
 
 
-def notify_dtol_status(action="message", msg=str(), data={}, html_id=""):
+def notify_frontend(action="message", msg=str(), data={}, html_id="", profile_id=""):
     """
         function notifies client changes in Sample creation status
         :param profile_id:

@@ -112,6 +112,7 @@ $(document).ready(function () {
         disable_rack_id(count)
     })
 
+
     function disable_rack_id(count) {
         if (count > 1) {
             $("#rack_id").removeAttr("disabled")
@@ -157,6 +158,7 @@ $(document).ready(function () {
         if ($(this).prop('files').length > 0) {
             var file = this.files[0];
             var file_type = file.type;
+
             var permitted_types = ["text/csv"];
 
             if (permitted_types.indexOf(file_type) > -1) {
@@ -1590,7 +1592,7 @@ $(document).ready(function () {
                     "bSortClasses": false,
                     searchHighlight: true,
                     lengthChange: true,
-                    "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
+                    "lengthMenu": [100000],
                     select: {
                         style: 'os',
                         selector: 'td:first-child'
@@ -1682,8 +1684,20 @@ $(document).ready(function () {
 
 
                 customButtons.append(applyButton);
-                // customButtons.append($("#file_upload_template1").clone().html());
 
+                var applyCsvButton = $('<button/>',
+                    {
+                        class: "tiny ui basic primary button",
+                        id: "updating_column_button",
+                        type: "button",
+                        html: '<span>Update column from CSV</span>',
+                        click: function (event) {
+                            event.preventDefault();
+
+                            handle_csv_button_click(table)
+                        }
+                    });
+                customButtons.append(applyCsvButton);
 
                 refresh_tool_tips();
 
@@ -1731,6 +1745,8 @@ $(document).ready(function () {
             }
         });
     }
+
+
 
     function batch_update_records(table) {
         //function uses value from focused cell to update selected records
@@ -2051,6 +2067,7 @@ $(document).ready(function () {
         });
     }
 
+
     function trigger_csv_upload() {
         //function handles upload of description csv file
 
@@ -2084,5 +2101,7 @@ $(document).ready(function () {
     if (!profile_type.includes("Stand-alone")) {
         $("#edit_button").hide()
     }
+
+
 
 }); //end document ready

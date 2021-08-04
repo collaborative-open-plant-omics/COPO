@@ -1,4 +1,5 @@
 __author__ = 'etuka'
+
 import os
 import re
 import json
@@ -448,6 +449,24 @@ class WizardHelper:
         except Exception as e:
             print('Data Access Error: ' + str(e))
             stored_data_set = list()
+
+        # check if samples have previously been updated from defaults and if so, add these updates to stored_data_set
+        getIds = list()
+        for sample in stored_data_set:
+            getIds.append(ObjectId(sample["DT_RowId"].split('row_')[1]))
+
+        mongo_samples = list(Sample().get_collection_handle().find({"_id": {"$in": getIds}}))
+        for idx, sample in enumerate(stored_data_set):
+            for key in sample.keys():
+                if "characteristics" in key or "factorValues" in key:
+                    chunks = key.split("___")
+                    index = chunks[2]
+                    fac_char = chunks[0]
+                    val_unit = chunks[-1]
+                    value = sample[key]
+                    orig = mongo_samples[idx][fac_char][int(index)][val_unit]["annotationValue"]
+                    if value != orig:
+                        sample[key] = orig
 
         description = Description().GET(self.description_token)
         stored_columns = description["meta"].get("generated_columns", list())
