@@ -439,6 +439,7 @@ class WizardHelper:
 
         # if there's stored object, use that rather than generating dataset from scratch
         object_path = self.get_object_path()
+        stored_data_set = list()
         if not os.path.exists(object_path):
             os.makedirs(object_path)
 
@@ -448,7 +449,6 @@ class WizardHelper:
                     stored_data_set = store[self.object_key].to_dict('records')
         except Exception as e:
             print('Data Access Error: ' + str(e))
-            stored_data_set = list()
 
         # check if samples have previously been updated from defaults and if so, add these updates to stored_data_set
         if stored_data_set:
