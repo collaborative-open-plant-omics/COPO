@@ -61,7 +61,9 @@
       "option_values": [
         "Stand-alone",
         "Darwin Tree of Life (DTOL)",
-        "Aquatic Symbiosis Genomics (ASG)"
+        "Darwin Tree of Life Protist (DTOLP)",
+        "Aquatic Symbiosis Genomics (ASG)",
+        "European Reference Genome Atlas (ERGA)"
       ]
     },
     {

@@ -177,7 +177,7 @@ $(document).ready(function () {
                     }
                 },
                 order: [
-                    [2, "desc"]
+                    [4, "desc"]
                 ],
                 columns: [
                     {
@@ -196,6 +196,9 @@ $(document).ready(function () {
                             } else if (data.type.includes("ASG")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(ASG)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#5829bb")
+                            } else if (data.type.includes("ERGA")) {
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(ERGA)</small></span>');
+                                renderHTML.find(".panel-heading").css("background-color", "#E61A8D")
                             } else {
                                 if (!data.shared) {
                                     renderHTML.find(".panel-heading").find(".row-title").html('<span style="font-weight: bolder">' + data.title + '&nbsp<small>(Standalone)</small></span>');
@@ -440,32 +443,6 @@ $(document).ready(function () {
             });
         }
 
-        //table.rows().deselect(); //deselect all rows
-
-        //handle button actions
-        // if (ids.length > 0) {
-        //     if (task == "edit") {
-        //         $.ajax({
-        //             url: copoFormsURL,
-        //             type: "POST",
-        //             headers: {'X-CSRFToken': csrftoken},
-        //             data: {
-        //                 'task': 'form',
-        //                 'component': component,
-        //                 'target_id': ids[0] //only allowing row action for edit, hence first record taken as target
-        //             },
-        //             success: function (data) {
-        //                 json2HtmlForm(data);
-        //             },
-        //             error: function () {
-        //                 alert("Couldn't build publication form!");
-        //             }
-        //         });
-        //     } else if (task == "delete") { //handles delete, allows multiple row delete
-        //         var deleteParams = {component: component, target_ids: ids};
-        //         do_component_delete_confirmation(deleteParams);
-        //     }
-        // }
     }
 
 

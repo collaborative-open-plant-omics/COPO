@@ -1600,8 +1600,7 @@ class Profile(DAComponent):
         if not user:
             user = data_utils.get_current_user().id
         docs = self.get_collection_handle().find({"user_id": user, "deleted": data_utils.get_not_deleted_flag()}).sort(
-            [['_id', -1]])
-
+            'date_modified', pymongo.DESCENDING)
         if docs:
             return docs
         else:
@@ -1624,7 +1623,7 @@ class Profile(DAComponent):
                 "_id": {"$in": p_list},
                 "deleted": data_utils.get_not_deleted_flag()
             }
-        )
+        ).sort("date_modified", pymongo.DESCENDING)
         out = list(docs)
         for d in out:
             d['shared'] = True

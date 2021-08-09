@@ -15,10 +15,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Checking Groups")
 
+        # group for creating custom repos
         dm_group, created = Group.objects.get_or_create(name='data_managers')
-        dtol_group, create = Group.objects.get_or_create(name='dtol_users')
-        dtol_managers, created = Group.objects.get_or_create(name='dtol_sample_managers')
-        dtol_notifiers, created = Group.objects.get_or_create(name='dtol_sample_notifiers')
+
         ct = ContentType.objects.get_for_model(Repository)
 
         Permission.objects.filter(codename="can_create_repo").delete()
@@ -28,6 +27,19 @@ class Command(BaseCommand):
         dm_group.permissions.add(permission)
         Permission.objects.filter(codename="can_add_user_to_repo").delete()
         permission = Permission.objects.create(codename='can_add_user_to_repo',
-                                           name='Can Add User to Repository',
-                                           content_type=ct)
+                                               name='Can Add User to Repository',
+                                               content_type=ct)
         dm_group.permissions.add(permission)
+
+        # view dtol functionality
+        dtol_group, create = Group.objects.get_or_create(name='dtol_users')
+        # view dtol accept/reject view
+        dtol_managers, created = Group.objects.get_or_create(name='dtol_sample_managers')
+        # receive dtol notification emails
+        dtol_notifiers, created = Group.objects.get_or_create(name='dtol_sample_notifiers')
+        # view erga functionality
+        erga_group, create = Group.objects.get_or_create(name='erga_users')
+        # view erga accept/reject view
+        erga_managers, created = Group.objects.get_or_create(name='erga_sample_managers')
+        # receive erga notification emails
+        erga_notifiers, created = Group.objects.get_or_create(name='erga_sample_notifiers')
