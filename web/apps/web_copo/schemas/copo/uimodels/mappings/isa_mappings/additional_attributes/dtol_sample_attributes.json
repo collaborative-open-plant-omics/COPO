@@ -11,7 +11,8 @@
     "hidden": "false",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "show_in_form": true,
     "label": "Collected By",
@@ -34,7 +35,8 @@
     "hidden": "false",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "show_in_form": true,
     "label": "Date of Collection",
@@ -55,7 +57,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -84,7 +87,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -107,7 +111,8 @@
     "hidden": "false",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "show_in_form": true,
     "label": "Identified By",
@@ -130,7 +135,8 @@
     "hidden": "false",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "show_in_form": true,
     "label": "Identifier Affiliation",
@@ -154,7 +160,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -178,7 +185,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -202,7 +210,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -226,7 +235,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -637,7 +647,8 @@
     ],
     "ref": "",
     "specifications": [
-      "dtol"
+      "dtol",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -706,7 +717,8 @@
     ],
     "ref": "",
     "specifications": [
-      "dtol"
+      "dtol",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -730,7 +742,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -802,7 +815,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -873,7 +887,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",

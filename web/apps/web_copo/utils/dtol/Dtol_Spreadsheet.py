@@ -87,7 +87,9 @@ class DtolSpreadsheet:
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
             self.type = "ASG"
-        else:
+        elif "ERGA" in t:
+            self.type = "ERGA"
+        elif "DTOL" in t:
             self.type = "DTOL"
 
         # create list of required validators

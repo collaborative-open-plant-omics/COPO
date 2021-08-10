@@ -1,0 +1,24 @@
+[
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "ERGA_AMBASSADOR"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "ERGA Ambassador",
+    "id": "copo.sample.ERGA_AMBASSADOR",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  }
+]

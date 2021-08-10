@@ -279,7 +279,7 @@ $(document).ready(function () {
 })
 
 
-$(document).on("click", ".new-samples-spreadsheet-template", function (event) {
+$(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreadsheet-template-erga", function (event) {
     $("#sample_spreadsheet_modal").modal("show")
 
     $("#warning_info").fadeOut("fast")
