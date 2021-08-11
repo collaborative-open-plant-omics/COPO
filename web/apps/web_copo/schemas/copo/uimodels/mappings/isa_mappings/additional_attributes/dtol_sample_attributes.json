@@ -287,7 +287,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -311,7 +312,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -359,7 +361,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -383,7 +386,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -407,7 +411,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -431,7 +436,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -455,7 +461,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -479,7 +486,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -503,7 +511,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -527,7 +536,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -551,7 +561,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -767,7 +778,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -791,7 +803,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -912,7 +925,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "true",
@@ -936,7 +950,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "true",
@@ -1193,7 +1208,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1216,7 +1232,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1262,7 +1279,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1308,7 +1326,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1331,7 +1350,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1354,7 +1374,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1377,7 +1398,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1665,7 +1687,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1688,7 +1711,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
