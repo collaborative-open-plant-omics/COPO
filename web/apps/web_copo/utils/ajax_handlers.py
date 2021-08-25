@@ -9,6 +9,7 @@ from datetime import datetime
 
 import jsonpickle
 import pandas as pd
+import numpy as np
 import requests
 from bson import json_util, ObjectId
 from django.contrib.auth.models import Group
@@ -30,7 +31,7 @@ from submission.dataverseSubmission import DataverseSubmit as ds
 from submission.dspaceSubmission import DspaceSubmit as dspace
 from submission.figshareSubmission import FigshareSubmit
 from submission.helpers import generic_helper as ghlper
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
@@ -698,7 +699,7 @@ def get_repo_info(request, sub=None):
             elif repo["type"] == "dspace":
                 dspace().dc_dict_to_dc(sub_id)
     except Exception as e:
-        #print(e)
+        # print(e)
         return HttpResponse(json.dumps({"status": 404, "message": "error getting dataverse"}))
     s = Submission().get_record(ObjectId(sub_id))
     out = dict(repo_type=repo['type'], repo_url=repo['url'], meta=s.get("meta", list()))
@@ -1318,7 +1319,7 @@ def sample_spreadsheet(request):
         fmt = 'csv'
 
     if format not in ["xls", "csv"]:
-        #TODO return sensible error here
+        # TODO return sensible error here
         pass
 
     if dtol.loadManifest(m_format=fmt):
@@ -1357,7 +1358,7 @@ def get_samples_for_profile(request):
         #                     html_id="dtol_sample_info")
         return HttpResponse(json_util.dumps(samples))
     else:
-        return HttpResponse(json_util.dumps({"locked":True}))
+        return HttpResponse(json_util.dumps({"locked": True}))
 
 
 def mark_sample_rejected(request):
@@ -1392,7 +1393,7 @@ def add_sample_to_dtol_submission(request):
 
         for sample_id in sample_ids:
             # iterate over samples and add to submission
-            notify_dtol_status(action="delete_row", html_id=sample_id, data={})
+            notify_frontend(action="delete_row", html_id=sample_id, data={})
             if not sample_id in sub["dtol_samples"]:
                 sub["dtol_samples"].append(sample_id)
             Sample().mark_processing(sample_id)
@@ -1404,11 +1405,13 @@ def add_sample_to_dtol_submission(request):
     else:
         return HttpResponse(status=500, content="Sample IDs or profile_id not provided")
 
+
 def delete_dtol_samples(request):
     ids = json.loads(request.POST.get("sample_ids"))
     dtol = DtolSpreadsheet()
     dtol.delete_sample(sample_ids=ids)
     return HttpResponse(json.dumps({}))
+
 
 def sample_images(request):
     files = request.FILES
@@ -1417,3 +1420,236 @@ def sample_images(request):
 
     return HttpResponse(json.dumps(matchings))
 
+
+def process_column_name(column):
+    if "[" in column:
+        column_p = column.split("[")[1].split("]")[0]
+    else:
+        column_p = column
+    return column_p
+
+
+def handle_csv_column_update_spreadsheet(request):
+    if request.POST.get("task") == "get":
+        sample_ids = json.loads(request.POST.get("records"))
+        column = request.POST.get("column")
+        column_p = process_column_name(column)
+        sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        if "Name" in column_p:
+            # if user wants name, just query for name field in provided ids
+            samples = Sample().get_name(column_p, records=sample_ids_bson)
+            sample_object = list(samples)
+            # create dataframe from returned data
+            df = pd.DataFrame(sample_object)
+            ex = df.to_csv(index=False)
+            # now server as csv
+            resp = HttpResponse(ex)
+            resp["content_type"] = "text/csv"
+            resp["Content-Disposition"] = 'attachment; filename="test.csv"'
+            return resp
+        if "Characteristics" in column:
+            # otherwise user must query querying for characteristics or factors
+            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+            lookuptype = "characteristics"
+        elif "Factors" in column:
+            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+            lookuptype = "factorValues"
+        sample_object = list()
+        # create the columns which should appear in the spreadsheet
+        for s in samples:
+            row = {"_id": s["_id"],
+                   "name": s["name"],
+                   "label": s[lookuptype]["category"]["annotationValue"],
+                   "value": s[lookuptype]["value"]["annotationValue"],
+                   "unit": s[lookuptype]["unit"]["annotationValue"],
+                   }
+            sample_object.append(row)
+        # convert to csv and serve
+        df = pd.DataFrame(sample_object)
+        ex = df.to_csv(index=False)
+        resp = HttpResponse(ex)
+        resp["content_type"] = "text/csv"
+        resp["Content-Disposition"] = 'attachment; filename="test.csv"'
+        return resp
+
+    elif request.POST.get("task") == "post":
+        file = request.FILES["file"]
+        column = request.POST["column"]
+        column_p = process_column_name(column)
+        profile_id = request.POST["profile_id"]
+        if request.POST["update_type"] == "sample":
+            # we need to query the sample collection
+            out = dict()
+            print("reading csv")
+            df = pd.read_csv(file, index_col=False)
+            nans = pd.isna(df)
+            df = df.astype(str)
+
+            df[nans] = ""
+            ids = df["_id"]
+            sample_ids_bson = list(map(lambda id: ObjectId(id), ids))
+            if "Characteristics" in column:
+                # otherwise user must query querying for characteristics or factors
+                samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+                lookuptype = "characteristics"
+            elif "Factors" in column:
+                samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+                lookuptype = "factorValues"
+            # now iterate through returned samples to see what has changed
+            updates = list()
+            for saved_sample in list(samples):
+                # for sample in db, get the old field values
+                updated_sample = df.loc[df["_id"] == str(saved_sample["_id"])]
+                label = saved_sample[lookuptype]["category"]["annotationValue"]
+                label_source = saved_sample[lookuptype]["category"]["termSource"]
+                value = saved_sample[lookuptype]["value"]["annotationValue"]
+                value_source = saved_sample[lookuptype]["value"]["termSource"]
+                unit = saved_sample[lookuptype]["unit"]["annotationValue"]
+                unit_source = saved_sample[lookuptype]["unit"]["termSource"]
+
+                # now compare the old field values with what has been parsed out of the
+                # updated spreadsheet, and where there are differences, add them to
+                # the updates return object
+                if (label != updated_sample["label"]).bool():
+                    updates.append(
+                        {"_id": saved_sample["_id"], "updated_field": "label", "updated_value": updated_sample[
+                            "label"].to_string(index=False)})
+                '''
+                if (label_source != updated_sample["label_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "label_source", "updated_value":
+                        updated_sample["label_source"].to_string(index=False)})
+                '''
+                if (value != updated_sample["value"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "value", "updated_value":
+                        updated_sample["value"].to_string(index=False)})
+                '''
+                if (value_source != updated_sample["value_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "value_source", "updated_value":
+                        updated_sample["value_source"].to_string(index=False)})
+                '''
+                if (unit != updated_sample["unit"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "unit", "updated_value":
+                        updated_sample["unit"].to_string(index=False)})
+                '''
+                if (unit_source != updated_sample["unit_source"]).bool():
+                    updates.append({"_id": saved_sample["_id"], "updated_field": "unit_source", "updated_value":
+                        updated_sample["unit_source"].to_string(index=False)})
+                '''
+            return HttpResponse(json_util.dumps(updates))
+
+
+    elif request.POST["update_type"] == "datafile":
+        # query datafile collection
+        pass
+
+    return HttpResponse()
+
+
+def handle_csv_column_validate_spreadsheet(request):
+    data = json.loads(request.POST["data"])
+
+    out = list()
+    to_lookup = list()
+    '''
+    for idx, el in enumerate(df_unique_vals):
+        # get characteristics or factors for the given column name for samples in the records parameter
+        column_p = process_column_name(el["column"])
+        sample_ids_bson = [ObjectId(el["record_id"])]
+        is_unit = True
+        if "Characteristics" in el["column"]:
+            # otherwise user must query querying for characteristics or factors
+            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
+            lookuptype = "characteristics"
+            is_unit = False
+        elif "Factors" in el["column"]:
+            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
+            lookuptype = "factorValues"
+            is_unit = False
+        for s in samples:
+            row = {"_id": s["_id"],
+                   "name": s["name"],
+                   "label": s[lookuptype]["category"]["annotationValue"],
+                   "label_source": s[lookuptype]["category"]["termSource"],
+                   "value": s[lookuptype]["value"]["annotationValue"],
+                   "value_source": s[lookuptype]["value"]["termSource"],
+                   "unit": s[lookuptype]["unit"]["annotationValue"],
+                   "unit_source": s[lookuptype]["unit"]["termSource"],
+                   }
+        term = el["value"]
+        if not is_unit:
+            if is_number(term):
+                # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
+                # milimeters)
+                el["status"] = "accepted"
+                out.append(el)
+                continue;
+        if is_unit:
+            row["ontology_names"] = row["unit_source"]
+        else:
+            row["ontology_names"] = row["value_source"]
+        to_lookup.append(row)
+    '''
+    # make data frame out of to_lookup and unique it to minimize calls to ols
+    df = pd.DataFrame(data)
+    df["column"] = ""
+    df["description"] = ""
+    df["ontology_prefix"] = ""
+    df["label"] = ""
+    df["status"] = ""
+    u = df["value"].unique()
+    for idx, el in enumerate(u):
+        if is_number(el):
+            # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
+            # milimeters)
+            all = df.loc[df["value"] == el]
+            all["status"] = "accepted"
+            vals = all.to_dict(orient="records")
+            out.extend(vals)
+            continue;
+        fields = ol.ONTOLOGY_LKUPS['fields_to_search']
+        q = 'http://www.ebi.ac.uk/ols/api/search?q=' + el
+        resp = requests.get(q, timeout=5)
+        if resp.status_code == 200:
+            print(str(idx) + " Success: " + el)
+            data = json.loads(resp.content)
+            try:
+                ont = data["response"]["docs"][0]
+            except IndexError:
+                e = dict()
+                e["label"] = "Invalid"
+                e["status"] = "error"
+                out.append(e)
+            all = df.loc[df["value"] == el]
+            all["description"] = ont.get("description", "No Description")[0]
+            all["iri"] = ont["iri"]
+            all["ontology_prefix"] = ont["ontology_prefix"]
+            all["label"] = ont["label"]
+            all["status"] = "tentative"
+            vals = all.to_dict(orient="records")
+            out.extend(vals)
+        else:
+            print(str(idx) + " Fail: " + resp.reason)
+    return HttpResponse(json.dumps(out))
+
+
+def handle_csv_column_update_samples(request):
+    data = json.loads(request.POST["data"])
+    for el in data:
+        sample_ids_bson = [ObjectId(el["record_id"])]
+        column_p = process_column_name(el["column"])
+        if "Characteristics" in el["column"]:
+            # otherwise user must query querying for characteristics or factors
+            lookuptype = "characteristics"
+        elif "Factors" in el["column"]:
+            lookuptype = "factorValues"
+        Sample().set_characteristic_or_factor(column=column_p, records=sample_ids_bson, element=el,
+                                              char_or_fac=lookuptype)
+    return HttpResponse("Complete")
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False

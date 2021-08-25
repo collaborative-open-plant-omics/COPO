@@ -1,5 +1,5 @@
 from dal.copo_da import Sample, Profile
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from .tol_validator import TolValidtor
 from .validation_messages import MESSAGES as msg
 from collections import Counter
@@ -12,9 +12,9 @@ class ColumnValidator(TolValidtor):
         columns = list(self.data.columns)
         # check required fields are present in spreadsheet
         for item in self.fields:
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg="Validating Column- " + item,
-                               action="info",
-                               html_id="sample_info")
+            notify_frontend(data={"profile_id": self.profile_id}, msg="Validating Column- " + item,
+                            action="info",
+                            html_id="sample_info")
             if item not in columns:
                 #TODO remove once all 2.2 manifests are gone!!!!
                 if item == "BARCODE_HUB":

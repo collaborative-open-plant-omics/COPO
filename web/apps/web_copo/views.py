@@ -29,12 +29,14 @@ from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import EnaImports as eimp
 from web.apps.web_copo.utils import group_functions
 from .lookup.lookup import HTML_TAGS
+from tools.resolve_env import get_env
 
 LOGGER = settings.LOGGER
 
 
 @login_required
 def index(request):
+    print(get_env("MEDIA_ROOT"))
     banner = banner_view.objects.all()
     if len(banner) > 0:
         context = {'user': request.user, "banner": banner[0]}

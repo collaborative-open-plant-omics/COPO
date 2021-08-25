@@ -234,26 +234,33 @@ function row_select(ev) {
                 })
                 $("#sample_panel").find(".labelling").empty().append(header)
 
+                var rows = []
                 $(data).each(function (idx, row) {
-                    var th_row = $("<tr/>")
-                    var td_row = $("<tr/>", {
-                        class: "sample_table_row"
-                    })
+                    var th_row = document.createElement("tr")
+                    var td_row = document.createElement("tr")
+                    td_row.className = "sample_table_row"
+
                     if (idx == 0) {
                         // do header and row
                         if (filter === "pending") {
-                            var empty_th = $("<th/>")
-                            $(th_row).append(empty_th)
-                            var td = $("<td/>", {
-                                class: "tickbox"
-                            })
+
+                            var empty_th = document.createElement("th")
+                            th_row.appendChild(empty_th)
+                            var td = document.createElement("td")
+                            td.className = "tickbox"
+
                             var tickbox = $("<input/>",
                                 {
                                     "type": "checkbox",
                                     class: "form-check-input"
                                 })
-                            $(td).append(tickbox)
-                            $(td_row).append(td)
+
+                            var tickbox = document.createElement("input")
+                            tickbox.type = "checkbox"
+                            tickbox.className = "form-check-input"
+                            td.appendChild(tickbox)
+                            td_row.appendChild(td)
+
                         }
                         for (el in row) {
                             if (el == "_id") {
@@ -279,48 +286,54 @@ function row_select(ev) {
                                 $(td_row).append(
                                     td
                                 )
-                                $("#profile_samples").find("thead").append(th_row)
-                                $("#profile_samples").find("tbody").append(td_row)
                             }
                         }
+                        document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
+                        document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
+
                     } else { // if not first element
                         if (filter === "pending") {
-                            var td = $("<td/>", {
-                                class: "tickbox"
-                            })
-                            var tickbox = $("<input/>",
-                                {
-                                    "type": "checkbox",
-                                    class: "form-check-input tickbox"
-                                })
-                            $(td).append(tickbox)
-                            $(td_row).append(td)
+
+                            var td = document.createElement("td")
+                            td.className = "tickbox"
+                            var tickbox = document.createElement("input")
+                            tickbox.type = "checkbox"
+                            tickbox.className = "form-check-input checkbox"
+                            td.appendChild(tickbox)
+                            td_row.appendChild(td)
                         }
                         for (el in row) {
                             if (el == "_id") {
-                                $(td_row).data("id", row._id.$oid)
-                                $(td_row).attr("sample_id", row._id.$oid)
+                                td_row.setAttribute("id", row._id.$oid)
+                                td_row.setAttribute("sample_id", row._id.$oid)
                             } else if (!excluded_fields.includes(el)) {
                                 // just do row
                                 td = $("<td/>", {
                                     html: row[el]
                                 })
+                                var td = document.createElement("td")
+                                td.innerHTML = row[el]
                                 if (row[el] == 'NA') {
-                                    $(td).addClass("na_color")
+                                    td.className = "na_color"
                                 } else if (row[el] == "") {
-                                    $(td).addClass("empty_color")
+                                    td.className = "empty_color"
                                 }
-                                $(td_row).append(
-                                    td
-                                )
+                                td_row.appendChild(td)
+
                             }
 
                         }
-                        $("#profile_samples").find("tbody").append(td_row)
+                        rows.push(td_row)
                     }
                 })
-                console.log("data tables running")
-                $("#profile_samples").DataTable(dt_options);
+                fastdom.mutate(() => {
+                    //$("#profile_samples tbody").append(rows)
+                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
+                    rows.forEach(el => {
+                        tbody.appendChild(el)
+                    })
+                    $("#profile_samples").DataTable(dt_options);
+                })
             } else {
                 var content
                 if (data.hasOwnProperty("locked")) {

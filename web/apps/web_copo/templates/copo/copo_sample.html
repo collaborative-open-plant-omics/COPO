@@ -39,6 +39,25 @@
         #image_table img {
             height: 100px
         }
+
+        .cell_highlight_in_column {
+            background-color: #e0e1e2 !important;
+        }
+
+        .cell_updated {
+            background-color: #1678c2 !important;
+            color: white !important;
+        }
+
+        .cell_accepted {
+            background-color: #16ab39 !important;
+            color: white !important
+        }
+
+        .cell_tentative {
+            background-color: #eaae00 !important;
+            color: white !important;
+        }
     </style>
 {% endblock %}
 
@@ -375,6 +394,84 @@
     </div>
 
 
+    <div class="modal fade" id="csv_update_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog  modal-lg" role="document" style="width:90%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Update Column</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <div class="ui attached message">
+                                <div class="header">
+                                    Update Column Data
+                                </div>
+                                <p>Choose a column to update from the dropdown, then click download to get the column
+                                    data
+                                    in spreadsheet form. Make your alterations in your spreadsheet program, and then
+                                    upload
+                                    the edited spreadsheet by clicking browse and navigating to the updated file. Then
+                                    click
+                                    submit.</p>
+                            </div>
+
+
+                            <form class="ui form attached fluid segment" id="csv_upload_form">
+                                <div class="field">
+                                    <label for="column_dropdown">Column Name</label>
+                                    <select class="form-control" id="column_dropdown" placeholder="">
+
+                                    </select>
+                                </div>
+                                <h4 class="ui horizontal header divider">
+                                    <i class="bar chart icon"></i>
+                                    Download -> Edit -> Upload -> Validate
+                                </h4>
+                                <div class="field">
+                                    <button class="ui button" id="ss_download_button">Download Column Data</button>
+                                </div>
+                                <div class="fields">
+                                    <div class="field">
+                                        <label for="csv_upload_button">File input</label>
+
+                                        <input type="file" enctype="multipart/formdata" id="csv_upload_button">
+                                    </div>
+                                    <div class="field" style="margin-top:30px">
+                                        <button id="csv_reload" class="ui icon button">
+                                            <i class="redo icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button id="csv_validate" class="ui button disabled">Validate</button>
+                                <button id="csv_save" class="ui button disabled">Save</button>
+                                <span id="validate_loader" style="display: none"><img height="30px"
+                                                                                      src="{% static "copo/img/loading.gif" %}"/></span>
+                            </form>
+                        </div>
+                        <div class="col-lg-9 col-md-9 col-sm-9">
+                            <h1>Column Inspector</h1>
+                            <div id="column_inspector" style="overflow:scroll; max-height:80vh">
+
+                                <table id="column_inspect_table" class="ui celled table">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
 {% endblock %}
 
 {% block help_section %}
@@ -388,4 +485,6 @@
     <script src="{% static 'copo/js/copo_sample.js' %}"></script>
     <script src="{% static 'copo/js/dtol_functions.js' %}"></script>
     <script src="{% static 'copo/js/copo_sample_parse_spreadsheet.js' %}"></script>
+    <script src="{% static 'copo/js/csv_column_updates.js' %}"></script>
+    <script src="{% static 'copo/js/fastdom.js' %}"></script>
 {% endblock %}
