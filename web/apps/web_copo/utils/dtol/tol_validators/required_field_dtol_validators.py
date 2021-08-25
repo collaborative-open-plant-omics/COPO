@@ -55,7 +55,7 @@ class CellMissingDataValidator(TolValidtor):
 class RackTubeNotNullValidator(TolValidtor):
     def validate(self):
         for index, row in self.data.iterrows():
-            if row["RACK_OR_PLATE_ID"] in blank_vals and row["TUBE_OR_WELL_ID"] in blank_vals:
+            if row.get("RACK_OR_PLATE_ID", "") in blank_vals and row["TUBE_OR_WELL_ID"] in blank_vals:
                 self.errors.append(msg["validation_msg_rack_tube_both_na"] % (str(index + 1)))
                 self.flag = False
         return self.errors, self.flag
@@ -77,7 +77,7 @@ class OrphanedSymbiontValidator(TolValidtor):
 class RackPlateUniquenessValidator(TolValidtor):
     def validate(self):
         # check for uniqueness of RACK_OR_PLATE_ID and TUBE_OR_WELL_ID in this manifest
-        rack_tube = self.data["RACK_OR_PLATE_ID"] + "/" + self.data["TUBE_OR_WELL_ID"]
+        rack_tube = self.data.get("RACK_OR_PLATE_ID", "") + "/" + self.data["TUBE_OR_WELL_ID"]
         # now check for uniqueness across all Samples
         p_type = Profile().get_type(profile_id=self.profile_id)
         dup = Sample().check_dtol_unique(rack_tube)
@@ -86,7 +86,7 @@ class RackPlateUniquenessValidator(TolValidtor):
 
         if len(dup) > 0:
             # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-            err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
+            err = list(map(lambda x: x.get("RACK_OR_PLATE_ID", "") + "/" + x["TUBE_OR_WELL_ID"], dup))
             self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
             self.flag = False
 
@@ -96,11 +96,11 @@ class RackPlateUniquenessValidator(TolValidtor):
         for i in u:
             rack, tube = i.split('/')
             rows = self.data.loc[
-                (self.data["RACK_OR_PLATE_ID"] == rack) & (self.data["TUBE_OR_WELL_ID"] == tube)]
+                (self.data.get("RACK_OR_PLATE_ID", "") == rack) & (self.data["TUBE_OR_WELL_ID"] == tube)]
             counts = Counter([x.upper() for x in list(rows["SYMBIONT"].values)])
             if "TARGET" not in counts:
                 self.errors.append(msg["validation_msg_duplicate_without_target"] % (
-                    str(rows["RACK_OR_PLATE_ID"] + "/" + rows["TUBE_OR_WELL_ID"])))
+                    str(rows.get("RACK_OR_PLATE_ID", "") + "/" + rows["TUBE_OR_WELL_ID"])))
                 self.flag = False
             if counts["TARGET"] > 1:
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
