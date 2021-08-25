@@ -166,6 +166,28 @@ class DtolEnumerationValidator(TolValidtor):
                                 row['ORDER_OR_GROUP'], "ORDER_OR_GROUP", str(index + 2),
                                 element.get('ScientificName').upper()))
                             self.flag = False
+                #edge case, TAXON doesn't have GENUS or FAMILY
+                ranks_available = [x.get('Rank') for x in self.taxonomy_dict[taxon_id]['LineageEx']]
+                if 'genus' not in ranks_available:
+                    if not row['GENUS'].strip():
+                        self.warnings.append(msg["validation_warning_field"] % (
+                            "GENUS", str(index + 2), "GENUS", scientific_name,
+                           "NOT_PROVIDED"))
+                        self.data.at[index, "GENUS"] = "NOT_PROVIDED"
+                    elif row['GENUS'].strip().upper() != "NOT_PROVIDED":
+                        self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
+                            row['GENUS'], "GENUS", str(index + 2), "NOT_PROVIDED"))
+                        self.flag = False
+                if 'family' not in ranks_available:
+                    if not row['FAMILY'].strip():
+                        self.warnings.append(msg["validation_warning_field"] % (
+                            "FAMILY", str(index + 2), "FAMILY", scientific_name,
+                            "NOT_PROVIDED"))
+                        self.data.at[index, "FAMILY"] = "NOT_PROVIDED"
+                    elif row['FAMILY'].strip().upper() != "NOT_PROVIDED":
+                        self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
+                            row['FAMILY'], "FAMILY", str(index + 2), "NOT_PROVIDED"))
+                        self.flag = False
             else:
                 self.errors.append(
                     msg['validation_msg_invalid_taxon']
