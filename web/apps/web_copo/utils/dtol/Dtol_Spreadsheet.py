@@ -342,9 +342,9 @@ class DtolSpreadsheet:
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
             s["status"] = "pending"
-            s["rack_tube"] = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             notify_frontend(data={"profile_id": self.profile_id},
-                            msg="Creating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
+                            msg="Creating Sample with ID: " + s.get("TUBE_OR_WELL_ID") + "/" + s["SPECIMEN_ID"],
                             action="info",
                             html_id="sample_info")
 
