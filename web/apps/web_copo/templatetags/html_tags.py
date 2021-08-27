@@ -415,6 +415,7 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
                                "European Reference Genome Atlas (ERGA)"]
     # get and filter schema elements based on displayable columns and profile type
     if get_dtol_fields:
+
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
             if (x.get("show_in_table", True) and
