@@ -24,7 +24,7 @@ class ColumnValidator(TolValidtor):
                 self.errors.append("Field not found - " + item)
                 self.flag = False
                 # if we have a required fields, check that there are no missing values
-        return self.errors, self.flag
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
 class CellMissingDataValidator(TolValidtor):
@@ -49,7 +49,7 @@ class CellMissingDataValidator(TolValidtor):
                                 self.errors.append(msg["validation_msg_missing_data"] % (
                                     header, str(cellcount + 1), blank_vals))
                             self.flag = False
-        return self.errors, self.flag
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
 class RackTubeNotNullValidator(TolValidtor):
@@ -58,7 +58,7 @@ class RackTubeNotNullValidator(TolValidtor):
             if row["RACK_OR_PLATE_ID"] in blank_vals and row["TUBE_OR_WELL_ID"] in blank_vals:
                 self.errors.append(msg["validation_msg_rack_tube_both_na"] % (str(index + 1)))
                 self.flag = False
-        return self.errors, self.flag
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
 class OrphanedSymbiontValidator(TolValidtor):
@@ -71,7 +71,7 @@ class OrphanedSymbiontValidator(TolValidtor):
             if len(target) == 0:
                 self.errors.append(msg["validation_msg_orphaned_symbiont"] % el)
                 self.flag = False
-        return self.errors, self.flag
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
 class RackPlateUniquenessValidator(TolValidtor):
@@ -87,8 +87,25 @@ class RackPlateUniquenessValidator(TolValidtor):
         if len(dup) > 0:
             # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
             err = list(map(lambda x: x["RACK_OR_PLATE_ID"] + "/" + x["TUBE_OR_WELL_ID"], dup))
-            self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
-            self.flag = False
+
+
+            #check if rack_tube present we are in the same profile
+            existingsam = Sample().get_by_field("rack_tube", [str(rack_tube[0])])
+            for exsam in existingsam:
+                if exsam["profile_id"] == self.profile_id:
+                    #todo check SYMBIONT value in species list is the same too
+                    #check accessions do not exist yet and status is pending
+                    if not exsam["biosampleAccession"] and exsam["status"] == "pending":
+                        self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                        self.kwargs["isupdate"] = True
+                    else:
+                        #rack_tube has already been approved or rejected by sample manager and can't be updated any more
+                        self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                        self.flag = False
+                else:
+                    #rack_tube exist in another profile, can't be updated
+                    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    self.flag = False
 
         # duplicates are allowed for asg (and possibily dtol) but one element of duplicate set must have one
         # and only one target in
@@ -105,4 +122,9 @@ class RackPlateUniquenessValidator(TolValidtor):
             if counts["TARGET"] > 1:
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
-        return self.errors, self.flag
+            #TODO this can go at version 2.3 of DTOL
+            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
+                self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
+                self.flag = False
+        return self.errors, self.warnings,self.flag
+, self.kwargs.get("isupdate")
