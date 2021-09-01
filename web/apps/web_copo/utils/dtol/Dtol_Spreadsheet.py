@@ -322,8 +322,8 @@ class DtolSpreadsheet:
             DtolSpreadsheet().detect_updates()
 
         else:
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                           html_id="sample_table")
+            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+                            html_id="sample_table")
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
@@ -375,16 +375,16 @@ class DtolSpreadsheet:
                     DataFile().insert_sample_id(df["_id"], sampl["_id"])
                     break;
 
-            uri = request.build_absolute_uri('/')
-            #query public service service a first time now to trigger request for public names that don't exist
-            public_names = query_public_name_service(public_name_list)
-            for name in public_names:
-                Sample().update_public_name(name)
-            profile_id = request.session["profile_id"]
-            profile = Profile().get_record(profile_id)
-            title = profile["title"]
-            description = profile["description"]
-            CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
+        uri = request.build_absolute_uri('/')
+        # query public service service a first time now to trigger request for public names that don't exist
+        public_names = query_public_name_service(public_name_list)
+        for name in public_names:
+            Sample().update_public_name(name)
+        profile_id = request.session["profile_id"]
+        profile = Profile().get_record(profile_id)
+        title = profile["title"]
+        description = profile["description"]
+        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
 
     def update_records(self):
         sample_data = self.sample_data
@@ -393,10 +393,10 @@ class DtolSpreadsheet:
         public_name_list = list()
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="Updating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
-                               action="info",
-                               html_id="sample_info")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="Updating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
+                            action="info",
+                            html_id="sample_info")
             rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
@@ -450,8 +450,8 @@ class DtolSpreadsheet:
                             updates[rack_tube][field]["new_value"] = s[field]
                     else:
                         msg = "Field " + field + " cannot be updated as it is part of the compliance process"
-                        notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="error",
-                                           html_id="sample_info")
+                        notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="error",
+                                        html_id="sample_info")
                         return False
             # show upcoming updates here
             msg = "<ul>"
@@ -463,10 +463,10 @@ class DtolSpreadsheet:
                            updates[sample][field]["new_value"] + "</strong></li>"
                 msg += "</li></ul>"
             msg+="</ul>"
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg=msg, action="warning",
-                               html_id="warning_info3")
-            notify_dtol_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
-                               html_id="sample_table")
+            notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
+                            html_id="warning_info3")
+            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
+                            html_id="sample_table")
 
 
 
