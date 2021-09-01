@@ -341,7 +341,7 @@ def update_bundle_sample_xml(sample_list, bundlefile):
     # print("adding sample to bundle sample xml")
     tree = ET.parse(bundlefile)
     root = tree.getroot()
-    project = Sample().get_record(sample_list[0])['tol_project']
+    project = Sample().get_record(sample_list[0]).get('tol_project', 'DTOL')
     for sam in sample_list:
         sample = Sample().get_record(sam)
 
