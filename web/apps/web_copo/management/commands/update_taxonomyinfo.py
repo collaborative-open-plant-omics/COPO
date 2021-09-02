@@ -35,10 +35,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('samples', type=str)
+        parser.add_argument('-barcoding', action='store_true')
 
     # A command must define handle()
     def handle(self, *args, **options):
         updates_to_make = options['samples'].split(",")
+        barcoding = options['barcoding']
         print(updates_to_make)
         d_updates = {}
         for couple in updates_to_make:
@@ -56,12 +58,12 @@ class Command(BaseCommand):
             taxonomy = taxonomyinfo['LineageEx']
             taxon = taxonomyinfo['TaxId']
             scien_name = taxonomyinfo['ScientificName']
-            self.update_sampletaxonomy(sample['_id'], taxonomy, taxon, scien_name)
+            self.update_sampletaxonomy(sample['_id'], taxonomy, taxon, scien_name, barcoding)
             if sample.get("sampleDerivedFrom", ""):
                 source_biosample = sample.get("sampleDerivedFrom")
             else:
                 source_biosample = sample.get("sampleSameAs")
-            self.update_specsampletaxonomy(source_biosample, taxon)
+            self.update_specsampletaxonomy(source_biosample, taxon, barcoding)
 
 
     def query_taxonomy(self, scientific_name):
@@ -76,7 +78,7 @@ class Command(BaseCommand):
         records = Entrez.read(handle)
         return records[0]
 
-    def update_sampletaxonomy(self, sample, taxonomy, taxon, name):
+    def update_sampletaxonomy(self, sample, taxonomy, taxon, name, barcoding):
         #update db record
         out = dict()
         for item in taxonomy:
@@ -93,7 +95,10 @@ class Command(BaseCommand):
             oldvalue = oldsample["species_list"][0].get(tax_field, "")
             newvalue = out[tax_field]
             if oldvalue != newvalue:
-                da.Sample().record_manual_update(tax_field, oldvalue, newvalue, sample)
+                if barcoding:
+                    da.Sample().record_barcoding_update(tax_field, oldvalue, newvalue, sample)
+                else:
+                    da.Sample().record_manual_update(tax_field, oldvalue, newvalue, sample)
         da.Sample().add_field("species_list.0", out, sample)
 
         #query public name (skip this for now)
@@ -111,11 +116,14 @@ class Command(BaseCommand):
         self.update_samplexml(registered_sample, out['TAXON_ID'], updatedrecord['biosampleAccession'])
 
 
-    def update_specsampletaxonomy(self, accession, taxon):
+    def update_specsampletaxonomy(self, accession, taxon, barcoding):
         #update db record
         source = da.Source().get_by_field("biosampleAccession", accession)
         assert len(source)==1
-        da.Source().record_manual_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
+        if barcoding:
+            da.Source().record_barcoding_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
+        else:
+            da.Source().record_manual_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
         da.Source().add_field("TAXON_ID", taxon, source[0]['_id'])
         #update ENA record
         updatedrecord = da.Source().get_record(source[0]['_id'])
