@@ -1341,6 +1341,13 @@ def create_spreadsheet_samples(request):
     dtol.save_records()
     return HttpResponse(status=200)
 
+def update_spreadsheet_samples(request):
+    sample_data = request.session["sample_data"]
+    # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
+    dtol = DtolSpreadsheet()
+    dtol.update_records()
+    return HttpResponse(status=200)
+
 
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
@@ -1354,7 +1361,7 @@ def get_samples_for_profile(request):
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
         samples = Sample().get_dtol_from_profile_id(profile_id, filter)
-        # notify_dtol_status(msg="Creating Sample: " + "sprog", action="info",
+        # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
         return HttpResponse(json_util.dumps(samples))
     else:

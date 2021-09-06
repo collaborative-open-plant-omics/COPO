@@ -729,6 +729,7 @@ DTOL_ENUMS = {
         "MARINE BIOLOGICAL ASSOCIATION",
         "ROYAL BOTANIC GARDEN EDINBURGH",
         "NATURAL HISTORY MUSEUM",
+        "ROYAL BOTANIC GARDENS KEW/NATURAL HISTORY MUSEUM",
         "NOT_COLLECTED",
         "NOT_PROVIDED"
     ]
@@ -810,7 +811,7 @@ DTOL_UNITS = {
 }
 DTOL_ENA_MAPPINGS = {
     "ORGANISM_PART": {
-        "ena": "organism part",
+        "ena": "organism part"
     },
     "LIFESTAGE": {
         "ena": "lifestage"
@@ -944,6 +945,78 @@ SPECIMEN_SUFFIX = {
     }
 }
 
+#allow updates to fields in the list by hand of the user pre-approval
+DTOL_NO_COMPLIANCE_FIELDS = {
+    "dtol": [
+        "SPECIMEN_ID",
+        "TAXON_REMARKS",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
+        "SEX",
+        "RELATIONSHIP",
+        "GAL_SAMPLE_ID",
+        "COLLECTOR_SAMPLE_ID",
+        "HABITAT",
+        "DEPTH",
+        "ELEVATION",
+        "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
+        "IDENTIFIED_BY",
+        "IDENTIFIER_AFFILIATION",
+        "IDENTIFIED_HOW",
+        "SPECIMEN_ID_RISK",
+        "PRESERVED_BY",
+        "PRESERVER_AFFILIATION",
+        "PRESERVATION_APPROACH",
+        "PRESERVATIVE_SOLUTION",
+        "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
+        "DATE_OF_PRESERVATION",
+        "SIZE_OF_TISSUE_IN_TUBE",
+        "BARCODE_HUB",
+        "TISSUE_REMOVED_FOR_BARCODING",
+        "PLATE_ID_FOR_BARCODING",
+        "TUBE_OR_WELL_ID_FOR_BARCODING",
+        "TISSUE_FOR_BARCODING",
+        "BARCODE_PLATE_PRESERVATIVE",
+        "PURPOSE_OF_SEPCIMEN",
+        "VOUCHER_ID"
+        ],
+        "asg": [
+        "SPECIMEN_ID",
+        "TAXON_REMARKS",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
+        "SEX",
+        "RELATIONSHIP",
+        "GAL_SAMPLE_ID",
+        "COLLECTOR_SAMPLE_ID",
+        "HABITAT",
+        "DEPTH",
+        "ELEVATION",
+        "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
+        "IDENTIFIED_BY",
+        "IDENTIFIER_AFFILIATION",
+        "IDENTIFIED_HOW",
+        "SPECIMEN_ID_RISK",
+        "PRESERVED_BY",
+        "PRESERVER_AFFILIATION",
+        "PRESERVATION_APPROACH",
+        "PRESERVATIVE_SOLUTION",
+        "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
+        "DATE_OF_PRESERVATION",
+        "SIZE_OF_TISSUE_IN_TUBE",
+        "BARCODE_HUB",
+        "TISSUE_REMOVED_FOR_BARCODING",
+        "PLATE_ID_FOR_BARCODING",
+        "TUBE_OR_WELL_ID_FOR_BARCODING",
+        "TISSUE_FOR_BARCODING",
+        "BARCODE_PLATE_PRESERVATIVE",
+        "PURPOSE_OF_SPECIMEN",
+        "VOUCHER_ID"
+        ],
+}
+
 API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
 
@@ -952,3 +1025,5 @@ symbiont_vals = ["TARGET", "SYMBIONT"]
 na_vals = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
 date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
+species_list_fields = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
+                       "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]

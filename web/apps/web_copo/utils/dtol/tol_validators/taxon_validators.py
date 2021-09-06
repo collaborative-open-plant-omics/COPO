@@ -166,6 +166,18 @@ class DtolEnumerationValidator(TolValidtor):
                                 row['ORDER_OR_GROUP'], "ORDER_OR_GROUP", str(index + 2),
                                 element.get('ScientificName').upper()))
                             self.flag = False
+                #edge case, TAXON doesn't have GENUS or FAMILY
+                ranks_available = [x.get('Rank') for x in self.taxonomy_dict[taxon_id]['LineageEx']]
+                if 'genus' not in ranks_available:
+                    if row['GENUS'].strip():
+                        self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
+                            row['GENUS'], "GENUS", str(index + 2), "*missing value in NCBI*"))
+                        self.flag = False
+                if 'family' not in ranks_available:
+                    if row['FAMILY'].strip():
+                        self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
+                            row['FAMILY'], "FAMILY", str(index + 2), "*missing value in NCBI*"))
+                        self.flag = False
             else:
                 self.errors.append(
                     msg['validation_msg_invalid_taxon']

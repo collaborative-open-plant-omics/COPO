@@ -264,7 +264,8 @@ function row_select(ev) {
                         }
                         for (el in row) {
                             if (el == "_id") {
-                                $(td_row).data("id", row._id.$oid)
+                                //$(td_row).data("id", row._id.$oid)
+                                td_row.setAttribute("id", row._id.$oid)
                                 $(td_row).attr("sample_id", row._id.$oid)
                             } else if (!excluded_fields.includes(el)) {
                                 // make header
@@ -398,7 +399,7 @@ function handle_accept_reject(el) {
     }
     var sample_ids = []
     $(checked).each(function (it) {
-        sample_ids.push($(checked[it]).data("id"))
+        sample_ids.push($(checked[it]).attr("id"))
     })
 
     $(checked).each(function (idx, row) {

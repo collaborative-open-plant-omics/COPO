@@ -173,6 +173,131 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/recordNumber"
   },
   {
+    "help_tip": "The taxonomic Order into which the Family is placed.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "ORDER_OR_GROUP"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.ORDER_OR_GROUP",
+    "label": "Order or Group",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "The taxonomic Family into which the Genus is placed.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "FAMILY"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.FAMILY",
+    "label": "FAMILY",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "The taxonomic Genus to which the Species belongs.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "GENUS"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.GENUS",
+    "label": "GENUS",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "The taxonomic Genus to which the Species belongs.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "GENUS"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.GENUS",
+    "label": "GENUS",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "A valid NCBI TAXON_ID to the species level is mandatory in order to submit data to public repositories.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "TAXON_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TAXON_ID",
+    "label": "TAXON_ID",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
     "help_tip": "The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record.",
     "required": "true",
     "default_value": "",

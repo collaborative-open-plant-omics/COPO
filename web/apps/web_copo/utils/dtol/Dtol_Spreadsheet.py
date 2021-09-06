@@ -82,6 +82,7 @@ class DtolSpreadsheet:
             self.file = file
         else:
             self.sample_data = self.req.session.get("sample_data", "")
+            self.isupdate = self.req.session.get("isupdate", False)
 
         # get type of manifest
         t = Profile().get_type(self.profile_id)
@@ -144,6 +145,7 @@ class DtolSpreadsheet:
         flag = True
         errors = []
         warnings = []
+        self.isupdate = False
 
         try:
             # get definitive list of mandatory DTOL fields from schema
@@ -154,8 +156,8 @@ class DtolSpreadsheet:
 
             # validate for required fields
             for v in self.required_field_validators:
-                errors, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag).validate()
+                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
+                                 errors=errors, warnings=warnings, flag=flag, isupdate=self.isupdate).validate()
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
@@ -317,8 +319,13 @@ class DtolSpreadsheet:
             sample_data.append(r)
         # store sample data in the session to be used to create mongo objects
         self.req.session["sample_data"] = sample_data
-        notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                        html_id="sample_table")
+        self.req.session["isupdate"] = self.isupdate
+        if self.isupdate:
+            DtolSpreadsheet().detect_updates()
+
+        else:
+            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+                            html_id="sample_table")
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
@@ -371,7 +378,7 @@ class DtolSpreadsheet:
                     break;
 
         uri = request.build_absolute_uri('/')
-        #query public service service a first time now to trigger request for public names that don't exist
+        # query public service service a first time now to trigger request for public names that don't exist
         public_names = query_public_name_service(public_name_list)
         for name in public_names:
             Sample().update_public_name(name)
@@ -380,6 +387,90 @@ class DtolSpreadsheet:
         title = profile["title"]
         description = profile["description"]
         CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
+
+    def update_records(self):
+        sample_data = self.sample_data
+
+        request = ThreadLocal.get_current_request()
+        public_name_list = list()
+        for p in range(1, len(sample_data)):
+            s = (map_to_dict(sample_data[0], sample_data[p]))
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="Updating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
+                            action="info",
+                            html_id="sample_info")
+            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
+            for field in s.keys():
+                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
+                    if field in lookup.species_list_fields:
+                        # record change
+                        Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field], recorded_sample["_id"])
+                        # update sample
+                        Sample().add_field("species_list.0."+str(field), s[field], recorded_sample["_id"])
+                    else:
+                        #record change
+                        Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
+                        #update sample
+                        Sample().add_field(field, s[field], recorded_sample["_id"])
+
+
+            uri = request.build_absolute_uri('/')
+            # query public service service a first time now to trigger request for public names that don't exist
+            public_names = query_public_name_service(public_name_list)
+            for name in public_names:
+                Sample().update_public_name(name)
+            profile_id = request.session["profile_id"]
+            profile = Profile().get_record(profile_id)
+            title = profile["title"]
+            description = profile["description"]
+
+    def detect_updates(self):
+        sample_data = self.sample_data
+        request = ThreadLocal.get_current_request()
+        public_name_list = list()
+        updates = {}
+        for p in range(1, len(sample_data)):
+            s = (map_to_dict(sample_data[0], sample_data[p]))
+            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            if s["SYMBIONT"].upper() == "SYMBIONT":
+                # this requires different logic to discriminate between symbionts
+                return False
+            exsam = Sample().get_target_by_field("rack_tube", rack_tube)
+            assert len(exsam) == 1
+            exsam = exsam[0]
+            updates[rack_tube] = {}
+            for field in s.keys():
+                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
+                    if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
+                        updates[rack_tube][field] = {}
+                        if field in lookup.species_list_fields:
+                            updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
+                            updates[rack_tube][field]["new_value"] = s[field]
+                        else:
+                            updates[rack_tube][field]["old_value"] = exsam[field]
+                            updates[rack_tube][field]["new_value"] = s[field]
+                    else:
+                        msg = "Field " + field + " cannot be updated as it is part of the compliance process"
+                        notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="error",
+                                        html_id="sample_info")
+                        return False
+            # show upcoming updates here
+            msg = "<ul>"
+            for sample in updates:
+                msg += "<li>Updating sample <strong>" + sample + "</strong>: <ul>"
+                for field in updates[sample]:
+                    msg += "<li><strong> " + field + "</strong> from " + updates[sample][field]["old_value"] + " " \
+                            "to <strong>" + \
+                           updates[sample][field]["new_value"] + "</strong></li>"
+                msg += "</li></ul>"
+            msg+="</ul>"
+            notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
+                            html_id="warning_info3")
+            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
+                            html_id="sample_table")
+
+
 
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report

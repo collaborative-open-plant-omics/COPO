@@ -69,7 +69,11 @@ $(document).ready(function () {
         BootstrapDialog.show({
 
             title: "Submit Samples",
-            message: "Do you really want to submit these samples? They will be sent to a Darwin Tree of Life curator for checking",
+            message: "Do you really want to submit these samples? " +
+                "</br><strong>This must be the " +
+                "definitive version of the manifest.</strong> You won't be able to update any field " +
+                "involved in the compliance process.</br> " +
+                "The sample metadata will be sent to a Tree of Life curator for checking",
             cssClass: "copo-modal1",
             closable: true,
             animate: true,
@@ -91,6 +95,49 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/create_spreadsheet_samples",
+
+                        }).done(function () {
+                            location.reload()
+                        }).error(function (data) {
+                            console.error(data)
+                        })
+                        dialogRef.close();
+                    }
+                }
+            ]
+
+        })
+    })
+
+
+    $(document).on("click", "#confirm_button", function (el) {
+        if ($(el.currentTarget).hasOwnProperty("disabled")) {
+            return false
+        }
+        BootstrapDialog.show({
+
+            title: "Submit Samples",
+            message: "Do you really want to make these changes to the samples?",
+            cssClass: "copo-modal1",
+            closable: true,
+            animate: true,
+            type: BootstrapDialog.TYPE_INFO,
+            buttons: [
+                {
+                    label: "Cancel",
+                    cssClass: "tiny ui basic button",
+                    action: function (dialogRef) {
+                        dialogRef.close();
+                    }
+                },
+                {
+                    label: "Update",
+                    cssClass: "tiny ui basic button",
+                    action: function (dialogRef) {
+                        $("#confirm_button").hide()
+
+                        $.ajax({
+                            url: "/copo/update_spreadsheet_samples",
 
                         }).done(function () {
                             location.reload()
@@ -272,6 +319,50 @@ $(document).ready(function () {
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#finish_button").fadeIn()
+                } else if (d.action === "make_update") {
+                    // make table of metadata parsed from spreadsheet
+                    if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
+                        $("#sample_parse_table").DataTable().clear().destroy();
+                    }
+                    $("#sample_parse_table").find("thead").empty()
+                    $("#sample_parse_table").find("tbody").empty()
+                    var body = $("tbody")
+                    var count = 0
+                    for (r in d.message) {
+                        row = d.message[r]
+                        var tr = $("<tr/>")
+                        for (c in row) {
+                            cell = row[c]
+                            if (count === 0) {
+                                var td = $("<th/>", {
+                                    "html": cell
+                                })
+                            } else {
+                                var td = $("<td/>", {
+                                    "html": cell
+                                })
+                            }
+                            tr.append(td)
+                        }
+                        if (count === 0) {
+                            $("#sample_parse_table").find("thead").append(tr)
+                        } else {
+                            $("#sample_parse_table").find("tbody").append(tr)
+                        }
+                        count++
+                    }
+                    $("#sample_info").hide()
+                    $("#sample_parse_table").DataTable({
+                        "scrollY": "400px",
+                        "scrollX": true,
+                    })
+                    $("#table_div").fadeIn(1000)
+                    $("#sample_parse_table").DataTable().draw()
+                    $("#files_label, #barcode_label").removeAttr("disabled")
+                    $("#files_label, #barcode_label").find("input").removeAttr("disabled")
+                    //$("#confirm_info").fadeIn(1000)
+                    $("#tabs").fadeIn()
+                    $("#confirm_button").fadeIn()
                 }
             }
         }
@@ -284,6 +375,7 @@ $(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreads
 
     $("#warning_info").fadeOut("fast")
     $("#warning_info2").fadeOut("fast")
+    $("#warning_info3").fadeOut("fast")
 
 })
 $(document).on("click", "#export_errors_button", function (event) {
@@ -292,6 +384,7 @@ $(document).on("click", "#export_errors_button", function (event) {
     //data = data.replace(/<[^>]*>/g, '');
     download("errors.html", data)
 })
+
 
 function download(filename, text) {
     // make filename

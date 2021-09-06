@@ -639,6 +639,44 @@ class Source(DAComponent):
             {"SPECIMEN_ID": name['specimen']["specimenId"], "TAXON_ID": str(name['species']["taxonomyId"])},
             {"$set": {"public_name": name.get("tolId", "")}})
 
+    def record_manual_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "manual",
+            "user" : "copo@earlham.ac.uk"
+        }}})
+
+    def record_barcoding_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "barcoding",
+            "user" : "copo@earlham.ac.uk"
+        }}})
+
 
 class Sample(DAComponent):
     def __init__(self, profile_id=None):
@@ -884,6 +922,11 @@ class Sample(DAComponent):
                                                                  "species_list.SYMBIONT": {'$in': ["TARGET", "target"]},
                                                                  "SPECIMEN_ID": specimenid}))
 
+    def get_target_by_field(self, field, value):
+        return cursor_to_list(self.get_collection_handle().find({"sample_type" : {"$in" : ["dtol", "asg"]},
+                                                                 "species_list" : {'$elemMatch' : {"SYMBIONT" : "TARGET"}},
+                                                                 field : value}))
+
     def get_manifests(self):
         cursor = self.get_collection_handle().aggregate(
             [
@@ -934,6 +977,64 @@ class Sample(DAComponent):
             {"$push": {"species_list": out}}
         )
         return True
+
+    def record_user_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "user",
+            "user" : ThreadLocal.get_current_user().email
+        }}})
+
+    def record_manual_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "manual",
+            "user" : "copo@earlham.ac.uk"
+        }}})
+
+    def record_barcoding_update(self, field, old, new, oid):
+        if not self.get_collection_handle().find( {
+            "_id" : ObjectId(oid),
+            "changelog" : {"$exists" : True}
+        }):
+            self.get_collection_handle().update({
+                "_id" : ObjectId(oid)
+            }, {"$set" : {"changelog" : [] }})
+        return self.get_collection_handle().update({
+            "_id" : ObjectId(oid)
+        }, {"$push" : {"changelog" : {
+            "key" : field,
+            "from" : old,
+            "to" :  new,
+            "date" : datetime.now(timezone.utc).replace(microsecond=0),
+            "type" : "barcoding",
+            "user" : "copo@earlham.ac.uk"
+        }}})
+
 
 
 class Submission(DAComponent):
