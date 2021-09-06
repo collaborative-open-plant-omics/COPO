@@ -732,6 +732,108 @@ DTOL_ENUMS = {
         "ROYAL BOTANIC GARDENS KEW/NATURAL HISTORY MUSEUM",
         "NOT_COLLECTED",
         "NOT_PROVIDED"
+    ],
+    "TISSUE_FOR_BIOBANKING": [
+        "**OTHER_FUNGAL_TISSUE**",
+        "**OTHER_PLANT_TISSUE**",
+        "**OTHER_REPRODUCTIVE_ANIMAL_TISSUE**",
+        "**OTHER_SOMATIC_ANIMAL_TISSUE**",
+        "ABDOMEN",
+        "ANTERIOR_BODY",
+        "BLADE",
+        "BLOOD",
+        "BODYWALL",
+        "BRACT",
+        "BRAIN",
+        "BUD",
+        "CAP",
+        "CEPHALOTHORAX",
+        "EGG",
+        "EGGSHELL",
+        "ENDOCRINE_TISSUE",
+        "EYE",
+        "FAT_BODY",
+        "FIN",
+        "FLOWER",
+        "GILL_ANIMAL",
+        "GILL_FUNGI",
+        "GONAD",
+        "HAIR",
+        "HEAD",
+        "HEART",
+        "HEPATOPANCREAS",
+        "HOLDFAST_FUNGI",
+        "KIDNEY",
+        "INTESTINE",
+        "LEAF",
+        "LEG",
+        "LIVER",
+        "LUNG",
+        "MID_BODY",
+        "MODULAR_COLONY",
+        "MUSCLE",
+        "MYCELIUM",
+        "MYCORRHIZA",
+        "NOT_COLLECTED",
+        "NOT_APPLICABLE",
+        "NOT_PROVIDED",
+        "OVARY_ANIMAL",
+        "OVIDUCT",
+        "PANCREAS",
+        "PETIOLE",
+        "POSTERIOR_BODY",
+        "SCALES",
+        "SCAT",
+        "SEEDLING",
+        "SEED",
+        "SHOOT",
+        "SKIN",
+        "SPERM_SEMINAL_FLUID",
+        "SPLEEN",
+        "SPORE",
+        "SPORE_BEARING_STRUCTURE",
+        "STEM",
+        "STIPE",
+        "STOMACH",
+        "TENTACLE",
+        "TERMINAL_BODY",
+        "TESTIS",
+        "THALLUS_FUNGI",
+        "THALLUS_PLANT",
+        "THORAX",
+        "WHOLE_ORGANISM",
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
+    ],
+    "TISSUE_REMOVED_FOR_BIOBANKING" : [
+        "Y",
+        "N"
+    ],
+    "DNA_REMOVED_FOR_BIOBANKING" : [
+        "Y",
+        "N"
+    ],
+    "INDIGENOUS_RIGHTS_APPLICABLE" : [
+        "Y",
+        "N"
+    ],
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE" : [
+        "Y",
+        "N"
+    ],
+    "ETHICS_PERMIT_MANDATORY" : [
+        "Y",
+        "N"
+    ],
+    "SAMPLING_PERMITS_MANDATORY" : [
+        "Y",
+        "N"
+    ],
+    "NAGOYA_PERMITS_MANDATORY" : [
+        "Y",
+        "N"
     ]
 }
 DTOL_RULES = {
@@ -793,6 +895,14 @@ DTOL_RULES = {
         "ena_regex" : "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
         "strict_regex" : "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
         "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
+    },
+    "SAMPLE_COORDINATOR_ORCID_ID" : {
+        "strict_regex" : "^(\d{4}-){3}\d{4}$",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+    },
+    "COLLECTOR_ORCID_ID" : {
+        "strict_regex" : "^(\d{4}-){3}\d{4}$",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     }
 }
 DTOL_UNITS = {
