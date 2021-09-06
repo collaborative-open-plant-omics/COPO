@@ -410,7 +410,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -487,7 +488,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -687,7 +689,7 @@
     "specifications": [
       "dtol",
       "asg",
-      "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -736,7 +738,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
