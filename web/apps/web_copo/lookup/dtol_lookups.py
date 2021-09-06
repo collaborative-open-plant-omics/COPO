@@ -1015,6 +1015,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "PURPOSE_OF_SPECIMEN",
         "VOUCHER_ID"
         ],
+    "erga": []
 }
 
 ERGA_MAPPINGS = {

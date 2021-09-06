@@ -74,8 +74,8 @@ class DtolEnumerationValidator(TolValidtor):
                                     ))
                                     self.flag = False
                         elif c_value.strip() not in allowed_vals:
-                            #extra handling for empty SYMBIONT ind DTOL manifest, which means TARGET
-                            if not c_value.strip() and header == "SYMBIONT" and "DTOL" in p_type:
+                            #extra handling for empty SYMBIONT ind DTOL and ERGA manifest, which means TARGET
+                            if not c_value.strip() and header == "SYMBIONT" and any(x in p_type for x in ["DTOL","ERGA"]):
                                 self.data.at[cellcount - 1, "SYMBIONT"] = "TARGET"
                             # check value is in allowed enum
                             else:

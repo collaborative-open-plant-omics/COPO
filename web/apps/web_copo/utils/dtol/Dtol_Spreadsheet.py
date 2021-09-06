@@ -432,7 +432,7 @@ class DtolSpreadsheet:
         updates = {}
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
-            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            rack_tube = s.get("RACK_OR_PLATE_ID","") + "/" + s["TUBE_OR_WELL_ID"]
             if s["SYMBIONT"].upper() == "SYMBIONT":
                 # this requires different logic to discriminate between symbionts
                 return False

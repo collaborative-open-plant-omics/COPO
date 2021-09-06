@@ -417,7 +417,6 @@
     "dwc": "",
     "type": "string"
   },
-  /* double entry because not required for ERGA */
    {
     "help_tip": "",
     "required": "false",
@@ -472,7 +471,7 @@
     "control_meta": {},
     "control": "text",
     "versions": [
-      "PRESERVER_APPROACH"
+      "PRESERVATION_APPROACH"
     ],
     "ref": "",
     "specifications": [
@@ -482,8 +481,8 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.PRESERVER_APPROACH",
-    "label": "Preserver Approach",
+    "id": "copo.sample.PRESERVATION_APPROACH",
+    "label": "Preservation Approach",
     "show_in_table": true,
     "dwc": ""
   }

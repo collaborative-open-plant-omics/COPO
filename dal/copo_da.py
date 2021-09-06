@@ -914,16 +914,16 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
                                                "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg", "erga"]},
                                                                  "species_list.SYMBIONT": {'$in': ["TARGET", "target"]},
                                                                  "SPECIMEN_ID": specimenid}))
 
     def get_target_by_field(self, field, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type" : {"$in" : ["dtol", "asg"]},
+        return cursor_to_list(self.get_collection_handle().find({"sample_type" : {"$in" : ["dtol", "asg", "erga"]},
                                                                  "species_list" : {'$elemMatch' : {"SYMBIONT" : "TARGET"}},
                                                                  field : value}))
 
