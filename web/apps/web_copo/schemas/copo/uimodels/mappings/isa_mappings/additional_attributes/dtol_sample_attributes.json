@@ -323,6 +323,106 @@
     "dwc": ""
   },
   {
+    "help_tip": "Taxon remarks",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "TAXON_REMARKS"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TAXON_REMARKS",
+    "label": "TAXON_REMARKS",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Infraspecific epithet",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "INFRASPECIFIC_EPITHET"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.INFRASPECIFIC_EPITHET",
+    "label": "INFRASPECIFIC_EPITHET",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Culture or Strain ID",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "CULTURE_OR_STRAIN_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.CULTURE_OR_STRAIN_ID",
+    "label": "CULTURE_OR_STRAIN_ID",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Common name",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "COMMON_NAME"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.COMMON_NAME",
+    "label": "COMMON_NAME",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
     "help_tip": "The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record.",
     "required": "true",
     "default_value": "",
