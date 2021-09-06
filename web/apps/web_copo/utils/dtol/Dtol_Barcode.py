@@ -50,7 +50,7 @@ class Barcoding:
                 num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
                 if int(num) < 1:
                     flag = False
-                    errors.append(msg["barcode_msg_missing_specimen"] % (s_id))
+                    print("making barcoding record for: " + str(s_id))
 
         # if flag is false, compile list of errors
         if not flag:
