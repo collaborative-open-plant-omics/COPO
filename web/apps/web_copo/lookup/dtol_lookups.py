@@ -1017,6 +1017,10 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         ],
 }
 
+ERGA_MAPPINGS = {
+
+}
+
 API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
 

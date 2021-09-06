@@ -760,7 +760,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "bc"
+      "bc",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
