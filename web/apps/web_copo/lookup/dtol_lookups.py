@@ -1017,13 +1017,34 @@ DTOL_ENA_MAPPINGS = {
 
 SPECIMEN_PREFIX = {
     "GAL": {
-        "UNIVERSITY OF OXFORD": "Ox",
-        "MARINE BIOLOGICAL ASSOCIATION": "MBA",
-        "ROYAL BOTANIC GARDENS KEW": "KDTOL",
-        "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
-        "EARLHAM INSTITUTE": "EI_",
-        "NATURAL HISTORY MUSEUM": "NHMUK",
-        "SANGER INSTITUTE": "SAN"
+        "dtol" : {
+            "UNIVERSITY OF OXFORD": "Ox",
+            "MARINE BIOLOGICAL ASSOCIATION": "MBA",
+            "ROYAL BOTANIC GARDENS KEW": "KDTOL",
+            "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
+            "EARLHAM INSTITUTE": "EI_",
+            "NATURAL HISTORY MUSEUM": "NHMUK",
+            "SANGER INSTITUTE": "SAN"
+        },
+        "erga" : {
+            "SANGER INSTITUTE" : "ERGA_",
+            "EARLHAM INSTITUTE" : "ERGA_",
+            "CNAG": "ERGA_",
+            "SCILIFELAB": "ERGA_",
+            "WGGC WEST GERMAN GENOME CENTRE": "ERGA_",
+            "NCCT NGS COMPETENCE CENTER TÜBINGEN": "ERGA_",
+            "DRESDENCONCEPT": "ERGA_",
+            "GC ZURICH": "ERGA_",
+            "GENOSCOPE": "ERGA_",
+            "GTF LAUSANNE": "ERGA_",
+            "DNA SEQUENCING AND GENOMICS LABORATORY, HELSINKI GENOMICS CORE FACILITY": "ERGA_",
+            "NGS BERN": "ERGA_",
+            "NORWEGIAN SEQUENCING CENTRE (NSC)": "ERGA_",
+            "UNIVERSITY OF BARI": "ERGA_",
+            "UNIVERSITY OF FLORENCE": "ERGA_",
+            "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB": "ERGA_",
+            "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIÈGE": "ERGA_"
+            }
     },
     "PARTNER": {
         "UNIVERSITY OF DERBY": "UDUK",
@@ -1045,13 +1066,34 @@ SPECIMEN_PREFIX = {
 
 SPECIMEN_SUFFIX = {
     "GAL": {
-        "UNIVERSITY OF OXFORD": '\d{6}',
-        "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
-        "ROYAL BOTANIC GARDENS KEW": '\d{5}',
-        "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
-        "EARLHAM INSTITUTE": '\d{5}',
-        "NATURAL HISTORY MUSEUM": '\d{9}',
-        "SANGER INSTITUTE": '\d{7}'
+        "dtol" : {
+            "UNIVERSITY OF OXFORD": '\d{6}',
+            "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+            "ROYAL BOTANIC GARDENS KEW": '\d{5}',
+            "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
+            "EARLHAM INSTITUTE": '\d{5}',
+            "NATURAL HISTORY MUSEUM": '\d{9}',
+            "SANGER INSTITUTE": '\d{7}'
+        },
+        "erga" : {
+            "SANGER INSTITUTE" : "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "EARLHAM INSTITUTE" : "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "CNAG": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "SCILIFELAB": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "WGGC WEST GERMAN GENOME CENTRE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "NCCT NGS COMPETENCE CENTER TÜBINGEN": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "DRESDENCONCEPT": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "GC ZURICH": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "GENOSCOPE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "GTF LAUSANNE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "DNA SEQUENCING AND GENOMICS LABORATORY, HELSINKI GENOMICS CORE FACILITY": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "NGS BERN": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "NORWEGIAN SEQUENCING CENTRE (NSC)": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "UNIVERSITY OF BARI": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "UNIVERSITY OF FLORENCE": "ERGA",
+            "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB": "[A-Z]{1,10}_[A-Z]{2}_\d+",
+            "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIÈGE": "[A-Z]{1,10}_[A-Z]{2}_\d+"
+        }
     }
 }
 
