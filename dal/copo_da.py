@@ -1776,6 +1776,10 @@ class Profile(DAComponent):
         p = self.get_record(ObjectId(profile_id))
         return p["title"]
 
+    def get_by_title(self, title):
+        p = self.get_collection_handle().find({"title" : title})
+        return cursor_to_list(p)
+
 
 class CopoGroup(DAComponent):
     def __init__(self):
