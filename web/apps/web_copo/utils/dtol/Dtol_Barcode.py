@@ -5,9 +5,10 @@ import pandas
 import xmljson
 from django_tools.middlewares import ThreadLocal
 from collections import OrderedDict
-from dal.copo_da import Sample
+from dal.copo_da import Sample, Barcode
 from submission.helpers.generic_helper import notify_dtol_status
 from .tol_validators.validation_messages import MESSAGES as msg
+
 
 
 class Barcoding:
@@ -41,7 +42,8 @@ class Barcoding:
         flag = True
         errors = []
 
-        for ids in self.data["SPECIMEN_ID"]:
+        for idx, ids in enumerate(self.data["SPECIMEN_ID"]):
+            barcode_id = self.data["BOLD_ID"][idx]
             for s_id in ids.split(","):
                 s_id = s_id.strip()
                 notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
@@ -49,19 +51,9 @@ class Barcoding:
                                    html_id="barcode_notify")
                 num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
                 if int(num) < 1:
-                    flag = False
-                    print("making barcoding record for: " + str(s_id))
+                    Barcode(profile_id=self.profile_id).add_blank_barcode_record(specimen_id=s_id,
+                                                                                 barcode_id=barcode_id)
 
-        # if flag is false, compile list of errors
-        if not flag:
-            errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-            errors = "".join(errors)
-
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
-                               action="error",
-                               html_id="barcode_notify")
-            return False
         return flag
 
     def query_bold_and_store_in_session(self):

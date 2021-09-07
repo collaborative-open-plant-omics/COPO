@@ -22,7 +22,7 @@ import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person
+    Repository, Person, Barcode
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -1452,15 +1452,23 @@ def accept_barcoding_manifest(request):
                                    action="info",
                                    html_id="barcode_notify")
                 db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": s_id})
-                for s in db_sample:
-                    # check bold reported scientific name with manifest reported and record any conflicts
-                    if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
-                            record["taxonomy"]["species"]["taxon"]["name"]).lower():
-                        Sample().get_collection_handle().update_many(
-                            {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "pending"}})
-                    else:
-                        Sample().get_collection_handle().update_many(
-                            {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "conflicting"}})
+                if len(list(db_sample)) > 0:
+                    for s in db_sample:
+                        # check bold reported scientific name with manifest reported and record any conflicts
+                        if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                                record["taxonomy"]["species"]["taxon"]["name"]).lower():
+
+                            sample_ids = Sample().get_collection_handle().update_many(
+                                {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "pending"}})
+                            record["sample_ids"] = sample_ids
+                            Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
+                        else:
+                            sample_ids = Sample().get_collection_handle().update_many(
+                                {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "conflicting"}})
+                            record["sample_ids"] = sample_ids
+                            Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
+                else:
+                    Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
     return HttpResponse("")
 
 

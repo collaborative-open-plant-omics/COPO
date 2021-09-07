@@ -47,6 +47,7 @@ SubmissionQueueCollection = 'SubmissionQueueCollection'
 MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
+BarcodeCollection = 'BarcodeCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -61,7 +62,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    cgcore=get_collection_ref(CGCoreCollection),
                    textannotation=get_collection_ref(TextAnnotationCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
-                   stats=get_collection_ref(StatsCollection)
+                   stats=get_collection_ref(StatsCollection),
+                   barcode=get_collection_ref(BarcodeCollection)
                    )
 
 
@@ -573,8 +575,9 @@ class Source(DAComponent):
         return self.get_collection_handle().find({'profile_id': profile_id})
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in" : ["dtol_specimen", "asg_specimen"]},
-                                                                 "SPECIMEN_ID": value}))
+        return cursor_to_list(
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+                                               "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
@@ -823,13 +826,14 @@ class Sample(DAComponent):
         return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value}}))
 
     def get_specimen_biosample(self, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
-                                                                 "SPECIMEN_ID": value}))
+        return cursor_to_list(
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+                                               "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
                                                                  "species_list.SYMBIONT": {'$in': ["TARGET", "target"]},
-                                                                 "SPECIMEN_ID" : specimenid}))
+                                                                 "SPECIMEN_ID": specimenid}))
 
     def get_manifests(self):
         cursor = self.get_collection_handle().aggregate(
@@ -910,9 +914,10 @@ class Submission(DAComponent):
         # called by celery to get samples the supeprvisor has set to be sent to ENA
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
-        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
-                                                {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
-                                                 "date_modified": 1, "type": 1})
+        sub = self.get_collection_handle().find(
+            {"type": {"$in": ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
+            {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
+             "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)
         out = list()
 
@@ -934,9 +939,10 @@ class Submission(DAComponent):
         return out
 
     def get_awaiting_tolids(self):
-        sub = self.get_collection_handle().find({"type": {"$in" : ["dtol", "asg"]}, "dtol_status": {"$in": ["awaiting_tolids"]}},
-                                                {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
-                                                 "date_modified": 1})
+        sub = self.get_collection_handle().find(
+            {"type": {"$in": ["dtol", "asg"]}, "dtol_status": {"$in": ["awaiting_tolids"]}},
+            {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
+             "date_modified": 1})
         sub = cursor_to_list(sub)
         return sub
 
@@ -2034,3 +2040,18 @@ class Description:
         if os.path.exists(object_path):
             import shutil
             shutil.rmtree(object_path)
+
+
+class Barcode(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Barcode, self).__init__(profile_id, "barcode")
+
+    def add_blank_barcode_record(self, specimen_id, barcode_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
+                                                barcode_id}}, upsert=True)
+
+    def add_sample_id(self, specimen_id, sample_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
+                                            upsert=True)

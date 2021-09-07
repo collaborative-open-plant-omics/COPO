@@ -117,9 +117,18 @@ $(document).ready(function () {
         }).done(function (data) {
             $("#barcode_upload_spinner").fadeOut("fast")
             $("#barcode_notify").html("Complete")
-            setTimeout(() => {
-                $('#sample_barcoding_modal').modal('hide')
-            }, 1000);
+            $('#sample_barcoding_modal').modal('hide')
+            BootstrapDialog.show({
+                title: 'Complete',
+                message: "Your barcoding manifest has been accepted.",
+                buttons: [{
+                    label: 'Close',
+                    action: function (dialog) {
+                        dialog.close();
+                    }
+                }]
+            });
+
         })
     })
 

@@ -16,7 +16,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile
+from dal.copo_da import Sample, DataFile, Profile, Barcode
 from submission.helpers.generic_helper import notify_dtol_status
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -347,14 +347,18 @@ class DtolSpreadsheet:
                                action="info",
                                html_id="sample_info")
 
-            #change fields for symbiont
+            # change fields for symbiont
             if s["SYMBIONT"] == "SYMBIONT":
                 s["ORGANISM_PART"] = "WHOLE_ORGANISM"
-                #if ASG change also sex to not collected
+                # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
             s = make_target_sample(s)
             sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+
+            # insert sample id into barcode record
+            Barcode().add_sample_id(specimen_id=s["SPECIMEN_ID"], sample_id=str(sampl["_id"]))
+
             Sample().timestamp_dtol_sample_created(sampl["_id"])
             if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
                 public_name_list.append(
