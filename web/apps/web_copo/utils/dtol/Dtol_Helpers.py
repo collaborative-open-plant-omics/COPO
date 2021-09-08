@@ -43,6 +43,13 @@ def validate_date(date_text):
         datetime.datetime.strptime(date_text, '%Y-%m-%d')
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+    todayis = datetime.date.today()
+    enteredtime = datetime.datetime.strptime(date_text, '%Y-%m-%d').date()
+    try:
+        assert todayis > enteredtime
+    except AssertionError:
+        raise AssertionError("Incorrect date entered: date is in the future")
+
 
 
 def check_taxon_ena_submittable(taxon):

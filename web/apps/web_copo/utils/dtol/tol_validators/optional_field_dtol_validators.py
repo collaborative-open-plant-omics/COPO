@@ -196,4 +196,9 @@ class DtolEnumerationValidator(TolValidtor):
                             self.errors.append(
                                 msg["validation_msg_invalid_date"] % (c, str(cellcount + 1), header))
                             self.flag = False
+                        except AssertionError as e:
+                            self.errors.append(
+                                msg["validation_msg_future_date"] % (c, str(cellcount + 1), header)
+                            )
+                            self.flag = False
         return self.errors, self.warnings, self.flag

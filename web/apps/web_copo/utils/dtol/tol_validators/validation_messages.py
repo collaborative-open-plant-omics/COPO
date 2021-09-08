@@ -86,5 +86,7 @@ MESSAGES = {
                                                      "a specimen with TAXON_ID "
                                                        "<strong>%s</strong>",
     "validation_msg_isupdate" : "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will " 
-                                "perform an update."
+                                "perform an update.",
+    "validation_msg_future_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
+                                       "<strong>%s</strong>. Date cannot be in the future.",
 }
