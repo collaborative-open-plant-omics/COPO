@@ -1451,24 +1451,26 @@ def accept_barcoding_manifest(request):
                 notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
                                    action="info",
                                    html_id="barcode_notify")
-                db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": s_id})
-                if len(list(db_sample)) > 0:
+                s_id = s_id.split(",")
+                db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
+                if db_sample.count():
                     for s in db_sample:
                         # check bold reported scientific name with manifest reported and record any conflicts
                         if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
                                 record["taxonomy"]["species"]["taxon"]["name"]).lower():
-
-                            sample_ids = Sample().get_collection_handle().update_many(
-                                {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "pending"}})
-                            record["sample_ids"] = sample_ids
-                            Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
+                            status = "pending"
                         else:
-                            sample_ids = Sample().get_collection_handle().update_many(
-                                {"SPECIMEN_ID": s_id}, {"$set": {"barcoding": record, "status": "conflicting"}})
-                            record["sample_ids"] = sample_ids
-                            Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
+                            status = "conflicting"
+
+                        sample_ids = Sample().get_collection_handle().update_many(
+                            {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status}})
+
+                        Barcode().get_collection_handle().update_many({"specimen_id": {"$in": s_id}},
+                                                                      {"$set": record}, upsert=True)
                 else:
-                    Barcode().get_collection_handle().update_many({"specimen_id": s_id}, {"$set": record})
+                    Barcode().get_collection_handle().update_many({"specimen_id": {"$in": s_id}},
+                                                                  {"$set": record},
+                                                                  upsert=True)
     return HttpResponse("")
 
 

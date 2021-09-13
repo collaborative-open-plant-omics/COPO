@@ -778,19 +778,41 @@ class Sample(DAComponent):
                     "$exists": True}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}, "barcoding": {
-                    "$exists": False}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}}
+
+            )
+            ids = list(cursor)
+            id_query = [str(x["_id"]) for x in ids]
+            barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
+            missing_barcodes = list()
+            for bc in barcodes:
+                try:
+                    record_id = bc["record_id"]
+                except KeyError:
+                    for sample in ids:
+                        if bc.get("sample_id") == str(sample["_id"]):
+                            missing_barcodes.append(sample)
+            return missing_barcodes
         elif filter == "conflicting_barcode":
+            out = list()
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "conflicting"})
+            samples = list(cursor)
+            id_query = [str(x["_id"]) for x in samples]
+            barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
+            for bc in barcodes:
+                for idx, s in enumerate(samples):
+                    if bc["sample_id"] == str(s["_id"]):
+                        samples[idx]["barcoding"] = bc
+            cursor = samples
         else:
-            # else return samples who's status simply mathes the filter
+            # else return samples who's status simply matches the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
-        out = list()
+
         # get schema
         sc = self.get_component_schema()
         out = list()
-        for i in cursor_to_list(cursor):
+        for i in list(cursor):
             sam = dict()
             for cell in i:
                 for field in sc:
@@ -2052,6 +2074,6 @@ class Barcode(DAComponent):
                                                 barcode_id}}, upsert=True)
 
     def add_sample_id(self, specimen_id, sample_id):
-        self.get_collection_handle().update({"specimen_id": specimen_id},
-                                            {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
-                                            upsert=True)
+        self.get_collection_handle().update_many({"specimen_id": specimen_id},
+                                                 {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
+                                                 upsert=True)
