@@ -25,6 +25,7 @@ from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
 from web.apps.web_copo.schemas.utils.data_utils import DecoupleFormSubmission
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
+from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
 
@@ -774,25 +775,13 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}, "barcoding": {
-                    "$exists": True}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]},
+                 "barcoding": {
+                     "$exists": True, "$ne": ""}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}}
-
+                {'profile_id': profile_id, "status": "pending_barcode"}
             )
-            ids = list(cursor)
-            id_query = [str(x["_id"]) for x in ids]
-            barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
-            missing_barcodes = list()
-            for bc in barcodes:
-                try:
-                    record_id = bc["record_id"]
-                except KeyError:
-                    for sample in ids:
-                        if bc.get("sample_id") == str(sample["_id"]):
-                            missing_barcodes.append(sample)
-            return missing_barcodes
         elif filter == "conflicting_barcode":
             out = list()
             cursor = self.get_collection_handle().find(
@@ -907,6 +896,16 @@ class Sample(DAComponent):
             {"$push": {"species_list": out}}
         )
         return True
+
+    def add_blank_barcode_record(self, specimen_id, barcode_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
+                                                barcode_id}}, upsert=True)
+
+    def update_tol_by_specimen(self, specimen_id, sample_data):
+
+        return self.get_collection_handle().find_one_and_update({"SPECIMEN_ID": specimen_id}, {"$set": sample_data},
+                                                                return_document=ReturnDocument.AFTER)
 
 
 class Submission(DAComponent):
@@ -2067,11 +2066,6 @@ class Description:
 class Barcode(DAComponent):
     def __init__(self, profile_id=None):
         super(Barcode, self).__init__(profile_id, "barcode")
-
-    def add_blank_barcode_record(self, specimen_id, barcode_id):
-        self.get_collection_handle().update({"specimen_id": specimen_id},
-                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
-                                                barcode_id}}, upsert=True)
 
     def add_sample_id(self, specimen_id, sample_id):
         self.get_collection_handle().update_many({"specimen_id": specimen_id},

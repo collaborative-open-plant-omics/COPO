@@ -49,10 +49,10 @@ class Barcoding:
                 notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
                                    action="info",
                                    html_id="barcode_notify")
-                num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
-                if int(num) < 1:
-                    Barcode(profile_id=self.profile_id).add_blank_barcode_record(specimen_id=s_id,
-                                                                                 barcode_id=barcode_id)
+                # num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
+                # if int(num) < 1:
+                #    Sample(profile_id=self.profile_id).add_blank_barcode_record(specimen_id=s_id,
+                #                                                                 barcode_id=barcode_id)
 
         return flag
 

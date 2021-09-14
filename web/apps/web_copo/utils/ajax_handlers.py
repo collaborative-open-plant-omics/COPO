@@ -1425,8 +1425,8 @@ def upload_barcoding_manifest(request):
     file = request.FILES["file"]
     b = Barcoding(file)
     flag = b.load_manifest()
-    if flag:
-        flag = b.check_specimen_ids()
+    # if flag:
+    #    flag = b.check_specimen_ids()
     if flag:
         barcoding_data = b.query_bold_and_store_in_session()
         out = json.dumps(barcoding_data)
@@ -1463,14 +1463,13 @@ def accept_barcoding_manifest(request):
                             status = "conflicting"
 
                         sample_ids = Sample().get_collection_handle().update_many(
-                            {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status}})
+                            {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status, "barcoding": record}})
 
-                        Barcode().get_collection_handle().update_many({"specimen_id": {"$in": s_id}},
-                                                                      {"$set": record}, upsert=True)
+
                 else:
-                    Barcode().get_collection_handle().update_many({"specimen_id": {"$in": s_id}},
-                                                                  {"$set": record},
-                                                                  upsert=True)
+                    Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
+                                                                 {"$set": {"barcoding": record}},
+                                                                 upsert=True)
     return HttpResponse("")
 
 

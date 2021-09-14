@@ -354,16 +354,30 @@ class DtolSpreadsheet:
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
             s = make_target_sample(s)
-            sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-
-            # insert sample id into barcode record
-            Barcode().add_sample_id(specimen_id=s["SPECIMEN_ID"], sample_id=str(sampl["_id"]))
-
-            Sample().timestamp_dtol_sample_created(sampl["_id"])
-            if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                public_name_list.append(
-                    {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
-                     "sample_id": str(sampl["_id"])})
+            # check if sample with specimen id has already been created during barcoding upload
+            specimen = Sample().get_sample_by_specimen_id(s["SPECIMEN_ID"])
+            if specimen.count():
+                # if so, update with pending status
+                for ss in specimen:
+                    s["profile_id"] = self.profile_id
+                    s["deleted"] = '0'
+                    sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
+                    Sample().timestamp_dtol_sample_created(sampl["_id"])
+                    # add updated sample to public_name_list
+                    if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                        public_name_list.append(
+                            {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
+                                "SPECIMEN_ID"],
+                             "sample_id": str(sampl["_id"])})
+            else:
+                s["status"] = "pending_barcode"
+                # create new sample
+                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+                Sample().timestamp_dtol_sample_created(sampl["_id"])
+                if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                    public_name_list.append(
+                        {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
+                         "sample_id": str(sampl["_id"])})
 
             for im in image_data:
                 # create matching DataFile object for image is provided
