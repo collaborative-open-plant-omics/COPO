@@ -65,6 +65,8 @@ def process_pending_dtol_samples():
         public_name_list = list()
         for s_id in submission["dtol_samples"]:
             sam = Sample().get_record(s_id)
+            #save submissionalias
+            Sample().add_field("submission_alias", file_subfix, s_id)
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
                 targetsam = Sample().get_target_by_specimen_id(sam["SPECIMEN_ID"])
@@ -132,6 +134,7 @@ def process_pending_dtol_samples():
                     specimen_obj_fields = populate_source_fields(targetsam)
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                     Source().add_fields(specimen_obj_fields, str(sour['_id']))
+                Source().add_field("submission_alias", str(sour['_id']), sour['_id'])
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
@@ -548,6 +551,10 @@ def build_submission_xml(sample_id, hold="", release=False):
     # set submission attributes
     root.set("submission_date", datetime.utcnow().replace(tzinfo=d_utils.simple_utc()).isoformat())
 
+    #create alias to be able to retrieve submission
+    #id for specimen, file subfix for bundles
+    root.set('alias', sample_id)
+
     # set SRA contacts
     contacts = root.find('CONTACTS')
 
@@ -568,7 +575,7 @@ def build_submission_xml(sample_id, hold="", release=False):
     ET.dump(tree)
     submissionfile = "submission_" + str(sample_id) + ".xml"
     tree.write(open(submissionfile, 'w'),
-               encoding='unicode')  # overwriting at each run, i don't think we need to keep it
+               encoding='unicode')
 
 
 def build_validate_xml(sample_id):
