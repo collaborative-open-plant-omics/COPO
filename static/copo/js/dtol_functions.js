@@ -94,6 +94,7 @@ $(document).ready(function () {
     })
 
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
+    $(document).on("click", "#force_submission", handle_force_submission)
 
     // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
     $(document).on("click", ".selectable_row, .hot_tab", row_select)
@@ -213,15 +214,25 @@ function row_select(ev) {
         $("#barcode_select").show()
         $("#edit_buttons").show()
         $("#sample_filter").removeClass("filter_margin")
+        $("#force_submission").hide()
+        $("#edit_buttons").hide()
     } else if (filter == "pending") {
         $("#accept_reject_button").show()
         $("#barcode_select").hide()
         $("#edit_buttons").show()
         $("#sample_filter").removeClass("filter_margin")
+        $("#force_submission").hide()
+    } else if (filter == "pending_barcode") {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").hide()
+        $("#edit_buttons").show()
+        $("#force_submission").show()
+        $("#sample_filter").removeClass("filter_margin")
 
     } else {
         $("#accept_reject_button").hide()
         $("#barcode_select").hide()
+        $("#force_submission").hide()
         $("#edit_buttons").hide()
         $("#sample_filter").addClass("filter_margin")
     }
@@ -288,7 +299,7 @@ function row_select(ev) {
                     })
                     if (idx == 0) {
                         // do header and row
-                        if (filter === "pending") {
+                        if (filter.startsWith("pending")) {
                             var empty_th = $("<th/>")
                             $(th_row).append(empty_th)
                             var td = $("<td/>", {
@@ -331,7 +342,7 @@ function row_select(ev) {
                             }
                         }
                     } else { // if not first element
-                        if (filter === "pending") {
+                        if (filter.startsWith("pending")) {
                             var td = $("<td/>", {
                                 class: "tickbox"
                             })
@@ -384,7 +395,6 @@ function row_select(ev) {
                 $("#accept_reject_button").find("button").prop("disabled", true)
 
             }
-
             $("#spinner").fadeOut("fast")
 
         }
@@ -419,10 +429,7 @@ function update_pending_samples_table() {
 
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
-
-
     var checked = $(".form-check-input:checked").closest("tr")
-
     var button = $(el.currentTarget)
     var action
     if (button.hasClass("positive")) {
@@ -455,16 +462,45 @@ function handle_accept_reject(el) {
         })
     } else if (action == "accept") {
         // create or update dtol submission record
-        var profile_id = $("#profile_id").val()
-        $("#sub_spinner").fadeIn(fadeSpeed)
-        $.ajax({
-            url: "/copo/add_sample_to_dtol_submission/",
-            method: "GET",
-            data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
-        }).done(function () {
-            $("#profile_titles").find(".selected").click()
-            $("#spinner").fadeOut(fadeSpeed)
-        })
+        do_accept(sample_ids)
     }
+}
 
+function handle_force_submission() {
+    var msg_content = 'You are trying to force submission of samples which have no associated barcodes. Please select a reason for doing so from the dropdown or type in the box provided.'
+    msg_content = msg_content + '<form><div class="form-group">' +
+        ''
+    msg_content = msg_content + '<div class="dropdown">' +
+
+
+        BootstrapDialog.show({
+            title: 'Reason for Forcing Submission',
+            message: $("<div></div>").load('/copo/force_submission_dialog_content/'),
+            buttons: [{
+                label: 'Accept',
+                cssClass: 'ui green button',
+                action: function (dialog) {
+                    dialog.close();
+                }
+            }, {
+                label: 'Close',
+                cssClass: 'ui button',
+                action: function (dialog) {
+                    dialog.close();
+                }
+            }]
+        });
+}
+
+function do_accept(sample_ids) {
+    var profile_id = $("#profile_id").val()
+    $("#sub_spinner").fadeIn(fadeSpeed)
+    $.ajax({
+        url: "/copo/add_sample_to_dtol_submission/",
+        method: "GET",
+        data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
+    }).done(function () {
+        $("#profile_titles").find(".selected").click()
+        $("#spinner").fadeOut(fadeSpeed)
+    })
 }

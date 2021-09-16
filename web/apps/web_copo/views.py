@@ -532,3 +532,7 @@ def manage_repos(request):
 
 def manage_repositories(request):
     return render(request, 'copo/copo_repository_manage.html', {'request': request})
+
+
+def force_submission_dialog_content(request):
+    return render(request, 'copo/force_submission_dialog_content.html')
