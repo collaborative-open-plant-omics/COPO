@@ -846,7 +846,17 @@ DTOL_ENUMS = {
         "TK Community Use Only",
         "NOT_APPLICABLE",
         "NOT_PROVIDED",
-        "NOT_COLLECTED"
+        "NOT_COLLECTED",
+        "BC Clan",
+        "BC Provenance",
+        "BC Multiple Communities",
+        "BC Outreach",
+        "BC Consent Verified",
+        "BC Consent Non-Verified",
+        "BC Research Use",
+        "BC Open to Commercialization",
+        "BC Non-Commercial",
+        "BC Open to Collaboration"
     ],
     "ETHICS_PERMIT_MANDATORY" : [
         "Y",
