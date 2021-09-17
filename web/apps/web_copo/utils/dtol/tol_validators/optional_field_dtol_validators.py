@@ -133,7 +133,7 @@ class DtolEnumerationValidator(TolValidtor):
                                 self.flag = False
                     #check SPECIMEN_ID has the right prefix
                     elif header == "SPECIMEN_ID":
-                        if "DTOL" in p_type or "ERGA" in p_type:
+                        if "DTOL" in p_type:
                             current_gal = self.data.at[cellcount - 1, "GAL"]
                             specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal,
                                                                                               "") + lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get(current_gal,
@@ -143,6 +143,18 @@ class DtolEnumerationValidator(TolValidtor):
                                     c, header, str(cellcount + 1), "GAL", current_gal,
                                     lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal, "XXX"),
                                         lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get(current_gal, "XXX")
+                                ))
+                                self.flag = False
+                        elif "ERGA" in p_type:
+                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get("default",
+                                                                                                          "") +
+                                                        lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get("default",
+                                                                                                          ''))
+                            if not re.match(specimen_regex, c.strip()):
+                                self.errors.append(msg["validation_msg_error_specimen_regex_dtol"] % (
+                                    c, header, str(cellcount + 1), "GAL", "XXX",
+                                    lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get("default", "XXX"),
+                                    lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get("default", "XXX")
                                 ))
                                 self.flag = False
                         elif "ASG" in p_type:

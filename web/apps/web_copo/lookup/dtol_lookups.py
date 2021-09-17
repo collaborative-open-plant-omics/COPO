@@ -823,6 +823,31 @@ DTOL_ENUMS = {
         "Y",
         "N"
     ],
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL" : [
+        "TK Attribution",
+        "TK Clan",
+        "TK Family",
+        "TK Multiple Communities",
+        "TK Community Voice",
+        "TK Creative",
+        "TK Seasonal",
+        "TK Women General",
+        "TK Men General",
+        "TK Men Restricted",
+        "TK Women Restricted",
+        "TK Culturally Sensitive",
+        "TK Secret / Sacred",
+        "TK Open to Collaboration",
+        "TK Outreach",
+        "TK Non-Verified",
+        "TK Verified",
+        "TK Non-Commercial",
+        "TK Open to Commercialization",
+        "TK Community Use Only",
+        "NOT_APPLICABLE",
+        "NOT_PROVIDED",
+        "NOT_COLLECTED"
+    ],
     "ETHICS_PERMIT_MANDATORY" : [
         "Y",
         "N"
@@ -1027,23 +1052,7 @@ SPECIMEN_PREFIX = {
             "SANGER INSTITUTE": "SAN"
         },
         "erga" : {
-            "SANGER INSTITUTE" : "ERGA_",
-            "EARLHAM INSTITUTE" : "ERGA_",
-            "CNAG": "ERGA_",
-            "SCILIFELAB": "ERGA_",
-            "WGGC WEST GERMAN GENOME CENTRE": "ERGA_",
-            "NCCT NGS COMPETENCE CENTER TÜBINGEN": "ERGA_",
-            "DRESDENCONCEPT": "ERGA_",
-            "GC ZURICH": "ERGA_",
-            "GENOSCOPE": "ERGA_",
-            "GTF LAUSANNE": "ERGA_",
-            "DNA SEQUENCING AND GENOMICS LABORATORY, HELSINKI GENOMICS CORE FACILITY": "ERGA_",
-            "NGS BERN": "ERGA_",
-            "NORWEGIAN SEQUENCING CENTRE (NSC)": "ERGA_",
-            "UNIVERSITY OF BARI": "ERGA_",
-            "UNIVERSITY OF FLORENCE": "ERGA_",
-            "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB": "ERGA_",
-            "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIÈGE": "ERGA_"
+            "default" : "ERGA_"
             }
     },
     "PARTNER": {
@@ -1076,23 +1085,7 @@ SPECIMEN_SUFFIX = {
             "SANGER INSTITUTE": '\d{7}'
         },
         "erga" : {
-            "SANGER INSTITUTE" : "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "EARLHAM INSTITUTE" : "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "CNAG": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "SCILIFELAB": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "WGGC WEST GERMAN GENOME CENTRE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "NCCT NGS COMPETENCE CENTER TÜBINGEN": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "DRESDENCONCEPT": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "GC ZURICH": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "GENOSCOPE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "GTF LAUSANNE": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "DNA SEQUENCING AND GENOMICS LABORATORY, HELSINKI GENOMICS CORE FACILITY": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "NGS BERN": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "NORWEGIAN SEQUENCING CENTRE (NSC)": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "UNIVERSITY OF BARI": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "UNIVERSITY OF FLORENCE": "ERGA",
-            "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB": "[A-Z]{1,10}_[A-Z]{2}_\d+",
-            "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIÈGE": "[A-Z]{1,10}_[A-Z]{2}_\d+"
+            "default" : "(([A-Z]{1,10}_[A-Z]{2,3}_\d{2,3})|([A-Z]{1,10}_\d{4}_\d{2,3}))"
         }
     }
 }
@@ -1168,10 +1161,6 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "VOUCHER_ID"
         ],
     "erga": []
-}
-
-ERGA_MAPPINGS = {
-
 }
 
 API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
