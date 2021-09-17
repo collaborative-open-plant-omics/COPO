@@ -90,18 +90,34 @@ class BrokerDA:
             self.context["action_feedback"] = report_metadata
             return self.context
 
-        # save/edit record
-        record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
+        #check the title is not duplicated for profiles
+        #initialise to empty to keep a single check for all types
+        existingprofile = []
+        if isinstance(self.da_object, Profile):
+            existingprofile = self.da_object.get_by_title(self.auto_fields["copo.profile.title"])
+        if not existingprofile:
+            # save/edit record
+            record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
+        else:
+            record_object = {}
+            status = "duplicated"
 
-        if not record_object:
+        if not record_object and status!="duplicated":
             status = "danger"
+
 
         if action_type == "add" and status == "success":
             report_metadata["message"] = "New " + self.component + " record created!"
+        elif action_type == "add" and status == "duplicated":
+            report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+            status="error"
         elif action_type == "add" and status != "success":
             report_metadata["message"] = "There was a problem creating the " + self.component + " record!"
         elif action_type == "edit" and status == "success":
             report_metadata["message"] = "Record updated!"
+        elif action_type == "edit" and status == "duplicated":
+            report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+            status="error"
         elif action_type == "edit" and status != "success":
             report_metadata["message"] = "There was a problem updating the " + self.component + " record!"
 
