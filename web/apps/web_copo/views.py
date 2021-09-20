@@ -42,6 +42,8 @@ def index(request):
         context = {'user': request.user, "banner": banner[0]}
     else:
         context = {'user': request.user}
+    groups = group_functions.get_group_membership_asString()
+    context['groups'] = groups
     return render(request, 'copo/index.html', context)
 
 

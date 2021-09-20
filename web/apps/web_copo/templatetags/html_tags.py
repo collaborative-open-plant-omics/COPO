@@ -173,7 +173,7 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
                 if "type" in f["id"]:
                     # check if this user is in dtol group, if not, break so as to not add dropdown to form
                     request = ThreadLocal.get_current_request()
-                    is_DTOL = request.user.groups.filter(name__in=['dtol_users']).exists()
+                    is_DTOL = request.user.groups.filter(name__in=['dtol_users', 'erga_users']).exists()
                     if not is_DTOL:
                         break
 
