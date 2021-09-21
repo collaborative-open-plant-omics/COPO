@@ -205,6 +205,18 @@ function json2HtmlForm(data) {
             var event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
+
+            if (!groups.includes("dtol_users")) {
+            $('select option[value *= "(DTOL)"]').hide();
+            $('select option[value *= "(ASG)"]').hide();
+                }
+            if (!groups.includes("erga_users")) {
+                $('select option[value *= "(ERGA)"]').hide();
+            }
+            if (!groups.includes("dtolp_users")) {
+                $('select option[value *= "(DTOLP)"]').hide();
+            }
+
         },
         buttons: [
             {

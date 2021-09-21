@@ -12,14 +12,6 @@ $(document).ready(function () {
 
     var componentMeta = get_component_meta(component);
 
-    if (!groups.includes("dtol_users")) {
-        $('select option[value *= "(DTOL)"]').hide();
-        $('select option[value *= "(ASG)"]').hide();
-    }
-    if (!groups.includes("erga_users")) {
-        $('select option[value *= "(ERGA)"]').hide();
-    }
-
 
     //load work profiles
     var tableLoader = $('<div class="copo-i-loader"></div>');
