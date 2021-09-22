@@ -1375,6 +1375,8 @@ def mark_sample_rejected(request):
 
 
 def add_sample_to_dtol_submission(request):
+    dd_reason = request.GET.get("dd_reason", "")
+    txt_box_other_reason = rquest.GET.get("txt_box_other_reason", "")
     sample_ids = request.GET.get("sample_ids")
     sample_ids = json.loads(sample_ids)
     profile_id = request.GET.get("profile_id")
@@ -1398,6 +1400,9 @@ def add_sample_to_dtol_submission(request):
                 sub["dtol_samples"].append(sample_id)
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
+
+            # add methods for updating forced reasons and user details here
+
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
         else:

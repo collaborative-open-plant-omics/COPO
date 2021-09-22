@@ -5,13 +5,16 @@
 <form>
     <div class="form-group">
         <label for="exampleInputEmail1">Reason for Forcing Submission</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+        <select class="form-control" id="dd_reason">
+            <option>Sample will not be barcoded.</option>
+            <option>Sample could not be barcoded.</option>
+            <option value="other">Other, please specify</option>
+        </select>
     </div>
     <div class="form-group">
-        <label for="exampleInputPassword1">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+        <label for="txt_box_other_reason">Other Reason</label>
+        <textarea id="txt_box_other_reason" class="form-control" rows="2" disabled></textarea>
     </div>
 
-    <button type="submit" class="btn btn-default">Submit</button>
 </form>
 

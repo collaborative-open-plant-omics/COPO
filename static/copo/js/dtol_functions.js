@@ -13,6 +13,19 @@ $(document).ready(function () {
             $(element).click()
         })
     })
+
+    $(document).on("click", "#force_btn", handle_accept_reject)
+
+    $(document).on("click", "#dd_reason", function (e) {
+        var e = document.getElementById("dd_reason")
+        var val = e.value;
+        if (val === "other") {
+            $("#txt_box_other_reason").prop("disabled", false)
+        } else {
+            $("#txt_box_other_reason").prop("disabled", true)
+        }
+    })
+
     $(document).on("click", ".select-none", function () {
         $(".form-check-input:checked").each(function (idx, element) {
             $(element).click()
@@ -430,12 +443,21 @@ function update_pending_samples_table() {
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
     var checked = $(".form-check-input:checked").closest("tr")
-    var button = $(el.currentTarget)
+    if (el.hasOwnProperty("currentTarget")) {
+        var button = $(el.currentTarget)
+    }
+
     var action
+    var dd_reason
+    var txt_box_other_reason
     if (button.hasClass("positive")) {
         action = "accept"
-    } else {
+    } else if (button.hasClass("negative")) {
         action = "reject"
+    } else if (button.hasClass("force")) {
+        action = "accept"
+        var dd_reason = $(document).data("dd_reason")
+        var txt_box_other_reason = $(document).data("txt_box_other_reason")
     }
     var sample_ids = []
     $(checked).each(function (it) {
@@ -462,43 +484,46 @@ function handle_accept_reject(el) {
         })
     } else if (action == "accept") {
         // create or update dtol submission record
-        do_accept(sample_ids)
     }
 }
 
 function handle_force_submission() {
-    var msg_content = 'You are trying to force submission of samples which have no associated barcodes. Please select a reason for doing so from the dropdown or type in the box provided.'
-    msg_content = msg_content + '<form><div class="form-group">' +
-        ''
-    msg_content = msg_content + '<div class="dropdown">' +
 
 
-        BootstrapDialog.show({
-            title: 'Reason for Forcing Submission',
-            message: $("<div></div>").load('/copo/force_submission_dialog_content/'),
-            buttons: [{
-                label: 'Accept',
-                cssClass: 'ui green button',
-                action: function (dialog) {
-                    dialog.close();
-                }
-            }, {
-                label: 'Close',
-                cssClass: 'ui button',
-                action: function (dialog) {
-                    dialog.close();
-                }
-            }]
-        });
+    BootstrapDialog.show({
+        title: 'Reason for Forcing Submission',
+        message: $("<div></div>").load('/copo/force_submission_dialog_content/'),
+        buttons: [{
+            id: 'force_btn',
+            label: 'Accept',
+            cssClass: 'ui green button force',
+            action: function (dialog) {
+                $(document).data("dd_reason", $('#dd_reason').find(":selected").text())
+                $(document).data("txt_box_other_reason", $('#txt_box_other_reason').val())
+                dialog.close()
+            }
+        }, {
+            label: 'Close',
+            cssClass: 'ui button',
+            action: function (dialog) {
+                dialog.close();
+            }
+        }],
+    })
 }
 
-function do_accept(sample_ids) {
+function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
     var profile_id = $("#profile_id").val()
     $("#sub_spinner").fadeIn(fadeSpeed)
     $.ajax({
         url: "/copo/add_sample_to_dtol_submission/",
         method: "GET",
-        data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
+        data: {
+            "sample_ids": JSON.stringify(sample_ids),
+            "profile_id": profile_id,
+            "dd_reason": dd_reason,
+            "txt_box_other_reason": txt_box_other_reason
+        },
     }).done(function () {
         $("#profile_titles").find(".selected").click()
         $("#spinner").fadeOut(fadeSpeed)
