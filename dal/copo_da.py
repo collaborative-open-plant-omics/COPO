@@ -726,6 +726,13 @@ class Sample(DAComponent):
                                                              microsecond=0),
                                                          "updated_by": email}})
 
+    def mark_forced(self, sample_id, reason):
+        u = ThreadLocal.get_current_user()
+        sample = self.get_collection_handle().update(
+            {"_id": ObjectId(sample_id)},
+            {"$set": {"forced_by": u.email, "reason": reason},
+             })
+
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
             {

@@ -484,6 +484,7 @@ function handle_accept_reject(el) {
         })
     } else if (action == "accept") {
         // create or update dtol submission record
+        do_accept(sample_ids, dd_reason, txt_box_other_reason)
     }
 }
 
@@ -498,7 +499,7 @@ function handle_force_submission() {
             label: 'Accept',
             cssClass: 'ui green button force',
             action: function (dialog) {
-                $(document).data("dd_reason", $('#dd_reason').find(":selected").text())
+                $(document).data("dd_reason", $('#dd_reason').find(":selected").val())
                 $(document).data("txt_box_other_reason", $('#txt_box_other_reason').val())
                 dialog.close()
             }
