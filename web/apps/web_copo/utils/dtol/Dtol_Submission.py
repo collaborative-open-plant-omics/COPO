@@ -107,7 +107,7 @@ def process_pending_dtol_samples():
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
             else:
                 # create sample object and submit
-                settings.LOGGER.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 notify_frontend(data={"profile_id": profile_id},
                                 msg="Creating Sample for SPECIMEN_ID " + sam["RACK_OR_PLATE_ID"] + "/" + sam[
                                     "SPECIMEN_ID"],
@@ -134,10 +134,10 @@ def process_pending_dtol_samples():
                     specimen_obj_fields = populate_source_fields(targetsam)
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                     Source().add_fields(specimen_obj_fields, str(sour['_id']))
-                settings.LOGGER.log("created specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                l.log("created specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
-                settings.LOGGER.log("retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                l.log("retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
                 try:
                     assert len(sour) == 1, "more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"]
@@ -220,7 +220,7 @@ def process_pending_dtol_samples():
         # query for public names and update
         notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
                         html_id="dtol_sample_info")
-        l.log("querying public name service for" + ",".join(public_names), type=Logtype.FILE)
+        l.log("querying public name service for" + ",".join(public_name_list), type=Logtype.FILE)
         public_names = query_public_name_service(public_name_list)
         if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
             # hadle failure to get public names and halt submission
