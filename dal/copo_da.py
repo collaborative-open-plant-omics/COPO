@@ -1563,7 +1563,7 @@ class Submission(DAComponent):
 
     def update_submission_modified_timestamp(self, sub_id):
         return self.get_collection_handle().update(
-            {"_id": ObjectId(sub_id)}, {"$set": {"modified": datetime.utcnow()}}
+            {"_id": ObjectId(sub_id)}, {"$set": {"date_modified": datetime.utcnow()}}
         )
 
     def get_submission_from_sample_id(self, s_id):
