@@ -20,11 +20,13 @@ from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
+from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
 from web.apps.web_copo.schemas.utils.data_utils import DecoupleFormSubmission
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
+from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
 
@@ -48,6 +50,7 @@ MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
 TestCollection = 'TestCollection'
+BarcodeCollection = 'BarcodeCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -63,7 +66,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    textannotation=get_collection_ref(TextAnnotationCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
                    stats=get_collection_ref(StatsCollection),
-                   test=get_collection_ref(TestCollection)
+                   test=get_collection_ref(TestCollection),
+                   barcode=get_collection_ref(BarcodeCollection)
                    )
 
 
@@ -640,47 +644,55 @@ class Source(DAComponent):
             {"$set": {"public_name": name.get("tolId", "")}})
 
     def record_manual_update(self, field, old, new, oid):
-        if not self.get_collection_handle().find( {
-            "_id" : ObjectId(oid),
-            "changelog" : {"$exists" : True}
+        if not self.get_collection_handle().find({
+            "_id": ObjectId(oid),
+            "changelog": {"$exists": True}
         }):
             self.get_collection_handle().update({
-                "_id" : ObjectId(oid)
-            }, {"$set" : {"changelog" : [] }})
+                "_id": ObjectId(oid)
+            }, {"$set": {"changelog": []}})
         return self.get_collection_handle().update({
-            "_id" : ObjectId(oid)
-        }, {"$push" : {"changelog" : {
-            "key" : field,
-            "from" : old,
-            "to" :  new,
-            "date" : datetime.now(timezone.utc).replace(microsecond=0),
-            "type" : "manual",
-            "user" : "copo@earlham.ac.uk"
+            "_id": ObjectId(oid)
+        }, {"$push": {"changelog": {
+            "key": field,
+            "from": old,
+            "to": new,
+            "date": datetime.now(timezone.utc).replace(microsecond=0),
+            "type": "manual",
+            "user": "copo@earlham.ac.uk"
         }}})
 
     def record_barcoding_update(self, field, old, new, oid):
-        if not self.get_collection_handle().find( {
-            "_id" : ObjectId(oid),
-            "changelog" : {"$exists" : True}
+        if not self.get_collection_handle().find({
+            "_id": ObjectId(oid),
+            "changelog": {"$exists": True}
         }):
             self.get_collection_handle().update({
-                "_id" : ObjectId(oid)
-            }, {"$set" : {"changelog" : [] }})
+                "_id": ObjectId(oid)
+            }, {"$set": {"changelog": []}})
         return self.get_collection_handle().update({
-            "_id" : ObjectId(oid)
-        }, {"$push" : {"changelog" : {
-            "key" : field,
-            "from" : old,
-            "to" :  new,
-            "date" : datetime.now(timezone.utc).replace(microsecond=0),
-            "type" : "barcoding",
-            "user" : "copo@earlham.ac.uk"
+            "_id": ObjectId(oid)
+        }, {"$push": {"changelog": {
+            "key": field,
+            "from": old,
+            "to": new,
+            "date": datetime.now(timezone.utc).replace(microsecond=0),
+            "type": "barcoding",
+            "user": "copo@earlham.ac.uk"
         }}})
 
 
 class Sample(DAComponent):
     def __init__(self, profile_id=None):
         super(Sample, self).__init__(profile_id, "sample")
+
+    def get_sample_by_specimen_id(self, specimen_id):
+        return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
+
+    def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
+        # specimens must not have already been submitted to ENA so should have status of pending
+        return self.get_collection_handle().count(
+            {"SPECIMEN_ID": specimen_id, "status": {"$nin": ["rejected", "accepted", "processing"]}})
 
     def find_incorrectly_rejected_samples(self):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
@@ -820,6 +832,13 @@ class Sample(DAComponent):
                                                              microsecond=0),
                                                          "updated_by": email}})
 
+    def mark_forced(self, sample_id, reason):
+        u = ThreadLocal.get_current_user()
+        sample = self.get_collection_handle().update(
+            {"_id": ObjectId(sample_id)},
+            {"$set": {"forced_by": u.email, "reason": reason},
+             })
+
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
             {
@@ -869,20 +888,36 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]}})
+        elif filter == "pending_barcode":
+            cursor = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "pending_barcode"}
+            )
+        elif filter == "conflicting_barcode":
+            out = list()
+            cursor = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "conflicting"})
+            samples = list(cursor)
+            id_query = [str(x["_id"]) for x in samples]
+            barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
+            for bc in barcodes:
+                for idx, s in enumerate(samples):
+                    if bc["sample_id"] == str(s["_id"]):
+                        samples[idx]["barcoding"] = bc
+            cursor = samples
         else:
-            # else return samples who's status simply mathes the filter
+            # else return samples who's status simply matches the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
-        out = list()
+
         # get schema
         sc = self.get_component_schema()
         out = list()
-        for i in cursor_to_list(cursor):
+        for i in list(cursor):
             sam = dict()
             for cell in i:
                 for field in sc:
                     if cell == field.get("id", "").split(".")[-1] or cell == "_id":
-                        if "dtol" in field.get("specifications", ""):
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
                             if field.get("show_in_table", ""):
                                 sam[cell] = i[cell]
             out.append(sam)
@@ -918,21 +953,21 @@ class Sample(DAComponent):
                                                "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": ["dtol", "asg"]},
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
                                                                  "species_list.SYMBIONT": {'$in': ["TARGET", "target"]},
                                                                  "SPECIMEN_ID": specimenid}))
 
     def get_target_by_field(self, field, value):
-        return cursor_to_list(self.get_collection_handle().find({"sample_type" : {"$in" : ["dtol", "asg"]},
-                                                                 "species_list" : {'$elemMatch' : {"SYMBIONT" : "TARGET"}},
-                                                                 field : value}))
+        return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
+                                                                 "species_list": {'$elemMatch': {"SYMBIONT": "TARGET"}},
+                                                                 field: value}))
 
     def get_manifests(self):
         cursor = self.get_collection_handle().aggregate(
             [
                 {
                     "$match": {
-                        "sample_type": {"$in": ["dtol", "asg"]}
+                        "sample_type": {"$in": TOL_PROFILE_TYPES}
                     }
                 },
                 {"$sort":
@@ -950,7 +985,7 @@ class Sample(DAComponent):
     def get_manifests_by_date(self, d_from, d_to):
         ids = self.get_collection_handle().aggregate(
             [
-                {"$match": {"sample_type": {"$in": ["dtol", "asg"]}, "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$match": {"sample_type": {"$in": TOL_PROFILE_TYPES}, "time_created": {"$gte": d_from, "$lt": d_to}}},
                 {"$sort": {"time_created": -1}},
                 {"$group":
                     {
@@ -978,63 +1013,72 @@ class Sample(DAComponent):
         )
         return True
 
+    def add_blank_barcode_record(self, specimen_id, barcode_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
+                                                barcode_id}}, upsert=True)
+
+    def update_tol_by_specimen(self, specimen_id, sample_data):
+
+        return self.get_collection_handle().find_one_and_update({"SPECIMEN_ID": specimen_id}, {"$set": sample_data},
+                                                                return_document=ReturnDocument.AFTER)
+
     def record_user_update(self, field, old, new, oid):
-        if not self.get_collection_handle().find( {
-            "_id" : ObjectId(oid),
-            "changelog" : {"$exists" : True}
+        if not self.get_collection_handle().find({
+            "_id": ObjectId(oid),
+            "changelog": {"$exists": True}
         }):
             self.get_collection_handle().update({
-                "_id" : ObjectId(oid)
-            }, {"$set" : {"changelog" : [] }})
+                "_id": ObjectId(oid)
+            }, {"$set": {"changelog": []}})
         return self.get_collection_handle().update({
-            "_id" : ObjectId(oid)
-        }, {"$push" : {"changelog" : {
-            "key" : field,
-            "from" : old,
-            "to" :  new,
-            "date" : datetime.now(timezone.utc).replace(microsecond=0),
-            "type" : "user",
-            "user" : ThreadLocal.get_current_user().email
+            "_id": ObjectId(oid)
+        }, {"$push": {"changelog": {
+            "key": field,
+            "from": old,
+            "to": new,
+            "date": datetime.now(timezone.utc).replace(microsecond=0),
+            "type": "user",
+            "user": ThreadLocal.get_current_user().email
         }}})
 
     def record_manual_update(self, field, old, new, oid):
-        if not self.get_collection_handle().find( {
-            "_id" : ObjectId(oid),
-            "changelog" : {"$exists" : True}
+        if not self.get_collection_handle().find({
+            "_id": ObjectId(oid),
+            "changelog": {"$exists": True}
         }):
             self.get_collection_handle().update({
-                "_id" : ObjectId(oid)
-            }, {"$set" : {"changelog" : [] }})
+                "_id": ObjectId(oid)
+            }, {"$set": {"changelog": []}})
         return self.get_collection_handle().update({
-            "_id" : ObjectId(oid)
-        }, {"$push" : {"changelog" : {
-            "key" : field,
-            "from" : old,
-            "to" :  new,
-            "date" : datetime.now(timezone.utc).replace(microsecond=0),
-            "type" : "manual",
-            "user" : "copo@earlham.ac.uk"
+            "_id": ObjectId(oid)
+        }, {"$push": {"changelog": {
+            "key": field,
+            "from": old,
+            "to": new,
+            "date": datetime.now(timezone.utc).replace(microsecond=0),
+            "type": "manual",
+            "user": "copo@earlham.ac.uk"
         }}})
 
     def record_barcoding_update(self, field, old, new, oid):
-        if not self.get_collection_handle().find( {
-            "_id" : ObjectId(oid),
-            "changelog" : {"$exists" : True}
+        if not self.get_collection_handle().find({
+            "_id": ObjectId(oid),
+            "changelog": {"$exists": True}
         }):
             self.get_collection_handle().update({
-                "_id" : ObjectId(oid)
-            }, {"$set" : {"changelog" : [] }})
+                "_id": ObjectId(oid)
+            }, {"$set": {"changelog": []}})
         return self.get_collection_handle().update({
-            "_id" : ObjectId(oid)
-        }, {"$push" : {"changelog" : {
-            "key" : field,
-            "from" : old,
-            "to" :  new,
-            "date" : datetime.now(timezone.utc).replace(microsecond=0),
-            "type" : "barcoding",
-            "user" : "copo@earlham.ac.uk"
+            "_id": ObjectId(oid)
+        }, {"$push": {"changelog": {
+            "key": field,
+            "from": old,
+            "to": new,
+            "date": datetime.now(timezone.utc).replace(microsecond=0),
+            "type": "barcoding",
+            "user": "copo@earlham.ac.uk"
         }}})
-
 
 
 class Submission(DAComponent):
@@ -1065,7 +1109,7 @@ class Submission(DAComponent):
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
         sub = self.get_collection_handle().find(
-            {"type": {"$in": ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["sending", "pending"]}},
             {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
              "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)
@@ -1091,7 +1135,7 @@ class Submission(DAComponent):
 
     def get_awaiting_tolids(self):
         sub = self.get_collection_handle().find(
-            {"type": {"$in": ["dtol", "asg"]}, "dtol_status": {"$in": ["awaiting_tolids"]}},
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["awaiting_tolids"]}},
             {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
              "date_modified": 1})
         sub = cursor_to_list(sub)
@@ -1524,7 +1568,7 @@ class Submission(DAComponent):
 
     def get_dtol_submission_for_profile(self, profile_id):
         return self.get_collection_handle().find_one({
-            "profile_id": profile_id, "type": {"$in": ["dtol"]}
+            "profile_id": profile_id, "type": {"$in": TOL_PROFILE_TYPES}
         })
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid, collection_id):
@@ -1777,7 +1821,7 @@ class Profile(DAComponent):
         return p["title"]
 
     def get_by_title(self, title):
-        p = self.get_collection_handle().find({"title" : title})
+        p = self.get_collection_handle().find({"title": title})
         return cursor_to_list(p)
 
 
@@ -2195,6 +2239,16 @@ class Description:
         if os.path.exists(object_path):
             import shutil
             shutil.rmtree(object_path)
+
+
+class Barcode(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Barcode, self).__init__(profile_id, "barcode")
+
+    def add_sample_id(self, specimen_id, sample_id):
+        self.get_collection_handle().update_many({"specimen_id": specimen_id},
+                                                 {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
+                                                 upsert=True)
 
 
 def is_number(s):
