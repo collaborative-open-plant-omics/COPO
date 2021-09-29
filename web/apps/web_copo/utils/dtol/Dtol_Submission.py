@@ -64,6 +64,7 @@ def process_pending_dtol_samples():
         # check for public name with Sanger Name Service
         public_name_list = list()
         for s_id in submission["dtol_samples"]:
+            l.log("Dtol_submission : 67", type=Logtype.FILE)
             sam = Sample().get_record(s_id)
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
@@ -106,6 +107,7 @@ def process_pending_dtol_samples():
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
             else:
                 # create sample object and submit
+                l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 notify_frontend(data={"profile_id": profile_id},
                                 msg="Creating Sample for SPECIMEN_ID " + sam["RACK_OR_PLATE_ID"] + "/" + sam[
                                     "SPECIMEN_ID"],
@@ -132,8 +134,10 @@ def process_pending_dtol_samples():
                     specimen_obj_fields = populate_source_fields(targetsam)
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                     Source().add_fields(specimen_obj_fields, str(sour['_id']))
+                l.log("created specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
+                l.log("retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
                 try:
                     assert len(sour) == 1, "more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"]
@@ -163,8 +167,9 @@ def process_pending_dtol_samples():
 
                 build_specimen_sample_xml(sour)
                 build_submission_xml(str(sour['_id']), release=True)
+                l.log("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 accessions = submit_biosample(str(sour['_id']), Source(), submission['_id'], type="source")
-                print(accessions)
+                l.log("submission status is " + str(accessions.get("status", "")), type=Logtype.FILE)
                 if accessions.get("status", "") == "error":
                     if handle_common_ENA_error(accessions.get("msg", ""), sour['_id']):
                         pass
@@ -179,6 +184,7 @@ def process_pending_dtol_samples():
                                                                                                 "")
 
             if not specimen_accession:
+                l.log("no accession found, set submission to pending", type=Logtype.FILE)
                 Submission().make_dtol_status_pending(submission['_id'])
                 msg = "Connection issue - please try resubmit later"
                 notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
@@ -186,6 +192,7 @@ def process_pending_dtol_samples():
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
             #set appropriate relationship to specimen level sample
+            l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
             if issymbiont == "SYMBIONT":
                 Sample().add_field("sampleSymbiontOf", specimen_accession, sam['_id'])
                 sam["sampleSymbiontOf"] = specimen_accession
@@ -213,10 +220,12 @@ def process_pending_dtol_samples():
         # query for public names and update
         notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
                         html_id="dtol_sample_info")
+        l.log("querying public name service for line 223", type=Logtype.FILE)
         public_names = query_public_name_service(public_name_list)
         if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
             # hadle failure to get public names and halt submission
             # change dtol_status to "awaiting_tolids"
+            l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
             msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
                   "COPO will try again in 24 hours"
             notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
@@ -225,18 +234,22 @@ def process_pending_dtol_samples():
             tolidflag = False
 
         for name in public_names:
+            l.log("adding public names to samples", type=Logtype.FILE)
             if name.get("tolId", ""):
                 Sample().update_public_name(name)
 
         #if tolid missing for specimen skip
         if not tolidflag:
+            l.log("missing tolid, removing draft xml", type=Logtype.FILE)
             os.remove("bundle_" + file_subfix + ".xml")
             break
 
+        l.log("updating bundle xml", type=Logtype.FILE)
         update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
         build_submission_xml(file_subfix, release=True)
 
         # store accessions, remove sample id from bundle and on last removal, set status of submission
+        l.log("submitting bundle xml to ENA", type=Logtype.FILE)
         accessions = submit_biosample(file_subfix, Sample(), submission['_id'])
 
         # print(accessions)

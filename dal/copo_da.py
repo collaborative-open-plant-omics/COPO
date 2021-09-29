@@ -1080,7 +1080,7 @@ class Submission(DAComponent):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
-                lg.log("ADDING STALLED SUBMISSION BACK INTO QUEUE - copo_da:912", level=Loglvl.ERROR, type=Logtype.FILE)
+                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083", level=Loglvl.ERROR, type=Logtype.FILE)
 
                 # no need to change status
             elif s.get("dtol_status", "") == "pending":
@@ -1563,7 +1563,7 @@ class Submission(DAComponent):
 
     def update_submission_modified_timestamp(self, sub_id):
         return self.get_collection_handle().update(
-            {"_id": ObjectId(sub_id)}, {"$set": {"modified": datetime.utcnow()}}
+            {"_id": ObjectId(sub_id)}, {"$set": {"date_modified": datetime.utcnow()}}
         )
 
     def get_submission_from_sample_id(self, s_id):
