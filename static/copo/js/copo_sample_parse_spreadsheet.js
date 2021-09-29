@@ -81,7 +81,7 @@ $(document).ready(function () {
             buttons: [
                 {
                     label: "Cancel",
-                    cssClass: "tiny ui basicShouldTheFellowThingInvokeRapidlyAroundItsAmazigCat" +
+                    cssClass: "tiny ui basic" +
                         " button",
                     action: function (dialogRef) {
                         dialogRef.close();
@@ -378,6 +378,47 @@ $(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreads
     $("#warning_info3").fadeOut("fast")
 
 })
+
+$(document).on("click", ".new-samples-spreadsheet-template-erga", function (event) {
+    BootstrapDialog.show({
+
+            title: "Accept Code of Conduct",
+            message: "By uploading a manifest to COPO you confirm that you read, understood and followed the " +
+                "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
+        "Code of Practice</a>",
+            cssClass: "copo-modal1",
+            closable: true,
+            animate: true,
+            type: BootstrapDialog.TYPE_INFO,
+            buttons: [
+                {
+                    label: "Cancel",
+                    cssClass: "tiny ui basic" +
+                        " button",
+                    id: "code_cancel",
+                    action: function (dialogRef) {
+                        $("#sample_spreadsheet_modal").modal("hide")
+                        dialogRef.close();
+
+                    }
+                },
+                {
+                    label: "Ok",
+                    cssClass: "tiny ui basic button",
+                    action: function (dialogRef) {
+                        dialogRef.close();
+                    }
+                }
+            ]
+
+        })
+
+})
+
+$(document).on("click", "#code_cancel", function (event) {
+    var data = $("#sample_info").html()
+})
+
 $(document).on("click", "#export_errors_button", function (event) {
     var data = $("#sample_info").html()
     //data = data.replace("<br>", "\r\n")
