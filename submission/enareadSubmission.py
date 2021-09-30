@@ -29,7 +29,7 @@ from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_EXPERIM
 
 REPOSITORIES = settings.REPOSITORIES
 BASE_DIR = settings.BASE_DIR
-
+ENA_TYPES = settings.ENA_TYPES
 """
 class handles read data submissions to the ENA - see: https://ena-docs.readthedocs.io/en/latest/cli_06.html
 """
@@ -65,8 +65,8 @@ class EnaReads:
         collection_handle = ghlper.get_submission_queue_handle()
 
         # check and update status for long running tasks
-        records = cursor_to_list(
-            collection_handle.find({'repository': 'ena', 'processing_status': 'running'}))
+        records = list(
+            collection_handle.find({'repository': {'$in': ENA_TYPES}, 'processing_status': 'running'}))
 
         for rec in records:
             recorded_time = rec.get("date_modified", None)
@@ -91,10 +91,9 @@ class EnaReads:
                     {'$set': rec})
 
         # obtain pending submission for processing
-        records = cursor_to_list(
-            collection_handle.find({'repository': 'ena', 'processing_status': 'pending'}).sort([['date_modified', 1]]))
-
-
+        records = list(
+            collection_handle.find({'repository': {'$in': ENA_TYPES}, 'processing_status': 'pending'}).sort(
+                [['date_modified', 1]]))
 
         if not records:
             return True
@@ -113,12 +112,9 @@ class EnaReads:
 
         ghlper.update_submission_status(status='info', message=message, submission_id=self.submission_id)
 
-
         collection_handle.update(
             {"_id": ObjectId(str(queued_record_id))},
             {'$set': queued_record})
-
-
 
         result = self.submit()
         # remove from queue - this supposes that submissions that returned error will have
@@ -132,14 +128,10 @@ class EnaReads:
         :return:
         """
 
-
-
         self.project_alias = self.submission_id
         self.remote_location = os.path.join(self.project_alias, 'reads')  # ENA-Dropbox upload path
 
-
         collection_handle = ghlper.get_submission_handle()
-
 
         if not self.submission_id:
             return dict(status=False, message='Submission identifier not found!')
@@ -147,9 +139,6 @@ class EnaReads:
         # check status of submission record
         submission_record = collection_handle.find_one({"_id": ObjectId(self.submission_id)},
                                                        {"profile_id": 1, "complete": 1})
-
-
-
 
         if not submission_record:
             return dict(status=False, message='Submission record not found!')
@@ -179,7 +168,7 @@ class EnaReads:
         print("create self")
         # get submission xml
         context = self._get_submission_xml()
-        print("got xml")
+
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
@@ -363,8 +352,9 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
-            message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
-                self.pass_word, "xxxxxx")
+            message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + \
+                      curl_cmd.replace(
+                          self.pass_word, "xxxxxx")
 
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
@@ -1462,11 +1452,13 @@ class EnaReads:
 
         # todo with -inputdir set - ENA currently claims we don't need this, but doesn't work otherwise
         # cli_cmd = 'java -Xmx2048m -jar ' + ENA_CLI + ' -context reads -userName ' + self.user_token + \
-        #           ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit -centerName ' + \
+        #           ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit
+        #           -centerName ' + \
         #           self.sra_settings["sra_center"] + ' -inputDir ' + self.datafiles_dir + ' -ascp '
 
         cli_cmd = 'java -Xmx2048m -jar ' + ENA_CLI + ' -context reads -userName ' + self.user_token + \
-                  ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit -centerName ' + \
+                  ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit ' \
+                                                                                                      '-centerName ' + \
                   self.sra_settings["sra_center"] + ' -ascp '
 
         return cli_cmd
@@ -1710,7 +1702,8 @@ class EnaReads:
                 except Exception as e:
                     ghlper.logging_error("Could not resolve submission release date" + str(e), self.submission_id)
 
-            extra_info = "<li>An embargo is placed on this submission. Embargo will be automatically lifted on: " + release_date + \
+            extra_info = "<li>An embargo is placed on this submission. Embargo will be automatically lifted on: " + \
+                         release_date + \
                          "</li><li>" \
                          "To release this study now, select " \
                          "<strong>Lift Embargo</strong> from the menu</li>"

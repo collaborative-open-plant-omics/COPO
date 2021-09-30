@@ -20,7 +20,7 @@ from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
-from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES
+from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -967,7 +967,7 @@ class Sample(DAComponent):
             [
                 {
                     "$match": {
-                        "sample_type": {"$in": TOL_PROFILE_TYPES}
+                        "sample_type": {"$in": SANGER_TOL_PROFILE_TYPES}
                     }
                 },
                 {"$sort":
@@ -1812,8 +1812,10 @@ class Profile(DAComponent):
 
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)"]}}).sort("date_modified",
-                                                                                                        pymongo.DESCENDING)
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)",
+                              "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]}}).sort(
+            "date_modified",
+            pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):

@@ -411,7 +411,8 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     # instantiate data access object
     da_object = DAComponent(profile_id, component)
 
-    get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)"]
+    get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
+                               "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]
     # get and filter schema elements based on displayable columns and profile type
     if get_dtol_fields:
         schema = list()

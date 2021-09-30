@@ -190,7 +190,10 @@ $(document).ready(function () {
                                 .addClass("copo-records-panel");
 
                             //set heading
-                            if (data.type.includes("DTOL")) {
+                            if (data.type.includes("DTOL_EI")) {
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
+                                renderHTML.find(".panel-heading").css('background-color', "#16ab39")
+                            } else if (data.type.includes("DTOL")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#16ab39")
                             } else if (data.type.includes("ASG")) {

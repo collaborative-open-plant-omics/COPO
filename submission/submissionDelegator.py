@@ -100,7 +100,7 @@ def delegate_submission(request):
             return HttpResponse(jsonpickle.dumps({'status': 1, 'url': reverse('copo:authenticate_figshare')}))
 
     # Submit to ENA Sequence reads
-    elif repo == 'ena':
+    elif repo in ['ena', 'ena-asm']:
         result = schedule_submission(submission_id=sub_id, submission_repo=repo)
         return HttpResponse(jsonpickle.encode(result, unpicklable=False), content_type='application/json')
 

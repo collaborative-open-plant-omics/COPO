@@ -88,6 +88,8 @@ class DtolSpreadsheet:
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
             self.type = "ASG"
+        elif "DTOL_EI" in t:
+            self.type = "DTOL_EI"
         else:
             self.type = "DTOL"
 
