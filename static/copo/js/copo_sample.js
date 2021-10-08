@@ -95,10 +95,10 @@ $(document).ready(function () {
 
     //var groups = $("#groups").val().split(",")
     //if ($("#profile_type").val().includes("DTOL") || $("#profile_type").val().includes("ASG")) {
-    if (groups.includes("dtol_users")) {
+    if (document.getElementById("profile_type").value.includes("DTOL") && groups.includes("dtol_users")) {
         $(".new-samples-spreadsheet-template").show()
     }
-    if (groups.includes("erga_users")) {
+    if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
         $(".new-samples-spreadsheet-template-erga").show()
     }
     if (groups.includes("dtol_sample_managers")) {
