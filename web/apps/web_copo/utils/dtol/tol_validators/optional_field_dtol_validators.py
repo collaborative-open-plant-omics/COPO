@@ -63,6 +63,11 @@ class DtolEnumerationValidator(TolValidtor):
                         #todo move this in lookups and re-structure, this is in interest of time
                         if header == "BARCODE_HUB" and "ASG" in p_type:
                             allowed_vals = lookup.DTOL_ENUMS.get("PARTNER", "") + ["NOT_PROVIDED"]
+                        if header == "GAL":
+                            if "DTOL" in p_type:
+                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("DTOL", "")
+                            elif "ERGA" in p_type:
+                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("ERGA", "")
                         if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                             # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                             c_value = str(c).split('|')[0].strip()
