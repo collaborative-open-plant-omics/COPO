@@ -1047,6 +1047,16 @@ DTOL_ENA_MAPPINGS = {
     },
     "BARCODE_HUB" : {
         "ena": "barcoding center"
+    },
+    "SAMPLE_COORDINATOR" : {
+        "ena": "sample coordinator"
+    },
+    "SAMPLE_COORDINATOR_AFFILIATION" : {
+        "ena": "sample coordinator affiliation"
+    },
+    #this is a custom field extra to the checklist
+    "SAMPLE_COORDINATOR_ORCID_ID" : {
+        "ena": "sample coordinator ORCID ID"
     }
 }
 
