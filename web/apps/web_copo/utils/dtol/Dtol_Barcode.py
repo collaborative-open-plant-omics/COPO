@@ -84,7 +84,7 @@ class Barcoding:
             for record in d:
                 r = dict()
                 full_records.append(record)
-                r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
+                r["bold_sample_id"] = record["processid"]
 
                 # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
                 # this step is becuase bold api does not return results in order
