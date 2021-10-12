@@ -101,6 +101,9 @@ $(document).ready(function () {
         if (groups.includes("dtol_sample_managers")) {
             $(".accept_reject_samples").show()
         }
+        if (groups.includes("dtol_barcoders")) {
+            $(".barcoding_manifest").show()
+        }
     }
 
     $(document).on("click", ".accept_reject_samples", function (evt) {

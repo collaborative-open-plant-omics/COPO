@@ -41,6 +41,10 @@ MESSAGES = {
 
     "validation_msg_invalid_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
                                    "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
+    "barcode_msg_missing_specimen": "Samples not for found specimen <strong>%s</strong>. Barcodes can only be "
+                                    "uploaded for previously registered TOL samples."
+
+                                   "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
     "validation_msg_invalid_taxon": "TAXON_ID <strong>%s</strong> at row <strong>%s</strong> is invalid. "
                                     "Check SCIENTIFIC_NAME and TAXON_ID match at NCBI <a "
                                     "href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi'>here</a> or "

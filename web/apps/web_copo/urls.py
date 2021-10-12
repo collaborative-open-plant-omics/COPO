@@ -8,7 +8,6 @@ app_name = 'web_copo'
 
 urlpatterns = [
     path('', views.index, name='index'),
-
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
@@ -190,4 +189,14 @@ urlpatterns = [
          name="handle_csv_column_validate_spreadsheet"),
     path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
          name="handle_csv_column_update_samples")
+    path('upload_barcoding_manifest/', ajax_handlers.upload_barcoding_manifest,
+         name="upload_barcoding_manifest"),
+    path('compare_barcode_with_sample/', ajax_handlers.compare_barcode_with_sample,
+         name="compare_barcode_with_sample"),
+    path('accept_barcoding_manifest/', ajax_handlers.accept_barcoding_manifest,
+         name="accept_barcoding_manifest"),
+    path('set_barcoding_status/', ajax_handlers.set_barcoding_status,
+         name="set_barcoding_status"),
+    path('force_submission_dialog_content/', views.force_submission_dialog_content,
+         name="force_submission_dialog_content"),
 ]

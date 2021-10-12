@@ -29,6 +29,7 @@ function upload_image_files(file) {
     })
 }
 
+
 function upload_spreadsheet(file) {
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
@@ -56,11 +57,100 @@ function upload_spreadsheet(file) {
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
+
     })
+}
+
+function handle_accept_barcode(e) {
+    // handler to pass ids of conflicted barcodes to backend for resolution
+    var use = ""
+    if (e.currentTarget.id == "accept_bold") {
+        use = "bold"
+    } else {
+        use = "manifest"
+    }
+    $("#spinner").fadeIn(fadeSpeed)
+    var checked = $(".form-check-input:checked").closest("tr")
+    var ids = []
+    $(checked).each(function (idx, el) {
+        ids.push($(el).data("id"))
+    })
+    var csrftoken = $.cookie('csrftoken');
+    var form = new FormData()
+    form.append("use", use)
+    form.append("ids", ids)
+    jQuery.ajax({
+        url: '/copo/set_barcoding_status/',
+        data: form,
+        method: 'POST',
+        dataType: "json",
+        cache: false,
+        contentType: false,
+        processData: false,
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+    }).done(function () {
+        $("#sample_filter").find(".active").click()
+        $("#spinner").fadeOut(fadeSpeed)
+    }).error(function (e) {
+        console.error(e)
+    })
+}
+
+function handle_accept_manifest(e) {
+    alert("manifest_clicked")
 }
 
 $(document).ready(function () {
 
+    $(document).on("click", "#finish_button_barcode", function (event) {
+        let uid = $(document).data("barcode_uid")
+        var csrftoken = $.cookie('csrftoken');
+        $("#barcode_upload_spinner").fadeIn("fast")
+        $.ajax({
+            url: "/copo/accept_barcoding_manifest/",
+            data: {"uid": uid},
+            method: 'POST',
+
+            type: 'POST', // For jQuery < 1.9
+            headers: {"X-CSRFToken": csrftoken},
+        }).done(function (data) {
+            $("#barcode_upload_spinner").fadeOut("fast")
+            $("#barcode_notify").html("Complete")
+            $('#sample_barcoding_modal').modal('hide')
+            BootstrapDialog.show({
+                title: 'Complete',
+                message: "Your barcoding manifest has been accepted.",
+                buttons: [{
+                    label: 'Close',
+                    action: function (dialog) {
+                        dialog.close();
+                    }
+                }]
+            });
+
+        })
+    })
+
+    // COMMENT FOR GIT MERGE - FELIX'S
+    $(document).on("click", ".new-samples-spreadsheet-template", function (event) {
+        $("#sample_spreadsheet_modal").modal("show")
+        $("#warning_info").fadeOut("fast")
+    })
+    $(document).on("click", ".barcoding_manifest", function (event) {
+        $("#sample_barcoding_modal").modal("show")
+        $("#warning_info").fadeOut("fast")
+    })
+    $(document).on("click", "#export_errors_button", function (event) {
+        var data = $("#sample_info").html()
+        //data = data.replace("<br>", "\r\n")
+        //data = data.replace(/<[^>]*>/g, '');
+        download("errors.html", data)
+    })
+    $(document).on("click", "#accept_bold", handle_accept_barcode)
+    $(document).on("click", "#accept_manifest", handle_accept_barcode)
+
+    $(document).on("change", "#barcode_file", handleBarcodeUpload)
 
     $(document).on("click", "#finish_button", function (el) {
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
@@ -164,24 +254,20 @@ $(document).ready(function () {
     if (window.location.protocol === "https:") {
         wsprotocol = 'wss://';
     }
-
     socket = new WebSocket(
         wsprotocol + window.location.host +
         '/ws/sample_status/' + profileId);
     socket2 = new ReconnectingWebSocket(
         wsprotocol + window.location.host +
         '/ws/dtol_status');
-
     socket2.onopen = function (e) {
         console.log("opened ", e)
     }
     socket2.onmessage = function (e) {
         //d = JSON.parse(e.data)
         //console.log(d)
-
+        //
     }
-
-
     socket.onerror = function (e) {
         console.log("error ", e)
     }
@@ -202,12 +288,12 @@ $(document).ready(function () {
             //$('tr[sample_id=s_id]').fadeOut()
             $('tr[sample_id="' + s_id + '"]').remove()
         }
-
         //actions here should only be performed by sockets with matching profile_id
         if (d.data.hasOwnProperty("profile_id")) {
             if ($("#profile_id").val() == d.data.profile_id) {
                 if (d.action == "hide_sub_spinner") {
                     $("#sub_spinner").fadeOut(fadeSpeed)
+                    $("#barcode_upload_spinner").fadeOut(fadeSpeed)
                 }
                 if (d.action === "close") {
                     $("#" + d.html_id).fadeOut("50")
@@ -220,7 +306,6 @@ $(document).ready(function () {
                         $("#" + d.html_id).fadeIn("50")
                     }
                     $("#" + d.html_id).removeClass("alert-danger").addClass("alert-info")
-
                     $("#" + d.html_id).html(d.message)
                     $("#spinner").fadeOut()
                 } else if (d.action === "csv_updates") {
@@ -401,3 +486,76 @@ function download(filename, text) {
         pom.click();
     }
 }
+
+function handleBarcodeUpload(data) {
+    let f = this.files[0];
+    var csrftoken = $.cookie('csrftoken');
+    form = new FormData()
+    form.append("file", f)
+    $("#barcode_upload_spinner").fadeIn("fast")
+    $.ajax({
+        url: "/copo/upload_barcoding_manifest/",
+        data: form,
+        cache: false,
+        contentType: false,
+        processData: false,
+        method: 'POST',
+        dataType: "json",
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+    }).error(function (data) {
+        $("#barcode_upload_spinner").fadeOut("fast")
+    }).done(function (data) {
+        // put uuid on page to pass back to server, for session retrieval of data
+        $(document).data("barcode_uid", data.uid)
+        $("#barcode_table").find("thead").empty()
+        $("#barcode_table").find("tbody").empty()
+        var rows = new Array()
+        for (var i = 0; i < data.num_records; i++) {
+            rows.push(
+                ""
+            )
+        }
+
+        table_data = JSON.parse(data.data)
+        var row = $("<tr>", {})
+        for (t in table_data) {
+            if (typeof table_data[t][0] != "string") {
+                var head = $("<th/>", {
+                    html: t.replace(/_/g, " ") + " / Bold Taxon ID",
+                    "colspan": 2
+                })
+            } else {
+                var head = $("<th/>", {
+                    html: t.replace(/_/g, " ")
+                })
+            }
+            $(row).append(head)
+        }
+        $("#barcode_table").find("thead").append(row)
+        for (group in table_data) {
+            g = table_data[group]
+            var l = Object.keys(g).length
+            for (var i = 0; i < l; i++) {
+                if (typeof g[0] != "string") {
+                    rows[i] = rows[i] + "<td>" + g[i]["name"] + "</td><td>" + g[i]["taxid"] + "</td>"
+                } else {
+                    rows[i] = rows[i] + "<td>" + g[i] + "</td>"
+                }
+            }
+        }
+
+        $(rows).each(function (idx, row) {
+            $("#barcode_table").find("tbody").append("<tr sammple_id='" + table_data["specimen_id"][idx] + "' " +
+                "data-bold_sample_id='" + table_data["bold_sample_id"][idx] + "'>" + row + "</tr>")
+        })
+
+        $("#barcode_upload_spinner").fadeOut("fast")
+        $("#barcode_notify").fadeOut("fast")
+        $("#barcode_file").parent().hide()
+        $("#finish_button_barcode").show()
+    })
+}
+
+
+

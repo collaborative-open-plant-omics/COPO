@@ -23,7 +23,7 @@ import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person
+    Repository, Person, Barcode
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -37,6 +37,7 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 
 DV_STRING = 'HARVARD_TEST_API'
@@ -1382,6 +1383,8 @@ def mark_sample_rejected(request):
 
 
 def add_sample_to_dtol_submission(request):
+    dd_reason = request.GET.get("dd_reason", "")
+    txt_box_other_reason = request.GET.get("txt_box_other_reason", "")
     sample_ids = request.GET.get("sample_ids")
     sample_ids = json.loads(sample_ids)
     profile_id = request.GET.get("profile_id")
@@ -1405,6 +1408,14 @@ def add_sample_to_dtol_submission(request):
                 sub["dtol_samples"].append(sample_id)
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
+            if dd_reason:
+                # if sample has been force, not why and by who
+                if dd_reason == "other":
+                    reason = txt_box_other_reason
+                else:
+                    reason = dd_reason
+                Sample().mark_forced(sample_id, reason)
+
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
         else:
@@ -1424,7 +1435,6 @@ def sample_images(request):
     files = request.FILES
     dtol = DtolSpreadsheet()
     matchings = dtol.check_image_names(files)
-
     return HttpResponse(json.dumps(matchings))
 
 
@@ -1660,3 +1670,66 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+def upload_barcoding_manifest(request):
+    flag = True
+    file = request.FILES["file"]
+    b = Barcoding(file)
+    flag = b.load_manifest()
+    # if flag:
+    #    flag = b.check_specimen_ids()
+    if flag:
+        barcoding_data = b.query_bold_and_store_in_session()
+        out = json.dumps(barcoding_data)
+        return HttpResponse(out)
+    return HttpResponse(status=400)
+
+
+def compare_barcode_with_sample(request):
+    sample = Sample().get_sample_by_specimen_id(request.POST["specimen_id"])
+
+
+def accept_barcoding_manifest(request):
+    uid = request.POST["uid"]
+    profile_id = request.session["profile_id"]
+    bc_data = request.session[uid]
+    specimen_data = json.loads(bc_data["data"])
+
+    for idx, bc in enumerate(specimen_data["specimen_id"]):
+        s_id = specimen_data["specimen_id"][bc].strip()
+        for record in bc_data["full_records"]:
+            if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
+                notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
+                                   action="info",
+                                   html_id="barcode_notify")
+                s_id = s_id.split(",")
+                db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
+                if db_sample.count():
+                    for s in db_sample:
+                        # check bold reported scientific name with manifest reported and record any conflicts
+                        if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                                record["taxonomy"]["species"]["taxon"]["name"]).lower():
+                            status = "pending"
+                        else:
+                            status = "conflicting"
+
+                        sample_ids = Sample().get_collection_handle().update_many(
+                            {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status, "barcoding": record}})
+
+
+                else:
+                    Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
+                                                                 {"$set": {"barcoding": record}},
+                                                                 upsert=True)
+    return HttpResponse("")
+
+
+def set_barcoding_status(request):
+    # set sample to use manifest or barcoding taxonomic information as a result of supervisor intervention
+    ids = request.POST["ids"].split(",")
+    use = request.POST["use"]
+    for id in ids:
+        Sample().get_collection_handle().update({"_id": ObjectId(id)}, {"$set": {"submit_as_taxon": use,
+                                                                                 "status": "pending"}})
+        print(id)
+    return HttpResponse(json.dumps({}), status=200)

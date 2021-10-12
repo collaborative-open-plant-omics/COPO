@@ -49,8 +49,9 @@ SubmissionQueueCollection = 'SubmissionQueueCollection'
 MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
-TestCollection = 'TestCollection'
 BarcodeCollection = 'BarcodeCollection'
+TestCollection = 'TestCollection'
+
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -888,7 +889,9 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]},
+                 "barcoding": {
+                     "$exists": True, "$ne": ""}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -1079,6 +1082,16 @@ class Sample(DAComponent):
             "type": "barcoding",
             "user": "copo@earlham.ac.uk"
         }}})
+
+    def add_blank_barcode_record(self, specimen_id, barcode_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
+                                                barcode_id}}, upsert=True)
+
+    def update_tol_by_specimen(self, specimen_id, sample_data):
+
+        return self.get_collection_handle().find_one_and_update({"SPECIMEN_ID": specimen_id}, {"$set": sample_data},
+                                                                return_document=ReturnDocument.AFTER)
 
 
 class Submission(DAComponent):
@@ -2251,11 +2264,3 @@ class Barcode(DAComponent):
         self.get_collection_handle().update_many({"specimen_id": specimen_id},
                                                  {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
                                                  upsert=True)
-
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False

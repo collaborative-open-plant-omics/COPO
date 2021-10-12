@@ -16,7 +16,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile
+from dal.copo_da import Sample, DataFile, Profile, Barcode
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -69,6 +69,7 @@ class DtolSpreadsheet:
         self.display_images = display_images / self.profile_id
         self.data = None
         self.required_field_validators = list()
+        self.optional_field_validators = list()
         self.optional_field_validators = list()
         self.taxon_field_validators = list()
         self.optional_validators = optional_validators
@@ -362,12 +363,30 @@ class DtolSpreadsheet:
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
             s = make_target_sample(s)
-            sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-            Sample().timestamp_dtol_sample_created(sampl["_id"])
-            if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                public_name_list.append(
-                    {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
-                     "sample_id": str(sampl["_id"])})
+            # check if sample with specimen id has already been created during barcoding upload
+            specimen = Sample().get_sample_by_specimen_id(s["SPECIMEN_ID"])
+            if specimen.count():
+                # if so, update with pending status
+                for ss in specimen:
+                    s["profile_id"] = self.profile_id
+                    s["deleted"] = '0'
+                    sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
+                    Sample().timestamp_dtol_sample_created(sampl["_id"])
+                    # add updated sample to public_name_list
+                    if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                        public_name_list.append(
+                            {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
+                                "SPECIMEN_ID"],
+                             "sample_id": str(sampl["_id"])})
+            else:
+                s["status"] = "pending_barcode"
+                # create new sample
+                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+                Sample().timestamp_dtol_sample_created(sampl["_id"])
+                if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                    public_name_list.append(
+                        {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
+                         "sample_id": str(sampl["_id"])})
 
             for im in image_data:
                 # create matching DataFile object for image is provided

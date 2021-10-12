@@ -940,10 +940,9 @@ function refresh_tool_tips() {
 function setup_datepicker() {
     var format_string
     // dtol date format and ENA date formats are sadly different, so check if we are dealing with a dtol sample
-    if ($(document).data("isDtolSamplePage")){
+    if ($(document).data("isDtolSamplePage")) {
         format_string = "yyyy-mm-dd"
-    }
-    else{
+    } else {
         format_string = "dd/mm/yyyy"
     }
     $('.date-picker').datepicker({
@@ -2393,7 +2392,7 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template",  "new-samples-spreadsheet-template", "accept_reject_samples"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "barcoding_manifest", "accept_reject_samples"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",
