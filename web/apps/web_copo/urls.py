@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from web.apps.web_copo.file_server import BaseFileDownloadView
+# from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
 from . import views
 
@@ -188,7 +188,7 @@ urlpatterns = [
     path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
          name="handle_csv_column_validate_spreadsheet"),
     path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
-         name="handle_csv_column_update_samples")
+         name="handle_csv_column_update_samples"),
     path('upload_barcoding_manifest/', ajax_handlers.upload_barcoding_manifest,
          name="upload_barcoding_manifest"),
     path('compare_barcode_with_sample/', ajax_handlers.compare_barcode_with_sample,

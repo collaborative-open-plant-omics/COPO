@@ -84,7 +84,7 @@ class DtolSpreadsheet:
         else:
             self.sample_data = self.req.session.get("sample_data", "")
             self.isupdate = self.req.session.get("isupdate", False)
-
+        self.public_name_list = list()
         # get type of manifest
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
@@ -334,7 +334,7 @@ class DtolSpreadsheet:
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
-        public_name_list = list()
+
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
             # store manifest version for posterity. If unknown store as 0
@@ -366,27 +366,28 @@ class DtolSpreadsheet:
             # check if sample with specimen id has already been created during barcoding upload
             specimen = Sample().get_sample_by_specimen_id(s["SPECIMEN_ID"])
             if specimen.count():
-                # if so, update with pending status
+                # we have existing sample with this specimen id
                 for ss in specimen:
+                    # if there is a sample with the same specimen_id, it might be a symbiont in the same tube,
+                    # or another sample of the same organism in a different tube
                     s["profile_id"] = self.profile_id
                     s["deleted"] = '0'
-                    sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
-                    Sample().timestamp_dtol_sample_created(sampl["_id"])
-                    # add updated sample to public_name_list
-                    if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                        public_name_list.append(
-                            {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
-                                "SPECIMEN_ID"],
-                             "sample_id": str(sampl["_id"])})
+                    tw_id = ss.get("TUBE_OR_WELL_ID", "")
+                    if tw_id:
+                        if tw_id != s["TUBE_OR_WELL_ID"]:
+                            # this is symbiont
+                            self.make_pending_sample(s)
+                    else:
+                        sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
+                        Sample().timestamp_dtol_sample_created(sampl["_id"])
+                        # add updated sample to public_name_list
+                        if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                            self.public_name_list.append(
+                                {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
+                                    "SPECIMEN_ID"],
+                                 "sample_id": str(sampl["_id"])})
             else:
-                s["status"] = "pending_barcode"
-                # create new sample
-                sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
-                Sample().timestamp_dtol_sample_created(sampl["_id"])
-                if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                    public_name_list.append(
-                        {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
-                         "sample_id": str(sampl["_id"])})
+                self.make_pending_sample(s)
 
             for im in image_data:
                 # create matching DataFile object for image is provided
@@ -398,7 +399,7 @@ class DtolSpreadsheet:
 
         uri = request.build_absolute_uri('/')
         # query public service service a first time now to trigger request for public names that don't exist
-        public_names = query_public_name_service(public_name_list)
+        public_names = query_public_name_service(self.public_name_list)
         for name in public_names:
             Sample().update_public_name(name)
         profile_id = request.session["profile_id"]
@@ -407,11 +408,21 @@ class DtolSpreadsheet:
         description = profile["description"]
         CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
 
+    def make_pending_sample(self, s):
+        s["status"] = "pending_barcode"
+        # create new sample
+        sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+        Sample().timestamp_dtol_sample_created(sampl["_id"])
+        if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+            self.public_name_list.append(
+                {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
+                 "sample_id": str(sampl["_id"])})
+
     def update_records(self):
         sample_data = self.sample_data
 
         request = ThreadLocal.get_current_request()
-        public_name_list = list()
+        self.public_name_list = list()
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
             notify_frontend(data={"profile_id": self.profile_id},
@@ -437,7 +448,7 @@ class DtolSpreadsheet:
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
-            public_names = query_public_name_service(public_name_list)
+            public_names = query_public_name_service(self.public_name_list)
             for name in public_names:
                 Sample().update_public_name(name)
             profile_id = request.session["profile_id"]
@@ -448,7 +459,7 @@ class DtolSpreadsheet:
     def detect_updates(self):
         sample_data = self.sample_data
         request = ThreadLocal.get_current_request()
-        public_name_list = list()
+        self.public_name_list = list()
         updates = {}
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))

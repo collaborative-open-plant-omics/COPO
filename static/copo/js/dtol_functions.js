@@ -551,5 +551,3 @@ function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
         $("#spinner").fadeOut(fadeSpeed)
     })
 }
-
-}

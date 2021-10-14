@@ -1699,9 +1699,9 @@ def accept_barcoding_manifest(request):
         s_id = specimen_data["specimen_id"][bc].strip()
         for record in bc_data["full_records"]:
             if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
-                notify_dtol_status(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
-                                   action="info",
-                                   html_id="barcode_notify")
+                notify_frontend(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
+                                action="info",
+                                html_id="barcode_notify")
                 s_id = s_id.split(",")
                 db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
                 if db_sample.count():

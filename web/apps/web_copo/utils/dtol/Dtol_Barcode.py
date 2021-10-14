@@ -6,7 +6,7 @@ import xmljson
 from django_tools.middlewares import ThreadLocal
 from collections import OrderedDict
 from dal.copo_da import Sample, Barcode
-from submission.helpers.generic_helper import notify_dtol_status
+from submission.helpers.generic_helper import notify_frontend
 from .tol_validators.validation_messages import MESSAGES as msg
 
 
@@ -30,9 +30,9 @@ class Barcoding:
         actual_columns = list(self.data.columns)
         for r in required_columns:
             if r not in actual_columns:
-                notify_dtol_status(data={"profile_id": self.profile_id}, msg="Error - column not found: " + str(r),
-                                   action="error",
-                                   html_id="barcode_notify")
+                notify_frontend(data={"profile_id": self.profile_id}, msg="Error - column not found: " + str(r),
+                                action="error",
+                                html_id="barcode_notify")
                 flag = False
         return flag
 
@@ -46,9 +46,9 @@ class Barcoding:
             barcode_id = self.data["BOLD_ID"][idx]
             for s_id in ids.split(","):
                 s_id = s_id.strip()
-                notify_dtol_status(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
-                                   action="info",
-                                   html_id="barcode_notify")
+                notify_frontend(data={"profile_id": self.profile_id}, msg="Checking for specimen" + s_id,
+                                action="info",
+                                html_id="barcode_notify")
                 # num = Sample().count_samples_by_specimen_id_for_barcoding(s_id)
                 # if int(num) < 1:
                 #    Sample(profile_id=self.profile_id).add_blank_barcode_record(specimen_id=s_id,
@@ -58,9 +58,9 @@ class Barcoding:
 
     def query_bold_and_store_in_session(self):
 
-        notify_dtol_status(data={"profile_id": self.profile_id}, msg="Querying Bold...",
-                           action="info",
-                           html_id="barcode_notify")
+        notify_frontend(data={"profile_id": self.profile_id}, msg="Querying Bold...",
+                        action="info",
+                        html_id="barcode_notify")
         bold_ids = self.data["BOLD_ID"]
         bold_url_param = ""
         for bid in bold_ids:
@@ -84,7 +84,7 @@ class Barcoding:
             for record in d:
                 r = dict()
                 full_records.append(record)
-                r["bold_sample_id"] = record["processid"]
+                r["bold_sample_id"] = record["specimen_identifiers"]["sampleid"]
 
                 # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
                 # this step is becuase bold api does not return results in order
@@ -130,20 +130,20 @@ class Barcoding:
             req.session[b_id] = retval
             return retval
         except KeyError as e:
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="KeyError Encountered: " + str(e),
-                               action="info",
-                               html_id="barcode_notify")
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="",
-                               action="hide_sub_spinner",
-                               html_id="")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="KeyError Encountered: " + str(e),
+                            action="info",
+                            html_id="barcode_notify")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="",
+                            action="hide_sub_spinner",
+                            html_id="")
         except Exception as e:
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="Samples not found in Bold. Please try again Later.",
-                               action="info",
-                               html_id="barcode_notify")
-            notify_dtol_status(data={"profile_id": self.profile_id},
-                               msg="",
-                               action="hide_sub_spinner",
-                               html_id="")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="Samples not found in Bold. Please try again Later.",
+                            action="info",
+                            html_id="barcode_notify")
+            notify_frontend(data={"profile_id": self.profile_id},
+                            msg="",
+                            action="hide_sub_spinner",
+                            html_id="")
