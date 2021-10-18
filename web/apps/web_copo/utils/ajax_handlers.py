@@ -38,6 +38,7 @@ from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 
 DV_STRING = 'HARVARD_TEST_API'
 
@@ -1351,7 +1352,12 @@ def update_spreadsheet_samples(request):
 
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
-    profiles = Profile().get_dtol_profiles()
+    member_groups = get_group_membership_asString()
+    #todo control for someone being both
+    if "dtol_sample_managers" in member_groups:
+        profiles = Profile().get_dtol_profiles()
+    if "erga_sample_managers" in member_groups:
+        profiles = Profile().get_erga_profiles()
     return HttpResponse(json_util.dumps(profiles))
 
 
