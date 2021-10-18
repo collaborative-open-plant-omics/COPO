@@ -1354,10 +1354,11 @@ def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
     #todo control for someone being both
+    profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
     if "erga_sample_managers" in member_groups:
-        profiles = Profile().get_erga_profiles()
+        profiles += Profile().get_erga_profiles()
     return HttpResponse(json_util.dumps(profiles))
 
 

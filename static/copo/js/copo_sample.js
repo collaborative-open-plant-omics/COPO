@@ -101,7 +101,7 @@ $(document).ready(function () {
     if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
         $(".new-samples-spreadsheet-template-erga").show()
     }
-    if (groups.includes("dtol_sample_managers")) {
+    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")) {
         $(".accept_reject_samples").show()
     }
     //}
