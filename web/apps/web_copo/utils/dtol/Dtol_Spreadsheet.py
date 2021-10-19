@@ -157,8 +157,10 @@ class DtolSpreadsheet:
 
             # validate for required fields
             for v in self.required_field_validators:
-                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag, isupdate=self.isupdate).validate()
+                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields,
+                                                          data=self.data,
+                                                          errors=errors, warnings=warnings, flag=flag,
+                                                          isupdate=self.isupdate).validate()
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
@@ -167,7 +169,7 @@ class DtolSpreadsheet:
             # validate for optional dtol fields
             for v in self.optional_field_validators:
                 errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag).validate()
+                                           errors=errors, warnings=warnings, flag=flag).validate()
 
             # send warnings
             if warnings:
@@ -374,10 +376,20 @@ class DtolSpreadsheet:
                     s["deleted"] = '0'
                     tw_id = ss.get("TUBE_OR_WELL_ID", "")
                     if tw_id:
-                        if tw_id != s["TUBE_OR_WELL_ID"]:
+                        if tw_id != s["TUBE_OR_WELL_ID"] and ss.get("species_list", dict())[0].get("SYMBIONT", ""
+                                                                                                   ).lower() == \
+                                "sybiont":
                             # this is symbiont
                             self.make_pending_sample(s)
+                        elif tw_id != s["TUBE_OR_WELL_ID"]:
+                            # we are dealing with another sample for which a specimen already exists
+                            # so make new sample
+                            smpl = Sample().get_collection_handle().insert(s)
+                            # and copy over barcoding data
+                            Sample().get_collection_handle().update({"_id": smpl}, {"$set": {"barcoding": ss[
+                                "barcoding"]}})
                     else:
+                        # else we are just updating an existing barcode with sample data
                         sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
                         Sample().timestamp_dtol_sample_created(sampl["_id"])
                         # add updated sample to public_name_list
@@ -417,6 +429,7 @@ class DtolSpreadsheet:
             self.public_name_list.append(
                 {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
                  "sample_id": str(sampl["_id"])})
+        return sampl
 
     def update_records(self):
         sample_data = self.sample_data
@@ -432,7 +445,8 @@ class DtolSpreadsheet:
             rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
-                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
+                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
+                    0].get(field, ""):
                     if field in lookup.SPECIES_LIST_FIELDS:
                         # record change
                         Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field],
@@ -440,11 +454,10 @@ class DtolSpreadsheet:
                         # update sample
                         Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
                     else:
-                        #record change
+                        # record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
-                        #update sample
+                        # update sample
                         Sample().add_field(field, s[field], recorded_sample["_id"])
-
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
@@ -472,7 +485,8 @@ class DtolSpreadsheet:
             exsam = exsam[0]
             updates[rack_tube] = {}
             for field in s.keys():
-                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
+                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field,
+                                                                                                                 ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
                         updates[rack_tube][field] = {}
                         if field in lookup.SPECIES_LIST_FIELDS:
@@ -492,16 +506,14 @@ class DtolSpreadsheet:
                 msg += "<li>Updating sample <strong>" + sample + "</strong>: <ul>"
                 for field in updates[sample]:
                     msg += "<li><strong> " + field + "</strong> from " + updates[sample][field]["old_value"] + " " \
-                            "to <strong>" + \
+                                                                                                               "to <strong>" + \
                            updates[sample][field]["new_value"] + "</strong></li>"
                 msg += "</li></ul>"
-            msg+="</ul>"
+            msg += "</ul>"
             notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
                             html_id="warning_info3")
             notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
                             html_id="sample_table")
-
-
 
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report

@@ -19,7 +19,7 @@ class Barcoding:
         self.file = file
         self.data = None
         self.name = self.file.name
-
+        pandas.set_option('display.max_colwidth', 1000)
     def load_manifest(self):
         if self.name.endswith("xlsx") or self.name.endswith("xls"):
             self.data = pandas.read_excel(self.file)
@@ -80,7 +80,7 @@ class Barcoding:
                 d = x
             output = list()
             full_records = list()
-
+            # self.data.set_option("display.max_colwidth", 10000)
             for record in d:
                 r = dict()
                 full_records.append(record)
@@ -89,6 +89,7 @@ class Barcoding:
                 # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
                 # this step is becuase bold api does not return results in order
                 row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
+
                 r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
                 # phylum
@@ -140,7 +141,7 @@ class Barcoding:
                             html_id="")
         except Exception as e:
             notify_frontend(data={"profile_id": self.profile_id},
-                            msg="Samples not found in Bold. Please try again Later.",
+                            msg="Samples not found in Bold. Please try again Later.\n\n" + str(e),
                             action="info",
                             html_id="barcode_notify")
             notify_frontend(data={"profile_id": self.profile_id},

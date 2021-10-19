@@ -1696,31 +1696,35 @@ def accept_barcoding_manifest(request):
     specimen_data = json.loads(bc_data["data"])
 
     for idx, bc in enumerate(specimen_data["specimen_id"]):
-        s_id = specimen_data["specimen_id"][bc].strip()
-        for record in bc_data["full_records"]:
-            if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
-                notify_frontend(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
-                                action="info",
-                                html_id="barcode_notify")
-                s_id = s_id.split(",")
-                db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
-                if db_sample.count():
-                    for s in db_sample:
-                        # check bold reported scientific name with manifest reported and record any conflicts
-                        if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
-                                record["taxonomy"]["species"]["taxon"]["name"]).lower():
-                            status = "pending"
-                        else:
-                            status = "conflicting"
+        # iterate each row of the bold manifest
+        s_id_dict = specimen_data["specimen_id"][bc].strip()
+        # each of these rows may have multiple specimen ids, so iterate these
+        s_id_dict_split = s_id_dict.split(",")
+        for s_id in s_id_dict_split:
+            for record in bc_data["full_records"]:
+                if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
+                    notify_frontend(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
+                                    action="info",
+                                    html_id="barcode_notify")
+                    s_id = s_id.split(",")
+                    db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
+                    if db_sample.count():
+                        for s in db_sample:
+                            # check bold reported scientific name with manifest reported and record any conflicts
+                            if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                                    record["taxonomy"]["species"]["taxon"]["name"]).lower():
+                                status = "pending"
+                            else:
+                                status = "conflicting"
 
-                        sample_ids = Sample().get_collection_handle().update_many(
-                            {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status, "barcoding": record}})
+                            sample_ids = Sample().get_collection_handle().update_many(
+                                {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status, "barcoding": record}})
 
 
-                else:
-                    Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
-                                                                 {"$set": {"barcoding": record}},
-                                                                 upsert=True)
+                    else:
+                        Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
+                                                                     {"$set": {"barcoding": record}},
+                                                                     upsert=True)
     return HttpResponse("")
 
 
