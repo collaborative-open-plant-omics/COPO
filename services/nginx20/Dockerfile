@@ -1,5 +1,4 @@
-FROM nginx:1.21.3
-#tutum/nginx
+FROM tutum/nginx
 
 RUN rm /etc/nginx/sites-enabled/default && \
     mkdir -p /var/www/html
