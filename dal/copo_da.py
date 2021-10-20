@@ -581,7 +581,7 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
                                                "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
@@ -1065,7 +1065,7 @@ class Submission(DAComponent):
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
         sub = self.get_collection_handle().find(
-            {"type": {"$in": ["dtol", "asg"]}, "dtol_status": {"$in": ["sending", "pending"]}},
+            {"type": {"$in": ["dtol", "asg", "erga"]}, "dtol_status": {"$in": ["sending", "pending"]}},
             {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
              "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)

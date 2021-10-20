@@ -1400,6 +1400,8 @@ def add_sample_to_dtol_submission(request):
         if not sub:
             if type_sub == "Aquatic Symbiosis Genomics (ASG)":
                 sub = Submission(profile_id).save_record(dict(), **{"type": "asg"})
+            elif type_sub == "European Reference Genome Atlas (ERGA)":
+                sub = Submission(profile_id).save_record(dict(), **{"type": "erga"})
             else:
                 sub = Submission(profile_id).save_record(dict(), **{"type": "dtol"})
         sub["dtol_status"] = "pending"

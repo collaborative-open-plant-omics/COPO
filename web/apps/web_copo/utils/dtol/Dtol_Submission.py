@@ -115,6 +115,8 @@ def process_pending_dtol_samples():
                                 html_id="dtol_sample_info")
                 if type_submission == "asg":
                     sample_type = "asg_specimen"
+                elif type_submission == "erga":
+                    sample_type = "erga_specimen"
                 else:
                     sample_type = "dtol_specimen"
                 if issymbiont == "TARGET":
@@ -498,7 +500,7 @@ def build_specimen_sample_xml(sample):
                 if project == "ASG":
                     if item[0] == 'GAL' or item[0] == "GAL_SAMPLE_ID":
                         continue
-                elif project == "DTOL":
+                elif project == "DTOL" or project == "ERGA":
                     if item[0] == "PARTNER" or item[0] == "PARTNER_SAMPLE_ID":
                         continue
                 # exceptional handling of COLLECTION_LOCATION
