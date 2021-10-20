@@ -14,7 +14,6 @@ server {
     # proxy_connect_timeout 925s;
     # proxy_read_timeout 1500s;
     # N.B. Finish
-    client_body_timeout 300s;
     client_header_timeout 300s;
     # N.B. this block to protect against ddos and slowloris attacks
     #client_body_timeout 10s;
