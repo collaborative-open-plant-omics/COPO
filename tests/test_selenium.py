@@ -6,6 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.options import Options
+from django.conf import settings
+from django.contrib import U
 
 
 class LoginTest(TestCase):
@@ -15,6 +17,15 @@ class LoginTest(TestCase):
         options = Options()
         options.headless = True
         cls.driver = webdriver.Firefox(options=options)
+        settings.UNIT_TESTING = True
+        # create user
+        cls.user = User.objects.create_user(username='jonny', first_name="jonny", last_name="appleseed",
+                                            email='jonny@appleseed.com', password='jonnyappleseed')
+        cls.user.save()
+
+        # create profile
+        p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": 1, "title": "Test Title"}
+        cls.pid = Profile().save_record(dict(), **p_dict)
 
     def test_manifest(self):
         self._login()
