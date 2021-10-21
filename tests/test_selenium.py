@@ -9,12 +9,17 @@ from selenium.webdriver.firefox.options import Options
 
 
 class LoginTest(TestCase):
-    def setUp(self):
-        options = Options()
-        options.headless = False
-        self.driver = webdriver.Firefox(options=options)
 
-    def test_login(self):
+    @classmethod
+    def setUpClass(cls):
+        options = Options()
+        options.headless = True
+        cls.driver = webdriver.Firefox(options=options)
+
+    def test_manifest(self):
+        self._login()
+
+    def _login(self):
         self.driver.get("http://127.0.0.1:8000/copo")
 
         element = WebDriverWait(self.driver, 5).until(
@@ -24,12 +29,17 @@ class LoginTest(TestCase):
         element = WebDriverWait(self.driver, 5).until(
             EC.presence_of_element_located((By.ID, "username"))
         )
+        assert "orcid" in self.driver.current_url
         element.send_keys("felix.shaw@tgac.ac.uk")
         element = self.driver.find_element(By.ID, "password")
         element.send_keys("Apple123")
         element.send_keys(Keys.ENTER)
-        assert True
+        element = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".copo-dt"))
+        )
+        assert "/copo" in self.driver.current_url
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
+        # self.driver.close()
         pass
-        ##self.driver.close()
