@@ -95,7 +95,7 @@ $(document).ready(function () {
 
     //var groups = $("#groups").val().split(",")
     //if ($("#profile_type").val().includes("DTOL") || $("#profile_type").val().includes("ASG")) {
-    if (document.getElementById("profile_type").value.includes("DTOL") && groups.includes("dtol_users")) {
+    if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
         $(".new-samples-spreadsheet-template").show()
     }
     if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
