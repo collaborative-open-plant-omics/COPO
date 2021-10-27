@@ -56,6 +56,8 @@ class LoginTest(TestCase):
         samples = Sample().get_collection_handle().find({"profile_id": str(self.pid["_id"])})
         assert len(list(samples)) == 39
 
+        # now query api and check for right number of results
+
     def _get_to_manifest_upload_point(self):
         self.driver.get("http://127.0.0.1:8000/copo/copo_samples/" + str(self.pid["_id"]) + "/view")
         assert "/copo/copo_samples/" in self.driver.current_url
