@@ -179,6 +179,7 @@ $(document).ready(function () {
                 },
                 {
                     label: "Submit",
+                    id: "final_submit",
                     cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         $("#finish_button").hide()
