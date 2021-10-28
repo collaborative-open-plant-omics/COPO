@@ -39,7 +39,7 @@ from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
-
+from collections import OrderedDict
 DV_STRING = 'HARVARD_TEST_API'
 
 
@@ -1359,12 +1359,16 @@ def update_pending_samples_table(request):
 def get_samples_for_profile(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
+        out = list()
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
         samples = Sample().get_dtol_from_profile_id(profile_id, filter)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
-        return HttpResponse(json_util.dumps(samples))
+        for sample in samples:
+            new_d = OrderedDict(sorted(sample.items(), key=lambda t: t[0]))
+            out.append(new_d)
+        return HttpResponse(json_util.dumps(out))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 

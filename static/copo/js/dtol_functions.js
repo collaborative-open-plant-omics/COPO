@@ -4,7 +4,7 @@ $(document).ready(function () {
     $(document).data("isDtolSamplePage", true)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
+    excluded_fields = ["profile_id", "biosample_id", "species_list", "barcoding"]
     // populate profiles panel on left
     update_pending_samples_table()
 
@@ -271,11 +271,11 @@ function row_select(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
+        if ($.fn.DataTable.isDataTable('#profile_samples')) {
+            $("#profile_samples").DataTable().clear().destroy();
+        }
+        if (filter === "conflicting_barcode") {
 
-        if (filter == "conflicting_barcode") {
-            if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                $("#profile_samples").DataTable().clear().destroy();
-            }
             $("#sample_panel").find("thead").empty()
             $("#sample_panel").find("tbody").empty()
             var th = "<tr><th></th><th>Specimen ID</th><th>Manifest Species</th><th>Bold Species</th></tr>"
@@ -299,9 +299,6 @@ function row_select(ev) {
             $("#sample_panel").find("tbody").append(body)
             $("#profile_samples").DataTable(dt_options);
         } else {
-            if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                $("#profile_samples").DataTable().clear().destroy();
-            }
             $("#sample_panel").find("thead").empty()
             $("#sample_panel").find("tbody").empty()
 
@@ -312,6 +309,7 @@ function row_select(ev) {
                 $("#sample_panel").find(".labelling").empty().append(header)
 
                 var rows = []
+                var header = []
                 $(data).each(function (idx, row) {
                     var th_row = document.createElement("tr")
                     var td_row = document.createElement("tr")
@@ -348,6 +346,7 @@ function row_select(ev) {
                                 var th = $("<th/>", {
                                     html: el
                                 })
+                                header.push(el)
                                 $(th_row).append(
                                     th
                                 )
@@ -378,22 +377,25 @@ function row_select(ev) {
                             tickbox.className = "form-check-input checkbox"
                             td.appendChild(tickbox)
                             td_row.appendChild(td)
+                            td_row.setAttribute("id", row["_id"].$oid)
+                            td_row.setAttribute("sample_id", row["_id"].$oid)
                         }
-                        for (el in row) {
-                            if (el == "_id") {
-                                td_row.setAttribute("id", row._id.$oid)
-                                td_row.setAttribute("sample_id", row._id.$oid)
-                            } else if (!excluded_fields.includes(el)) {
+                        for (el in header) {
+                            name = header[el]
+                            if (!excluded_fields.includes(name)) {
                                 // just do row
                                 td = $("<td/>", {
-                                    html: row[el]
+                                    html: row[name]
                                 })
                                 var td = document.createElement("td")
-                                td.innerHTML = row[el]
-                                if (row[el] == 'NA') {
-                                    td.className = "na_color"
-                                } else if (row[el] == "") {
+                                if (row.hasOwnProperty(name)) {
+                                    td.innerHTML = row[name]
+                                } else {
+                                    td.innerHTML = ""
                                     td.className = "empty_color"
+                                }
+                                if (row[name] == 'NA') {
+                                    td.className = "na_color"
                                 }
                                 td_row.appendChild(td)
 
@@ -409,7 +411,6 @@ function row_select(ev) {
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
-                    $("#profile_samples").DataTable(dt_options);
                 })
                 $("#profile_samples").DataTable(dt_options);
             } else {

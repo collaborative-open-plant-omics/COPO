@@ -53,6 +53,7 @@ def make_target_sample(sample):
     out["COMMON_NAME"] = sample.pop("COMMON_NAME")
     out["TAXON_REMARKS"] = sample.pop("TAXON_REMARKS")
     sample["species_list"].append(out)
+
     return sample
 
 
@@ -351,7 +352,7 @@ class DtolSpreadsheet:
             s["tol_project"] = self.type
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
-            s["status"] = "pending"
+            s["status"] = "pending_barcode"
             s["rack_tube"] = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Creating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
