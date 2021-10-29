@@ -390,8 +390,12 @@ class DtolSpreadsheet:
                             # so make new sample
                             smpl = Sample().get_collection_handle().insert(s)
                             # and copy over barcoding data
-                            Sample().get_collection_handle().update({"_id": smpl}, {"$set": {"barcoding": ss[
-                                "barcoding"]}})
+
+                            # N.B. function find_incorrectly_rejected_samples was setting these samples to accepted
+                            # automatically, so I've commented it out. This may have knockon consequences
+                            Sample().get_collection_handle().update({"_id": smpl}, {"$set": {
+                                "status": "pending_barcode", "barcoding": ss[
+                                    "barcoding"]}})
                     else:
                         # else we are just updating an existing barcode with sample data
                         sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
@@ -529,16 +533,6 @@ class DtolSpreadsheet:
                         action="info",
                         html_id="sample_info")
 
-    '''
-    def add_from_symbiont_list(self, s):
-        for idx, el in enumerate(self.symbiont_list):
-            if el.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") \
-                    and el.get("TUBE_OR_WELL_ID", "") == s.get("TUBE_OR_WELL_ID", ""):
-                out = self.symbiont_list.pop(idx)
-                out.pop("RACK_OR_PLATE_ID")
-                out.pop("TUBE_OR_WELL_ID")
-                Sample().add_symbiont(s, out)
-    '''
 
     def check_for_target_or_add_to_symbiont_list(self, s):
         # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,

@@ -698,10 +698,11 @@ class Sample(DAComponent):
     def find_incorrectly_rejected_samples(self):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
-        self.get_collection_handle().update_many(
-            {"biosampleAccession": {"$ne": ""}},
-            {"$set": {"status": "accepted"}}
-        )
+        # self.get_collection_handle().update_many(
+        #    {"biosampleAccession": {"$ne": ""}},
+        #    {"$set": {"status": "accepted"}}
+        # )
+        pass
 
     def get_name(self, column, records):
         return self.get_collection_handle().find({"_id": {"$in": records}}, {"name": 1})

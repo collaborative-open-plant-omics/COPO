@@ -1910,7 +1910,7 @@
     "type": "string",
     "show_in_table": true,
     "control": "text",
-    "default_value": "pending"
+    "default_value": "pending_barcode"
   },
   {
     "help_tip": "",
