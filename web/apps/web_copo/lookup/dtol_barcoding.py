@@ -8,7 +8,7 @@ ENA_MAPPING = {
     "COI" : "COI gene",
     "16S" : "rRNA Gene",
     "CO1" : "COI gene",
-    "18S (V4, V9)" : "",
+    "18S (V4, V9)" : "rRNA gene",
     "LSU D2/D3" : "rRNA Gene",
     "tufA" : "Single CDS genomic DNA",
     "psaA" : "Single CDS genomic DNA",
