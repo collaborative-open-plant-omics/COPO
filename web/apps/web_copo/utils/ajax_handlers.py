@@ -32,6 +32,7 @@ from submission.dspaceSubmission import DspaceSubmit as dspace
 from submission.figshareSubmission import FigshareSubmit
 from submission.helpers import generic_helper as ghlper
 from submission.helpers.generic_helper import notify_frontend
+from web.apps.web_copo.lookup.copo_enums import Logtype
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
@@ -1320,7 +1321,7 @@ def sample_spreadsheet(request):
     elif name.endswith("csv"):
         fmt = 'csv'
 
-    if format not in ["xls", "csv"]:
+    if fmt not in ["xls", "csv"]:
         l.log("ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
         pass
 
