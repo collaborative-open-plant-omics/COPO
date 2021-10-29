@@ -10,6 +10,9 @@
       "$ref": "file:web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/additional_attributes/dtol_sample_attributes.json"
     },
     {
+      "$ref": "file:web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/additional_attributes/erga_sample_attributes.json"
+    },
+    {
       "help_tip": "A sample represents major outputs resulting from a protocol application other than the special case outputs of Extract or a Labeled Extract.",
       "unique": true,
       "default_value": "",

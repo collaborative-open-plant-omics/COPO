@@ -92,7 +92,10 @@ class DtolSpreadsheet:
             self.type = "ASG"
         elif "DTOL_EI" in t:
             self.type = "DTOL_EI"
-        else:
+
+        elif "ERGA" in t:
+            self.type = "ERGA"
+        elif "DTOL" in t:
             self.type = "DTOL"
 
         # create list of required validators
@@ -353,9 +356,9 @@ class DtolSpreadsheet:
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
             s["status"] = "pending_barcode"
-            s["rack_tube"] = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             notify_frontend(data={"profile_id": self.profile_id},
-                            msg="Creating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
+                            msg="Creating Sample with ID: " + s.get("TUBE_OR_WELL_ID") + "/" + s["SPECIMEN_ID"],
                             action="info",
                             html_id="sample_info")
 
@@ -477,7 +480,7 @@ class DtolSpreadsheet:
         updates = {}
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
-            rack_tube = s["RACK_OR_PLATE_ID"] + "/" + s["TUBE_OR_WELL_ID"]
+            rack_tube = s.get("RACK_OR_PLATE_ID","") + "/" + s["TUBE_OR_WELL_ID"]
             if s["SYMBIONT"].upper() == "SYMBIONT":
                 # this requires different logic to discriminate between symbionts
                 return False

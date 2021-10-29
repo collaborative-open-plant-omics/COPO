@@ -40,6 +40,8 @@ from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
+from web.apps.web_copo.utils.group_functions import get_group_membership_asString
+
 DV_STRING = 'HARVARD_TEST_API'
 
 
@@ -1352,7 +1354,13 @@ def update_spreadsheet_samples(request):
 
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
-    profiles = Profile().get_dtol_profiles()
+    member_groups = get_group_membership_asString()
+    #todo control for someone being both
+    profiles = []
+    if "dtol_sample_managers" in member_groups:
+        profiles = Profile().get_dtol_profiles()
+    if "erga_sample_managers" in member_groups:
+        profiles += Profile().get_erga_profiles()
     return HttpResponse(json_util.dumps(profiles))
 
 
@@ -1400,6 +1408,8 @@ def add_sample_to_dtol_submission(request):
         if not sub:
             if type_sub == "Aquatic Symbiosis Genomics (ASG)":
                 sub = Submission(profile_id).save_record(dict(), **{"type": "asg"})
+            elif type_sub == "European Reference Genome Atlas (ERGA)":
+                sub = Submission(profile_id).save_record(dict(), **{"type": "erga"})
             else:
                 sub = Submission(profile_id).save_record(dict(), **{"type": "dtol"})
         sub["dtol_status"] = "pending"

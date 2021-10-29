@@ -2392,7 +2392,7 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "barcoding_manifest", "accept_reject_samples"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "barcoding_manifest","new-samples-spreadsheet-template-erga", "accept_reject_samples"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",

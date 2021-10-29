@@ -94,17 +94,20 @@ $(document).ready(function () {
     });
 
     //var groups = $("#groups").val().split(",")
-    if ($("#profile_type").val().includes("DTOL") || $("#profile_type").val().includes("ASG")) {
-        if (groups.includes("dtol_users")) {
-            $(".new-samples-spreadsheet-template").show()
-        }
-        if (groups.includes("dtol_sample_managers")) {
-            $(".accept_reject_samples").show()
-        }
-        if (groups.includes("dtol_barcoders")) {
+    //if ($("#profile_type").val().includes("DTOL") || $("#profile_type").val().includes("ASG")) {
+    if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
+        $(".new-samples-spreadsheet-template").show()
+    }
+    if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
+        $(".new-samples-spreadsheet-template-erga").show()
+    }
+    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")) {
+        $(".accept_reject_samples").show()
+    }
+    if (groups.includes("dtol_barcoders")) {
             $(".barcoding_manifest").show()
         }
-    }
+    //}
 
     $(document).on("click", ".accept_reject_samples", function (evt) {
         document.location = "/copo/accept_reject_sample"

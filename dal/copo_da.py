@@ -586,7 +586,7 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
                                                "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
@@ -952,7 +952,7 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen"]},
+            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
                                                "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
@@ -1758,8 +1758,7 @@ class Profile(DAComponent):
         if not user:
             user = data_utils.get_current_user().id
         docs = self.get_collection_handle().find({"user_id": user, "deleted": data_utils.get_not_deleted_flag()}).sort(
-            [['_id', -1]])
-
+            'date_modified', pymongo.DESCENDING)
         if docs:
             return docs
         else:
@@ -1782,7 +1781,7 @@ class Profile(DAComponent):
                 "_id": {"$in": p_list},
                 "deleted": data_utils.get_not_deleted_flag()
             }
-        )
+        ).sort("date_modified", pymongo.DESCENDING)
         out = list(docs)
         for d in out:
             d['shared'] = True
@@ -1829,6 +1828,11 @@ class Profile(DAComponent):
                               "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]}}).sort(
             "date_modified",
             pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_erga_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_modified", pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):

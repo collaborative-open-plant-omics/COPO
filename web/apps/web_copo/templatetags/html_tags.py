@@ -173,7 +173,7 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
                 if "type" in f["id"]:
                     # check if this user is in dtol group, if not, break so as to not add dropdown to form
                     request = ThreadLocal.get_current_request()
-                    is_DTOL = request.user.groups.filter(name__in=['dtol_users']).exists()
+                    is_DTOL = request.user.groups.filter(name__in=['dtol_users', 'erga_users']).exists()
                     if not is_DTOL:
                         break
 
@@ -412,13 +412,16 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     da_object = DAComponent(profile_id, component)
 
     get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
-                               "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]
+                               "European Reference Genome Atlas (ERGA)"]
     # get and filter schema elements based on displayable columns and profile type
     if get_dtol_fields:
+
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
-            if (x.get("show_in_table", True) and ("asg" in x.get("specifications", []) or "dtol" in x.get(
-                    "specifications", []))):
+            if (x.get("show_in_table", True) and
+                    ("asg" in x.get("specifications", []) or
+                     "dtol" in x.get("specifications", []) or
+                     "erga" in x.get("specifications", []))):
                 schema.append(x)
     else:
         schema = list()
@@ -1621,6 +1624,8 @@ def resolve_copo_lookup2_data(data, elem):
                               'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{" \
                                          "data_source}' data-accession='{data_accession}' >" \
                                          "<i title='click for related information' style='cursor: pointer;' class='fa " \
+                                         "" \
+                                         "" \
                                          "" \
                                          "fa-info-circle'></i></span>".format(
             data_source=elem['data_source'], data_accession=x['accession']) for x in option_values]

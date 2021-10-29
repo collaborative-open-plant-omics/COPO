@@ -169,15 +169,34 @@ DTOL_EXPORT_TO_STS_FIELDS = {
 }
 DTOL_ENUMS = {
 
-    "GAL": [
-        "SANGER INSTITUTE",
-        "UNIVERSITY OF OXFORD",
-        "MARINE BIOLOGICAL ASSOCIATION",
-        "ROYAL BOTANIC GARDENS KEW",
-        "ROYAL BOTANIC GARDEN EDINBURGH",
-        "EARLHAM INSTITUTE",
-        "NATURAL HISTORY MUSEUM"
-    ],
+    "GAL": {
+        "DTOL" : [
+            "SANGER INSTITUTE",
+            "UNIVERSITY OF OXFORD",
+            "MARINE BIOLOGICAL ASSOCIATION",
+            "ROYAL BOTANIC GARDENS KEW",
+            "ROYAL BOTANIC GARDEN EDINBURGH",
+            "EARLHAM INSTITUTE",
+            "NATURAL HISTORY MUSEUM"],
+        "ERGA" : [
+            "SANGER INSTITUTE",
+            "EARLHAM INSTITUTE",
+            "CENTRO NACIONAL DE ANÁLISIS GENÓMICO",
+            "SCILIFELAB",
+            "WEST GERMAN GENOME CENTRE",
+            "NGS COMPETENCE CENTER TÜBINGEN",
+            "DRESDEN-CONCEPT",
+            "FUNCTIONAL GENOMIC CENTER ZURICH",
+            "GENOSCOPE",
+            "LAUSANNE GENOMIC TECHNOLOGIES FACILITY",
+            "DNA SEQUENCING AND GENOMICS LABORATORY, HELSINKI GENOMICS CORE FACILITY",
+            "NGS BERN",
+            "NORWEGIAN SEQUENCING CENTRE",
+            "UNIVERSITY OF BARI",
+            "UNIVERSITY OF FLORENCE",
+            "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB",
+            "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIEGE"
+    ]},
     "PARTNER": [
         "UNIVERSITY OF DERBY",
         "DALHOUSIE UNIVERSITY",
@@ -717,6 +736,143 @@ DTOL_ENUMS = {
         "ROYAL BOTANIC GARDENS KEW/NATURAL HISTORY MUSEUM",
         "NOT_COLLECTED",
         "NOT_PROVIDED"
+    ],
+    "TISSUE_FOR_BIOBANKING": [
+        "**OTHER_FUNGAL_TISSUE**",
+        "**OTHER_PLANT_TISSUE**",
+        "**OTHER_REPRODUCTIVE_ANIMAL_TISSUE**",
+        "**OTHER_SOMATIC_ANIMAL_TISSUE**",
+        "ABDOMEN",
+        "ANTERIOR_BODY",
+        "BLADE",
+        "BLOOD",
+        "BODYWALL",
+        "BRACT",
+        "BRAIN",
+        "BUD",
+        "CAP",
+        "CEPHALOTHORAX",
+        "EGG",
+        "EGGSHELL",
+        "ENDOCRINE_TISSUE",
+        "EYE",
+        "FAT_BODY",
+        "FIN",
+        "FLOWER",
+        "GILL_ANIMAL",
+        "GILL_FUNGI",
+        "GONAD",
+        "HAIR",
+        "HEAD",
+        "HEART",
+        "HEPATOPANCREAS",
+        "HOLDFAST_FUNGI",
+        "KIDNEY",
+        "INTESTINE",
+        "LEAF",
+        "LEG",
+        "LIVER",
+        "LUNG",
+        "MID_BODY",
+        "MODULAR_COLONY",
+        "MUSCLE",
+        "MYCELIUM",
+        "MYCORRHIZA",
+        "NOT_COLLECTED",
+        "NOT_APPLICABLE",
+        "NOT_PROVIDED",
+        "OVARY_ANIMAL",
+        "OVIDUCT",
+        "PANCREAS",
+        "PETIOLE",
+        "POSTERIOR_BODY",
+        "SCALES",
+        "SCAT",
+        "SEEDLING",
+        "SEED",
+        "SHOOT",
+        "SKIN",
+        "SPERM_SEMINAL_FLUID",
+        "SPLEEN",
+        "SPORE",
+        "SPORE_BEARING_STRUCTURE",
+        "STEM",
+        "STIPE",
+        "STOMACH",
+        "TENTACLE",
+        "TERMINAL_BODY",
+        "TESTIS",
+        "THALLUS_FUNGI",
+        "THALLUS_PLANT",
+        "THORAX",
+        "WHOLE_ORGANISM",
+        "WHOLE_PLANT",
+        "MOLLUSC_FOOT",
+        "UNICELLULAR_ORGANISMS_IN_CULTURE",
+        "MULTICELLULAR_ORGANISMS_IN_CULTURE"
+    ],
+    "TISSUE_REMOVED_FOR_BIOBANKING" : [
+        "Y",
+        "N"
+    ],
+    "DNA_REMOVED_FOR_BIOBANKING" : [
+        "Y",
+        "N"
+    ],
+    "INDIGENOUS_RIGHTS_APPLICABLE" : [
+        "Y",
+        "N"
+    ],
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE" : [
+        "Y",
+        "N"
+    ],
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL" : [
+        "TK Attribution",
+        "TK Clan",
+        "TK Family",
+        "TK Multiple Communities",
+        "TK Community Voice",
+        "TK Creative",
+        "TK Seasonal",
+        "TK Women General",
+        "TK Men General",
+        "TK Men Restricted",
+        "TK Women Restricted",
+        "TK Culturally Sensitive",
+        "TK Secret / Sacred",
+        "TK Open to Collaboration",
+        "TK Outreach",
+        "TK Non-Verified",
+        "TK Verified",
+        "TK Non-Commercial",
+        "TK Open to Commercialization",
+        "TK Community Use Only",
+        "NOT_APPLICABLE",
+        "NOT_PROVIDED",
+        "NOT_COLLECTED",
+        "BC Clan",
+        "BC Provenance",
+        "BC Multiple Communities",
+        "BC Outreach",
+        "BC Consent Verified",
+        "BC Consent Non-Verified",
+        "BC Research Use",
+        "BC Open to Commercialization",
+        "BC Non-Commercial",
+        "BC Open to Collaboration"
+    ],
+    "ETHICS_PERMIT_MANDATORY" : [
+        "Y",
+        "N"
+    ],
+    "SAMPLING_PERMITS_MANDATORY" : [
+        "Y",
+        "N"
+    ],
+    "NAGOYA_PERMITS_MANDATORY" : [
+        "Y",
+        "N"
     ]
 }
 DTOL_RULES = {
@@ -778,6 +934,14 @@ DTOL_RULES = {
         "ena_regex" : "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
         "strict_regex" : "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
         "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
+    },
+    "SAMPLE_COORDINATOR_ORCID_ID" : {
+        "strict_regex" : "^(\d{4}-){3}\d{4}$",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+    },
+    "COLLECTOR_ORCID_ID" : {
+        "strict_regex" : "^(\d{4}-){3}\d{4}$",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     }
 }
 DTOL_UNITS = {
@@ -887,18 +1051,33 @@ DTOL_ENA_MAPPINGS = {
     },
     "BARCODE_HUB" : {
         "ena": "barcoding center"
+    },
+    "SAMPLE_COORDINATOR" : {
+        "ena": "sample coordinator"
+    },
+    "SAMPLE_COORDINATOR_AFFILIATION" : {
+        "ena": "sample coordinator affiliation"
+    },
+    #this is a custom field extra to the checklist
+    "SAMPLE_COORDINATOR_ORCID_ID" : {
+        "ena": "sample coordinator ORCID ID"
     }
 }
 
 SPECIMEN_PREFIX = {
     "GAL": {
-        "UNIVERSITY OF OXFORD": "Ox",
-        "MARINE BIOLOGICAL ASSOCIATION": "MBA",
-        "ROYAL BOTANIC GARDENS KEW": "KDTOL",
-        "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
-        "EARLHAM INSTITUTE": "EI_",
-        "NATURAL HISTORY MUSEUM": "NHMUK",
-        "SANGER INSTITUTE": "SAN"
+        "dtol" : {
+            "UNIVERSITY OF OXFORD": "Ox",
+            "MARINE BIOLOGICAL ASSOCIATION": "MBA",
+            "ROYAL BOTANIC GARDENS KEW": "KDTOL",
+            "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
+            "EARLHAM INSTITUTE": "EI_",
+            "NATURAL HISTORY MUSEUM": "NHMUK",
+            "SANGER INSTITUTE": "SAN"
+        },
+        "erga" : {
+            "default" : "ERGA_"
+            }
     },
     "PARTNER": {
         "UNIVERSITY OF DERBY": "UDUK",
@@ -920,13 +1099,18 @@ SPECIMEN_PREFIX = {
 
 SPECIMEN_SUFFIX = {
     "GAL": {
-        "UNIVERSITY OF OXFORD": '\d{6}',
-        "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
-        "ROYAL BOTANIC GARDENS KEW": '\d{5}',
-        "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
-        "EARLHAM INSTITUTE": '\d{5}',
-        "NATURAL HISTORY MUSEUM": '\d{9}',
-        "SANGER INSTITUTE": '\d{7}'
+        "dtol" : {
+            "UNIVERSITY OF OXFORD": '\d{6}',
+            "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+            "ROYAL BOTANIC GARDENS KEW": '\d{5}',
+            "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
+            "EARLHAM INSTITUTE": '\d{5}',
+            "NATURAL HISTORY MUSEUM": '\d{9}',
+            "SANGER INSTITUTE": '\d{7}'
+        },
+        "erga" : {
+            "default" : "(([A-Z]{1,10}_[A-Z]{2,3}_\d{2,3})|([A-Z]{1,10}_\d{4}_\d{2,3}))"
+        }
     }
 }
 
@@ -994,6 +1178,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
             "HAZARD_GROUP",
             "VOUCHER_ID"
         ],
+    "erga": []
 }
 
 API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
