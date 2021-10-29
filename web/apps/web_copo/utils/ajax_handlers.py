@@ -38,7 +38,9 @@ from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from exceptions_and_logging import logger
 
+l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 
 
@@ -1319,11 +1321,13 @@ def sample_spreadsheet(request):
         fmt = 'csv'
 
     if format not in ["xls", "csv"]:
-        # TODO return sensible error here
+        l.log("ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
         pass
 
     if dtol.loadManifest(m_format=fmt):
+        l.log("Dtol manifest loaded", type=Logtype.FILE)
         if dtol.validate_taxonomy() and dtol.validate():
+            l.log("About to collect Dtol manifest", type=Logtype.FILE)
             dtol.collect()
     return HttpResponse()
 
