@@ -4,17 +4,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "BARCODE_HUB"
+      "SAMPLE_COORDINATOR"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Barcode Hub",
-    "id": "copo.sample.BARCODE_HUB",
+    "label": "Sample Coordinator (ERGA Ambassador)",
+    "id": "copo.sample.SAMPLE_COORDINATOR",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -26,17 +26,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "BARCODE_SAMPLE_ID"
+      "SAMPLE_COORDINATOR_AFFILIATION"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Barcode Hub",
-    "id": "copo.sample.BARCODE_SAMPLE_ID",
+    "label": "Sample Coordinator (ERGA Ambassador) Affiliation",
+    "id": "copo.sample.SAMPLE_COORDINATOR_AFFILIATION",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -48,40 +48,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "NOMINAL_SPECIES"
+      "SAMPLE_COORDINATOR_ORCID_ID"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Nominal Species",
-    "id": "copo.sample.NOMINAL_SPECIES",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
-  },
-
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "versions": [
-      "SEQUENCING_APPROACH"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
-    "show_in_form": true,
-    "label": "Sequencing Approach",
-    "id": "copo.sample.SEQUENCING_APPROACH",
+    "label": "Sample Coordinator (ERGA Ambassador) ORCID ID",
+    "id": "copo.sample.SAMPLE_COORDINATOR_ORCID_ID",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -93,17 +70,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "BARCODE_RACK_OR_PLATE_ID"
+      "INDIGENOUS_RIGHTS_APPLICABLE"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Barcode Rack Or Plate ID",
-    "id": "copo.sample.BARCODE_RACK_OR_PLATE_ID",
+    "label": "Indigenous Rights Applicable",
+    "id": "copo.sample.INDIGENOUS_RIGHTS_APPLICABLE",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -115,17 +92,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "TUBE_OR_WELL_ID"
+      "INDIGENOUS_RIGHTS_DEF"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Tube Or Well ID",
-    "id": "copo.sample.TUBE_OR_WELL_ID",
+    "label": "Indigenous Rights Def",
+    "id": "copo.sample.INDIGENOUS_RIGHTS_DEF",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -137,17 +114,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "AMPLIFICATION_PRIMER_FORWARD"
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Amplification Primer Forward",
-    "id": "copo.sample.AMPLIFICATION_PRIMER_FORWARD",
+    "label": "Associated Traditional Knowledge Applicable",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -159,17 +136,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "AMPLIFICATION_PRIMER_REVERSE"
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Amplification Primer Reverse",
-    "id": "copo.sample.AMPLIFICATION_PRIMER_REVERSE",
+    "label": "Associated Traditional Knowledge Label",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -181,17 +158,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "SEQUENCING_PRIMER_FORWARD"
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Sequencing Primer Forward",
-    "id": "copo.sample.SEQUENCING_PRIMER_FORWARD",
+    "label": "Associated Traditional Knowledge Contact",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -203,17 +180,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "SEQUENCING_PRIMER_REVERSE"
+      "ETHICS_PERMITS_MANDATORY"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Sequencing Primer Reverse",
-    "id": "copo.sample.SEQUENCING_PRIMER_REVERSE",
+    "label": "Ethics Permits Mandatory",
+    "id": "copo.sample.ETHICS_PERMITS_MANDATORY",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -225,40 +202,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "FORWARD_SEQUENCE"
+      "ETHICS_PERMITS_DEF"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Forward Sequence",
-    "id": "copo.sample.FORWARD_SEQUENCE",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
-  },
-
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "versions": [
-      "REVERSE_SEQUENCE"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
-    "show_in_form": true,
-    "label": "Reverse Sequence",
-    "id": "copo.sample.REVERSE_SEQUENCE",
+    "label": "Ethics Permits Def",
+    "id": "copo.sample.ETHICS_PERMITS_DEF",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -270,17 +224,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "CONSENSUS_SEQUENCE"
+      "SAMPLING_PERMITS_MANDATORY"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Consensus Sequence",
-    "id": "copo.sample.CONSENSUS_SEQUENCE",
+    "label": "Sampling Permits Mandatory",
+    "id": "copo.sample.SAMPLING_PERMITS_MANDATORY",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -292,17 +246,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "CONSENSUS_LENGTH"
+      "SAMPLING_PERMITS_DEF"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Consensus Length",
-    "id": "copo.sample.CONSENSUS_LENGTH",
+    "label": "Sampling Permits Def",
+    "id": "copo.sample.SAMPLING_PERMITS_DEF",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -314,17 +268,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "QUERY_SEQUENCE"
+      "NAGOYA_PERMITS_MANDATORY"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Query Sequence",
-    "id": "copo.sample.QUERY_SEQUENCE",
+    "label": "Nagoya Permits Mandatory",
+    "id": "copo.sample.NAGOYA_PERMITS_MANDATORY",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -336,17 +290,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "AGCTN_OF_CONSENSUS"
+      "NAGOYA_PERMITS_DEF"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "AGCTN Of Consensus",
-    "id": "copo.sample.AGCTN_OF_CONSENSUS",
+    "label": "Nagoya Permits Def",
+    "id": "copo.sample.NAGOYA_PERMITS_DEF",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -358,17 +312,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "TRACE_FORWARD_NAME"
+      "TISSUE_REMOVED_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Trace Forward Name",
-    "id": "copo.sample.TRACE_FORWARD_NAME",
+    "label": "Tissue Removed For Biobanking",
+    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -380,17 +334,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "TRACE_REVERSE_NAME"
+      "TISSUE_REMOVED_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Trace Reverse Name",
-    "id": "copo.sample.TRACE_REVERSE_NAME",
+    "label": "Tissue Removed For Biobanking",
+    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -402,17 +356,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "DATABASE_QUERIED"
+      "TISSUE_VOUCHER_ID_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Database Queried",
-    "id": "copo.sample.DATABASE_QUERIED",
+    "label": "Tissue Voucher ID For Biobanking",
+    "id": "copo.sample.TISSUE_VOUCHER_ID_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -424,17 +378,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "DATABASE_TAXA_SET"
+      "TISSUE_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Database Taxa Set",
-    "id": "copo.sample.DATABASE_TAXA_SET",
+    "label": "Tissue For Biobanking",
+    "id": "copo.sample.TISSUE_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -446,17 +400,17 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "SEARCH_DATE"
+      "DNA_REMOVED_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Search Date",
-    "id": "copo.sample.SEARCH_DATE",
+    "label": "DNA Removed For Biobanking",
+    "id": "copo.sample.DNA_REMOVED_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -468,109 +422,90 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "NOMINAL_SPECIES_IN_DB"
+      "DNA_VOUCHER_ID_FOR_BIOBANKING"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "bc_amp"
+      "erga"
     ],
     "show_in_form": true,
-    "label": "Nominal Species in DB",
-    "id": "copo.sample.NOMINAL_SPECIES_IN_DB",
+    "label": "DNA Voucher ID For Biobanking",
+    "id": "copo.sample.DNA_VOUCHER_ID_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
     "dwc": "",
     "type": "string"
   },
-  {
+   {
     "help_tip": "",
-    "required": "true",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
     "control_meta": {},
+    "control": "text",
     "versions": [
-      "MATCH_TO_NOMINAL_SPECIES"
+      "SYMBIONT"
     ],
     "ref": "",
+    "specifications": [
+      "erga"
+    ],
     "deprecated": false,
     "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
+    "type": "string",
     "show_in_form": true,
-    "label": "Match to Nominal Species",
-    "id": "copo.sample.MATCH_TO_NOMINAL_SPECIES",
+    "id": "copo.sample.SYMBIONT",
+    "label": "Symbiont",
     "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
+    "dwc": ""
   },
   {
-    "help_tip": "",
+    "help_tip": "Collector ORCID ID",
     "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
     "control_meta": {},
+    "control": "text",
     "versions": [
-      "TOP_HIT_SPECIES"
+      "COLLECTOR_ORCID_ID"
     ],
     "ref": "",
+    "specifications": [
+      "erga"
+    ],
     "deprecated": false,
     "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
+    "type": "string",
     "show_in_form": true,
-    "label": "Top Hit Species",
-    "id": "copo.sample.TOP_HIT_SPECIES",
+    "id": "copo.sample.COLLECTOR_ORCID_ID",
+    "label": "Collector Orcid Identifier",
     "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
+    "dwc": ""
   },
   {
-    "help_tip": "",
+    "help_tip": "Approach to preservation",
     "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
     "control_meta": {},
+    "control": "text",
     "versions": [
-      "MATCH_TO_TOP_SPECIES"
+      "PRESERVATION_APPROACH"
     ],
     "ref": "",
+    "specifications": [
+      "erga"
+    ],
     "deprecated": false,
     "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
+    "type": "string",
     "show_in_form": true,
-    "label": "Match to Top Species",
-    "id": "copo.sample.MATCH_TO_TOP_SPECIES",
+    "id": "copo.sample.PRESERVATION_APPROACH",
+    "label": "Preservation Approach",
     "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "versions": [
-      "TOP_HIT_FAMILY"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "specifications": [
-      "bc_amp"
-    ],
-    "show_in_form": true,
-    "label": "Top Hit Family",
-    "id": "copo.sample.TOP_HIT_FAMILY",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
+    "dwc": ""
   }
 ]

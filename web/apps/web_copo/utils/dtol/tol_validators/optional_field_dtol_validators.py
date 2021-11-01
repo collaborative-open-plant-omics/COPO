@@ -15,6 +15,12 @@ class DtolEnumerationValidator(TolValidtor):
         manifest_specimen_taxon_pairs = {}
         regex_human_readable = ""
         p_type = Profile().get_type(profile_id=self.profile_id)
+        if "ERGA" in p_type:
+            p_type = "ERGA"
+        elif "DTOL" in p_type:
+            p_type = "DTOL"
+        elif "ASG" in p_type:
+            p_type = "ASG"
         barcoding_fields = ["PLATE_ID_FOR_BARCODING", "TUBE_OR_WELL_ID_FOR_BARCODING",
                             "TISSUE_FOR_BARCODING", "BARCODE_PLATE_PRESERVATIVE"]
         for header, cells in self.data.iteritems():
@@ -57,6 +63,11 @@ class DtolEnumerationValidator(TolValidtor):
                         #todo move this in lookups and re-structure, this is in interest of time
                         if header == "BARCODE_HUB" and "ASG" in p_type:
                             allowed_vals = lookup.DTOL_ENUMS.get("PARTNER", "") + ["NOT_PROVIDED"]
+                        if header == "GAL":
+                            if "DTOL" in p_type:
+                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("DTOL", "")
+                            elif "ERGA" in p_type:
+                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("ERGA", "")
                         if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                             # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                             c_value = str(c).split('|')[0].strip()
@@ -74,8 +85,8 @@ class DtolEnumerationValidator(TolValidtor):
                                     ))
                                     self.flag = False
                         elif c_value.strip() not in allowed_vals:
-                            #extra handling for empty SYMBIONT ind DTOL manifest, which means TARGET
-                            if not c_value.strip() and header == "SYMBIONT" and "DTOL" in p_type:
+                            #extra handling for empty SYMBIONT ind DTOL and ERGA manifest, which means TARGET
+                            if not c_value.strip() and header == "SYMBIONT" and any(x in p_type for x in ["DTOL","ERGA"]):
                                 self.data.at[cellcount - 1, "SYMBIONT"] = "TARGET"
                             # check value is in allowed enum
                             else:
@@ -129,13 +140,26 @@ class DtolEnumerationValidator(TolValidtor):
                     elif header == "SPECIMEN_ID":
                         if "DTOL" in p_type:
                             current_gal = self.data.at[cellcount - 1, "GAL"]
-                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"].get(current_gal,
-                                                                                              "") + '[\d\-_]')
+                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal,
+                                                                                              "") + lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get(current_gal,
+                                                                                              ''))
                             if not re.match(specimen_regex, c.strip()):
                                 self.errors.append(msg["validation_msg_error_specimen_regex_dtol"] % (
                                     c, header, str(cellcount + 1), "GAL", current_gal,
-                                    lookup.SPECIMEN_PREFIX["GAL"].get(current_gal, "XXX"),
-                                        lookup.SPECIMEN_SUFFIX["GAL"].get(current_gal, "XXX")
+                                    lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal, "XXX"),
+                                        lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get(current_gal, "XXX")
+                                ))
+                                self.flag = False
+                        elif "ERGA" in p_type:
+                            specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get("default",
+                                                                                                          "") +
+                                                        lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get("default",
+                                                                                                          ''))
+                            if not re.match(specimen_regex, c.strip()):
+                                self.errors.append(msg["validation_msg_error_specimen_regex_dtol"] % (
+                                    c, header, str(cellcount + 1), "GAL", "XXX",
+                                    lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get("default", "XXX"),
+                                    lookup.SPECIMEN_SUFFIX["GAL"][p_type.lower()].get("default", "XXX")
                                 ))
                                 self.flag = False
                         elif "ASG" in p_type:
