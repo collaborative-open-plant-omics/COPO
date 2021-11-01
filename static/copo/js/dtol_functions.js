@@ -4,6 +4,7 @@ $(document).ready(function () {
     $(document).data("isDtolSamplePage", true)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
+    // TODO - excluded fields should vary by profile type
     excluded_fields = ["profile_id", "biosample_id", "species_list", "barcoding"]
     // populate profiles panel on left
     update_pending_samples_table()
@@ -62,7 +63,7 @@ $(document).ready(function () {
                         var checked = $(".form-check-input:checked").closest("tr")
                         var sample_ids = []
                         $(checked).each(function (it) {
-                            sample_ids.push($(checked[it]).data("id"))
+                            sample_ids.push($(checked[it]).attr("id"))
                         })
                         console.log(sample_ids)
                         $.ajax({
@@ -405,13 +406,13 @@ function row_select(ev) {
                         rows.push(td_row)
                     }
                 })
-                fastdom.mutate(() => {
-                    //$("#profile_samples tbody").append(rows)
+                //fastdom.mutate(() => {
+                //$("#profile_samples tbody").append(rows)
                     var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
-                })
+                //})
                 $("#profile_samples").DataTable(dt_options);
             } else {
                 var content
@@ -431,7 +432,7 @@ function row_select(ev) {
 
             }
             $("#spinner").fadeOut("fast")
-
+            $("#dtol_sample_info").text("")
         }
         }
     )

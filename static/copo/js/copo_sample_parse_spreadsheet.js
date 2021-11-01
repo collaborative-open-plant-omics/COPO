@@ -288,6 +288,7 @@ $(document).ready(function () {
             s_id = d.html_id
             //$('tr[sample_id=s_id]').fadeOut()
             $('tr[sample_id="' + s_id + '"]').remove()
+            $("#dtol_sample_info").text("")
         }
         //actions here should only be performed by sockets with matching profile_id
         if (d.data.hasOwnProperty("profile_id")) {
