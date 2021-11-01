@@ -426,7 +426,14 @@ def update_bundle_sample_xml(sample_list, bundlefile):
                         tag = ET.SubElement(sample_attribute, 'TAG')
                         tag.text = attribute_name
                         value = ET.SubElement(sample_attribute, 'VALUE')
-                        value.text = str(item[1]).lower().replace("_", " ")
+                        if item[0] in ["DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
+                            #round to 8 decimal points only as ENA maximum accepts
+                            try:
+                                value.text=str(round(float(item[1]), 8))
+                            except ValueError:
+                                value.text = str(item[1]).lower().replace("_", " ")
+                        else:
+                            value.text = str(item[1]).lower().replace("_", " ")
                     # handling annoying edge case below
                     elif item[0] == "LIFESTAGE" and item[1] == "SPORE_BEARING_STRUCTURE":
                         attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
@@ -521,7 +528,14 @@ def build_specimen_sample_xml(sample):
                     tag = ET.SubElement(sample_attribute, 'TAG')
                     tag.text = attribute_name
                     value = ET.SubElement(sample_attribute, 'VALUE')
-                    value.text = str(item[1]).lower().replace("_", " ")
+                    if item[0] in ["DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
+                        # round to 8 decimal points only as ENA maximum accepts
+                        try:
+                            value.text = str(round(float(item[1]), 8))
+                        except ValueError:
+                            value.text = str(item[1]).lower().replace("_", " ")
+                    else:
+                        value.text = str(item[1]).lower().replace("_", " ")
                 # handling annoying edge case below
                 elif item[0] == "LIFESTAGE" and item[1] == "SPORE_BEARING_STRUCTURE":
                     attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']

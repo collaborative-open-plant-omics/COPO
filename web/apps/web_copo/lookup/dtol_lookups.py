@@ -727,11 +727,11 @@ DTOL_RULES = {
         "human_readable": "YYYY-MM-DD, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LATITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LONGITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
 
     },
