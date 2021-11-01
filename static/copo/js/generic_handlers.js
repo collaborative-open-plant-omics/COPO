@@ -2385,7 +2385,7 @@ function get_profile_components() {
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
             visibleColumns: 3,
-            recordActions: ["add_record_all", "edit_record_single"] //specifies action buttons for records manipulation
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"] //specifies action buttons for records manipulation
         },
         {
             component: 'sample',
