@@ -262,24 +262,20 @@ $(document).ready(function () {
         wsprotocol + window.location.host +
         '/ws/dtol_status');
     socket2.onopen = function (e) {
-        console.log("opened ", e)
+        console.log("socket2 opened ", e)
     }
-    socket2.onmessage = function (e) {
-        //d = JSON.parse(e.data)
-        //console.log(d)
-        //
-    }
+
     socket.onerror = function (e) {
-        console.log("error ", e)
+        console.log("socket1 error ", e)
     }
     socket.onclose = function (e) {
-        console.log("closing ", e)
+        console.log("socket1 closing ", e)
     }
     socket.onopen = function (e) {
-        console.log("opened ", e)
+        console.log("socket1 opened ", e)
     }
     socket2.onmessage = function (e) {
-        console.log("received message")
+        console.log("socket2 received message")
         //handlers for channels messages sent from backend
         d = JSON.parse(e.data)
         //actions here should be performed regardeless of profile
