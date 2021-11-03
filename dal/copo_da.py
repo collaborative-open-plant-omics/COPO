@@ -690,6 +690,14 @@ class Sample(DAComponent):
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
 
+    def is_barcoding_present(self, profile_id):
+        samples = self.get_collection_handle().find({"profile_id": profile_id})
+        bc_present = False
+        for s in samples:
+            if "barcoding" in s:
+                return True
+        return bc_present
+
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
         # specimens must not have already been submitted to ENA so should have status of pending
         return self.get_collection_handle().count(

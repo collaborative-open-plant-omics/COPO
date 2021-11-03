@@ -2,6 +2,9 @@ $(document).ready(function () {
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
     $(document).data("isDtolSamplePage", true)
+    if (!show_bc_control) {
+        $("#conflict_button").hide()
+    }
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     // TODO - excluded fields should vary by profile type
@@ -14,7 +17,7 @@ $(document).ready(function () {
             $(element).click()
         })
     })
-
+    $(document).on("click", "#conflict_button", inspect_barcoding)
     $(document).on("click", "#force_btn", handle_accept_reject)
 
     $(document).on("click", "#dd_reason", function (e) {
@@ -552,4 +555,8 @@ function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
         $("#profile_titles").find(".selected").click()
         $("#spinner").fadeOut(fadeSpeed)
     })
+}
+
+function inspect_barcoding() {
+    alert("cock")
 }
