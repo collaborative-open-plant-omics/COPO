@@ -987,10 +987,10 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "PLATE_ID_FOR_BARCODING",
         "TUBE_OR_WELL_ID_FOR_BARCODING",
         "TISSUE_FOR_BARCODING",
-            "BARCODE_PLATE_PRESERVATIVE",
-            "PURPOSE_OF_SPECIMEN",
-            "HAZARD_GROUP",
-            "VOUCHER_ID"
+        "BARCODE_PLATE_PRESERVATIVE",
+        "PURPOSE_OF_SPECIMEN",
+        "HAZARD_GROUP",
+        "VOUCHER_ID"
         ],
 }
 

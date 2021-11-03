@@ -32,13 +32,16 @@ from submission.dspaceSubmission import DspaceSubmit as dspace
 from submission.figshareSubmission import FigshareSubmit
 from submission.helpers import generic_helper as ghlper
 from submission.helpers.generic_helper import notify_frontend
+from web.apps.web_copo.lookup.copo_enums import Logtype
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from exceptions_and_logging import logger
 
+l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 
 
@@ -1318,12 +1321,14 @@ def sample_spreadsheet(request):
     elif name.endswith("csv"):
         fmt = 'csv'
 
-    if format not in ["xls", "csv"]:
-        # TODO return sensible error here
+    if fmt not in ["xls", "csv"]:
+        l.log("ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
         pass
 
     if dtol.loadManifest(m_format=fmt):
+        l.log("Dtol manifest loaded", type=Logtype.FILE)
         if dtol.validate_taxonomy() and dtol.validate():
+            l.log("About to collect Dtol manifest", type=Logtype.FILE)
             dtol.collect()
     return HttpResponse()
 
