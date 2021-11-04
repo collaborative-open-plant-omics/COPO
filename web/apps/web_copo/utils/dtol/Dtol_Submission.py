@@ -91,6 +91,7 @@ def process_pending_dtol_samples():
                 except ValueError:
                     notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
                                     html_id="dtol_sample_info")
+                    l.log("Dtol_submission : 94 - invalid taxon ID", type=Logtype.FILE)
                     return False
 
             s_ids.append(s_id)
@@ -105,6 +106,7 @@ def process_pending_dtol_samples():
             specimen_accession = ""
             if specimen_sample:
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
+                l.log("Specimen accession at 109 is " + specimen_accession, type=Logtype.FILE)
             else:
                 # create sample object and submit
                 l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
