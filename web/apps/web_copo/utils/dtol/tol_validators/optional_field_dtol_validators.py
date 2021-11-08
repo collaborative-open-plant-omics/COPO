@@ -23,6 +23,9 @@ class DtolEnumerationValidator(TolValidtor):
             p_type = "ASG"
         barcoding_fields = ["PLATE_ID_FOR_BARCODING", "TUBE_OR_WELL_ID_FOR_BARCODING",
                             "TISSUE_FOR_BARCODING", "BARCODE_PLATE_PRESERVATIVE"]
+        #erga manifest doesn't have plate_id_for_barcoding
+        if p_type == "ERGA":
+            barcoding_fields.pop(0)
         for header, cells in self.data.iteritems():
 
             notify_frontend(data={"profile_id": self.profile_id}, msg="Validating Header- " + header,
