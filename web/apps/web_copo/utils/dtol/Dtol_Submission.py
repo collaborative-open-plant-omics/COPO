@@ -65,19 +65,23 @@ def process_pending_dtol_samples():
         public_name_list = list()
         for s_id in submission["dtol_samples"]:
             l.log("Dtol_submission : 67", type=Logtype.FILE)
-            sam = Sample().get_record(s_id)
+            try:
+                sam = Sample().get_record(s_id)
+            except:
+                l.log("Dtol submission : 71 - no sample found for id " + str(s_id), type=Logtype.FILE)
+                return False
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
                 targetsam = Sample().get_target_by_specimen_id(sam["SPECIMEN_ID"])
                 try:
                     assert targetsam
                 except AssertionError:
-                    l.log("Dtol Submission : 75 - Assertion error, no target found", type=Logtype.FILE)
+                    l.log("Dtol Submission : 78 - Assertion error, no target found", type=Logtype.FILE)
                 #ASSERT ALL TAXON ID ARE THE SAME, they can only be associated to one specimen
                 try:
                     assert all(x["species_list"][0]["TAXON_ID"] == targetsam[0]["species_list"][0]["TAXON_ID"] for x in targetsam)
                 except AssertionError:
-                    l.log("Dtol submission : 80 - Assertion error", type=Logtype.FILE)
+                    l.log("Dtol submission : 83 - Assertion error", type=Logtype.FILE)
                 targetsam = targetsam[0]
             else:
                 #this is to speed up source public id call
@@ -85,7 +89,7 @@ def process_pending_dtol_samples():
             print(type(sam['public_name']), sam['public_name'])
 
             if not sam["public_name"]:
-                l.log("Dtol submission : 88 - sample has no public name", type=Logtype.FILE)
+                l.log("Dtol submission : 91 - sample has no public name", type=Logtype.FILE)
                 try:
                     if issymbiont == "TARGET":
                         public_name_list.append(
@@ -98,7 +102,7 @@ def process_pending_dtol_samples():
                 except ValueError:
                     notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
                                     html_id="dtol_sample_info")
-                    l.log("Dtol_submission : 101 - invalid taxon ID", type=Logtype.FILE)
+                    l.log("Dtol_submission : 105 - invalid taxon ID", type=Logtype.FILE)
                     return False
 
             s_ids.append(s_id)
@@ -113,7 +117,7 @@ def process_pending_dtol_samples():
             specimen_accession = ""
             if specimen_sample:
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
-                l.log("Specimen accession at 116 is " + specimen_accession, type=Logtype.FILE)
+                l.log("Specimen accession at 119 is " + specimen_accession, type=Logtype.FILE)
             else:
                 # create sample object and submit
                 l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
