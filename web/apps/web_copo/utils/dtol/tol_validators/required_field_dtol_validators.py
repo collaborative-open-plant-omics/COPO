@@ -3,7 +3,7 @@ from submission.helpers.generic_helper import notify_frontend
 from .tol_validator import TolValidtor
 from .validation_messages import MESSAGES as msg
 from collections import Counter
-blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE", "NA"]
+blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE"]
 
 
 class ColumnValidator(TolValidtor):
