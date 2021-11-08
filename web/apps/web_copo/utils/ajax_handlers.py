@@ -1737,7 +1737,8 @@ def accept_barcoding_manifest(request):
 
                     else:
                         Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
-                                                                     {"$set": {"barcoding": record}},
+                                                                     {"$set": {"barcoding": record, "profile_id":
+                                                                         profile_id}},
                                                                      upsert=True)
     return HttpResponse("")
 

@@ -307,18 +307,6 @@
             <span class="action-label" style="padding-left: 3px;">Edit</span>
         </div>
 
-        <div class="show_barcoding_data tiny ui basic teal button copo-tooltip"
-             data-container="body"
-             data-action="resolve_conflicted_barcodes"
-             data-error-message=""
-             data-btntype="single"
-             title="This is to view existing barcoding. To add barcoding click on the purple barcoding button above."
-             tabindex="0"
-             id="conflict_button">
-            <i class=" fa fa-pencil-square-o"></i>
-            <span class="action-label" style="padding-left: 3px;">Inspect Barcoding</span>
-        </div>
-
         <div class="delete_record_multi tiny ui basic dtables-dbuttons  red button copo-dt copo-tooltip"
              data-container="body"
              data-action="delete"
@@ -486,13 +474,13 @@
 
     <!-- button to for dtol_sample_managers to accept/reject submitted samples -->
     <button style="display: none" title="Accept/Reject TOL Samples"
-            class="big circular ui icon teal button accept_reject_samples copo-tooltip">
+            class="big circular ui icon blue button accept_reject_samples copo-tooltip">
         <i class="icon tasks sign"></i>
     </button>
 
     <!-- button to for dtol_sample_managers to accept/reject submitted samples -->
-    <button title="Inspect Barcoding"
-            class="big circular ui icon blue button inspect_barcoding copo-tooltip">
+    <button title="Inspect Barcoding" id="inspect_barcoding"
+            class="big circular ui icon orange button inspect_bc copo-tooltip">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upc-scan"
              viewBox="0 0 16 16">
             <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1h-3zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5zM.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5zM3 4.5a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-7zm3 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7z"/>

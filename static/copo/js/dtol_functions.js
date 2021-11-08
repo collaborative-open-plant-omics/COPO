@@ -2,9 +2,12 @@ $(document).ready(function () {
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
     $(document).data("isDtolSamplePage", true)
-    if (!show_bc_control) {
-        $("#conflict_button").hide()
+    if ($("#show_bc_control").val() === "False") {
+        $("#inspect_barcoding").hide()
+    } else {
+        $("#inspect_barcoding").show()
     }
+    $(document).on("click", "#inspect_barcoding", inspect_barcoding)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     // TODO - excluded fields should vary by profile type
@@ -17,7 +20,7 @@ $(document).ready(function () {
             $(element).click()
         })
     })
-    $(document).on("click", "#conflict_button", inspect_barcoding)
+
     $(document).on("click", "#force_btn", handle_accept_reject)
 
     $(document).on("click", "#dd_reason", function (e) {
@@ -114,7 +117,8 @@ $(document).ready(function () {
     $(document).on("click", "#force_submission", handle_force_submission)
 
     // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
-    $(document).on("click", ".selectable_row, .hot_tab", row_select)
+    $(document).on("click", ".selectable_row, .hot_tab, #conflict_pane", row_select)
+
 
     $(document).on("change", "#dtol_type_select", function (e) {
         $.ajax({
@@ -220,6 +224,7 @@ function row_select(ev) {
     $("#accept_reject_button").find("button").prop("disabled", true)
     // get samples for profile clicked in the left hand panel and populate table on the right
     var row;
+    var p_id
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
         $(document).data("selected_row", $(ev.currentTarget))
@@ -229,7 +234,9 @@ function row_select(ev) {
     } else {
         row = $(document).data("selected_row")
     }
-
+    if (typeof row === 'undefined') {
+        p_id = $("#profile_id").val()
+    }
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
 
     if (filter == "conflicting_barcode") {
@@ -260,8 +267,11 @@ function row_select(ev) {
         $("#sample_filter").addClass("filter_margin")
     }
 
-
-    var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
+    if (typeof (p_id) === 'undefined') {
+        var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
+    } else {
+        var d = {"profile_id": p_id, "filter": filter}
+    }
     $("#profile_id").val(d.profile_id)
 
 
@@ -411,10 +421,10 @@ function row_select(ev) {
                 })
                 //fastdom.mutate(() => {
                 //$("#profile_samples tbody").append(rows)
-                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
-                    rows.forEach(el => {
-                        tbody.appendChild(el)
-                    })
+                var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
+                rows.forEach(el => {
+                    tbody.appendChild(el)
+                })
                 //})
                 $("#profile_samples").DataTable(dt_options);
             } else {
@@ -558,5 +568,5 @@ function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
 }
 
 function inspect_barcoding() {
-    alert("cock")
+    $("#bc_inspect_modal").modal("show")
 }

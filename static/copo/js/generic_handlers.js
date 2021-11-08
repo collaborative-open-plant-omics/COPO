@@ -2392,13 +2392,13 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "barcoding_manifest", "inspect_barcoding", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "barcoding_manifest", "inspect_bc", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",
             profile_component: true,
             tableID: 'sample_table',
-            recordActions: ["show_sample_source", "describe_record_all", "edit_record_single", "show_barcoding_data"],
+            recordActions: ["show_sample_source", "describe_record_all", "edit_record_single"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },
         {
