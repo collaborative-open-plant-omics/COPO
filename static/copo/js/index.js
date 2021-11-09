@@ -443,6 +443,11 @@ $(document).ready(function () {
             });
         }
 
+        //delete task
+        if (task == "delete") {
+            alert("coming soon")
+        }
+
         //table.rows().deselect(); //deselect all rows
 
         //handle button actions
