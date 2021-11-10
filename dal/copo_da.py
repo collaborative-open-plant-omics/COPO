@@ -52,7 +52,6 @@ StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 TestCollection = 'TestCollection'
 
-
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
                    sample=get_collection_ref(SampleCollection),
@@ -586,8 +585,9 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
@@ -686,6 +686,10 @@ class Source(DAComponent):
 class Sample(DAComponent):
     def __init__(self, profile_id=None):
         super(Sample, self).__init__(profile_id, "sample")
+
+    def get_barcoding(self, profile_id):
+        bc = self.get_collection_handle().find({"profile_id": profile_id}, {"barcoding": 1, "SPECIMEN_ID": 1})
+        return list(bc)
 
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
@@ -961,8 +965,9 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
@@ -1146,7 +1151,8 @@ class Submission(DAComponent):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
-                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083", level=Loglvl.ERROR, type=Logtype.FILE)
+                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
 
                 # no need to change status
             elif s.get("dtol_status", "") == "pending":

@@ -1344,6 +1344,7 @@ def create_spreadsheet_samples(request):
     dtol.save_records()
     return HttpResponse(status=200)
 
+
 def update_spreadsheet_samples(request):
     sample_data = request.session["sample_data"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
@@ -1355,7 +1356,7 @@ def update_spreadsheet_samples(request):
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
-    #todo control for someone being both
+    # todo control for someone being both
     profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
@@ -1685,6 +1686,7 @@ def is_number(s):
     except ValueError:
         return False
 
+
 def upload_barcoding_manifest(request):
     flag = True
     file = request.FILES["file"]
@@ -1752,3 +1754,11 @@ def set_barcoding_status(request):
                                                                                  "status": "pending"}})
         print(id)
     return HttpResponse(json.dumps({}), status=200)
+
+
+def inspect_barcoding(request):
+    profile_id = request.GET.get("profile_id", "")
+    if not profile_id:
+        return HttpResponse("")
+    bc = Sample().get_barcoding(profile_id)
+    return HttpResponse(json_util.dumps(bc))

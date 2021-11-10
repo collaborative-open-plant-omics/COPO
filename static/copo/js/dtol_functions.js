@@ -2,6 +2,7 @@ $(document).ready(function () {
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
     $(document).data("isDtolSamplePage", true)
+
     if ($("#show_bc_control").val() === "False") {
         $("#inspect_barcoding").hide()
     } else {
@@ -221,6 +222,14 @@ var dt_options = {
 }
 
 function row_select(ev) {
+    try {
+        if (ev.currentTarget.children[0].id == "bc_tab") {
+            get_barcoding(ev)
+            return false
+        }
+    } catch (err) {
+
+    }
     $("#accept_reject_button").find("button").prop("disabled", true)
     // get samples for profile clicked in the left hand panel and populate table on the right
     var row;
@@ -238,6 +247,9 @@ function row_select(ev) {
         p_id = $("#profile_id").val()
     }
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
+    if (filter.startsWith("#")) {
+        filter = filter.split('#')[1]
+    }
 
     if (filter == "conflicting_barcode") {
         $("#accept_reject_button").hide()
@@ -569,4 +581,45 @@ function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
 
 function inspect_barcoding() {
     $("#bc_inspect_modal").modal("show")
+    document.getElementById("bc_tab").click()
+}
+
+function get_barcoding(ev) {
+    profile_id = $("#profile_id").val()
+    $.ajax({
+        url: "/copo/inspect_barcoding/",
+        method: "GET",
+        data: {
+            "profile_id": profile_id
+        },
+    }).done(function (d) {
+        rows = JSON.parse(d)
+        document.getElementById("bc_table_body").innerHTML = ""
+        if ($.fn.DataTable.isDataTable('#barcoding')) {
+            $("#barcoding").DataTable().clear().destroy();
+        }
+        for (idx in rows) {
+            row = rows[idx]
+            fields = [row["SPECIMEN_ID"],
+                row["barcoding"]["specimen_identifiers"]["sampleid"],
+                row["barcoding"]["taxonomy"]["phylum"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["class"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["order"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["family"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["genus"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["species"]["taxon"]["name"],
+
+            ]
+            let tr = document.createElement("tr")
+            for (f in fields) {
+                field = fields[f]
+                let td = document.createElement("td")
+                let txt = document.createTextNode(field)
+                td.appendChild(txt)
+                tr.appendChild(td)
+                document.getElementById("bc_table_body").appendChild(tr)
+            }
+        }
+        $("#barcoding").DataTable()
+    })
 }
