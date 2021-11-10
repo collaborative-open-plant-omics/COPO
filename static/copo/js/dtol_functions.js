@@ -595,11 +595,13 @@ function get_barcoding(ev) {
     }).done(function (d) {
         rows = JSON.parse(d)
         document.getElementById("bc_table_body").innerHTML = ""
+        // if datatables already applied, destroy or else duplicate errors appear on page
         if ($.fn.DataTable.isDataTable('#barcoding')) {
             $("#barcoding").DataTable().clear().destroy();
         }
         for (idx in rows) {
             row = rows[idx]
+            // fields contains the data we want to appear horizontally across the table. We will iterate this to save on code
             fields = [row["SPECIMEN_ID"],
                 row["barcoding"]["specimen_identifiers"]["sampleid"],
                 row["barcoding"]["taxonomy"]["phylum"]["taxon"]["name"],
@@ -620,6 +622,7 @@ function get_barcoding(ev) {
                 document.getElementById("bc_table_body").appendChild(tr)
             }
         }
+        // apply datatables
         $("#barcoding").DataTable()
     })
 }
