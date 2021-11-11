@@ -1726,6 +1726,7 @@ class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
 
+
     def get_num(self):
         return self.get_collection_handle().count({})
 
@@ -1825,6 +1826,10 @@ class Profile(DAComponent):
     def get_by_title(self, title):
         p = self.get_collection_handle().find({"title": title})
         return cursor_to_list(p)
+
+    def validate_and_delete(self, profile_id):
+        print("got here")
+        return True
 
 
 class CopoGroup(DAComponent):

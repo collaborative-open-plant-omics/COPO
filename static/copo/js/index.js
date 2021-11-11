@@ -444,8 +444,24 @@ $(document).ready(function () {
         }
 
         //delete task
-        if (task == "delete") {
-            alert("coming soon")
+        if (task == "validate_and_delete") {
+            //alert("coming soon")
+            $.ajax({
+                url: copoFormsURL,
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                data: {
+                    'task': 'validate_and_delete',
+                    'componenent': component,
+                    'target_id': records, //maybe i need to make a list of all record_id in records
+                },
+                success: function (data) {
+                    alert("removed");
+                },
+                error: function f() {
+                    alert("something not working")
+                }
+            });
         }
 
         //table.rows().deselect(); //deselect all rows
