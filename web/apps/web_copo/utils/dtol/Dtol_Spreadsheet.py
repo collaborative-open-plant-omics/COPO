@@ -357,6 +357,8 @@ class DtolSpreadsheet:
             s["manifest_id"] = manifest_id
             s["status"] = "pending_barcode"
             s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
+            s["profile_id"] = self.profile_id
+            s["deleted"] = '0'
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Creating Sample with ID: " + s.get("TUBE_OR_WELL_ID") + "/" + s["SPECIMEN_ID"],
                             action="info",
@@ -376,15 +378,14 @@ class DtolSpreadsheet:
                 for ss in specimen:
                     # if there is a sample with the same specimen_id, it might be a symbiont in the same tube,
                     # or another sample of the same organism in a different tube
-                    s["profile_id"] = self.profile_id
-                    s["deleted"] = '0'
+
                     tw_id = ss.get("TUBE_OR_WELL_ID", "")
                     if tw_id:
                         if tw_id != s["TUBE_OR_WELL_ID"] and ss.get("species_list", dict())[0].get("SYMBIONT", ""
                                                                                                    ).lower() == \
                                 "sybiont":
                             # this is symbiont
-                            self.make_pending_sample(s)
+                            self.make_pending_barcode_sample(s)
                         elif tw_id != s["TUBE_OR_WELL_ID"]:
                             # we are dealing with another sample for which a specimen already exists
                             # so make new sample
@@ -393,11 +394,17 @@ class DtolSpreadsheet:
 
                             # N.B. function find_incorrectly_rejected_samples was setting these samples to accepted
                             # automatically, so I've commented it out. This may have knockon consequences
+                            if ss["barcoding"] == "":
+                                s_status = "pending_barcode"
+                            else:
+                                # here check if barcoding matches
+                                s_status = "pending"
                             Sample().get_collection_handle().update({"_id": smpl}, {"$set": {
-                                "status": "pending_barcode", "barcoding": ss[
+                                "status": s_status, "barcoding": ss[
                                     "barcoding"]}})
                     else:
                         # else we are just updating an existing barcode with sample data
+                        s["status"] = "pending"
                         sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
                         Sample().timestamp_dtol_sample_created(sampl["_id"])
                         # add updated sample to public_name_list
@@ -407,7 +414,7 @@ class DtolSpreadsheet:
                                     "SPECIMEN_ID"],
                                  "sample_id": str(sampl["_id"])})
             else:
-                self.make_pending_sample(s)
+                self.make_pending_barcode_sample(s)
 
             for im in image_data:
                 # create matching DataFile object for image is provided
@@ -428,10 +435,12 @@ class DtolSpreadsheet:
         description = profile["description"]
         CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
 
-    def make_pending_sample(self, s):
+    def make_pending_barcode_sample(self, s):
         s["status"] = "pending_barcode"
+        s["barcoding"] = ""
         # create new sample
-        sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
+        sampl = Sample().get_collection_handle().insert(s)
+        sampl = Sample().get_collection_handle().find_one({"_id": sampl})
         Sample().timestamp_dtol_sample_created(sampl["_id"])
         if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
             self.public_name_list.append(
@@ -484,7 +493,7 @@ class DtolSpreadsheet:
         updates = {}
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
-            rack_tube = s.get("RACK_OR_PLATE_ID","") + "/" + s["TUBE_OR_WELL_ID"]
+            rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             if s["SYMBIONT"].upper() == "SYMBIONT":
                 # this requires different logic to discriminate between symbionts
                 return False
@@ -532,7 +541,6 @@ class DtolSpreadsheet:
         notify_frontend(data={"profile_id": self.profile_id}, msg=report,
                         action="info",
                         html_id="sample_info")
-
 
     def check_for_target_or_add_to_symbiont_list(self, s):
         # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,

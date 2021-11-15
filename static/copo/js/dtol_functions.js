@@ -603,6 +603,7 @@ function get_barcoding(ev) {
             row = rows[idx]
             // fields contains the data we want to appear horizontally across the table. We will iterate this to save on code
             fields = [row["SPECIMEN_ID"],
+                row["TUBE_OR_WELL_ID"],
                 row["barcoding"]["specimen_identifiers"]["sampleid"],
                 row["barcoding"]["taxonomy"]["phylum"]["taxon"]["name"],
                 row["barcoding"]["taxonomy"]["class"]["taxon"]["name"],

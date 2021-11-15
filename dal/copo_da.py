@@ -688,7 +688,8 @@ class Sample(DAComponent):
         super(Sample, self).__init__(profile_id, "sample")
 
     def get_barcoding(self, profile_id):
-        bc = self.get_collection_handle().find({"profile_id": profile_id}, {"barcoding": 1, "SPECIMEN_ID": 1})
+        bc = self.get_collection_handle().find({"profile_id": profile_id}, {"barcoding": 1, "SPECIMEN_ID": 1,
+                                                                            "TUBE_OR_WELL_ID": 1})
         return list(bc)
 
     def get_sample_by_specimen_id(self, specimen_id):
@@ -699,7 +700,8 @@ class Sample(DAComponent):
         bc_present = False
         for s in samples:
             if "barcoding" in s:
-                return True
+                if s["barcoding"] != "":
+                    bc_present = True
         return bc_present
 
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
