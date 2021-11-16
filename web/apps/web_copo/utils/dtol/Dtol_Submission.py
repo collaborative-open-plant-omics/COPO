@@ -343,6 +343,17 @@ def query_awaiting_tolids():
                 if name.get("tolId", ""):
                     l.log("line 295", type=Logtype.FILE)
                     Sample().update_public_name(name)
+                elif name.get("status", "")=="Rejected":
+                    toliderror = "public name error - " + name.get("reason", "")
+                    status = {}
+                    status["msg"] = toliderror
+                    toreject = Sample().get_target_by_field("SPECIMEN_ID", name.get("specimen", "").get("specimenId", ""))
+                    for rejsam in toreject:
+                        Sample().add_field("error", toliderror, rejsam["_id"])
+                        Sample().add_rejected_status(status, rejsam["_id"])
+                        #remove samples from submissionlist
+                        print(str(rejsam["_id"]))
+                        Submission().dtol_sample_processed(submission['_id'], [str(rejsam["_id"])])
                 else:
                     l.log("Still no tolId identified for " + str(name), type=Logtype.FILE)
                     return
