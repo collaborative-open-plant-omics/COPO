@@ -165,6 +165,19 @@ def process_pending_dtol_samples():
                     assert len(spec_tolid) == 1
                     if not spec_tolid[0].get("tolId", ""):
                         # hadle failure to get public names and halt submission
+                        if spec_tolid[0].get("status", "")=="Rejected":
+                            #halt submission and reject sample
+                            toliderror = "public name error - " + spec_tolid[0].get("reason", "")
+                            status = {}
+                            status["msg"] =toliderror
+                            Source().add_field("error", toliderror, sour["_id"])
+                            Sample().add_rejected_status(status, s_id)
+                            s_ids.remove(s_id)
+                            Submission().dtol_sample_processed(submission['_id'], [s_id])
+                            msg = "A public name request was rejected, some submissions were halted -" +toliderror
+                            notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                                            html_id="dtol_sample_info")
+                            continue
                         # change dtol_status to "awaiting_tolids"
                         msg = "We couldn't retrieve one or more public names, a request for a new tolId has been " \
                               "sent, COPO will try again in 24 hours"
@@ -237,14 +250,17 @@ def process_pending_dtol_samples():
         public_names = query_public_name_service(public_name_list)
         if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
             # hadle failure to get public names and halt submission
-            # change dtol_status to "awaiting_tolids"
-            l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
-            msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
-                  "COPO will try again in 24 hours"
-            notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                            html_id="dtol_sample_info")
-            Submission().make_dtol_status_awaiting_tolids(submission['_id'])
-            tolidflag = False
+            if all(public_names[x].get("status","")=="Rejected" for x in range(len(public_names))):
+                l.log("all missing tolid request were rejected", type=Logtype.FILE)
+            else:
+                # change dtol_status to "awaiting_tolids"
+                l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
+                msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
+                      "COPO will try again in 24 hours"
+                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                                html_id="dtol_sample_info")
+                Submission().make_dtol_status_awaiting_tolids(submission['_id'])
+                tolidflag = False
 
         for name in public_names:
             l.log("adding public names to samples", type=Logtype.FILE)
@@ -258,6 +274,9 @@ def process_pending_dtol_samples():
             break
 
         l.log("updating bundle xml", type=Logtype.FILE)
+        if len(s_ids)==0:
+            #if all samples were moved to rejected
+            break
         update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
         build_submission_xml(file_subfix, release=True)
 
@@ -324,6 +343,17 @@ def query_awaiting_tolids():
                 if name.get("tolId", ""):
                     l.log("line 295", type=Logtype.FILE)
                     Sample().update_public_name(name)
+                elif name.get("status", "")=="Rejected":
+                    toliderror = "public name error - " + name.get("reason", "")
+                    status = {}
+                    status["msg"] = toliderror
+                    toreject = Sample().get_target_by_field("SPECIMEN_ID", name.get("specimen", "").get("specimenId", ""))
+                    for rejsam in toreject:
+                        Sample().add_field("error", toliderror, rejsam["_id"])
+                        Sample().add_rejected_status(status, rejsam["_id"])
+                        #remove samples from submissionlist
+                        print(str(rejsam["_id"]))
+                        Submission().dtol_sample_processed(submission['_id'], [str(rejsam["_id"])])
                 else:
                     l.log("Still no tolId identified for " + str(name), type=Logtype.FILE)
                     return
