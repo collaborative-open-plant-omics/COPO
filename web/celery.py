@@ -39,7 +39,7 @@ app.conf.beat_schedule = {
     },
     'poll_missing_tolids': {
         'task': 'web.apps.web_copo.tasks.poll_missing_tolids',
-        'schedule': timedelta(hours=12)  # leave time for human creation of tolid
+        'schedule': timedelta(hours=2)  # shortened cause sometimes it doesn't work?
     },
     'poll_expired_viewlocks': {
         'task': 'web.apps.web_copo.tasks.poll_expired_viewlocks',
