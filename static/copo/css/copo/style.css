@@ -1942,8 +1942,8 @@ div.shown span.side-help-trigger:before {
 
 .background_violet_trans {
     background-color: rgba(88, 41, 187, 0.5);
-    color: white
-    font-weight: bold;
+    color: white !important;
+    font-weight: bold !important;
 }
 
 .background_violet {
@@ -1953,13 +1953,13 @@ div.shown span.side-help-trigger:before {
 }
 
 .background_pink_trans {
-    background-color: rgba(230, 26, 141, 0.5);
-    color: white;
-    font-weight: bold;
+    background-color: rgba(230, 26, 141, 0.5) !important;
+    color: white !important;
+    font-weight: bold !important;
 }
 
 .background_pink {
-    background-color: rgba(230, 26, 141, 1) !important;
+    background-color: #db2828 !important;
     color: white !important;
     font-weight: bold !important;
 }

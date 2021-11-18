@@ -13,7 +13,7 @@ from chunked_upload.models import ChunkedUpload
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
-
+from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
 from dal.copo_base_da import DataSchemas
@@ -688,9 +688,35 @@ class Sample(DAComponent):
         super(Sample, self).__init__(profile_id, "sample")
 
     def get_barcoding(self, profile_id):
-        bc = self.get_collection_handle().find({"profile_id": profile_id}, {"barcoding": 1, "SPECIMEN_ID": 1,
-                                                                            "TUBE_OR_WELL_ID": 1})
-        return list(bc)
+        bc = self.get_collection_handle().find({"profile_id": profile_id})
+        out = list()
+        for s in bc:
+            if "submit_as_taxon" in s:
+                if s["submit_as_taxon"] == "bold":
+                    sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
+                        "barcoding"], "using": "bold"}
+                else:
+                    barcoding = self.convert_barcoding_to_bold_from_specieslist(s["species_list"][0])
+                    sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding":
+                        barcoding, "using": "manifest"}
+            else:
+                sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
+                    "barcoding"], "using": "bold"}
+            out.append(sm)
+        return list(out)
+
+    def convert_barcoding_to_bold_from_specieslist(self, bc):
+        row = {}
+
+        row["specimen_identifiers"] = {"sampleid": ""}
+        row["taxonomy"] = {}
+        row["taxonomy"]["phylum"] = {"taxon": {"name": ""}}
+        row["taxonomy"]["class"] = {"taxon": {"name": ""}}
+        row["taxonomy"]["order"] = {"taxon": {"name": bc.get("ORDER_OR_GROUP", "")}}
+        row["taxonomy"]["family"] = {"taxon": {"name": bc.get("FAMILY", "")}}
+        row["taxonomy"]["genus"] = {"taxon": {"name": bc.get("GENUS", "")}}
+        row["taxonomy"]["species"] = {"taxon": {"name": bc.get("SCIENTIFIC_NAME", "")}}
+        return row
 
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})

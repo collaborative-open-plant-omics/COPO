@@ -613,7 +613,16 @@ function get_barcoding(ev) {
                 row["barcoding"]["taxonomy"]["species"]["taxon"]["name"],
 
             ]
+            using = row["using"]
             let tr = document.createElement("tr")
+            if (using === "manifest") {
+                $(tr).addClass("background_violet")
+            } else if (using === "bold") {
+                $(tr).addClass("background_pink")
+            }
+
+
+            //$(tr).addClass("purple")
             for (f in fields) {
                 field = fields[f]
                 let td = document.createElement("td")

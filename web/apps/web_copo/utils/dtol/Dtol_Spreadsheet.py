@@ -397,14 +397,21 @@ class DtolSpreadsheet:
                             if ss["barcoding"] == "":
                                 s_status = "pending_barcode"
                             else:
-                                # here check if barcoding matches
                                 s_status = "pending"
+
                             Sample().get_collection_handle().update({"_id": smpl}, {"$set": {
                                 "status": s_status, "barcoding": ss[
                                     "barcoding"]}})
                     else:
                         # else we are just updating an existing barcode with sample data
-                        s["status"] = "pending"
+                        # here check if barcoding matches
+                        # check bold reported scientific name with manifest reported and record any conflicts
+                        if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                                ss["barcoding"]["taxonomy"]["species"]["taxon"]["name"]).lower():
+                            s_status = "pending"
+                        else:
+                            s_status = "conflicting"
+                        s["status"] = s_status
                         sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
                         Sample().timestamp_dtol_sample_created(sampl["_id"])
                         # add updated sample to public_name_list
