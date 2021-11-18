@@ -8,6 +8,7 @@ $(document).ready(function () {
     var component = "profile";
     var copoFormsURL = "/copo/copo_forms/";
     var copoVisualsURL = "/copo/copo_visualize/";
+    var copoDeleteProfile = "copo/delete_profile/"
     csrftoken = $.cookie('csrftoken');
 
     var componentMeta = get_component_meta(component);
@@ -447,7 +448,7 @@ $(document).ready(function () {
         if (task == "validate_and_delete") {
             //alert("coming soon")
             $.ajax({
-                url: copoFormsURL,
+                url: copoDeleteProfile,
                 type: "POST",
                 headers: {'X-CSRFToken': csrftoken},
                 data: {

@@ -334,6 +334,23 @@ def copo_forms(request):
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(out, content_type='application/json')
 
+@login_required()
+def delete_profile(request):
+    context = dict()
+    task = request.POST.get("task", str())
+
+    profile_id = request.session.get("profile_id", str())
+
+    if request.POST.get("profile_id", str()):
+        profile_id = request.POST.get("profile_id")
+        request.session["profile_id"] = profile_id
+
+    if not profile_id:
+        return False
+    else:
+        Profile().validate_and_delete(profile_id)
+
+
 
 @login_required
 @staff_member_required
