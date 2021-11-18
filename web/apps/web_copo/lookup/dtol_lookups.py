@@ -940,7 +940,7 @@ DTOL_RULES = {
         "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     },
     "COLLECTOR_ORCID_ID" : {
-        "strict_regex" : "^(\d{4}-){3}\d{4}$",
+        "strict_regex" : "^(\d{4}-){3}\d{4}$|(^not collected$)|(^not provided$)|(^not applicable$)",
         "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     }
 }
