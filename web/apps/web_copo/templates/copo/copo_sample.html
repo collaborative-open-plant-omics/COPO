@@ -475,32 +475,78 @@
 
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="sample_filter" role="tablist">
-                            <li role="presentation" class="hot_tab in active">
-                                <a href="" data-toggle="tab" aria-controls="bc_pane" role="tab" data-toggle="tab">Barcoding</a>
+                            <li role="presentation" class="hot_tab active">
+                                <a href="#bc_pane" data-toggle="tab" aria-controls="bc_pane" role="tab" id="bc_tab"
+                                   data-toggle="tab">Identification</a>
                             </li>
-                            <li role="presentation" class="hot_tab in">
-                                <a id="conflict_pane" href="conflicting_barcode" aria-controls="conflicting_barcode"
+                            <li role="presentation" class="hot_tab">
+                                <a id="conflict_pane" href="#conflicting_barcode" aria-controls="conflicting_barcode"
                                    role="tab" data-toggle="tab">Conflicting</a>
                             </li>
 
                         </ul>
 
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="bc_pane">
+                                <div class="pull-right ui selection list">
+                                    <a class="item">
+                                        <div class="ui red label empty circular horizontal"></div>
+                                        Identified by Barcoding
+                                    </a>
+                                    <a class="item">
+                                        <div class="ui purple empty circular horizontal label"></div>
+                                        Taxonomist Overruled Barcoding
+                                    </a>
 
-                        <div role="tabpanel" class="tab-pane" id="conflicting_barcode">
-                            <div id="sample_panel">
-                                <table id="profile_samples" class="table table-hover table-bordered display compact">
-                                    <thead></thead>
-                                    <tbody></tbody>
-                                </table>
+                                </div>
+                                <div id="barcoding_panel" style="padding:40px">
+                                    <table id="barcoding" class="table table-hover table-bordered display compact">
+                                        <thead>
+                                        <tr>
+                                            <th>Specimen ID</th>
+                                            <th>TUBE_OR_WELL_ID</th>
+                                            <th>Bold Sample ID</th>
+                                            <th>Phylum</th>
+                                            <th>Class</th>
+                                            <th>Order</th>
+                                            <th>Family</th>
+                                            <th>Genus</th>
+                                            <th>Species</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="bc_table_body">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="conflicting_barcode">
+                                <div id="sample_panel" style="padding:40px">
+                                    <div class="ui buttons" id="barcode_select"
+                                         style="margin-bottom: 10px; display: none">
+                                        <button id="accept_manifest" type="button" disabled="true"
+                                                class="ui violet button">
+                                            <span class="" aria-hidden="true"></span> Accept Manifest
+                                        </button>
+                                        <div class="or"></div>
+                                        <button id="accept_bold" type="button" disabled="true" class="ui red button">
+                                            <span class="" aria-hidden="true"></span> Accept Bold
+                                        </button>
+                                    </div>
+                                    <table id="profile_samples"
+                                           class="table table-hover table-bordered display compact">
+                                        <thead></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->

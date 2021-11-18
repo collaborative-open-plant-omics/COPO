@@ -199,4 +199,6 @@ urlpatterns = [
          name="set_barcoding_status"),
     path('force_submission_dialog_content/', views.force_submission_dialog_content,
          name="force_submission_dialog_content"),
+    path('inspect_barcoding/', ajax_handlers.inspect_barcoding,
+         name="inspect_barcoding"),
 ]

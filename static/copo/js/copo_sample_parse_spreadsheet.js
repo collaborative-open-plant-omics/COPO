@@ -124,6 +124,7 @@ $(document).ready(function () {
                 buttons: [{
                     label: 'Close',
                     action: function (dialog) {
+                        $("#inspect_barcoding").show()
                         dialog.close();
                     }
                 }]
