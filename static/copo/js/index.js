@@ -8,7 +8,7 @@ $(document).ready(function () {
     var component = "profile";
     var copoFormsURL = "/copo/copo_forms/";
     var copoVisualsURL = "/copo/copo_visualize/";
-    var copoDeleteProfile = "copo/delete_profile/"
+    var copoDeleteProfile = "/copo/delete_profile/"
     csrftoken = $.cookie('csrftoken');
 
     var componentMeta = get_component_meta(component);
@@ -456,7 +456,7 @@ $(document).ready(function () {
                     'componenent': component,
                     'target_id': records, //maybe i need to make a list of all record_id in records
                 },
-                success: function (data) {
+                success: function () {
                     alert("removed");
                 },
                 error: function f() {

@@ -339,16 +339,16 @@ def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    profile_id = request.session.get("profile_id", str())
-
-    if request.POST.get("profile_id", str()):
-        profile_id = request.POST.get("profile_id")
-        request.session["profile_id"] = profile_id
+    #todo to modify this to accomodate for multiple profiles being selected
+    profile_id = request.POST.get("target_id[0][record_id]", str())
+    request.session["profile_id"] = profile_id
 
     if not profile_id:
         return False
     else:
         Profile().validate_and_delete(profile_id)
+        return HttpResponse(jsonpickle.encode(profile_id), content_type='application/json')
+        #todo ui is returning something not working even when this is successful
 
 
 

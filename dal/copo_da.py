@@ -1133,6 +1133,12 @@ class Submission(DAComponent):
                 self.get_collection_handle().update({"_id": ObjectId(s["_id"])}, {"$set": {"dtol_status": "sending"}})
         return out
 
+    def get_records_by_field(self, field, value):
+        sub = self.get_collection_handle().find({
+            field: value
+        })
+        return cursor_to_list(sub)
+
     def get_awaiting_tolids(self):
         sub = self.get_collection_handle().find(
             {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["awaiting_tolids"]}},
@@ -1721,6 +1727,12 @@ class DataFile(DAComponent):
     def get_num_pending_samples(self, sub_id):
         doc = self.get_collection_handle().find_one({"_id", ObjectId(sub_id)})
 
+    def get_records_by_field(self, field, value):
+        sub = self.get_collection_handle().find({
+            field: value
+        })
+        return cursor_to_list(sub)
+
 
 class Profile(DAComponent):
     def __init__(self, profile=None):
@@ -1828,7 +1840,16 @@ class Profile(DAComponent):
         return cursor_to_list(p)
 
     def validate_and_delete(self, profile_id):
-        print("got here")
+        #check if any submission object reference this profile, if so do not delete
+        if Submission().get_records_by_field("profile_id", profile_id):
+            return False
+        #check if there are datafiles associated with the profile, if so do not delete
+        if DataFile().get_records_by_field("profile_id", profile_id):
+            return False
+        #check if there are samples associated with the profile, if so di not delete
+        if cursor_to_list(Sample().get_from_profile_id(profile_id)):
+            return False
+        self.get_collection_handle().remove({"_id": ObjectId(profile_id)})
         return True
 
 
