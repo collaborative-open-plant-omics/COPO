@@ -97,7 +97,7 @@
         },
         {
           "help_tip": "Select the sequencing technique intended for this library",
-          "required": "false",
+          "required": "true",
           "default_value": "",
           "control_meta": {},
           "control": "copo-single-select",
@@ -116,7 +116,7 @@
         },
         {
           "help_tip": "Select the sequencing technique intended for this library",
-          "required": "false",
+          "required": "true",
           "default_value": "",
           "control_meta": {},
           "control": "copo-single-select",
@@ -135,7 +135,7 @@
         },
         {
           "help_tip": "Select the method that was used to select for or against, enrich, or screen the material being sequenced",
-          "required": "false",
+          "required": "true",
           "default_value": "",
           "control_meta": {},
           "control": "copo-single-select",
@@ -158,7 +158,7 @@
           "help_tip": "Enter an optional library description.",
           "label": "Library description",
           "hidden": "false",
-          "required": "false",
+          "required": "true",
           "control": "textarea",
           "default_value": ""
         }
