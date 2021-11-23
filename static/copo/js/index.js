@@ -192,20 +192,25 @@ $(document).ready(function () {
 
                             //set heading
                             if (data.type.includes("DTOL_EI")) {
-                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
                                 renderHTML.find(".panel-heading").css('background-color', "#16ab39")
                             } else if (data.type.includes("DTOL")) {
-                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#16ab39")
                             } else if (data.type.includes("ASG")) {
-                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(ASG)</small></span>');
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(ASG)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#5829bb")
                             } else {
                                 if (!data.shared) {
-                                    renderHTML.find(".panel-heading").find(".row-title").html('<span style="font-weight: bolder">' + data.title + '&nbsp<small>(Standalone)</small></span>');
+                                    renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                        ' style="font-weight: bolder">' + data.title + '&nbsp<small>(Standalone)</small></span>');
                                     renderHTML.find(".panel-heading").css("background-color", "#009c95")
                                 } else {
-                                    renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(Shared With Me)</small></span>');
+                                    renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                        ' style="">' + data.title + '&nbsp<small>(Shared With Me)</small></span>');
                                     renderHTML.find(".panel-heading").css("background-color", "#f26202")
                                 }
                             }
