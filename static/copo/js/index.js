@@ -457,10 +457,25 @@ $(document).ready(function () {
                     'target_id': records, //maybe i need to make a list of all record_id in records
                 },
                 success: function () {
-                    alert("removed");
+                    BootstrapDialog.show({
+                       title: "Profile/s deleted",
+                       message: "All profile/s selected have been deleted.",
+                       cssClass: "copo-modal1",
+                       closable: true,
+                       animate: true,
+                       type : BootstrapDialog.TYPE_INFO
+                    });
                 },
                 error: function f() {
-                    alert("something not working")
+                    BootstrapDialog.show({
+                       title: "Profile deletion - error",
+                       message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
+                           "samples associated can be deleted.",
+                       cssClass: "copo-modal1",
+                       closable: true,
+                       animate: true,
+                       type : BootstrapDialog.TYPE_DANGER
+                    });
                 }
             });
         }

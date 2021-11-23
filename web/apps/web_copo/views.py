@@ -340,15 +340,23 @@ def delete_profile(request):
     task = request.POST.get("task", str())
 
     #todo to modify this to accomodate for multiple profiles being selected
-    profile_id = request.POST.get("target_id[0][record_id]", str())
-    request.session["profile_id"] = profile_id
+    x=0
+    profile_ids = []
+    while request.POST.get("target_id["+str(x)+"][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
+        x+=1
 
-    if not profile_id:
-        return False
+    response = HttpResponse()
+    response.status_code = 200
+    if not profile_ids:
+        response.status_code = 405
     else:
-        Profile().validate_and_delete(profile_id)
-        return HttpResponse(jsonpickle.encode(profile_id), content_type='application/json')
-        #todo ui is returning something not working even when this is successful
+        for profile in profile_ids:
+            if not Profile().validate_and_delete(profile):
+                response.status_code = 405
+
+    return response
+    #todo ui is returning something not working even when this is successful
 
 
 
