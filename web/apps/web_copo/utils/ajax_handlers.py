@@ -40,6 +40,7 @@ from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from exceptions_and_logging import logger
+from web.apps.web_copo.lookup import dtol_lookups as lkup
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -81,8 +82,9 @@ def query_ncbi_entrez(term):
     data["response"]["docs"] = []
     taxonid = term
 
-    Entrez.email = "copo@earlham.ac.uk"
-    handle = Entrez.esearch(db="Taxonomy", term=taxonid, retmode="xml")
+    # Entrez.email = "copo@earlham.ac.uk"
+    Entrez.api_key = lkup.NIH_API_KEY
+    handle = Entrez.esearch(db="taxonomy", term=taxonid, retmode="xml")
     # get list of ids for string query
     records = Entrez.read(handle)
 
@@ -91,14 +93,17 @@ def query_ncbi_entrez(term):
     # now query these for full details
     ids = [str(element) for element in records["IdList"]]
     ids_str = (",").join(ids)
-    taxhandle = Entrez.efetch(db="Taxonomy", term=ids_str)
+    taxhandle = Entrez.efetch(db="taxonomy", id=ids_str)
+
     records = Entrez.read(taxhandle)
     output = dict()
     for r in records:
         if r["Rank"] == "species":
-            output["species"] = r["ScientificName"]
-            data["response"]["docs"].append({"annotationValue": "bogdog", "iri": "wank", "ontology_prefix": "WANK",
-                                             "label": "oink", "description": "blah"})
+            data["response"]["docs"].append(
+                {"annotationValue": r["ScientificName"], "iri": "http://purl.obolibrary.org/obo/NCBITaxon_" + r[
+                    "TaxId"],
+                 "ontology_prefix": "NCBITAXON",
+                 "label": r["ScientificName"], "description": "Not Available"})
     return json.dumps(data)
 
 

@@ -28,7 +28,7 @@ $(document).ready(function () {
     ontology_value_change();
 
     var timeout;
-    var delay = 3000;
+    var delay = 1000;
 
 
     //add selectize control event
