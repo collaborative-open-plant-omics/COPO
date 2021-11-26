@@ -450,8 +450,8 @@ $(document).ready(function () {
         }
 
         //delete task
-        if (task == "validate_and_delete") {
-            //alert("coming soon")
+        if (task === "validate_and_delete") {
+            var csrftoken = $.cookie('csrftoken');
             $.ajax({
                 url: copoDeleteProfile,
                 type: "POST",
@@ -460,9 +460,9 @@ $(document).ready(function () {
                     'task': 'validate_and_delete',
                     'componenent': component,
                     'target_id': records, //maybe i need to make a list of all record_id in records
-                },
-                success: function () {
-                    BootstrapDialog.show({
+                }
+            }).done(function (data_response) {
+                BootstrapDialog.show({
                        title: "Profile/s deleted",
                        message: "All profile/s selected have been deleted.",
                        cssClass: "copo-modal1",
@@ -470,12 +470,11 @@ $(document).ready(function () {
                        animate: true,
                        type : BootstrapDialog.TYPE_INFO
                     });
-                    for (var i=0; i < records.length; i++) {
-                        document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
-                    };
-                },
-                error: function f() {
-                    BootstrapDialog.show({
+                for (var i=0; i < records.length; i++) {
+                    document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
+                }
+            }).error(function (data_response) {
+                BootstrapDialog.show({
                        title: "Profile deletion - error",
                        message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
                            "samples associated can be deleted.",
@@ -484,7 +483,12 @@ $(document).ready(function () {
                        animate: true,
                        type : BootstrapDialog.TYPE_DANGER
                     });
+                for (var i=0; i < records.length; i++) {
+                    if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
+                        document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
+                    }
                 }
+                console.log(data_response)
             });
         }
 

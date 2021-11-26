@@ -345,15 +345,18 @@ def delete_profile(request):
         profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
         x+=1
 
-    response = HttpResponse()
+    response = HttpResponse(content_type="application/json")
     response.status_code = 200
+    profiles_undeleted = []
     if not profile_ids:
         response.status_code = 405
     else:
         for profile in profile_ids:
             if not Profile().validate_and_delete(profile):
+                profiles_undeleted.append(profile)
                 response.status_code = 405
-
+    undeleted_json = json.dumps({"undeleted": profiles_undeleted})
+    response.write(undeleted_json)
     return response
 
 
