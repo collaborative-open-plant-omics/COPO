@@ -339,7 +339,6 @@ def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    #todo to modify this to accomodate for multiple profiles being selected
     x=0
     profile_ids = []
     while request.POST.get("target_id["+str(x)+"][record_id]", ""):
@@ -356,7 +355,6 @@ def delete_profile(request):
                 response.status_code = 405
 
     return response
-    #todo ui is returning something not working even when this is successful
 
 
 

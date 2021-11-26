@@ -470,6 +470,9 @@ $(document).ready(function () {
                        animate: true,
                        type : BootstrapDialog.TYPE_INFO
                     });
+                    for (var i=0; i < records.length; i++) {
+                        document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
+                    };
                 },
                 error: function f() {
                     BootstrapDialog.show({
