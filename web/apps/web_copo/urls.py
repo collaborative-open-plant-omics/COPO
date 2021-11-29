@@ -12,7 +12,7 @@ urlpatterns = [
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
-
+    path('test', views.test, name='test'),
     path('stats/<str:view>', views.stats, name='stats'),
     path('stats/', views.stats, name='stats'),
     path('login/', views.login, name='auth'),
@@ -192,5 +192,7 @@ urlpatterns = [
     path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
          name="handle_csv_column_validate_spreadsheet"),
     path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
-         name="handle_csv_column_update_samples")
+         name="handle_csv_column_update_samples"),
+    path('ena_read_manifest_validate/', views.ena_read_manifest_validate,
+         name="ena_read_manifest_validate")
 ]

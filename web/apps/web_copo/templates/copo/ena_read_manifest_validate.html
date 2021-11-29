@@ -1,0 +1,112 @@
+{% extends 'copo/base_2col.html' %}
+
+{% load static %}
+{% load web_tags_orcid %}
+{% load web_tags %}
+
+{% block stylesheet_block %}
+    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
+          xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
+          xmlns="http://www.w3.org/1999/html">
+    <style>
+        .group-button {
+            vertical-align: middle;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .plus-color {
+            color: #0ec36b;
+        }
+
+        .minus-color {
+            color: #d34e22;
+        }
+
+        .custom-header {
+            text-align: center;
+            padding: 3px;
+            background: #f5f5f5;
+            color: black;
+        }
+
+        .autocomplete {
+            margin-top: 40px;
+            min-width: 200px;
+        }
+
+        #users_table {
+            width: 300px;
+            margin-top: 40px;
+        }
+
+        .delete_cell {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .saving_status {
+            margin-right: 25px
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block title_block %} COPO - Groups {% endblock %}
+
+{% block tagline_block %}
+
+
+{% endblock %}
+
+{% block browse_header_block %}
+    {% csrf_token %}
+    <div hidden id="hidden_attrs">
+        <!-- hidden attributes  -->
+        <input type="hidden" id="nav_component_name" value="group"/>
+        <input type="hidden" id="user_type" value="submitters"/>
+    </div>
+{% endblock browse_header_block %}
+
+
+{% block page_tile %}
+
+{% endblock page_tile %}
+
+
+{% block content %}
+
+
+{% endblock %}
+
+{% block help_section %}
+
+    <div id="copo-sidebar-help" class="tab-pane fade in active  copo-sidebar-help">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="panel panel-dtables">
+                    <div class="panel-body collapse in" id="page_context_help_panel">
+                        <table id="page-context-help" class="table hover copo-noborders-table"
+                               cellspacing="0"
+                               width="100%"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block js_block %}
+    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
+    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
+    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
+    <script src="{% static 'copo/js/copo_repository.js' %}"></script>
+    <script src="{% static 'copo/lou-multi-select-e052211/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'copo/js/bootstrapValidator.js' %}"></script>
+{% endblock %}

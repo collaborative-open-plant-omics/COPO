@@ -16,7 +16,20 @@ $(document).ready(function () {
     $(document).on("click", "#accept_reject_shortcut", function (evt) {
         document.location = "/copo/accept_reject_sample"
     })
+    $(document).on("click", ".expanding_menu > div", function (e) {
+        var el = $(e.currentTarget)
+        el.closest("tr").removeClass("selected")
 
+    })
+    $(document).on("click", ".item a", function (e) {
+        var el = $(e.currentTarget)
+        if (el.hasClass("action")) {
+            var action_type = el.data("action_type")
+            var id = el.closest(".expanding_menu").attr("id")
+            id = id.split("_")[1]
+            document.location = "/copo/ena_read_manifest_validate"
+        }
+    })
     //load work profiles
     var tableLoader = $('<div class="copo-i-loader"></div>');
     $("#component_table_loader").append(tableLoader);
@@ -223,12 +236,16 @@ $(document).ready(function () {
                             //set body
                             var bodyRow = $('<div class="row"></div>');
 
+                            var menu = $("#expanding_menu").clone()
+                            $(menu).attr("id", "menu_" + data.record_id)
+                            component_buttons = append_component_buttons(data.record_id)
+                            $(menu).find(".comp").append(component_buttons)
                             var colsHTML = $('<div class="col-sm-12 col-md-12 col-lg-12"></div>')
                                 .append('<div>Created:</div>')
                                 .append('<div style="margin-bottom: 10px;">' + data.profile_date + '</div>')
                                 .append('<div>Description:</div>')
                                 .append('<div style="margin-bottom: 10px;">' + data.description + '</div>')
-                                .append(append_component_buttons(data.record_id));
+                                .append(menu);
 
 
                             bodyRow.append(colsHTML);
@@ -324,8 +341,7 @@ $(document).ready(function () {
         //components row
         var components = get_profile_components();
         var componentsDIV = $('<div/>', {
-            class: "pull-right",
-            style: "margin-top:15px;"
+            class: "item"
         });
 
 
@@ -469,27 +485,27 @@ $(document).ready(function () {
                 }
             }).done(function (data_response) {
                 BootstrapDialog.show({
-                       title: "Profile/s deleted",
-                       message: "All profile/s selected have been deleted.",
-                       cssClass: "copo-modal1",
-                       closable: true,
-                       animate: true,
-                       type : BootstrapDialog.TYPE_INFO
-                    });
-                for (var i=0; i < records.length; i++) {
+                    title: "Profile/s deleted",
+                    message: "All profile/s selected have been deleted.",
+                    cssClass: "copo-modal1",
+                    closable: true,
+                    animate: true,
+                    type: BootstrapDialog.TYPE_INFO
+                });
+                for (var i = 0; i < records.length; i++) {
                     document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
                 }
             }).error(function (data_response) {
                 BootstrapDialog.show({
-                       title: "Profile deletion - error",
-                       message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
-                           "samples associated can be deleted.",
-                       cssClass: "copo-modal1",
-                       closable: true,
-                       animate: true,
-                       type : BootstrapDialog.TYPE_DANGER
-                    });
-                for (var i=0; i < records.length; i++) {
+                    title: "Profile deletion - error",
+                    message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
+                        "samples associated can be deleted.",
+                    cssClass: "copo-modal1",
+                    closable: true,
+                    animate: true,
+                    type: BootstrapDialog.TYPE_DANGER
+                });
+                for (var i = 0; i < records.length; i++) {
                     if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
                         document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
                     }

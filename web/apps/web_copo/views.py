@@ -74,6 +74,14 @@ def error_page(request):
     return render(request, context={}, template_name="copo/error_page.html")
 
 
+def test(request):
+    return render(request, context={}, template_name="copo/error_page.html")
+
+
+def ena_read_manifest_validate(request):
+    return render(request, context={}, template_name="copo/ena_read_manifest_validate.html")
+
+
 @login_required
 def copo_repository(request, profile_id):
     profile = Profile().get_record(profile_id)
