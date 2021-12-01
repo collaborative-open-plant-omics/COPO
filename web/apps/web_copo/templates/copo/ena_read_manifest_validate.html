@@ -80,6 +80,37 @@
 
 {% block content %}
 
+    <div class="row">
+    <div class="col-lg-9 col-md-9 col-sm-9">
+        <h3 class="h3">
+            Submit Sequence Reads
+        </h3>
+        <p>
+            Upload a completed manifest for validation
+        </p>
+
+        <form>
+            <button class="positive ui button">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+
+                Upload Manifest
+            </button>
+        </form>
+
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Status</h3>
+            </div>
+            <div class="panel-body">
+                Idle...
+            </div>
+        </div>
+
+    </div>
 
 {% endblock %}
 
@@ -92,7 +123,9 @@
                     <div class="panel-body collapse in" id="page_context_help_panel">
                         <table id="page-context-help" class="table hover copo-noborders-table"
                                cellspacing="0"
-                               width="100%"></table>
+                               width="100%">
+
+                        </table>
                     </div>
                 </div>
             </div>
