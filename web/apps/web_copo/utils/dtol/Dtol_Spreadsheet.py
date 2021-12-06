@@ -25,10 +25,10 @@ from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
-from .tol_validators import optional_field_dtol_validators as optional_validators
-from .tol_validators import required_field_dtol_validators as required_validators
-from .tol_validators import taxon_validators
-from .tol_validators.tol_validator import TolValidtor
+from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
+    taxon_validators
+from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+from web.apps.web_copo.validators.validator import Validator
 
 
 def make_target_sample(sample):
@@ -97,19 +97,19 @@ class DtolSpreadsheet:
         required = dict(globals().items())["required_validators"]
         for element_name in dir(required):
             element = getattr(required, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.required_field_validators.append(element)
         # create list of optional validators
         optional = dict(globals().items())["optional_validators"]
         for element_name in dir(optional):
             element = getattr(optional, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.optional_field_validators.append(element)
         # create list of taxon validators
         optional = dict(globals().items())["taxon_validators"]
         for element_name in dir(optional):
             element = getattr(optional, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.taxon_field_validators.append(element)
 
     def loadManifest(self, m_format):

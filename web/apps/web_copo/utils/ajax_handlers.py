@@ -1694,6 +1694,10 @@ def handle_csv_column_update_samples(request):
     return HttpResponse("Complete")
 
 
+def parse_ena_spreadsheet(request):
+    return HttpResponse(request)
+
+
 def is_number(s):
     try:
         float(s)
