@@ -27,7 +27,7 @@ $(document).ready(function () {
             var action_type = el.data("action_type")
             var id = el.closest(".expanding_menu").attr("id")
             id = id.split("_")[1]
-            document.location = "/copo/ena_read_manifest_validate"
+            document.location = "/copo/ena_read_manifest_validate/" + id
         }
     })
     //load work profiles

@@ -1,21 +1,20 @@
 from Bio import Entrez
 
-from dal.copo_da import Profile
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
-from .tol_validator import TolValidtor
+from web.apps.web_copo.validators.validator import Validator
 from .validation_messages import MESSAGES as msg
 
 whole_used_specimens = set()
 regex_human_readable = ""
 
 
-class DtolEnumerationValidator(TolValidtor):
+class DtolEnumerationValidator(Validator):
 
     def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
         super().__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
-        #self.warnings = list()
+        # self.warnings = list()
         self.taxonomy_dict = {}
 
     def validate(self):

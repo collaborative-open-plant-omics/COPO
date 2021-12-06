@@ -79,67 +79,50 @@
 
 
 {% block content %}
-
+    <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
     <div class="row">
-    <div class="col-lg-9 col-md-9 col-sm-9">
-        <h3 class="h3">
-            Submit Sequence Reads
-        </h3>
-        <p>
-            Upload a completed manifest for validation
-        </p>
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <h3 class="h3">
+                Submit Sequence Reads
+            </h3>
+            <p>
+                Upload a completed manifest for validation
+            </p>
 
-        <form>
-            <button class="positive ui button">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-
-                Upload Manifest
-            </button>
-        </form>
-
-    </div>
-    <div class="col-lg-3 col-md-3 col-sm-3">
-
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Status</h3>
+            <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
+                 role="alert">
             </div>
-            <div class="panel-body">
-                Idle...
+            <div style="display:none; margin-top: 30px; " id="warning_info2" class="alert alert-info"
+                 role="alert">
             </div>
+            <div style="display:none; margin-top: 30px; " id="warning_info3" class="alert alert-info"
+                 role="alert">
+            </div>
+            <div style="display:none; margin-top: 30px; " id="sample_info" class="alert alert-info"
+                 role="alert"></div>
+
+
+            <form>
+
+                <label class="ui blue button" for="file" id="upload_label">
+                    <input id="file" type="file" style="display:none"
+                           onchange="upload_spreadsheet('ena_seq_reads', this.files[0])">
+                    Upload Sample Manifest
+                </label>
+            </form>
+
         </div>
 
     </div>
 
 {% endblock %}
 
-{% block help_section %}
 
-    <div id="copo-sidebar-help" class="tab-pane fade in active  copo-sidebar-help">
-        <div class="row">
-            <div class="col-sm-12 col-md-12 col-lg-12">
-                <div class="panel panel-dtables">
-                    <div class="panel-body collapse in" id="page_context_help_panel">
-                        <table id="page-context-help" class="table hover copo-noborders-table"
-                               cellspacing="0"
-                               width="100%">
-
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-{% endblock %}
 
 
 {% block js_block %}
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_repository.js' %}"></script>
-    <script src="{% static 'copo/lou-multi-select-e052211/js/jquery.multi-select.js' %}"></script>
-    <script src="{% static 'copo/js/bootstrapValidator.js' %}"></script>
+    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
 {% endblock %}

@@ -4,11 +4,11 @@ from dal.copo_da import Profile, Sample
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
-from .tol_validator import TolValidtor
+from web.apps.web_copo.validators.validator import Validator
 from .validation_messages import MESSAGES as msg
 
 
-class DtolEnumerationValidator(TolValidtor):
+class DtolEnumerationValidator(Validator):
 
     def validate(self):
         whole_used_specimens = set()

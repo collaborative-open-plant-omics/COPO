@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
-from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
+from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views
 
 app_name = 'web_copo'
@@ -193,6 +193,8 @@ urlpatterns = [
          name="handle_csv_column_validate_spreadsheet"),
     path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
          name="handle_csv_column_update_samples"),
-    path('ena_read_manifest_validate/', views.ena_read_manifest_validate,
-         name="ena_read_manifest_validate")
+    path('ena_read_manifest_validate/<profile_id>', views.ena_read_manifest_validate,
+         name="ena_read_manifest_validate"),
+    path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
+         name="parse_ena_spreadsheet"),
 ]

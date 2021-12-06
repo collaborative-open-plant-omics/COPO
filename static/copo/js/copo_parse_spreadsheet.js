@@ -60,7 +60,12 @@ function upload_permit_files(file) {
     })
 }
 
-function upload_spreadsheet(file) {
+function upload_spreadsheet(upload_type = upload_type, file = file) {
+    if (upload_type === "ena_seq_reads") {
+        url = "/copo/parse_ena_spreadsheet/"
+    } else if (upload_type === "sample_spreadsheet") {
+        url = '/copo/sample_spreadsheet/'
+    }
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
     $("#warning_info").fadeOut("fast")
@@ -69,7 +74,7 @@ function upload_spreadsheet(file) {
     form = new FormData()
     form.append("file", file)
     jQuery.ajax({
-        url: '/copo/sample_spreadsheet/',
+        url: url,
         data: form,
         cache: false,
         contentType: false,
