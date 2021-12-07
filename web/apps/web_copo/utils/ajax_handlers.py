@@ -1615,45 +1615,7 @@ def handle_csv_column_validate_spreadsheet(request):
 
     out = list()
     to_lookup = list()
-    '''
-    for idx, el in enumerate(df_unique_vals):
-        # get characteristics or factors for the given column name for samples in the records parameter
-        column_p = process_column_name(el["column"])
-        sample_ids_bson = [ObjectId(el["record_id"])]
-        is_unit = True
-        if "Characteristics" in el["column"]:
-            # otherwise user must query querying for characteristics or factors
-            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
-            lookuptype = "characteristics"
-            is_unit = False
-        elif "Factors" in el["column"]:
-            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
-            lookuptype = "factorValues"
-            is_unit = False
-        for s in samples:
-            row = {"_id": s["_id"],
-                   "name": s["name"],
-                   "label": s[lookuptype]["category"]["annotationValue"],
-                   "label_source": s[lookuptype]["category"]["termSource"],
-                   "value": s[lookuptype]["value"]["annotationValue"],
-                   "value_source": s[lookuptype]["value"]["termSource"],
-                   "unit": s[lookuptype]["unit"]["annotationValue"],
-                   "unit_source": s[lookuptype]["unit"]["termSource"],
-                   }
-        term = el["value"]
-        if not is_unit:
-            if is_number(term):
-                # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
-                # milimeters)
-                el["status"] = "accepted"
-                out.append(el)
-                continue;
-        if is_unit:
-            row["ontology_names"] = row["unit_source"]
-        else:
-            row["ontology_names"] = row["value_source"]
-        to_lookup.append(row)
-    '''
+
     # make data frame out of to_lookup and unique it to minimize calls to ols
     df = pd.DataFrame(data)
     df["column"] = ""

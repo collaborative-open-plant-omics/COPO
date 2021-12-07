@@ -3,6 +3,7 @@ from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validator import Validator
 from .validation_messages import MESSAGES as msg
 from collections import Counter
+
 blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE"]
 
 
