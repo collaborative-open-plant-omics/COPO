@@ -92,10 +92,9 @@ class DtolSpreadsheet:
             self.type = "ASG"
         elif "DTOL_EI" in t:
             self.type = "DTOL_EI"
-
         elif "ERGA" in t:
             self.type = "ERGA"
-        elif "DTOL" in t:
+        else:
             self.type = "DTOL"
 
         # create list of required validators

@@ -174,9 +174,12 @@ class DtolEnumerationValidator(TolValidtor):
                             row['GENUS'], "GENUS", str(index + 2), "*missing value in NCBI*"))
                         self.flag = False
                 if 'family' not in ranks_available:
-                    if row['FAMILY'].strip():
+                    #if empty fill in with NOT_APPLICABLE
+                    if not row['FAMILY'].strip():
+                        self.data.at[index, "FAMILY"] = "NOT_APPLICABLE"
+                    elif row['FAMILY'].strip() != "NOT_APPLICABLE":
                         self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
-                            row['FAMILY'], "FAMILY", str(index + 2), "*missing value in NCBI*"))
+                            row['FAMILY'], "FAMILY", str(index + 2), "*missing value in NCBI*, please default to NOT_APPLICABLE"))
                         self.flag = False
             else:
                 self.errors.append(

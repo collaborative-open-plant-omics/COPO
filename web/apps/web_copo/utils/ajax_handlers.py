@@ -6,7 +6,7 @@ import os
 import time
 import urllib.parse
 from datetime import datetime
-
+from Bio import Entrez
 import jsonpickle
 import pandas as pd
 import numpy as np
@@ -32,6 +32,7 @@ from submission.dspaceSubmission import DspaceSubmit as dspace
 from submission.figshareSubmission import FigshareSubmit
 from submission.helpers import generic_helper as ghlper
 from submission.helpers.generic_helper import notify_frontend
+from web.apps.web_copo.lookup.copo_enums import Logtype
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
@@ -41,7 +42,10 @@ from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
+from exceptions_and_logging import logger
+from web.apps.web_copo.lookup import dtol_lookups as lkup
 
+l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 
 
@@ -59,17 +63,51 @@ def search_ontology_ebi(request, ontology_names, wrap_in_response=True):
     term = term.strip()
     if ontology_names == "999":
         ontology_names = str()
+    if ontology_names == "ncbitaxon":
+        # for taxonomy lookups we need to search ncbi directly as we cannot filter by rank==species in OLS
+        data = query_ncbi_entrez(term)
+    else:
+        ontologies = ontology_names
+        fields = ol.ONTOLOGY_LKUPS['fields_to_search']
+        query = ol.ONTOLOGY_LKUPS['ebi_ols_autocomplete'].format(**locals())
+        data = requests.get(query, timeout=2).text
 
-    ontologies = ontology_names
-    fields = ol.ONTOLOGY_LKUPS['fields_to_search']
-    query = ol.ONTOLOGY_LKUPS['ebi_ols_autocomplete'].format(**locals())
-
-    data = requests.get(query, timeout=2).text
     # TODO - add return here for when OLS is down
     if wrap_in_response == True:
         return HttpResponse(data)
     else:
         return data
+
+
+def query_ncbi_entrez(term):
+    data = {}
+    data["response"] = {}
+    data["response"]["docs"] = []
+    taxonid = term
+
+    # Entrez.email = "copo@earlham.ac.uk"
+    Entrez.api_key = lkup.NIH_API_KEY
+    handle = Entrez.esearch(db="taxonomy", term=taxonid, retmode="xml")
+    # get list of ids for string query
+    records = Entrez.read(handle)
+
+    if len(records["IdList"]) == 0:
+        return HttpResponse(status=400, content="Nothing for for ID")
+    # now query these for full details
+    ids = [str(element) for element in records["IdList"]]
+    ids_str = (",").join(ids)
+    taxhandle = Entrez.efetch(db="taxonomy", id=ids_str)
+
+    records = Entrez.read(taxhandle)
+    output = dict()
+    for r in records:
+        if r["Rank"] == "species":
+            data["response"]["docs"].append(
+                {"annotationValue": r["ScientificName"], "iri": "http://purl.obolibrary.org/obo/NCBITaxon_" + r[
+                    "TaxId"],
+                 "ontology_prefix": "NCBITAXON",
+                 "label": r["ScientificName"], "description": "Not Available"})
+    return json.dumps(data)
 
 
 def search_copo_components(request, data_source):
@@ -1321,12 +1359,14 @@ def sample_spreadsheet(request):
     elif name.endswith("csv"):
         fmt = 'csv'
 
-    if format not in ["xls", "csv"]:
-        # TODO return sensible error here
+    if fmt not in ["xls", "csv"]:
+        l.log("ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
         pass
 
     if dtol.loadManifest(m_format=fmt):
+        l.log("Dtol manifest loaded", type=Logtype.FILE)
         if dtol.validate_taxonomy() and dtol.validate():
+            l.log("About to collect Dtol manifest", type=Logtype.FILE)
             dtol.collect()
     return HttpResponse()
 

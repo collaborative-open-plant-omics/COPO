@@ -210,7 +210,8 @@ DTOL_ENUMS = {
         "UNIVERSITY OF RHODE ISLAND",
         "SENCKENBERG RESEARCH INSTITUTE",
         "UNIVERSITY OF VIENNA (CEPHALOPOD)",
-        "UNIVERSITY OF ORGEON"
+        "UNIVERSITY OF ORGEON",
+        "UNIVERSITY OF CALIFORNIA"
     ],
     "SYMBIONT": [
         "TARGET",
@@ -877,19 +878,17 @@ DTOL_ENUMS = {
 }
 DTOL_RULES = {
     "DATE_OF_COLLECTION": {
-        "ena_regex": "(^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{"
-                     "4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$)|(^not "
-                     "collected$)|(^not provided$)",
+        "ena_regex": "(^[12][0-9]{3}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01])(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
+                     "([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
+                     "([+-][0-9]{1,2})?)?)?)?)?$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "YYYY-MM-DD, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LATITUDE": {
-        "ena_regex": "(^.*[+-]?[0-9]+.?[0-9]*.*$)|(^not collected$)|(^not provided$)",
-        "strict_regex": "(^[+-]?[0-9]+(.[0-9]+)*$)|(^not collected$)|(^not provided$)",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
     },
     "DECIMAL_LONGITUDE": {
-        "ena_regex": "(^.*[+-]?[0-9]+.?[0-9]*.*$)|(^not collected$)|(^not provided$)",
-        "strict_regex": "(^[+-]?[0-9]+(.[0-9]+)*$)|(^not collected$)|(^not provided$)",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
 
     },
@@ -1093,7 +1092,8 @@ SPECIMEN_PREFIX = {
         "UNIVERSITY OF CALIFORNIA": "UCALI",
         "SENCKENBERG RESEARCH INSTITUTE": "SENCK",
         "UNIVERSITY OF VIENNA (CEPHALOPOD)": "VIEC",
-        "UNIVERSITY OF OREGON": "UOREG"
+        "UNIVERSITY OF OREGON": "UOREG",
+        "UNIVERSITY OF CALIFORNIA": "UCALI"
     }
 }
 
@@ -1173,10 +1173,10 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "PLATE_ID_FOR_BARCODING",
         "TUBE_OR_WELL_ID_FOR_BARCODING",
         "TISSUE_FOR_BARCODING",
-            "BARCODE_PLATE_PRESERVATIVE",
-            "PURPOSE_OF_SPECIMEN",
-            "HAZARD_GROUP",
-            "VOUCHER_ID"
+        "BARCODE_PLATE_PRESERVATIVE",
+        "PURPOSE_OF_SPECIMEN",
+        "HAZARD_GROUP",
+        "VOUCHER_ID"
         ],
     "erga": []
 }
