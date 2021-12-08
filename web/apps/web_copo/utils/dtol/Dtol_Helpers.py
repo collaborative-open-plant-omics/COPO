@@ -10,7 +10,7 @@ from openpyxl.utils import get_column_letter
 
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.validators.tol_validators import validation_messages as msg
+from web.apps.web_copo.validators import validation_messages as msg
 from tools import resolve_env
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup.dtol_lookups import API_KEY
