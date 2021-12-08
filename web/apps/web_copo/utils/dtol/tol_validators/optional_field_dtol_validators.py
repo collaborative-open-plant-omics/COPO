@@ -130,13 +130,13 @@ class DtolEnumerationValidator(TolValidtor):
                             self.flag = False
                     elif header == "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION":
                         # check this is either a NOT_* or an integer
-                        if c_value.strip() not in lookup.blank_vals:
+                        if c_value.strip() not in lookup.BLANK_VALS:
                             try:
                                 float(c_value)
                             except ValueError:
                                 self.errors.append(msg["validation_msg_invalid_data"] % (
                                     c_value, header, str(cellcount + 1),
-                                    "integer or " + ", ".join(lookup.blank_vals)
+                                    "integer or " + ", ".join(lookup.BLANK_VALS)
                                 ))
                                 self.flag = False
                     #check SPECIMEN_ID has the right prefix
@@ -216,7 +216,7 @@ class DtolEnumerationValidator(TolValidtor):
                             ))
                             self.flag = False
                     # validation checks for date types
-                    if header in lookup.date_fields and c_value.strip() not in lookup.blank_vals:
+                    if header in lookup.DATE_FIELDS and c_value.strip() not in lookup.BLANK_VALS:
                         try:
                             validate_date(c)
                         except ValueError as e:

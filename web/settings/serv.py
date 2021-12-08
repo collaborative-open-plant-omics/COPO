@@ -73,7 +73,8 @@ DOI_SERVICES = {
 NCBI_SERVICES = {
     "PMC_APIS": {
         "doi_pmid_idconv": "http://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?ids={doi!s}&format=json",
-        "pmid_doi_esummary": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={pmid!s}&retmode=json"
+        "pmid_doi_esummary": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={"
+                             "pmid!s}&retmode=json"
     }
 }
 
@@ -82,3 +83,5 @@ EXPORT_LOCATIONS = {
         'export_path': '~/Desktop/'
     }
 }
+
+ENA_TYPES = ["ena", "ena-asm"]

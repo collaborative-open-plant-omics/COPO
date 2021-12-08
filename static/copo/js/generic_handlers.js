@@ -27,8 +27,20 @@ $(document).ready(function () {
     //add event for ontology field change
     ontology_value_change();
 
+    var timeout;
+    var delay = 1000;
+
+
     //add selectize control event
-    set_selectize_select_event();
+    //set_selectize_select_event();
+    $(document).on("keyup", function (event) {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(function () {
+            set_selectize_select_event(event)
+        }, delay);
+    })
 
     ontology_link_event();
 
@@ -197,77 +209,26 @@ function ontology_link_event() {
     });
 }
 
-function set_selectize_select_event() {
-    $(document).on("keyup keypress", function (event) {
-        var keyCode = event.keyCode || event.which;
-        if (keyCode === 38 || keyCode === 40) {
-            if ($(event.target).closest(".onto-select").length) {
-                var item = $(event.target).closest(".onto-select");
-                var activeElem = item.find(".selectize-dropdown-content .active").find(".onto-label");
 
-                var desc = activeElem.attr("data-desc");
-                var prefix = activeElem.attr("data-prefix");
-                var label = activeElem.attr("data-label");
-                var accession = activeElem.attr("data-accession");
+function set_selectize_select_event(event) {
 
-                showontopop(item, label, prefix, desc, accession);
-            } else if ($(event.target).closest(".general-onto").length) {
-                var item = $(event.target).closest(".general-onto");
-                var activeElem = item.find(".selectize-dropdown-content .active").find(".onto-label");
+    var keyCode = event.keyCode || event.which;
+    if (keyCode === 38 || keyCode === 40) {
+        if ($(event.target).closest(".onto-select").length) {
+            var item = $(event.target).closest(".onto-select");
+            var activeElem = item.find(".selectize-dropdown-content .active").find(".onto-label");
 
-                var indx = activeElem.data("indx");
-                var parentid = activeElem.data("parentid");
-                var lblField = activeElem.data("lblfield");
-                var elemFields = JSON.parse(activeElem.closest(".ontology-parent").find(".elem-fields").val());
-
-                try {
-                    var valueObject = selectizeObjects[parentid].options[indx];
-                    showgeneraldetails(item, valueObject, elemFields, lblField);
-                } catch (e) {
-                    console.log("Couldn't retrieve control value object [value, parent id]: [" + indx + "," + parentid + "]");
-                }
-
-            } else if ($(event.target).closest(".copo-multi-search").length) {
-                var eventTarget = $(event.target).closest(".copo-multi-search");
-                var item = eventTarget.find(".selectize-dropdown-content .active");
-                var recordId = item.attr("data-value");
-                var associatedComponent = item.find(".caption-component").attr("data-component");
-                var popTarget = item.closest(".copo-form-group");
-
-                if (associatedComponent) {
-                    resolve_element_view(recordId, associatedComponent, popTarget);
-                }
-            } else if ($(event.target).closest(".copo-lookup").length) {
-                var item = $(event.target).closest(".copo-lookup");
-                var activeElem = item.find(".selectize-dropdown-content .active").find(".lookup-label");
-                var desc = activeElem.attr("data-desc");
-                var label = activeElem.attr("data-label");
-                var accession = activeElem.attr("data-accession");
-                var url = activeElem.attr("data-url");
-                var serverSide = activeElem.attr("data-serverside");
-
-                showlkup(item, label, desc, accession, url, serverSide);
-
-            }
-        }
-    });
-
-
-    $(document).on("mouseenter", ".selectize-dropdown-content .active", function (event) {
-        if ($(this).closest(".selectize-control.onto-select").length) {
-            var item = $(this).closest(".selectize-control.onto-select");
-
-            var desc = $(this).find(".onto-label").attr("data-desc");
-            var prefix = $(this).find(".onto-label").attr("data-prefix");
-            var label = $(this).find(".onto-label").attr("data-label");
-            var accession = $(this).find(".onto-label").attr("data-accession");
+            var desc = activeElem.attr("data-desc");
+            var prefix = activeElem.attr("data-prefix");
+            var label = activeElem.attr("data-label");
+            var accession = activeElem.attr("data-accession");
 
             showontopop(item, label, prefix, desc, accession);
-        } else if ($(this).closest(".selectize-control.general-onto").length) {
-            var item = $(this).closest(".selectize-control.general-onto");
-            var activeElem = $(this).find(".onto-label");
+        } else if ($(event.target).closest(".general-onto").length) {
+            var item = $(event.target).closest(".general-onto");
+            var activeElem = item.find(".selectize-dropdown-content .active").find(".onto-label");
 
-            var indx = $(this).find(".onto-label").data("indx");
+            var indx = activeElem.data("indx");
             var parentid = activeElem.data("parentid");
             var lblField = activeElem.data("lblfield");
             var elemFields = JSON.parse(activeElem.closest(".ontology-parent").find(".elem-fields").val());
@@ -278,31 +239,83 @@ function set_selectize_select_event() {
             } catch (e) {
                 console.log("Couldn't retrieve control value object [value, parent id]: [" + indx + "," + parentid + "]");
             }
-        } else if ($(this).closest(".selectize-control.copo-multi-search").length) {
-            var item = $(this).closest(".selectize-control.copo-multi-search");
 
-            var recordId = item.find(".selectize-dropdown-content .active").attr("data-value");
+        } else if ($(event.target).closest(".copo-multi-search").length) {
+            var eventTarget = $(event.target).closest(".copo-multi-search");
+            var item = eventTarget.find(".selectize-dropdown-content .active");
+            var recordId = item.attr("data-value");
             var associatedComponent = item.find(".caption-component").attr("data-component");
             var popTarget = item.closest(".copo-form-group");
 
             if (associatedComponent) {
                 resolve_element_view(recordId, associatedComponent, popTarget);
             }
-        } else if ($(this).closest(".selectize-control.copo-lookup").length) {
-            var item = $(this).closest(".selectize-control.copo-lookup");
-
-            var desc = $(this).find(".lookup-label").attr("data-desc");
-            var label = $(this).find(".lookup-label").attr("data-label");
-            var accession = $(this).find(".lookup-label").attr("data-accession");
-
-            var url = $(this).find(".lookup-label").attr("data-url");
-            var serverSide = $(this).find(".lookup-label").attr("data-serverside");
+        } else if ($(event.target).closest(".copo-lookup").length) {
+            var item = $(event.target).closest(".copo-lookup");
+            var activeElem = item.find(".selectize-dropdown-content .active").find(".lookup-label");
+            var desc = activeElem.attr("data-desc");
+            var label = activeElem.attr("data-label");
+            var accession = activeElem.attr("data-accession");
+            var url = activeElem.attr("data-url");
+            var serverSide = activeElem.attr("data-serverside");
 
             showlkup(item, label, desc, accession, url, serverSide);
-        }
 
-    });
+        }
+    }
 }
+
+
+$(document).on("mouseenter", ".selectize-dropdown-content .active", function (event) {
+    if ($(this).closest(".selectize-control.onto-select").length) {
+        var item = $(this).closest(".selectize-control.onto-select");
+
+        var desc = $(this).find(".onto-label").attr("data-desc");
+        var prefix = $(this).find(".onto-label").attr("data-prefix");
+        var label = $(this).find(".onto-label").attr("data-label");
+        var accession = $(this).find(".onto-label").attr("data-accession");
+
+        showontopop(item, label, prefix, desc, accession);
+    } else if ($(this).closest(".selectize-control.general-onto").length) {
+        var item = $(this).closest(".selectize-control.general-onto");
+        var activeElem = $(this).find(".onto-label");
+
+        var indx = $(this).find(".onto-label").data("indx");
+        var parentid = activeElem.data("parentid");
+        var lblField = activeElem.data("lblfield");
+        var elemFields = JSON.parse(activeElem.closest(".ontology-parent").find(".elem-fields").val());
+
+        try {
+            var valueObject = selectizeObjects[parentid].options[indx];
+            showgeneraldetails(item, valueObject, elemFields, lblField);
+        } catch (e) {
+            console.log("Couldn't retrieve control value object [value, parent id]: [" + indx + "," + parentid + "]");
+        }
+    } else if ($(this).closest(".selectize-control.copo-multi-search").length) {
+        var item = $(this).closest(".selectize-control.copo-multi-search");
+
+        var recordId = item.find(".selectize-dropdown-content .active").attr("data-value");
+        var associatedComponent = item.find(".caption-component").attr("data-component");
+        var popTarget = item.closest(".copo-form-group");
+
+        if (associatedComponent) {
+            resolve_element_view(recordId, associatedComponent, popTarget);
+        }
+    } else if ($(this).closest(".selectize-control.copo-lookup").length) {
+        var item = $(this).closest(".selectize-control.copo-lookup");
+
+        var desc = $(this).find(".lookup-label").attr("data-desc");
+        var label = $(this).find(".lookup-label").attr("data-label");
+        var accession = $(this).find(".lookup-label").attr("data-accession");
+
+        var url = $(this).find(".lookup-label").attr("data-url");
+        var serverSide = $(this).find(".lookup-label").attr("data-serverside");
+
+        showlkup(item, label, desc, accession, url, serverSide);
+    }
+
+});
+
 
 function showlkup(item, label, desc, accession, url, serverSide) {
 
@@ -1478,7 +1491,7 @@ function refresh_ontology_select() {
 
                                 ontologies.push(item);
                             });
-
+                            console.log(ontologies[0])
                             callback(ontologies);
                         }
                     });
@@ -1520,6 +1533,7 @@ function refresh_general_ontology_search() {
         if (!(/selectize/i.test(elem.attr('class')))) { // if not already instantiated
             var $funSelect = elem.selectize({
                 onChange: function (selectedValue) {
+
                     //set value in hidden fields
 
                     var ontologySpan = elem.closest(".ontology-parent");
@@ -1794,7 +1808,7 @@ function set_general_ontology_detail(elem, onto_value) {
 
     let message = $('<div class="webpop-content-div" style="padding: 5px;"></div>');
     var codeList = $('<div class="ui relaxed divided list"></div>');
-
+    console.log("cunt")
     message.append(codeList);
 
     for (var i = 0; i < schema.length; ++i) {
@@ -2384,7 +2398,7 @@ function get_profile_components() {
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
             visibleColumns: 3,
-            recordActions: ["add_record_all", "edit_record_single"] //specifies action buttons for records manipulation
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"] //specifies action buttons for records manipulation
         },
         {
             component: 'sample',

@@ -90,7 +90,9 @@ class DtolSpreadsheet:
             self.type = "ASG"
         elif "ERGA" in t:
             self.type = "ERGA"
-        elif "DTOL" in t:
+        elif "DTOL_EI" in t:
+            self.type = "DTOL_EI"
+        else:
             self.type = "DTOL"
 
         # create list of required validators
@@ -121,10 +123,10 @@ class DtolSpreadsheet:
                 # read excel and convert all to string
                 if m_format == "xls":
                     self.data = pandas.read_excel(self.file, keep_default_na=False,
-                                                  na_values=lookup.na_vals)
+                                                  na_values=lookup.NA_VALS)
                 elif m_format == "csv":
                     self.data = pandas.read_csv(self.file, keep_default_na=False,
-                                                na_values=lookup.na_vals)
+                                                na_values=lookup.NA_VALS)
                 self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
                 '''
                 for column in self.allowed_empty:
@@ -403,11 +405,12 @@ class DtolSpreadsheet:
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
-                    if field in lookup.species_list_fields:
+                    if field in lookup.SPECIES_LIST_FIELDS:
                         # record change
-                        Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field], recorded_sample["_id"])
+                        Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field],
+                                                    recorded_sample["_id"])
                         # update sample
-                        Sample().add_field("species_list.0."+str(field), s[field], recorded_sample["_id"])
+                        Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
                     else:
                         #record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
@@ -444,7 +447,7 @@ class DtolSpreadsheet:
                 if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
                         updates[rack_tube][field] = {}
-                        if field in lookup.species_list_fields:
+                        if field in lookup.SPECIES_LIST_FIELDS:
                             updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
                             updates[rack_tube][field]["new_value"] = s[field]
                         else:

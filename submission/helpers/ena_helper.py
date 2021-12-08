@@ -9,7 +9,7 @@ from dal import cursor_to_list
 from collections import defaultdict
 from submission.helpers import generic_helper as ghlper
 import web.apps.web_copo.schemas.utils.data_utils as data_utils
-
+from dal.copo_da import Profile
 
 class SubmissionHelper:
     def __init__(self, submission_id=str()):
@@ -103,7 +103,15 @@ class SubmissionHelper:
         study_attributes["name"] = attributes.get("project_details", dict()).get("project_name", str())
         study_attributes["title"] = attributes.get("project_details", dict()).get("project_title", str())
         study_attributes["description"] = attributes.get("project_details", dict()).get("project_description", str())
-
+        if not study_attributes.get("name", str()):
+            profile = Profile().get_record(self.profile_id)
+            study_attributes["name"] = profile.get("title", str())
+        if not study_attributes.get("title", str()):
+            profile = Profile().get_record(self.profile_id)
+            study_attributes["title"] = profile.get("title", str())
+        if not study_attributes.get("description", str()):
+            profile = Profile().get_record(self.profile_id)
+            study_attributes["description"] = profile.get("description", str())
         return study_attributes
 
     def get_sra_samples(self, submission_location=str()):

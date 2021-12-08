@@ -23,7 +23,7 @@ celery==4.3.0
 certifi==2019.6.16
 cffi==1.12.3
 channels==2.2.0
-channels-redis
+channels-redis==3.3.1
 chardet==3.0.4
 colorama==0.4.1
 configparser==3.7.4

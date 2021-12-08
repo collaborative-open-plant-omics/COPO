@@ -8,6 +8,7 @@ $(document).ready(function () {
     var component = "profile";
     var copoFormsURL = "/copo/copo_forms/";
     var copoVisualsURL = "/copo/copo_visualize/";
+    var copoDeleteProfile = "/copo/delete_profile/"
     csrftoken = $.cookie('csrftoken');
 
     var componentMeta = get_component_meta(component);
@@ -190,21 +191,29 @@ $(document).ready(function () {
                                 .addClass("copo-records-panel");
 
                             //set heading
-                            if (data.type.includes("DTOL")) {
-                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
+                            if (data.type.includes("DTOL_EI")) {
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
+                                renderHTML.find(".panel-heading").css('background-color', "#16ab39")
+                            } else if (data.type.includes("DTOL")) {
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#16ab39")
                             } else if (data.type.includes("ASG")) {
-                                renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(ASG)</small></span>');
+                                renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                    ' style="">' + data.title + '&nbsp<small>(ASG)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#5829bb")
                             } else if (data.type.includes("ERGA")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(ERGA)</small></span>');
                                 renderHTML.find(".panel-heading").css("background-color", "#E61A8D")
                             } else {
                                 if (!data.shared) {
-                                    renderHTML.find(".panel-heading").find(".row-title").html('<span style="font-weight: bolder">' + data.title + '&nbsp<small>(Standalone)</small></span>');
+                                    renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                        ' style="font-weight: bolder">' + data.title + '&nbsp<small>(Standalone)</small></span>');
                                     renderHTML.find(".panel-heading").css("background-color", "#009c95")
                                 } else {
-                                    renderHTML.find(".panel-heading").find(".row-title").html('<span style="">' + data.title + '&nbsp<small>(Shared With Me)</small></span>');
+                                    renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
+                                        ' style="">' + data.title + '&nbsp<small>(Shared With Me)</small></span>');
                                     renderHTML.find(".panel-heading").css("background-color", "#f26202")
                                 }
                             }
@@ -443,6 +452,75 @@ $(document).ready(function () {
             });
         }
 
+        //delete task
+        if (task === "validate_and_delete") {
+            var csrftoken = $.cookie('csrftoken');
+            $.ajax({
+                url: copoDeleteProfile,
+                type: "POST",
+                headers: {'X-CSRFToken': csrftoken},
+                data: {
+                    'task': 'validate_and_delete',
+                    'componenent': component,
+                    'target_id': records, //maybe i need to make a list of all record_id in records
+                }
+            }).done(function (data_response) {
+                BootstrapDialog.show({
+                       title: "Profile/s deleted",
+                       message: "All profile/s selected have been deleted.",
+                       cssClass: "copo-modal1",
+                       closable: true,
+                       animate: true,
+                       type : BootstrapDialog.TYPE_INFO
+                    });
+                for (var i=0; i < records.length; i++) {
+                    document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
+                }
+            }).error(function (data_response) {
+                BootstrapDialog.show({
+                       title: "Profile deletion - error",
+                       message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
+                           "samples associated can be deleted.",
+                       cssClass: "copo-modal1",
+                       closable: true,
+                       animate: true,
+                       type : BootstrapDialog.TYPE_DANGER
+                    });
+                for (var i=0; i < records.length; i++) {
+                    if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
+                        document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
+                    }
+                }
+                console.log(data_response)
+            });
+        }
+
+        //table.rows().deselect(); //deselect all rows
+
+        //handle button actions
+        // if (ids.length > 0) {
+        //     if (task == "edit") {
+        //         $.ajax({
+        //             url: copoFormsURL,
+        //             type: "POST",
+        //             headers: {'X-CSRFToken': csrftoken},
+        //             data: {
+        //                 'task': 'form',
+        //                 'component': component,
+        //                 'target_id': ids[0] //only allowing row action for edit, hence first record taken as target
+        //             },
+        //             success: function (data) {
+        //                 json2HtmlForm(data);
+        //             },
+        //             error: function () {
+        //                 alert("Couldn't build publication form!");
+        //             }
+        //         });
+        //     } else if (task == "delete") { //handles delete, allows multiple row delete
+        //         var deleteParams = {component: component, target_ids: ids};
+        //         do_component_delete_confirmation(deleteParams);
+        //     }
+        // }
     }
 
 

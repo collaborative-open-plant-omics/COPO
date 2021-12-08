@@ -49,6 +49,7 @@ urlpatterns = [
     re_path(r'^view_templates/(?P<profile_id>[a-z0-9]+)/view', views.view_templates, name='view_templates'),
     path('author_template/<template_id>/view', views.author_template, name='author_template'),
     path('copo_forms/', views.copo_forms, name="copo_forms"),
+    path('delete_profile/', views.delete_profile, name="delete_profile"),
     path('copo_visualize/', views.copo_visualize, name="copo_visualize"),
     path('authenticate_figshare/', views.authenticate_figshare, name='authenticate_figshare'),
     path('publish_figshare/', ajax_handlers.publish_figshare, name='publish_figshare'),

@@ -5,7 +5,7 @@ $(document).ready(function () {
     AutoComplete({
         EmptyMessage: "No item found",
         Url: "/copo/ajax_search_ontology/",
-    }, "#twat");
+    }, "#xyz");
 
     var conf = {
         delimiter: "",	// auto-detect
