@@ -5,7 +5,7 @@ from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from web.apps.web_copo.validators.validator import Validator
-from .validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
 
 class DtolEnumerationValidator(Validator):

@@ -27,7 +27,7 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from django.http import HttpResponse
 from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
     taxon_validators
-from web.apps.web_copo.validators.ena_validators import required_field_ena_seq_validators as required_validators
+from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
 
 l = logger.Logger("exceptions_and_logging/logs")
