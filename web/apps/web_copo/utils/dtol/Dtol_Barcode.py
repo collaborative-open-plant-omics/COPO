@@ -65,7 +65,7 @@ class Barcoding:
         bold_url_param = ""
         for bid in bold_ids:
             # concatenate bold ids
-            bold_url_param = bold_url_param + bid + '|'
+            bold_url_param = bold_url_param + str(bid) + '|'
         url = "http://www.boldsystems.org/index.php/API_Public/combined?ids=" + bold_url_param
         bold_xml = requests.get(url)
         resp = bold_xml.content
