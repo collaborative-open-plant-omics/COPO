@@ -417,29 +417,6 @@
     "dwc": "",
     "type": "string"
   },
-   {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "SYMBIONT"
-    ],
-    "ref": "",
-    "specifications": [
-      "erga"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SYMBIONT",
-    "label": "Symbiont",
-    "show_in_table": true,
-    "dwc": ""
-  },
   {
     "help_tip": "Collector ORCID ID",
     "required": "true",
@@ -460,29 +437,6 @@
     "show_in_form": true,
     "id": "copo.sample.COLLECTOR_ORCID_ID",
     "label": "Collector Orcid Identifier",
-    "show_in_table": true,
-    "dwc": ""
-  },
-  {
-    "help_tip": "Approach to preservation",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "PRESERVATION_APPROACH"
-    ],
-    "ref": "",
-    "specifications": [
-      "erga"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PRESERVATION_APPROACH",
-    "label": "Preservation Approach",
     "show_in_table": true,
     "dwc": ""
   }
