@@ -60,7 +60,7 @@ class ENASpreadsheet:
 
         self.data = None
         self.fields = None
-        self.required_field_validators = list()
+        self.required_validators = list()
 
         self.symbiont_list = []
         self.validator_list = []
@@ -86,7 +86,7 @@ class ENASpreadsheet:
         for element_name in dir(required):
             element = getattr(required, element_name)
             if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
-                self.required_field_validators.append(element)
+                self.required_validators.append(element)
 
 
     def loadManifest(self, m_format):
@@ -132,7 +132,7 @@ class ENASpreadsheet:
                 s)
 
             # validate for required fields
-            for v in self.required_field_validators:
+            for v in self.required_validators:
                 errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields,
                                                           data=self.data,
                                                           errors=errors, warnings=warnings, flag=flag,
