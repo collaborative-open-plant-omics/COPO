@@ -1,7 +1,10 @@
 from web.apps.web_copo.validators.validator import Validator
 from dal.copo_da import Sample, Profile
+from web.apps.web_copo.lookup import dtol_lookups as lookup
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
+from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
+from Bio import Entrez
 
 
 class ColumnValidator(Validator):
@@ -54,4 +57,25 @@ class SinglePairedValuesValidator(Validator):
                     self.errors.append(msg["validation_msg_single_file_error"] % (str(row_count)))
                     self.flag = False
 
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
+
+
+class TaxonValidator(Validator):
+
+    def validate(self):
+        Entrez.api_key = lookup.NIH_API_KEY
+        # build dictioanry of species in this manifest  max 200 IDs per query
+        taxon_id_set = set([x for x in self.data['organism'].tolist() if x])
+        notify_frontend(data={"profile_id": self.profile_id},
+                        msg="Querying NCBI for TAXON_IDs in manifest ",
+                        action="info",
+                        html_id="sample_info")
+        taxon_id_list = list(taxon_id_set)
+        if any(x for x in taxon_id_list):
+            for taxon in taxon_id_list:
+                # check if taxon is submittable
+                ena_taxon_errors = check_taxon_ena_submittable(taxon, by="binomial")
+                if ena_taxon_errors:
+                    self.errors += ena_taxon_errors
+                    self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
