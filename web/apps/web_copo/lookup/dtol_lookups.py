@@ -86,6 +86,108 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "tol_project",
 
     ],
+    "erga": [
+        "SERIES",
+        "RACK_OR_PLATE_ID",
+        "TUBE_OR_WELL_ID",
+        "SPECIMEN_ID",
+        "TAXON_ID",
+        "ORDER_OR_GROUP",
+        "FAMILY",
+        "GENUS",
+        "SCIENTIFIC_NAME",
+        "INFRASPECIFIC_EPITHET",
+        "CULTURE_OR_STRAIN_ID",
+        "COMMON_NAME",
+        "TAXON_REMARKS",
+        "LIFESTAGE",
+        "SEX",
+        "ORGANISM_PART",
+        "GAL",
+        "GAL_SAMPLE_ID",
+        "COLLECTOR_SAMPLE_ID",
+        "COLLECTED_BY",
+        "COLLECTOR_AFFILIATION",
+        "DATE_OF_COLLECTION",
+        "COLLECTION_LOCATION",
+        "DECIMAL_LATITUDE",
+        "DECIMAL_LONGITUDE",
+        "HABITAT",
+        "DESCRIPTION_OF_COLLECTION_METHOD",
+        "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
+        "IDENTIFIED_BY",
+        "IDENTIFIER_AFFILIATION",
+        "IDENTIFIED_HOW",
+        "SPECIMEN_ID_RISK",
+        "PRESERVED_BY",
+        "PRESERVER_AFFILIATION",
+        "PRESERVATION_APPROACH",
+        "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
+        "DATE_OF_PRESERVATION",
+        "SIZE_OF_TISSUES_IN_TUBE",
+        "TISSUE_REMOVED_FROM_BARCODING",
+        "PLATE_ID_FOR_BARCODING",
+        "TUBE_OR_WELL_ID_FOR_BARCODING",
+        "TISSUE_FOR_BARCODING",
+        "BARCODE_PLATE_PRESERVATIVE",
+        "PURPOSE_OF_SPECIMEN",
+        "HAZARD_GROUP",
+        "REGULATORY_COMPLIANCE",
+        "VOUCHER_ID",
+        "RELATIONSHIP",
+        "GRID_REFERENCE",
+        "DEPTH",
+        "ELEVATION",
+        "TIME_OF_COLLECTION",
+        "IDENTIFIER_AFFILIATION",
+        "PRESERVATIVE_SOLUTION",
+        "SIZE_OF_TISSUE_IN_TUBE",
+        "TISSUE_REMOVED_FOR_BARCODING",
+        "OTHER_INFORMATION",
+        "SYMBIONT",
+        "BARCODE_HUB",
+        "ORIGINAL_GEOGRAPHIC_LOCATION",
+        "ORIGINAL_COLLECTION_DATE",
+        "SAMPLE_COORDINATOR",
+        "SAMPLE_COORDINATOR_AFFILIATION",
+        "SAMPLE_COORDINATOR_ORCID_ID",
+        "INDIGENOUS_RIGHTS_APPLICABLE",
+        "INDIGENOUS_RIGHTS_DEF",
+        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE",
+        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL",
+        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
+        "ETHICS_PERMITS_MANDATORY",
+        "ETHICS_PERMITS_DEF",
+        "SAMPLING_PERMITS_MANDATORY",
+        "SAMPLING_PERMITS_DEF",
+        "NAGOYA_PERMITS_MANDATORY",
+        "NAGOYA_PERMITS_DEF",
+        "TISSUE_REMOVED_FOR_BIOBANKING",
+        "TISSUE_REMOVED_FOR_BIOBANKING",
+        "TISSUE_VOUCHER_ID_FOR_BIOBANKING",
+        "TISSUE_FOR_BIOBANKING",
+        "DNA_REMOVED_FOR_BIOBANKING",
+        "DNA_VOUCHER_ID_FOR_BIOBANKING",
+        "COLLECTOR_ORCID_ID",
+        "PRESERVATION_APPROACH",
+        "boldAccession",
+        "public_name",
+        "biosampleAccession",
+        "created_by",
+        "time_created",
+        "submissionAccession",
+        "sraAccession",
+        "manifest_id",
+        "time_updated",
+        "updated_by",
+        "status",
+        "sampleDerivedFrom",
+        "sampleSameAs",
+        "sampleSymbiontOf",
+        "copo_profile_title",
+        "tol_project",
+
+    ],
     "asg": [
         "SERIES",
         "RACK_OR_PLATE_ID",
@@ -170,7 +272,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
 DTOL_ENUMS = {
 
     "GAL": {
-        "DTOL" : [
+        "DTOL": [
             "SANGER INSTITUTE",
             "UNIVERSITY OF OXFORD",
             "MARINE BIOLOGICAL ASSOCIATION",
@@ -178,7 +280,7 @@ DTOL_ENUMS = {
             "ROYAL BOTANIC GARDEN EDINBURGH",
             "EARLHAM INSTITUTE",
             "NATURAL HISTORY MUSEUM"],
-        "ERGA" : [
+        "ERGA": [
             "SANGER INSTITUTE",
             "EARLHAM INSTITUTE",
             "CENTRO NACIONAL DE ANÁLISIS GENÓMICO",
@@ -196,7 +298,7 @@ DTOL_ENUMS = {
             "UNIVERSITY OF FLORENCE",
             "NEUROMICS SUPPORT FACILITY, UANTWERP, VIB",
             "GIGA-GENOMICS CORE FACILITY UNIVERSITY OF LIEGE"
-    ]},
+        ]},
     "PARTNER": [
         "UNIVERSITY OF DERBY",
         "DALHOUSIE UNIVERSITY",
@@ -729,7 +831,7 @@ DTOL_ENUMS = {
         "NOT COLLECTED",
         "NOT PROVIDED"
     ],
-    "BARCODE_HUB" : [
+    "BARCODE_HUB": [
         "UNIVERSITY OF OXFORD",
         "MARINE BIOLOGICAL ASSOCIATION",
         "ROYAL BOTANIC GARDEN EDINBURGH",
@@ -812,23 +914,23 @@ DTOL_ENUMS = {
         "UNICELLULAR_ORGANISMS_IN_CULTURE",
         "MULTICELLULAR_ORGANISMS_IN_CULTURE"
     ],
-    "TISSUE_REMOVED_FOR_BIOBANKING" : [
+    "TISSUE_REMOVED_FOR_BIOBANKING": [
         "Y",
         "N"
     ],
-    "DNA_REMOVED_FOR_BIOBANKING" : [
+    "DNA_REMOVED_FOR_BIOBANKING": [
         "Y",
         "N"
     ],
-    "INDIGENOUS_RIGHTS_APPLICABLE" : [
+    "INDIGENOUS_RIGHTS_APPLICABLE": [
         "Y",
         "N"
     ],
-    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE" : [
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE": [
         "Y",
         "N"
     ],
-    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL" : [
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL": [
         "TK Attribution",
         "TK Clan",
         "TK Family",
@@ -863,15 +965,15 @@ DTOL_ENUMS = {
         "BC Non-Commercial",
         "BC Open to Collaboration"
     ],
-    "ETHICS_PERMIT_MANDATORY" : [
+    "ETHICS_PERMIT_MANDATORY": [
         "Y",
         "N"
     ],
-    "SAMPLING_PERMITS_MANDATORY" : [
+    "SAMPLING_PERMITS_MANDATORY": [
         "Y",
         "N"
     ],
-    "NAGOYA_PERMITS_MANDATORY" : [
+    "NAGOYA_PERMITS_MANDATORY": [
         "Y",
         "N"
     ]
@@ -929,18 +1031,20 @@ DTOL_RULES = {
         "strict_regex": "^([0-1][0-9]|2[0-4]):[0-5]\d$",
         "human_readable": "24-hour format with hours and minutes separated by colon"
     },
-    "ORIGINAL_COLLECTION_DATE" : {
-        "ena_regex" : "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
-        "strict_regex" : "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
-        "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
+    "ORIGINAL_COLLECTION_DATE": {
+        "ena_regex": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{"
+                     "4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
+        "strict_regex": "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-["
+                        "0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
+        "human_readable": "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     },
-    "SAMPLE_COORDINATOR_ORCID_ID" : {
-        "strict_regex" : "^(\d{4}-){3}\d{4}$",
-        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+    "SAMPLE_COORDINATOR_ORCID_ID": {
+        "strict_regex": "^(\d{4}-){3}\d{4}$",
+        "human_readable": "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     },
-    "COLLECTOR_ORCID_ID" : {
-        "strict_regex" : "^(\d{4}-){3}\d{4}$|(^not collected$)|(^not provided$)|(^not applicable$)",
-        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+    "COLLECTOR_ORCID_ID": {
+        "strict_regex": "^(\d{4}-){3}\d{4}$|(^not collected$)|(^not provided$)|(^not applicable$)",
+        "human_readable": "16-digit number that is compatible with the ISO Standard (ISO 27729)"
     }
 }
 DTOL_UNITS = {
@@ -1048,24 +1152,24 @@ DTOL_ENA_MAPPINGS = {
     "ORIGINAL_GEOGRAPHIC_LOCATION": {
         "ena": "original collection location"
     },
-    "BARCODE_HUB" : {
+    "BARCODE_HUB": {
         "ena": "barcoding center"
     },
-    "SAMPLE_COORDINATOR" : {
+    "SAMPLE_COORDINATOR": {
         "ena": "sample coordinator"
     },
-    "SAMPLE_COORDINATOR_AFFILIATION" : {
+    "SAMPLE_COORDINATOR_AFFILIATION": {
         "ena": "sample coordinator affiliation"
     },
-    #this is a custom field extra to the checklist
-    "SAMPLE_COORDINATOR_ORCID_ID" : {
+    # this is a custom field extra to the checklist
+    "SAMPLE_COORDINATOR_ORCID_ID": {
         "ena": "sample coordinator ORCID ID"
     }
 }
 
 SPECIMEN_PREFIX = {
     "GAL": {
-        "dtol" : {
+        "dtol": {
             "UNIVERSITY OF OXFORD": "Ox",
             "MARINE BIOLOGICAL ASSOCIATION": "MBA",
             "ROYAL BOTANIC GARDENS KEW": "KDTOL",
@@ -1074,9 +1178,9 @@ SPECIMEN_PREFIX = {
             "NATURAL HISTORY MUSEUM": "NHMUK",
             "SANGER INSTITUTE": "SAN"
         },
-        "erga" : {
-            "default" : "ERGA_"
-            }
+        "erga": {
+            "default": "ERGA_"
+        }
     },
     "PARTNER": {
         "UNIVERSITY OF DERBY": "UDUK",
@@ -1099,7 +1203,7 @@ SPECIMEN_PREFIX = {
 
 SPECIMEN_SUFFIX = {
     "GAL": {
-        "dtol" : {
+        "dtol": {
             "UNIVERSITY OF OXFORD": '\d{6}',
             "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
             "ROYAL BOTANIC GARDENS KEW": '\d{5}',
@@ -1108,13 +1212,13 @@ SPECIMEN_SUFFIX = {
             "NATURAL HISTORY MUSEUM": '\d{9}',
             "SANGER INSTITUTE": '\d{7}'
         },
-        "erga" : {
-            "default" : "(([A-Z]{1,10}_[A-Z]{2,3}_\d{2,3})|([A-Z]{1,10}_\d{4}_\d{2,3}))"
+        "erga": {
+            "default": "(([A-Z]{1,10}_[A-Z]{2,3}_\d{2,3})|([A-Z]{1,10}_\d{4}_\d{2,3}))"
         }
     }
 }
 
-#allow updates to fields in the list by hand of the user pre-approval
+# allow updates to fields in the list by hand of the user pre-approval
 DTOL_NO_COMPLIANCE_FIELDS = {
     "dtol": [
         "INFRASPECIFIC_EPITHET",
@@ -1146,8 +1250,8 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "PURPOSE_OF_SPECIMEN",
         "HAZARD_GROUP",
         "VOUCHER_ID"
-        ],
-        "asg": [
+    ],
+    "asg": [
         "INFRASPECIFIC_EPITHET",
         "CULTURE_OR_STRAIN_ID",
         "LIFESTAGE",
@@ -1177,7 +1281,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "PURPOSE_OF_SPECIMEN",
         "HAZARD_GROUP",
         "VOUCHER_ID"
-        ],
+    ],
     "erga": []
 }
 
