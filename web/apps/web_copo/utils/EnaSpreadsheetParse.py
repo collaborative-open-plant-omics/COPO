@@ -47,7 +47,7 @@ def parse_ena_spreadsheet(request):
         l.log("Dtol manifest loaded")
         if ena.validate():
             l.log("About to collect Dtol manifest")
-            # dtol.collect()
+            ena.collect()
 
     return HttpResponse()
 
@@ -170,3 +170,22 @@ class ENASpreadsheet:
         notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
 
         return True
+
+    def collect(self):
+        # create table data to show to the frontend from parsed manifest
+        sample_data = []
+        headers = list()
+        for col in list(self.data.columns):
+            headers.append(col)
+        sample_data.append(headers)
+        for index, row in self.data.iterrows():
+            r = list(row)
+            for idx, x in enumerate(r):
+                if x is math.nan:
+                    r[idx] = ""
+            sample_data.append(r)
+        # store sample data in the session to be used to create mongo objects
+        self.req.session["sample_data"] = sample_data
+
+        notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+                        html_id="sample_table")
