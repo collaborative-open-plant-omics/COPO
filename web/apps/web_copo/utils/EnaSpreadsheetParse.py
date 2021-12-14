@@ -1,34 +1,23 @@
 import inspect
 import math
-import os
-import uuid
-from os.path import join, isfile
-from pathlib import Path
-from shutil import rmtree
-from urllib.error import HTTPError
 
+import uuid
+import json
+import subprocess
 import jsonpath_rw_ext as jp
 import pandas
-from django.conf import settings
-from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
-from web.apps.web_copo.lookup import dtol_lookups as lkup
-import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile
+from dal.copo_da import Sample, DataFile, Profile, Source
 from submission.helpers.generic_helper import notify_frontend
-from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
-from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from django.http import HttpResponse
-from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-    taxon_validators
-from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
+import datetime
 
 l = logger.Logger("exceptions_and_logging/logs")
 
@@ -49,6 +38,36 @@ def parse_ena_spreadsheet(request):
             l.log("About to collect Dtol manifest")
             ena.collect()
 
+    return HttpResponse()
+
+
+def save_ena_records(request):
+    # create mongo sample objects from info parsed from manifest and saved to session variable
+    sample_data = request.session.get("sample_data")
+    alias = str(uuid.uuid4())
+    for p in range(1, len(sample_data)):
+        s = (map_to_dict(sample_data[0], sample_data[p]))
+        source = dict()
+        curl_cmd = "curl " + \
+                   "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["organism"].replace(" ", "%20")
+        receipt = subprocess.check_output(curl_cmd, shell=True)
+        print(receipt)
+
+        taxinfo = json.loads(receipt.decode("utf-8"))
+
+        source["organism"] = \
+            {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
+                "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])}
+        source["profile_id"] = request.session["profile_id"]
+        source["date_created"] = datetime.datetime.utcnow()
+        source_id = str(Source().get_collection_handle().insert_one(source).inserted_id)
+
+        sample = dict()
+        sample["sample_type"] = "isasample"
+        sample["profile_id"] = request.session["profile_id"]
+        sample["derivesFrom"] = [source_id]
+        sample["date_modified"] = datetime.datetime.utcnow()
+        Sample().get_collection_handle().insert_one(sample)
     return HttpResponse()
 
 
@@ -74,12 +93,6 @@ class ENASpreadsheet:
 
         # get type of manifest
         t = Profile().get_type(self.profile_id)
-        if "ASG" in t:
-            self.type = "ASG"
-        elif "DTOL_EI" in t:
-            self.type = "DTOL_EI"
-        else:
-            self.type = "DTOL"
 
         # create list of required validators
         required = dict(globals().items())["required_validators"]

@@ -99,6 +99,8 @@ $(document).ready(function () {
 
 
     $(document).on("click", "#finish_button", function (el) {
+        el.preventDefault()
+
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
             return false
         }
@@ -117,8 +119,7 @@ $(document).ready(function () {
             buttons: [
                 {
                     label: "Cancel",
-                    cssClass: "tiny ui basic" +
-                        " button",
+                    cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         dialogRef.close();
                     }
@@ -385,9 +386,11 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
-                         $("#finish_button").fadeIn()
+                        $("#finish_button").fadeIn()
                     }
 
+                    $("#finish_button").fadeIn()
+                    $("#ena_finish_button").fadeIn()
                 } else if (d.action === "make_update") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
@@ -481,12 +484,22 @@ $(document).on("click", ".new-samples-spreadsheet-template-erga", function (even
                 }
             ]
 
-        })
+    })
 
 })
 
 $(document).on("click", "#code_cancel", function (event) {
     var data = $("#sample_info").html()
+})
+
+
+$(document).on("click", "#ena_finish_button", function (event) {
+    event.preventDefault()
+    $.ajax({
+        url: "/copo/save_ena_records"
+    }).done(function (d) {
+        alert(d)
+    })
 })
 
 $(document).on("click", "#export_errors_button", function (event) {
