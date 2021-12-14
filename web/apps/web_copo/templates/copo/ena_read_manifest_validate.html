@@ -102,13 +102,14 @@
                  role="alert"></div>
 
 
-            <form>
+            <form style="margin-bottom: 20px">
 
                 <label class="ui blue button" for="file" id="upload_label">
                     <input id="file" type="file" style="display:none"
                            onchange="upload_spreadsheet('ena_seq_reads', this.files[0])">
                     Upload Sample Manifest
                 </label>
+                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
             </form>
 
             <div>

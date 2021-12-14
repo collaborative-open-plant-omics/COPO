@@ -77,6 +77,7 @@ def test(request):
 
 
 def ena_read_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
     return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
 

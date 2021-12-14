@@ -195,4 +195,6 @@ urlpatterns = [
          name="ena_read_manifest_validate"),
     path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
          name="parse_ena_spreadsheet"),
+    path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,
+         name="save_ena_records"),
 ]
