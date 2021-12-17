@@ -67,7 +67,60 @@ def save_ena_records(request):
         sample["profile_id"] = request.session["profile_id"]
         sample["derivesFrom"] = [source_id]
         sample["date_modified"] = datetime.datetime.utcnow()
-        Sample().get_collection_handle().insert_one(sample)
+        sample_id = str(Sample().get_collection_handle().insert_one(sample).inserted_id)
+
+        df = dict()
+        p = Profile().get_record(request.session["profile_id"])
+        attributes = dict()
+        attributes["target_repository"] = {"deposition_context": "ena"}
+        attributes["project_details"] = {
+            "project_name": p["title"],
+            "project_title": p["title"],
+            "project_description": p["description"],
+            "project_release_date": s["release_date"]
+        }
+        attributes["library_preparation"] = {
+            "library_layout": s["library_layout"],
+            "library_strategy": s["library_strategy"],
+            "library_source": s["library_source"],
+            "library_selection": s["library_selection"],
+            "library_description": s["library_description"]
+        }
+        attributes["attach_samples"] = {"study_samples": [sample_id]}
+        attributes["nucleic_acid_sequencing"] = {"sequencing_instrument": s["sequencing_instrument"]}
+        df["description"] = {"attributes": attributes}
+        df["title"] = p["title"]
+        df["date_created"] = datetime.datetime.utcnow()
+        df["profile_id"] = str(p["_id"])
+        df["file_type"] = "TODO"
+        df["type"] = "RAW DATA FILE"
+
+        # check if there are two files or one
+        if s["library_layout"] == "SINGLE":
+            # create single record
+            df["file_name"] = s["file_name"]
+            df["file_location"] = "TODO"
+            df["name"] = "TODO"
+            df["file_id"] = "NOT_NEEDED"
+            df["file_hash"] = "XXXXX"
+            DataFile().get_collection_handle().insert_one(df)
+        else:
+            # create records for left and right
+            file_names = s["file_name"].split(",")
+            df["file_name"] = file_names[0]
+            df["file_location"] = "TODO"
+            df["name"] = "TODO"
+            df["file_id"] = "NOT_NEEDED"
+            df["file_hash"] = "XXXXX"
+            DataFile().get_collection_handle().insert_one(df)
+            df.pop("_id")
+            df["file_name"] = file_names[1]
+            df["file_location"] = "TODO"
+            df["name"] = "TODO"
+            df["file_id"] = "NOT_NEEDED"
+            df["file_hash"] = "XXXXX"
+            DataFile().get_collection_handle().insert_one(df)
+
     return HttpResponse()
 
 
