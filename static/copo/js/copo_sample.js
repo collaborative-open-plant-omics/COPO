@@ -94,10 +94,14 @@ $(document).ready(function () {
     });
 
     //var groups = $("#groups").val().split(",")
-    if ($("#profile_type").val().includes("DTOL") || $("#profile_type").val().includes("ASG")) {
-        if (groups.includes("dtol_users")) {
-            $(".new-samples-spreadsheet-template").show()
-        }
+    if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
+        $(".new-samples-spreadsheet-template").show()
+        $(".new-samples-spreadsheet-template").show()
+        $(".new-samples-template").hide()
+
+        $("#help_add_button").removeClass("primary").addClass("green")
+        $("#help_add_button").children("i").removeClass("add").addClass("table")
+
         if (groups.includes("dtol_sample_managers")) {
             $(".accept_reject_samples").show()
         }
