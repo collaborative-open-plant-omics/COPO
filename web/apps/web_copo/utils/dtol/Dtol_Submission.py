@@ -122,7 +122,7 @@ def process_pending_dtol_samples():
                 # create sample object and submit
                 l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 notify_frontend(data={"profile_id": profile_id},
-                                msg="Creating Sample for SPECIMEN_ID " + sam["RACK_OR_PLATE_ID"] + "/" + sam[
+                                msg="Creating Sample for SPECIMEN_ID " + sam.get("RACK_OR_PLATE_ID", "") + "/" + sam[
                                     "SPECIMEN_ID"],
                                 action="info",
                                 html_id="dtol_sample_info")
