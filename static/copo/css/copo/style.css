@@ -160,6 +160,13 @@ div.dataTables_processing.ui.segment {
     background-color: transparent !important;
 }
 
+.copo-noselect-table.dataTable tbody tr.selected .panel-body {
+    background-color: #ff8c8c !important;
+    color: white !important;
+    font-weight: bolder !important;
+}
+
+
 .description-bundle-table {
     width: 100%;
     overflow: scroll;
@@ -1963,3 +1970,4 @@ div.shown span.side-help-trigger:before {
     color: white !important;
     font-weight: bold !important;
 }
+

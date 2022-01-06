@@ -75,6 +75,15 @@ def error_page(request):
     return render(request, context={}, template_name="copo/error_page.html")
 
 
+def test(request):
+    return render(request, context={}, template_name="copo/error_page.html")
+
+
+def ena_read_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
+
+
 @login_required
 def copo_repository(request, profile_id):
     profile = Profile().get_record(profile_id)
@@ -343,16 +352,17 @@ def copo_forms(request):
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(out, content_type='application/json')
 
+
 @login_required()
 def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    x=0
+    x = 0
     profile_ids = []
-    while request.POST.get("target_id["+str(x)+"][record_id]", ""):
-        profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
-        x+=1
+    while request.POST.get("target_id[" + str(x) + "][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id[" + str(x) + "][record_id]", ""))
+        x += 1
 
     response = HttpResponse(content_type="application/json")
     response.status_code = 200
@@ -367,7 +377,6 @@ def delete_profile(request):
     undeleted_json = json.dumps({"undeleted": profiles_undeleted})
     response.write(undeleted_json)
     return response
-
 
 
 @login_required

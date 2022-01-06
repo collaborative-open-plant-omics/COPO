@@ -10,7 +10,7 @@ from openpyxl.utils import get_column_letter
 
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.utils.dtol.tol_validators.validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators import validation_messages as msg
 from tools import resolve_env
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup.dtol_lookups import API_KEY
@@ -52,25 +52,38 @@ def validate_date(date_text):
 
 
 
-def check_taxon_ena_submittable(taxon):
+def check_taxon_ena_submittable(taxon, by="id"):
     errors = []
     receipt = None
     taxinfo = None
-    curl_cmd = "curl " + "https://www.ebi.ac.uk/ena/taxonomy/rest/tax-id/" + taxon
+    curl_cmd = None
+    if by == "id":
+        curl_cmd = "curl " + "https://www.ebi.ac.uk/ena/taxonomy/rest/tax-id/" + taxon
+    elif by == "binomial":
+        curl_cmd = "curl " + "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + taxon.replace(" ", "%20")
     try:
         receipt = subprocess.check_output(curl_cmd, shell=True)
         print(receipt)
+
         taxinfo = json.loads(receipt.decode("utf-8"))
-        if taxinfo["submittable"] != 'true':
-            errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
+        if by == "id":
+            if taxinfo["submittable"] != 'true':
+                errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
+        elif by == "binomial":
+            if taxinfo[0]["submittable"] != 'true':
+                errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
     except Exception as e:
         if receipt:
-            try:
+            if receipt.decode("utf-8") == "No results.":
                 errors.append(
-                    "ENA returned - " + taxinfo.get("error", "no error returned") + " - for TAXON_ID " + taxon)
-            except (NameError, AttributeError):
-                errors.append(
-                    "ENA returned - " + receipt.decode("utf-8") + " - for TAXON_ID " + taxon)
+                    "ENA returned no results for Scientific Name " + taxon)
+            else:
+                try:
+                    errors.append(
+                        "ENA returned - " + taxinfo.get("error", "no error returned") + " - for TAXON_ID " + taxon)
+                except (NameError, AttributeError):
+                    errors.append(
+                        "ENA returned - " + receipt.decode("utf-8") + " - for TAXON_ID " + taxon)
         else:
             errors.append(msg['validation_msg_not_submittable_taxon'] % (taxon))
     return errors

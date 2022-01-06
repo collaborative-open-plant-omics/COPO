@@ -30,7 +30,12 @@ function upload_image_files(file) {
 }
 
 
-function upload_spreadsheet(file) {
+function upload_spreadsheet(upload_type = upload_type, file = file) {
+    if (upload_type === "ena_seq_reads") {
+        url = "/copo/parse_ena_spreadsheet/"
+    } else if (upload_type === "sample_spreadsheet") {
+        url = '/copo/sample_spreadsheet/'
+    }
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
     $("#warning_info").fadeOut("fast")
@@ -39,7 +44,7 @@ function upload_spreadsheet(file) {
     form = new FormData()
     form.append("file", file)
     jQuery.ajax({
-        url: '/copo/sample_spreadsheet/',
+        url: url,
         data: form,
         cache: false,
         contentType: false,
@@ -154,6 +159,8 @@ $(document).ready(function () {
     $(document).on("change", "#barcode_file", handleBarcodeUpload)
 
     $(document).on("click", "#finish_button", function (el) {
+        el.preventDefault()
+
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
             return false
         }
@@ -172,8 +179,7 @@ $(document).ready(function () {
             buttons: [
                 {
                     label: "Cancel",
-                    cssClass: "tiny ui basic" +
-                        " button",
+                    cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         dialogRef.close();
                     }
@@ -403,6 +409,7 @@ $(document).ready(function () {
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#finish_button").fadeIn()
+                    $("#ena_finish_button").fadeIn()
                 } else if (d.action === "make_update") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
@@ -501,6 +508,16 @@ $(document).on("click", ".new-samples-spreadsheet-template-erga", function (even
 
 $(document).on("click", "#code_cancel", function (event) {
     var data = $("#sample_info").html()
+})
+
+
+$(document).on("click", "#ena_finish_button", function (event) {
+    event.preventDefault()
+    $.ajax({
+        url: "/copo/save_ena_records"
+    }).done(function (d) {
+        alert(d)
+    })
 })
 
 $(document).on("click", "#export_errors_button", function (event) {

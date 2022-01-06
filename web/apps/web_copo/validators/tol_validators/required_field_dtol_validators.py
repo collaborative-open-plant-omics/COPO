@@ -1,12 +1,13 @@
 from dal.copo_da import Sample, Profile
 from submission.helpers.generic_helper import notify_frontend
-from .tol_validator import TolValidtor
-from .validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from collections import Counter
+
 blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE"]
 
 
-class ColumnValidator(TolValidtor):
+class ColumnValidator(Validator):
     def validate(self):
         p_type = Profile().get_type(profile_id=self.profile_id)
         columns = list(self.data.columns)
@@ -16,7 +17,7 @@ class ColumnValidator(TolValidtor):
                             action="info",
                             html_id="sample_info")
             if item not in columns:
-                #TODO remove once all 2.2 manifests are gone!!!!
+                # TODO remove once all 2.2 manifests are gone!!!!
                 if item == "BARCODE_HUB":
                     self.data["BARCODE_HUB"] = ["NOT_PROVIDED" for x in range(self.data.shape[0])]
                     continue
@@ -27,7 +28,7 @@ class ColumnValidator(TolValidtor):
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
-class CellMissingDataValidator(TolValidtor):
+class CellMissingDataValidator(Validator):
     def validate(self):
         p_type = Profile().get_type(profile_id=self.profile_id)
         for header, cells in self.data.iteritems():
@@ -52,7 +53,7 @@ class CellMissingDataValidator(TolValidtor):
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
-class RackTubeNotNullValidator(TolValidtor):
+class RackTubeNotNullValidator(Validator):
     def validate(self):
         for index, row in self.data.iterrows():
             if row.get("RACK_OR_PLATE_ID", "") in blank_vals and row["TUBE_OR_WELL_ID"] in blank_vals:
@@ -61,7 +62,7 @@ class RackTubeNotNullValidator(TolValidtor):
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
-class OrphanedSymbiontValidator(TolValidtor):
+class OrphanedSymbiontValidator(Validator):
     def validate(self):
         # check that if sample is a symbiont, there is a target with matching RACK_OR_PLATE_ID and TUBE_OR_WELL_ID
         syms = self.data.loc[(self.data["SYMBIONT"] == "SYMBIONT")]
@@ -74,7 +75,7 @@ class OrphanedSymbiontValidator(TolValidtor):
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
-class RackPlateUniquenessValidator(TolValidtor):
+class RackPlateUniquenessValidator(Validator):
     def validate(self):
         # check for uniqueness of RACK_OR_PLATE_ID and TUBE_OR_WELL_ID in this manifest
         rack_tube = self.data.get("RACK_OR_PLATE_ID", "") + "/" + self.data["TUBE_OR_WELL_ID"]
@@ -95,7 +96,7 @@ class RackPlateUniquenessValidator(TolValidtor):
                 if exsam["profile_id"] == self.profile_id:
                     #todo check SYMBIONT value in species list is the same too
                     #check accessions do not exist yet and status is pending
-                    if not exsam["biosampleAccession"] and exsam["status"] == "pending":
+                    if not exsam.get("biosampleAccession", "") and exsam.get("status", "") == "pending":
                         self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
                         self.kwargs["isupdate"] = True
                     else:

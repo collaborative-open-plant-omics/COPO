@@ -302,7 +302,7 @@
                     <div id="upload_buttons">
                         <label class="ui blue button" for="file" id="upload_label">
                             <input id="file" type="file" style="display:none"
-                                   onchange="upload_spreadsheet(this.files[0])">
+                                   onchange="upload_spreadsheet('sample_spreadsheet',this.files[0])">
                             Upload Sample Manifest
                         </label>
 
@@ -603,7 +603,7 @@
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
     <script src="{% static 'copo/js/copo_sample.js' %}"></script>
     <script src="{% static 'copo/js/dtol_functions.js' %}"></script>
-    <script src="{% static 'copo/js/copo_sample_parse_spreadsheet.js' %}"></script>
+    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="{% static 'copo/js/csv_column_updates.js' %}"></script>
     <script src="{% static 'copo/js/fastdom.js' %}"></script>
 {% endblock %}
