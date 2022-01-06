@@ -50,6 +50,7 @@ MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
+ValidationQueueCollection = 'ValidationQueueCollection'
 TestCollection = 'TestCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
@@ -67,7 +68,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
                    stats=get_collection_ref(StatsCollection),
                    test=get_collection_ref(TestCollection),
-                   barcode=get_collection_ref(BarcodeCollection)
+                   barcode=get_collection_ref(BarcodeCollection),
+                   validationQueue=get_collection_ref(ValidationQueueCollection)
                    )
 
 
@@ -318,6 +320,10 @@ class TestObjectType(DAComponent):
     def __init__(self, profile_id=None):
         super(TestObjectType, self).__init__(profile_id, "test")
 
+
+class ValidationQueue(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ValidationQueue, self).__init__(profile_id, "validationQueue")
 
 class Publication(DAComponent):
     def __init__(self, profile_id=None):

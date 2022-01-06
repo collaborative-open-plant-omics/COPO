@@ -61,9 +61,9 @@ class DtolSpreadsheet:
     fields = ""
     sra_settings = d_utils.json_to_pytype(SRA_SETTINGS, compatibility_mode=False).get("properties", dict())
 
-    def __init__(self, file=None):
-        self.req = ThreadLocal.get_current_request()
-        self.profile_id = self.req.session.get("profile_id", None)
+    def __init__(self, file=None, p_id=None):
+        # self.req = ThreadLocal.get_current_request()
+        self.profile_id = p_id
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
         display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
         self.these_images = sample_images / self.profile_id
