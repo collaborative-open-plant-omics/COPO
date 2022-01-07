@@ -1968,7 +1968,9 @@
       "public_name"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "erga",
+      "asg"
     ],
     "ref": "",
     "deprecated": false,

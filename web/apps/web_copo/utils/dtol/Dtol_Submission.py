@@ -88,7 +88,7 @@ def process_pending_dtol_samples():
                 targetsam = sam
             print(type(sam['public_name']), sam['public_name'])
 
-            if not sam["public_name"]:
+            if not sam["public_name"]: #todo
                 l.log("Dtol submission : 91 - sample has no public name", type=Logtype.FILE)
                 try:
                     if issymbiont == "TARGET":
