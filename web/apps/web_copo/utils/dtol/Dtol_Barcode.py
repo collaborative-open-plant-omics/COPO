@@ -7,7 +7,7 @@ from django_tools.middlewares import ThreadLocal
 from collections import OrderedDict
 from dal.copo_da import Sample, Barcode
 from submission.helpers.generic_helper import notify_frontend
-from .tol_validators.validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
 
 
