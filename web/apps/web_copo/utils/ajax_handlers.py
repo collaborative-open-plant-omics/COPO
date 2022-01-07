@@ -39,7 +39,7 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
-from web.apps.web_copo.utils.dtol.Dtol_Barcode import BarcodingA
+from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
 # from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
@@ -1369,16 +1369,12 @@ def sample_spreadsheet(request):
         l.log("Dtol manifest loaded", type=Logtype.FILE)
         srlz_dtol = pickle.dumps(dtol.file)
         p_id = request.session["profile_id"]
-        r = {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
-             "taxon_validation_status": "pending", "err_msg": [],
-             "time_added": datetime.utcnow(),
-             "times_validated": 0
-             }
-        ValidationQueue().get_collection_handle().insert_one(r)
-        # make_validation_record(p_id, srlz_dtol)
-        # if dtol.validate_taxonomy() and dtol.validate():
-        #    l.log("About to collect Dtol manifest", type=Logtype.FILE)
-        #    dtol.collect()
+        r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
+                      "taxon_validation_status": "pending", "err_msg": [],
+                      "time_added": datetime.utcnow(),
+                      }}
+        ValidationQueue().get_collection_handle().update_one({"profile_id": p_id}, r, upsert=True)
+
     return HttpResponse()
 
     '''

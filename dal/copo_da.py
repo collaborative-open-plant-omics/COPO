@@ -6,6 +6,7 @@ from datetime import datetime, timezone, date
 
 import pandas as pd
 import pymongo
+from pymongo import ReturnDocument
 import pymongo.errors as pymongo_errors
 from bson import ObjectId, json_util
 from bson.errors import InvalidId
@@ -326,10 +327,10 @@ class ValidationQueue(DAComponent):
         super(ValidationQueue, self).__init__(profile_id, "validationQueue")
 
     def get_queued_manifests(self):
-        m_list = self.get_collection_handle().find_and_modify(
-            query={"schema_validation_status": "pending", "taxon_validation_status": "pending"},
-            update={"schema_validation_status": "processing", "taxon_validation_status": "processing",
-                    "$inc": {"times_validated": 1}},
+        m_list = self.get_collection_handle().aggregate([
+            {"$match": {"schema_validation_status": "pending", "taxon_validation_status": "pending"}},
+            {"$addFields": {"schema_validation_status": "processing", "taxon_validation_status": "processing"}}
+        ]
         )
         return m_list
 
@@ -337,8 +338,7 @@ class ValidationQueue(DAComponent):
         # the case of validation errors
         self.get_collection_handle().find_one(
             {"profile_id": p_id, "schema_validation_status": "processing", "taxon_validation_status": "processing"},
-            {"$set": {"schema_validation_status": "error", "taxon_validation_status": "error", "$push": {"error_msg":
-                                                                                                             error}}
+            {"$set": {"schema_validation_status": "error", "taxon_validation_status": "error", "$push": {"error_msg": error}}
              })
 
 
