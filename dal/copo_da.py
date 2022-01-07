@@ -52,7 +52,6 @@ StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 ValidationQueueCollection = 'ValidationQueueCollection'
 TestCollection = 'TestCollection'
-BarcodeCollection = 'BarcodeCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -325,6 +324,22 @@ class TestObjectType(DAComponent):
 class ValidationQueue(DAComponent):
     def __init__(self, profile_id=None):
         super(ValidationQueue, self).__init__(profile_id, "validationQueue")
+
+    def get_queued_manifests(self):
+        m_list = self.get_collection_handle().find_and_modify(
+            query={"schema_validation_status": "pending", "taxon_validation_status": "pending"},
+            update={"schema_validation_status": "processing", "taxon_validation_status": "processing",
+                    "$inc": {"times_validated": 1}},
+        )
+        return m_list
+
+    def error_processing_manifest(self, p_id, error):
+        # the case of validation errors
+        self.get_collection_handle().find_one(
+            {"profile_id": p_id, "schema_validation_status": "processing", "taxon_validation_status": "processing"},
+            {"$set": {"schema_validation_status": "error", "taxon_validation_status": "error", "$push": {"error_msg":
+                                                                                                             error}}
+             })
 
 
 class Publication(DAComponent):
@@ -1799,7 +1814,6 @@ class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
 
-
     def get_num(self):
         return self.get_collection_handle().count({})
 
@@ -1909,13 +1923,13 @@ class Profile(DAComponent):
         return cursor_to_list(p)
 
     def validate_and_delete(self, profile_id):
-        #check if any submission object reference this profile, if so do not delete
+        # check if any submission object reference this profile, if so do not delete
         if Submission().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are datafiles associated with the profile, if so do not delete
+        # check if there are datafiles associated with the profile, if so do not delete
         if DataFile().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are samples associated with the profile, if so di not delete
+        # check if there are samples associated with the profile, if so di not delete
         if cursor_to_list(Sample().get_from_profile_id(profile_id)):
             return False
         self.get_collection_handle().remove({"_id": ObjectId(profile_id)})
