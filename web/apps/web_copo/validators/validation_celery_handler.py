@@ -7,6 +7,8 @@ import pandas
 import inspect
 import pickle
 from web.apps.web_copo.lookup import dtol_lookups as lookup
+from submission.helpers.generic_helper import notify_frontend
+from urllib.error import HTTPError
 
 
 class ProcessValidationQueue:
@@ -22,6 +24,7 @@ class ProcessValidationQueue:
         self.symbiont_list = []
         self.validator_list = []
         self.sample_data = None
+        self.profile_id = None
 
     def process_validation_queue(self):
         # get all manifests queued for validation
@@ -48,7 +51,78 @@ class ProcessValidationQueue:
 
         for qm in queued_manifests:
             self.sample_data = pickle.loads(qm["manifest_data"])
+            self.profile_id = qm["profile_id"]
             try:
                 self.data = pandas.read_excel(self.sample_data, keep_default_na=False, na_values=lookup.NA_VALS)
             except:
-                pass
+                notify_frontend(data={"profile_id": self.profile_id}, msg="Failed to load manifest", action="info",
+                                html_id="sample_info")
+                return False
+
+            notify_frontend(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
+                            html_id="sample_info")
+            try:
+
+                self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
+                '''
+                for column in self.allowed_empty:
+                    self.data[column] = self.data[column].fillna("")
+                '''
+                self.data = self.data.apply(lambda x: x.astype(str))
+                self.data = self.data.apply(lambda x: x.str.strip())
+                self.data.columns = self.data.columns.str.replace(" ", "")
+            except Exception as e:
+                # if error notify via web socket
+                notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
+                                action="info",
+                                html_id="sample_info")
+                return False
+
+            # --------------------------------*TAXONOMY VALIDATION*----------------------------------#
+            ''' 
+            check if provided scientific name, TAXON ID,
+            family and order are consistent with each other in known taxonomy
+            '''
+
+            errors = []
+            warnings = []
+            flag = True
+            try:
+                # validate for optional dtol fields
+                for v in self.taxon_field_validators:
+                    errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
+                                               errors=errors, warnings=warnings, flag=flag).validate()
+
+                # send warnings
+                if warnings:
+                    notify_frontend(data={"profile_id": self.profile_id},
+                                    msg="<br>".join(warnings),
+                                    action="warning",
+                                    html_id="warning_info")
+
+                if not flag:
+                    errors = list(map(lambda x: "<li>" + x + "</li>", errors))
+                    errors = "".join(errors)
+                    notify_frontend(data={"profile_id": self.profile_id},
+                                    msg="<h4>" + self.file_name + "</h4><ol>" + errors + "</ol>",
+                                    action="error",
+                                    html_id="sample_info")
+                    return False
+
+                else:
+                    return True
+
+            except HTTPError as e:
+
+                error_message = str(e).replace("<", "").replace(">", "")
+                notify_frontend(data={"profile_id": self.profile_id},
+                                msg="Service Error - The NCBI Taxonomy service may be down, please try again later.",
+                                action="error",
+                                html_id="sample_info")
+                return False
+            except Exception as e:
+                error_message = str(e).replace("<", "").replace(">", "")
+                notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
+                                action="error",
+                                html_id="sample_info")
+                return False

@@ -1372,6 +1372,7 @@ def sample_spreadsheet(request):
         r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
                       "taxon_validation_status": "pending", "err_msg": [],
                       "time_added": datetime.utcnow(),
+                      "file_name": name
                       }}
         ValidationQueue().get_collection_handle().update_one({"profile_id": p_id}, r, upsert=True)
 
