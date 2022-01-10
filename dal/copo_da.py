@@ -334,12 +334,19 @@ class ValidationQueue(DAComponent):
         )
         return m_list
 
-    def error_processing_manifest(self, p_id, error):
-        # the case of validation errors
-        self.get_collection_handle().find_one(
-            {"profile_id": p_id, "schema_validation_status": "processing", "taxon_validation_status": "processing"},
-            {"$set": {"schema_validation_status": "error", "taxon_validation_status": "error", "$push": {"error_msg": error}}
-             })
+    def set_taxon_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
+
+    def set_taxon_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                           err}})
+
+    def set_schema_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "complete"}})
+
+    def set_schema_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                            err}})
 
 
 class Publication(DAComponent):

@@ -2,6 +2,7 @@ import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
 from dal.copo_da import Sample, Stats
 from web.apps.web_copo.models import ViewLock
 from submission import enareadSubmission
+from web.apps.web_copo.validators.validation_celery_handler import ProcessValidationQueue
 from web.celery import app
 
 
@@ -54,4 +55,5 @@ def poll_expired_viewlocks(self):
 
 @app.task(bind=True)
 def process_tol_validations(self):
+    ProcessValidationQueue().process_validation_queue()
     return True

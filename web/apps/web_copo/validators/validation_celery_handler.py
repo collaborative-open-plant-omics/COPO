@@ -1,6 +1,5 @@
 from dal.copo_da import ValidationQueue
-from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-    taxon_validators
+from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, taxon_validators
 from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
 import pandas
@@ -16,7 +15,6 @@ class ProcessValidationQueue:
     def __init__(self):
         self.required_field_validators = list()
         self.optional_field_validators = list()
-        self.optional_field_validators = list()
         self.taxon_field_validators = list()
         self.optional_validators = optional_validators
         self.required_validators = required_validators
@@ -25,9 +23,14 @@ class ProcessValidationQueue:
         self.validator_list = []
         self.sample_data = None
         self.profile_id = None
+        self.fields = []
+        self.file_name = None
+        self.data = None
 
     def process_validation_queue(self):
-        # get all manifests queued for validation
+        """This method is called from celery and looks in the validationqueue collection in mongo for manifests which need validation
+        once found, these are processed here"""
+
         # create list of required validators
         required = dict(globals().items())["required_validators"]
         for element_name in dir(required):
@@ -47,11 +50,13 @@ class ProcessValidationQueue:
             if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.taxon_field_validators.append(element)
 
+        # get all manifests queued for validation
         queued_manifests = ValidationQueue().get_queued_manifests()
 
         for qm in queued_manifests:
             self.sample_data = pickle.loads(qm["manifest_data"])
             self.profile_id = qm["profile_id"]
+            self.file_name = qm["file_name"]
             try:
                 self.data = pandas.read_excel(self.sample_data, keep_default_na=False, na_values=lookup.NA_VALS)
             except:
@@ -78,11 +83,11 @@ class ProcessValidationQueue:
                                 html_id="sample_info")
                 return False
 
-            # --------------------------------*TAXONOMY VALIDATION*----------------------------------#
-            ''' 
+            """
+            TAXONOMY VALIDATION
             check if provided scientific name, TAXON ID,
             family and order are consistent with each other in known taxonomy
-            '''
+            """
 
             errors = []
             warnings = []
@@ -103,26 +108,34 @@ class ProcessValidationQueue:
                 if not flag:
                     errors = list(map(lambda x: "<li>" + x + "</li>", errors))
                     errors = "".join(errors)
+                    msg = "<h4>" + self.file_name + "</h4><ol>" + errors + "</ol>"
                     notify_frontend(data={"profile_id": self.profile_id},
-                                    msg="<h4>" + self.file_name + "</h4><ol>" + errors + "</ol>",
+                                    msg=msg,
                                     action="error",
                                     html_id="sample_info")
-                    return False
+                    ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
 
                 else:
-                    return True
+                    # set validation queue taxon flag to complete
+                    ValidationQueue().set_taxon_validation_complete(qm["_id"])
 
             except HTTPError as e:
 
                 error_message = str(e).replace("<", "").replace(">", "")
+                msg = "Service Error - The NCBI Taxonomy service may be down, please try again later."
                 notify_frontend(data={"profile_id": self.profile_id},
-                                msg="Service Error - The NCBI Taxonomy service may be down, please try again later.",
+                                msg=msg,
                                 action="error",
                                 html_id="sample_info")
+                ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
                 return False
             except Exception as e:
                 error_message = str(e).replace("<", "").replace(">", "")
-                notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
+                msg = "Server Error - " + error_message
+                notify_frontend(data={"profile_id": self.profile_id}, msg=msg,
                                 action="error",
                                 html_id="sample_info")
+                ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
                 return False
+
+            # --------------------------------*SCHEMA VALIDATION*----------------------------------#
