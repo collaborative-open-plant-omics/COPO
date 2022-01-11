@@ -239,5 +239,7 @@ class ProcessValidationQueue:
             #    DtolSpreadsheet().detect_updates()
 
             # else:
+            notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
+                            html_id="")
             notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
                             html_id="sample_table")

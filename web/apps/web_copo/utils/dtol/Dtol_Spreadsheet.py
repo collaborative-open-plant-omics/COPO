@@ -3,6 +3,7 @@ import inspect
 import math
 import os
 import uuid
+import pickle
 from os.path import join, isfile
 from pathlib import Path
 from shutil import rmtree
@@ -16,7 +17,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Barcode
+from dal.copo_da import Sample, DataFile, Profile, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -61,9 +62,21 @@ class DtolSpreadsheet:
     fields = ""
     sra_settings = d_utils.json_to_pytype(SRA_SETTINGS, compatibility_mode=False).get("properties", dict())
 
-    def __init__(self, file=None, p_id=None):
-        # self.req = ThreadLocal.get_current_request()
+    def __init__(self, file=None, p_id="", validation_record_id=""):
+        self.req = ThreadLocal.get_current_request()
+        if p_id == "" and validation_record_id:
+            self.vr = ValidationQueue().get_record(validation_record_id)
+            p_id = self.vr.get("profile_id", "")
+        if file:
+            self.file = file
+        else:
+            self.sample_data = self.req.session.get("sample_data", "")
+            if self.sample_data == "":
+                self.sample_data = pickle.loads(self.vr["manifest_data"])
+            self.isupdate = self.req.session.get("isupdate", False)
+
         self.profile_id = p_id
+
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
         display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
         self.these_images = sample_images / self.profile_id
@@ -80,11 +93,7 @@ class DtolSpreadsheet:
         self.validator_list = []
         # if a file is passed in, then this is the first time we have seen the spreadsheet,
         # if not then we are looking at creating samples having previously validated
-        if file:
-            self.file = file
-        else:
-            self.sample_data = self.req.session.get("sample_data", "")
-            self.isupdate = self.req.session.get("isupdate", False)
+
         self.public_name_list = list()
         # get type of manifest
         t = Profile().get_type(self.profile_id)
@@ -145,203 +154,26 @@ class DtolSpreadsheet:
                 return False
             return True
 
-    def validate(self):
-        flag = True
-        errors = []
-        warnings = []
-        self.isupdate = False
-
-        try:
-            # get definitive list of mandatory DTOL fields from schema
-            s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
-            self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
-                s)
-
-            # validate for required fields
-            for v in self.required_field_validators:
-                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields,
-                                                          data=self.data,
-                                                          errors=errors, warnings=warnings, flag=flag,
-                                                          isupdate=self.isupdate).validate()
-
-            # get list of all DTOL fields from schemas
-            self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', s)
-
-            # validate for optional dtol fields
-            for v in self.optional_field_validators:
-                errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                           errors=errors, warnings=warnings, flag=flag).validate()
-
-            # send warnings
-            if warnings:
-                notify_frontend(data={"profile_id": self.profile_id},
-                                msg="<br>".join(warnings),
-                                action="warning",
-                                html_id="warning_info2")
-            # if flag is false, compile list of errors
-            if not flag:
-                errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-                errors = "".join(errors)
-
-                notify_frontend(data={"profile_id": self.profile_id},
-                                msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
-                                action="error",
-                                html_id="sample_info")
-                return False
-
-
-
-        except Exception as e:
-            error_message = str(e).replace("<", "").replace(">", "")
-            notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
-                            action="info",
-                            html_id="sample_info")
-            return False
-
-        # if we get here we have a valid spreadsheet
-        notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
-                        html_id="sample_info")
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
-
-        return True
-
-    def validate_taxonomy(self):
-        ''' check if provided scientific name, TAXON ID,
-        family and order are consistent with each other in known taxonomy'''
-
-        errors = []
-        warnings = []
-        flag = True
-        try:
-            # validate for optional dtol fields
-            for v in self.taxon_field_validators:
-                errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                           errors=errors, warnings=warnings, flag=flag).validate()
-
-            # send warnings
-            if warnings:
-                notify_frontend(data={"profile_id": self.profile_id},
-                                msg="<br>".join(warnings),
-                                action="warning",
-                                html_id="warning_info")
-
-            if not flag:
-                errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-                errors = "".join(errors)
-                notify_frontend(data={"profile_id": self.profile_id},
-                                msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
-                                action="error",
-                                html_id="sample_info")
-                return False
-
-            else:
-                return True
-
-        except HTTPError as e:
-
-            error_message = str(e).replace("<", "").replace(">", "")
-            notify_frontend(data={"profile_id": self.profile_id},
-                            msg="Service Error - The NCBI Taxonomy service may be down, please try again later.",
-                            action="error",
-                            html_id="sample_info")
-            return False
-        except Exception as e:
-            error_message = str(e).replace("<", "").replace(">", "")
-            notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
-                            action="error",
-                            html_id="sample_info")
-            return False
-
-    def check_image_names(self, files):
-        # compare list of sample names with specimen ids already uploaded
-        samples = self.sample_data
-        # get list of specimen_ids in sample
-        specimen_id_column_index = 0
-        output = list()
-        for num, col_name in enumerate(samples[0]):
-            if col_name == "SPECIMEN_ID":
-                specimen_id_column_index = num
-                break
-        if os.path.isdir(self.these_images):
-            rmtree(self.these_images)
-        self.these_images.mkdir(parents=True)
-
-        write_path = Path(self.these_images)
-        display_write_path = Path(self.display_images)
-        for f in files:
-            file = files[f]
-
-            file_path = write_path / file.name
-            # write full sized image to large storage
-            file_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id / file.name
-            with default_storage.open(file_path, 'wb+') as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
-
-            filename = os.path.splitext(file.name)[0].upper()
-            # now iterate through samples data to see if there is a match between specimen_id and image name
-        image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
-        for num, sample in enumerate(samples):
-            found = False
-            if num != 0:
-                specimen_id = sample[specimen_id_column_index].upper()
-
-                file_list = [f for f in os.listdir(image_path) if isfile(join(image_path, f))]
-                for filename in file_list:
-                    if specimen_id in filename.upper():
-                        # we have a match
-                        p = Path(settings.MEDIA_URL) / "sample_images" / self.profile_id / filename
-
-                        output.append({"file_name": str(p), "specimen_id": sample[specimen_id_column_index]})
-                        found = True
-                        break
-                if not found:
-                    output.append({
-                        "file_name": "None", "specimen_id": "No Image found for <strong>" + sample[
-                            specimen_id_column_index] + "</strong>"
-                    })
-        # save to session
-        request = ThreadLocal.get_current_request()
-        request.session["image_specimen_match"] = output
-        notify_frontend(data={"profile_id": self.profile_id}, msg=output, action="make_images_table",
-                        html_id="images")
-        return output
-
-    def collect(self):
-        # create table data to show to the frontend from parsed manifest
-        sample_data = []
-        headers = list()
-        for col in list(self.data.columns):
-            headers.append(col)
-        sample_data.append(headers)
-        for index, row in self.data.iterrows():
-            r = list(row)
-            for idx, x in enumerate(r):
-                if x is math.nan:
-                    r[idx] = ""
-            sample_data.append(r)
-        # store sample data in the session to be used to create mongo objects
-        self.req.session["sample_data"] = sample_data
-        self.req.session["isupdate"] = self.isupdate
-        if self.isupdate:
-            DtolSpreadsheet().detect_updates()
-
-        else:
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                            html_id="sample_table")
-
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
-        sample_data = self.sample_data
+        # sample_data = self.sample_data
+
+        binary = pickle.loads(self.vr["manifest_data"])
+        sample_data = pandas.read_excel(binary, keep_default_na=False,
+                                        na_values=lookup.NA_VALS)
+        sample_data = sample_data.loc[:, ~sample_data.columns.str.contains('^Unnamed')]
+        '''
+        for column in self.allowed_empty:
+            self.data[column] = self.data[column].fillna("")
+        '''
+        sample_data = sample_data.apply(lambda x: x.astype(str))
+        sample_data = sample_data.apply(lambda x: x.str.strip())
+        sample_data.columns = sample_data.columns.str.replace(" ", "")
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
-        image_data = request.session.get("image_specimen_match", [])
-
-        for p in range(1, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
+        image_data = []
+        for p in range(0, len(sample_data)):
+            s = (map_to_dict(sample_data.columns, sample_data.iloc[p, :]))
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_ASG_VERSION
@@ -547,11 +379,3 @@ class DtolSpreadsheet:
         notify_frontend(data={"profile_id": self.profile_id}, msg=report,
                         action="info",
                         html_id="sample_info")
-
-    def check_for_target_or_add_to_symbiont_list(self, s):
-        # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,
-        # we create the tax data, and append to a list of use by a later sample
-        if not Sample().check_and_add_symbiont(s):
-            # add to list
-            out = make_tax_from_sample(s)
-            self.symbiont_list.append(out)
