@@ -132,6 +132,7 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/create_spreadsheet_samples",
+                            data: {"validation_record_id": $(document).data("validation_record_id")}
 
                         }).done(function () {
                             location.reload()
@@ -233,6 +234,9 @@ $(document).ready(function () {
         //handlers for channels messages sent from backend
         d = JSON.parse(e.data)
         //actions here should be performed regardeless of profile
+        if (d.action === "store_validation_record_id") {
+            $(document).data("validation_record_id", d.message)
+        }
         if (d.action === "delete_row") {
             console.log("deleteing row")
             s_id = d.html_id

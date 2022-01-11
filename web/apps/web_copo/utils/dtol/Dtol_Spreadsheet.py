@@ -3,6 +3,7 @@ import inspect
 import math
 import os
 import uuid
+import pickle
 from os.path import join, isfile
 from pathlib import Path
 from shutil import rmtree
@@ -60,9 +61,21 @@ class DtolSpreadsheet:
     fields = ""
     sra_settings = d_utils.json_to_pytype(SRA_SETTINGS, compatibility_mode=False).get("properties", dict())
 
-    def __init__(self, file=None, p_id=None):
-        # self.req = ThreadLocal.get_current_request()
+    def __init__(self, file=None, p_id="", validation_record_id=""):
+        self.req = ThreadLocal.get_current_request()
+        if p_id == "" and validation_record_id:
+            self.vr = ValidationQueue().get_record(validation_record_id)
+            p_id = self.vr.get("profile_id", "")
+        if file:
+            self.file = file
+        else:
+            self.sample_data = self.req.session.get("sample_data", "")
+            if self.sample_data == "":
+                self.sample_data = pickle.loads(self.vr["manifest_data"])
+            self.isupdate = self.req.session.get("isupdate", False)
+
         self.profile_id = p_id
+
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
         sample_permits = Path(settings.MEDIA_ROOT) / "sample_permits"
         display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
@@ -80,11 +93,6 @@ class DtolSpreadsheet:
         self.validator_list = []
         # if a file is passed in, then this is the first time we have seen the spreadsheet,
         # if not then we are looking at creating samples having previously validated
-        if file:
-            self.file = file
-        else:
-            self.sample_data = self.req.session.get("sample_data", "")
-            self.isupdate = self.req.session.get("isupdate", False)
 
         # get type of manifest
         t = Profile().get_type(self.profile_id)
@@ -424,7 +432,19 @@ class DtolSpreadsheet:
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
-        sample_data = self.sample_data
+        # sample_data = self.sample_data
+
+        binary = pickle.loads(self.vr["manifest_data"])
+        sample_data = pandas.read_excel(binary, keep_default_na=False,
+                                        na_values=lookup.NA_VALS)
+        sample_data = sample_data.loc[:, ~sample_data.columns.str.contains('^Unnamed')]
+        '''
+        for column in self.allowed_empty:
+            self.data[column] = self.data[column].fillna("")
+        '''
+        sample_data = sample_data.apply(lambda x: x.astype(str))
+        sample_data = sample_data.apply(lambda x: x.str.strip())
+        sample_data.columns = sample_data.columns.str.replace(" ", "")
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
@@ -601,12 +621,3 @@ class DtolSpreadsheet:
         notify_frontend(data={"profile_id": self.profile_id}, msg=report,
                         action="info",
                         html_id="sample_info")
-
-
-    def check_for_target_or_add_to_symbiont_list(self, s):
-        # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,
-        # we create the tax data, and append to a list of use by a later sample
-        if not Sample().check_and_add_symbiont(s):
-            # add to list
-            out = make_tax_from_sample(s)
-            self.symbiont_list.append(out)
