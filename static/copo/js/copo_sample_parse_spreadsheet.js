@@ -88,7 +88,7 @@ $(document).ready(function () {
                     }
                 },
                 {
-                    label: "Submit",
+                    label: "Confirm",
                     cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         $("#finish_button").hide()
