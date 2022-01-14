@@ -138,7 +138,6 @@ $(document).ready(function () {
         })
     })
 
-    // COMMENT FOR GIT MERGE - FELIX'S
     $(document).on("click", ".new-samples-spreadsheet-template", function (event) {
         $("#sample_spreadsheet_modal").modal("show")
         $("#warning_info").fadeOut("fast")
