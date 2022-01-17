@@ -176,7 +176,9 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/update_spreadsheet_samples",
-
+                            data: {
+                                "validation_record_id": $(document).data("validation_record_id")
+                            }
                         }).done(function () {
                             location.reload()
                         }).error(function (data) {
