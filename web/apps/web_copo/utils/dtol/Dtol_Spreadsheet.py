@@ -327,51 +327,6 @@ class DtolSpreadsheet:
             title = profile["title"]
             description = profile["description"]
 
-    def detect_updates(self):
-        sample_data = self.sample_data
-        request = ThreadLocal.get_current_request()
-        self.public_name_list = list()
-        updates = {}
-        for p in range(1, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
-            rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
-            if s["SYMBIONT"].upper() == "SYMBIONT":
-                # this requires different logic to discriminate between symbionts
-                return False
-            exsam = Sample().get_target_by_field("rack_tube", rack_tube)
-            assert len(exsam) == 1
-            exsam = exsam[0]
-            updates[rack_tube] = {}
-            for field in s.keys():
-                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field,
-                                                                                                                 ""):
-                    if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
-                        updates[rack_tube][field] = {}
-                        if field in lookup.SPECIES_LIST_FIELDS:
-                            updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
-                            updates[rack_tube][field]["new_value"] = s[field]
-                        else:
-                            updates[rack_tube][field]["old_value"] = exsam[field]
-                            updates[rack_tube][field]["new_value"] = s[field]
-                    else:
-                        msg = "Field " + field + " cannot be updated as it is part of the compliance process"
-                        notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="error",
-                                        html_id="sample_info")
-                        return False
-            # show upcoming updates here
-            msg = "<ul>"
-            for sample in updates:
-                msg += "<li>Updating sample <strong>" + sample + "</strong>: <ul>"
-                for field in updates[sample]:
-                    msg += "<li><strong> " + field + "</strong> from " + updates[sample][field]["old_value"] + " " \
-                                                                                                               "to <strong>" + \
-                           updates[sample][field]["new_value"] + "</strong></li>"
-                msg += "</li></ul>"
-            msg += "</ul>"
-            notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
-                            html_id="warning_info3")
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
-                            html_id="sample_table")
 
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report
