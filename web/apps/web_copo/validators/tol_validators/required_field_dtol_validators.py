@@ -96,7 +96,7 @@ class RackPlateUniquenessValidator(Validator):
                 if exsam["profile_id"] == self.profile_id:
                     #todo check SYMBIONT value in species list is the same too
                     #check accessions do not exist yet and status is pending
-                    if not exsam.get("biosampleAccession", "") and exsam.get("status", "") == "pending":
+                    if not exsam.get("biosampleAccession", "") and exsam.get("status", "").startswith("pending"):
                         self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
                         self.kwargs["isupdate"] = True
                     else:

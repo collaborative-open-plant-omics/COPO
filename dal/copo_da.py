@@ -334,6 +334,12 @@ class ValidationQueue(DAComponent):
         )
         return m_list
 
+    def update_manifest_data(self, record_id, manifest_data):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"manifest_data": manifest_data}})
+
+    def set_update_flag(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"isupdate": True}})
+
     def set_taxon_validation_complete(self, record_id):
         self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
 
