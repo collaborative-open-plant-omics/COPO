@@ -74,7 +74,11 @@ class Command(BaseCommand):
                 assert len(sourceindb)==1
                 for field in d_updates[sample['biosampleAccession']]:
                     #only update in source fields that are there -ENA submittable- and not organism part
-                    if field != "ORGANISM_PART" and DTOL_ENA_MAPPINGS.get(field, ""):
+                    #unique handling of COLLECTION_LOCATION
+                    if field == "COLLECTION_LOCATION":
+                        value = d_updates[sample['biosampleAccession']][field]
+                        da.Source().record_manual_update(field, oldvalue, value, sourceindb[0]['_id'])
+                    elif field != "ORGANISM_PART" and DTOL_ENA_MAPPINGS.get(field, ""):
                         value = d_updates[sample['biosampleAccession']][field]
                         da.Source().record_manual_update(field, oldvalue, value, sourceindb[0]['_id'])
                     da.Source().add_field(field, value, sourceindb[0]['_id'])
@@ -83,7 +87,7 @@ class Command(BaseCommand):
             print(list(d_updates[sample['biosampleAccession']].keys()))
             flag = False
             for field in list(d_updates[sample['biosampleAccession']].keys()):
-                if DTOL_ENA_MAPPINGS.get(field, ""):
+                if DTOL_ENA_MAPPINGS.get(field, "") or field == "COLLECTION_LOCATION":
                     flag = True
             if flag:
                 self.update_sample(sample['_id'])
