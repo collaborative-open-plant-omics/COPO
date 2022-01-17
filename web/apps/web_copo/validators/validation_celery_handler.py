@@ -288,7 +288,22 @@ class ProcessValidationQueue:
                            updates[sample][field]["new_value"] + "</strong></li>"
                 msg += "</li></ul>"
             msg += "</ul>"
+
+            out_data = []
+            headers = list()
+            for col in list(self.data.columns):
+                headers.append(col)
+            out_data.append(headers)
+            for index, row in self.data.iterrows():
+                r = list(row)
+                for idx, x in enumerate(r):
+                    if x is math.nan:
+                        r[idx] = ""
+                out_data.append(r)
+
+            notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
+                            html_id="")
             notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
                             html_id="warning_info3")
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data.to_string(), action="make_update",
+            notify_frontend(data={"profile_id": self.profile_id}, msg=out_data, action="make_update",
                             html_id="sample_table")

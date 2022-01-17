@@ -1395,9 +1395,9 @@ def create_spreadsheet_samples(request):
 
 
 def update_spreadsheet_samples(request):
-    sample_data = request.session["sample_data"]
+    validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
     return HttpResponse(status=200)
 

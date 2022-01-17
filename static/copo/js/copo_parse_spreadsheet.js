@@ -236,7 +236,9 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/update_spreadsheet_samples",
-
+                            data: {
+                                "validation_record_id": $(document).data("validation_record_id")
+                            }
                         }).done(function () {
                             location.reload()
                         }).error(function (data) {
@@ -570,7 +572,7 @@ function handleBarcodeUpload(data) {
         $(document).data("barcode_uid", data.uid)
         $("#barcode_table").find("thead").empty()
         $("#barcode_table").find("tbody").empty()
-        var rows = new Array()
+        var rows = []
         for (var i = 0; i < data.num_records; i++) {
             rows.push(
                 ""
