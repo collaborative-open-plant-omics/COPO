@@ -175,6 +175,9 @@ class ProcessValidationQueue:
                                                               data=self.data,
                                                               errors=errors, warnings=warnings, flag=flag,
                                                               isupdate=self.isupdate).validate()
+                    ValidationQueue().update_manifest_data(qm["_id"], pickle.dumps(self.data))
+                    if self.isupdate:
+                        ValidationQueue().set_update_flag(qm["_id"])
 
                 # get list of all DTOL fields from schemas
                 self.fields = jp.match(
@@ -215,31 +218,40 @@ class ProcessValidationQueue:
             # if we get here we have a valid spreadsheet
             # so set validation queue taxon flag to complete
             ValidationQueue().set_schema_validation_complete(qm["_id"])
-            notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
-                            html_id="sample_info")
-            notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
-            notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
 
-            # create table data to show to the frontend from parsed manifest
-            sample_data = []
-            headers = list()
-            for col in list(self.data.columns):
-                headers.append(col)
-            sample_data.append(headers)
-            for index, row in self.data.iterrows():
-                r = list(row)
-                for idx, x in enumerate(r):
-                    if x is math.nan:
-                        r[idx] = ""
-                sample_data.append(r)
-            # store sample data in the session to be used to create mongo objects
-            # self.req.session["sample_data"] = sample_data
-            # self.req.session["isupdate"] = self.isupdate
-            # if self.isupdate:
-            #    DtolSpreadsheet().detect_updates()
+            if self.isupdate:
 
-            # else:
-            notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
-                            html_id="")
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                            html_id="sample_table")
+            else:
+                self.make_table()
+
+    def make_table(self):
+        notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
+                        html_id="sample_info")
+        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
+        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
+
+        # create table data to show to the frontend from parsed manifest
+        sample_data = []
+        headers = list()
+        for col in list(self.data.columns):
+            headers.append(col)
+        sample_data.append(headers)
+        for index, row in self.data.iterrows():
+            r = list(row)
+            for idx, x in enumerate(r):
+                if x is math.nan:
+                    r[idx] = ""
+            sample_data.append(r)
+        # store sample data in the session to be used to create mongo objects
+        # self.req.session["sample_data"] = sample_data
+        # self.req.session["isupdate"] = self.isupdate
+        # if self.isupdate:
+        #    DtolSpreadsheet().detect_updates()
+
+        # else:
+        notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
+                        html_id="")
+        notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+                        html_id="sample_table")
+
+    def make_upate_table(self):

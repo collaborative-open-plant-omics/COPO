@@ -435,8 +435,11 @@ class DtolSpreadsheet:
         # sample_data = self.sample_data
 
         binary = pickle.loads(self.vr["manifest_data"])
-        sample_data = pandas.read_excel(binary, keep_default_na=False,
-                                        na_values=lookup.NA_VALS)
+        try:
+            sample_data = pandas.read_excel(binary, keep_default_na=False,
+                                            na_values=lookup.NA_VALS)
+        except ValueError:
+            sample_data = binary
         sample_data = sample_data.loc[:, ~sample_data.columns.str.contains('^Unnamed')]
         '''
         for column in self.allowed_empty:
