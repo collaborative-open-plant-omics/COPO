@@ -299,7 +299,7 @@ class DtolSpreadsheet:
 
         request = ThreadLocal.get_current_request()
         self.public_name_list = list()
-        for p in range(1, len(sample_data)):
+        for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Updating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],

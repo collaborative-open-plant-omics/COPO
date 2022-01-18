@@ -252,7 +252,7 @@ class ProcessValidationQueue:
     def make_update_notifications(self, qm):
         sample_data = self.data
         updates = {}
-        for p in range(1, len(sample_data)):
+        for p in range(0, len(sample_data)):
             s = map_to_dict(self.data.columns, self.data.iloc[p, :])
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             if s["SYMBIONT"].upper() == "SYMBIONT":
