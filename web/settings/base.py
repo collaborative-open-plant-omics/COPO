@@ -172,7 +172,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-
+SILENCED_SYSTEM_CHECKS = ["models.W042"]
 # print(STATICFILES_DIRS)
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # MEDIA_ROOT = STATIC_ROOT

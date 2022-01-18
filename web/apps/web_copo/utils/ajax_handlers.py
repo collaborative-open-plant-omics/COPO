@@ -17,13 +17,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest
 from jsonpickle import encode
-
+from bson.binary import Binary
+import pickle
 import web.apps.web_copo.lookup.lookup as ol
 import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person
+    Repository, Person, Barcode, ValidationQueue
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -38,7 +39,10 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
+# from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
@@ -1351,7 +1355,7 @@ def get_subsample_stages(request):
 def sample_spreadsheet(request):
     file = request.FILES["file"]
     name = file.name
-    dtol = DtolSpreadsheet(file=file)
+    dtol = DtolSpreadsheet(file=file, p_id=request.session["profile_id"])
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     elif name.endswith("csv"):
@@ -1362,10 +1366,17 @@ def sample_spreadsheet(request):
         pass
 
     if dtol.loadManifest(m_format=fmt):
-        l.log("Dtol manifest loaded", type=Logtype.FILE)
-        if dtol.validate_taxonomy() and dtol.validate():
-            l.log("About to collect Dtol manifest", type=Logtype.FILE)
-            dtol.collect()
+
+        srlz_dtol = pickle.dumps(dtol.file)
+        p_id = request.session["profile_id"]
+        r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
+                      "taxon_validation_status": "pending", "err_msg": [],
+                      "time_added": datetime.utcnow(),
+                      "file_name": name,
+                      "isupdate": False
+                      }}
+        ValidationQueue().get_collection_handle().update_one({"profile_id": p_id}, r, upsert=True)
+
     return HttpResponse()
 
     '''
@@ -1376,16 +1387,17 @@ def sample_spreadsheet(request):
 
 
 def create_spreadsheet_samples(request):
-    sample_data = request.session["sample_data"]
+    validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.save_records()
     return HttpResponse(status=200)
 
+
 def update_spreadsheet_samples(request):
-    sample_data = request.session["sample_data"]
+    validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
     return HttpResponse(status=200)
 
@@ -1393,7 +1405,7 @@ def update_spreadsheet_samples(request):
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
-    #todo control for someone being both
+    # todo control for someone being both
     profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
@@ -1405,12 +1417,16 @@ def update_pending_samples_table(request):
 def get_samples_for_profile(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
+        out = list()
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
         samples = Sample().get_dtol_from_profile_id(profile_id, filter)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
-        return HttpResponse(json_util.dumps(samples))
+        for sample in samples:
+            new_d = OrderedDict(sorted(sample.items(), key=lambda t: t[0]))
+            out.append(new_d)
+        return HttpResponse(json_util.dumps(out))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 
@@ -1429,6 +1445,8 @@ def mark_sample_rejected(request):
 
 
 def add_sample_to_dtol_submission(request):
+    dd_reason = request.GET.get("dd_reason", "")
+    txt_box_other_reason = request.GET.get("txt_box_other_reason", "")
     sample_ids = request.GET.get("sample_ids")
     sample_ids = json.loads(sample_ids)
     profile_id = request.GET.get("profile_id")
@@ -1454,6 +1472,14 @@ def add_sample_to_dtol_submission(request):
                 sub["dtol_samples"].append(sample_id)
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
+            if dd_reason:
+                # if sample has been force, not why and by who
+                if dd_reason == "other":
+                    reason = txt_box_other_reason
+                else:
+                    reason = dd_reason
+                Sample().mark_forced(sample_id, reason)
+
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
         else:
@@ -1473,7 +1499,6 @@ def sample_images(request):
     files = request.FILES
     dtol = DtolSpreadsheet()
     matchings = dtol.check_image_names(files)
-
     return HttpResponse(json.dumps(matchings))
 
 
@@ -1606,45 +1631,7 @@ def handle_csv_column_validate_spreadsheet(request):
 
     out = list()
     to_lookup = list()
-    '''
-    for idx, el in enumerate(df_unique_vals):
-        # get characteristics or factors for the given column name for samples in the records parameter
-        column_p = process_column_name(el["column"])
-        sample_ids_bson = [ObjectId(el["record_id"])]
-        is_unit = True
-        if "Characteristics" in el["column"]:
-            # otherwise user must query querying for characteristics or factors
-            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
-            lookuptype = "characteristics"
-            is_unit = False
-        elif "Factors" in el["column"]:
-            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
-            lookuptype = "factorValues"
-            is_unit = False
-        for s in samples:
-            row = {"_id": s["_id"],
-                   "name": s["name"],
-                   "label": s[lookuptype]["category"]["annotationValue"],
-                   "label_source": s[lookuptype]["category"]["termSource"],
-                   "value": s[lookuptype]["value"]["annotationValue"],
-                   "value_source": s[lookuptype]["value"]["termSource"],
-                   "unit": s[lookuptype]["unit"]["annotationValue"],
-                   "unit_source": s[lookuptype]["unit"]["termSource"],
-                   }
-        term = el["value"]
-        if not is_unit:
-            if is_number(term):
-                # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
-                # milimeters)
-                el["status"] = "accepted"
-                out.append(el)
-                continue;
-        if is_unit:
-            row["ontology_names"] = row["unit_source"]
-        else:
-            row["ontology_names"] = row["value_source"]
-        to_lookup.append(row)
-    '''
+
     # make data frame out of to_lookup and unique it to minimize calls to ols
     df = pd.DataFrame(data)
     df["column"] = ""
@@ -1703,9 +1690,90 @@ def handle_csv_column_update_samples(request):
     return HttpResponse("Complete")
 
 
+def parse_ena_spreadsheet(request):
+    return HttpResponse(request)
+
+
 def is_number(s):
     try:
         float(s)
         return True
     except ValueError:
         return False
+
+
+def upload_barcoding_manifest(request):
+    flag = True
+    file = request.FILES["file"]
+    b = Barcoding(file)
+    flag = b.load_manifest()
+    # if flag:
+    #    flag = b.check_specimen_ids()
+    if flag:
+        barcoding_data = b.query_bold_and_store_in_session()
+        out = json.dumps(barcoding_data)
+        return HttpResponse(out)
+    return HttpResponse(status=400)
+
+
+def compare_barcode_with_sample(request):
+    sample = Sample().get_sample_by_specimen_id(request.POST["specimen_id"])
+
+
+def accept_barcoding_manifest(request):
+    uid = request.POST["uid"]
+    profile_id = request.session["profile_id"]
+    bc_data = request.session[uid]
+    specimen_data = json.loads(bc_data["data"])
+
+    for idx, bc in enumerate(specimen_data["specimen_id"]):
+        # iterate each row of the bold manifest
+        s_id_dict = specimen_data["specimen_id"][bc].strip()
+        # each of these rows may have multiple specimen ids, so iterate these
+        s_id_dict_split = s_id_dict.split(",")
+        for s_id in s_id_dict_split:
+            for record in bc_data["full_records"]:
+                if specimen_data["bold_sample_id"][bc] == record["specimen_identifiers"]["sampleid"]:
+                    notify_frontend(data={"profile_id": profile_id}, msg="Saving data..." + s_id,
+                                    action="info",
+                                    html_id="barcode_notify")
+                    s_id = s_id.split(",")
+                    db_sample = Sample().get_collection_handle().find({"SPECIMEN_ID": {"$in": s_id}})
+                    if db_sample.count():
+                        for s in db_sample:
+                            # check bold reported scientific name with manifest reported and record any conflicts
+                            if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                                    record["taxonomy"]["species"]["taxon"]["name"]).lower():
+                                status = "pending"
+                            else:
+                                status = "conflicting"
+
+                            sample_ids = Sample().get_collection_handle().update_many(
+                                {"SPECIMEN_ID": {"$in": s_id}}, {"$set": {"status": status, "barcoding": record}})
+
+
+                    else:
+                        Sample().get_collection_handle().update_many({"SPECIMEN_ID": {"$in": s_id}},
+                                                                     {"$set": {"barcoding": record, "profile_id":
+                                                                         profile_id}},
+                                                                     upsert=True)
+    return HttpResponse("")
+
+
+def set_barcoding_status(request):
+    # set sample to use manifest or barcoding taxonomic information as a result of supervisor intervention
+    ids = request.POST["ids"].split(",")
+    use = request.POST["use"]
+    for id in ids:
+        Sample().get_collection_handle().update({"_id": ObjectId(id)}, {"$set": {"submit_as_taxon": use,
+                                                                                 "status": "pending"}})
+        print(id)
+    return HttpResponse(json.dumps({}), status=200)
+
+
+def inspect_barcoding(request):
+    profile_id = request.GET.get("profile_id", "")
+    if not profile_id:
+        return HttpResponse("")
+    bc = Sample().get_barcoding(profile_id)
+    return HttpResponse(json_util.dumps(bc))

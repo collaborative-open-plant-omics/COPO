@@ -58,6 +58,10 @@
             background-color: #eaae00 !important;
             color: white !important;
         }
+
+        [hidden] {
+            display: none !important;
+        }
     </style>
 {% endblock %}
 
@@ -95,7 +99,7 @@
     <!--test ends -->
     <!--test ends -->
     <input type="hidden" id="groups" value="{{ groups|safe }}"/>
-
+    <input type="hidden" id="show_bc_control" value="{{ show_bc_control }}"/>
     <!-- file upload control template -->
     <div id="file_upload_template1" style="display: none;">
         <div style="display: inline-block;">
@@ -277,6 +281,8 @@
         <!-- sample table -->
         <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
              data-copo-tour-id="sample_table"></div> <!-- div used by the quick tour agent -->
+
+        <!--<div style="width:20%" class="pull-right ui violet message">Violet</div>-->
         <table id="sample_table"
                class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">
@@ -290,31 +296,16 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Upload Spreadsheet</h4>
+                    <h4 class="modal-title">Upload ToL Manifest</h4>
                 </div>
                 <div class="modal-body" style="width: 100%">
                     <div id="upload_buttons">
                         <label class="ui blue button" for="file" id="upload_label">
                             <input id="file" type="file" style="display:none"
-                                   onchange="upload_spreadsheet(this.files[0])">
+                                   onchange="upload_spreadsheet('sample_spreadsheet',this.files[0])">
                             Upload Sample Manifest
                         </label>
-                        <!--
-                        <label class="ui violet button" for="images" id="files_label" disabled>
 
-                            <input enctype='multipart/formdata' id="images" name="images" type="file"
-                                   accept=".png,.jpg, .jpeg" multiple style="display:none"
-                                   onchange="upload_image_files(this.files)" disabled>
-                            Upload Barcoding Data
-                        </label>
-                        -->
-                        <label class="ui teal button" for="images" id="files_label" disabled>
-
-                            <input enctype='multipart/formdata' id="images" name="images" type="file"
-                                   accept=".png,.jpg, .jpeg" multiple style="display:none"
-                                   onchange="" disabled>
-                            Upload Images
-                        </label>
                         <button class="ui green button" id="finish_button" style="display:none">Finish</button>
                         <button class="ui green button" id="confirm_button" style="display:none">Confirm</button>
                         <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
@@ -358,12 +349,7 @@
                     <li class="active">
                         <a data-toggle="tab" id="meta_table_nav_tab" href="#meta">Sample Metadata</a>
                     </li>
-                    <!--<li>
-                        <a data-toggle="tab" id="barcode_table_nav_tab" href="#image">Sample Images</a>
-                    </li>-->
-                    <li>
-                        <a data-toggle="tab" id="image_table_nav_tab" href="#image">Sample Images</a>
-                    </li>
+
 
                 </ul>
                 <div class="tab-content" style="padding:30px">
@@ -379,7 +365,7 @@
 
                     </div>
                     <div class="tab-pane" id="image">
-                        <table id="image_table" class="table table-striped table-bordered" dataTable>
+                        <table id="image_table" class="table table-striped table-bordered">
 
                             <thead></thead>
                             <tbody></tbody>
@@ -476,6 +462,134 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    <div class="modal fade" id="bc_inspect_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="min-width: 75%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" id="sample_filter" role="tablist">
+                            <li role="presentation" class="hot_tab active">
+                                <a href="#bc_pane" data-toggle="tab" aria-controls="bc_pane" role="tab" id="bc_tab"
+                                   data-toggle="tab">Identification</a>
+                            </li>
+                            <li role="presentation" class="hot_tab">
+                                <a id="conflict_pane" href="#conflicting_barcode" aria-controls="conflicting_barcode"
+                                   role="tab" data-toggle="tab">Conflicting</a>
+                            </li>
+
+                        </ul>
+
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="bc_pane">
+                                <div class="pull-right ui selection list">
+                                    <a class="item">
+                                        <div class="ui red label empty circular horizontal"></div>
+                                        Identified by Barcoding
+                                    </a>
+                                    <a class="item">
+                                        <div class="ui purple empty circular horizontal label"></div>
+                                        Taxonomist Overruled Barcoding
+                                    </a>
+
+                                </div>
+                                <div id="barcoding_panel" style="padding:40px">
+                                    <table id="barcoding" class="table table-hover table-bordered display compact">
+                                        <thead>
+                                        <tr>
+                                            <th>Specimen ID</th>
+                                            <th>TUBE_OR_WELL_ID</th>
+                                            <th>Bold Sample ID</th>
+                                            <th>Phylum</th>
+                                            <th>Class</th>
+                                            <th>Order</th>
+                                            <th>Family</th>
+                                            <th>Genus</th>
+                                            <th>Species</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="bc_table_body">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="conflicting_barcode">
+                                <div id="sample_panel" style="padding:40px">
+                                    <div class="ui buttons" id="barcode_select"
+                                         style="margin-bottom: 10px; display: none">
+                                        <button id="accept_manifest" type="button" disabled="true"
+                                                class="ui violet button">
+                                            <span class="" aria-hidden="true"></span> Accept Manifest
+                                        </button>
+                                        <div class="or"></div>
+                                        <button id="accept_bold" type="button" disabled="true" class="ui red button">
+                                            <span class="" aria-hidden="true"></span> Accept Bold
+                                        </button>
+                                    </div>
+                                    <table id="profile_samples"
+                                           class="table table-hover table-bordered display compact">
+                                        <thead></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="sample_barcoding_modal" style="overflow-x: scroll">
+        <div class="modal-dialog modal-lg" role="document" style="width:90%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload Barcoding Manifest</h4>
+                </div>
+                <div class="modal-body" style="overflow: scroll">
+                    <div id="upload_buttons">
+                        <label class="button blue ui btn-default" style="margin-bottom:20px">
+                            Upload Barcode Manifest <input type="file" id="barcode_file" hidden>
+                        </label>
+
+
+                        <span class="ui active inline loader" id="barcode_upload_spinner" style="display:none">
+
+                        </span>
+                        <span id="barcode_notify" class="pull-right" style="padding:10px"></span>
+                        <button class="ui red button pull-right" style="display:none" id="export_errors_button">Export
+                            Errors
+                        </button>
+                        <table id="barcode_table" class="table table-striped table-bordered">
+
+                            <thead></thead>
+                            <tbody></tbody>
+
+
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="ui green button" id="finish_button_barcode" style="display:none">Finish</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
@@ -489,7 +603,7 @@
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
     <script src="{% static 'copo/js/copo_sample.js' %}"></script>
     <script src="{% static 'copo/js/dtol_functions.js' %}"></script>
-    <script src="{% static 'copo/js/copo_sample_parse_spreadsheet.js' %}"></script>
+    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="{% static 'copo/js/csv_column_updates.js' %}"></script>
     <script src="{% static 'copo/js/fastdom.js' %}"></script>
 {% endblock %}

@@ -83,7 +83,6 @@
       "show_in_table": false,
       "hidden": "false",
       "control": "copo-lookup2",
-      "control": "copo-lookup2",
       "create_new_item": true,
       "option_component": "source",
       "data_maxItems": 1,

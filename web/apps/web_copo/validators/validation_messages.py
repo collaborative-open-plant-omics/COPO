@@ -5,6 +5,9 @@ MESSAGES = {
     "validation_msg_missing_data": "Missing data detected in column <strong>%s</strong> at row <strong>%s</strong>. "
                                    "All required fields must have a value. There must be no empty rows. Values of "
                                    "<strong>%s</strong> are allowed, unless otherwise stated in the SOP.",
+    "validation_msg_missing_data_ena_seq": "Missing data detected in column <strong>%s</strong> at row "
+                                           "<strong>%s</strong>. "
+                                           "All fields must have a value.",
     "validation_msg_missing_scientific_name": "Missing data detected in column <strong>%s</strong> at row "
                                               "<strong>%s</strong>. "
                                               "All required fields must have a value. There must be no empty rows.",
@@ -41,6 +44,10 @@ MESSAGES = {
 
     "validation_msg_invalid_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
                                    "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
+    "barcode_msg_missing_specimen": "Samples not for found specimen <strong>%s</strong>. Barcodes can only be "
+                                    "uploaded for previously registered TOL samples."
+
+                                   "<strong>%s</strong>. Dates should be in format YYYY-MM-DD",
     "validation_msg_invalid_taxon": "TAXON_ID <strong>%s</strong> at row <strong>%s</strong> is invalid. "
                                     "Check SCIENTIFIC_NAME and TAXON_ID match at NCBI <a "
                                     "href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi'>here</a> or "
@@ -72,21 +79,28 @@ MESSAGES = {
                                                 "<strong>"
                                                 "%s</strong> followed by <strong>%s</strong>.",
     "validation_msg_warning_barcoding": "Warning: Overwriting PLATE_ID_FOR_BARCODING, "
-                                        "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and BARCODE_PLATE_PRESERVATIVE"
-                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>",
-    "validation_msg_original_field_missing": "Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row <strong>%s</strong>"
+                                        "TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING and "
+                                        "BARCODE_PLATE_PRESERVATIVE"
+                                        "at row <strong>%s</strong> because TISSUE_REMOVED_FOR_BARCODING is "
+                                        "<strong>%s</strong>",
+    "validation_msg_original_field_missing": "Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row "
+                                             "<strong>%s</strong>"
                                              ". If ORIGINAL_COLLECTION_DATE is provided, ORIGINAL_GEOGRAPHIC_LOCATION"
                                              " must also be provided.",
     "validation_msg_multiple_targets_with_same_id": "Multiple Targets found for RACK_OR_PLATE_ID/TUBE_OR_WELL_ID: "
                                                     "<strong>%s</strong>",
     "validation_msg_orphaned_symbiont": "Sybiont(s) found with TUBE_OR_WELL_ID: <strong>%s</strong> has no associated "
                                         "Target",
-    "validation_message_wrong_specimen_taxon_pair" : "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
-                                                       "SPECIMEN_ID <strong>%s</strong> has already been used for "
-                                                     "a specimen with TAXON_ID "
-                                                       "<strong>%s</strong>",
-    "validation_msg_isupdate" : "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will " 
-                                "perform an update.",
+    "validation_message_wrong_specimen_taxon_pair": "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
+                                                    "SPECIMEN_ID <strong>%s</strong> has already been used for "
+                                                    "a specimen with TAXON_ID "
+                                                    "<strong>%s</strong>",
+    "validation_msg_isupdate": "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will "
+                               "perform an update.",
     "validation_msg_future_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
-                                       "<strong>%s</strong>. Date cannot be in the future.",
+                                  "<strong>%s</strong>. Date cannot be in the future.",
+    "validation_msg_paired_file_error": "Field indicates that files should be paired, but only one filename was "
+                                        "provided at row <strong>%s</strong>",
+    "validation_msg_single_file_error": "Field indicates that files should be single, but multiple filenames were "
+                                        "provided at row <strong>%s</strong>",
 }
