@@ -175,27 +175,27 @@ class DtolEnumerationValidator(TolValidtor):
                                 ))
                                 self.flag = False
                     #only do this if this is target
-                            if self.data.at[cellcount - 1, "SYMBIONT"].strip().upper() != "SYMBIONT":
-                                #check if SPECIMEN_ID in db, if it is check it refers to the same TAXON_ID if target
-                                existing_samples = Sample().get_target_by_specimen_id(c.strip())
-                                if existing_samples:
-                                    for exsam in existing_samples:
-                                        if exsam["species_list"][0]["TAXON_ID"] != self.data.at[cellcount -1, "TAXON_ID"]:
-                                            self.errors.append(msg["validation_message_wrong_specimen_taxon_pair"] % (
-                                                str(cellcount + 1), c.strip(), exsam["species_list"][0]["TAXON_ID"]
-                                            ))
-                                            self.flag = False
-                                            break
-                                #check the same in spreadsheet
-                                if c.strip() in manifest_specimen_taxon_pairs:
-                                    if manifest_specimen_taxon_pairs[c.strip()] != self.data.at[cellcount -1, "TAXON_ID"]:
+                        if self.data.at[cellcount - 1, "SYMBIONT"].strip().upper() != "SYMBIONT":
+                            #check if SPECIMEN_ID in db, if it is check it refers to the same TAXON_ID if target
+                            existing_samples = Sample().get_target_by_specimen_id(c.strip())
+                            if existing_samples:
+                                for exsam in existing_samples:
+                                    if exsam["species_list"][0]["TAXON_ID"] != self.data.at[cellcount -1, "TAXON_ID"]:
                                         self.errors.append(msg["validation_message_wrong_specimen_taxon_pair"] % (
-                                                str(cellcount + 1), c.strip(), manifest_specimen_taxon_pairs[c.strip()]+
-                                                " in this manifest"
-                                            ))
+                                            str(cellcount + 1), c.strip(), exsam["species_list"][0]["TAXON_ID"]
+                                        ))
                                         self.flag = False
-                                else:
-                                    manifest_specimen_taxon_pairs[c.strip()] = self.data.at[cellcount -1, "TAXON_ID"]
+                                        break
+                            #check the same in spreadsheet
+                            if c.strip() in manifest_specimen_taxon_pairs:
+                                if manifest_specimen_taxon_pairs[c.strip()] != self.data.at[cellcount -1, "TAXON_ID"]:
+                                    self.errors.append(msg["validation_message_wrong_specimen_taxon_pair"] % (
+                                            str(cellcount + 1), c.strip(), manifest_specimen_taxon_pairs[c.strip()]+
+                                            " in this manifest"
+                                        ))
+                                    self.flag = False
+                            else:
+                                manifest_specimen_taxon_pairs[c.strip()] = self.data.at[cellcount -1, "TAXON_ID"]
 
                         #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
                     elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
