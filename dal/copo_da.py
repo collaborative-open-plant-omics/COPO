@@ -6,6 +6,7 @@ from datetime import datetime, timezone, date
 
 import pandas as pd
 import pymongo
+from pymongo import ReturnDocument
 import pymongo.errors as pymongo_errors
 from bson import ObjectId, json_util
 from bson.errors import InvalidId
@@ -13,7 +14,7 @@ from chunked_upload.models import ChunkedUpload
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
-
+from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
 from dal.copo_base_da import DataSchemas
@@ -49,8 +50,9 @@ SubmissionQueueCollection = 'SubmissionQueueCollection'
 MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
-TestCollection = 'TestCollection'
 BarcodeCollection = 'BarcodeCollection'
+ValidationQueueCollection = 'ValidationQueueCollection'
+TestCollection = 'TestCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -67,7 +69,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
                    stats=get_collection_ref(StatsCollection),
                    test=get_collection_ref(TestCollection),
-                   barcode=get_collection_ref(BarcodeCollection)
+                   barcode=get_collection_ref(BarcodeCollection),
+                   validationQueue=get_collection_ref(ValidationQueueCollection)
                    )
 
 
@@ -317,6 +320,39 @@ class DAComponent:
 class TestObjectType(DAComponent):
     def __init__(self, profile_id=None):
         super(TestObjectType, self).__init__(profile_id, "test")
+
+
+class ValidationQueue(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ValidationQueue, self).__init__(profile_id, "validationQueue")
+
+    def get_queued_manifests(self):
+        m_list = self.get_collection_handle().aggregate([
+            {"$match": {"schema_validation_status": "pending", "taxon_validation_status": "pending"}},
+            {"$addFields": {"schema_validation_status": "processing", "taxon_validation_status": "processing"}}
+        ]
+        )
+        return m_list
+
+    def update_manifest_data(self, record_id, manifest_data):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"manifest_data": manifest_data}})
+
+    def set_update_flag(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"isupdate": True}})
+
+    def set_taxon_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
+
+    def set_taxon_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                           err}})
+
+    def set_schema_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "complete"}})
+
+    def set_schema_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                            err}})
 
 
 class Publication(DAComponent):
@@ -585,8 +621,9 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
@@ -686,8 +723,48 @@ class Sample(DAComponent):
     def __init__(self, profile_id=None):
         super(Sample, self).__init__(profile_id, "sample")
 
+    def get_barcoding(self, profile_id):
+        bc = self.get_collection_handle().find({"profile_id": profile_id})
+        out = list()
+        for s in bc:
+            if "submit_as_taxon" in s:
+                if s["submit_as_taxon"] == "bold":
+                    sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
+                        "barcoding"], "using": "bold"}
+                else:
+                    barcoding = self.convert_barcoding_to_bold_from_specieslist(s["species_list"][0])
+                    sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding":
+                        barcoding, "using": "manifest"}
+            else:
+                sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
+                    "barcoding"], "using": "bold"}
+            out.append(sm)
+        return list(out)
+
+    def convert_barcoding_to_bold_from_specieslist(self, bc):
+        row = {}
+
+        row["specimen_identifiers"] = {"sampleid": ""}
+        row["taxonomy"] = {}
+        row["taxonomy"]["phylum"] = {"taxon": {"name": ""}}
+        row["taxonomy"]["class"] = {"taxon": {"name": ""}}
+        row["taxonomy"]["order"] = {"taxon": {"name": bc.get("ORDER_OR_GROUP", "")}}
+        row["taxonomy"]["family"] = {"taxon": {"name": bc.get("FAMILY", "")}}
+        row["taxonomy"]["genus"] = {"taxon": {"name": bc.get("GENUS", "")}}
+        row["taxonomy"]["species"] = {"taxon": {"name": bc.get("SCIENTIFIC_NAME", "")}}
+        return row
+
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
+
+    def is_barcoding_present(self, profile_id):
+        samples = self.get_collection_handle().find({"profile_id": profile_id})
+        bc_present = False
+        for s in samples:
+            if "barcoding" in s:
+                if s["barcoding"] != "":
+                    bc_present = True
+        return bc_present
 
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
         # specimens must not have already been submitted to ENA so should have status of pending
@@ -697,10 +774,11 @@ class Sample(DAComponent):
     def find_incorrectly_rejected_samples(self):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
-        self.get_collection_handle().update_many(
-            {"biosampleAccession": {"$ne": ""}},
-            {"$set": {"status": "accepted"}}
-        )
+        # self.get_collection_handle().update_many(
+        #    {"biosampleAccession": {"$ne": ""}},
+        #    {"$set": {"status": "accepted"}}
+        # )
+        pass
 
     def get_name(self, column, records):
         return self.get_collection_handle().find({"_id": {"$in": records}}, {"name": 1})
@@ -888,7 +966,9 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]},
+                 "barcoding": {
+                     "$exists": True, "$ne": ""}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -949,8 +1029,9 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
@@ -1080,6 +1161,16 @@ class Sample(DAComponent):
             "user": "copo@earlham.ac.uk"
         }}})
 
+    def add_blank_barcode_record(self, specimen_id, barcode_id):
+        self.get_collection_handle().update({"specimen_id": specimen_id},
+                                            {"$set": {"specimen_id": specimen_id, "barcode_id":
+                                                barcode_id}}, upsert=True)
+
+    def update_tol_by_specimen(self, specimen_id, sample_data):
+
+        return self.get_collection_handle().find_one_and_update({"SPECIMEN_ID": specimen_id}, {"$set": sample_data},
+                                                                return_document=ReturnDocument.AFTER)
+
 
 class Submission(DAComponent):
     def __init__(self, profile_id=None):
@@ -1124,7 +1215,8 @@ class Submission(DAComponent):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
-                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083", level=Loglvl.ERROR, type=Logtype.FILE)
+                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
 
                 # no need to change status
             elif s.get("dtol_status", "") == "pending":
@@ -1738,7 +1830,6 @@ class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
 
-
     def get_num(self):
         return self.get_collection_handle().count({})
 
@@ -1844,13 +1935,13 @@ class Profile(DAComponent):
         return cursor_to_list(p)
 
     def validate_and_delete(self, profile_id):
-        #check if any submission object reference this profile, if so do not delete
+        # check if any submission object reference this profile, if so do not delete
         if Submission().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are datafiles associated with the profile, if so do not delete
+        # check if there are datafiles associated with the profile, if so do not delete
         if DataFile().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are samples associated with the profile, if so di not delete
+        # check if there are samples associated with the profile, if so di not delete
         if cursor_to_list(Sample().get_from_profile_id(profile_id)):
             return False
         self.get_collection_handle().remove({"_id": ObjectId(profile_id)})
@@ -2281,11 +2372,3 @@ class Barcode(DAComponent):
         self.get_collection_handle().update_many({"specimen_id": specimen_id},
                                                  {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
                                                  upsert=True)
-
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False

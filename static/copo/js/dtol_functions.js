@@ -2,9 +2,17 @@ $(document).ready(function () {
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
     $(document).data("isDtolSamplePage", true)
+
+    if ($("#show_bc_control").val() === "False") {
+        $("#inspect_barcoding").hide()
+    } else {
+        $("#inspect_barcoding").show()
+    }
+    $(document).on("click", "#inspect_barcoding", inspect_barcoding)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
+    // TODO - excluded fields should vary by profile type
+    excluded_fields = ["profile_id", "biosample_id", "species_list", "barcoding"]
     // populate profiles panel on left
     update_pending_samples_table()
 
@@ -13,6 +21,19 @@ $(document).ready(function () {
             $(element).click()
         })
     })
+
+    $(document).on("click", "#force_btn", handle_accept_reject)
+
+    $(document).on("click", "#dd_reason", function (e) {
+        var e = document.getElementById("dd_reason")
+        var val = e.value;
+        if (val === "other") {
+            $("#txt_box_other_reason").prop("disabled", false)
+        } else {
+            $("#txt_box_other_reason").prop("disabled", true)
+        }
+    })
+
     $(document).on("click", ".select-none", function () {
         $(".form-check-input:checked").each(function (idx, element) {
             $(element).click()
@@ -49,7 +70,7 @@ $(document).ready(function () {
                         var checked = $(".form-check-input:checked").closest("tr")
                         var sample_ids = []
                         $(checked).each(function (it) {
-                            sample_ids.push($(checked[it]).data("id"))
+                            sample_ids.push($(checked[it]).attr("id"))
                         })
                         console.log(sample_ids)
                         $.ajax({
@@ -78,18 +99,27 @@ $(document).ready(function () {
 
         if ($(".form-check-input:checked").length) {
             $("#accept_reject_button").find("button").prop("disabled", false)
+            $("#barcode_select").find("button").prop("disabled", false)
         } else {
             $("#accept_reject_button").find("button").prop("disabled", true)
+            $("#barcode_select").find("button").prop("disabled", true)
         }
+        //$(".background_violet").removeClass("background_violet")
+        //$(".background_pink").removeClass("background_pink")
         $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
-            $(el).toggleClass("selected_row")
+            $(el).not(".manifest, .bold").toggleClass("selected_row")
+
         })
+        $(el.currentTarget).parent().parent().find(".manifest").toggleClass("background_violet")
+        $(el.currentTarget).parent().parent().find(".bold").toggleClass("background_pink")
     })
 
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
+    $(document).on("click", "#force_submission", handle_force_submission)
 
     // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
-    $(document).on("click", ".selectable_row, .hot_tab", row_select)
+    $(document).on("click", ".selectable_row, .hot_tab, #conflict_pane", row_select)
+
 
     $(document).on("change", "#dtol_type_select", function (e) {
         $.ajax({
@@ -192,9 +222,18 @@ var dt_options = {
 }
 
 function row_select(ev) {
+    try {
+        if (ev.currentTarget.children[0].id == "bc_tab") {
+            get_barcoding(ev)
+            return false
+        }
+    } catch (err) {
+
+    }
     $("#accept_reject_button").find("button").prop("disabled", true)
     // get samples for profile clicked in the left hand panel and populate table on the right
     var row;
+    var p_id
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
         $(document).data("selected_row", $(ev.currentTarget))
@@ -204,10 +243,47 @@ function row_select(ev) {
     } else {
         row = $(document).data("selected_row")
     }
-
+    if (typeof row === 'undefined') {
+        p_id = $("#profile_id").val()
+    }
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
+    if (filter.startsWith("#")) {
+        filter = filter.split('#')[1]
+    }
 
-    var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
+    if (filter == "conflicting_barcode") {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").show()
+        $("#edit_buttons").show()
+        $("#sample_filter").removeClass("filter_margin")
+        $("#force_submission").hide()
+        $("#edit_buttons").hide()
+    } else if (filter == "pending") {
+        $("#accept_reject_button").show()
+        $("#barcode_select").hide()
+        $("#edit_buttons").show()
+        $("#sample_filter").removeClass("filter_margin")
+        $("#force_submission").hide()
+    } else if (filter == "pending_barcode") {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").hide()
+        $("#edit_buttons").show()
+        $("#force_submission").show()
+        $("#sample_filter").removeClass("filter_margin")
+
+    } else {
+        $("#accept_reject_button").hide()
+        $("#barcode_select").hide()
+        $("#force_submission").hide()
+        $("#edit_buttons").hide()
+        $("#sample_filter").addClass("filter_margin")
+    }
+
+    if (typeof (p_id) === 'undefined') {
+        var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
+    } else {
+        var d = {"profile_id": p_id, "filter": filter}
+    }
     $("#profile_id").val(d.profile_id)
 
 
@@ -221,10 +297,34 @@ function row_select(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
-            if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                $("#profile_samples").DataTable().clear().destroy();
+        if ($.fn.DataTable.isDataTable('#profile_samples')) {
+            $("#profile_samples").DataTable().clear().destroy();
+        }
+        if (filter === "conflicting_barcode") {
 
-            }
+            $("#sample_panel").find("thead").empty()
+            $("#sample_panel").find("tbody").empty()
+            var th = "<tr><th></th><th>Specimen ID</th><th>Manifest Species</th><th>Bold Species</th></tr>"
+            var body = ""
+            $(data).each(function (idx, el) {
+                var manifest_tax = el.species_list
+                var bold_tax = el.barcoding
+                var td = $("<td/>", {
+                    class: "tickbox"
+                })
+                var tickbox = $("<input/>",
+                    {
+                        "type": "checkbox",
+                        class: "form-check-input"
+                    })
+                $(td).append(tickbox)
+
+                body = body + "<tr data-id='" + el._id.$oid + "'><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+            })
+            $("#sample_panel").find("thead").append(th)
+            $("#sample_panel").find("tbody").append(body)
+            $("#profile_samples").DataTable(dt_options);
+        } else {
             $("#sample_panel").find("thead").empty()
             $("#sample_panel").find("tbody").empty()
 
@@ -235,6 +335,7 @@ function row_select(ev) {
                 $("#sample_panel").find(".labelling").empty().append(header)
 
                 var rows = []
+                var header = []
                 $(data).each(function (idx, row) {
                     var th_row = document.createElement("tr")
                     var td_row = document.createElement("tr")
@@ -242,13 +343,12 @@ function row_select(ev) {
 
                     if (idx == 0) {
                         // do header and row
-                        if (filter === "pending") {
+                        if (filter.startsWith("pending")) {
 
                             var empty_th = document.createElement("th")
                             th_row.appendChild(empty_th)
                             var td = document.createElement("td")
                             td.className = "tickbox"
-
                             var tickbox = $("<input/>",
                                 {
                                     "type": "checkbox",
@@ -272,6 +372,7 @@ function row_select(ev) {
                                 var th = $("<th/>", {
                                     html: el
                                 })
+                                header.push(el)
                                 $(th_row).append(
                                     th
                                 )
@@ -293,7 +394,7 @@ function row_select(ev) {
                         document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
 
                     } else { // if not first element
-                        if (filter === "pending") {
+                        if (filter.startsWith("pending")) {
 
                             var td = document.createElement("td")
                             td.className = "tickbox"
@@ -302,22 +403,25 @@ function row_select(ev) {
                             tickbox.className = "form-check-input checkbox"
                             td.appendChild(tickbox)
                             td_row.appendChild(td)
+                            td_row.setAttribute("id", row["_id"].$oid)
+                            td_row.setAttribute("sample_id", row["_id"].$oid)
                         }
-                        for (el in row) {
-                            if (el == "_id") {
-                                td_row.setAttribute("id", row._id.$oid)
-                                td_row.setAttribute("sample_id", row._id.$oid)
-                            } else if (!excluded_fields.includes(el)) {
+                        for (el in header) {
+                            name = header[el]
+                            if (!excluded_fields.includes(name)) {
                                 // just do row
                                 td = $("<td/>", {
-                                    html: row[el]
+                                    html: row[name]
                                 })
                                 var td = document.createElement("td")
-                                td.innerHTML = row[el]
-                                if (row[el] == 'NA') {
-                                    td.className = "na_color"
-                                } else if (row[el] == "") {
+                                if (row.hasOwnProperty(name)) {
+                                    td.innerHTML = row[name]
+                                } else {
+                                    td.innerHTML = ""
                                     td.className = "empty_color"
+                                }
+                                if (row[name] == 'NA') {
+                                    td.className = "na_color"
                                 }
                                 td_row.appendChild(td)
 
@@ -327,14 +431,14 @@ function row_select(ev) {
                         rows.push(td_row)
                     }
                 })
-                fastdom.mutate(() => {
-                    //$("#profile_samples tbody").append(rows)
-                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
-                    rows.forEach(el => {
-                        tbody.appendChild(el)
-                    })
-                    $("#profile_samples").DataTable(dt_options);
+                //fastdom.mutate(() => {
+                //$("#profile_samples tbody").append(rows)
+                var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
+                rows.forEach(el => {
+                    tbody.appendChild(el)
                 })
+                //})
+                $("#profile_samples").DataTable(dt_options);
             } else {
                 var content
                 if (data.hasOwnProperty("locked")) {
@@ -352,9 +456,9 @@ function row_select(ev) {
                 $("#accept_reject_button").find("button").prop("disabled", true)
 
             }
-
             $("#spinner").fadeOut("fast")
-
+            $("#dtol_sample_info").text("")
+        }
         }
     )
 }
@@ -386,16 +490,22 @@ function update_pending_samples_table() {
 
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
-
-
     var checked = $(".form-check-input:checked").closest("tr")
+    if (el.hasOwnProperty("currentTarget")) {
+        var button = $(el.currentTarget)
+    }
 
-    var button = $(el.currentTarget)
     var action
+    var dd_reason
+    var txt_box_other_reason
     if (button.hasClass("positive")) {
         action = "accept"
-    } else {
+    } else if (button.hasClass("negative")) {
         action = "reject"
+    } else if (button.hasClass("force")) {
+        action = "accept"
+        var dd_reason = $(document).data("dd_reason")
+        var txt_box_other_reason = $(document).data("txt_box_other_reason")
     }
     var sample_ids = []
     $(checked).each(function (it) {
@@ -422,16 +532,107 @@ function handle_accept_reject(el) {
         })
     } else if (action == "accept") {
         // create or update dtol submission record
-        var profile_id = $("#profile_id").val()
-        $("#sub_spinner").fadeIn(fadeSpeed)
-        $.ajax({
-            url: "/copo/add_sample_to_dtol_submission/",
-            method: "GET",
-            data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
-        }).done(function () {
-            $("#profile_titles").find(".selected").click()
-            $("#spinner").fadeOut(fadeSpeed)
-        })
+        do_accept(sample_ids, dd_reason, txt_box_other_reason)
     }
+}
 
+function handle_force_submission() {
+
+
+    BootstrapDialog.show({
+        title: 'Reason for Forcing Submission',
+        message: $("<div></div>").load('/copo/force_submission_dialog_content/'),
+        buttons: [{
+            id: 'force_btn',
+            label: 'Accept',
+            cssClass: 'ui green button force',
+            action: function (dialog) {
+                $(document).data("dd_reason", $('#dd_reason').find(":selected").val())
+                $(document).data("txt_box_other_reason", $('#txt_box_other_reason').val())
+                dialog.close()
+            }
+        }, {
+            label: 'Close',
+            cssClass: 'ui button',
+            action: function (dialog) {
+                dialog.close();
+            }
+        }],
+    })
+}
+
+function do_accept(sample_ids, dd_reason, txt_box_other_reason) {
+    var profile_id = $("#profile_id").val()
+    $("#sub_spinner").fadeIn(fadeSpeed)
+    $.ajax({
+        url: "/copo/add_sample_to_dtol_submission/",
+        method: "GET",
+        data: {
+            "sample_ids": JSON.stringify(sample_ids),
+            "profile_id": profile_id,
+            "dd_reason": dd_reason,
+            "txt_box_other_reason": txt_box_other_reason
+        },
+    }).done(function () {
+        $("#profile_titles").find(".selected").click()
+        $("#spinner").fadeOut(fadeSpeed)
+    })
+}
+
+function inspect_barcoding() {
+    $("#bc_inspect_modal").modal("show")
+    document.getElementById("bc_tab").click()
+}
+
+function get_barcoding(ev) {
+    profile_id = $("#profile_id").val()
+    $.ajax({
+        url: "/copo/inspect_barcoding/",
+        method: "GET",
+        data: {
+            "profile_id": profile_id
+        },
+    }).done(function (d) {
+        rows = JSON.parse(d)
+        document.getElementById("bc_table_body").innerHTML = ""
+        // if datatables already applied, destroy or else duplicate errors appear on page
+        if ($.fn.DataTable.isDataTable('#barcoding')) {
+            $("#barcoding").DataTable().clear().destroy();
+        }
+        for (idx in rows) {
+            row = rows[idx]
+            // fields contains the data we want to appear horizontally across the table. We will iterate this to save on code
+            fields = [row["SPECIMEN_ID"],
+                row["TUBE_OR_WELL_ID"],
+                row["barcoding"]["specimen_identifiers"]["sampleid"],
+                row["barcoding"]["taxonomy"]["phylum"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["class"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["order"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["family"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["genus"]["taxon"]["name"],
+                row["barcoding"]["taxonomy"]["species"]["taxon"]["name"],
+
+            ]
+            using = row["using"]
+            let tr = document.createElement("tr")
+            if (using === "manifest") {
+                $(tr).addClass("background_violet")
+            } else if (using === "bold") {
+                $(tr).addClass("background_pink")
+            }
+
+
+            //$(tr).addClass("purple")
+            for (f in fields) {
+                field = fields[f]
+                let td = document.createElement("td")
+                let txt = document.createTextNode(field)
+                td.appendChild(txt)
+                tr.appendChild(td)
+                document.getElementById("bc_table_body").appendChild(tr)
+            }
+        }
+        // apply datatables
+        $("#barcoding").DataTable()
+    })
 }

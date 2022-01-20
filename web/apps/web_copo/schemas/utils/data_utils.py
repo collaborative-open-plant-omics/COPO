@@ -403,7 +403,7 @@ def get_copo_id():
 
 def get_user_id():
     if settings.UNIT_TESTING:
-        User.objects.get(username=settings.TEST_USER_NAME).id
+        return User.objects.get(pk=1).id
     else:
         return ThreadLocal.get_current_user().id
 

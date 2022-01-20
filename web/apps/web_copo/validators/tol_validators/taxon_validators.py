@@ -1,21 +1,20 @@
 from Bio import Entrez
 
-from dal.copo_da import Profile
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
-from .tol_validator import TolValidtor
-from .validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
 whole_used_specimens = set()
 regex_human_readable = ""
 
 
-class DtolEnumerationValidator(TolValidtor):
+class DtolEnumerationValidator(Validator):
 
     def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
         super().__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
-        #self.warnings = list()
+        # self.warnings = list()
         self.taxonomy_dict = {}
 
     def validate(self):
@@ -30,7 +29,7 @@ class DtolEnumerationValidator(TolValidtor):
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
                 # check if taxon is submittable
-                ena_taxon_errors = check_taxon_ena_submittable(taxon)
+                ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
                     self.flag = False
@@ -80,7 +79,7 @@ class DtolEnumerationValidator(TolValidtor):
                 self.data.at[index, "TAXON_ID"] = records['IdList'][0]
                 taxon_id = records['IdList'][0]
                 # check if taxon is submittable
-                ena_taxon_errors = check_taxon_ena_submittable(taxon_id)
+                ena_taxon_errors = check_taxon_ena_submittable(taxon_id, by="id")
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
                     self.flag = False

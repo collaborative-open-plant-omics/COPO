@@ -2,7 +2,7 @@ aioredis==1.3.1
 alabaster==0.7.12
 amqp==2.5.1
 appnope==0.1.0
-asgiref
+asgiref==3.3.4
 asn1crypto==0.24.0
 astroid==2.2.5
 async-timeout
@@ -23,7 +23,7 @@ celery==4.3.0
 certifi==2019.6.16
 cffi==1.12.3
 channels==2.2.0
-channels-redis==3.3.1
+channels-redis
 chardet==3.0.4
 colorama==0.4.1
 configparser==3.7.4

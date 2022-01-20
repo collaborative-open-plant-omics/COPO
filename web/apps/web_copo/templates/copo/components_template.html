@@ -312,7 +312,7 @@
              data-action="validate_and_delete"
              data-error-message="Please select one or more records to delete"
              data-btntype="multi"
-             title="Delete records"
+             title="Delete records" ,
              tabindex="0"
              id="delete_button">
             <i class=" fa fa-trash-o"></i>
@@ -448,9 +448,22 @@
     </button>
 
     <!-- button to upload spreadsheet for dtol users -->
-    <button style="display: none" title="Add Sample(s) from DTOL Spreadsheet"
+    <button style="display: none" title="Add Sample(s) from TOL Manifest"
             class="big circular ui icon green button new-samples-spreadsheet-template copo-tooltip">
         <i class="icon table sign"></i>
+    </button>
+    <!-- button to upload spreadsheet for dtol_users -->
+    <button style="display: none" title="Add Barcoding Data"
+            class="big circular ui icon violet button barcoding_manifest copo-tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upc"
+             viewBox="0 0 16 16">
+            <path d="M3 4.5a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-7zm3 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7z"/>
+        </svg>
+    </button>
+    <!-- button to upload spreadsheet for dtol_users -->
+    <button style="display: none" title="Add Images"
+            class="big circular ui icon purple button new-samples-spreadsheet-template copo-tooltip">
+        <i class="image outline icon"></i>
     </button>
 
     <!-- button to upload spreadsheet for erga users -->
@@ -459,13 +472,42 @@
         <i class="icon table sign"></i>
     </button>
 
+    <!-- semantic ui expanding menu -->
+    <span class="ui vertical menu expanding_menu" id="expanding_menu">
+        <div class="ui left pointing dropdown link item">
+            Actions
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <!--<a class="item action" data-action_type="reads">Submit Reads</a>-->
+                <a class="item action" data-action_type="dtol">Submit DTOL/ASG manifest</a>
+                <a class="item action" data-action_type="erga">Submit ERGA Manifest</a>
+            </div>
+        </div>
+        <div class="ui left pointing dropdown link item">
+            Components
+            <i class="dropdown icon"></i>
+            <div class="menu comp">
+
+            </div>
+        </div>
+
+    </span>
+
 
     <!-- button to for dtol_sample_managers to accept/reject submitted samples -->
     <button style="display: none" title="Accept/Reject TOL Samples"
-            class="big circular ui icon teal button accept_reject_samples copo-tooltip">
+            class="big circular ui icon blue button accept_reject_samples copo-tooltip">
         <i class="icon tasks sign"></i>
     </button>
 
+    <!-- button to for dtol_sample_managers to accept/reject submitted samples -->
+    <button title="Inspect Barcoding" id="inspect_barcoding"
+            class="big circular ui icon orange button inspect_bc copo-tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upc-scan"
+             viewBox="0 0 16 16">
+            <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1h-3zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5zM.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5zM3 4.5a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7zm2 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-7zm3 0a.5.5 0 0 1 1 0v7a.5.5 0 0 1-1 0v-7z"/>
+        </svg>
+    </button>
 
     <!-- record tasks button -->
     <button title="Record tasks" class="big circular ui icon button record-tasks-template copo-tooltip">

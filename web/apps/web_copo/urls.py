@@ -1,18 +1,17 @@
 from django.urls import path, re_path
 
-from web.apps.web_copo.file_server import BaseFileDownloadView
-from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
+# from web.apps.web_copo.file_server import BaseFileDownloadView
+from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views
 
 app_name = 'web_copo'
 
 urlpatterns = [
     path('', views.index, name='index'),
-
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
-
+    path('test', views.test, name='test'),
     path('stats/<str:view>', views.stats, name='stats'),
     path('stats/', views.stats, name='stats'),
     path('login/', views.login, name='auth'),
@@ -190,5 +189,23 @@ urlpatterns = [
     path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
          name="handle_csv_column_validate_spreadsheet"),
     path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
-         name="handle_csv_column_update_samples")
+         name="handle_csv_column_update_samples"),
+    path('ena_read_manifest_validate/<profile_id>', views.ena_read_manifest_validate,
+         name="ena_read_manifest_validate"),
+    path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
+         name="parse_ena_spreadsheet"),
+    path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,
+         name="save_ena_records"),
+    path('upload_barcoding_manifest/', ajax_handlers.upload_barcoding_manifest,
+         name="upload_barcoding_manifest"),
+    path('compare_barcode_with_sample/', ajax_handlers.compare_barcode_with_sample,
+         name="compare_barcode_with_sample"),
+    path('accept_barcoding_manifest/', ajax_handlers.accept_barcoding_manifest,
+         name="accept_barcoding_manifest"),
+    path('set_barcoding_status/', ajax_handlers.set_barcoding_status,
+         name="set_barcoding_status"),
+    path('force_submission_dialog_content/', views.force_submission_dialog_content,
+         name="force_submission_dialog_content"),
+    path('inspect_barcoding/', ajax_handlers.inspect_barcoding,
+         name="inspect_barcoding"),
 ]

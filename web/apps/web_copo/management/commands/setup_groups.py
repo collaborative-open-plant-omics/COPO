@@ -1,8 +1,9 @@
 # Created by fshaw at 25/06/2018
 
-from django.core.management import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import BaseCommand
+
 from web.apps.web_copo.models import Repository
 
 
@@ -17,6 +18,10 @@ class Command(BaseCommand):
 
         # group for creating custom repos
         dm_group, created = Group.objects.get_or_create(name='data_managers')
+        dtol_group, create = Group.objects.get_or_create(name='dtol_users')
+        dtol_managers, created = Group.objects.get_or_create(name='dtol_sample_managers')
+        dtol_notifiers, created = Group.objects.get_or_create(name='dtol_sample_notifiers')
+        dtol_barcoders, created = Group.objects.get_or_create(name='dtol_barcoders')
 
         ct = ContentType.objects.get_for_model(Repository)
 

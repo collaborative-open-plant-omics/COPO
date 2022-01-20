@@ -8,8 +8,9 @@ from allauth.socialaccount.models import SocialAccount
 from bson import ObjectId
 from bson import json_util as j
 from django.contrib.admin.views.decorators import staff_member_required
+
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from jsonpickle import encode
 from pexpect import run
@@ -22,7 +23,7 @@ from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals
 from dal.copo_da import DataFile
 from dal.copo_da import ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate
-from web.apps.web_copo.decorators import user_is_staff
+from web.apps.web_copo.decorators import user_is_staff, user_allowed_access
 from web.apps.web_copo.lookup.lookup import REPO_NAME_LOOKUP
 from web.apps.web_copo.models import banner_view
 from web.apps.web_copo.schemas.utils import data_utils
@@ -54,6 +55,7 @@ def login(request):
     return render(request, 'copo/auth/login.html', context)
 
 
+@user_passes_test(user_allowed_access)
 def stats(request, view=""):
     if view == "time_series":
         return render(request, context={}, template_name="copo/stats/time_series_statistics.html")
@@ -61,7 +63,6 @@ def stats(request, view=""):
         return render(request, context={}, template_name="copo/stats/variable_histogram_statistics.html")
     else:
         return render(request, context={}, template_name="copo/stats/time_series_statistics.html")
-
 
 '''
 def test_submission(request):
@@ -72,6 +73,15 @@ def test_submission(request):
 
 def error_page(request):
     return render(request, context={}, template_name="copo/error_page.html")
+
+
+def test(request):
+    return render(request, context={}, template_name="copo/error_page.html")
+
+
+def ena_read_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
 
 @login_required
@@ -97,6 +107,7 @@ def test_dataverse_submit(request):
     return render(request, 'copo/copo_annotate_pdf.html', {})
 
 
+@user_passes_test(user_allowed_access)
 @login_required
 def view_copo_profile(request, profile_id):
     request.session["profile_id"] = profile_id
@@ -152,12 +163,16 @@ def copo_repositories(request):
     return render(request, 'copo/my_repositories.html')
 
 
+@user_passes_test(user_allowed_access)
+
 @login_required
 def copo_samples(request, profile_id):
     request.session["profile_id"] = profile_id
     profile = Profile().get_record(profile_id)
     groups = group_functions.get_group_membership_asString()
-    return render(request, 'copo/copo_sample.html', {'profile_id': profile_id, 'profile': profile, 'groups': groups})
+    barcoding_present = Sample().is_barcoding_present(str(profile["_id"]))
+    return render(request, 'copo/copo_sample.html', {'profile_id': profile_id, 'profile': profile, 'groups': groups,
+                                                     'show_bc_control': barcoding_present})
 
 
 @login_required
@@ -204,6 +219,7 @@ def annotate_meta(request, file_id):
 
 
 @login_required
+@user_passes_test(user_allowed_access)
 def copo_data(request, profile_id):
     request.session['datafile_url'] = request.path
     request.session["profile_id"] = profile_id
@@ -336,16 +352,17 @@ def copo_forms(request):
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(out, content_type='application/json')
 
+
 @login_required()
 def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    x=0
+    x = 0
     profile_ids = []
-    while request.POST.get("target_id["+str(x)+"][record_id]", ""):
-        profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
-        x+=1
+    while request.POST.get("target_id[" + str(x) + "][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id[" + str(x) + "][record_id]", ""))
+        x += 1
 
     response = HttpResponse(content_type="application/json")
     response.status_code = 200
@@ -360,7 +377,6 @@ def delete_profile(request):
     undeleted_json = json.dumps({"undeleted": profiles_undeleted})
     response.write(undeleted_json)
     return response
-
 
 
 @login_required
@@ -568,6 +584,10 @@ def manage_repos(request):
 
 def manage_repositories(request):
     return render(request, 'copo/copo_repository_manage.html', {'request': request})
+
+
+def force_submission_dialog_content(request):
+    return render(request, 'copo/force_submission_dialog_content.html')
 
 
 def handler404(request, exception):
