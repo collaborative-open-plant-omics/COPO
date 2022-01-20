@@ -343,6 +343,8 @@ class DtolSpreadsheet:
                 s["manifest_version"] = settings.CURRENT_ASG_VERSION
             elif "dtol" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_DTOL_VERSION
+            elif "erga" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_ERGA_VERSION
             else:
                 s["manifest_version"] = 0
 
@@ -388,7 +390,7 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description)
+        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description, project=self.type.upper())
 
     def update_records(self):
         sample_data = self.sample_data
