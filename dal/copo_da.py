@@ -988,8 +988,8 @@ class Sample(DAComponent):
     def get_by_biosample_ids(self, biosample_ids):
         return cursor_to_list(self.get_collection_handle().find({"biosampleAccession": {"$in": biosample_ids}}))
 
-    def get_by_field(self, dtol_field, value):
-        return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value}}))
+    def get_by_field(self, dtol_field, value_array):
+        return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value_array}}))
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
