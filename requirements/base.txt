@@ -172,7 +172,7 @@ wrapt==1.10.10
 xlrd==1.2.0
 xmljson==0.1.9
 zipp==0.6.0
-zope.interface==4.6.0
+zope.interface
 jsonpath-rw==1.4.0
 jsonpath-rw-ext==1.2.2
 jsonref
