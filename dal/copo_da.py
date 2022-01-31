@@ -688,9 +688,10 @@ class Sample(DAComponent):
         super(Sample, self).__init__(profile_id, "sample")
 
     def get_barcoding(self, profile_id):
-        bc = self.get_collection_handle().find({"profile_id": profile_id})
+        bc = self.get_collection_handle().find({"profile_id": profile_id, "barcoding": {"$exists": True, "$ne": ""}})
         out = list()
         for s in bc:
+
             if "submit_as_taxon" in s:
                 if s["submit_as_taxon"] == "bold":
                     sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
@@ -700,8 +701,8 @@ class Sample(DAComponent):
                     sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding":
                         barcoding, "using": "manifest"}
             else:
-                sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
-                    "barcoding"], "using": "bold"}
+                sm = {"SPECIMEN_ID": s.get("SPECIMEN_ID", ""), "TUBE_OR_WELL_ID": s.get("TUBE_OR_WELL_ID", ""), "barcoding": s.get(
+                    "barcoding", ""), "using": "bold"}
             out.append(sm)
         return list(out)
 
@@ -930,7 +931,7 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]},
+                {'profile_id': profile_id, "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting"]},
                  "barcoding": {
                      "$exists": True, "$ne": ""}})
         elif filter == "pending_barcode":
@@ -942,7 +943,7 @@ class Sample(DAComponent):
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "conflicting"})
             samples = list(cursor)
-            id_query = [str(x["_id"]) for x in samples]
+            id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
             for bc in barcodes:
                 for idx, s in enumerate(samples):
@@ -1794,7 +1795,6 @@ class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
 
-
     def get_num(self):
         return self.get_collection_handle().count({})
 
@@ -1900,13 +1900,13 @@ class Profile(DAComponent):
         return cursor_to_list(p)
 
     def validate_and_delete(self, profile_id):
-        #check if any submission object reference this profile, if so do not delete
+        # check if any submission object reference this profile, if so do not delete
         if Submission().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are datafiles associated with the profile, if so do not delete
+        # check if there are datafiles associated with the profile, if so do not delete
         if DataFile().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are samples associated with the profile, if so di not delete
+        # check if there are samples associated with the profile, if so di not delete
         if cursor_to_list(Sample().get_from_profile_id(profile_id)):
             return False
         self.get_collection_handle().remove({"_id": ObjectId(profile_id)})
