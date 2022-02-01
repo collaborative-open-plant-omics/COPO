@@ -1191,5 +1191,5 @@ NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.
 DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 SPECIES_LIST_FIELDS = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
                        "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
-TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_ei"]
+TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_ei", "erga"]
 SANGER_TOL_PROFILE_TYPES = ["asg", "dtol"]
