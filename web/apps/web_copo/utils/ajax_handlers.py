@@ -17,13 +17,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest
 from jsonpickle import encode
-
+from bson.binary import Binary
+import pickle
 import web.apps.web_copo.lookup.lookup as ol
 import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person
+    Repository, Person, ValidationQueue
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -39,6 +40,7 @@ from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
@@ -1351,7 +1353,7 @@ def get_subsample_stages(request):
 def sample_spreadsheet(request):
     file = request.FILES["file"]
     name = file.name
-    dtol = DtolSpreadsheet(file=file)
+    dtol = DtolSpreadsheet(file=file, p_id=request.session["profile_id"])
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     elif name.endswith("csv"):
@@ -1363,9 +1365,17 @@ def sample_spreadsheet(request):
 
     if dtol.loadManifest(m_format=fmt):
         l.log("Dtol manifest loaded", type=Logtype.FILE)
-        if dtol.validate_taxonomy() and dtol.validate():
-            l.log("About to collect Dtol manifest", type=Logtype.FILE)
-            dtol.collect()
+        srlz_dtol = pickle.dumps(dtol.file)
+        p_id = request.session["profile_id"]
+        r = {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
+             "taxon_validation_status":
+                 "pending",
+             "err_msg": []}
+        ValidationQueue().get_collection_handle().insert_one(r)
+        # make_validation_record(p_id, srlz_dtol)
+        # if dtol.validate_taxonomy() and dtol.validate():
+        #    l.log("About to collect Dtol manifest", type=Logtype.FILE)
+        #    dtol.collect()
     return HttpResponse()
 
     '''

@@ -50,3 +50,8 @@ def poll_missing_tolids(self):
 def poll_expired_viewlocks(self):
     ViewLock().remove_expired_locks()
     return True
+
+
+@app.task(bind=True)
+def process_tol_validations(self):
+    return True

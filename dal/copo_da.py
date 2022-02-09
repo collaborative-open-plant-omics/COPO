@@ -13,7 +13,7 @@ from chunked_upload.models import ChunkedUpload
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
-
+from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
 from dal.copo_base_da import DataSchemas
@@ -49,6 +49,8 @@ SubmissionQueueCollection = 'SubmissionQueueCollection'
 MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
+BarcodeCollection = 'BarcodeCollection'
+ValidationQueueCollection = 'ValidationQueueCollection'
 TestCollection = 'TestCollection'
 BarcodeCollection = 'BarcodeCollection'
 
@@ -67,7 +69,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
                    stats=get_collection_ref(StatsCollection),
                    test=get_collection_ref(TestCollection),
-                   barcode=get_collection_ref(BarcodeCollection)
+                   barcode=get_collection_ref(BarcodeCollection),
+                   validationQueue=get_collection_ref(ValidationQueueCollection)
                    )
 
 
@@ -317,6 +320,11 @@ class DAComponent:
 class TestObjectType(DAComponent):
     def __init__(self, profile_id=None):
         super(TestObjectType, self).__init__(profile_id, "test")
+
+
+class ValidationQueue(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ValidationQueue, self).__init__(profile_id, "validationQueue")
 
 
 class Publication(DAComponent):
