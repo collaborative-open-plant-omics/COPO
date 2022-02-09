@@ -248,7 +248,7 @@ class DtolSpreadsheet:
                                 "status": s_status, "barcoding": preexisting_samples[0][
                                     "barcoding"]}})
                         else:
-                            l.log("Dtol spreadsheet : 417 - duplicated tuberack in db and no symbiont ", type=Logtype.FILE)
+                            # l.log("Dtol spreadsheet : 417 - duplicated tuberack in db and no symbiont ", type=Logtype.FILE)
                             pass
                     else:
                         # we are dealing with another sample from the a same specimen
