@@ -30,6 +30,10 @@ from web.apps.web_copo.validators.tol_validators import optional_field_dtol_vali
     taxon_validators
 from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
+from dal import cursor_to_list
+from exceptions_and_logging import logger
+
+l = logger.Logger("exceptions_and_logging/logs")
 
 
 def make_target_sample(sample):
@@ -208,54 +212,78 @@ class DtolSpreadsheet:
                     s["SEX"] = "NOT_COLLECTED"
             s = make_target_sample(s)
             # check if sample with specimen id has already been created during barcoding upload
-            specimen = Sample().get_sample_by_specimen_id(s["SPECIMEN_ID"])
-            if specimen.count():
-                # we have existing sample with this specimen id
-                for ss in specimen:
-                    # if there is a sample with the same specimen_id, it might be a symbiont in the same tube,
-                    # or another sample of the same organism in a different tube
+            preexisting_samples = cursor_to_list(Sample().get_sample_by_specimen_id(s["SPECIMEN_ID"]))
+            if preexisting_samples:
+                # we have existing samples with this specimen id
+                racktube_list = []
+                for ss in preexisting_samples:
+                    # if there are samples with the same specimen_id, they may be symbionts in the same rack_tube,
+                    # or another sample of the same organism in a different rack_tube
+                    #use rack_tube to see if these are real samples or barcoding entries
+                    if ss.get("rack_tube", ""):
+                        racktube_list.append(ss.get("rack_tube", ""))
 
-                    tw_id = ss.get("TUBE_OR_WELL_ID", "")
-                    if tw_id:
-                        if tw_id != s["TUBE_OR_WELL_ID"] and ss.get("species_list", dict())[0].get("SYMBIONT", ""
-                                                                                                   ).lower() == \
-                                "sybiont":
-                            # this is symbiont
-                            self.make_pending_barcode_sample(s)
-                        elif tw_id != s["TUBE_OR_WELL_ID"]:
-                            # we are dealing with another sample for which a specimen already exists
+                if s.get("species_list", dict())[0].get("SYMBIONT", "").lower() == "symbiont":
+                    # this is symbiont, just make a sample
+                    self.make_pending_barcode_sample(s)
+
+                elif racktube_list:
+                    if s["rack_tube"] in racktube_list:
+                        #check if the previously uploaded sample was a symbiont
+                        existing = Sample().get_by_field("rack_tube", [s["rack_tube"]])
+                        if all(x.get("species_list", dict())[0].get("SYMBIONT", "").lower() == "symbiont" for x in existing):
+                            # we are dealing with another sample from the a same specimen
                             # so make new sample
                             smpl = Sample().get_collection_handle().insert(s)
                             # and copy over barcoding data
 
                             # N.B. function find_incorrectly_rejected_samples was setting these samples to accepted
                             # automatically, so I've commented it out. This may have knockon consequences
-                            if ss["barcoding"] == "":
+                            if preexisting_samples[0]["barcoding"] == "":
                                 s_status = "pending_barcode"
                             else:
                                 s_status = "pending"
 
                             Sample().get_collection_handle().update({"_id": smpl}, {"$set": {
-                                "status": s_status, "barcoding": ss[
+                                "status": s_status, "barcoding": preexisting_samples[0][
                                     "barcoding"]}})
-                    else:
-                        # else we are just updating an existing barcode with sample data
-                        # here check if barcoding matches
-                        # check bold reported scientific name with manifest reported and record any conflicts
-                        if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
-                                ss["barcoding"]["taxonomy"]["species"]["taxon"]["name"]).lower():
-                            s_status = "pending"
                         else:
-                            s_status = "conflicting"
-                        s["status"] = s_status
-                        sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
-                        Sample().timestamp_dtol_sample_created(sampl["_id"])
-                        # add updated sample to public_name_list
-                        if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
-                            self.public_name_list.append(
-                                {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
-                                    "SPECIMEN_ID"],
-                                 "sample_id": str(sampl["_id"])})
+                            l.log("Dtol spreadsheet : 417 - duplicated tuberack in db and no symbiont ", type=Logtype.FILE)
+                            pass
+                    else:
+                        # we are dealing with another sample from the a same specimen
+                        # so make new sample
+                        smpl = Sample().get_collection_handle().insert(s)
+                        # and copy over barcoding data
+
+                        # N.B. function find_incorrectly_rejected_samples was setting these samples to accepted
+                        # automatically, so I've commented it out. This may have knockon consequences
+                        if preexisting_samples[0]["barcoding"] == "":
+                            s_status = "pending_barcode"
+                        else:
+                            s_status = "pending"
+
+                        Sample().get_collection_handle().update({"_id": smpl}, {"$set": {
+                            "status": s_status, "barcoding": preexisting_samples[0][
+                                "barcoding"]}})
+                else:
+                    # else we are just updating an existing barcode with sample data
+                    # here check if barcoding matches
+                    # check bold reported scientific name with manifest reported and record any conflicts
+                    if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
+                            preexisting_samples[0]["barcoding"]["taxonomy"]["species"]["taxon"]["name"]).lower():
+                        s_status = "pending"
+                    else:
+                        s_status = "conflicting"
+                    s["status"] = s_status
+                    sampl = Sample().update_tol_by_specimen(specimen_id=ss["SPECIMEN_ID"], sample_data=s)
+                    Sample().timestamp_dtol_sample_created(sampl["_id"])
+                    # add updated sample to public_name_list
+                    if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
+                        self.public_name_list.append(
+                            {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl[
+                                "SPECIMEN_ID"],
+                             "sample_id": str(sampl["_id"])})
             else:
                 self.make_pending_barcode_sample(s)
 

@@ -89,7 +89,10 @@ class Barcoding:
                 # properly associate bold_ids from returned results, with specimen_ids from the barcoding manifest
                 # this step is becuase bold api does not return results in order
                 row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
-
+                if row.empty:
+                    # if nothing returned by matching BOLD sampleid, try BOLD processid
+                    r["bold_sample_id"] = record["processid"]
+                    row = self.data.loc[self.data["BOLD_ID"] == r["bold_sample_id"]]
                 r["specimen_id"] = row["SPECIMEN_ID"].to_string(index=False)
 
                 # phylum

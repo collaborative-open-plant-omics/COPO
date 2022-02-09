@@ -724,9 +724,10 @@ class Sample(DAComponent):
         super(Sample, self).__init__(profile_id, "sample")
 
     def get_barcoding(self, profile_id):
-        bc = self.get_collection_handle().find({"profile_id": profile_id})
+        bc = self.get_collection_handle().find({"profile_id": profile_id, "barcoding": {"$exists": True, "$ne": ""}})
         out = list()
         for s in bc:
+
             if "submit_as_taxon" in s:
                 if s["submit_as_taxon"] == "bold":
                     sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
@@ -736,8 +737,8 @@ class Sample(DAComponent):
                     sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding":
                         barcoding, "using": "manifest"}
             else:
-                sm = {"SPECIMEN_ID": s["SPECIMEN_ID"], "TUBE_OR_WELL_ID": s["TUBE_OR_WELL_ID"], "barcoding": s[
-                    "barcoding"], "using": "bold"}
+                sm = {"SPECIMEN_ID": s.get("SPECIMEN_ID", ""), "TUBE_OR_WELL_ID": s.get("TUBE_OR_WELL_ID", ""), "barcoding": s.get(
+                    "barcoding", ""), "using": "bold"}
             out.append(sm)
         return list(out)
 
@@ -966,7 +967,7 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]},
+                {'profile_id': profile_id, "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting"]},
                  "barcoding": {
                      "$exists": True, "$ne": ""}})
         elif filter == "pending_barcode":
@@ -978,7 +979,7 @@ class Sample(DAComponent):
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "conflicting"})
             samples = list(cursor)
-            id_query = [str(x["_id"]) for x in samples]
+            id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
             for bc in barcodes:
                 for idx, s in enumerate(samples):
@@ -1024,8 +1025,8 @@ class Sample(DAComponent):
     def get_by_biosample_ids(self, biosample_ids):
         return cursor_to_list(self.get_collection_handle().find({"biosampleAccession": {"$in": biosample_ids}}))
 
-    def get_by_field(self, dtol_field, value):
-        return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value}}))
+    def get_by_field(self, dtol_field, value_array):
+        return cursor_to_list(self.get_collection_handle().find({dtol_field: {"$in": value_array}}))
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
