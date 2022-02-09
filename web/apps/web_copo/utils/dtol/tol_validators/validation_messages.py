@@ -84,17 +84,17 @@ MESSAGES = {
     "validation_message_wrong_specimen_taxon_pair" : "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
                                                        "SPECIMEN_ID <strong>%s</strong> has already been used for "
                                                      "a specimen with TAXON_ID "
-                                                       "<strong>%s</strong>",
-    "validation_msg_isupdate" : "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will " 
-                                "perform an update.",
+                                                     "<strong>%s</strong>",
+    "validation_msg_isupdate": "<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will "
+                               "perform an update.",
     "validation_msg_future_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
-                                       "<strong>%s</strong>. Date cannot be in the future.",
+                                  "<strong>%s</strong>. Date cannot be in the future.",
     "validation_msg_warning_na_value_voucher": "Warning: <strong>%s</strong> in column <strong>%s</strong> at row"
                                                "<strong>%s</strong>. ERGA requires to voucher your sample, if you don't"
                                                ", be aware the sequencing may not continue until you have provided "
                                                "<strong>%s</strong>.",
     "validation_msg_invalid_link": "Invalid URL: <strong>%s</strong> in column <strong>%s</strong> at row "
-                                   "<strong>%s</strong>. The entered value is not a valid URL."
+                                   "<strong>%s</strong>. The entered value is not a valid URL.",
     "validation_msg_overwrite_symbionts": "<strong>Warning: COPO will overwrite any <strong>SYMBIONT</strong> field to match "
                                           "the corresponding TARGET, unless otherwise stated in the SOP</br></strong>"
 }
