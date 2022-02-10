@@ -24,7 +24,12 @@ $(document).ready(function () {
             var action_type = el.data("action_type")
             var id = el.closest(".expanding_menu").attr("id")
             id = id.split("_")[1]
-            document.location = "/copo/ena_read_manifest_validate/" + id
+            if (action_type == "dtol" || action_type == "erga") {
+                url = "/copo/copo_samples/" + id + "/view"
+            } else if (action_type == "reads") {
+                url = "/copo/ena_read_manifest_validate/" + id
+            }
+            document.location = url
         }
     })
     //load work profiles
@@ -201,7 +206,8 @@ $(document).ready(function () {
                             var renderHTML = $(".datatables-panel-template")
                                 .clone()
                                 .removeClass("datatables-panel-template")
-                                .addClass("copo-records-panel");
+                                .addClass("copo-records-panel")
+
 
                             //set heading
                             if (data.type.includes("DTOL_EI")) {
@@ -230,6 +236,7 @@ $(document).ready(function () {
                                     renderHTML.find(".panel-heading").css("background-color", "#f26202")
                                 }
                             }
+
                             //set body
                             var bodyRow = $('<div class="row"></div>');
 
@@ -247,7 +254,7 @@ $(document).ready(function () {
 
                             bodyRow.append(colsHTML);
                             renderHTML.find(".panel-body").html(bodyRow);
-
+                            renderHTML.attr("profile_type", data.type);
                             return $('<div/>').append(renderHTML).html();
                         }
                     },
@@ -292,6 +299,8 @@ $(document).ready(function () {
                 });
 
             place_task_buttons(componentMeta); //this will place custom buttons on the table for executing tasks on records
+
+
         }
 
         $('#' + tableID + '_wrapper')
@@ -423,6 +432,19 @@ $(document).ready(function () {
             success: function (data) {
                 do_render_profile_table(data);
                 tableLoader.remove();
+                $(".copo-records-panel").each(function (idx, el) {
+                    var t = $(el).attr("profile_type")
+                    if (t.includes("ERGA")) {
+                        $(el).find("a[anchor_type='reads']").hide()
+                        $(el).find("a[anchor_type='dtol_option']").hide()
+                    } else if (t.includes("DTOL") || t.includes("ASG")) {
+                        $(el).find("a[anchor_type='reads']").hide()
+                        $(el).find("a[anchor_type='erga_option']").hide()
+                    } else if (t.includes("Stand-alone")) {
+                        $(el).find("a[anchor_type='dtol_option']").hide()
+                        $(el).find("a[anchor_type='erga_option']").hide()
+                    }
+                })
             },
             error: function () {
                 alert("Couldn't retrieve profiles!");
