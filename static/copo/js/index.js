@@ -320,7 +320,7 @@ $(document).ready(function () {
                 set_selected_rows(dt);
             });
         }
-
+        filter_action_menu()
     } //end of func
 
     function set_selected_rows(dt) {
@@ -418,6 +418,22 @@ $(document).ready(function () {
         });
     }
 
+    function filter_action_menu() {
+        $(".copo-records-panel").each(function (idx, el) {
+            var t = $(el).attr("profile_type")
+            if (t.includes("ERGA")) {
+                $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='dtol_option']").hide()
+            } else if (t.includes("DTOL") || t.includes("ASG")) {
+                $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='erga_option']").hide()
+            } else if (t.includes("Stand-alone")) {
+                $(el).find("a[anchor_type='dtol_option']").hide()
+                $(el).find("a[anchor_type='erga_option']").hide()
+            }
+        })
+    }
+
     function load_profiles() {
         $.ajax({
             url: copoVisualsURL,
@@ -432,19 +448,7 @@ $(document).ready(function () {
             success: function (data) {
                 do_render_profile_table(data);
                 tableLoader.remove();
-                $(".copo-records-panel").each(function (idx, el) {
-                    var t = $(el).attr("profile_type")
-                    if (t.includes("ERGA")) {
-                        $(el).find("a[anchor_type='reads']").hide()
-                        $(el).find("a[anchor_type='dtol_option']").hide()
-                    } else if (t.includes("DTOL") || t.includes("ASG")) {
-                        $(el).find("a[anchor_type='reads']").hide()
-                        $(el).find("a[anchor_type='erga_option']").hide()
-                    } else if (t.includes("Stand-alone")) {
-                        $(el).find("a[anchor_type='dtol_option']").hide()
-                        $(el).find("a[anchor_type='erga_option']").hide()
-                    }
-                })
+                filter_action_menu()
             },
             error: function () {
                 alert("Couldn't retrieve profiles!");
@@ -466,12 +470,14 @@ $(document).ready(function () {
         //add task
         if (task == "add") {
             initiate_form_call(component);
+
             return false;
         }
 
 
         //edit task
         if (task == "edit") {
+            var csrftoken = $.cookie('csrftoken');
             $.ajax({
                 url: copoFormsURL,
                 type: "POST",
