@@ -1366,7 +1366,6 @@ def sample_spreadsheet(request):
         pass
 
     if dtol.loadManifest(m_format=fmt):
-
         srlz_dtol = pickle.dumps(dtol.file)
         p_id = request.session["profile_id"]
         r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
@@ -1743,7 +1742,7 @@ def accept_barcoding_manifest(request):
                         for s in db_sample:
                             # check bold reported scientific name with manifest reported and record any conflicts
                             if str(s["species_list"][0]["SCIENTIFIC_NAME"]).lower() == str(
-                                    record["taxonomy"]["species"]["taxon"]["name"]).lower():
+                                    record.get("taxonomy", dict()).get("species", dict()).get("taxon", dict()).get("name", "")).lower():
                                 status = "pending"
                             else:
                                 status = "conflicting"

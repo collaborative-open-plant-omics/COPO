@@ -318,8 +318,12 @@ function row_select(ev) {
                         class: "form-check-input"
                     })
                 $(td).append(tickbox)
-
-                body = body + "<tr data-id='" + el._id.$oid + "'><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_tax.taxonomy.species.taxon.name + "</td></tr>"
+                try {
+                    var bold_name = bold_tax.taxonomy.species.taxon.name
+                } catch (e) {
+                    var bold_name = "No Species Name"
+                }
+                body = body + "<tr data-id='" + el._id.$oid + "'><td>" + td.html() + "</td><td style='min-width: 200px;'>" + el.SPECIMEN_ID + "</td><td class='manifest' style='min-width: 200px;'>" + manifest_tax[0].SCIENTIFIC_NAME + "</td><td class='bold' style='min-width: 200px;'>" + bold_name + "</td></tr>"
             })
             $("#sample_panel").find("thead").append(th)
             $("#sample_panel").find("tbody").append(body)
@@ -602,17 +606,41 @@ function get_barcoding(ev) {
         for (idx in rows) {
             row = rows[idx]
             // fields contains the data we want to appear horizontally across the table. We will iterate this to save on code
-            fields = [row["SPECIMEN_ID"],
-                row["TUBE_OR_WELL_ID"],
-                row["barcoding"]["specimen_identifiers"]["sampleid"],
-                row["barcoding"]["taxonomy"]["phylum"]["taxon"]["name"],
-                row["barcoding"]["taxonomy"]["class"]["taxon"]["name"],
-                row["barcoding"]["taxonomy"]["order"]["taxon"]["name"],
-                row["barcoding"]["taxonomy"]["family"]["taxon"]["name"],
-                row["barcoding"]["taxonomy"]["genus"]["taxon"]["name"],
-                row["barcoding"]["taxonomy"]["species"]["taxon"]["name"],
-
-            ]
+            fields = new Array()
+            fields.push(row["SPECIMEN_ID"])
+            fields.push(row["TUBE_OR_WELL_ID"])
+            fields.push(row["barcoding"]["specimen_identifiers"]["sampleid"])
+            var tax = row["barcoding"]["taxonomy"]
+            if (tax.hasOwnProperty("phylum")) {
+                fields.push(tax["phylum"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
+            if (tax.hasOwnProperty("class")) {
+                fields.push(tax["class"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
+            if (tax.hasOwnProperty("order")) {
+                fields.push(tax["order"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
+            if (tax.hasOwnProperty("family")) {
+                fields.push(tax["family"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
+            if (tax.hasOwnProperty("genus")) {
+                fields.push(tax["genus"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
+            if (tax.hasOwnProperty("species")) {
+                fields.push(tax["species"]["taxon"]["name"])
+            } else {
+                fields.push("")
+            }
             using = row["using"]
             let tr = document.createElement("tr")
             if (using === "manifest") {
