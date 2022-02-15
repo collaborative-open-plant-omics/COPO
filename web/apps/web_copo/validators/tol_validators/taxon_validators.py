@@ -28,6 +28,10 @@ class DtolEnumerationValidator(Validator):
         taxon_id_list = list(taxon_id_set)
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
+                notify_frontend(data={"profile_id": self.profile_id},
+                                msg="Checking Taxonomic ID: " + str(taxon),
+                                action="info",
+                                html_id="sample_info")
                 # check if taxon is submittable
                 ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
                 if ena_taxon_errors:
