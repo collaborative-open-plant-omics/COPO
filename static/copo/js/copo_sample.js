@@ -46,6 +46,7 @@ $(document).ready(function () {
     });
 
     $(document).on("show.bs.modal", "#sample_spreadsheet_modal", function (event) {
+        $("#sample_spreadsheet_modal").css("overflow-y", "scroll")
         $("#upload_label").show()
         $("#tabs").hide()
         $("#sample_info").hide()
