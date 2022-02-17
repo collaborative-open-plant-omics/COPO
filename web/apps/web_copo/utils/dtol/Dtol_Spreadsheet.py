@@ -310,6 +310,19 @@ class DtolSpreadsheet:
         s["status"] = "pending_barcode"
         s["barcoding"] = ""
         # create new sample
+        try:
+            # extract taxon information from species list and put into main sample object
+            # this is so the taxon information is shown in the samples table view
+            sp_lst = s["species_list"]
+            for sp in sp_lst:
+                # only extract target info...don't extract symnbiont info
+                if sp["SYMBIONT"] == "TARGET":
+                    for k, v in sp.items():
+                        s[k] = v
+                else:
+                    pass
+        except KeyError as e:
+            print(e)
         sampl = Sample().get_collection_handle().insert(s)
         sampl = Sample().get_collection_handle().find_one({"_id": sampl})
         Sample().timestamp_dtol_sample_created(sampl["_id"])

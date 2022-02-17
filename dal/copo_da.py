@@ -993,10 +993,21 @@ class Sample(DAComponent):
         # get schema
         sc = self.get_component_schema()
         out = list()
+        taxon = dict()
         for i in list(cursor):
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
             sam = dict()
             for cell in i:
                 for field in sc:
+
                     if cell == field.get("id", "").split(".")[-1] or cell == "_id":
                         if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
                             if field.get("show_in_table", ""):
