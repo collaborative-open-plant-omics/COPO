@@ -30,9 +30,13 @@ from web.apps.web_copo.validators.tol_validators import optional_field_dtol_vali
     taxon_validators
 from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
+from dal import cursor_to_list
+from exceptions_and_logging import logger
+
+l = logger.Logger("exceptions_and_logging/logs")
 
 
-def make_species_list(sample):
+def make_target_sample(sample):
     # need to pop taxon info, and add back into sample_list
     if not "species_list" in sample:
         sample["species_list"] = list()
