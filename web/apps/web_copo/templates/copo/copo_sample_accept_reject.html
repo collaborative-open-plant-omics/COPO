@@ -108,9 +108,20 @@
 
 
 {% block content %}
+    <span class="pull-right">
+        <h4 class="h4">Status</h4>
+        <div class="alert alert-info" style="min-width: 400px; min-height: 55px" role="alert">
+            <span id="spinner" style="display:none" class="pull-right ui tiny active inline loader"></span>
+            <div id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
+            <p id="dtol_sample_info">Idle</p>
+        </div>
+    </span>
+
 
     <h3 class="h3">Choose to Accept or Reject</h3>
     <h3 class="h3"><small>Note clicking accept will immediately send sample info to ENA/Biosamples</small></h3>
+
+
 
     <hr/>
 
@@ -144,15 +155,7 @@
 
             </span>
 
-            <span class="pull-right">
-                <h4 class="h4">Status</h4>
 
-                <span class="alert alert-info pull-right" style="min-width: 400px; min-height: 55px" role="alert">
-                    <span id="spinner" style="display:none" class="pull-right ui tiny active inline loader"></span>
-                    <div id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
-                    <p id="dtol_sample_info">Idle</p>
-                </span>
-            </span>
             <ul class="nav nav-tabs" id="sample_filter">
                 <li class="hot_tab in active">
                     <a data-toggle="tab" href="pending">Pending Samples</a>
