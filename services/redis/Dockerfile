@@ -9,6 +9,7 @@ RUN sed -i 's/client-output-buffer-limit pubsub 32mb 8mb 60/client-output-buffer
     sed -i 's/hash-max-listpack-value 64/#hash-max-listpack-value 64/g'  /usr/local/etc/redis/redis.conf && \
     sed -i 's/list-max-listpack-size -2/#list-max-listpack-size -2/g' /usr/local/etc/redis/redis.conf &&\
     sed -i 's/zset-max-listpack-entries 128/#zset-max-listpack-entries 128/g' /usr/local/etc/redis/redis.conf &&\
+    sed -i 's/zset-max-listpack-value 64/#set-max-listpack-value 64/g' /usr/local/etc/redis/redis.conf &&\
     chmod 644 /usr/local/etc/redis/redis.conf
 
 CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
