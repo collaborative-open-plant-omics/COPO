@@ -7,6 +7,7 @@ RUN sed -i 's/client-output-buffer-limit pubsub 32mb 8mb 60/client-output-buffer
     sed -i 's/aof-timestamp-enabled no/#aof-timestamp-enabled no/g'  /usr/local/etc/redis/redis.conf && \
     sed -i 's/hash-max-listpack-entries 512/#hash-max-listpack-entries 512/g'  /usr/local/etc/redis/redis.conf && \
     sed -i 's/hash-max-listpack-value 64/#hash-max-listpack-value 64/g'  /usr/local/etc/redis/redis.conf && \
+    sed -i 's/list-max-listpack-size -2/#list-max-listpack-size -2/g' /usr/local/etc/redis/redis.conf &&\
     chmod 644 /usr/local/etc/redis/redis.conf
 
 CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
