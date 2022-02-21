@@ -248,31 +248,6 @@
     "dwc": ""
   },
   {
-    "help_tip": "The taxonomic Genus to which the Species belongs.",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "GENUS"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol",
-      "asg",
-      "erga"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.GENUS",
-    "label": "GENUS",
-    "show_in_table": true,
-    "dwc": ""
-  },
-  {
     "help_tip": "A valid NCBI TAXON_ID to the species level is mandatory in order to submit data to public repositories.",
     "required": "true",
     "default_value": "",
