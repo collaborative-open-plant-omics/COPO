@@ -242,7 +242,7 @@ function row_select(ev) {
 
                     if (idx == 0) {
                         // do header and row
-                        if (filter === "pending") {
+                        if (filter === "pending" || filter === "rejected") {
 
                             var empty_th = document.createElement("th")
                             th_row.appendChild(empty_th)
@@ -293,7 +293,7 @@ function row_select(ev) {
                         document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
 
                     } else { // if not first element
-                        if (filter === "pending") {
+                        if (filter === "pending" || filter === "rejected") {
 
                             var td = document.createElement("td")
                             td.className = "tickbox"
