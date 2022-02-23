@@ -95,9 +95,13 @@ class RackPlateUniquenessValidator(TolValidtor):
                 if exsam["profile_id"] == self.profile_id:
                     #todo check SYMBIONT value in species list is the same too
                     #check accessions do not exist yet and status is pending
-                    if not exsam["biosampleAccession"] and exsam["status"] == "pending":
-                        self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
-                        self.kwargs["isupdate"] = True
+                    if not exsam["biosampleAccession"]:
+                        if "ERGA" in p_type and exsam["status"] in ["pending", "rejected"]:
+                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.kwargs["isupdate"] = True
+                        elif exsam["status"] == "pending":
+                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.kwargs["isupdate"] = True
                     else:
                         #rack_tube has already been approved or rejected by sample manager and can't be updated any more
                         self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
