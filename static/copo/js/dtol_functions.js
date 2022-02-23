@@ -1,6 +1,7 @@
 $(document).ready(function () {
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
+    $(document).data("accepted_warning", false)
     $(document).data("isDtolSamplePage", true)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
@@ -421,17 +422,62 @@ function handle_accept_reject(el) {
 
         })
     } else if (action == "accept") {
-        // create or update dtol submission record
-        var profile_id = $("#profile_id").val()
-        $("#sub_spinner").fadeIn(fadeSpeed)
-        $.ajax({
-            url: "/copo/add_sample_to_dtol_submission/",
-            method: "GET",
-            data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
-        }).done(function () {
-            $("#profile_titles").find(".selected").click()
-            $("#spinner").fadeOut(fadeSpeed)
+        if ($(document).data("accepted_warning")) {
+            // create or update dtol submission record
+            var profile_id = $("#profile_id").val()
+            $("#sub_spinner").fadeIn(fadeSpeed)
+            $.ajax({
+                url: "/copo/add_sample_to_dtol_submission/",
+                method: "GET",
+                data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
+            }).done(function () {
+                $("#profile_titles").find(".selected").click()
+                $("#spinner").fadeOut(fadeSpeed)
+            })
+        }
+         else {
+             BootstrapDialog.show({
+
+                title: "ENA Submission",
+                message: "By accepting the samples, these will immediately be submitted to ENA. This action is" +
+                    " irreversible.",
+                cssClass: "copo-modal1",
+                closable: true,
+                animate: true,
+                type: BootstrapDialog.TYPE_INFO,
+                buttons: [
+                    {
+                        label: "Cancel",
+                        cssClass: "tiny ui basic" +
+                            " button",
+                        id: "code_cancel",
+                        action: function (dialogRef) {
+                            dialogRef.close();
+                        }
+                    },
+                    {
+                        label: "Ok",
+                        cssClass: "tiny ui basic button",
+                        action: function (dialogRef) {
+                            dialogRef.close();
+                            $(document).data("accepted_warning", true)
+                            // create or update dtol submission record
+                            var profile_id = $("#profile_id").val()
+                            $("#sub_spinner").fadeIn(fadeSpeed)
+                            $.ajax({
+                                url: "/copo/add_sample_to_dtol_submission/",
+                                method: "GET",
+                                data: {"sample_ids": JSON.stringify(sample_ids), "profile_id": profile_id},
+                            }).done(function () {
+                                $("#profile_titles").find(".selected").click()
+                                $("#spinner").fadeOut(fadeSpeed)
+                            })
+                        }
+                    }
+                ]
+
         })
-    }
+
+    }}
 
 }
