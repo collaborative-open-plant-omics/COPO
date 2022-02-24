@@ -33,8 +33,13 @@ class DtolEnumerationValidator(TolValidtor):
                             html_id="sample_info")
             if header in self.fields:
 
-                # check if there is an enum for this header
-                allowed_vals = lookup.DTOL_ENUMS.get(header, "")
+                # check if there is an enum for this header specific to the project
+                lookup_entry = lookup.DTOL_ENUMS.get(header, "")
+                if type(lookup_entry) is dict:
+                    allowed_vals =  lookup_entry.get(p_type, "")
+                else:
+                    # check if there is a general enum for this header, else ""
+                    allowed_vals = lookup_entry
 
                 # check if there's a regex rule for the header and exceptional handling
                 if lookup.DTOL_RULES.get(header, ""):
@@ -66,11 +71,6 @@ class DtolEnumerationValidator(TolValidtor):
                         #todo move this in lookups and re-structure, this is in interest of time
                         if header == "BARCODE_HUB" and "ASG" in p_type:
                             allowed_vals = lookup.DTOL_ENUMS.get("PARTNER", "") + ["NOT_PROVIDED"]
-                        if header == "GAL":
-                            if "DTOL" in p_type:
-                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("DTOL", "")
-                            elif "ERGA" in p_type:
-                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("ERGA", "")
                         if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                             # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                             c_value = str(c).split('|')[0].strip()
