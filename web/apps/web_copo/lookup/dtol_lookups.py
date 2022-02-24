@@ -354,13 +354,27 @@ DTOL_ENUMS = {
         "RESEQUENCING(POPGEN)",
         "BARCODING ONLY"
     ],
-    "PURPOSE_OF_SPECIMEN": [
-        "REFERENCE_GENOME",
-        "SHORT_READ_SEQUENCING",
-        "DNA_BARCODING_ONLY",
-        "RNA_SEQUENCING",
-        "R&D"
-    ],
+    "PURPOSE_OF_SPECIMEN": {
+        "DTOL": [
+            "REFERENCE_GENOME",
+            "SHORT_READ_SEQUENCING",
+            "DNA_BARCODING_ONLY",
+            "RNA_SEQUENCING",
+            "R&D"],
+        "ASG": [
+            "REFERENCE_GENOME",
+            "SHORT_READ_SEQUENCING",
+            "DNA_BARCODING_ONLY",
+            "RNA_SEQUENCING",
+            "R&D"],
+        "ERGA": [
+            "REFERENCE_GENOME",
+            "SHORT_READ_SEQUENCING",
+            "DNA_BARCODING_ONLY",
+            "RNA_SEQUENCING",
+            "R&D",
+            "PROXY_VOUCHERING_ONLY"]
+    },
     "SIZE_OF_TISSUE_IN_TUBE": [
         "VS",
         "S",
