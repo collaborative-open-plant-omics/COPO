@@ -953,12 +953,12 @@ DTOL_RULES = {
         "human_readable" : "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     },
     "SAMPLE_COORDINATOR_ORCID_ID" : {
-        "strict_regex" : "^(\d{4}-){3}\d{3}(\d|X)$",
-        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+        "strict_regex" : "^((\d{4}-){3}\d{3}(\d|X))(\|(\d{4}-){3}\d{3}(\d|X))*$",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729), if multiple IDs separate with a | and no spaces"
     },
     "COLLECTOR_ORCID_ID" : {
-        "strict_regex" : "^(\d{4}-){3}\d{3}(\d|X)$|(^not collected$)|(^not provided$)|(^not applicable$)",
-        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729)"
+        "strict_regex" : "^((\d{4}-){3}\d{3}(\d|X))(\|(\d{4}-){3}\d{3}(\d|X))*|(^not provided$)|(^not applicable$)",
+        "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729),  if multiple IDs separate with a | and no spaces"
     }
 }
 DTOL_UNITS = {
