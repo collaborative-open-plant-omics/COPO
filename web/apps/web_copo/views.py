@@ -32,7 +32,7 @@ from web.apps.web_copo.utils import group_functions
 from .lookup.lookup import HTML_TAGS
 from tools.resolve_env import get_env
 from web.apps.web_copo.s3.s3Connection import S3Connection
-
+from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
 
 

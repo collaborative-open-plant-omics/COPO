@@ -135,7 +135,7 @@ class DtolConsumer(AsyncWebsocketConsumer):
 class s3Consumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        self.group_name = 's3_status'
+        self.group_name = self.scope['url_route']['kwargs']['uid']
 
         # join group
         await self.channel_layer.group_add(
