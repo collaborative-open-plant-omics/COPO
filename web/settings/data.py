@@ -74,3 +74,8 @@ CURRENT_DTOL_VERSION = "2.4.1"
 CURRENT_ASG_VERSION = "2.4"
 CURRENT_ERGA_VERSION = "2.4"
 CURRENT_DTOLENV_VERSION = "2.4"
+
+# settings for ECS
+ECS_ACCESS_KEY_ID = resolve_env.get_env('ECS_ACCESS_KEY_ID')
+ECS_SECRET_KEY = resolve_env.get_env('ECS_SECRET_KEY')
+ECS_ENDPOINT = resolve_env.get_env('ECS_ENDPOINT')
