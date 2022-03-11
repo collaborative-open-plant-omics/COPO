@@ -103,14 +103,18 @@
 
 
             <form style="margin-bottom: 20px">
-
-                <label class="ui blue button" for="file" id="upload_label">
+                <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
+                    COPO
+                </button>
+                <label class="ui blue button" for="file" id="upload_label" style="width:200px">
                     <input id="file" type="file" style="display:none"
                            onchange="upload_spreadsheet('ena_seq_reads', this.files[0])">
                     Upload Sample Manifest
                 </label>
                 <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+
             </form>
+
 
             <div>
                 <table id="sample_parse_table" class="table table-striped table-bordered">
@@ -122,6 +126,38 @@
 
     </div>
 
+    <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Move Data</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="url_upload_controls">
+                        <ol>
+                            <li>Navigate to your files (Your files must all be in the same directory with no nesting)
+                            </li>
+                            <li>Run <kbd>ls -F1</kbd></li>
+                            <li>Paste the result into the box below, and click Process</li>
+                        </ol>
+                        <form>
+                            <textarea class="form-control" rows="10"></textarea>
+                        </form>
+                    </div>
+                    <div id="command_panel">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="process_urls_button" class="btn btn-primary">Process</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
 {% endblock %}
 
 
@@ -132,4 +168,5 @@
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
     <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
+    <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
 {% endblock %}

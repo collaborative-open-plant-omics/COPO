@@ -31,6 +31,7 @@ from web.apps.web_copo.utils import EnaImports as eimp
 from web.apps.web_copo.utils import group_functions
 from .lookup.lookup import HTML_TAGS
 from tools.resolve_env import get_env
+from web.apps.web_copo.s3.s3Connection import S3Connection
 
 LOGGER = settings.LOGGER
 
@@ -64,6 +65,7 @@ def stats(request, view=""):
     else:
         return render(request, context={}, template_name="copo/stats/time_series_statistics.html")
 
+
 '''
 def test_submission(request):
     delegate_submission(request)
@@ -76,7 +78,19 @@ def error_page(request):
 
 
 def test(request):
-    return render(request, context={}, template_name="copo/error_page.html")
+    s3 = S3Connection()
+    buckets = s3.list_buckets()
+
+    response = s3.s3_client.generate_presigned_url('put_object', Params={'Bucket': '1193', 'Key': 'badger.jpg'}, ExpiresIn=100)
+    with open("badger.jpg", 'rb') as f:
+        file = f.read()
+        resp = requests.put(response, data=file)
+    print(resp.content)
+    print(response)
+    # curl -v -T 'badger.jpg' 'http://ei-copo.obj-data.nbi.ac.uk/1193/badger.jpg?AWSAccessKeyId=copo%40nbi.ac.uk&Signature=9hOgMNbs6d
+    # %2Bh5zKAilvY5we1BCQ%3D&Expires=1646825941'
+
+    return HttpResponse("")
 
 
 def ena_read_manifest_validate(request, profile_id):
@@ -164,7 +178,6 @@ def copo_repositories(request):
 
 
 @user_passes_test(user_allowed_access)
-
 @login_required
 def copo_samples(request, profile_id):
     request.session["profile_id"] = profile_id
