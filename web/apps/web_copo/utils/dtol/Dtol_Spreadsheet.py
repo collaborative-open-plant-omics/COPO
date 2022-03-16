@@ -16,7 +16,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile
+from dal.copo_da import Sample, DataFile, Profile, Submission
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -379,12 +379,15 @@ class DtolSpreadsheet:
                     fields = {"file_location": im["file_name"]}
                     df = DataFile().save_record({}, **fields)
                     DataFile().insert_sample_id(df["_id"], sampl["_id"])
-                    break;
+                    break
 
         uri = request.build_absolute_uri('/')
         # query public service service a first time now to trigger request for public names that don't exist
         public_names = query_public_name_service(public_name_list)
         for name in public_names:
+            if name.get("status", "") == "Rejected":
+                Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                continue
             Sample().update_public_name(name)
         profile_id = request.session["profile_id"]
         profile = Profile().get_record(profile_id)
@@ -424,6 +427,9 @@ class DtolSpreadsheet:
             # query public service service a first time now to trigger request for public names that don't exist
             public_names = query_public_name_service(public_name_list)
             for name in public_names:
+                if name.get("status", "") == "Rejected":
+                    Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                    continue
                 Sample().update_public_name(name)
             profile_id = request.session["profile_id"]
             profile = Profile().get_record(profile_id)

@@ -119,7 +119,7 @@ def process_pending_dtol_samples():
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
                 l.log("Specimen accession at 119 is " + specimen_accession, type=Logtype.FILE)
             else:
-                # create sample object and submit
+                # create specimen object and submit
                 l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 notify_frontend(data={"profile_id": profile_id},
                                 msg="Creating Sample for SPECIMEN_ID " + sam.get("RACK_OR_PLATE_ID", "") + "/" + sam[
@@ -164,7 +164,11 @@ def process_pending_dtol_samples():
                     spec_tolid = query_public_name_service([{"taxonomyId": int(targetsam["species_list"][0]["TAXON_ID"]),
                                                              "specimenId": targetsam["SPECIMEN_ID"],
                                                              "sample_id": str(sam["_id"])}])
-                    assert len(spec_tolid) == 1
+                    try:
+                        assert len(spec_tolid) == 1
+                    except AssertionError:
+                        l.log("AssertionError: line 170 dtol submission", type=Logtype.FILE)
+                        return False
                     if not spec_tolid[0].get("tolId", ""):
                         # hadle failure to get public names and halt submission
                         if spec_tolid[0].get("status", "")=="Rejected":
@@ -254,6 +258,7 @@ def process_pending_dtol_samples():
             # hadle failure to get public names and halt submission
             if all(public_names[x].get("status","")=="Rejected" for x in range(len(public_names))):
                 l.log("all missing tolid request were rejected", type=Logtype.FILE)
+                Submission().dtol_sample_processed(submission['_id'], [submission["dtol_samples"]])
             else:
                 # change dtol_status to "awaiting_tolids"
                 l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
@@ -268,6 +273,12 @@ def process_pending_dtol_samples():
             l.log("adding public names to samples", type=Logtype.FILE)
             if name.get("tolId", ""):
                 Sample().update_public_name(name)
+            if name.get("status", "") == "Rejected":
+                Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                processed = Sample().get_by_profile_and_field(submission["profile_id"],"SPECIMEN_ID", [name['specimen']["specimenId"]])
+                processedids = [str(x) for x in processed]
+                for sampleid in processedids:
+                    Submission().dtol_sample_processed(submission['_id'], sampleid)
 
         #if tolid missing for specimen skip
         if not tolidflag:

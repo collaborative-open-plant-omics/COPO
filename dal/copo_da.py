@@ -884,6 +884,20 @@ class Sample(DAComponent):
              }
         )
 
+    def add_rejected_status_for_tolid(self, specimen_id):
+        return self.get_collection_handle().update_many(
+            {
+                "SPECIMEN_ID": specimen_id
+            },
+            {"$set":
+                 {'tolid_error': "public name request has been rejected at Sanger",
+                  'status': 'rejected'}
+             }
+        )
+
+    def get_by_profile_and_field(self, profile_id, field, value):
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}))
+
     def get_dtol_from_profile_id(self, profile_id, filter):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
