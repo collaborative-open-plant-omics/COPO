@@ -44,7 +44,7 @@ from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
-
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 
