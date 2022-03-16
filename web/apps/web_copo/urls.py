@@ -208,4 +208,6 @@ urlpatterns = [
          name="force_submission_dialog_content"),
     path('inspect_barcoding/', ajax_handlers.inspect_barcoding,
          name="inspect_barcoding"),
+    path('process_urls', ajax_handlers.process_urls,
+         name="process_urls"),
 ]

@@ -31,6 +31,7 @@ class S3Connection():
     def list_objects(self, bucket):
         try:
             response = self.s3_client.list_objects(Bucket=bucket)
+
         except Exception as e:
             print(e)
             return False
@@ -46,3 +47,17 @@ class S3Connection():
             print(e)
             return False
         return True
+
+    def get_presigned_url(self, bucket, key, expires_seconds=60):
+        try:
+            response = self.s3_client.generate_presigned_url('put_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=expires_seconds)
+        except:
+            response = "error"
+        return response
+
+    def make_bucket(self, bucket_name):
+        try:
+            bucket = self.s3_client.create_bucket(str(bucket_name))
+        except:
+            response = "error"
+        return response

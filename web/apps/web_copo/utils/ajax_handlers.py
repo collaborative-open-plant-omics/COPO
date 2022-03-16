@@ -46,7 +46,7 @@ from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
-
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 
@@ -1776,3 +1776,17 @@ def inspect_barcoding(request):
         return HttpResponse("")
     bc = Sample().get_barcoding(profile_id)
     return HttpResponse(json_util.dumps(bc))
+
+
+def process_urls(request):
+    file_list = json.loads(request.POST["data"])
+    bucket = str(request.user.id)
+    bucket = '1193'
+    s3con = s3()
+    urls_list = list()
+    for file_name in file_list:
+        if file_name and not file_name.endswith("/"):
+            url = s3con.get_presigned_url(bucket=bucket, key=file_name)
+            file_url = {"name": file_name, "url": url}
+            urls_list.append(file_url)
+    return HttpResponse(json.dumps(urls_list))

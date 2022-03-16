@@ -18,6 +18,7 @@ from django.http import HttpResponse
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
 import datetime
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 
 l = logger.Logger("exceptions_and_logging/logs")
 
@@ -36,10 +37,26 @@ def parse_ena_spreadsheet(request):
         l.log("Dtol manifest loaded")
         if ena.validate():
             l.log("About to collect Dtol manifest")
+            # check s3 for bucket and files files
+            uid = str(request.user.id)
+            if check_for_s3_bucket(uid):
+                # check for files
+                pass
+            else:
+                # create bucket and notify user to upload files
+                x = 1
+                pass
             ena.collect()
 
     return HttpResponse()
 
+
+def check_for_s3_bucket(uid):
+    bucket_list = s3().list_buckets()
+    for bucket in bucket_list:
+        if bucket["Name"] == uid:
+            return True
+    return False
 
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
