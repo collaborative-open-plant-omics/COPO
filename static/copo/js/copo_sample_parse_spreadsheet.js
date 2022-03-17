@@ -383,7 +383,8 @@ $(document).on("click", ".new-samples-spreadsheet-template-erga", function (even
     BootstrapDialog.show({
 
             title: "Accept Code of Conduct",
-            message: "By uploading a manifest to COPO you confirm that you read, understood and followed the " +
+            message: "By uploading a manifest to COPO you confirm that you are an ERGA member and thus adhere to ERGA's " +
+                "code of conduct. You further confirm that you read, understood and followed the " +
                 "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
         "Code of Practice</a>",
             cssClass: "copo-modal1",
