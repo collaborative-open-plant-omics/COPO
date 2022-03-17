@@ -79,7 +79,7 @@ MESSAGES = {
                                              " must also be provided.",
     "validation_msg_multiple_targets_with_same_id": "Multiple Targets found for RACK_OR_PLATE_ID/TUBE_OR_WELL_ID: "
                                                     "<strong>%s</strong>",
-    "validation_msg_orphaned_symbiont": "Sybiont(s) found with TUBE_OR_WELL_ID: <strong>%s</strong> has no associated "
+    "validation_msg_orphaned_symbiont": "Symbiont(s) found with TUBE_OR_WELL_ID: <strong>%s</strong> has no associated "
                                         "Target",
     "validation_message_wrong_specimen_taxon_pair" : "Invalid SPECIMEN_ID and TAXON pair: at row <strong>%s</strong>, "
                                                        "SPECIMEN_ID <strong>%s</strong> has already been used for "
@@ -89,4 +89,8 @@ MESSAGES = {
                                 "perform an update.",
     "validation_msg_future_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
                                        "<strong>%s</strong>. Date cannot be in the future.",
+    "validation_msg_warning_na_value_voucher": "Warning: <strong>%s</strong> in column <strong>%s</strong> at row"
+                                               "<strong>%s</strong>. ERGA requires to voucher your sample, if you don't"
+                                               ", be aware the sequencing may not continue until you have provided "
+                                               "<strong>%s</strong>."
 }

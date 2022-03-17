@@ -197,7 +197,7 @@ class DtolEnumerationValidator(TolValidtor):
                             else:
                                 manifest_specimen_taxon_pairs[c.strip()] = self.data.at[cellcount -1, "TAXON_ID"]
 
-                        #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
+                    #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
                     elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
                         barcoding_flag = True
                         for barfield in barcoding_fields:
@@ -207,6 +207,20 @@ class DtolEnumerationValidator(TolValidtor):
                         if barcoding_flag == False:
                             self.warnings.append(msg["validation_msg_warning_barcoding"] % (
                                 str(cellcount+1), c
+                            ))
+                    #if tissue removed for biobanking warning that voucher should be present
+                    elif header == "TISSUE_REMOVED_FOR_BIOBANKING" and c.strip() == "Y":
+                        if self.data.at[cellcount-1, "TISSUE_VOUCHER_ID_FOR_BIOBANKING"].strip() in lookup.BLANK_VALS:
+                            self.warnings.append(msg["validation_msg_warning_na_value_voucher"] % (
+                                self.data.at[cellcount-1, "TISSUE_VOUCHER_ID_FOR_BIOBANKING"].strip(),
+                                "TISSUE_VOUCHER_ID_FOR_BIOBANKING", str(cellcount + 1), "TISSUE_VOUCHER_ID_FOR_BIOBANKING"
+                            ))
+                    #if dna removed for biobanking warning that voucher should be present
+                    elif header == "DNA_REMOVED_FOR_BIOBANKING" and c.strip() == "Y":
+                        if self.data.at[cellcount-1, "DNA_VOUCHER_ID_FOR_BIOBANKING"].strip() in lookup.BLANK_VALS:
+                            self.warnings.append(msg["validation_msg_warning_na_value_voucher"] % (
+                                self.data.at[cellcount-1, "DNA_VOUCHER_ID_FOR_BIOBANKING"].strip(),
+                                "DNA_VOUCHER_ID_FOR_BIOBANKING", str(cellcount + 1), "DNA_VOUCHER_ID_FOR_BIOBANKING"
                             ))
                     #if original collection date is provided so must be the orginal geographic collection
                     elif header == "ORIGINAL_COLLECTION_DATE" and c.strip():
