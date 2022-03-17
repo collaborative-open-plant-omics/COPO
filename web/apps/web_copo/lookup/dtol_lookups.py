@@ -252,11 +252,24 @@ DTOL_ENUMS = {
         "NOT_APPLICABLE",
         "NOT_PROVIDED"
     ],
-    "HAZARD_GROUP": [
-        "HG1",
-        "HG2",
-        "HG3"
-    ],
+    "HAZARD_GROUP": {
+        "DTOL" : [
+            "HG1",
+            "HG2",
+            "HG3"
+        ],
+        "ASG" : [
+            "HG1",
+            "HG2",
+            "HG3"
+        ],
+        "ERGA" : [
+            "1",
+            "2",
+            "3",
+            "4"
+        ]
+    },
     "REGULATORY_COMPLIANCE": [
         "Y",
         "N",
@@ -1078,6 +1091,12 @@ DTOL_ENA_MAPPINGS = {
     #this is a custom field extra to the checklist
     "SAMPLE_COORDINATOR_ORCID_ID" : {
         "ena": "sample coordinator ORCID ID"
+    },
+    "TISSUE_VOUCHER_ID_FOR_BIOBANKING" : {
+        "ena": "biomaterial"
+    },
+    "DNA_VOUCHER_ID_FOR_BIOBANKING" : {
+        "ena": "biomaterial"
     }
 }
 

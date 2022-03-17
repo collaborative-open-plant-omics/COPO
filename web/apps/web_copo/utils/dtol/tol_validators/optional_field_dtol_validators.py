@@ -111,9 +111,9 @@ class DtolEnumerationValidator(TolValidtor):
                                 c, header, str(cellcount + 1), regex_human_readable))
                             self.flag = False
                     if optional_regex:
-                        # handle regular expression that will only trigger a warning
+                        # handle regular expression that will only trigger a warning exclude ERGA from this warning
                         if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE):
-                            if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID']:
+                            if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID'] and p_type == "ERGA":
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
                             else:  # not in use atm, here in case we add more optional validations
