@@ -1127,7 +1127,7 @@ SPECIMEN_SUFFIX = {
             "SANGER INSTITUTE": '\d{7}'
         },
         "erga" : {
-            "default" : "(([A-Z]{1,10}_[A-Z]{2,3}_\d{2,3})|([A-Z]{1,10}_\d{4}_\d{2,3}))"
+            "default" : "([A-Z]{1,10}_\d{3}(\d|X)_\d{2,3})"
         }
     }
 }
