@@ -180,7 +180,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "ETHICS_PERMITS_MANDATORY"
+      "ETHICS_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -189,8 +189,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Ethics Permits Mandatory",
-    "id": "copo.sample.ETHICS_PERMITS_MANDATORY",
+    "label": "Ethics Permits Required",
+    "id": "copo.sample.ETHICS_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -224,7 +224,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "SAMPLING_PERMITS_MANDATORY"
+      "SAMPLING_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -233,8 +233,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Sampling Permits Mandatory",
-    "id": "copo.sample.SAMPLING_PERMITS_MANDATORY",
+    "label": "Sampling Permits Required",
+    "id": "copo.sample.SAMPLING_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -268,7 +268,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "NAGOYA_PERMITS_MANDATORY"
+      "NAGOYA_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -277,8 +277,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Nagoya Permits Mandatory",
-    "id": "copo.sample.NAGOYA_PERMITS_MANDATORY",
+    "label": "Nagoya Permits Required",
+    "id": "copo.sample.NAGOYA_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
