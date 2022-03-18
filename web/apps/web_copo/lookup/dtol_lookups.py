@@ -905,6 +905,39 @@ DTOL_ENUMS = {
     "NAGOYA_PERMITS_MANDATORY" : [
         "Y",
         "N"
+    ],
+    "SEQUENCING_CENTRE" : [
+        "EARLHAM INSTITUTE",
+        "SANGER INSTITUTE"
+    ],
+    "WATER_BODY_TYPE" : [
+        "STREAM",
+        "RIVER",
+        "POND",
+        "LAKE",
+        "COASTAL",
+        "ESTUARY",
+        "OPEN SEA"
+    ],
+    "WATER_TYPE" : [
+        "FRESH_WATER",
+        "SALT_WATER",
+        "BRACKISH_WATER"
+    ],
+    "SORTER_AFFILIATION" : [
+        "EARLHAM INSTITUTE",
+        "UNIVERSITY OF OXFORD"
+    ],
+    "CELL_NUMBER" : [
+        "1",
+        "2-10",
+        "11-50",
+        "51-100",
+        "101-10000",
+        "10001-50000",
+        "50001-100000",
+        "100001-500000",
+        "500001-1000000"
     ]
 }
 DTOL_RULES = {
@@ -1301,5 +1334,5 @@ NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.
 DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 SPECIES_LIST_FIELDS = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
                        "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
-TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_ei", "erga"]
+TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
 SANGER_TOL_PROFILE_TYPES = ["asg", "dtol"]

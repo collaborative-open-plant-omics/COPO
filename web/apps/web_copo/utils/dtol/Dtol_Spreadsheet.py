@@ -90,8 +90,8 @@ class DtolSpreadsheet:
             self.type = "ASG"
         elif "ERGA" in t:
             self.type = "ERGA"
-        elif "DTOL_EI" in t:
-            self.type = "DTOL_EI"
+        elif "DTOL_ENV" in t:
+            self.type = "DTOL_ENV"
         else:
             self.type = "DTOL"
 

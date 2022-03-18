@@ -17,6 +17,8 @@ class DtolEnumerationValidator(TolValidtor):
         p_type = Profile().get_type(profile_id=self.profile_id)
         if "ERGA" in p_type:
             p_type = "ERGA"
+        elif "DTOL_ENV" in p_type:
+            p_type = "DTOL_ENV"
         elif "DTOL" in p_type:
             p_type = "DTOL"
         elif "ASG" in p_type:

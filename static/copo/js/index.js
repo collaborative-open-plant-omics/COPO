@@ -191,7 +191,7 @@ $(document).ready(function () {
                                 .addClass("copo-records-panel");
 
                             //set heading
-                            if (data.type.includes("DTOL_EI")) {
+                            if (data.type.includes("DTOL_ENV")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
                                     ' style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
                                 renderHTML.find(".panel-heading").css('background-color', "#16ab39")

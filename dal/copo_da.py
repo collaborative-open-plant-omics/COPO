@@ -1850,7 +1850,7 @@ class Profile(DAComponent):
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)",
-                              "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]}}).sort(
+                              "Darwin Tree of Life Earlham Environmental samples (DTOL_ENV)"]}}).sort(
             "date_modified",
             pymongo.DESCENDING)
         return cursor_to_list(p)

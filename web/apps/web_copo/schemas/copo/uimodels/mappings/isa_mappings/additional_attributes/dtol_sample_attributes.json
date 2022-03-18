@@ -12,7 +12,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "show_in_form": true,
     "label": "Collected By",
@@ -36,7 +37,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "show_in_form": true,
     "label": "Date of Collection",
@@ -161,7 +163,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -261,7 +264,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -311,7 +315,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -436,7 +441,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -461,7 +467,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -486,7 +493,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -511,7 +519,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -539,7 +548,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -564,7 +574,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -589,7 +600,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -614,7 +626,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -639,7 +652,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -664,7 +678,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -689,7 +704,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -714,7 +730,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -739,7 +756,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -764,7 +782,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -789,7 +808,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -840,6 +860,7 @@
       "dtol",
       "asg",
       "erga"
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -863,7 +884,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -889,7 +911,8 @@
       "dtol",
       "asg",
       "bc",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -913,7 +936,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -983,7 +1007,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1008,7 +1033,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1107,7 +1133,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1155,7 +1182,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1367,7 +1395,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1629,7 +1658,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1944,7 +1974,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1968,7 +1999,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,

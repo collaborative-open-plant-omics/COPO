@@ -43,3 +43,5 @@ class Command(BaseCommand):
         erga_managers, created = Group.objects.get_or_create(name='erga_sample_managers')
         # receive erga notification emails
         erga_notifiers, created = Group.objects.get_or_create(name='erga_sample_notifiers')
+        # view dtol env functionality
+        dtolenv_group, create = Group.objects.get_or_create(name='dtolenv_users')
