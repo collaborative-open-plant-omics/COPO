@@ -320,5 +320,74 @@
     "label": "Cell number",
     "show_in_table": true,
     "dwc": ""
+  },
+   {
+    "help_tip": "The original description of the depth below the local surface.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "DEPTH"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.DEPTH",
+    "label": "Depth (in meters)",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth"
+  },
+  {
+    "help_tip": "The original description of the elevation (altitude, usually above sea level) of the Location.",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "ELEVATION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.ELEVATION",
+    "label": "Elevation (in meters)",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation"
+  },
+  {
+    "help_tip": "Time of Collection",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "TIME_OF_COLLECTION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TIME_OF_COLLECTION",
+    "label": "Time of Collection",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime"
   }
 ]
