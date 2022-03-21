@@ -19,8 +19,11 @@ class DtolEnumerationValidator(TolValidtor):
         self.taxonomy_dict = {}
 
     def validate(self):
+        p_type = Profile().get_type(profile_id=self.profile_id)
+        if "DTOL_ENV" in p_type:
+            p_type = "DTOL_ENV"
         Entrez.api_key = lookup.NIH_API_KEY
-        # build dictioanry of species in this manifest  max 200 IDs per query
+        # build dictionary of species in this manifest  max 200 IDs per query
         taxon_id_set = set([x for x in self.data['TAXON_ID'].tolist() if x])
         notify_frontend(data={"profile_id": self.profile_id},
                         msg="Querying NCBI for TAXON_IDs in manifest ",
@@ -44,6 +47,22 @@ class DtolEnumerationValidator(TolValidtor):
                 records = Entrez.read(handle)
                 for element in records:
                     self.taxonomy_dict[element['TaxId']] = element
+
+        #if DTOL_ENV we only check the rank is species
+        if p_type == "DTOL_ENV":
+            for index, row in self.data[['TAXON_ID']].iterrows():
+                taxon_id = row['TAXON_ID'].strip()
+                if not taxon_id:
+                    self.errors.append(msg["validation_msg_missing_data"] % ("TAXON_ID", str(index + 2), "[]"))
+                    self.flag = False
+                    continue
+                if self.taxonomy_dict[taxon_id]['Rank'] != 'species':
+                    if not "SYMBIONT" in self.data.at[index, "SYMBIONT"]:
+                        self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
+                        self.flag = False
+            return self.errors, self.warnings, self.flag
+
+
         for index, row in self.data[
             ['ORDER_OR_GROUP', 'FAMILY', 'GENUS', 'TAXON_ID', 'SCIENTIFIC_NAME']].iterrows():
             if all(row[header].strip() == "" for header in ['TAXON_ID', 'SCIENTIFIC_NAME']):
