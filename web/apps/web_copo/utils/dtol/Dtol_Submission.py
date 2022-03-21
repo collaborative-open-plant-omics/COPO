@@ -201,7 +201,7 @@ def process_pending_dtol_samples():
                 build_submission_xml(str(sour['_id']), release=True)
                 l.log("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
                 accessions = submit_biosample(str(sour['_id']), Source(), submission['_id'], type="source")
-                l.log("submission status is " + str(accessions.get("status", "")), type=Logtype.FILE)
+                # l.log("submission status is " + str(accessions.get("status", "")), type=Logtype.FILE)
                 if accessions.get("status", "") == "error":
                     if handle_common_ENA_error(accessions.get("msg", ""), sour['_id']):
                         pass
