@@ -24,10 +24,14 @@ l = logger.Logger("exceptions_and_logging/logs")
 
 
 def parse_ena_spreadsheet(request):
+    profile_id = request.session["profile_id"]
+    channels_group_name = "s3_" + profile_id
+    profile_id = request.session.get("profile_id", None)
     # method called by rest
     file = request.FILES["file"]
     name = file.name
     ena = ENASpreadsheet(file=file)
+    s3obj = s3()
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     else:
@@ -38,25 +42,31 @@ def parse_ena_spreadsheet(request):
         if ena.validate():
             l.log("About to collect Dtol manifest")
             # check s3 for bucket and files files
-            uid = str(request.user.id)
-            if check_for_s3_bucket(uid):
+            bucket_name = str(request.user.id) + "_" + request.user.username
+
+            if s3obj.check_for_s3_bucket(bucket_name):
+                # get filenames from manifest
+                file_names = ena.get_filenames_from_manifest()
                 # check for files
-                pass
+                if not s3obj.check_s3_bucket_for_files(bucket_name=bucket_name, file_list=file_names):
+                    # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
+                    return HttpResponse()
+
             else:
-                # create bucket and notify user to upload files
-                x = 1
-                pass
+                # bucket is missing, therefore create bucket and notify user to upload files
+                s3obj.make_s3_bucket(bucket_name=bucket_name)
+                notify_frontend(data={"profile_id": profile_id}, msg='Files not found, please click "Upload Data into COPO" and follow the '
+                                                                     'instructions.', action="info",
+                                html_id="sample_info", group_name=channels_group_name)
+                return HttpResponse()
+
+            # iff all above have passed, then run collect
             ena.collect()
 
     return HttpResponse()
 
 
-def check_for_s3_bucket(uid):
-    bucket_list = s3().list_buckets()
-    for bucket in bucket_list:
-        if bucket["Name"] == uid:
-            return True
-    return False
+
 
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
@@ -170,6 +180,9 @@ class ENASpreadsheet:
             element = getattr(required, element_name)
             if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.required_validators.append(element)
+
+    def get_filenames_from_manifest(self):
+        return list(self.data["file_name"])
 
     def loadManifest(self, m_format):
 

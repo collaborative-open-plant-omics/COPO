@@ -133,10 +133,17 @@ class DtolConsumer(AsyncWebsocketConsumer):
 
 
 class s3Consumer(AsyncWebsocketConsumer):
+    """
+    Class to communicate s3 information. To target this, use s3_ as suffix for group name
+    notify_frontend(data={"profile_id": profile_id}, msg="", action="info",
+                                    html_id="sample_info", group_name=s3_profile_id)
+
+    open a javascript web socket connecting to path('ws/s3_status/<str:uid>', consumers.s3Consumer)
+    """
 
     async def connect(self):
-        self.group_name = self.scope['url_route']['kwargs']['uid']
-
+        gn = "s3_" + self.scope['url_route']['kwargs']['uid']
+        self.group_name = gn
         # join group
         await self.channel_layer.group_add(
             self.group_name,

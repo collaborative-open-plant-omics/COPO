@@ -223,7 +223,6 @@ def notify_frontend(action="message", msg=str(), data={}, html_id="", profile_id
         :return:
     """
     # type points to the object type which will be passed to the socket and is a method defined in consumer.py
-
     event = {"type": "msg", "action": action, "message": msg, "data": data, "html_id": html_id}
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
