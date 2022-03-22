@@ -9,7 +9,7 @@ import pandas
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Source
+from dal.copo_da import Sample, DataFile, Profile, Source, Submission
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
@@ -19,8 +19,11 @@ from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
 import datetime
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
+from dal.broker_da import BrokerDA
 
 l = logger.Logger("exceptions_and_logging/logs")
+from django.conf import settings
+from os.path import join
 
 
 def parse_ena_spreadsheet(request):
@@ -72,7 +75,11 @@ def parse_ena_spreadsheet(request):
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
     sample_data = request.session.get("sample_data")
+    profile_id = request.session["profile_id"]
+    uid = request.user.id
     alias = str(uuid.uuid4())
+    bundle = list()
+    bundle_meta = list()
     for p in range(1, len(sample_data)):
         s = (map_to_dict(sample_data[0], sample_data[p]))
         source = dict()
@@ -88,6 +95,7 @@ def save_ena_records(request):
                 "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])}
         source["profile_id"] = request.session["profile_id"]
         source["date_created"] = datetime.datetime.utcnow()
+        source["profile_id"] = profile_id
         source_id = str(Source().get_collection_handle().insert_one(source).inserted_id)
 
         sample = dict()
@@ -95,10 +103,11 @@ def save_ena_records(request):
         sample["profile_id"] = request.session["profile_id"]
         sample["derivesFrom"] = [source_id]
         sample["date_modified"] = datetime.datetime.utcnow()
+        sample["profile_id"] = profile_id
         sample_id = str(Sample().get_collection_handle().insert_one(sample).inserted_id)
 
         df = dict()
-        p = Profile().get_record(request.session["profile_id"])
+        p = Profile().get_record(profile_id)
         attributes = dict()
         attributes["target_repository"] = {"deposition_context": "ena"}
         attributes["project_details"] = {
@@ -131,7 +140,10 @@ def save_ena_records(request):
             df["name"] = "TODO"
             df["file_id"] = "NOT_NEEDED"
             df["file_hash"] = "XXXXX"
-            DataFile().get_collection_handle().insert_one(df)
+            inserted = DataFile().get_collection_handle().insert_one(df)
+            bundle.append(str(inserted.inserted_id))
+            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid), file_name), "upload_status": False}
+            bundle_meta.append(f_meta)
         else:
             # create records for left and right
             file_names = s["file_name"].split(",")
@@ -140,15 +152,35 @@ def save_ena_records(request):
             df["name"] = "TODO"
             df["file_id"] = "NOT_NEEDED"
             df["file_hash"] = "XXXXX"
-            DataFile().get_collection_handle().insert_one(df)
+            inserted = DataFile().get_collection_handle().insert_one(df)
+            bundle.append(str(inserted.inserted_id))
+            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
+                                                                                  file_names[0]), "upload_status": False}
+            bundle_meta.append(f_meta)
             df.pop("_id")
-            df["file_name"] = file_names[1]
+            file_name = file_names[1]
+            df["file_name"] = file_name
+
             df["file_location"] = "TODO"
             df["name"] = "TODO"
             df["file_id"] = "NOT_NEEDED"
             df["file_hash"] = "XXXXX"
-            DataFile().get_collection_handle().insert_one(df)
-
+            inserted = DataFile().get_collection_handle().insert_one(df)
+            bundle.append(str(inserted.inserted_id))
+            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
+                                                                                  file_names[1]), "upload_status": False}
+            bundle_meta.append(f_meta)
+    submission = dict()
+    submission["repository"] = "ena"
+    submission["date_created"] = datetime.datetime.utcnow()
+    submission["complete"] = "false"
+    submission["user_id"] = uid
+    submission["accessions"] = dict()
+    submission["bundle_meta"] = bundle_meta
+    submission["bundle"] = bundle
+    submission["profile_id"] = profile_id
+    submission["deleted"] = "0"
+    Submission().get_collection_handle().insert_one(submission)
     return HttpResponse()
 
 
