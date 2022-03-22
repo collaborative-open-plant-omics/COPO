@@ -178,6 +178,16 @@ DTOL_ENUMS = {
             "ROYAL BOTANIC GARDEN EDINBURGH",
             "EARLHAM INSTITUTE",
             "NATURAL HISTORY MUSEUM"],
+
+        "DTOL_ENV" : [
+            "SANGER INSTITUTE",
+            "UNIVERSITY OF OXFORD",
+            "MARINE BIOLOGICAL ASSOCIATION",
+            "ROYAL BOTANIC GARDENS KEW",
+            "ROYAL BOTANIC GARDEN EDINBURGH",
+            "EARLHAM INSTITUTE",
+            "NATURAL HISTORY MUSEUM"
+        ],
         "ERGA" : [
             "SANGER INSTITUTE",
             "EARLHAM INSTITUTE",
@@ -1147,7 +1157,16 @@ SPECIMEN_PREFIX = {
         },
         "erga" : {
             "default" : "ERGA_"
-            }
+            },
+        "dtol_env" : {
+            "UNIVERSITY OF OXFORD": "Ox",
+            "MARINE BIOLOGICAL ASSOCIATION": "MBA",
+            "ROYAL BOTANIC GARDENS KEW": "KDTOL",
+            "ROYAL BOTANIC GARDEN EDINBURGH": "EDTOL",
+            "EARLHAM INSTITUTE": "EI_",
+            "NATURAL HISTORY MUSEUM": "NHMUK",
+            "SANGER INSTITUTE": "SAN"
+        }
     },
     "PARTNER": {
         "UNIVERSITY OF DERBY": "UDUK",
@@ -1171,6 +1190,15 @@ SPECIMEN_PREFIX = {
 SPECIMEN_SUFFIX = {
     "GAL": {
         "dtol" : {
+            "UNIVERSITY OF OXFORD": '\d{6}',
+            "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+            "ROYAL BOTANIC GARDENS KEW": '\d{5}',
+            "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
+            "EARLHAM INSTITUTE": '\d{5}',
+            "NATURAL HISTORY MUSEUM": '\d{9}',
+            "SANGER INSTITUTE": '\d{7}'
+        },
+        "dtol_env" : {
             "UNIVERSITY OF OXFORD": '\d{6}',
             "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
             "ROYAL BOTANIC GARDENS KEW": '\d{5}',

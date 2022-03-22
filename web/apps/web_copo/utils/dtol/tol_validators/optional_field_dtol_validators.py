@@ -143,6 +143,7 @@ class DtolEnumerationValidator(TolValidtor):
                                 self.flag = False
                     #check SPECIMEN_ID has the right prefix
                     elif header == "SPECIMEN_ID":
+                        #both DTOL and DTOL_ENV
                         if "DTOL" in p_type:
                             current_gal = self.data.at[cellcount - 1, "GAL"]
                             specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal,
