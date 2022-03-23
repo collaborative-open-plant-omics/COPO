@@ -898,6 +898,9 @@ class Sample(DAComponent):
     def get_by_profile_and_field(self, profile_id, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}))
 
+    def get_by_project_and_field(self, project, field, value):
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
+
     def get_dtol_from_profile_id(self, profile_id, filter):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
