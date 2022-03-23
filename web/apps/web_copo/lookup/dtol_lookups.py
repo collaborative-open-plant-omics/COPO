@@ -1105,7 +1105,7 @@ SPECIMEN_SUFFIX = {
     "GAL": {
         "dtol" : {
             "UNIVERSITY OF OXFORD": '\d{6}',
-            "MARINE BIOLOGICAL ASSOCIATION": '-\d{5}-\d{3}[A-Z]',
+            "MARINE BIOLOGICAL ASSOCIATION": '-\d{6}-\d{3}[A-Z]',
             "ROYAL BOTANIC GARDENS KEW": '\d{5}',
             "ROYAL BOTANIC GARDEN EDINBURGH": '\d{5}',
             "EARLHAM INSTITUTE": '\d{5}',
