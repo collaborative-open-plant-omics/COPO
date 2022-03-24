@@ -903,6 +903,7 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
         "repository_docs._id": 1,
     }
 
+
     doc = Submission().get_collection_handle().aggregate(
         [
             {"$addFields": {
@@ -949,7 +950,7 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
         ])
 
     records = cursor_to_list(doc)
-
+    submission_record = Submission().get_collection_handle().find_one({"_id": ObjectId(records[0]["_id"])})
     if not records:
         result['status'] = "error"
         result['message'] = "Couldn't find submission record!"

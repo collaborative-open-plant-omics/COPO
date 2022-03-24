@@ -1195,3 +1195,93 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1637255347289	Marionette	INFO	Listening on port 35275
 1637255347370	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1637255388093	Marionette	INFO	Stopped listening on port 35275
+1648052935211	geckodriver	INFO	Listening on 127.0.0.1:35683
+1648053898122	geckodriver	INFO	Listening on 127.0.0.1:46909
+1648054976507	geckodriver	INFO	Listening on 127.0.0.1:39601
+1648054977518	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileQ97b44"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648054979304	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileQ97b44/search.json.mozlz4", (void 0)))
+1648054983691	Marionette	INFO	Listening on port 32973
+1648054986205	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1648055032312	Marionette	INFO	Stopped listening on port 32973
+WARNING: At least one completion condition is taking too long to complete. Conditions: [{"name":"SessionStore: flushing all windows","state":{"total":1,"current":0},"filename":"resource:///modules/sessionstore/SessionStore.jsm","lineNumber":2062,"stack":["resource:///modules/sessionstore/SessionStore.jsm:ssi_onQuitApplicationGranted:2062","resource:///modules/sessionstore/SessionStore.jsm:ssi_observe:981","chrome://remote/content/marionette/driver.js:GeckoDriver.prototype.quit:2671","chrome://remote/content/marionette/server.js:despatch:306","chrome://remote/content/marionette/server.js:execute:279","chrome://remote/content/marionette/server.js:onPacket/<:252","chrome://remote/content/marionette/server.js:onPacket:253","chrome://remote/content/marionette/transport.js:_onJSONObjectReady/<:500"]}] Barrier: quit-application-granted
+1648055261797	geckodriver	INFO	Listening on 127.0.0.1:55423
+1648055262804	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilemzM0ky"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648055264503	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilemzM0ky/search.json.mozlz4", (void 0)))
+1648055267774	Marionette	INFO	Listening on port 39253
+1648055268194	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1648055346966	Marionette	INFO	Stopped listening on port 39253
+1648055991056	geckodriver	INFO	Listening on 127.0.0.1:46771
+1648055992064	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileK8oF9p"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648055993763	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileK8oF9p/search.json.mozlz4", (void 0)))
+1648056012165	Marionette	INFO	Listening on port 43185
+1648056014704	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+Exiting due to channel error.
+Exiting due to channel error.
+1648123315166	geckodriver	INFO	Listening on 127.0.0.1:46601
+1648123316170	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileYwNM4D"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648123317882	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileYwNM4D/search.json.mozlz4", (void 0)))
+1648123319470	Marionette	INFO	Listening on port 35041
+1648123319513	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.error: Region.jsm: "Error fetching region" (new Error("TIMEOUT", "resource://gre/modules/Region.jsm", 772))
+console.error: Region.jsm: "Failed to fetch region" (new Error("TIMEOUT", "resource://gre/modules/Region.jsm", 419))
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1648123380622	Marionette	INFO	Stopped listening on port 35041
+1648124832100	geckodriver	INFO	Listening on 127.0.0.1:59613
+1648124833107	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileeqFNlY"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648124834274	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileeqFNlY/search.json.mozlz4", (void 0)))
+1648124835509	Marionette	INFO	Listening on port 38359
+1648124835541	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1648124856673	Marionette	INFO	Stopped listening on port 38359
+
+###!!! [Child][PContentChild] Error: RunMessage(msgname=PHttpChannel::Msg_DeleteSelf) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][PContentChild] Error: RunMessage(msgname=PHttpChannel::Msg_DeleteSelf) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][PContentChild] Error: RunMessage(msgname=PHttpChannel::Msg_DeleteSelf) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][PContentChild] Error: RunMessage(msgname=PHttpChannel::Msg_DeleteSelf) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][PContentChild] Error: RunMessage(msgname=PHttpChannel::Msg_DeleteSelf) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
+
+1648130318549	geckodriver	INFO	Listening on 127.0.0.1:45685
+1648130318553	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileI0ozQY"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1648130319763	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileI0ozQY/search.json.mozlz4", (void 0)))
+1648130321271	Marionette	INFO	Listening on port 44427
+1648130321400	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1648130346244	Marionette	INFO	Stopped listening on port 44427

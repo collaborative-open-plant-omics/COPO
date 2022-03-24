@@ -210,4 +210,6 @@ urlpatterns = [
          name="inspect_barcoding"),
     path('process_urls', ajax_handlers.process_urls,
          name="process_urls"),
+    path('get_manifest_submission_list/', ajax_handlers.get_manifest_submission_list,
+         name="get_manifest_submission_list"),
 ]

@@ -14,6 +14,7 @@ $(document).ready(function () {
         var componentMeta = get_component_meta(component);
 
 
+
         load_submissions();
 
         // handle/attach events to table buttons
@@ -51,7 +52,7 @@ $(document).ready(function () {
                 try {
                     event_target_id = data.submission_id;
                 } catch (err) {
-                    ;
+
                 }
 
                 if (event_target_id) {
@@ -65,7 +66,7 @@ $(document).ready(function () {
                     event_target_id = data.submission_id;
                     event_status_message = data.status_message;
                 } catch (err) {
-                    ;
+
                 }
 
                 if (event_target_id && event_status_message) {
@@ -1642,7 +1643,7 @@ $(document).ready(function () {
             }
 
             if (task == "delete") {
-                ;//will need to think this again...in terms of deletion policy
+                //will need to think this again...in terms of deletion policy
             }
             //table.rows().deselect(); //deselect all rows
 
