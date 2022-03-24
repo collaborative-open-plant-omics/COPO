@@ -179,6 +179,7 @@ def save_ena_records(request):
     submission["bundle_meta"] = bundle_meta
     submission["bundle"] = bundle
     submission["profile_id"] = profile_id
+    submission["manifest_submission"] = 1
     submission["deleted"] = "0"
     Submission().get_collection_handle().insert_one(submission)
     return HttpResponse()
