@@ -112,7 +112,7 @@ $(document).ready(function () {
         $("#help_add_button").removeClass("primary").addClass("green")
         $("#help_add_button").children("i").removeClass("add").addClass("table")
     }
-    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")) {
+    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers"))  {
         $(".accept_reject_samples").show()
     }
 

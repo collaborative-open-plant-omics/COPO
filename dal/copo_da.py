@@ -1852,8 +1852,7 @@ class Profile(DAComponent):
 
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)",
-                              "Darwin Tree of Life Earlham Environmental samples (DTOL_ENV)"]}}).sort(
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)"]}}).sort(
             "date_modified",
             pymongo.DESCENDING)
         return cursor_to_list(p)
@@ -1861,6 +1860,11 @@ class Profile(DAComponent):
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_modified", pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtolenv_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified", pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):

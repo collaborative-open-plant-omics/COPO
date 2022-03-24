@@ -1399,6 +1399,8 @@ def update_pending_samples_table(request):
         profiles = Profile().get_dtol_profiles()
     if "erga_sample_managers" in member_groups:
         profiles += Profile().get_erga_profiles()
+    if "dtolenv_sample_managers" in member_groups:
+        profiles += Profile().get_dtolenv_profiles()
     return HttpResponse(json_util.dumps(profiles))
 
 
