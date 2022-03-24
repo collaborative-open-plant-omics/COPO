@@ -194,7 +194,7 @@ $(document).ready(function () {
                             if (data.type.includes("DTOL_ENV")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
                                     ' style="">' + data.title + '&nbsp<small>(DTOL-ENV)</small></span>');
-                                renderHTML.find(".panel-heading").css('background-color', "#FFD700")
+                                renderHTML.find(".panel-heading").css('background-color', "#fb7d0d")
                             } else if (data.type.includes("DTOL")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
                                     ' style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
