@@ -1016,6 +1016,30 @@ DTOL_RULES = {
     "COLLECTOR_ORCID_ID" : {
         "strict_regex" : "^((\d{4}-){3}\d{3}(\d|X))(\|(\d{4}-){3}\d{3}(\d|X))*|(^not provided$)|(^not applicable$)",
         "human_readable" : "16-digit number that is compatible with the ISO Standard (ISO 27729),  if multiple IDs separate with a | and no spaces"
+    },
+    "SAMPLING_WATER_BODY_DEPTH" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
+    },
+    "WATER_SPEED" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
+    },
+    "CHLOROPHYL_A" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
+    },
+    "SALINITY" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
+    },
+    "DISSOLVED_OXYGEN" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
+    },
+    "TEMPERATURE" : {
+        "strict_regex" : "^\d+$",
+        "human_readable" : "integer"
     }
 }
 DTOL_UNITS = {
