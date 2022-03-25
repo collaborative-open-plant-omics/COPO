@@ -1803,4 +1803,5 @@ def get_manifest_submission_list(request):
         {"manifest_submission": {"$eq": 1}}
     ]})
     output = list(docs)
-    return HttpResponse(output)
+    out = json_util.dumps(output)
+    return HttpResponse(out)

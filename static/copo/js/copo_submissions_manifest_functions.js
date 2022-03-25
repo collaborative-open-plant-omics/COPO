@@ -7,15 +7,17 @@ function load_manifest_submission_list() {
         url: "/copo/get_manifest_submission_list/",
 
     }).done(function (data) {
+        data = JSON.parse(data)
         out = {}
-        out.table_data.dataset = data
+        out.table_data = {}
+        out.table_data.dataSet = data
         do_display_manifest_submissions(out)
     })
 }
 
 function do_display_manifest_submissions(data) {
     var dtd = data.table_data.dataSet;
-    set_empty_component_message(dtd.length); //display empty submission message.
+    //set_empty_component_message(dtd.length); //display empty submission message.
 
     if (dtd.length == 0) {
         return false;
@@ -50,8 +52,12 @@ function do_display_manifest_submissions(data) {
             .search('')
             .draw();
     } else {
+
+
         table = $('#' + tableID).DataTable({
+
             data: dataSet,
+
             searchHighlight: true,
             ordering: true,
             lengthChange: false,
@@ -67,9 +73,11 @@ function do_display_manifest_submissions(data) {
                 {
                     "data": null,
                     "orderable": false,
+
                     "render": function (rowdata) {
                         var renderHTML = get_card_panel();
                         var disabled_items = [];
+
 
                         renderHTML
                             .removeClass("component-type-panel")
@@ -83,14 +91,14 @@ function do_display_manifest_submissions(data) {
                             bundle_name = 'No associated bundle';
                         }
 
-                        renderHTML.find(".panel-header-1").html(bundle_name);
+                        //renderHTML.find(".panel-header-1").html(bundle_name);
 
                         var attrHTML = renderHTML.find(".attr-placeholder").first().clone().css("display", "block");
                         attrHTML.find(".attr-key").html("Repository:");
 
                         var target_repository = '';
-                        if (rowdata.repository_name && rowdata.repository_type) {
-                            target_repository = rowdata.repository_name + " (" + rowdata.repository_type + ")";
+                        if (rowdata.repository_type) {
+                            target_repository = " (" + rowdata.repository_type + ")";
                         } else {
                             disabled_items.push('view_repo_details');
                             target_repository = 'N/A <i data-html="A destination repository is yet to be assigned. Please select <strong>submit</strong> from the tasks menu to assign a repository and submit the record." class="info circle white icon copo-tooltip"></i>';
@@ -101,7 +109,7 @@ function do_display_manifest_submissions(data) {
 
                         var attrHTML = renderHTML.find(".attr-placeholder").first().clone().css("display", "block");
                         attrHTML.find(".attr-key").html("Last modified:");
-                        attrHTML.find(".attr-value").html(rowdata.date_modified);
+
                         renderHTML.find(".attr-placeholder").parent().append(attrHTML);
 
                         //define status
@@ -158,12 +166,10 @@ function do_display_manifest_submissions(data) {
 
                         return $('<div/>').append(renderHTML).html();
                     }
+
+
                 },
-                {
-                    "data": "s_n",
-                    "title": "S/N",
-                    "visible": false
-                },
+
                 {
                     "data": "record_id",
                     "visible": false
@@ -176,6 +182,7 @@ function do_display_manifest_submissions(data) {
             createdRow: function (row, data, index) {
             },
             dom: 'Bfr<"row"><"row info-rw" i>tlp',
+
         });
 
         table
@@ -187,7 +194,7 @@ function do_display_manifest_submissions(data) {
                     .addClass('tiny ui basic button');
             });
     }
-
+    /*
     $('#' + tableID + '_wrapper')
         .find(".dataTables_filter")
         .find("input")
@@ -201,9 +208,9 @@ function do_display_manifest_submissions(data) {
     for (var i = 0; i < visibleRows.length; ++i) {
         submission_ids.push(visibleRows[i].split("row_").slice(-1)[0])
     }
-
+*/
     // update status for submission records
-    get_submission_information(submission_ids);
+    //get_submission_information(submission_ids);
 }
 
 
@@ -212,7 +219,13 @@ function get_manifest_table_dataset(dtd) {
 
     for (var i = 0; i < dtd.length; ++i) {
         var data = dtd[i];
-
+        // get submission type
+        var manifest_submission = null
+        if (data.hasOwnProperty("manifest_submission")) {
+            manifest_submission = 1
+        } else {
+            manifest_submission = 0
+        }
         //get s_n
         var s_n = '';
         if (data.hasOwnProperty("s_n")) {
@@ -223,6 +236,9 @@ function get_manifest_table_dataset(dtd) {
         var record_id = '';
         if (data.hasOwnProperty("record_id")) {
             record_id = data.record_id;
+        }
+        if (data.hasOwnProperty("_id")) {
+            record_id = data._id.$oid
         }
 
         //get row id
@@ -241,6 +257,9 @@ function get_manifest_table_dataset(dtd) {
         var repository_type = '';
         if (data.hasOwnProperty("repository_type")) {
             repository_type = data.repository_type;
+        }
+        if (data.hasOwnProperty("repository")) {
+            repository_type = data.repository
         }
 
         //get bundle name
@@ -263,15 +282,21 @@ function get_manifest_table_dataset(dtd) {
 
 
         if (record_id) {
-            var option = {};
-            option["s_n"] = s_n;
-            option["DT_RowId"] = DT_RowId;
-            option["repository_type"] = repository_type;
-            option["bundle_name"] = bundle_name;
-            option["repository_name"] = repository_name;
-            option["date_modified"] = date_modified;
-            option["record_id"] = record_id;
-            option["complete"] = complete;
+            let option = {};
+            if (manifest_submission) {
+                option["record_id"] = record_id;
+                option["complete"] = complete;
+                option["repository_type"] = repository_type;
+            } else {
+                option["s_n"] = s_n;
+                option["DT_RowId"] = DT_RowId;
+                option["repository_type"] = repository_type;
+                option["bundle_name"] = bundle_name;
+                option["repository_name"] = repository_name;
+                option["date_modified"] = date_modified;
+                option["record_id"] = record_id;
+                option["complete"] = complete;
+            }
             dataSet.push(option);
         }
     }
