@@ -905,7 +905,7 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting", "private"]}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
