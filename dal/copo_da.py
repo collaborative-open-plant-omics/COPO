@@ -1725,6 +1725,13 @@ class Submission(DAComponent):
         projection = "accessions.study_accessions"
         return cursor_to_list(self.get_collection_handle().find({query: {"$exists": True}}, {projection: 1}))
 
+    def set_manifest_submission_pending(self, s_id):
+        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$set": {"processing_status": "pending", "date_modified":
+            datetime.utcnow()}}):
+            return True
+        else:
+            return False
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):

@@ -14,7 +14,6 @@ $(document).ready(function () {
         var componentMeta = get_component_meta(component);
 
 
-
         load_submissions();
 
         // handle/attach events to table buttons
@@ -78,19 +77,22 @@ $(document).ready(function () {
 
         };
 
-        // submissionSocket.send(JSON.stringify({
-        //         'message': message
-        //     }));
+    //submissionSocket.send(JSON.stringify({
+    //    'message': message
+    //}));
+    submissionSocket.onconnecting = function (e) {
+        console.log("connecting" + e)
+    }
+    submissionSocket.onclose = function (e) {
+        console.log(e)
+        console.error('Submission socket closed unexpectedly' + e);
+    };
 
-        submissionSocket.onclose = function (e) {
-            console.error('Submission socket closed unexpectedly');
-        };
-
-        //submission tasks
-        $(document).on('click', '.submissionmenu', function (event) {
-            event.preventDefault();
-            dispatch_submission_events($(this));
-        });
+    //submission tasks
+    $(document).on('click', '.submissionmenu', function (event) {
+        event.preventDefault();
+        dispatch_submission_events($(this));
+    });
 
         //handle destination repository change
         $(document).on('destination_repo_change', function (event) {

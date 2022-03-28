@@ -1,11 +1,15 @@
 $(document).ready(function () {
     load_manifest_submission_list();
+    $(document).on("click", ".submit_button_clicked", submit_button_clicked)
 })
 
 function load_manifest_submission_list() {
+    var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
     $.ajax({
         url: "/copo/get_manifest_submission_list/",
-
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
     }).done(function (data) {
         data = JSON.parse(data)
         out = {}
@@ -145,7 +149,7 @@ function do_display_manifest_submissions(data) {
                         //define menu
                         var componentMenu = renderHTML.find(".component-menu");
                         componentMenu.html('');
-                        componentMenu.append('<div data-task="submit" class="item submissionmenu">Submit</div>');
+                        componentMenu.append('<div id="submit_' + rowdata["record_id"] + '" class="submit_button_clicked item">Submit</div>');
                         componentMenu.append('<div class="divider"></div>');
                         componentMenu.append('<div data-task="view_datafiles" class="item submissionmenu">View Datafiles</div>');
                         componentMenu.append('<div data-task="view_accessions" class="item submissionmenu">View Accessions</div>');
@@ -302,4 +306,19 @@ function get_manifest_table_dataset(dtd) {
     }
 
     return dataSet;
+}
+
+function submit_button_clicked(evt) {
+    evt.preventDefault()
+    let sub_id = evt.currentTarget.id.split("_")[1]
+
+    $.ajax({
+        url: "/copo/init_manifest_submission/",
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        data: {"submission_id": sub_id},
+        method: "POST"
+    })
+
 }

@@ -212,4 +212,6 @@ urlpatterns = [
          name="process_urls"),
     path('get_manifest_submission_list/', ajax_handlers.get_manifest_submission_list,
          name="get_manifest_submission_list"),
+    path('init_manifest_submission/', ajax_handlers.init_manifest_submission,
+         name="init_manifest_submission"),
 ]

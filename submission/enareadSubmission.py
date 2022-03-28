@@ -199,6 +199,9 @@ class EnaReads:
         # context = self._submit_datafiles_cli(submission_xml_path=submission_xml_path)
 
         # submit datafiles via the RESTful pathway
+
+        # todo branch here for manifest submissions, as we will be handling datafiles differently
+
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
