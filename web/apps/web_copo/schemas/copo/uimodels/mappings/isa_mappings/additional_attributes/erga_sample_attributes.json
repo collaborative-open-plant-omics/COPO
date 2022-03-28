@@ -133,10 +133,10 @@
   },
   {
     "help_tip": "",
-    "required": "true",
+    "required": "false",
     "control_meta": {},
     "versions": [
-      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL"
+      "TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_ID"
     ],
     "ref": "",
     "deprecated": false,
@@ -145,8 +145,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Associated Traditional Knowledge Label",
-    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL",
+    "label": "Traditional Knowledge or Biocultural ID",
+    "id": "copo.sample.TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_ID",
     "show_in_table": true,
     "control": "text",
     "default_value": "",

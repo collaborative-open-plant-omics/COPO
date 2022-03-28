@@ -341,6 +341,8 @@ class DtolSpreadsheet:
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_ASG_VERSION
+            elif "dtolenv" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_DTOLENV_VERSION
             elif "dtol" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_DTOL_VERSION
             elif "erga" in self.type.lower():
@@ -352,7 +354,10 @@ class DtolSpreadsheet:
             s["tol_project"] = self.type
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
-            s["status"] = "pending"
+            if "erga" in self.type.lower() and s["TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_ID"]:
+                    s["status"] = "private"
+            else:
+                s["status"] = "pending"
             s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Creating Sample with ID: " + s.get("TUBE_OR_WELL_ID") + "/" + s["SPECIMEN_ID"],
