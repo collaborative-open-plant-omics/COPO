@@ -39,6 +39,8 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.utils.dtol.Dtol_Barcode import Barcoding
+# from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
@@ -46,6 +48,7 @@ from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
+
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
 

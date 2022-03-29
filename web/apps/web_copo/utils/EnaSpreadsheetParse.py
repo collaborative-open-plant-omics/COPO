@@ -9,7 +9,7 @@ import pandas
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Source, Submission
+from dal.copo_da import Sample, DataFile, Profile, Source, Submission, Description
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
@@ -29,7 +29,7 @@ from os.path import join
 def parse_ena_spreadsheet(request):
     profile_id = request.session["profile_id"]
     channels_group_name = "s3_" + profile_id
-    profile_id = request.session.get("profile_id", None)
+
     # method called by rest
     file = request.FILES["file"]
     name = file.name
@@ -76,6 +76,7 @@ def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
     sample_data = request.session.get("sample_data")
     profile_id = request.session["profile_id"]
+    profile_name = Profile().get_name(profile_id)
     uid = request.user.id
     alias = str(uuid.uuid4())
     bundle = list()
@@ -104,6 +105,7 @@ def save_ena_records(request):
         sample["derivesFrom"] = [source_id]
         sample["date_modified"] = datetime.datetime.utcnow()
         sample["profile_id"] = profile_id
+        sample["name"] = s["sample_name"]
         sample_id = str(Sample().get_collection_handle().insert_one(sample).inserted_id)
 
         df = dict()
@@ -181,6 +183,9 @@ def save_ena_records(request):
     submission["profile_id"] = profile_id
     submission["manifest_submission"] = 1
     submission["deleted"] = "0"
+
+    dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile', name=profile_name)
+    submission["description_token"] = dr["_id"]
     Submission().get_collection_handle().insert_one(submission)
     return HttpResponse()
 
