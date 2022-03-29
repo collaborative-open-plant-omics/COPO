@@ -24,7 +24,7 @@ import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person, Barcode, ValidationQueue
+    Repository, Person, Barcode, ValidationQueue, Description
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -1809,6 +1809,6 @@ def get_manifest_submission_list(request):
 
 def init_manifest_submission(request):
     submission_id = request.POST["submission_id"]
-    # todo - make description token here
+
     schedule_submission(submission_id, "ena")
     return HttpResponse()

@@ -80,7 +80,10 @@ class SubmissionHelper:
         release_date = attributes.get("project_details", dict()).get("project_release_date", str())
 
         if release_date:
-            release_date = datetime.strptime(release_date, '%d/%m/%Y').strftime('%Y-%m-%d')
+            try:
+                release_date = datetime.strptime(release_date, '%d/%m/%Y').strftime('%Y-%m-%d')
+            except:
+                pass
             present = datetime.now()
             past = datetime.strptime(release_date, "%Y-%m-%d")
 
