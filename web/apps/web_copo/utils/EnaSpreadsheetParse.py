@@ -97,6 +97,7 @@ def save_ena_records(request):
         source["profile_id"] = request.session["profile_id"]
         source["date_created"] = datetime.datetime.utcnow()
         source["profile_id"] = profile_id
+        source["deleted"] = "0"
         source_id = str(Source().get_collection_handle().insert_one(source).inserted_id)
 
         sample = dict()
@@ -106,6 +107,7 @@ def save_ena_records(request):
         sample["date_modified"] = datetime.datetime.utcnow()
         sample["profile_id"] = profile_id
         sample["name"] = s["sample_name"]
+        sample["deleted"] = "0"
         sample_id = str(Sample().get_collection_handle().insert_one(sample).inserted_id)
 
         df = dict()
