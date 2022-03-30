@@ -381,6 +381,18 @@ function update_pending_samples_table() {
             $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td data-profile_id='" + data[d]._id.$oid + "'>" + data[d].title + "</td></tr>")
         })
         $($("#profile_titles tr")[1]).click()
+
+
+        if ($.fn.DataTable.isDataTable('#profile_titles')) {
+            $("#profile_titles").DataTable().clear().destroy();
+
+        }
+        $("#profile_titles").DataTable({
+            responsive: true,
+            paging: false,
+            dom: '<"top"f>rt<"bottom"lp><"clear">'
+        })
+
     })
 }
 
