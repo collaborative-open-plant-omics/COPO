@@ -379,7 +379,7 @@ function update_pending_samples_table() {
     }).done(function (data) {
         $(data).each(function (d) {
             let date = new Date(data[d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
-            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td data-profile_id='" + data[d]._id.$oid + "'>" + data[d].title + "</td><td>" + date + "</td></tr>")
+            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data[d]._id.$oid + "'>" + data[d].title + "</td><td>" + date + "</td></tr>")
         })
         $($("#profile_titles tr")[1]).click()
 
@@ -388,11 +388,13 @@ function update_pending_samples_table() {
             $("#profile_titles").DataTable().clear().destroy();
 
         }
+
         $("#profile_titles").DataTable({
             responsive: true,
             paging: false,
             dom: '<"top"f>rt<"bottom"lp><"clear">',
-            "order": [[1, "desc"]]
+            "order": [[1, "desc"]],
+
         })
 
     })
