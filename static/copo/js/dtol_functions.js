@@ -388,7 +388,7 @@ function update_pending_samples_table() {
             $("#profile_titles").DataTable().clear().destroy();
 
         }
-
+        $.fn.dataTable.moment('DD/MM/YYYY');
         $("#profile_titles").DataTable({
             responsive: true,
             paging: false,
