@@ -102,7 +102,7 @@ class ProfileInfo:
         for k, v in num_dict.items():
             if handle_dict.get(v, None):
                 status[k] = handle_dict.get(v).count(
-                    {'profile_id': self.profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+                    {'profile_id': self.profile_id})
 
         return status
 
@@ -1392,6 +1392,11 @@ class Submission(DAComponent):
         :param submission_id:
         :return:
         """
+
+        # first check if this is a manifest submission
+        s = self.get_collection_handle().find_one({"_id": ObjectId(submission_id)})
+        if s.get("manifest_submission", 0):
+            return s["repository"]
 
         # specify filtering
         filter_by = dict(_id=ObjectId(str(submission_id)))

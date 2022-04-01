@@ -201,7 +201,8 @@ class EnaReads:
         # submit datafiles via the RESTful pathway
 
         # todo branch here for manifest submissions, as we will be handling datafiles differently
-
+        if submission_record.get("manifest_submission", 0) == 1:
+            self._setup_files_transfer(submission_record)
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
@@ -1845,3 +1846,6 @@ class EnaReads:
                                           status_message=message)
 
         return True
+
+    def _setup_files_transfer(self, submission_record):
+        pass

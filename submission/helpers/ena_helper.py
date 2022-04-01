@@ -183,7 +183,7 @@ class SubmissionHelper:
             sra_source = dict()
             sra_sources[str(source["_id"])] = sra_source
 
-            sra_source["name"] = source["name"]
+            sra_source["name"] = source.get("name", "")
             sra_source["taxon_id"] = source.get("organism", dict()).get('termAccession', str())
             if 'NCBITaxon_' in sra_source["taxon_id"]:
                 sra_source["taxon_id"] = sra_source["taxon_id"].split('NCBITaxon_')[-1]

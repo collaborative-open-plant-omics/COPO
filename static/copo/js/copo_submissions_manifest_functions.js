@@ -21,14 +21,15 @@ function load_manifest_submission_list() {
 
 function do_display_manifest_submissions(data) {
     var dtd = data.table_data.dataSet;
-    //set_empty_component_message(dtd.length); //display empty submission message.
+    var tableID = "manifest_table";
+    set_empty_component_message(dtd.length, "#" + tableID); //display empty submission message.
 
     if (dtd.length == 0) {
         return false;
     }
 
     var dataSet = get_manifest_table_dataset(dtd);
-    var tableID = "manifest_submission_table";
+
 
     //set data
     var table = null;

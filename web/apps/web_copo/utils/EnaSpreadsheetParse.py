@@ -183,7 +183,6 @@ def save_ena_records(request):
     submission["bundle"] = bundle
     submission["profile_id"] = profile_id
     submission["manifest_submission"] = 1
-    submission["deleted"] = "0"
 
     dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile', name=profile_name)
     submission["description_token"] = dr["_id"]
