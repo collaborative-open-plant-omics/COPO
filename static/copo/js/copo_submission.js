@@ -223,14 +223,15 @@ $(document).ready(function () {
 
         function do_display_submissions(data) {
             var dtd = data.table_data.dataSet;
-            set_empty_component_message(dtd.length); //display empty submission message.
+            var tableID = componentMeta.tableID;
+            set_empty_component_message(dtd.length, "#" + tableID); //display empty submission message.
 
             if (dtd.length == 0) {
                 return false;
             }
 
             var dataSet = get_table_dataset(dtd);
-            var tableID = componentMeta.tableID;
+
 
             //set data
             var table = null;
@@ -509,6 +510,7 @@ $(document).ready(function () {
 
                             var messageTitle = "";
                             var getInstructionsPane = format_feedback_message(rec.transcript_message, messageClass, messageTitle);
+                            viewPort.empty()
                             viewPort.prepend(getInstructionsPane);
                         }
                     }
