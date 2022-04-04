@@ -1,6 +1,6 @@
 import inspect
 import math
-
+from django.conf import settings
 import uuid
 import json
 import subprocess
@@ -78,6 +78,7 @@ def save_ena_records(request):
     alias = str(uuid.uuid4())
     bundle = list()
     bundle_meta = list()
+    pairing = list()
     for p in range(1, len(sample_data)):
         s = (map_to_dict(sample_data[0], sample_data[p]))
         source = dict()
@@ -110,7 +111,7 @@ def save_ena_records(request):
         df = dict()
         p = Profile().get_record(profile_id)
         attributes = dict()
-        attributes["datafiles_paring"] = list()
+        attributes["datafiles_pairing"] = list()
         attributes["target_repository"] = {"deposition_context": "ena"}
         attributes["project_details"] = {
             "project_name": p["title"],
@@ -137,10 +138,11 @@ def save_ena_records(request):
         # check if there are two files or one
         if s["library_layout"] == "SINGLE":
             # create single record
-            df["file_name"] = s["file_name"]
-            df["file_location"] = "TODO"
-            df["name"] = "TODO"
-            df["file_id"] = "NOT_NEEDED"
+            f_name = s["file_name"]
+            df["file_name"] = f_name
+            df["file_location"] = join(settings.UPLOAD_PATH, f_name)
+            df["name"] = f_name
+            df["file_id"] = "NA"
             df["file_hash"] = "XXXXX"
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
@@ -148,35 +150,37 @@ def save_ena_records(request):
             bundle_meta.append(f_meta)
         else:
             # create records for left and right
-            paring = dict()
+            tmp_pairing = dict()
             file_names = s["file_name"].split(",")
-            df["file_name"] = file_names[0]
-            df["file_location"] = "TODO"
-            df["name"] = "TODO"
-            df["file_id"] = "NOT_NEEDED"
+            f_name = file_names[0]
+            df["file_name"] = f_name
+            df["file_location"] = join(settings.UPLOAD_PATH, f_name)
+            df["name"] = f_name
+            df["file_id"] = "NA"
             df["file_hash"] = "XXXXX"
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
                                                                                   file_names[0]), "upload_status": False}
-            paring["_id"] = str(inserted.inserted_id)
+            tmp_pairing["_id"] = str(inserted.inserted_id)
             bundle_meta.append(f_meta)
             df.pop("_id")
-            file_name = file_names[1]
-            df["file_name"] = file_name
-
-            df["file_location"] = "TODO"
-            df["name"] = "TODO"
-            df["file_id"] = "NOT_NEEDED"
+            f_name = file_names[1]
+            df["file_name"] = f_name
+            df["file_location"] = join(settings.UPLOAD_PATH, f_name)
+            df["name"] = f_name
+            df["file_id"] = "NA"
             df["file_hash"] = "XXXXX"
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
                                                                                   file_names[1]), "upload_status": False}
-            paring["_id2"] = str(inserted.inserted_id)
-            attributes["datafiles_paring"].append(paring)
+            tmp_pairing["_id2"] = str(inserted.inserted_id)
+            pairing.append(tmp_pairing)
+
             bundle_meta.append(f_meta)
     submission = dict()
+    attributes["datafiles_pairing"] = pairing
     submission["repository"] = "ena"
     submission["date_created"] = datetime.datetime.utcnow()
     submission["complete"] = "false"
