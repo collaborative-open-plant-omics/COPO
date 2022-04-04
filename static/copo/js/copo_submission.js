@@ -1294,7 +1294,7 @@ $(document).ready(function () {
                     loader.remove();
                     let dataSet = data.submission_accessions.dataSet;
                     let columns = data.submission_accessions.columns;
-                    let message = "No accessions recorded!";
+                    let message = "No accessions recorded";
 
                     if (data.submission_accessions.hasOwnProperty("message") && data.submission_accessions.message != "") {
                         message = data.submission_accessions.message

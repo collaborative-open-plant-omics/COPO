@@ -202,7 +202,14 @@ class EnaReads:
 
         # todo branch here for manifest submissions, as we will be handling datafiles differently
         if submission_record.get("manifest_submission", 0) == 1:
+            ghlper.update_submission_status(status='info', message="Obtaining file accessions",
+                                            submission_id=self.submission_id)
+            context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
             self._setup_files_transfer(submission_record)
+            ghlper.update_submission_status(status='info', message="Transfering Files....you can view your accessions by clicking on Task Menu -> "
+                                                                   "View Accessions",
+                                            submission_id=self.submission_id)
+
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),

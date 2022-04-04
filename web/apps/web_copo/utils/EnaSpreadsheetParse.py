@@ -69,8 +69,6 @@ def parse_ena_spreadsheet(request):
     return HttpResponse()
 
 
-
-
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
     sample_data = request.session.get("sample_data")
@@ -112,6 +110,7 @@ def save_ena_records(request):
         df = dict()
         p = Profile().get_record(profile_id)
         attributes = dict()
+        attributes["datafiles_paring"] = list()
         attributes["target_repository"] = {"deposition_context": "ena"}
         attributes["project_details"] = {
             "project_name": p["title"],
@@ -149,6 +148,7 @@ def save_ena_records(request):
             bundle_meta.append(f_meta)
         else:
             # create records for left and right
+            paring = dict()
             file_names = s["file_name"].split(",")
             df["file_name"] = file_names[0]
             df["file_location"] = "TODO"
@@ -159,6 +159,7 @@ def save_ena_records(request):
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
                                                                                   file_names[0]), "upload_status": False}
+            paring["_id"] = str(inserted.inserted_id)
             bundle_meta.append(f_meta)
             df.pop("_id")
             file_name = file_names[1]
@@ -172,6 +173,8 @@ def save_ena_records(request):
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
                                                                                   file_names[1]), "upload_status": False}
+            paring["_id2"] = str(inserted.inserted_id)
+            attributes["datafiles_paring"].append(paring)
             bundle_meta.append(f_meta)
     submission = dict()
     submission["repository"] = "ena"

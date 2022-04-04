@@ -39,7 +39,7 @@ class SubmissionHelper:
         :return:
         """
 
-        datafiles_pairing = self.description.get("attributes", dict()).get("datafiles_pairing", list())
+        datafiles_pairing =.get("attributes", dict()).get("datafiles_pairing", list())
 
         return datafiles_pairing
 
