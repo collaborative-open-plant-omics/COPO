@@ -11,6 +11,7 @@ from submission.helpers import generic_helper as ghlper
 import web.apps.web_copo.schemas.utils.data_utils as data_utils
 from dal.copo_da import Profile
 
+
 class SubmissionHelper:
     def __init__(self, submission_id=str()):
         self.submission_id = submission_id
@@ -39,7 +40,7 @@ class SubmissionHelper:
         :return:
         """
 
-        datafiles_pairing =.get("attributes", dict()).get("datafiles_pairing", list())
+        datafiles_pairing = self.description.get("attributes", dict()).get("datafiles_pairing", list())
 
         return datafiles_pairing
 
@@ -130,7 +131,9 @@ class SubmissionHelper:
         submission_record = self.collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"bundle": 1})
         object_ids = [ObjectId(x) for x in submission_record.get("bundle", list())]
 
-        datafiles = cursor_to_list(ghlper.get_datafiles_handle().find({"_id": {"$in": object_ids}}, {'_id': 1, 'file_location': 1, "description.attributes": 1, "name": 1, "file_hash": 1}))
+        datafiles = cursor_to_list(ghlper.get_datafiles_handle().find({"_id": {"$in": object_ids}},
+                                                                      {'_id': 1, 'file_location': 1, "description.attributes": 1, "name": 1,
+                                                                       "file_hash": 1}))
 
         samples_id = list()
         df_attributes = []  # datafiles attributes

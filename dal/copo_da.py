@@ -1525,6 +1525,12 @@ class Submission(DAComponent):
 
         return doc.get("complete", False)
 
+    def is_manifest_submission(self, sub_id):
+        docs = Submission().get_collection_handle().find_one(
+            {"_id": ObjectId(sub_id)}
+        )
+        return docs.get("manifest_submission", 0) == 1
+
     def insert_dspace_accession(self, sub, accessions):
         # check if submission accessions are not a list, if not delete as multiple accessions cannot be added to object
         doc = self.get_collection_handle().find_one({"_id": ObjectId(sub["_id"])})

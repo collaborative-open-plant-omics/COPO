@@ -19,6 +19,7 @@ import dal.mongo_util as mutil
 from contextlib import closing
 from django.conf import settings
 from submission.helpers import generic_helper as ghlper
+from dal.copo_da import Submission
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from submission.helpers.ena_helper import SubmissionHelper
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -869,9 +870,12 @@ class EnaReads:
         kwargs = dict(submission_id=self.submission_id)
         ghlper.transfer_to_ena(webin_user=self.webin_user, pass_word=self.pass_word, remote_path=
         self.remote_location, file_paths=mock_file_names, **kwargs)
-
-        # schedule the transfer of actual datafiles to ENA Dropbox
-        ghlper.schedule_file_transfer(submission_id=self.submission_id, remote_location=self.remote_location)
+        # branch for manifest submissions
+        if Submission().is_manifest_submission(self.submission_id):
+            self._setup_files_transfer(self.submission_id)
+        else:
+            # schedule the transfer of actual datafiles to ENA Dropbox
+            ghlper.schedule_file_transfer(submission_id=self.submission_id, remote_location=self.remote_location)
 
         # get sequencing instruments
         instruments = COPOLookup(data_source='sequencing_instrument').broker_data_source()
