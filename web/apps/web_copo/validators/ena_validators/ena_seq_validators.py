@@ -79,3 +79,16 @@ class TaxonValidator(Validator):
                     self.errors += ena_taxon_errors
                     self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
+
+
+class GzipValidator(Validator):
+
+    def validate(self):
+        for row in self.data.iterrows():
+            file_names = row[1]["file_name"]
+            for f in file_names.split(","):
+                if not f.strip().endswith(".gz"):
+                    error_str = f + ": File not gzipped. All files must be gzipped and end in '.gz'"
+                    self.errors.append(error_str)
+                    self.flag = False
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

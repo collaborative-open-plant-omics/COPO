@@ -79,6 +79,7 @@ def save_ena_records(request):
     bundle = list()
     bundle_meta = list()
     pairing = list()
+    fake_checksum = "421c30599a0db11a469dbdb54fcb0797"
     for p in range(1, len(sample_data)):
         s = (map_to_dict(sample_data[0], sample_data[p]))
         source = dict()
@@ -143,21 +144,21 @@ def save_ena_records(request):
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = "XXXXX"
+            df["file_hash"] = fake_checksum
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
-            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid), file_name), "upload_status": False}
+            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name), "upload_status": False}
             bundle_meta.append(f_meta)
         else:
             # create records for left and right
             tmp_pairing = dict()
             file_names = s["file_name"].split(",")
-            f_name = file_names[0]
+            f_name = file_names[0].strip()
             df["file_name"] = f_name
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = "XXXXX"
+            df["file_hash"] = fake_checksum
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
@@ -165,12 +166,12 @@ def save_ena_records(request):
             tmp_pairing["_id"] = str(inserted.inserted_id)
             bundle_meta.append(f_meta)
             df.pop("_id")
-            f_name = file_names[1]
+            f_name = file_names[1].strip()
             df["file_name"] = f_name
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = "XXXXX"
+            df["file_hash"] = fake_checksum
             inserted = DataFile().get_collection_handle().insert_one(df)
             bundle.append(str(inserted.inserted_id))
             f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
