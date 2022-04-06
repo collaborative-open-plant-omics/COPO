@@ -158,11 +158,14 @@ def get_submission_status(request):
     # get completed submissions
     submission_records = Submission().get_collection_handle().find(
         {"_id": {"$in": submission_ids}},
-        {'_id': 1, 'complete': 1, 'transcript': 1})
+        {'_id': 1, 'complete': 1, 'transcript': 1, 'manifest_submission': 1})
 
     for rec in submission_records:
+
         record_id = str(rec['_id'])
         new_data = dict(record_id=record_id)
+        if rec.get("manifest_submission", 0):
+            new_data["manifest_submission"] = 1
         context[new_data["record_id"]] = new_data
 
         new_data["complete"] = str(rec.get("complete", False)).lower()

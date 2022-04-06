@@ -47,6 +47,7 @@ $(document).ready(function () {
             var data = JSON.parse(e.data);
 
             if (data.hasOwnProperty('type') && data.type == "submission_status") {
+
                 var event_target_id = '';
                 try {
                     event_target_id = data.submission_id;
@@ -490,7 +491,11 @@ $(document).ready(function () {
                 success: function (data) {
                     for (const key of Object.keys(data)) {
                         //update submission record status and submission status message
-                        var table = $('#' + componentMeta.tableID).DataTable();
+                        if (data[key].manifest_submission) {
+                            var table = $('#manifest_table').DataTable();
+                        } else {
+                            var table = $('#' + componentMeta.tableID).DataTable();
+                        }
                         var rec = data[key];
                         var submission_data = table.row('#row_' + rec.record_id).data();
                         submission_data.complete = rec.complete;
@@ -1884,3 +1889,4 @@ function show_submission_metadata(submission_id) {
     dialog.setMessage($dialogContent);
     dialog.open();
 }
+

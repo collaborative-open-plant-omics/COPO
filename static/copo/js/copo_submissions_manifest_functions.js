@@ -250,6 +250,8 @@ function get_manifest_table_dataset(dtd) {
         var DT_RowId = '';
         if (data.hasOwnProperty("DT_RowId")) {
             DT_RowId = data.DT_RowId;
+        } else {
+            DT_RowId = "row_" + data._id.$oid
         }
 
         //get repository_name
@@ -292,6 +294,8 @@ function get_manifest_table_dataset(dtd) {
                 option["record_id"] = record_id;
                 option["complete"] = complete;
                 option["repository_type"] = repository_type;
+                option["s_n"] = s_n;
+                option["DT_RowId"] = DT_RowId;
             } else {
                 option["s_n"] = s_n;
                 option["DT_RowId"] = DT_RowId;
@@ -320,6 +324,8 @@ function submit_button_clicked(evt) {
         },
         data: {"submission_id": sub_id},
         method: "POST"
+    }).done(function () {
+
     })
 
 }
