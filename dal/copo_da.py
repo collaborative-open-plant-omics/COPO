@@ -52,7 +52,9 @@ FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 ValidationQueueCollection = 'ValidationQueueCollection'
+ENAFileTransferCollection = 'EnaFileTransferCollection'
 TestCollection = 'TestCollection'
+
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -70,7 +72,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    stats=get_collection_ref(StatsCollection),
                    test=get_collection_ref(TestCollection),
                    barcode=get_collection_ref(BarcodeCollection),
-                   validationQueue=get_collection_ref(ValidationQueueCollection)
+                   validationQueue=get_collection_ref(ValidationQueueCollection),
+                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection)
                    )
 
 
@@ -2402,3 +2405,12 @@ class Barcode(DAComponent):
         self.get_collection_handle().update_many({"specimen_id": specimen_id},
                                                  {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
                                                  upsert=True)
+
+
+class ENAFileTransferObject(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ENAFileTransferObject, self).__init__(profile_id, "ENAFileTransferObject")
+        self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
+        self.profile_id = profile_id
+        self.profile_id = profile_id
+        self.component = str()
