@@ -27,6 +27,7 @@ from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_EXPERIMENT_TEMPLATE, SRA_RUN_TEMPLATE, \
     SRA_PROJECT_TEMPLATE, SRA_SAMPLE_TEMPLATE, \
     SRA_SUBMISSION_MODIFY_TEMPLATE, ENA_CLI
+import web.apps.web_copo.utils.FileTransferUtils as tx
 
 REPOSITORIES = settings.REPOSITORIES
 BASE_DIR = settings.BASE_DIR
@@ -139,7 +140,7 @@ class EnaReads:
 
         # check status of submission record
         submission_record = collection_handle.find_one({"_id": ObjectId(self.submission_id)},
-                                                       {"profile_id": 1, "complete": 1})
+                                                       {"profile_id": 1, "complete": 1, "manifest_submission": 1})
 
         if not submission_record:
             return dict(status=False, message='Submission record not found!')
@@ -201,21 +202,12 @@ class EnaReads:
 
         # submit datafiles via the RESTful pathway
 
-        # todo branch here for manifest submissions, as we will be handling datafiles differently
-        if submission_record.get("manifest_submission", 0) == 1:
-            ghlper.update_submission_status(status='info', message="Obtaining file accessions",
-                                            submission_id=self.submission_id)
-            context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
-            self._setup_files_transfer(submission_record)
-            ghlper.update_submission_status(status='info', message="Transfering Files....you can view your accessions by clicking on Task Menu -> "
-                                                                   "View Accessions",
-                                            submission_id=self.submission_id)
-
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
+        # todo branch here for manifest submissions, as we will be handling datafiles differently
 
         # process study release
         self.process_study_release()
@@ -1858,5 +1850,7 @@ class EnaReads:
 
         return True
 
-    def _setup_files_transfer(self, submission_record):
-        pass
+    def _setup_files_transfer(self, submission_record_id):
+        submission = Submission().get_record(submission_record_id)
+        for file_id in submission["bundle"]:
+            tx.make_transfer_record(file_id=file_id, submission_id=submission_record_id)
