@@ -55,7 +55,6 @@ ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
 TestCollection = 'TestCollection'
 
-
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
                    sample=get_collection_ref(SampleCollection),
@@ -2414,3 +2413,15 @@ class ENAFileTransferObject(DAComponent):
         self.profile_id = profile_id
         self.profile_id = profile_id
         self.component = str()
+
+    def get_pending_transfers(self):
+        return self.ENAFileTransferObjectCollection.find({"status": "pending"})
+
+    def set_processing(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "processing"}})
+
+    def set_pending(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending"}})
+
+    def set_complete(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
