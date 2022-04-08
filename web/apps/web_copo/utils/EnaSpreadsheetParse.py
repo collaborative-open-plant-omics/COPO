@@ -138,11 +138,13 @@ def save_ena_records(request):
         df["profile_id"] = str(p["_id"])
         df["file_type"] = "TODO"
         df["type"] = "RAW DATA FILE"
+        df["bucket_name"] = str(request.user.id) + "_" + request.user.username
 
         # check if there are two files or one
         if s["library_layout"] == "SINGLE":
             # create single record
             f_name = s["file_name"]
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
             df["file_name"] = f_name
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
@@ -158,6 +160,7 @@ def save_ena_records(request):
             file_names = s["file_name"].split(",")
             f_name = file_names[0].strip()
             df["file_name"] = f_name
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
             df["file_id"] = "NA"
@@ -171,6 +174,7 @@ def save_ena_records(request):
             df.pop("_id")
             f_name = file_names[1].strip()
             df["file_name"] = f_name
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
             df["file_location"] = join(settings.UPLOAD_PATH, f_name)
             df["name"] = f_name
             df["file_id"] = "NA"
