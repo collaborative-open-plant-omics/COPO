@@ -367,9 +367,14 @@ class DtolSpreadsheet:
                 s["ORGANISM_PART"] = "WHOLE_ORGANISM"
                 for field in self.fields:
                     if field not in lookup.SYMBIONT_FIELDS:
-                        target = Sample().get_target_by_field("rack_tube", s["rack_tube"])[0]
+                        target = Sample().get_target_by_field("rack_tube", s["rack_tube"])
                         if target:
-                            s[field] = target.get(field, "")
+                            s[field] = target[0].get(field, "")
+                        else:
+                            for p in range(1, len(sample_data)):
+                                row = (map_to_dict(sample_data[0], sample_data[p]))
+                                if row.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") and row.get("TUBE_OR_WELL_ID", "") == s.get("TUBE_OR_WELL_ID", "") and row.get("SYMBIONT", "") == "TARGET":
+                                    s[field] = row.get(field, "")
                 # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
