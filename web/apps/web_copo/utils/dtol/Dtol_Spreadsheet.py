@@ -336,6 +336,9 @@ class DtolSpreadsheet:
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
         public_name_list = list()
+        x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
+        self.fields = jp.match(
+            '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
             # store manifest version for posterity. If unknown store as 0
@@ -362,6 +365,11 @@ class DtolSpreadsheet:
             # change fields for symbiont
             if s["SYMBIONT"] == "SYMBIONT":
                 s["ORGANISM_PART"] = "WHOLE_ORGANISM"
+                for field in self.fields:
+                    if field not in lookup.SYMBIONT_FIELDS:
+                        target = Sample().get_target_by_field("rack_tube", s["rack_tube"])[0]
+                        if target:
+                            s[field] = target.get(field, "")
                 # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
@@ -475,8 +483,6 @@ class DtolSpreadsheet:
             notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
                             html_id="sample_table")
 
-
-
     def delete_sample(self, sample_ids):
         # accept a list of ids, try to delete creating report
         report = list()
@@ -487,16 +493,6 @@ class DtolSpreadsheet:
                         action="info",
                         html_id="sample_info")
 
-    '''
-    def add_from_symbiont_list(self, s):
-        for idx, el in enumerate(self.symbiont_list):
-            if el.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") \
-                    and el.get("TUBE_OR_WELL_ID", "") == s.get("TUBE_OR_WELL_ID", ""):
-                out = self.symbiont_list.pop(idx)
-                out.pop("RACK_OR_PLATE_ID")
-                out.pop("TUBE_OR_WELL_ID")
-                Sample().add_symbiont(s, out)
-    '''
 
     def check_for_target_or_add_to_symbiont_list(self, s):
         # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,
