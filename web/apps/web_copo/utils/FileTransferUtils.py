@@ -16,31 +16,56 @@ def make_transfer_record(file_id, submission_id):
     tx["ecs_location"] = file["ecs_location"]
     tx["file_id"] = str(file["_id"])
     tx["profile_id"] = file["profile_id"]
-    tx["status"] = "pending"
-    tx["transfer_status"] = dict()
-    tx["transfer_status"]["on_ecs"] = False
-    tx["transfer_status"]["on_copo"] = False
-    tx["transfer_status"]["on_ena"] = False
-    tx["transfer_status"]["is_gzip"] = False
-    tx["transfer_status"]["is_md5"] = False
+    # N.B. Transfer Status
+    # 0 transfer complete
+    # 1 check for presences of file on ecs
+    # 2 transfer to COPO
+    # 3 check for gzip
+    # 4 check for md5
+    # 5 transfer to ENA
+    tx["transfer_status"] = 1
     ENAFileTransferObject().ENAFileTransferObjectCollection.insert_one(tx)
 
 
 def process_pending_file_transfers():
     # get pending transfers
+
     docs = ENAFileTransferObject().get_pending_transfers()
+    # N.B. Transfer Status
+    # 0 transfer complete
+    # 1 check for presences of file on ecs
+    # 2 transfer to COPO
+    # 3 check for gzip
+    # 4 check for md5
+    # 5 transfer to ENA
+
     for tx in docs:
         ENAFileTransferObject().set_processing(tx["_id"])
         tx_status = tx["transfer_status"]
-        if not tx_status["on_ecs"]:
+        if tx_status == 1:
             # check if is on ECS
             if not check_file_in_ecs(tx):
-                # not much we can do here...this should happen, just update last checked
-                tx["status"] = "pending"
+                # not much we can do here...this should not happen, just update last checked
+                update_last_checked(tx)
             else:
-                tx["transfer_status"]["on_ecs"] = True
-            tx["last_checked"] = datetime.utcnow()
-            ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+                # advanced status counter
+                tx["transfer_status"] = tx_status + 1
+                advance_status_counter(tx)
+        if tx_status == 2:
+            # transfer to COPO
+
+            advance_status_counter(tx)
+
+
+def advance_status_counter(tx):
+    tx["transfer_status"] = tx["transfer_status"] + 1
+    tx["last_checked"] = datetime.utcnow()
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+
+
+def update_last_checked(tx):
+    tx["last_checked"] = datetime.utcnow()
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
 
 
 def check_file_in_ecs(tx):
