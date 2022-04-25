@@ -1,8 +1,9 @@
+# Created by AProvidence on 29-03-2022
 from django.test import TestCase
 from api_basic.forms import LoginForm
 
 # Create your tests here.
-class LoginFormTestCase(TestCase):
+class FormsTest(TestCase):
 
     def test_author_form_valid(self):
         form = LoginForm(data={

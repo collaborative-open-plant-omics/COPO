@@ -1,3 +1,4 @@
+# Created by AProvidence on 02-04-2022
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
@@ -39,7 +40,7 @@ class ViewsTestCase(TestCase):
     def test_error_page(self):
         response = self.client.get(self.error_url)
         self.assertEquals(response.status_code, 302)
-        self.assertTemplateUsed(response, 'error_page.html')
+        self.assertTemplateUsed(response, 'copo/error_page.html')
 
 
     # send copo request so 200 should be returned which means

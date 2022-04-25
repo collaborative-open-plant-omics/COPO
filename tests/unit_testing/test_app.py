@@ -1,4 +1,4 @@
-# Created by AProvidence on 29-03-2022
+# Created by AProvidence on 17-03-2022
 from dal.copo_da import Profile
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -20,7 +20,7 @@ class AppTest(TestCase):
         _username = fake.first_name().lower() + "_1"
         _email = _firstname.lower() + _lastname + "@example.com"
 
-        settings.TEST_USER_NAME = _username
+        settings.TEST_USER_NAME= _username
 
         # Create a user
         cls.user = User.objects.create_user(username=settings.TEST_USER_NAME, first_name=_firstname,

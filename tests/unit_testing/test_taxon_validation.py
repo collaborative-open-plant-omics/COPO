@@ -1,8 +1,8 @@
+# Created by AProvidence on 29-03-2022
 from dal.copo_da import Profile
 from ddt import data, unpack  # pip3 install ddt
 from django.conf import settings
 from django.contrib.auth.models import User
-# from django.test import TestCase
 from django.test import TestCase
 from django.urls import reverse
 from web.apps.web_copo.utils.dtol.tol_validators import taxon_validators
@@ -14,24 +14,20 @@ from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 import pandas
 
 
-class TestTaxonValidation(TestCase):
+class TestDTOLTaxonValidation(TestCase):
+    user = None
+
     @classmethod
     def setUpClass(cls):
-        settings.UNIT_TESTING = True
+        settings.TEST_USER_NAME = "aaliyah"
         fake = Faker()
-        _firstname = fake.first_name()
-        _lastname = fake.last_name()
-        _username = fake.first_name().lower() + "_1"
-        _email = _firstname.lower() + _lastname + "@example.com"
-
-        settings.TEST_USER_NAME = _username
 
         # Create a user
-        cls.user = User.objects.create_user(username=settings.TEST_USER_NAME, first_name=_firstname,
-                                            last_name=_lastname, email=_email,
+        cls.user = User.objects.create_user(username=settings.TEST_USER_NAME, first_name=fake.first_name(),
+                                            last_name=fake.last_name(), email=fake.email(),
                                             password=PasswordGenerator().generate())
         cls.user.save()
-
+        # cls.user.id = 2
         # Create a profile
         p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": cls.user.id,
                   "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
@@ -47,24 +43,35 @@ class TestTaxonValidation(TestCase):
         # Create an object with the dtolspreadsheet
 
         # Set profile id attribute
-        # setattr(employee, "salary", 1000)
-        cls.manifest_file = DtolSpreadsheet(file="tests/manifests/sample_manifest.xlsx")
-        cls.manifest_file_data = pandas.read_excel(cls.manifest_file, keep_default_na=False,
-                                                   na_values=lookup.NA_VALS)
+       # setattr('profile_id', '623c964316a123e6a524670f')
+        cls.dtol_manifest = dict()
+        # cls.manifest_file = DtolSpreadsheet(file="tests/manifests/sample_manifest.xlsx")
+        cls.dtol_manifest = pandas.read_excel('tests/manifests/sample_manifest.xlsx', sheet_name='DTOLSAMPLE1.3')
+
+        # cls.manifest_file_data = pandas.read_excel(cls.manifest_file, keep_default_na=False,
+                                               #    na_values=lookup.NA_VALS)
         # cls.manifest_file.loadManifest("xls") # Loads manifest using the xls format
 
     # Set fields from code get profile id from what is created or from a session
     #
-    @data(read_data_from_excel("tests/manifests/sample_manifest.xlsx", "ERGASample1"))
+    # @data(read_data_from_excel("tests/manifests/sample_manifest.xlsx", "ERGASample1"))
     # @unpack
     def test_blank_manifest(self):
         """
         If manifest is blank, an appropriate message is displayed
         """
-        self.manifest_file_data.validate_taxonomy()
-        print(len(self.manifest_file_data))
+        # self.dtol_manifest.values()
+        # print(len(self.dtol_manifest))
 
         self.assertEquals(2, 1 + 1)
+
+    # @classmethod
+    # def tearDownClass(cls):
+        # Clean up after each test so that may not be duplicates in the database
+        # user = User.objects.get(username=settings.TEST_USER_NAME)
+        # user.delete()
+        # Profile().get_collection_handle().remove({"copo_id": "000000000"})
+
 
     # def test_wrong_taxonnomy(self):
     #     # response = self.client.get("http://127.0.0.1:8000/copo/copo_samples/" + "6243392e17609ffc4f2b80b8" + "/view")
@@ -81,10 +88,20 @@ class TestTaxonValidation(TestCase):
     # def test_taxonID(self):
     #     self.assertEquals(2, 1 + 1)
     #
-    # def test_date_in_correct_formart(self):
+    # def test_date_in_correct_format(self):
     #     self.assertEquals(2, 1 + 1)
     #
-    # # Specimen and whole organism should only be present only once and not on the same row
+    # # Specimen and whole organism should only ITAT, DEPTH, ELEVATION, TIME_OF_COLLECTION,
+    # #                  DESCRIPTION_OF_COLLECTION_METHOD, EASE_OF_SPECIMEN_COLLECTION, IDENTIFIED_BY,
+    # #                  IDENTIFIER_AFFILIATION, IDENTIFIED_HOW, SPECIMEN_ID_RISK, PRESERVED_BY, PRESERVER_AFFILIATION,
+    # #                  PRESERVATION_APPROACH, PRESERVATIVE_SOLUTION, TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION,
+    # #                  DATE_OF_PRESERVATION, SIZE_OF_TISSUE_IN_TUBE, TISSUE_REMOVED_FOR_BARCODING, PLATE_ID_FOR_BARCODING,
+    # #                  TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING, BARCODE_PLATE_PRESERVATIVE,
+    # #                  PURPOSE_OF_SPECIMEN, HAZARD_GROUP, REGULATORY_COMPLIANCE, VOUCHER_ID, OTHER_INFORMATION,
+    # #                  PUBLIC_NAME, DIFFICULT_OR_HIGH_PRIORITY_SAMPLE):
+    # #     print(DtolSpreadsheet())
+    # #     self.assertEqual(SERIES, 1)  # add assertion here
+    # be present only once and not on the same row
     # def test_occurences_of_whole_organism(self):
     #     self.assertEquals(2, 1 + 1)
     #
@@ -102,13 +119,4 @@ class TestTaxonValidation(TestCase):
     # #                  TAXON_ID, SCIENTIFIC_NAME, TAXON_REMARKS, INFRASPECIFIC_EPITHET, CULTURE_OR_STRAIN_ID, COMMON_NAME,
     # #                  LIFESTAGE, SEX, ORGANISM_PART, SYMBIONT, RELATIONSHIP, GAL, GAL_SAMPLE_ID, COLLECTOR_SAMPLE_ID,
     # #                  COLLECTED_BY, COLLECTOR_AFFILIATION, DATE_OF_COLLECTION, COLLECTION_LOCATION, DECIMAL_LATITUDE,
-    # #                  DECIMAL_LONGITUDE, GRID_REFERENCE, HABITAT, DEPTH, ELEVATION, TIME_OF_COLLECTION,
-    # #                  DESCRIPTION_OF_COLLECTION_METHOD, EASE_OF_SPECIMEN_COLLECTION, IDENTIFIED_BY,
-    # #                  IDENTIFIER_AFFILIATION, IDENTIFIED_HOW, SPECIMEN_ID_RISK, PRESERVED_BY, PRESERVER_AFFILIATION,
-    # #                  PRESERVATION_APPROACH, PRESERVATIVE_SOLUTION, TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION,
-    # #                  DATE_OF_PRESERVATION, SIZE_OF_TISSUE_IN_TUBE, TISSUE_REMOVED_FOR_BARCODING, PLATE_ID_FOR_BARCODING,
-    # #                  TUBE_OR_WELL_ID_FOR_BARCODING, TISSUE_FOR_BARCODING, BARCODE_PLATE_PRESERVATIVE,
-    # #                  PURPOSE_OF_SPECIMEN, HAZARD_GROUP, REGULATORY_COMPLIANCE, VOUCHER_ID, OTHER_INFORMATION,
-    # #                  PUBLIC_NAME, DIFFICULT_OR_HIGH_PRIORITY_SAMPLE):
-    # #     print(DtolSpreadsheet())
-    # #     self.assertEqual(SERIES, 1)  # add assertion here
+    # #                  DECIMAL_LONGITUDE, GRID_REFERENCE, HAB
