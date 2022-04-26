@@ -65,6 +65,12 @@ class TestDTOLTaxonValidation(TestCase):
 
         self.assertEquals(2, 1 + 1)
 
+    def test_erga_manifest_samples_submitted_to_ena(self):
+        pass
+
+    def test_dtol_manifest_samples_submitted_to_ena(self):
+        pass
+
     # @classmethod
     # def tearDownClass(cls):
         # Clean up after each test so that may not be duplicates in the database
