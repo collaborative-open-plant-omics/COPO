@@ -31,7 +31,7 @@ from .tol_validators import taxon_validators
 from .tol_validators.tol_validator import TolValidtor
 
 
-def make_target_sample(sample):
+def make_species_list(sample):
     # need to pop taxon info, and add back into sample_list
     if not "species_list" in sample:
         sample["species_list"] = list()
@@ -378,7 +378,7 @@ class DtolSpreadsheet:
                 # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
-            s = make_target_sample(s)
+            s = make_species_list(s)
             sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
             Sample().timestamp_dtol_sample_created(sampl["_id"])
             if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
