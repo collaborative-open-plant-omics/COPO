@@ -41,24 +41,29 @@ def process_pending_file_transfers():
 
     for tx in docs:
         ENAFileTransferObject().set_processing(tx["_id"])
+        increment_status_counter(tx)
         tx_status = tx["transfer_status"]
         if tx_status == 1:
             # check if is on ECS
             if not check_file_in_ecs(tx):
                 # not much we can do here...this should not happen, just update last checked
-                update_last_checked(tx)
+                decrement_status_counter(tx)
             else:
                 # advanced status counter
                 tx["transfer_status"] = tx_status + 1
-                advance_status_counter(tx)
+                increment_status_counter(tx)
         if tx_status == 2:
-            # transfer to COPO
-
-            advance_status_counter(tx)
+    # transfer to COPO
 
 
-def advance_status_counter(tx):
+def increment_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] + 1
+    tx["last_checked"] = datetime.utcnow()
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+
+
+def decrement_status_counter(tx):
+    tx["transfer_status"] = tx["transfer_status"] - 1
     tx["last_checked"] = datetime.utcnow()
     ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
 
