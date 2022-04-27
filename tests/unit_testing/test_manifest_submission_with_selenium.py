@@ -15,7 +15,8 @@ from web.apps.web_copo.models import User
 import os
 import pandas
 import tools.resolve_env as env
-
+from dal import copo_da as dal
+from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 
 
@@ -27,18 +28,18 @@ class DTOLManifestSubmissionTest(TestCase):
     @classmethod
     def setUpClass(cls):
         settings.UNIT_TESTING = True
-        settings.TEST_USER_NAME = 'aaliyah'
+        # settings.TEST_USER_NAME = 'aaliyah'
         cls.cwd = os.getcwd()  # get current working directory path
         cls.dtol_manifest = dict()
-        cls.dtol_manifest = pandas.read_excel('tests/manifests/sample_manifest.xlsx', sheet_name='DTOLSAMPLE1.3')
+        # cls.dtol_manifest = pandas.read_excel('tests/manifests/DTOL_SAMPLE_1.xlsx')
+        cls.dtol_manifest = DtolSpreadsheet(file='tests/manifests/DTOL_SAMPLE_1.xlsx')
         options = Options()
         options.headless = False
         cls.driver = webdriver.Firefox(options=options)
-        user_id = 2
-        # Create a DTOL profile
-        p_dict = {"copo_id": "000000000", "description":
-            "Test Description", "user_id": user_id, "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
-        cls.pid = Profile().save_record(dict(), **p_dict)
+        # Create an ERGA or DTOL profile on the COPO website
+        # Retrieve profile_id from the _id column of the Profiles collection
+        # in the database from the profile created
+        cls.pid = dal.to_object_id("6243392e17609ffc4f2b80b8")
 
     def test_working_dtol_manifest_validation_and_submission(self):
         self.driver.get("http://127.0.0.1:8000/copo/")
@@ -58,13 +59,14 @@ class DTOLManifestSubmissionTest(TestCase):
         WebDriverWait(self.driver, 20).until_not(
             EC.visibility_of_element_located((By.CSS_SELECTOR, "#sample_spreadsheet_modal"))
         )
-        samples = Sample().get_collection_handle().find({"profile_id": str(self.pid["_id"])})
+        # str(self.pid["_id"]
+        samples = Sample().get_collection_handle().find({"profile_id": str(self.pid)})
         assert len(list(samples)) == 39
 
         # now query api and check for right number of results
 
     def _get_to_manifest_upload_point(self):
-        self.driver.get("http://127.0.0.1:8000/copo/copo_samples/" + str(self.pid["_id"]) + "/view")
+        self.driver.get("http://127.0.0.1:8000/copo/copo_samples/" + str(self.pid) + "/view")
         assert "/copo/copo_samples/" in self.driver.current_url
         element = WebDriverWait(self.driver, 5).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".new-samples-spreadsheet-template"))

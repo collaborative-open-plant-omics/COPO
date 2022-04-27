@@ -12,6 +12,11 @@ from tests.utilities.helpers import read_data_from_excel
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 import pandas
+from web.apps.web_copo.schemas.utils import data_utils
+from selenium.webdriver.firefox.options import Options
+from selenium import webdriver
+from django_tools.middlewares import ThreadLocal
+from django.test.client import RequestFactory
 
 
 class TestDTOLTaxonValidation(TestCase):
@@ -19,19 +24,44 @@ class TestDTOLTaxonValidation(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        settings.TEST_USER_NAME = "aaliyah"
-        fake = Faker()
+        settings.UNIT_TESTING = True
+        settings.TEST_USER_NAME = "tester101"
 
-        # Create a user
-        cls.user = User.objects.create_user(username=settings.TEST_USER_NAME, first_name=fake.first_name(),
-                                            last_name=fake.last_name(), email=fake.email(),
-                                            password=PasswordGenerator().generate())
-        cls.user.save()
+        request_factory = RequestFactory()
+        get_request = request_factory.get('/hello/')
+        post_request = request_factory.post('/submit/', {'foo': 'bar'})
+        #get session address
+
+        cls.dtol_manifest = dict()
+        cls.dtol_manifest = DtolSpreadsheet(file="tests/manifests/sample_manifest.xlsx")
+
+
+
+        # options = Options()
+        # options.headless = False
+        # cls.driver = webdriver.Firefox(options=options)
+        # user_id = 2
+        # Create a DTOL profile
+        # p_dict = {"copo_id": "000000000", "description":
+        #     "Test Description", "user_id": user_id, "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
+        # cls.pid = Profile().save_record(dict(), **p_dict)
+        # fake = Faker()
+        #
+        # # Create a user
+        # cls.user = User.objects.create_user(username=settings.TEST_USER_NAME, first_name=fake.first_name(),
+        #                                     last_name=fake.last_name(), email=fake.email(),
+        #                                     password=PasswordGenerator().generate())
+        #
         # cls.user.id = 2
-        # Create a profile
-        p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": cls.user.id,
-                  "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
-        cls.pid = Profile().save_record(dict(), **p_dict)
+        # cls.user.save()
+        # # Create a profile
+        # p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": cls.user.id,
+        #           "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
+        # # setattr(person, 'name', 'Adam')
+        # cls.pid = Profile().save_record(dict(), **p_dict)
+        # print(data_utils.get_user_id())
+        # print(cls.pid)
+
 
         # Creates an object for the manifest file
         # different validation for dtol adn erga
@@ -41,12 +71,19 @@ class TestDTOLTaxonValidation(TestCase):
         # needs to be running to get the profile id
         # set profile id attribute before the manifest object is create
         # Create an object with the dtolspreadsheet
+        # Create a session
+        # print(ThreadLocal.get_current_request())
+        # session = requests.Session()
 
-        # Set profile id attribute
-       # setattr('profile_id', '623c964316a123e6a524670f')
-        cls.dtol_manifest = dict()
-        # cls.manifest_file = DtolSpreadsheet(file="tests/manifests/sample_manifest.xlsx")
-        cls.dtol_manifest = pandas.read_excel('tests/manifests/sample_manifest.xlsx', sheet_name='DTOLSAMPLE1.3')
+        # Sets the profile ID to Profile()
+        # cls.profile = Profile
+        # setattr(cls.profile, 'profile_id', '6243392e17609ffc4f2b80b8')
+        # print(cls.profile.profile_id)
+
+        # cls.dtol_manifest = dict()
+        # cls.dtol_manifest = DtolSpreadsheet(file="tests/manifests/sample_manifest.xlsx")
+        # cls.dtol_manifest.loadManifest('xlsx')
+        # cls.dtol_manifest = pandas.read_excel('tests/manifests/sample_manifest.xlsx', sheet_name='DTOLSAMPLE1.3')
 
         # cls.manifest_file_data = pandas.read_excel(cls.manifest_file, keep_default_na=False,
                                                #    na_values=lookup.NA_VALS)
@@ -70,6 +107,11 @@ class TestDTOLTaxonValidation(TestCase):
 
     def test_dtol_manifest_samples_submitted_to_ena(self):
         pass
+
+    def test_working_dtol_manifest(self):
+        # self.dtol_manifest.
+        pass
+
 
     # @classmethod
     # def tearDownClass(cls):
@@ -126,3 +168,10 @@ class TestDTOLTaxonValidation(TestCase):
     # #                  LIFESTAGE, SEX, ORGANISM_PART, SYMBIONT, RELATIONSHIP, GAL, GAL_SAMPLE_ID, COLLECTOR_SAMPLE_ID,
     # #                  COLLECTED_BY, COLLECTOR_AFFILIATION, DATE_OF_COLLECTION, COLLECTION_LOCATION, DECIMAL_LATITUDE,
     # #                  DECIMAL_LONGITUDE, GRID_REFERENCE, HAB
+
+    @classmethod
+    def tearDownClass(cls):
+        # Clean up after each test
+        user = User.objects.get(username=settings.TEST_USER_NAME)
+        user.delete()
+        Profile().get_collection_handle().remove({"copo_id": "000000000"})
