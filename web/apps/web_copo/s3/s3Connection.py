@@ -5,6 +5,7 @@ from botocore.exceptions import EndpointConnectionError
 from smart_open import open as s_open
 from django_tools.middlewares.ThreadLocal import get_current_request
 import time
+from os import path
 from submission.helpers.generic_helper import notify_frontend
 
 
@@ -42,12 +43,12 @@ class S3Connection():
             return False
         return response["Contents"]
 
-    def get_object(self, bucket, key):
+    def get_object(self, bucket, key, loc):
         try:
             tmp_key = key.split("/")[-1]
             with s_open(tmp_key, "w+") as fout:
                 for l in s_open("s3://" + bucket + "/" + key, transport_params=self.transport_params):
-                    fout.write(l)
+                    fout.write(path.join(loc, l))
         except Exception as e:
             print(e)
             return False
