@@ -49,11 +49,11 @@ def process_pending_file_transfers():
                 # not much we can do here...this should not happen, just update last checked
                 decrement_status_counter(tx)
             else:
-                # advanced status counter
-                tx["transfer_status"] = tx_status + 1
-                increment_status_counter(tx)
+                # no need to update last checked
+                update_last_checked(tx)
         if tx_status == 2:
-    # transfer to COPO
+            # transfer to COPO
+            pass
 
 
 def increment_status_counter(tx):
