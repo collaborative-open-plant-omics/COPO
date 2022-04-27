@@ -1050,3 +1050,68 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
 
+1651064939188	geckodriver	INFO	Listening on 127.0.0.1:56663
+1651064940193	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilexFQpLR"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651064940848	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilexFQpLR/search.json.mozlz4", (void 0)))
+1651064942078	Marionette	INFO	Listening on port 44867
+1651064942113	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651064947373	Marionette	INFO	Stopped listening on port 44867
+1651064990356	geckodriver	INFO	Listening on 127.0.0.1:41529
+1651064990358	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileH2o104"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651064990955	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileH2o104/search.json.mozlz4", (void 0)))
+1651064992044	Marionette	INFO	Listening on port 41467
+1651064992075	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651065060933	geckodriver	INFO	Listening on 127.0.0.1:55575
+1651065061944	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile22ci7k"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651065062542	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile22ci7k/search.json.mozlz4", (void 0)))
+1651065063628	Marionette	INFO	Listening on port 39977
+1651065063668	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651065090992	geckodriver	INFO	Listening on 127.0.0.1:41981
+1651065090995	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileZ7gLxS"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651065091567	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileZ7gLxS/search.json.mozlz4", (void 0)))
+1651065092562	Marionette	INFO	Listening on port 44985
+1651065092611	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651065119029	geckodriver	INFO	Listening on 127.0.0.1:55475
+1651065119033	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilewBs90t"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651065119591	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilewBs90t/search.json.mozlz4", (void 0)))
+1651065120625	Marionette	INFO	Listening on port 41265
+1651065120648	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651065120760	Marionette	WARN	Ignoring event 'pageshow' because document has an invalid readyState of 'uninitialized'.
+1651065120865	Marionette	INFO	Stopped listening on port 41265
+1651065154238	geckodriver	INFO	Listening on 127.0.0.1:59353
+1651065154242	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileh9YL7G"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1651065154860	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileh9YL7G/search.json.mozlz4", (void 0)))
+1651065155837	Marionette	INFO	Listening on port 38367
+1651065155875	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1651065155971	Marionette	WARN	Ignoring event 'pageshow' because document has an invalid readyState of 'uninitialized'.
+1651065156050	Marionette	INFO	Stopped listening on port 38367
