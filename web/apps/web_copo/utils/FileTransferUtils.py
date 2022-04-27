@@ -53,7 +53,7 @@ def process_pending_file_transfers():
                 update_last_checked(tx)
         if tx_status == 2:
             # transfer to COPO
-            pass
+            s3().get_object
 
 
 def increment_status_counter(tx):
