@@ -45,10 +45,10 @@ class S3Connection():
 
     def get_object(self, bucket, key, loc):
         try:
-            tmp_key = key.split("/")[-1]
-            with s_open(tmp_key, "w+") as fout:
-                for l in s_open("s3://" + bucket + "/" + key, transport_params=self.transport_params):
-                    fout.write(path.join(loc, l))
+            # tmp_key = key.split("/")[-1]
+            with open(loc, "wb+") as fout:
+                for l in s_open("s3://" + bucket + "/" + key, mode="rb", transport_params=self.transport_params):
+                    fout.write(l)
         except Exception as e:
             print(e)
             return False
@@ -104,7 +104,10 @@ class S3Connection():
         :return: a list containing the names of files _not_ found
         '''
         try:
-            profile_id = get_current_request().session["profile_id"]
+            try:
+                profile_id = get_current_request().session["profile_id"]
+            except AttributeError:
+                profile_id = "xxxx"
             channels_group_name = "s3_" + profile_id
 
             missing_files = list()
@@ -129,8 +132,9 @@ class S3Connection():
                                     html_id="sample_info", group_name=channels_group_name)
                     # time.sleep(2)
                     for bucket_file in bucket_files:
-                        print("Found", bucket_file["Key"])
+
                         if file in bucket_file["Key"]:
+                            print("Found", bucket_file["Key"])
                             found_flag = 1
                             break
                     if not found_flag:
