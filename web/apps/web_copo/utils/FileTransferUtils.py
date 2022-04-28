@@ -1,9 +1,9 @@
 __author__ = 'fshaw'
 
 from dal.copo_da import ENAFileTransferObject, DataFile
-from web.apps.web_copo.s3 import s3Connection as s3
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from datetime import datetime
-
+from bson import ObjectId
 
 def make_transfer_record(file_id, submission_id):
     # make transfer object
@@ -41,38 +41,51 @@ def process_pending_file_transfers():
 
     for tx in docs:
         ENAFileTransferObject().set_processing(tx["_id"])
-        increment_status_counter(tx)
         tx_status = tx["transfer_status"]
+
         if tx_status == 1:
             # check if is on ECS
             if not check_file_in_ecs(tx):
                 # not much we can do here...this should not happen, just update last checked
-                decrement_status_counter(tx)
+                update_last_checked(tx)
             else:
                 # no need to update last checked
-                update_last_checked(tx)
+                increment_status_counter(tx)
+            continue
         if tx_status == 2:
             # transfer to COPO
-            s3().get_object
-
+            transfer_success = get_object(tx)
+            if transfer_success:
+                increment_status_counter(tx)
+            else:
+                reset_status_counter(tx)
 
 def increment_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] + 1
     tx["last_checked"] = datetime.utcnow()
-    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
 
 def decrement_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] - 1
     tx["last_checked"] = datetime.utcnow()
-    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
+
+def reset_status_counter(tx):
+    tx["transfer_status"] = 1
+    tx["last_checked"] = datetime.utcnow()
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
 def update_last_checked(tx):
     tx["last_checked"] = datetime.utcnow()
-    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one(tx)
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
+
+def get_object(tx):
+    file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
+    return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
 
 def check_file_in_ecs(tx):
-    file = DataFile().get_collection_handle().find({"_id": tx})
+    file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
