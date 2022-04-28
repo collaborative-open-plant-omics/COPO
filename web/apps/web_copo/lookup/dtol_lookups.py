@@ -1271,6 +1271,8 @@ SPECIES_LIST_FIELDS = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENU
                        "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
 SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_NAME", "TAXON_REMARKS",
                    "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "LIFESTAGE", "SEX", "SYMBIONT",
-                   "species_list"]
+                   "species_list", "characteristics", "profile_id", "manifest_id", "sample_type", "biosampleAccession",
+                   "sraAccession", "submissionAccession", "status", "tol_project", "manifest_version", "public_name",
+                   "factorValues"]
 TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_ei", "erga"]
 SANGER_TOL_PROFILE_TYPES = ["asg", "dtol"]
