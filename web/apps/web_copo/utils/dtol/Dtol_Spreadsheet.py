@@ -43,15 +43,15 @@ def make_target_sample(sample):
         symbiont = "TARGET"
 
     out["SYMBIONT"] = symbiont.upper()
-    out["TAXON_ID"] = sample.pop("TAXON_ID")
-    out["ORDER_OR_GROUP"] = sample.pop("ORDER_OR_GROUP")
-    out["FAMILY"] = sample.pop("FAMILY")
-    out["GENUS"] = sample.pop("GENUS")
-    out["SCIENTIFIC_NAME"] = sample.pop("SCIENTIFIC_NAME")
-    out["INFRASPECIFIC_EPITHET"] = sample.pop("INFRASPECIFIC_EPITHET")
-    out["CULTURE_OR_STRAIN_ID"] = sample.pop("CULTURE_OR_STRAIN_ID")
-    out["COMMON_NAME"] = sample.pop("COMMON_NAME")
-    out["TAXON_REMARKS"] = sample.pop("TAXON_REMARKS")
+    out["TAXON_ID"] = sample.get("TAXON_ID", "")
+    out["ORDER_OR_GROUP"] = sample.get("ORDER_OR_GROUP", "")
+    out["FAMILY"] = sample.get("FAMILY", "")
+    out["GENUS"] = sample.get("GENUS", "")
+    out["SCIENTIFIC_NAME"] = sample.get("SCIENTIFIC_NAME", "")
+    out["INFRASPECIFIC_EPITHET"] = sample.get("INFRASPECIFIC_EPITHET", "")
+    out["CULTURE_OR_STRAIN_ID"] = sample.get("CULTURE_OR_STRAIN_ID", "")
+    out["COMMON_NAME"] = sample.get("COMMON_NAME", "")
+    out["TAXON_REMARKS"] = sample.get("TAXON_REMARKS", "")
     sample["species_list"].append(out)
     return sample
 
