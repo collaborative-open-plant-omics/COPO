@@ -7,7 +7,7 @@ from django_tools.middlewares.ThreadLocal import get_current_request
 import time
 from os import path
 from submission.helpers.generic_helper import notify_frontend
-
+from exceptions_and_logging.logger import Logger
 
 class S3Connection():
     """
@@ -45,12 +45,14 @@ class S3Connection():
 
     def get_object(self, bucket, key, loc):
         try:
-            # tmp_key = key.split("/")[-1]
+            log = Logger()
+            log._log_to_file("transfering file to: " + loc)
             with open(loc, "wb+") as fout:
                 for l in s_open("s3://" + bucket + "/" + key, mode="rb", transport_params=self.transport_params):
                     fout.write(l)
+            log._log_to_file("transfer complete: " + loc)
         except Exception as e:
-            print(e)
+            log._log_to_file("transfer failed: " + e)
             return False
         return True
 

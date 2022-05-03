@@ -1,7 +1,7 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 28/07/2016'
 
-#from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype, get_datetime
-#from web.apps.web_copo.lookup.lookup import MESSAGES_LKUPS
+# from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype, get_datetime
+# from web.apps.web_copo.lookup.lookup import MESSAGES_LKUPS
 from datetime import datetime
 import os
 from enum import Enum
@@ -11,18 +11,13 @@ from web.apps.web_copo.lookup.copo_enums import *
 
 class Logger():
 
-
-
-    def __init__(self, logfile_path, system_level=Loglvl.INFO, log_type=Logtype.FILE):
+    def __init__(self, logfile_path="exceptions_and_logging/logs", system_level=Loglvl.INFO, log_type=Logtype.FILE):
         self.level = system_level
         self.log_type = log_type
         self.logfile_path = logfile_path
 
     def log(self, msg, level=Loglvl.INFO, type=Logtype.CONSOLE):
-
         return self._log_to_file(msg, level)
-
-
 
     def _log_to_console(self, msg, lvl=Loglvl.ERROR):
         # log to console in colour
@@ -35,8 +30,6 @@ class Logger():
         elif lvl.value == Loglvl.INFO.value:
             print(str(bcolors.OKGREEN.value + msg + bcolors.ENDC.value))
 
-
-
     def _log_to_file(self, msg, lvl=Loglvl.WARNING):
         msg = str(msg)
         with open(os.path.join(self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
@@ -44,11 +37,8 @@ class Logger():
             # time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
             file.write("INFO - [" + str(time) + "]: " + msg + "\n")
 
-
     '''
     def get_copo_exception(key):
         messages = json_to_pytype(MESSAGES_LKUPS["exception_messages"])["properties"]
         return messages.get(key, str())
     '''
-
-
