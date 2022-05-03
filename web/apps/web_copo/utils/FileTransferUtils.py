@@ -4,6 +4,9 @@ from dal.copo_da import ENAFileTransferObject, DataFile
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from datetime import datetime
 from bson import ObjectId
+from exceptions_and_logging.logger import Logger
+import gzip
+
 
 def make_transfer_record(file_id, submission_id):
     # make transfer object
@@ -28,8 +31,8 @@ def make_transfer_record(file_id, submission_id):
 
 
 def process_pending_file_transfers():
+    log = Logger()
     # get pending transfers
-
     docs = ENAFileTransferObject().get_pending_transfers()
     # N.B. Transfer Status
     # 0 transfer complete
@@ -54,11 +57,17 @@ def process_pending_file_transfers():
             continue
         if tx_status == 2:
             # transfer to COPO
-            transfer_success = get_object(tx)
+            transfer_success = get_ecs_file(tx)
             if transfer_success:
                 increment_status_counter(tx)
             else:
                 reset_status_counter(tx)
+        if tx_status == 3:
+            if check_gzip(tx):
+                increment_status_counter(tx)
+            else:
+                reset_status_counter(tx)
+
 
 def increment_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] + 1
@@ -82,10 +91,20 @@ def update_last_checked(tx):
     ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
 
-def get_object(tx):
+def get_ecs_file(tx):
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
+
 
 def check_file_in_ecs(tx):
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
+
+
+def check_gzip(tx):
+    with gzip.open(tx["local_path"], 'r') as fh:
+        try:
+            fh.read(1)
+            return True
+        except OSError:
+            return False
