@@ -86,6 +86,8 @@ def filter_for_STS(sample_list, add_all_fields=False):
                     s_out[k] = "*****@"+v.split("@")[1]
                 else:
                     s_out[k] = v
+            if k == "changelog":
+                s_out["latest_update"] = format_date(v[-1].get("date"))
 
         # iterate through fields to be exported and add them in blank if not present in the sample object
         if add_all_fields:

@@ -36,8 +36,8 @@
 
         <input type="hidden" value="{% url 'copo:copo_repository' profile_id='999' %}" name="repository_url"
                id="repository_url"/>
-    <input type="hidden" value="{% url 'copo:view_templates' profile_id='999' %}" name="metadata_template_url"
-           id="metadata_template_url"/>
+        <input type="hidden" value="{% url 'copo:view_templates' profile_id='999' %}" name="metadata_template_url"
+               id="metadata_template_url"/>
 
     </div>
 
@@ -64,15 +64,23 @@
             <p style="color:red">{{ banner.body_txt }}</p>
         </div>
 
+
+
     {% endif %}
     <div class="row" style="margin-bottom:70px;">
         <div class="col-sm-5 col-md-5 col-lg-5 copo-page-headers"></div>
-        <div class="col-sm-7 col-md-7 col-lg-7 copo-page-icons"></div>
+        <div class="col-sm-7 col-md-7 col-lg-7 copo-page-icons">
+            <button id="accept_reject_shortcut" style="display:none"
+                    class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
+                    title="Accept/Reject TOL Samples">
+                <i class="icon tasks sign"></i>
+            </button>
+        </div>
     </div>
 {% endblock page_tile %}
 
 {% block content %}
-     <script>
+    <script>
         var groups =
         {{ groups|safe }}
     </script>
