@@ -105,19 +105,19 @@ def update_last_checked(tx):
 
 
 def get_ecs_file(tx):
-    print("downloading file", tx["file_id"])
+    print("downloading file", tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
 
 
 def check_file_in_ecs(tx):
-    print("checking for file", tx["file_id"])
+    print("checking for file", tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
 
 
 def check_gzip(tx):
-    print("checking gzip status", tx["file_id"])
+    print("checking gzip status", tx["local_path"])
     with gzip.open(tx["local_path"], 'r') as fh:
         try:
             fh.read(1)
