@@ -6,6 +6,7 @@ from datetime import datetime
 from bson import ObjectId
 from exceptions_and_logging.logger import Logger
 import gzip
+import hashlib
 
 
 def make_transfer_record(file_id, submission_id):
@@ -50,7 +51,7 @@ def process_pending_file_transfers():
             # check if is on ECS
             if not check_file_in_ecs(tx):
                 # not much we can do here...this should not happen, just update last checked
-                update_last_checked(tx)
+                reset_status_counter(tx)
             else:
                 # no need to update last checked
                 increment_status_counter(tx)
@@ -61,12 +62,24 @@ def process_pending_file_transfers():
             if transfer_success:
                 increment_status_counter(tx)
             else:
+                record_error(tx, "error transfering file")
                 reset_status_counter(tx)
         if tx_status == 3:
             if check_gzip(tx):
                 increment_status_counter(tx)
             else:
+                record_error(tx, "file not gzipped")
                 reset_status_counter(tx)
+        if tx_status == 4:
+            if check_md5(tx):
+                increment_status_counter(tx)
+            else:
+                record_error(tx, "md5 mismatch")
+                reset_status_counter(tx)
+
+
+def record_error(tx, error):
+    Logger().log(error)
 
 
 def increment_status_counter(tx):
@@ -92,19 +105,31 @@ def update_last_checked(tx):
 
 
 def get_ecs_file(tx):
+    print("downloading file", tx["file_id"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
 
 
 def check_file_in_ecs(tx):
+    print("checking for file", tx["file_id"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
 
 
 def check_gzip(tx):
+    print("checking gzip status", tx["file_id"])
     with gzip.open(tx["local_path"], 'r') as fh:
         try:
             fh.read(1)
             return True
-        except OSError:
+        except OSError as e:
             return False
+
+
+def check_md5(tx):
+    file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
+    hash_md5 = hashlib.md5()
+    with open(tx["local_path"], "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest() == file["file_hash"]
