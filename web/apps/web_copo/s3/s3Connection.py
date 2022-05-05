@@ -48,7 +48,7 @@ class S3Connection():
             log = Logger()
             log._log_to_file("transfering file to: " + loc)
             with open(loc, "wb+") as fout:
-                for l in s_open("s3://" + bucket + "/" + key, mode="rb", transport_params=self.transport_params):
+                for l in s_open("s3://" + bucket + "/" + key, mode="rb", transport_params=self.transport_params, compression='disable'):
                     fout.write(l)
             log._log_to_file("transfer complete: " + loc)
         except Exception as e:
