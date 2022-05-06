@@ -104,7 +104,7 @@ def get_dtol_manifests(request):
     return finish_request(manifest_ids)
 
 
-def get_dtol_manifests_between_dates(request, d_from, d_to):
+def get_all_manifests_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
     # dates must be ISO 8601 formatted
     d_from = parser.parse(d_from)
@@ -114,6 +114,15 @@ def get_dtol_manifests_between_dates(request, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
     return finish_request(manifest_ids)
 
+def get_project_manifests_between_dates(request, project, d_from, d_to):
+    # get $project manifests between d_from and d_to
+    # dates must be ISO 8601 formatted
+    d_from = parser.parse(d_from)
+    d_to = parser.parse(d_to)
+    if d_from > d_to:
+        return HttpResponse(status=400, content="'from' must be earlier than'to'")
+    manifest_ids = Sample().get_manifests_by_date_and_project(project,d_from, d_to)
+    return finish_request(manifest_ids)
 
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id

@@ -1274,5 +1274,5 @@ SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_
                    "species_list", "characteristics", "profile_id", "manifest_id", "sample_type", "biosampleAccession",
                    "sraAccession", "submissionAccession", "status", "tol_project", "manifest_version", "public_name",
                    "factorValues"]
-TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_ei", "erga"]
-SANGER_TOL_PROFILE_TYPES = ["asg", "dtol"]
+TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
+SANGER_TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
