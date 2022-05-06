@@ -157,8 +157,12 @@ def get_num_dtol_samples(request):
     return HttpResponse(str(number))
 
 
-def get_dtol_samples(request):
-    samples = Sample().get_all_dtol_samples()
+def get_project_samples(request, project):
+    projectlist = project.split(",")
+    projectlist = list(map(lambda x: x.strip(), projectlist))
+    # remove any empty elements in the list (e.g. where 2 or more comas have been typed in error
+    projectlist[:] = [x for x in projectlist if x]
+    samples = Sample().get_project_samples(projectlist)
     out = list()
     if samples:
         out = filter_for_STS(samples)

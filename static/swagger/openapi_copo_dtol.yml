@@ -156,14 +156,22 @@ paths:
         "400":
           description: invalid manifest_id
 
-  /sample/dtol:
+  /sample/{project}:
     get:
       tags:
         - Sample
       summary:
-        Get all DTOL Samples
+        Get all Samples in a project
       description: >
-        Get a list of all the DTOL samples in COPO
+        Get a list of all the samples of a project in COPO
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: comma separated list of supported projects
+          schema:
+            type: string
+            minimum: 1
 
       responses:
         "200": # status code

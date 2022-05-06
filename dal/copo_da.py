@@ -793,6 +793,12 @@ class Sample(DAComponent):
             {"_id": 1}
         ))
 
+    def get_project_samples(self, projects):
+        return cursor_to_list(self.get_collection_handle().find(
+            {"sample_type": {"$in": projects}},
+            {"_id": 1}
+        ))
+
     def get_all_tol_samples(self):
         return self.get_collection_handle().find({"tol_project": {"$in": ["ASG", "DTOL"]}})
 
