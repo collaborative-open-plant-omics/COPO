@@ -232,5 +232,5 @@ class DtolEnumerationValidator(TolValidtor):
                             )
                             self.flag = False
         if flag_symbiont:
-            self.warnings.append(msg["validation_msg_overwrite_symbionts"])
+            self.warnings.insert(0, msg["validation_msg_overwrite_symbionts"])
         return self.errors, self.warnings, self.flag

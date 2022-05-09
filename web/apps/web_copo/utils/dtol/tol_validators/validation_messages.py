@@ -89,6 +89,6 @@ MESSAGES = {
                                 "perform an update.",
     "validation_msg_future_date": "Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row "
                                        "<strong>%s</strong>. Date cannot be in the future.",
-    "validation_msg_overwrite_symbionts": "Warning: COPO will overwrite any <strong>SYMBIONT</strong> field to match "
-                                          "the corresponding TARGET, unless otherwise stated in the SOP"
+    "validation_msg_overwrite_symbionts": "<strong>Warning: COPO will overwrite any <strong>SYMBIONT</strong> field to match "
+                                          "the corresponding TARGET, unless otherwise stated in the SOP</br></strong>"
 }
