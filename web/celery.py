@@ -48,9 +48,12 @@ app.conf.beat_schedule = {
     'poll_expired_viewlocks': {
         'task': 'web.apps.web_copo.tasks.poll_expired_viewlocks',
         'schedule': timedelta(seconds=60)
+    },
+    'process_ena_transfers': {
+        'task': 'web.apps.web_copo.tasks.process_pending_file_transfers',
+        'schedule': timedelta(seconds=20)
     }
 }
-
 
 
 @app.task(bind=True)
