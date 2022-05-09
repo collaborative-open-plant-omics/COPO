@@ -2415,7 +2415,7 @@ class ENAFileTransferObject(DAComponent):
         self.component = str()
 
     def get_pending_transfers(self):
-        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}})
+        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
 
     def set_processing(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "processing"}})

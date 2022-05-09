@@ -7,6 +7,8 @@ from bson import ObjectId
 from exceptions_and_logging.logger import Logger
 import gzip
 import hashlib
+from submission.helpers.generic_helper import transfer_to_ena as to_ena
+from tools import resolve_env
 
 
 def make_transfer_record(file_id, submission_id):
@@ -20,6 +22,7 @@ def make_transfer_record(file_id, submission_id):
     tx["ecs_location"] = file["ecs_location"]
     tx["file_id"] = str(file["_id"])
     tx["profile_id"] = file["profile_id"]
+    tx["status"] = "pending"
     # N.B. Transfer Status
     # 0 transfer complete
     # 1 check for presences of file on ecs
@@ -76,6 +79,8 @@ def process_pending_file_transfers():
             else:
                 record_error(tx, "md5 mismatch")
                 reset_status_counter(tx)
+        if tx_status == 5:
+            transfer_to_ena(tx)
 
 
 def record_error(tx, error):
@@ -85,19 +90,30 @@ def record_error(tx, error):
 def increment_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] + 1
     tx["last_checked"] = datetime.utcnow()
+    tx["status"] = "pending"
     ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
 
 def decrement_status_counter(tx):
     tx["transfer_status"] = tx["transfer_status"] - 1
     tx["last_checked"] = datetime.utcnow()
+    tx["status"] = "pending"
+    ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
+
+
+def mark_complete(tx):
+    tx["transfer_status"] = 0
+    tx["last_checked"] = datetime.utcnow()
+    tx["status"] = "complete"
     ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
 
 
 def reset_status_counter(tx):
     tx["transfer_status"] = 1
     tx["last_checked"] = datetime.utcnow()
+    tx["status"] = "pending"
     ENAFileTransferObject().ENAFileTransferObjectCollection.update({"_id": tx["_id"]}, tx)
+
 
 def update_last_checked(tx):
     tx["last_checked"] = datetime.utcnow()
@@ -105,19 +121,19 @@ def update_last_checked(tx):
 
 
 def get_ecs_file(tx):
-    print("downloading file", tx["local_path"])
+    Logger().log("downloading file", tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
 
 
 def check_file_in_ecs(tx):
-    print("checking for file", tx["local_path"])
+    Logger().log("checking for file", tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
 
 
 def check_gzip(tx):
-    print("checking gzip status", tx["local_path"])
+    Logger().log("checking gzip status", tx["local_path"])
     with gzip.open(tx["local_path"], 'r') as fh:
         try:
             fh.read(1)
@@ -127,9 +143,22 @@ def check_gzip(tx):
 
 
 def check_md5(tx):
+    Logger().log("checking md5", tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     hash_md5 = hashlib.md5()
     with open(tx["local_path"], "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest() == file["file_hash"]
+
+
+def transfer_to_ena(tx):
+    # transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwargs):
+    ena_service = resolve_env.get_env('ENA_SERVICE')
+    pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
+    user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
+    webin_user = resolve_env.get_env('WEBIN_USER')
+    webin_domain = resolve_env.get_env('WEBIN_USER').split("@")[1]
+    print("transfering file", tx["file_id"])
+    kwargs = dict()
+    to_ena(webin_user, pass_word, tx["remote_path"], [tx["local_path"]], **kwargs)
