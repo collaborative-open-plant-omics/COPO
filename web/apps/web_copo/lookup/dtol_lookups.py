@@ -289,6 +289,10 @@ DTOL_ENUMS = {
         "Y",
         "N"
     ],
+    "MIXED_SAMPLE_RISK": [
+        "Y",
+        "N"
+    ],
     "ORGANISM_PART": [
         "**OTHER_FUNGAL_TISSUE**",
         "**OTHER_PLANT_TISSUE**",
@@ -338,6 +342,7 @@ DTOL_ENUMS = {
         "PANCREAS",
         "PETIOLE",
         "POSTERIOR_BODY",
+        "ROOT",
         "SCALES",
         "SCAT",
         "SEEDLING",
@@ -458,6 +463,7 @@ DTOL_ENUMS = {
         "PANCREAS",
         "PETIOLE",
         "POSTERIOR_BODY",
+        "ROOT",
         "SCALES",
         "SCAT",
         "SEEDLING",
@@ -828,6 +834,7 @@ DTOL_ENUMS = {
         "PANCREAS",
         "PETIOLE",
         "POSTERIOR_BODY",
+        "ROOT",
         "SCALES",
         "SCAT",
         "SEEDLING",
@@ -1040,6 +1047,15 @@ DTOL_RULES = {
     "TEMPERATURE" : {
         "strict_regex" : "^\d+$",
         "human_readable" : "integer"
+    },
+    "ORIGINAL_DECIMAL_LATITUDE": {
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+        "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+    },
+    "ORIGINAL_DECIMAL_LONGITUDE": {
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+        "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+
     }
 }
 DTOL_UNITS = {
@@ -1165,6 +1181,17 @@ DTOL_ENA_MAPPINGS = {
     },
     "DNA_VOUCHER_ID_FOR_BIOBANKING" : {
         "ena": "biomaterial"
+    },
+    #TODO doucle check with DTOL
+    "DESCRIPTION_OF_COLLECTION_METHOD" :{
+        "ena": "sample collection device/sample collection method"
+    },
+    #todo check right ENA field
+    "ORIGINAL_DECIMAL_LATITUDE": {
+        "ena": "original decimal latitude"
+    },
+    "ORIGINAL_DECIMAL_LONGITUDE": {
+        "ena": "original decimal longitude"
     }
 }
 
