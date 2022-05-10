@@ -2111,5 +2111,31 @@
     "label": "mixedSampleRisk",
     "show_in_table": true,
     "dwc": ""
+  },
+  {
+    "help_tip": "Barcoding Status",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "MIXED_SAMPLE_RISK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.BARCODING_STATUS",
+    "label": "barcodingStatus",
+    "show_in_table": true,
+    "dwc": ""
   }
 ]
