@@ -868,23 +868,19 @@ DTOL_ENUMS = {
         "Y",
         "N"
     ],
-    "INDIGENOUS_RIGHTS_APPLICABLE" : [
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE" : [
         "Y",
         "N"
     ],
-    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE" : [
+    "ETHICS_PERMIT_REQUIRED" : [
         "Y",
         "N"
     ],
-    "ETHICS_PERMIT_MANDATORY" : [
+    "SAMPLING_PERMITS_REQUIRED" : [
         "Y",
         "N"
     ],
-    "SAMPLING_PERMITS_MANDATORY" : [
-        "Y",
-        "N"
-    ],
-    "NAGOYA_PERMITS_MANDATORY" : [
+    "NAGOYA_PERMITS_REQUIRED" : [
         "Y",
         "N"
     ],
@@ -1025,7 +1021,9 @@ DTOL_RULES = {
     "ORIGINAL_DECIMAL_LONGITUDE": {
         "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
-
+    },
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID": {
+        "strict_regex": "^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$"
     }
 }
 DTOL_UNITS = {
@@ -1162,6 +1160,9 @@ DTOL_ENA_MAPPINGS = {
     },
     "ORIGINAL_DECIMAL_LONGITUDE": {
         "ena": "original decimal longitude"
+    },
+    "PROXY_VOUCHER_ID": {
+        "ena": "proxy voucher ID"
     }
 }
 
@@ -1351,12 +1352,14 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         "VOUCHER_ID",
         "INDIGENOUS_RIGHTS_APPLICABLE",
         "INDIGENOUS_RIGHTS_DEF",
-        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE",
-        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL",
+        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE",
+        "INDIGENOUS_RIGHTS_DEF",
+        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID",
         "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
-        "ETHICS_PERMITS_MANDATORY",
+        "ETHICS_PERMITS_REQUIRED",
         "ETHICS_PERMITS_DEF",
-        "NAGOYA_PERMITS_MANDATORY",
+        "SAMPLING_PERMITS_REQUIRED",
+        "NAGOYA_PERMITS_REQUIRED",
         "NAGOYA_PERMITS_DEF",
         "RELATIONSHIP",
         "GRID_REFERENCE",

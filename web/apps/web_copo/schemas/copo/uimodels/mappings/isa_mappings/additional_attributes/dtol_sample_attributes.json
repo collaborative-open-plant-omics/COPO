@@ -2120,7 +2120,7 @@
     "control_meta": {},
     "control": "text",
     "versions": [
-      "MIXED_SAMPLE_RISK"
+      "BARCODING_STATUS"
     ],
     "ref": "",
     "specifications": [
@@ -2137,5 +2137,110 @@
     "label": "barcodingStatus",
     "show_in_table": true,
     "dwc": ""
-  }
+  },
+  {
+    "help_tip": "Proxy voucher ID",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "PROXY_VOUCHER_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.PROXY_VOUCHER_ID",
+    "label": "proxyVoucherId",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Voucher Link",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "VOUCHER_LINK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.VOUCHER_LINK",
+    "label": "voucherLink",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Proxy voucher Link",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "PROXY_VOUCHER_LINK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.PROXY_VOUCHER_LINK",
+    "label": "proxyVoucherLink",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Voucher Institution",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "VOUCHER_INSTITUTION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.VOUCHER_INSTITUTION",
+    "label": "voucherInstitution",
+    "show_in_table": true,
+    "dwc": ""
+  },
+
 ]
