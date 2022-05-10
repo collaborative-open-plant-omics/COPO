@@ -395,8 +395,8 @@ DTOL_ENUMS = {
             "SHORT_READ_SEQUENCING",
             "DNA_BARCODING_ONLY",
             "RNA_SEQUENCING",
-            "R&D",
-            "PROXY_VOUCHERING_ONLY"]
+            "R&D"
+            ]
     },
     "SIZE_OF_TISSUE_IN_TUBE": [
         "VS",
