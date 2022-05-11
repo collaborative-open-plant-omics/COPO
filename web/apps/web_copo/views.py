@@ -336,6 +336,7 @@ def copo_forms(request):
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(out, content_type='application/json')
 
+
 @login_required()
 def delete_profile(request):
     context = dict()

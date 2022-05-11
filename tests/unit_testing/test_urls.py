@@ -1,9 +1,11 @@
 # Created by AProvidence on 29-03-2022
-from django.test import TestCase
+from django.contrib import admin
+from django.test import TestCase, Client
 from django.urls import reverse, resolve
 from web.apps.web_copo import views
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
 
+# To execute the Django’s test suite: $ python manage.py test
 
 class TestViewsUrls(TestCase):
     """ Test views urls """
@@ -15,6 +17,9 @@ class TestViewsUrls(TestCase):
         # pattern name: index
         # reverse('web_copo:index')
 
+        cls.admin_url = reverse('admin:index')
+        cls.client = Client()
+        cls.copo_url = reverse('web_copo:copo')
         cls.index_url = reverse('web_copo:index')
         cls.accept_reject_sample_url = reverse('web_copo:accept_reject')
         cls.dataverse_submit_url = reverse('web_copo:test_dataverse_submit')
@@ -127,340 +132,352 @@ class TestViewsUrls(TestCase):
         cls.handle_csv_column_validate_spreadsheet_url = reverse('web_copo:handle_csv_column_validate_spreadsheet')
         cls.handle_csv_column_update_samples_url = reverse('web_copo:handle_csv_column_update_samples')
 
+    def test_admin_url_is_resolved(self):
+        self.assertEqual(resolve(self.admin_url).namespace, "admin")
+        self.assertEqual(resolve(self.admin_url).url_name, "index")
+        self.assertEqual(resolve(self.admin_url).route, "admin/")
+        self.assertEqual(resolve(self.admin_url).args, ())
+
+    def test_copo_url_is_resolved(self):
+        self.assertEqual(resolve(self.admin_url).namespace, "admin")
+        self.assertEqual(resolve(self.admin_url).url_name, "index")
+        self.assertEqual(resolve(self.admin_url).route, "admin/")
+        self.assertEqual(resolve(self.admin_url).args, ())
+
     def test_index_url_is_resolved(self):
-        self.assertEquals(resolve(self.index_url).func, views.index)
+        self.assertEqual(resolve(self.index_url).func, views.index)
 
     def test_accept_reject_sample_url_is_resolved(self):
-        self.assertEquals(resolve(self.accept_reject_sample_url).func, views.copo_sample_accept_reject)
+        self.assertEqual(resolve(self.accept_reject_sample_url).func, views.copo_sample_accept_reject)
 
     def test_dataverse_submit_url_is_resolved(self):
-        self.assertEquals(resolve(self.dataverse_submit_url).func, views.test_dataverse_submit)
+        self.assertEqual(resolve(self.dataverse_submit_url).func, views.test_dataverse_submit)
 
     # def test_test_submission_url_is_resolved(self):
-    #     self.assertEquals(resolve(self.test_submission_url).func, views.test_submission)
+    #     self.assertEqual(resolve(self.test_submission_url).func, views.test_submission)
 
     # path('stats/<str:view>', views.stats, name='stats')
     def test_status_url_is_resolved(self):
-        self.assertEquals(resolve(self.stats_url).func, views.stats)
+        self.assertEqual(resolve(self.stats_url).func, views.stats)
 
     def test_login_url_is_resolved(self):
-        self.assertEquals(resolve(self.login_url).func, views.login)
+        self.assertEqual(resolve(self.login_url).func, views.login)
 
     def test_logout_url_is_resolved(self):
-        self.assertEquals(resolve(self.logout_url).func, views.copo_logout)
+        self.assertEqual(resolve(self.logout_url).func, views.copo_logout)
 
     def test_register_url_is_resolved(self):
-        self.assertEquals(resolve(self.register_url).func, views.copo_register)
+        self.assertEqual(resolve(self.register_url).func, views.copo_register)
 
     def test_get_profile_counts_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_profile_counts_url).func, views.get_profile_counts)
+        self.assertEqual(resolve(self.get_profile_counts_url).func, views.get_profile_counts)
 
     def test_view_user_info_url_is_resolved(self):
-        self.assertEquals(resolve(self.view_user_info_url).func, views.view_user_info)
+        self.assertEqual(resolve(self.view_user_info_url).func, views.view_user_info)
 
     def test_error_url_is_resolved(self):
-        self.assertEquals(resolve(self.error_url).func, views.goto_error)
+        self.assertEqual(resolve(self.error_url).func, views.goto_error)
 
     def test_register_to_irods_url_is_resolved(self):
-        self.assertEquals(resolve(self.register_to_irods_url).func, views.register_to_irods)
+        self.assertEqual(resolve(self.register_to_irods_url).func, views.register_to_irods)
 
     # path('author_template/<template_id>/view', views.author_template, name='author_template')
 
     def test_forms_url_is_resolved(self):
-        self.assertEquals(resolve(self.forms_url).func, views.copo_forms)
+        self.assertEqual(resolve(self.forms_url).func, views.copo_forms)
 
     def test_delete_profile_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_profile_url).func, views.delete_profile)
+        self.assertEqual(resolve(self.delete_profile_url).func, views.delete_profile)
 
     def test_visualize__url_is_resolved(self):
-        self.assertEquals(resolve(self.visualize_url).func, views.copo_visualize)
+        self.assertEqual(resolve(self.visualize_url).func, views.copo_visualize)
 
     def test_authenticate_figshare_url_is_resolved(self):
-        self.assertEquals(resolve(self.authenticate_figshare_url).func, views.authenticate_figshare)
+        self.assertEqual(resolve(self.authenticate_figshare_url).func, views.authenticate_figshare)
 
     def test_view_oauth_tokens_url_is_resolved(self):
-        self.assertEquals(resolve(self.view_oauth_tokens_url).func, views.view_oauth_tokens)
+        self.assertEqual(resolve(self.view_oauth_tokens_url).func, views.view_oauth_tokens)
 
     def test_get_annotation_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_annotation_url).func, views.annotate_data)
+        self.assertEqual(resolve(self.get_annotation_url).func, views.annotate_data)
 
     def test_agave_oauth_url_is_resolved(self):
-        self.assertEquals(resolve(self.agave_oauth_url).func, views.agave_oauth)
+        self.assertEqual(resolve(self.agave_oauth_url).func, views.agave_oauth)
 
     def test_import_ena_accession_url_is_resolved(self):
-        self.assertEquals(resolve(self.import_ena_accession_url).func, views.import_ena_accession)
+        self.assertEqual(resolve(self.import_ena_accession_url).func, views.import_ena_accession)
 
     def test_groups_url_is_resolved(self):
-        self.assertEquals(resolve(self.groups_url).func, views.view_groups)
+        self.assertEqual(resolve(self.groups_url).func, views.view_groups)
 
     def test_administer_repos_url_is_resolved(self):
-        self.assertEquals(resolve(self.administer_repos_url).func, views.administer_repos)
+        self.assertEqual(resolve(self.administer_repos_url).func, views.administer_repos)
 
     def test_manage_repos_url_is_resolved(self):
-        self.assertEquals(resolve(self.manage_repos_url).func, views.manage_repos)
+        self.assertEqual(resolve(self.manage_repos_url).func, views.manage_repos)
 
     def test_manage_repositories_url_is_resolved(self):
-        self.assertEquals(resolve(self.manage_repositories_url).func, views.manage_repositories)
+        self.assertEqual(resolve(self.manage_repositories_url).func, views.manage_repositories)
 
     def test_repositories_url_is_resolved(self):
-        self.assertEquals(resolve(self.repositories_url).func, views.copo_repositories)
+        self.assertEqual(resolve(self.repositories_url).func, views.copo_repositories)
 
     def test_view_my_repos_url_is_resolved(self):
-        self.assertEquals(resolve(self.view_my_repos_url).func, views.copo_repositories)
+        self.assertEqual(resolve(self.view_my_repos_url).func, views.copo_repositories)
 
     """ Test ajax handlers urls """
 
     def test_publish_figshare_url_is_resolved(self):
-        self.assertEquals(resolve(self.publish_figshare_url).func, ajax_handlers.publish_figshare)
+        self.assertEqual(resolve(self.publish_figshare_url).func, ajax_handlers.publish_figshare)
 
     def test_get_tokens_for_user_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_tokens_for_user_url).func, ajax_handlers.get_tokens_for_user)
+        self.assertEqual(resolve(self.get_tokens_for_user_url).func, ajax_handlers.get_tokens_for_user)
 
     def test_delete_token_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_token_url).func, ajax_handlers.delete_token)
+        self.assertEqual(resolve(self.delete_token_url).func, ajax_handlers.delete_token)
 
     def test_create_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.create_group_url).func, ajax_handlers.create_group)
+        self.assertEqual(resolve(self.create_group_url).func, ajax_handlers.create_group)
 
     def test_delete_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_group_url).func, ajax_handlers.delete_group)
+        self.assertEqual(resolve(self.delete_group_url).func, ajax_handlers.delete_group)
 
     def test_add_profile_to_group_is_resolved(self):
-        self.assertEquals(resolve(self.add_profile_to_group_url).func, ajax_handlers.add_profile_to_group)
+        self.assertEqual(resolve(self.add_profile_to_group_url).func, ajax_handlers.add_profile_to_group)
 
     def test_remove_profile_from_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.remove_profile_from_group_url).func, ajax_handlers.remove_profile_from_group)
+        self.assertEqual(resolve(self.remove_profile_from_group_url).func, ajax_handlers.remove_profile_from_group)
 
     def test_get_profiles_in_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_profiles_in_group_url).func, ajax_handlers.get_profiles_in_group)
+        self.assertEqual(resolve(self.get_profiles_in_group_url).func, ajax_handlers.get_profiles_in_group)
 
     def test_get_users_in_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_users_in_group_url).func, ajax_handlers.get_users_in_group)
+        self.assertEqual(resolve(self.get_users_in_group_url).func, ajax_handlers.get_users_in_group)
 
     def test_add_user_to_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_user_to_group_url).func, ajax_handlers.add_user_to_group)
+        self.assertEqual(resolve(self.add_user_to_group_url).func, ajax_handlers.add_user_to_group)
 
     def test_remove_user_from_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.remove_user_from_group_url).func, ajax_handlers.remove_user_from_group)
+        self.assertEqual(resolve(self.remove_user_from_group_url).func, ajax_handlers.remove_user_from_group)
 
     def test_create_new_repo_url_is_resolved(self):
-        self.assertEquals(resolve(self.create_new_repo_url).func, ajax_handlers.create_new_repo)
+        self.assertEqual(resolve(self.create_new_repo_url).func, ajax_handlers.create_new_repo)
 
     def test_get_repos_data_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_repos_data_url).func, ajax_handlers.get_repos_data)
+        self.assertEqual(resolve(self.get_repos_data_url).func, ajax_handlers.get_repos_data)
 
     def test_add_user_to_repo_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_user_to_repo_url).func, ajax_handlers.add_user_to_repo)
+        self.assertEqual(resolve(self.add_user_to_repo_url).func, ajax_handlers.add_user_to_repo)
 
     def test_assign_repo_users_url_is_resolved(self):
-        self.assertEquals(resolve(self.assign_repo_users_url).func, ajax_handlers.assign_repo_users)
+        self.assertEqual(resolve(self.assign_repo_users_url).func, ajax_handlers.assign_repo_users)
 
     def test_deassign_repo_users_url_is_resolved(self):
-        self.assertEquals(resolve(self.deassign_repo_users_url).func, ajax_handlers.deassign_repo_users)
+        self.assertEqual(resolve(self.deassign_repo_users_url).func, ajax_handlers.deassign_repo_users)
 
     def test_remove_user_from_repo_url_is_resolved(self):
-        self.assertEquals(resolve(self.remove_user_from_repo_url).func, ajax_handlers.remove_user_from_repo)
+        self.assertEqual(resolve(self.remove_user_from_repo_url).func, ajax_handlers.remove_user_from_repo)
 
     def test_get_users_in_repo_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_users_in_repo_url).func, ajax_handlers.get_users_in_repo)
+        self.assertEqual(resolve(self.get_users_in_repo_url).func, ajax_handlers.get_users_in_repo)
 
     def test_get_users_repo_users_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_users_repo_users_url).func, ajax_handlers.get_users_repo_users)
+        self.assertEqual(resolve(self.get_users_repo_users_url).func, ajax_handlers.get_users_repo_users)
 
     def test_get_repos_for_user_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_repos_for_user_url).func, ajax_handlers.get_repos_for_user)
+        self.assertEqual(resolve(self.get_repos_for_user_url).func, ajax_handlers.get_repos_for_user)
 
     def test_add_repo_to_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_repo_to_group_url).func, ajax_handlers.add_repo_to_group)
+        self.assertEqual(resolve(self.add_repo_to_group_url).func, ajax_handlers.add_repo_to_group)
 
     def test_remove_repo_from_group_url_is_resolved(self):
-        self.assertEquals(resolve(self.remove_repo_from_group_url).func, ajax_handlers.remove_repo_from_group)
+        self.assertEqual(resolve(self.remove_repo_from_group_url).func, ajax_handlers.remove_repo_from_group)
 
     def test_get_repo_info_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_repo_info_url).func, ajax_handlers.get_repo_info)
+        self.assertEqual(resolve(self.get_repo_info_url).func, ajax_handlers.get_repo_info)
 
     def test_get_dspace_communities_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dspace_communities_url).func, ajax_handlers.get_dspace_communities)
+        self.assertEqual(resolve(self.get_dspace_communities_url).func, ajax_handlers.get_dspace_communities)
 
     def test_retrieve_dspace_objects_url_is_resolved(self):
-        self.assertEquals(resolve(self.retrieve_dspace_objects_url).func, ajax_handlers.retrieve_dspace_objects)
+        self.assertEqual(resolve(self.retrieve_dspace_objects_url).func, ajax_handlers.retrieve_dspace_objects)
 
     def test_get_dspace_items_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dspace_items_url).func, ajax_handlers.get_dspace_items)
+        self.assertEqual(resolve(self.get_dspace_items_url).func, ajax_handlers.get_dspace_items)
 
     def test_get_dataverse_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dataverse_url).func, ajax_handlers.search_dataverse)
+        self.assertEqual(resolve(self.get_dataverse_url).func, ajax_handlers.search_dataverse)
 
     def test_get_dataverse_vf_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dataverse_vf_url).func, ajax_handlers.search_dataverse_vf)
+        self.assertEqual(resolve(self.get_dataverse_vf_url).func, ajax_handlers.search_dataverse_vf)
 
     def test_get_dataverse_content_vf_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dataverse_content_vf_url).func, ajax_handlers.get_dataverse_content_vf)
+        self.assertEqual(resolve(self.get_dataverse_content_vf_url).func, ajax_handlers.get_dataverse_content_vf)
 
     def test_ckan_package_search_url_is_resolved(self):
-        self.assertEquals(resolve(self.ckan_package_search_url).func, ajax_handlers.ckan_package_search)
+        self.assertEqual(resolve(self.ckan_package_search_url).func, ajax_handlers.ckan_package_search)
 
     def test_get_collection_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_collection_url).func, ajax_handlers.get_dspace_collection)
+        self.assertEqual(resolve(self.get_collection_url).func, ajax_handlers.get_dspace_collection)
 
     def test_get_dataverse_content_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dataverse_content_url).func, ajax_handlers.get_dataverse_content)
+        self.assertEqual(resolve(self.get_dataverse_content_url).func, ajax_handlers.get_dataverse_content)
 
     def test_get_info_for_new_dataverse_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_info_for_new_dataverse_url).func,
+        self.assertEqual(resolve(self.get_info_for_new_dataverse_url).func,
                           ajax_handlers.get_info_for_new_dataverse)
 
     def test_update_submission_repo_data_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_submission_repo_data_url).func,
+        self.assertEqual(resolve(self.update_submission_repo_data_url).func,
                           ajax_handlers.update_submission_repo_data)
 
     def test_set_destination_repository_url_is_resolved(self):
-        self.assertEquals(resolve(self.set_destination_repository_url).func,
+        self.assertEqual(resolve(self.set_destination_repository_url).func,
                           ajax_handlers.set_destination_repository)
 
     def test_update_submission_meta_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_submission_meta_url).func, ajax_handlers.update_submission_meta)
+        self.assertEqual(resolve(self.update_submission_meta_url).func, ajax_handlers.update_submission_meta)
 
     def test_dataverse_publish_url_is_resolved(self):
-        self.assertEquals(resolve(self.dataverse_publish_url).func, ajax_handlers.publish_dataverse)
+        self.assertEqual(resolve(self.dataverse_publish_url).func, ajax_handlers.publish_dataverse)
 
     def test_get_existing_metadata_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_existing_metadata_url).func, ajax_handlers.get_repo_info)
+        self.assertEqual(resolve(self.get_existing_metadata_url).func, ajax_handlers.get_repo_info)
 
     def test_get_submission_metadata_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_submission_metadata_url).func, ajax_handlers.get_submission_metadata)
+        self.assertEqual(resolve(self.get_submission_metadata_url).func, ajax_handlers.get_submission_metadata)
 
     def test_get_ckan_items_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_ckan_items_url).func, ajax_handlers.get_ckan_items)
+        self.assertEqual(resolve(self.get_ckan_items_url).func, ajax_handlers.get_ckan_items)
 
     def test_delete_repo_entry_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_repo_entry_url).func, ajax_handlers.delete_repo_entry)
+        self.assertEqual(resolve(self.delete_repo_entry_url).func, ajax_handlers.delete_repo_entry)
 
     def test_get_dataset_info_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_dataset_info_url).func, ajax_handlers.get_dataset_info)
+        self.assertEqual(resolve(self.get_dataset_info_url).func, ajax_handlers.get_dataset_info)
 
     def test_add_personal_dataverse_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_personal_dataverse_url).func, ajax_handlers.add_personal_dataverse)
+        self.assertEqual(resolve(self.add_personal_dataverse_url).func, ajax_handlers.add_personal_dataverse)
 
     def test_get_personal_dataverses_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_personal_dataverses_url).func, ajax_handlers.get_personal_dataverses)
+        self.assertEqual(resolve(self.get_personal_dataverses_url).func, ajax_handlers.get_personal_dataverses)
 
     def test_delete_personal_dataverse_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_personal_dataverse_url).func, ajax_handlers.delete_personal_dataverse)
+        self.assertEqual(resolve(self.delete_personal_dataverse_url).func, ajax_handlers.delete_personal_dataverse)
 
     def test_get_subsample_stages_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_subsample_stages_url).func, ajax_handlers.get_subsample_stages)
+        self.assertEqual(resolve(self.get_subsample_stages_url).func, ajax_handlers.get_subsample_stages)
 
     def test_sample_spreadsheet_url_is_resolved(self):
-        self.assertEquals(resolve(self.sample_spreadsheet_url).func, ajax_handlers.sample_spreadsheet)
+        self.assertEqual(resolve(self.sample_spreadsheet_url).func, ajax_handlers.sample_spreadsheet)
 
     def test_sample_images_url_is_resolved(self):
-        self.assertEquals(resolve(self.sample_images_url).func, ajax_handlers.sample_images)
+        self.assertEqual(resolve(self.sample_images_url).func, ajax_handlers.sample_images)
 
     def test_create_spreadsheet_samples_url_is_resolved(self):
-        self.assertEquals(resolve(self.create_spreadsheet_samples_url).func,
+        self.assertEqual(resolve(self.create_spreadsheet_samples_url).func,
                           ajax_handlers.create_spreadsheet_samples)
 
     def test_update_spreadsheet_samples_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_spreadsheet_samples_url).func,
+        self.assertEqual(resolve(self.update_spreadsheet_samples_url).func,
                           ajax_handlers.update_spreadsheet_samples)
 
     def test_update_pending_samples_table_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_pending_samples_table_url).func,
+        self.assertEqual(resolve(self.update_pending_samples_table_url).func,
                           ajax_handlers.update_pending_samples_table)
 
     def test_get_samples_for_profile_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_samples_for_profile_url).func, ajax_handlers.get_samples_for_profile)
+        self.assertEqual(resolve(self.get_samples_for_profile_url).func, ajax_handlers.get_samples_for_profile)
 
     def test_mark_sample_rejected_url_is_resolved(self):
-        self.assertEquals(resolve(self.mark_sample_rejected_url).func, ajax_handlers.mark_sample_rejected)
+        self.assertEqual(resolve(self.mark_sample_rejected_url).func, ajax_handlers.mark_sample_rejected)
 
     def test_add_sample_to_dtol_submission_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_sample_to_dtol_submission_url).func,
+        self.assertEqual(resolve(self.add_sample_to_dtol_submission_url).func,
                           ajax_handlers.add_sample_to_dtol_submission)
 
     def test_delete_dtol_samples_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_dtol_samples_url).func, ajax_handlers.delete_dtol_samples)
+        self.assertEqual(resolve(self.delete_dtol_samples_url).func, ajax_handlers.delete_dtol_samples)
 
     def test_handle_csv_column_validate_spreadsheet_url_is_resolved(self):
-        self.assertEquals(resolve(self.handle_csv_column_validate_spreadsheet_url).func,
+        self.assertEqual(resolve(self.handle_csv_column_validate_spreadsheet_url).func,
                           ajax_handlers.handle_csv_column_validate_spreadsheet)
 
     def test_handle_csv_column_update_samples_url_is_resolved(self):
-        self.assertEquals(resolve(self.handle_csv_column_update_samples_url).func,
+        self.assertEqual(resolve(self.handle_csv_column_update_samples_url).func,
                           ajax_handlers.handle_csv_column_update_samples)
 
     """ Test annotation handlers urls """
 
     def test_refresh_annotation_display_url_is_resolved(self):
-        self.assertEquals(resolve(self.refresh_annotation_display_url).func, annotation_handlers.refresh_display)
+        self.assertEqual(resolve(self.refresh_annotation_display_url).func, annotation_handlers.refresh_display)
 
     def test_send_file_annotation_url_is_resolved(self):
-        self.assertEquals(resolve(self.send_file_annotation_url).func, annotation_handlers.send_file_annotation)
+        self.assertEqual(resolve(self.send_file_annotation_url).func, annotation_handlers.send_file_annotation)
 
     def test_refresh_annotations_url_is_resolved(self):
-        self.assertEquals(resolve(self.refresh_annotations_url).func, annotation_handlers.refresh_annotations)
+        self.assertEqual(resolve(self.refresh_annotations_url).func, annotation_handlers.refresh_annotations)
 
     def test_refresh_text_annotations_url_is_resolved(self):
-        self.assertEquals(resolve(self.refresh_text_annotations_url).func,
+        self.assertEqual(resolve(self.refresh_text_annotations_url).func,
                           annotation_handlers.refresh_text_annotations)
 
     def test_delete_annotation_url_is_resolved(self):
-        self.assertEquals(resolve(self.delete_annotation_url).func, annotation_handlers.delete_annotation)
+        self.assertEqual(resolve(self.delete_annotation_url).func, annotation_handlers.delete_annotation)
 
     def test_refresh_annotations_for_user_url_is_resolved(self):
-        self.assertEquals(resolve(self.refresh_annotations_for_user_url).func,
+        self.assertEqual(resolve(self.refresh_annotations_for_user_url).func,
                           annotation_handlers.refresh_annotations_for_user)
 
     def test_annotations_url_is_resolved(self):
         self.assertNotEquals(resolve(self.annotations_url).func, annotation_handlers.new_text_annotation)
 
     def test_search_url_is_resolved(self):
-        self.assertEquals(resolve(self.search_url).func, annotation_handlers.search_text_annotation)
+        self.assertEqual(resolve(self.search_url).func, annotation_handlers.search_text_annotation)
 
     # def test_delete_text_annotation_url_is_resolved(self):
-    # self.assertEquals(resolve(self.update_metadata_template_name_url).func,
+    # self.assertEqual(resolve(self.update_metadata_template_name_url).func,
     # annotation_handlers.edit_or_delete_text_annotation)
 
     def test_automate_num_cols_url_is_resolved(self):
-        self.assertEquals(resolve(self.automate_num_cols_url).func, annotation_handlers.automate_num_cols)
+        self.assertEqual(resolve(self.automate_num_cols_url).func, annotation_handlers.automate_num_cols)
 
     def test_term_lookup_url_is_resolved(self):
-        self.assertEquals(resolve(self.term_lookup_url).func, annotation_handlers.term_lookup)
+        self.assertEqual(resolve(self.term_lookup_url).func, annotation_handlers.term_lookup)
 
     def test_resolve_taxon_id_url_is_resolved(self):
-        self.assertEquals(resolve(self.resolve_taxon_id_url).func, annotation_handlers.resolve_taxon_id)
+        self.assertEqual(resolve(self.resolve_taxon_id_url).func, annotation_handlers.resolve_taxon_id)
 
     def test_search_species_url_is_resolved(self):
-        self.assertEquals(resolve(self.search_species_url).func, annotation_handlers.search_species)
+        self.assertEqual(resolve(self.search_species_url).func, annotation_handlers.search_species)
 
         """Test template handlers urls"""
 
     def test_update_metadata_template_name_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_metadata_template_name_url).func,
+        self.assertEqual(resolve(self.update_metadata_template_name_url).func,
                           template_handlers.update_metadata_template_name)
 
     def test_new_metadata_template_url_is_resolved(self):
-        self.assertEquals(resolve(self.new_metadata_template_url).func, template_handlers.new_metadata_template)
+        self.assertEqual(resolve(self.new_metadata_template_url).func, template_handlers.new_metadata_template)
 
     def test_update_template_url_is_resolved(self):
-        self.assertEquals(resolve(self.update_template_url).func, template_handlers.update_template)
+        self.assertEqual(resolve(self.update_template_url).func, template_handlers.update_template)
 
     def test_load_metadata_template_terms_url_is_resolved(self):
-        self.assertEquals(resolve(self.load_metadata_template_terms_url).func,
+        self.assertEqual(resolve(self.load_metadata_template_terms_url).func,
                           template_handlers.load_metadata_template_terms)
 
     def test_get_wizard_types_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_wizard_types_url).func, template_handlers.get_wizard_types)
+        self.assertEqual(resolve(self.get_wizard_types_url).func, template_handlers.get_wizard_types)
 
     def test_export_template_url_is_resolved(self):
-        self.assertEquals(resolve(self.export_template_url).func, template_handlers.export_template)
+        self.assertEqual(resolve(self.export_template_url).func, template_handlers.export_template)
 
     def test_get_primer_fields_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_primer_fields_url).func, template_handlers.get_primer_fields)
+        self.assertEqual(resolve(self.get_primer_fields_url).func, template_handlers.get_primer_fields)
 
     def test_add_primer_fields_url_is_resolved(self):
-        self.assertEquals(resolve(self.add_primer_fields_url).func, template_handlers.add_primer_fields)
+        self.assertEqual(resolve(self.add_primer_fields_url).func, template_handlers.add_primer_fields)
 
     # tearDown() method -  the test runner invokes that method after each test
 
