@@ -51,7 +51,7 @@ app.conf.beat_schedule = {
     },
     'process_ena_transfers': {
         'task': 'web.apps.web_copo.tasks.process_pending_file_transfers',
-        'schedule': timedelta(seconds=20)
+        'schedule': timedelta(seconds=5)
     }
 }
 
