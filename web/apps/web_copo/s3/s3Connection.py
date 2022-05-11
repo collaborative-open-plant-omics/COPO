@@ -52,7 +52,7 @@ class S3Connection():
                     fout.write(l)
             log._log_to_file("transfer complete: " + loc)
         except Exception as e:
-            log._log_to_file("transfer failed: " + e)
+            log._log_to_file("transfer failed: " + repr(e))
             return False
         return True
 

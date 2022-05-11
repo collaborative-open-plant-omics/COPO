@@ -31,6 +31,7 @@ def make_transfer_record(file_id, submission_id):
     # 4 check for md5
     # 5 transfer to ENA
     tx["transfer_status"] = 1
+    print(tx)
     ENAFileTransferObject().ENAFileTransferObjectCollection.insert_one(tx)
 
 
@@ -48,6 +49,7 @@ def process_pending_file_transfers():
 
     for tx in docs:
         ENAFileTransferObject().set_processing(tx["_id"])
+
         tx_status = tx["transfer_status"]
 
         if tx_status == 1:
@@ -81,6 +83,7 @@ def process_pending_file_transfers():
                 reset_status_counter(tx)
         if tx_status == 5:
             transfer_to_ena(tx)
+            mark_complete(tx)
 
 
 def record_error(tx, error):
@@ -121,19 +124,19 @@ def update_last_checked(tx):
 
 
 def get_ecs_file(tx):
-    Logger().log("downloading file", tx["local_path"])
+
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().get_object(bucket=file["bucket_name"], key=file["file_name"], loc=tx["local_path"])
 
 
 def check_file_in_ecs(tx):
-    Logger().log("checking for file", tx["local_path"])
+    Logger().log("checking for file: " + tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     return s3().check_s3_bucket_for_files(file["bucket_name"], [file["file_name"]])
 
 
 def check_gzip(tx):
-    Logger().log("checking gzip status", tx["local_path"])
+    Logger().log("checking gzip status: " + tx["local_path"])
     with gzip.open(tx["local_path"], 'r') as fh:
         try:
             fh.read(1)
@@ -143,7 +146,7 @@ def check_gzip(tx):
 
 
 def check_md5(tx):
-    Logger().log("checking md5", tx["local_path"])
+    Logger().log("checking md5: " + tx["local_path"])
     file = DataFile().get_collection_handle().find_one({"_id": ObjectId(tx["file_id"])})
     hash_md5 = hashlib.md5()
     with open(tx["local_path"], "rb") as f:
@@ -159,6 +162,9 @@ def transfer_to_ena(tx):
     user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
     webin_user = resolve_env.get_env('WEBIN_USER')
     webin_domain = resolve_env.get_env('WEBIN_USER').split("@")[1]
-    print("transfering file", tx["file_id"])
+    # Logger().log("transfering file: " + tx["file_id"])
     kwargs = dict()
-    to_ena(webin_user, pass_word, tx["remote_path"], [tx["local_path"]], **kwargs)
+    try:
+        to_ena(webin_user, pass_word, tx["remote_path"], [tx["local_path"]], **kwargs)
+    except Exception as e:
+        reset_status_counter(tx)
