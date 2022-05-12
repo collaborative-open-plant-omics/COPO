@@ -30,4 +30,4 @@ def one_of_these_elements_is_visible(element1, element2):
         else:
             return False
 
-    return
+    return wait_for_condition

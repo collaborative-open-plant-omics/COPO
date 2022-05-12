@@ -1,26 +1,46 @@
 # Created by AProvidence on 29-03-2022
-from django.contrib import admin
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
+from django.views.generic import TemplateView
+
 from web.apps.web_copo import views
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
+from web.landing import views as landing_views
+from web.urls import urlpatterns as app_urls
+
 
 # To execute the Django’s test suite: $ python manage.py test
+
 
 class TestViewsUrls(TestCase):
     """ Test views urls """
 
-    # setUp() method - the test runner runs the method prior each tests
+    # setUpTestData() method - the test runner runs the method prior each tests
     @classmethod
-    def setUp(cls):
+    def setUpTestData(cls):
+        super().setUpTestData()
         # app name: web_copo
         # pattern name: index
         # reverse('web_copo:index')
+        cls.client = Client()
+
+        cls.about_resolver = resolve('/about/')
+        cls.people_resolver = resolve('/people/')
+        cls.dtol_resolver = resolve('/dtol/')
+        cls.news_resolver = resolve('/news/')
+        cls.manifests_resolver = resolve('/manifests/')
+        cls.ebp_resolver = resolve('/ebp/')
 
         cls.admin_url = reverse('admin:index')
-        cls.client = Client()
-        cls.copo_url = reverse('web_copo:copo')
+        cls.about_url = reverse('about')
+        cls.people_url = reverse('people')
+        cls.dtol_url = reverse('dtol')
+        cls.news_url = reverse('news')
+        cls.manifests_url = reverse('manifests')
+        cls.ebp_url = reverse('ebp')
+        # cls.copo_url = reverse('copo')
         cls.index_url = reverse('web_copo:index')
+        cls.landing_url = reverse('index')
         cls.accept_reject_sample_url = reverse('web_copo:accept_reject')
         cls.dataverse_submit_url = reverse('web_copo:test_dataverse_submit')
         # cls.test_submission_url = reverse('web_copo:test_submission')
@@ -138,14 +158,18 @@ class TestViewsUrls(TestCase):
         self.assertEqual(resolve(self.admin_url).route, "admin/")
         self.assertEqual(resolve(self.admin_url).args, ())
 
-    def test_copo_url_is_resolved(self):
-        self.assertEqual(resolve(self.admin_url).namespace, "admin")
-        self.assertEqual(resolve(self.admin_url).url_name, "index")
-        self.assertEqual(resolve(self.admin_url).route, "admin/")
-        self.assertEqual(resolve(self.admin_url).args, ())
+    # def test_copo_url_is_resolved(self):
+    #     self.assertEqual(resolve(self.copo_url).namespace, "admin")
+    #     self.assertEqual(resolve(self.copo_url).url_name, "index")
+    #     self.assertEqual(resolve(self.copo_url).route, "admin/")
+    #     self.assertEqual(resolve(self.copo_url).args, ())
 
     def test_index_url_is_resolved(self):
         self.assertEqual(resolve(self.index_url).func, views.index)
+
+    def test_landing_url_is_resolved(self):
+        self.assertEqual(resolve(self.landing_url).func, landing_views.index)
+        self.assertTrue(app_urls[6].name, '')
 
     def test_accept_reject_sample_url_is_resolved(self):
         self.assertEqual(resolve(self.accept_reject_sample_url).func, views.copo_sample_accept_reject)
@@ -224,6 +248,78 @@ class TestViewsUrls(TestCase):
 
     def test_view_my_repos_url_is_resolved(self):
         self.assertEqual(resolve(self.view_my_repos_url).func, views.copo_repositories)
+
+    def test_resolve_to_about_url(self):
+        """ Verifies that the about page loads properly"""
+        print("Tests that the about page operates well")
+        response = self.client.get(self.about_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'about.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.about_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.about_resolver.url_name, "about")
+        self.assertEqual(self.about_resolver.route, "about/")
+        self.assertTrue(self.about_url, '/about/')
+        self.assertTrue(app_urls[7].name, self.about_resolver.url_name)
+
+    def test_resolve_to_people_url(self):
+        """ Verifies that the people page loads properly"""
+        print("Tests that the people page operates well")
+        response = self.client.get(self.people_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'people.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.people_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.people_resolver.url_name, "people")
+        self.assertEqual(self.people_resolver.route, "people/")
+        self.assertTrue(self.people_url, '/people/')
+        self.assertTrue(app_urls[8].name, self.people_resolver.url_name)
+
+    def test_resolve_to_dtol_url(self):
+        """ Verifies that the dtol page loads properly"""
+        print("Tests that the dtol page operates well")
+        response = self.client.get(self.dtol_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'dtol.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.dtol_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.dtol_resolver.url_name, "dtol")
+        self.assertEqual(self.dtol_resolver.route, "dtol/")
+        self.assertTrue(self.dtol_url, '/dtol/')
+        self.assertTrue(app_urls[9].name, self.dtol_resolver.url_name)
+
+    def test_resolve_to_news_url(self):
+        """ Verifies that the news page loads properly"""
+        print("Tests that the news page operates well")
+        response = self.client.get(self.news_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'news.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.news_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.news_resolver.url_name, "news")
+        self.assertEqual(self.news_resolver.route, "news/")
+        self.assertTrue(self.news_url, '/news/')
+        self.assertTrue(app_urls[10].name, self.news_resolver.url_name)
+
+    def test_resolve_to_manifests_url(self):
+        """ Verifies that the manifests page loads properly"""
+        print("Tests that the manifests page operates well")
+        response = self.client.get(self.manifests_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'manifests.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.manifests_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.manifests_resolver.url_name, "manifests")
+        self.assertEqual(self.manifests_resolver.route, "manifests/")
+        self.assertTrue(self.manifests_url, '/manifests/')
+        self.assertTrue(app_urls[11].name, self.manifests_resolver.url_name)
+
+    def test_resolve_to_ebp_url(self):
+        """ Verifies that the about page loads properly"""
+        print("Tests that the ebp page operates well")
+        response = self.client.get(self.ebp_resolver.route)
+        self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'ebp_resources.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.ebp_resolver.func.__name__, TemplateView.as_view().__name__)
+        self.assertEqual(self.ebp_resolver.url_name, "ebp")
+        self.assertEqual(self.ebp_resolver.route, "ebp/")
+        self.assertTrue(self.ebp_url, '/ebp/')
+        self.assertTrue(app_urls[12].name, self.ebp_resolver.url_name)
 
     """ Test ajax handlers urls """
 
@@ -325,15 +421,15 @@ class TestViewsUrls(TestCase):
 
     def test_get_info_for_new_dataverse_url_is_resolved(self):
         self.assertEqual(resolve(self.get_info_for_new_dataverse_url).func,
-                          ajax_handlers.get_info_for_new_dataverse)
+                         ajax_handlers.get_info_for_new_dataverse)
 
     def test_update_submission_repo_data_url_is_resolved(self):
         self.assertEqual(resolve(self.update_submission_repo_data_url).func,
-                          ajax_handlers.update_submission_repo_data)
+                         ajax_handlers.update_submission_repo_data)
 
     def test_set_destination_repository_url_is_resolved(self):
         self.assertEqual(resolve(self.set_destination_repository_url).func,
-                          ajax_handlers.set_destination_repository)
+                         ajax_handlers.set_destination_repository)
 
     def test_update_submission_meta_url_is_resolved(self):
         self.assertEqual(resolve(self.update_submission_meta_url).func, ajax_handlers.update_submission_meta)
@@ -376,15 +472,15 @@ class TestViewsUrls(TestCase):
 
     def test_create_spreadsheet_samples_url_is_resolved(self):
         self.assertEqual(resolve(self.create_spreadsheet_samples_url).func,
-                          ajax_handlers.create_spreadsheet_samples)
+                         ajax_handlers.create_spreadsheet_samples)
 
     def test_update_spreadsheet_samples_url_is_resolved(self):
         self.assertEqual(resolve(self.update_spreadsheet_samples_url).func,
-                          ajax_handlers.update_spreadsheet_samples)
+                         ajax_handlers.update_spreadsheet_samples)
 
     def test_update_pending_samples_table_url_is_resolved(self):
         self.assertEqual(resolve(self.update_pending_samples_table_url).func,
-                          ajax_handlers.update_pending_samples_table)
+                         ajax_handlers.update_pending_samples_table)
 
     def test_get_samples_for_profile_url_is_resolved(self):
         self.assertEqual(resolve(self.get_samples_for_profile_url).func, ajax_handlers.get_samples_for_profile)
@@ -394,18 +490,18 @@ class TestViewsUrls(TestCase):
 
     def test_add_sample_to_dtol_submission_url_is_resolved(self):
         self.assertEqual(resolve(self.add_sample_to_dtol_submission_url).func,
-                          ajax_handlers.add_sample_to_dtol_submission)
+                         ajax_handlers.add_sample_to_dtol_submission)
 
     def test_delete_dtol_samples_url_is_resolved(self):
         self.assertEqual(resolve(self.delete_dtol_samples_url).func, ajax_handlers.delete_dtol_samples)
 
     def test_handle_csv_column_validate_spreadsheet_url_is_resolved(self):
         self.assertEqual(resolve(self.handle_csv_column_validate_spreadsheet_url).func,
-                          ajax_handlers.handle_csv_column_validate_spreadsheet)
+                         ajax_handlers.handle_csv_column_validate_spreadsheet)
 
     def test_handle_csv_column_update_samples_url_is_resolved(self):
         self.assertEqual(resolve(self.handle_csv_column_update_samples_url).func,
-                          ajax_handlers.handle_csv_column_update_samples)
+                         ajax_handlers.handle_csv_column_update_samples)
 
     """ Test annotation handlers urls """
 
@@ -420,14 +516,14 @@ class TestViewsUrls(TestCase):
 
     def test_refresh_text_annotations_url_is_resolved(self):
         self.assertEqual(resolve(self.refresh_text_annotations_url).func,
-                          annotation_handlers.refresh_text_annotations)
+                         annotation_handlers.refresh_text_annotations)
 
     def test_delete_annotation_url_is_resolved(self):
         self.assertEqual(resolve(self.delete_annotation_url).func, annotation_handlers.delete_annotation)
 
     def test_refresh_annotations_for_user_url_is_resolved(self):
         self.assertEqual(resolve(self.refresh_annotations_for_user_url).func,
-                          annotation_handlers.refresh_annotations_for_user)
+                         annotation_handlers.refresh_annotations_for_user)
 
     def test_annotations_url_is_resolved(self):
         self.assertNotEquals(resolve(self.annotations_url).func, annotation_handlers.new_text_annotation)
@@ -455,7 +551,7 @@ class TestViewsUrls(TestCase):
 
     def test_update_metadata_template_name_url_is_resolved(self):
         self.assertEqual(resolve(self.update_metadata_template_name_url).func,
-                          template_handlers.update_metadata_template_name)
+                         template_handlers.update_metadata_template_name)
 
     def test_new_metadata_template_url_is_resolved(self):
         self.assertEqual(resolve(self.new_metadata_template_url).func, template_handlers.new_metadata_template)
@@ -465,7 +561,7 @@ class TestViewsUrls(TestCase):
 
     def test_load_metadata_template_terms_url_is_resolved(self):
         self.assertEqual(resolve(self.load_metadata_template_terms_url).func,
-                          template_handlers.load_metadata_template_terms)
+                         template_handlers.load_metadata_template_terms)
 
     def test_get_wizard_types_url_is_resolved(self):
         self.assertEqual(resolve(self.get_wizard_types_url).func, template_handlers.get_wizard_types)

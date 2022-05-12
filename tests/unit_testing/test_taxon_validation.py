@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from faker import Faker
 from password_generator import PasswordGenerator
 
+
 # Ensure that the copodev django server is running before running this test
 # Run this command before running the tests: $ supervisord -c celery.conf && supervisorctl -c celery.conf start all
 # Error: "Apps aren't loaded yet"; Solution: $ python manage.py check
@@ -68,6 +69,7 @@ class TestDTOLTaxonValidation(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         fake = Faker()
         options = Options()
         options.headless = False
@@ -93,78 +95,25 @@ class TestDTOLTaxonValidation(TestCase):
         cls.user.save()
 
         # # Create an ERGA or DTOL profile on the COPO website
-        # p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": cls.user.id,
-        #           "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
-        # cls.pid = Profile().save_record(dict(), **p_dict)
+        p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": cls.user.id,
+                  "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
+        cls.pid = Profile().get_collection_handle().insert(p_dict)
 
     def test_working_dtol_manifest_validation_and_submission(self):
         self.driver.get("http://127.0.0.1:8000/copo/")
         if "login" in self.driver.current_url:
             self._login()
-
         element = self._get_to_manifest_upload_point()
         manifests_dir_path = os.path.join(self.cwd, "tests", "manifests")
         # sample_manifest_path = os.path.join(manifests_dir_path, self.sample_manifest_filename)
         # dtol_sample1_3_worksheet_file = pandas.read_excel(sample_manifest_path, sheet_name=self.dtol_sample_1_3_sheetname)
-        dtol_sample_1_file = os.path.join(manifests_dir_path, self.dtol_sample_1_3_filename)
+        dtol_sample_1_file = os.path.join(manifests_dir_path, "DTOL_SAMPLE_1.xlsx")
         element.send_keys(dtol_sample_1_file)
-        element = WebDriverWait(self.driver, 40).until(one_of_these_elements_is_visible("finish_button",
-                                                                                        "export_errors_button"))
-
-        assert "finish_button" in element.get_attribute('id').split()
-        element.click()
         element = WebDriverWait(self.driver, 20).until(
-            ec.visibility_of_element_located((By.CSS_SELECTOR, "#final_submit"))
-        )
-        element.click()
-        WebDriverWait(self.driver, 20).until_not(
-            ec.visibility_of_element_located((By.CSS_SELECTOR, "#sample_spreadsheet_modal"))
-        )
-
-        samples = Sample().get_collection_handle().find({"profile_id": str(self.pid["_id"])})
-        assert len(list(samples)) == 39
-
-    def test_blank_manifest(self):
-        """ If manifest is blank, an appropriate message is displayed"""
-        # self.dtol_manifest.values()
-        # print(len(self.dtol_manifest))
-
-        pass
-
-    # Query API and check for the correct number of results
-    def test_erga_manifest_samples_submitted_to_ena(self):
-        pass
-
-    def test_dtol_manifest_samples_submitted_to_ena(self):
-        pass
-
-    def test_working_dtol_manifest(self):
-        pass
-
-    def test_wrong_taxonnomy(self):
-        pass
-
-    def test_taxonID_association_to_several_specimenIDs(self):
-        pass
-
-    def test_taxonID_map_to_correct_species_name(self):
-        pass
-
-    def test_taxonID(self):
-        pass
-
-    def test_date_in_correct_format(self):
-        pass
-
-    def test_occurrences_of_whole_organism(self):
-        pass
-
-    def test_alphanumeric_characters_used(self):
-        #  Special characters and pipe (|) should not be used
-        pass
+            one_of_these_elements_is_visible("finish_button", "export_errors_button"))
 
     def _get_to_manifest_upload_point(self):
-        self.driver.get("http://127.0.0.1:8000/copo/copo_samples/" + str(self.pid["_id"]) + "/view")
+        self.driver.get("http://127.0.0.1:8000/copo/copo_samples/" + str(self.pid) + "/view")
         assert "/copo/copo_samples/" in self.driver.current_url
         element = WebDriverWait(self.driver, 5).until(
             ec.element_to_be_clickable((By.CSS_SELECTOR, ".new-samples-spreadsheet-template"))
@@ -194,21 +143,70 @@ class TestDTOLTaxonValidation(TestCase):
         assert "COPO" in self.driver.title
         try:
             element = self.driver.find_element(By.ID, "profile_table_div")
-            self._create_profile()
+
         except NoSuchElementException:
             assert False
         assert True
 
-    def _create_profile(self):
-        # Create an ERGA or DTOL profile on the COPO website
-        p_dict = {"copo_id": "000000000", "description": "Test Description", "user_id": self.user.id,
-                  "type": "Darwin Tree of Life (DTOL)", "title": "Test Title"}
-        self.pid = Profile().save_record(dict(), **p_dict)
-
+        '''
+        # find confirm button the click in order to proceed.
+                assert "finish_button" in element.get_attribute('id').split()
+                element.click()
+                element = WebDriverWait(self.driver, 20).until(
+                    ec.visibility_of_element_located((By.CSS_SELECTOR, "#final_submit"))
+                )
+                element.click()
+                WebDriverWait(self.driver, 20).until_not(
+                    ec.visibility_of_element_located((By.CSS_SELECTOR, "#sample_spreadsheet_modal"))
+                )
+        
+                samples = Sample().get_collection_handle().find({"profile_id": str(self.pid)})
+                assert len(list(samples)) == 39
+        
+            
+            def test_blank_manifest(self):
+                """ If manifest is blank, an appropriate message is displayed"""
+                # self.dtol_manifest.values()
+                # print(len(self.dtol_manifest))
+        
+                pass
+        
+            # Query API and check for the correct number of results
+            def test_erga_manifest_samples_submitted_to_ena(self):
+                pass
+        
+            def test_dtol_manifest_samples_submitted_to_ena(self):
+                pass
+        
+            def test_working_dtol_manifest(self):
+                pass
+        
+            def test_wrong_taxonnomy(self):
+                pass
+        
+            def test_taxonID_association_to_several_specimenIDs(self):
+                pass
+        
+            def test_taxonID_map_to_correct_species_name(self):
+                pass
+        
+            def test_taxonID(self):
+                pass
+        
+            def test_date_in_correct_format(self):
+                pass
+        
+            def test_occurrences_of_whole_organism(self):
+                pass
+        
+            def test_alphanumeric_characters_used(self):
+                #  Special characters and pipe (|) should not be used
+                pass
+            '''
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.driver.close()
-        Sample().get_collection_handle().remove({"profile_id": str(cls.pid["_id"])})
-        Profile().get_collection_handle().remove({"_id": cls.pid["_id"]})
-        pass
+        Sample().get_collection_handle().remove({"profile_id": str(cls.pid)})
+        Profile().get_collection_handle().remove({"_id": cls.pid})

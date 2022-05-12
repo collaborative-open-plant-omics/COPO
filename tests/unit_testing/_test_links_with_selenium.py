@@ -4,9 +4,11 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 
+
 class SeleniumTestCase(LiveServerTestCase):
 
     def setUp(self):
+        super().setUp()
         self.selenium = webdriver.Firefox()
         super(SeleniumTestCase, self).setUp()
 
