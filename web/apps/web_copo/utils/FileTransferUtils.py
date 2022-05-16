@@ -54,7 +54,7 @@ def check_for_stuck_transfers():
             delta = datetime.utcnow() - chk
             if tx_status in (1, 3, 4):
                 # these are the processes which should be quick
-                if delta.seconds > 60 / 1:
+                if delta.seconds > 60 * 10:
                     ENAFileTransferObject().set_pending(tx["_id"])
                     Logger().log("resetting to pending transfer: " + tx["local_path"])
             elif tx_status in (2, 5):
