@@ -52,6 +52,10 @@ app.conf.beat_schedule = {
     'process_ena_transfers': {
         'task': 'web.apps.web_copo.tasks.process_pending_file_transfers',
         'schedule': timedelta(seconds=5)
+    },
+    'check_for_stuck_transfers': {
+        'task': 'web.apps.web_copo.tasks.check_for_stuck_transfers',
+        'schedule': timedelta(seconds=20)
     }
 }
 

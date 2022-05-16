@@ -864,7 +864,8 @@ class EnaReads:
         self.remote_location, file_paths=mock_file_names, **kwargs)
         # branch for manifest submissions
         if Submission().is_manifest_submission(self.submission_id):
-            self._setup_files_transfer(self.submission_id)
+            pass
+            # self._setup_files_transfer(self.submission_id)
         else:
             # schedule the transfer of actual datafiles to ENA Dropbox
             ghlper.schedule_file_transfer(submission_id=self.submission_id, remote_location=self.remote_location)

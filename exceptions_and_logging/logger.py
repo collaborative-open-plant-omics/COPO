@@ -7,6 +7,7 @@ import os
 from enum import Enum
 from exceptions_and_logging.CopoRuntimeError import CopoRuntimeError
 from web.apps.web_copo.lookup.copo_enums import *
+from django.conf import settings
 
 
 class Logger():
@@ -32,7 +33,7 @@ class Logger():
 
     def _log_to_file(self, msg, lvl=Loglvl.WARNING):
         msg = str(msg)
-        with open(os.path.join(self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
+        with open(os.path.join(settings.BASE_DIR, self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
             time = datetime.now()
             # time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
             file.write("INFO - [" + str(time) + "]: " + msg + "\n")

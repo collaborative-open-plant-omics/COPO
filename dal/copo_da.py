@@ -2417,11 +2417,15 @@ class ENAFileTransferObject(DAComponent):
     def get_pending_transfers(self):
         return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
 
+    def get_processing_transfers(self):
+        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})
+
     def set_processing(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "processing"}})
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
+                                                        {"$set": {"status": "processing", "last_checked": datetime.utcnow()}})
 
     def set_pending(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending"}})
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending", "last_checked": datetime.utcnow()}})
 
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
