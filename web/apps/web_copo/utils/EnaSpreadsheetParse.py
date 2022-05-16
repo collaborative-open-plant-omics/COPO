@@ -20,6 +20,8 @@ from web.apps.web_copo.validators.ena_validators import ena_seq_validators as re
 import datetime
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from dal.broker_da import BrokerDA
+from pymongo import ReturnDocument
+import web.apps.web_copo.utils.FileTransferUtils as tx
 
 l = logger.Logger("exceptions_and_logging/logs")
 from django.conf import settings
@@ -84,8 +86,9 @@ def save_ena_records(request):
     bundle = list()
     bundle_meta = list()
     pairing = list()
-
+    datafile_list = list()
     for p in range(1, len(sample_data)):
+        # for each row in the manifest
         s = (map_to_dict(sample_data[0], sample_data[p]))
         source = dict()
         curl_cmd = "curl " + \
@@ -95,15 +98,20 @@ def save_ena_records(request):
 
         taxinfo = json.loads(receipt.decode("utf-8"))
 
+        # create source from organism
+        termAccession = "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])
         source["organism"] = \
             {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
-                "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])}
+                termAccession}
         source["profile_id"] = request.session["profile_id"]
         source["date_created"] = datetime.datetime.utcnow()
         source["profile_id"] = profile_id
         source["deleted"] = "0"
-        source_id = str(Source().get_collection_handle().insert_one(source).inserted_id)
+        source_id = str(
+            Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession}, {"$set": source},
+                                                                 upsert=True, return_document=ReturnDocument.AFTER)["_id"])
 
+        # create associated sample
         sample = dict()
         sample["sample_type"] = "isasample"
         sample["profile_id"] = request.session["profile_id"]
@@ -112,7 +120,10 @@ def save_ena_records(request):
         sample["profile_id"] = profile_id
         sample["name"] = s["sample_name"]
         sample["deleted"] = "0"
-        sample_id = str(Sample().get_collection_handle().insert_one(sample).inserted_id)
+        sample_id = str(
+            Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample}, upsert=True,
+                                                                 return_document=ReturnDocument.AFTER)[
+                "_id"])
 
         df = dict()
         p = Profile().get_record(profile_id)
@@ -151,44 +162,54 @@ def save_ena_records(request):
             f_name = s["file_name"]
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
             df["file_name"] = f_name
-            df["file_location"] = join(settings.UPLOAD_PATH, username, f_name)
+            file_location = join(settings.UPLOAD_PATH, username, f_name)
+            df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].strip()
-            inserted = DataFile().get_collection_handle().insert_one(df)
-            bundle.append(str(inserted.inserted_id))
-            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name), "upload_status": False}
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+                                                                              return_document=ReturnDocument.AFTER)
+            datafile_list.append(inserted)
+            bundle.append(str(inserted["_id"]))
+            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name), "upload_status": False}
             bundle_meta.append(f_meta)
         else:
-            # create records for left and right
+            # create record for left
             tmp_pairing = dict()
             file_names = s["file_name"].split(",")
             f_name = file_names[0].strip()
             df["file_name"] = f_name
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-            df["file_location"] = join(settings.UPLOAD_PATH, username, f_name)
+            file_location = join(settings.UPLOAD_PATH, username, f_name)
+            df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[0].strip()
-            inserted = DataFile().get_collection_handle().insert_one(df)
-            bundle.append(str(inserted.inserted_id))
-            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
-                                                                                  file_names[0]), "upload_status": False}
-            tmp_pairing["_id"] = str(inserted.inserted_id)
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+                                                                              return_document=ReturnDocument.AFTER)
+            datafile_list.append(inserted)
+            bundle.append(str(inserted["_id"]))
+            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid),
+                                                                             file_names[0]), "upload_status": False}
+            # create record for right
+            tmp_pairing["_id"] = str(inserted["_id"])
             bundle_meta.append(f_meta)
-            df.pop("_id")
+            # df.pop("_id")
             f_name = file_names[1].strip()
             df["file_name"] = f_name
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-            df["file_location"] = join(settings.UPLOAD_PATH, username, f_name)
+            file_location = join(settings.UPLOAD_PATH, username, f_name)
+            df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[1].strip()
-            inserted = DataFile().get_collection_handle().insert_one(df)
-            bundle.append(str(inserted.inserted_id))
-            f_meta = {"file_id": str(inserted.inserted_id), "file_location": join(settings.UPLOAD_PATH, str(uid),
-                                                                                  file_names[1]), "upload_status": False}
-            tmp_pairing["_id2"] = str(inserted.inserted_id)
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+                                                                              return_document=ReturnDocument.AFTER)
+            datafile_list.append(inserted)
+            bundle.append(str(inserted["_id"]))
+            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid),
+                                                                             file_names[1]), "upload_status": False}
+            tmp_pairing["_id2"] = str(inserted["_id"])
             pairing.append(tmp_pairing)
 
             bundle_meta.append(f_meta)
@@ -204,9 +225,33 @@ def save_ena_records(request):
     submission["profile_id"] = profile_id
     submission["manifest_submission"] = 1
 
+    # make description records and submissions record
     dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile', name=profile_name)
     submission["description_token"] = dr["_id"]
-    Submission().get_collection_handle().insert_one(submission)
+    subs = Submission().get_collection_handle().find({"profile_id": profile_id})
+    duplicates = list()
+    update_ids = list()
+    if subs:
+        for s in subs:
+            for s_bm in s.get("bundle_meta", ""):
+                for bm in submission.get("bundle_meta", ""):
+                    if s_bm.get("file_location") == bm.get("file_location", ""):
+                        # we have an existing submission with at least one of these file locations so update existing submission record
+
+                        duplicates.append(s_bm.get("file_location"))
+                        update_ids.append(s["_id"])
+        if len(duplicates) > 0:
+            submission = submission.pop("accessions")
+            Submission().get_collection_handle().update_one({"_id": update_ids[0]}, {"$set": submission})
+            sub_id = update_ids[0]
+        else:
+            sub_id = Submission().get_collection_handle().insert_one(submission)["_id"]
+    else:
+        sub_id = Submission().get_collection_handle().insert_one(submission)["_id"]
+
+    for f in datafile_list:
+        tx.make_transfer_record(file_id=f["_id"], submission_id=str(sub_id))
+
     return HttpResponse()
 
 
@@ -257,10 +302,6 @@ class ENASpreadsheet:
                     self.data = pandas.read_csv(self.file, keep_default_na=False,
                                                 na_values=lookup.NA_VALS)
                 self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
-                '''
-                for column in self.allowed_empty:
-                    self.data[column] = self.data[column].fillna("")
-                '''
                 self.data = self.data.apply(lambda x: x.astype(str))
                 self.data = self.data.apply(lambda x: x.str.strip())
                 self.data.columns = self.data.columns.str.replace(" ", "")

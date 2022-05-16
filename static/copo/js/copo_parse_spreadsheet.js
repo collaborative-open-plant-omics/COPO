@@ -505,7 +505,7 @@ $(document).on("click", "#ena_finish_button", function (event) {
     $.ajax({
         url: "/copo/save_ena_records"
     }).done(function (d) {
-        alert(d)
+        window.location.href = "/copo/copo_submissions/" + $("#profile_id").val() + "/view"
     })
 })
 

@@ -5,7 +5,7 @@ from submission import enareadSubmission
 from web.apps.web_copo.validators.validation_celery_handler import ProcessValidationQueue
 from web.celery import app
 from web.apps.web_copo.utils import FileTransferUtils as tx
-
+from exceptions_and_logging.logger import Logger
 @app.task
 def update_study_status():
     enareadSubmission.EnaReads().update_study_status()
@@ -62,4 +62,10 @@ def process_tol_validations(self):
 @app.task(bind=True)
 def process_pending_file_transfers(self):
     tx.process_pending_file_transfers()
+    return True
+
+
+@app.task(bind=True)
+def check_for_stuck_transfers(self):
+    tx.check_for_stuck_transfers()
     return True
