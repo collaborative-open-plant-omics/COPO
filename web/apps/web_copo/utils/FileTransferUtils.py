@@ -118,7 +118,6 @@ def process_pending_file_transfers():
                 if check_md5(tx):
                     increment_status_counter(tx)
                 else:
-                    record_error(tx, "md5 mismatch")
                     reset_status_counter(tx)
             elif tx_status == 5:
                 Logger().log("transfering to ENA: " + tx["local_path"])
@@ -204,6 +203,7 @@ def check_md5(tx):
         return True
     else:
         Logger().log("md5 mismatch, should be: " + file["file_hash"] + ", but got: " + calc)
+        return False
 
 
 def transfer_to_ena(tx):
