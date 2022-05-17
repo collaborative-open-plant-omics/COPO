@@ -92,5 +92,7 @@ MESSAGES = {
     "validation_msg_warning_na_value_voucher": "Warning: <strong>%s</strong> in column <strong>%s</strong> at row"
                                                "<strong>%s</strong>. ERGA requires to voucher your sample, if you don't"
                                                ", be aware the sequencing may not continue until you have provided "
-                                               "<strong>%s</strong>."
+                                               "<strong>%s</strong>.",
+    "validation_msg_invalid_link": "Invalid URL: <strong>%s</strong> in column <strong>%s</strong> at row "
+                                   "<strong>%s</strong>. The entered value is not a valid URL."
 }

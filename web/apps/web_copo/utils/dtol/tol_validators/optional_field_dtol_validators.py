@@ -6,6 +6,7 @@ from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from .tol_validator import TolValidtor
 from .validation_messages import MESSAGES as msg
+import validators
 
 
 class DtolEnumerationValidator(TolValidtor):
@@ -121,6 +122,14 @@ class DtolEnumerationValidator(TolValidtor):
                             else:  # not in use atm, here in case we add more optional validations
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
+
+                    #validate link fields
+                    if header.endswith('_LINK'):
+                        if not validators.url(c.strip()):
+                            self.errors.append(msg["validation_msg_invalid_link"] % (
+                                c, header, str(cellcount+1)
+                            ))
+                            self.flag = False
 
                     # validation checks for SERIES
                     if header == "SERIES":
