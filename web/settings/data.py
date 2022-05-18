@@ -31,11 +31,15 @@ MONGO_USER = resolve_env.get_env('MONGO_USER')
 MONGO_USER_PASSWORD = resolve_env.get_env('MONGO_USER_PASSWORD')
 MONGO_PORT = int(resolve_env.get_env('MONGO_PORT'))
 MONGO_MAX_POOL_SIZE = int(resolve_env.get_env('MONGO_MAX_POOL_SIZE'))
-MONGO_DB_TEST = "testing_copo"
+MONGO_DB_TEST = "test_copo_mongo"
 
 # this is the global DB connection, either use get_collection_ref in dal.mongo_util.py or refer to this setting
+# If unit testing is being done use the Mongo test database instead of the production/actual Mongo database
+if settings.UNIT_TESTING:
+    MONGO_CLIENT = MongoClient(host=MONGO_HOST, maxPoolSize=MONGO_MAX_POOL_SIZE)[MONGO_DB_TEST]
+else:
+    MONGO_CLIENT = MongoClient(host=MONGO_HOST, maxPoolSize=MONGO_MAX_POOL_SIZE)[MONGO_DB]
 
-MONGO_CLIENT = MongoClient(host=MONGO_HOST, maxPoolSize=MONGO_MAX_POOL_SIZE)[MONGO_DB]
 MONGO_CLIENT.authenticate(MONGO_USER, MONGO_USER_PASSWORD, source='admin')
 
 # settings for redis
