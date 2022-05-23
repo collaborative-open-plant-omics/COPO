@@ -1023,7 +1023,8 @@ DTOL_RULES = {
         "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
     },
     "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID": {
-        "strict_regex": "^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$"
+        "strict_regex": "^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$",
+        "human_readable": "[ID provided by the local conatext hub]"
     }
 }
 DTOL_UNITS = {

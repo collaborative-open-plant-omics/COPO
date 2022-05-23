@@ -125,7 +125,7 @@ class DtolEnumerationValidator(TolValidtor):
 
                     #validate link fields
                     if header.endswith('_LINK'):
-                        if not validators.url(c.strip()):
+                        if c.strip() and not validators.url(c.strip()):
                             self.errors.append(msg["validation_msg_invalid_link"] % (
                                 c, header, str(cellcount+1)
                             ))
