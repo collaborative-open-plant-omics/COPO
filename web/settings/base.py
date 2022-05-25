@@ -211,3 +211,8 @@ CACHES = {
 }
 
 VIEWLOCK_TIMEOUT = timedelta(seconds=1800)
+
+# Enables django-html-validator that automatically checks if the served HTML pages are
+# valid for the W3C checkers.
+HTMLVALIDATOR_ENABLED = True
+HTMLVALIDATOR_VNU_JAR = './tests/utilities/vnu.jar'
