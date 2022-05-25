@@ -8,12 +8,12 @@ from django.urls import reverse
 
 class TestLoggedUser(TestCase):
     "HTML validator is integrated "
-    def setUp(self):
+    def setUpTestData(cls):
         settings.UNIT_TESTING = True
-        self.client = ValidatingClient()
-        self.user = User.objects.create_user(settings.TEST_USER_NAME, 'user@test.net', 'secret')
-        self.user.save()
-        self.client.login(username='test_user', password='secret')
+        cls.client = ValidatingClient()
+        cls.user = User.objects.create_user(settings.TEST_USER_NAME, 'user@test.net', 'secret')
+        cls.user.save()
+        cls.client.login(username='test_user', password='secret')
 
     def tearDown(self):
         self.user.delete()

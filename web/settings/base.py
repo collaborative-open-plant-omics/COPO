@@ -216,3 +216,4 @@ VIEWLOCK_TIMEOUT = timedelta(seconds=1800)
 # valid for the W3C checkers.
 HTMLVALIDATOR_ENABLED = True
 HTMLVALIDATOR_VNU_JAR = './tests/utilities/vnu.jar'
+HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
