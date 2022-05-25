@@ -19,8 +19,8 @@ class TestRestUrls(TestCase):
 
     # setUp() method - the test runner runs the method prior each tests
     @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
+    def setUpClass(cls):
+        super(TestRestUrls, cls).setUpClass()
         # app name: rest
         # pattern name: data_wiz
         # reverse('rest:data_wiz')
@@ -97,9 +97,6 @@ class TestRestUrls(TestCase):
     def test_get_submission_status_url_is_resolved(self):
         self.assertEquals(resolve(self.get_submission_status_url).func, ajax.get_submission_status)
 
-    def test_get_submission_status_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_submission_status_url).func, ajax.get_submission_status)
-
     def test_release_ena_study_url_is_resolved(self):
         self.assertEquals(resolve(self.release_ena_study_url).func, ajax.release_ena_study)
 
@@ -107,7 +104,7 @@ class TestRestUrls(TestCase):
         self.assertEquals(resolve(self.resume_chunked_url).func, rest.resume_chunked)
 
     def test_get_partial_uploads_url_is_resolved(self):
-        self.assertEquals(resolve(self.get_partial_uploads_url).func,  rest.get_partial_uploads)
+        self.assertEquals(resolve(self.get_partial_uploads_url).func, rest.get_partial_uploads)
 
     def test_save_ss_annotation_url_is_resolved(self):
         self.assertEquals(resolve(self.save_ss_annotation_url).func, a_views.save_ss_annotation)
@@ -128,7 +125,7 @@ class TestRestUrls(TestCase):
         self.assertEquals(resolve(self.test_sword_url).func, su.test_module)
 
     def test_call_get_dataset_details_url_is_resolved(self):
-        self.assertEquals(resolve(self.call_get_dataset_details_url).func,  ajax.get_dataset_details)
+        self.assertEquals(resolve(self.call_get_dataset_details_url).func, ajax.get_dataset_details)
 
     def test_samples_from_study_url_is_resolved(self):
         self.assertEquals(resolve(self.samples_from_study_url).func, ajax.get_samples_for_study)

@@ -8,15 +8,20 @@ from django.urls import reverse
 
 class TestLoggedUser(TestCase):
     "HTML validator is integrated "
-    def setUpTestData(cls):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestLoggedUser, cls).setUpClass()
         settings.UNIT_TESTING = True
         cls.client = ValidatingClient()
         cls.user = User.objects.create_user(settings.TEST_USER_NAME, 'user@test.net', 'secret')
         cls.user.save()
         cls.client.login(username='test_user', password='secret')
 
-    def tearDown(self):
-        self.user.delete()
+    @classmethod
+    def tearDown(cls):
+        u = User.objects.get(username=settings.TEST_USER_NAME)
+        # u.delete()
 
     def test_logged_user_get_homepage(self):
         response = self.client.get(reverse('web_copo:index'), follow=True)
