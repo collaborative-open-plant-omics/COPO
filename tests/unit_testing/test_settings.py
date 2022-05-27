@@ -4,7 +4,7 @@ from django.test import SimpleTestCase
 from web.settings.chunked_upload import *
 
 
-class TestSettings(SimpleTestCase):
+class SettingsTest(SimpleTestCase):
     settings.UNIT_TESTING = True
 
     def test_chunked_upload_settings(self):

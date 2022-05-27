@@ -1,9 +1,7 @@
 # Created by AProvidence on 29-03-2022
-from django.test import TestCase
-from django.conf import settings
-from django.test import TestCase
-from django.urls import reverse, resolve
+from django.urls import resolve
 from web.apps.web_copo.rest.EnaRest import CopoChunkedUploadCompleteView, CopoChunkedUploadView
+from tests.test_base import BaseTest
 import api.annotate_views as a_views
 import api.handlers.general as api
 import submission.sword_utils as su
@@ -14,46 +12,8 @@ import web.apps.web_copo.views as views
 import web.apps.web_copo.wizard_views as wizard
 
 
-class TestRestUrls(TestCase):
-    """ Tests rest urls """
-
-    # setUp() method - the test runner runs the method prior each tests
-    @classmethod
-    def setUpClass(cls):
-        super(TestRestUrls, cls).setUpClass()
-        # app name: rest
-        # pattern name: data_wiz
-        # reverse('rest:data_wiz')
-        settings.UNIT_TESTING = True
-        cls.data_wiz_url = reverse('rest:data_wiz')
-        cls.sample_wiz_url = reverse('rest:sample_wiz')
-        cls.receive_data_file_url = reverse('rest:receive_data_file')
-        cls.receive_data_file_chunked_url = reverse('rest:receive_data_file')
-        cls.complete_upload_url = reverse('rest:complete_data_file')
-        cls.hash_upload_url = reverse('rest:hash_upload')
-        cls.inspect_file_url = reverse('rest:inspect_file')
-        cls.zip_file_url = reverse('rest:zip_file')
-        cls.check_figshare_credentials_url = reverse('rest:check_figshare_credentials')
-        cls.set_figshare_credentials_url = reverse('rest:set_figshare_credentials')
-        cls.small_file_upload_url = reverse('rest:receive_data_file')
-        cls.forward_to_figshare_url = reverse('rest:forward_to_figshare')
-        cls.get_upload_information_url = reverse('rest:get_upload_information')
-        cls.get_submission_status_url = reverse('rest:get_submission_status')
-        cls.release_ena_study_url = reverse('rest:release_ena_study')
-        cls.resume_chunked_url = reverse('rest:resume_chunked')
-        cls.get_partial_uploads_url = reverse('rest:get_partial_uploads')
-        cls.save_ss_annotation_url = reverse('rest:save_ss_annotation')
-        cls.delete_ss_annotation_url = reverse('rest:delete_ss_annotation')
-        cls.copo_get_submission_table_data_url = reverse('rest:get_submissions')
-        cls.get_accession_data_url = reverse('rest:get_accession_data')
-        cls.set_session_variable_url = reverse('rest:set_session_variable')
-        cls.test_sword_url = reverse('rest:test_module')
-        cls.call_get_dataset_details_url = reverse('rest:call_get_dataset_details')
-        cls.samples_from_study_url = reverse('rest:get_samples_for_study')
-        cls.get_users_url = reverse('rest:get_users')
-        cls.get_ontologies_url = reverse('rest:get_ontologies')
-        cls.export_generic_annotation_url = reverse('rest:export_generic_annotation')
-
+class RestURLsTest(BaseTest):
+    """ Test rest urls """
     def test_data_wiz_url_is_resolved(self):
         self.assertEquals(resolve(self.data_wiz_url).func, wizard.data_wiz)
 

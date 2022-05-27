@@ -1,16 +1,14 @@
 from Bio import Entrez
-from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
+from dal import cursor_to_list
 from dal.copo_da import Sample
 from django.core.management import BaseCommand
 from tools import resolve_env
 from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
-from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
-    build_bundle_sample_xml, update_bundle_sample_xml
-import dal.copo_da as da
-import os
-import subprocess
-import shlex
 from web.apps.web_copo.management.commands import update_samplefield
+from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml
+import dal.copo_da as da
+import re
+import subprocess
 
 
 # The class must be named Command, and subclass BaseCommand
@@ -35,7 +33,7 @@ class Command(BaseCommand):
 
     # A command must define handle()
     def handle(self, *args, **options):
-        """Find the list of biosamples that have no relationship"""
+        """ Find the list of biosamples that have no relationship"""
         samples_in_db = cursor_to_list(Sample().get_collection_handle().find(
             {"status": "accepted", "tol_project": {"$in": ["DTOL", "ASG"]}, "sampleDerivedFrom": {"$exists": False},
              "sampleSameAs": {"$exists": False}, "sampleSymbiontOf": {"$exists": False},
@@ -46,23 +44,21 @@ class Command(BaseCommand):
         updates_to_make = [x['biosampleAccession'] for x in samples_in_db]
         print("biosampleAccession: ", updates_to_make)
 
-        # check if it has a source has the accession or if it does not
+        """ Check if the biosample has a source that has an  accession """
 
-        # Check if the source has the accession already
-        # each sample, print specimenID
-
+        # Check if the source of a sample has an accession already
         for sample in samples_in_db:
             specimen_id = sample['SPECIMEN_ID']
             print("SPECIMEN_ID: ", specimen_id)
-            # Get source object based on the specimen_ID
+            # Get source object based on the field, "specimen_ID"
             source_object = da.Source().get_by_specimen(specimen_id)
-            # print(source_object)
-            # Sources should only be 1 object
+
+            # Sources should only result in one object
             assert len(source_object) == 1
 
-            # Check if "biosampleAccession" field and "sraAccession" exist in the source object
+            # Check if "biosampleAccession" field and "sraAccession" field exist in the source object
             if source_object[0]["biosampleAccession"] and source_object[0]["sraAccession"]:
-                print("biosampleAccession and sraAccession fields exist")
+                print("\"biosampleAccession\" and \"sraAccession\" fields exist")
                 organism_part = sample['ORGANISM_PART']
                 species_list = sample['species_list'][0]
 
@@ -71,38 +67,55 @@ class Command(BaseCommand):
                 elif species_list["SYMBIONT"] == "TARGET" and organism_part != "WHOLE_ORGANISM":
                     biosample_relationship_field = "sampleDerivedFrom"
                 else:
-                    # If the value of the field, "ORGANISM_PART", is equal to "WHOLE_ORGANISM",
+                    # If the value of the field, "ORGANISM_PART", is equal to "WHOLE_ORGANISM"
                     biosample_relationship_field = "sampleSameAs"
 
-                # Update the relationship of the biosample by using the update_samplefield.py script
+                # Insert the missing relationship of the biosample by calling the "update_samplefield.py" script
                 relationship_value = source_object[0]["biosampleAccession"]
                 update_relationship_command = f"{sample['biosampleAccession']}:{biosample_relationship_field}:{relationship_value} "
-                # command has to be instantiated
+
+                # Instantiate the Command() before using it
                 command = update_samplefield.Command()
                 command.handle(samples=update_relationship_command)
 
             else:
                 print("biosampleAccession field and sraAccession field do not exist")
-                biosample_relationship_value_from_ena = DTOL_ENA_MAPPINGS.get("biosampleAccession")
-                sra_accession_value_from_ena = DTOL_ENA_MAPPINGS.get("sraAccession")
-                da.Source().record_manual_update("biosampleAccession", "", biosample_relationship_value_from_ena,
-                                                 specimen_id)
-                da.Source().record_manual_update("sraAccession", "", sra_accession_value_from_ena,
-                                                 specimen_id)
+
+                """ Access the ENA production webinar Portal to get the values of the "biosampleAccession" and the "accession"""
+
+                error_to_parse = source_object[0]["error"]
+                if "The object being added already exists in the submission account with accession" in error_to_parse:
+                    # Catch alias and accession
+                    pattern_accession = "ERS\d{7}"
+                    accession = re.search(pattern_accession, error_to_parse).group()
+
+                    curl_cmd = "curl -u " + self.usertoken + \
+                               ':' + self.pass_word + " " + self.ena_sample_retrieval \
+                               + accession
+                    xml_sample_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
+                else:
+                        #todo edge case where there's no error, or error in different format than expected
+                        pass
+
+
 
                 # The "submissionAccession"field is lost so the value, "ERA000000", is entered as the default value
-                # in order to be consistent with an actual value for "submissionAccession"
+                # in order for it to be consistent with an actual value for "submissionAccession"
 
-                da.Source().add_field("submissionAccession", "ERA000000", specimen_id)
-                da.Source().add_field("error1", "Wrong submission accession entered manually for db consistency",
-                                      specimen_id)
+                # da.Source().add_field("submissionAccession", "ERA000000", specimen_id)
+                # da.Source().add_field("error1", "Wrong submission accession entered manually for db consistency",
+                #                       specimen_id)
 
                 # do curl command like line 109 update_sample in update_samplefield.py which return an xml with the information that ENA has
                 # work with biosample and sra accession
                 # parse the error to get the sra accession
                 # the error should be there
-               # ....it starts with "ERA"
-            #
+                # ....it starts with "ERA"
+                # Retrieve the submitted XML of the sample from ENA service
+                # Get error field from the source
+
+
+
 
 
         return
@@ -193,7 +206,7 @@ class Command(BaseCommand):
                 update_samplefield.Command().handle(samples=update_relationship_command)
 
 
-            # # If fields are submitted to ENA, update them
+            # If fields are submitted to ENA, update them
             # print(d_updates[sample['biosampleAccession']])
             # print(list(d_updates[sample['biosampleAccession']].keys()))
             # flag = False
