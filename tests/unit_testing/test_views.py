@@ -149,7 +149,7 @@ class ViewsTest(TestCase):
         cls.handle_csv_column_validate_spreadsheet_url = reverse('web_copo:handle_csv_column_validate_spreadsheet')
         cls.handle_csv_column_update_samples_url = reverse('web_copo:handle_csv_column_update_samples')
 
-    def test_index_page_loads_correctly(self):
+    def test_root_url_resolves_index_view(self):
         """ Verifies that the index page loads properly"""
         print("Tests the loading of index webpage")
         response = self.client.get(path=resolve('/'))
@@ -163,7 +163,8 @@ class ViewsTest(TestCase):
         self.assertEqual(ip_server_response.status_code, 200)
         self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'index_new.html'
         self.assertTemplateUsed(response2, 'copo/base_simple.html')  # 'copo/index.html'
-        self.assertEquals(resolve(reverse('web_copo:index')).func, views.index)
+        index_page_resolver = resolve(reverse('web_copo:index'))
+        self.assertEquals(index_page_resolver.func, views.index)
 
     def test_login_page(self):
         """ Verifies that the login page loads properly"""

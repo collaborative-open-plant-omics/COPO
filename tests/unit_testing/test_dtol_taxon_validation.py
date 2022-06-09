@@ -14,6 +14,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from tests.utilities.helpers import one_of_these_elements_is_visible
+from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 
 import os
 import tools.resolve_env as env
@@ -116,6 +117,8 @@ class DTOLTaxonValidationTest(TestCase):
         element = WebDriverWait(self.webdriver, 20).until(
             one_of_these_elements_is_visible("finish_button", "export_errors_button"))
 
+        self.assertTrue(get_group_membership_asString, "dtol_sample_managers")
+
         try:
             self.assertIn("finish_button", element.get_attribute('id').split())
             element.click()
@@ -128,6 +131,7 @@ class DTOLTaxonValidationTest(TestCase):
             confirm_dialog_button.click()
             samples = Sample().get_collection_handle().find({"profile_id": str(self.pid), "tol_project": "DTOL"})
             self.assertEqual(len(list(samples)), 39)
+
         except AssertionError:
             """ Manifest submission is rejected because the samples to be submitted are duplicates.
              They already exist in the SampleCollection in the database"""
@@ -138,6 +142,11 @@ class DTOLTaxonValidationTest(TestCase):
             Sample().get_collection_handle().remove({"profile_id": str(self.pid)})
 
     # check database to see if samples are already in it, drop it then, upload the spreadsheet with the same samples
+
+    # def test_user_group_membership(self):
+    #     print(get_group_membership_asString)
+    #     assert "dtol_sample_managers" in get_group_membership_asString
+    #     self.assertTrue(get_group_membership_asString, "dtol_sample_managers")
 
     def test_blank_manifest(self):
         """ If manifest is blank, an appropriate message is displayed"""
@@ -224,6 +233,5 @@ class DTOLTaxonValidationTest(TestCase):
         """ Clear objects stored in the test database """
         # Removes user from "web_copo_userdetails" table  and "auth_user" table in "copo" PostgreSQL database
         # User.objects.get(username=cls.user.username).delete()
-        print(Sample().get_collection_handle().find({"profile_id": str(cls.pid)}))
         Sample().get_collection_handle().remove({"profile_id": str(cls.pid)})
         Profile().get_collection_handle().remove({"_id": cls.pid})

@@ -1,7 +1,10 @@
 # Created by AProvidence 10052022
 from django.conf import settings
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import SimpleTestCase
 from web.settings.chunked_upload import *
+from web.settings.logger import skip_static_requests
+from django.templatetags.static import static
 
 
 class SettingsTest(SimpleTestCase):
@@ -26,3 +29,14 @@ class SettingsTest(SimpleTestCase):
         self.assertEqual(MIMETYPE, 'application/json')
         self.assertTrue("None", MAX_BYTES)
         # self.assertRaises(ImportError, ENCODER, DjangoJSONEncoder)
+
+
+class LoggerTest(StaticLiveServerTestCase):
+    def test_logger_settings(self):
+        # <link rel = "stylesheet" href = "{% static 'copo/css/copo/index.css' %}" >
+        # record = self.live_server_url + settings.STATIC_URL + 'index.html'
+        # print(record)
+        # record = static('assets/files/COPO_visual_user_documentation.pdf')
+        # print(skip_static_requests(record))
+        # self.assertTrue(skip_static_requests(record))
+        pass

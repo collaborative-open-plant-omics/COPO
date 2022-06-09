@@ -3,6 +3,7 @@ from dal.copo_da import Profile
 from datetime import datetime
 from tests.test_base import BaseTest
 from web.apps.web_copo.models import User, UserDetails  # ViewLock, test_model, banner_view
+from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 
 
 class ModelsTest(BaseTest):
@@ -86,6 +87,9 @@ class ModelsTest(BaseTest):
         self.assertEqual(6, len(profile))
         self.assertTrue(profile["description"], "ERGA Test Description")
         self.assertTrue(type(profile) is dict)
+
+    groups = get_group_membership_asString()
+    self.assertTrue(groups, "dtol_sample_managers")
 
     # def test_view_lock_model(self):
     #     """ Test the creation of an admin user """

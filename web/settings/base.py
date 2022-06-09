@@ -217,3 +217,7 @@ VIEWLOCK_TIMEOUT = timedelta(seconds=1800)
 HTMLVALIDATOR_ENABLED = True
 HTMLVALIDATOR_VNU_JAR = './tests/utilities/vnu.jar'
 HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
+
+# Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+# Solution: Set 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

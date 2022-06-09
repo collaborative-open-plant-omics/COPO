@@ -41,6 +41,8 @@ class WebsiteLinksTest(SeleniumBaseTest):
         # self.not_loggedin_client.get(self.accept_reject_sample_url)
         # self.assertEqual(response.status_code, 301)  # this is the code for redirection
         pass
+
+
     # @classmethod
     # def tearDownClass(cls):
     #     super().tearDownClass()

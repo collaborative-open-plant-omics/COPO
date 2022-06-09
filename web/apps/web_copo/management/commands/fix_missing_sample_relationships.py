@@ -9,7 +9,7 @@ from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_x
 import dal.copo_da as da
 import re
 import subprocess
-
+import xml.etree.ElementTree as element_tree
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
@@ -89,8 +89,6 @@ class Command(BaseCommand):
 
                 """Access the ENA production webinar Portal to get the values of the "biosampleAccession" and the 
                 "accession"""
-                print("Sample _id: ", sample["_id"])
-                print("Source _id: ", source_object[0]["_id"])
 
                 error_to_parse = source_object[0]["error"]
                 if "The object being added already exists in the submission account with accession" in error_to_parse:
@@ -102,8 +100,12 @@ class Command(BaseCommand):
                                ':' + self.pass_word + " " + self.ena_sample_retrieval \
                                + sraAccession
                     print("sraAccession: ", sraAccession)
-                    xml_sample_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
-                    print("XML Sample from ENA: ", xml_sample_submitted_on_ENA)
+                    xml_source_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
+                    print("XML Sample from ENA: ", xml_source_submitted_on_ENA)
+
+                    """" Parse xml to retrieve the biosample accession"""
+                    self.retrieve_accession_from_ena(xml_source_submitted_on_ENA)
+
 
                     # Update the "SourceCollection" with values for the fields:
                     # "biosampleAccession", "sraAccession", "submissionAccession" and "error1"
@@ -126,19 +128,44 @@ class Command(BaseCommand):
                     command.handle(samples=update_relationship_command)
 
                 else:
-                    # todo edge case where there's no error, or error in different format than expected
-                    # If "error" field does not exist
-                    if not error_to_parse:
-                        alias_value = sample["_id"]
-                        sraAccession = "" # default sraAccession
-                        error_message = "In sample, alias:\"{}\", accession:\"\". The object being added already " \
-                                        "exists in the submission account with accession: \"{}\".<br>".format(
-                                            alias_value, sraAccession)
-                        da.Source().add_field("error", error_message, source_object[0]["_id"])
-                    pass
+                    # If "error" field does not exist or the error is in a different format than expected
 
-        return
+                    print('******************************')
+                    print('Look at sample with biosampleAccesion {} to determine what the error might be., '.format(sample['biosampleAccession']))
+                    print('******************************')
+
+
 
     # > db.SampleCollection.count({"status":"accepted","tol_project":{"$in":["DTOL","ASG"]},"sampleDerivedFrom":{
     # "$exists":false},"sampleSameAs":{"$exists":false},"sampleSymbiontOf":{"$exists":false}, "biosampleAccession": {
     # "$ne":""}}) 85
+
+
+    def retrieve_accession_from_ena(xml):
+        root = element_tree.parse(xml)
+        accession = ''
+        #  find and retrieve biosample accession
+        # Look at xml format in the DTOLSubmission class to get how to retrieve a value of a tag for the accession
+        # biosample accession is in ena#
+        # use the links sent to try see if the biosample can be retrieved on MS Teams
+        # Use what is already uplaoded on the ENA website
+        # https://www.ebi.ac.uk/ena/xref/rest/tsv/search?accession=AY772730
+        # https://www.ebi.ac.uk/ena/portal/api/results?dataPortal=ena
+        # https://www.ebi.ac.uk/ena/portal/api/searchFields?result=read_run
+        # https://www.ebi.ac.uk/ena/portal/api/returnFields?result=read_run
+        # https:/www.ebi.ac.uk/ena/portal/api/search?result=read_run&query=country="United Kingdom" AND host_tax_id=9913 AND host_body_site="rumen"&fields=sample_accession
+        #
+
+        # https://wwwdev.ebi.ac.uk/ena/submit/webin/report/samples/search?accession=ERS12154896
+        # https://wwwdev.ebi.ac.uk/ena/submit/webin/report/samples/search?source=COMPARE-RefGenome&accession=ERS12154896
+
+        # https://wwwdev.ebi.ac.uk/ena/portal/api/searchFields?result=read_run
+        # https://wwwdev.ebi.ac.uk/ena/portal/api/returnFields?result=read_run
+
+
+        # https://wwwdev.ebi.ac.uk/ena/portal/api/search?result=read_run&query=accession="ERS12154896"&fields=sample_accession
+
+
+        return xml.parse('accession')
+
+

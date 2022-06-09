@@ -1,13 +1,7 @@
 # Created by AProvidence 20-05-2022
 from django.urls import reverse
 from tests.test_base import BaseTest
-
-""" 
-(venv) $ coverage run manage.py test -v 2
-(venv) $ coverage report --omit="/usr/users/EI_ga012/providen/Documents/EI/Projects/COPO/venv/*"
-(venv) $ coverage html
-"""
-
+from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 
 class TestLAuthentication(BaseTest):
     """ HTML validator is integrated """
@@ -21,3 +15,12 @@ class TestLAuthentication(BaseTest):
         self.assertEqual(response.status_code, 200)
 
 # class RegistrationTest(BaseTest):
+    def test_user_cannot_register_with_invalid_email(self):
+        # response = self.client.post(self.register_url, self.user_invalid_email, format='text/html')
+        # self.assertEqual(response.status_code, 400)
+        pass
+
+    def test_user_cannot_register_with_existing_email(self):
+        # response = self.client.post(self.register_url, self.user, format='text/html')
+        # self.assertEqual(response.status_code, 400)
+        pass

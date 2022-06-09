@@ -427,7 +427,7 @@
           object is much slower than reassigning the values. The delete keyword
           should be avoided except when it is necessary to remove a property
           from an object's iterated list of keys, or to change the result of
-          <code>if (key in obj)</code>.</p>
+          <code>if (key in self)</code>.</p>
       </BODY>
     </STYLEPOINT>
 
@@ -1001,7 +1001,7 @@
             fit on a line:</p>
           <CODE_SNIPPET>
             var arr = [1, 2, 3];  // No space after [ or before ].
-            var obj = {a: 1, b: 2, c: 3};  // No space after { or before }.
+            var self = {a: 1, b: 2, c: 3};  // No space after { or before }.
           </CODE_SNIPPET>
           <p>Multiline array initializers and object initializers are indented
             2 spaces, with the braces on their own line, just like blocks.</p>
@@ -1907,15 +1907,15 @@
                 <td>Object.&lt;number, string&gt;</td>
                 <td>
                   <CODE_SNIPPET>
-                    var obj = {};
-                    obj[1] = 'bar';
+                    var self = {};
+                    self[1] = 'bar';
                   </CODE_SNIPPET>
                 </td>
                 <td>
                   An Object in which the keys are numbers and the values are
                   strings.  <p/>Note that in JavaScript, the keys are always
                   implicitly converted to strings, so
-                  <code>obj['1'] == obj[1]</code>.
+                  <code>self['1'] == self[1]</code>.
                   So the key will always be a string in for...in loops. But the
                   compiler will verify the type of the key when indexing into
                   the object.
@@ -2380,11 +2380,11 @@
           <CODE_SNIPPET>
             /**
              * Operates on an instance of MyClass and returns something.
-             * @param {project.MyClass} obj Instance of MyClass which leads to a long
+             * @param {project.MyClass} self Instance of MyClass which leads to a long
              *     comment that needs to be wrapped to two lines.
              * @return {boolean} Whether something occurred.
              */
-            function PR_someMethod(obj) {
+            function PR_someMethod(self) {
               // ...
             }
           </CODE_SNIPPET>
@@ -2596,8 +2596,8 @@
                     function Foo(x) {
                       this['x'] = x;
                     }
-                    var obj = new Foo(123);
-                    var num = obj.x;  // warning
+                    var self = new Foo(123);
+                    var num = self.x;  // warning
 
                     (/** @dict */ { x: 1 }).x = 123;  // warning
                   </CODE_SNIPPET>
@@ -3144,9 +3144,9 @@
                     function Foo(x) {
                       this.x = x;
                     }
-                    var obj = new Foo(123);
-                    var num = obj['x'];  // warning
-                    obj.y = "asdf";  // warning
+                    var self = new Foo(123);
+                    var num = self['x'];  // warning
+                    self.y = "asdf";  // warning
 
                     Foo.prototype = /** @struct */ {
                       method1: function() {}

@@ -7,6 +7,8 @@ from django.views.static import serve
 import web.apps.web_copo.views as views
 from web.landing import views as landing_views
 
+admin.autodiscover()
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('copo/', include('web.apps.web_copo.urls', namespace='copo')),
