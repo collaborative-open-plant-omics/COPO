@@ -9152,3 +9152,49 @@ Exiting due to channel error.
 Exiting due to channel error.
 Exiting due to channel error.
 Exiting due to channel error.
+1655128936299	geckodriver	INFO	Listening on 127.0.0.1:37899
+1655128937322	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileSA1GGp"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1655128938359	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileSA1GGp/search.json.mozlz4", (void 0)))
+1655128939948	Marionette	INFO	Listening on port 42095
+Read port: 42095
+1655128940047	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+1655128940311	Marionette	WARN	Ignoring event 'pageshow' because document has an invalid readyState of 'uninitialized'.
+1655128940461	Marionette	INFO	Stopped listening on port 42095
+Sandbox: Unexpected EOF, op 0 flags 00 path /proc/cpuinfo
+1655128965169	geckodriver	INFO	Listening on 127.0.0.1:43189
+1655128966190	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilepLTn55"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1655128967235	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilepLTn55/search.json.mozlz4", (void 0)))
+1655128968807	Marionette	INFO	Listening on port 45915
+Read port: 45915
+1655128968911	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1655128981872	Marionette	INFO	Stopped listening on port 45915
+Sandbox: Unexpected EOF, op 0 flags 00 path /proc/cpuinfo
+1655129031821	geckodriver	INFO	Listening on 127.0.0.1:35455
+1655129032841	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileA3GFax"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1655129033964	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileA3GFax/search.json.mozlz4", (void 0)))
+1655129035542	Marionette	INFO	Listening on port 36477
+Read port: 36477
+1655129035584	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1655129049383	Marionette	INFO	Stopped listening on port 36477
+Sandbox: Unexpected EOF, op 0 flags 00 path /proc/cpuinfo
