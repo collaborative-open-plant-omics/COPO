@@ -74,7 +74,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
     form = new FormData()
     form.append("file", file)
     jQuery.ajax({
-        url: url,
+        url: '/copo/sample_spreadsheet/',
         data: form,
         cache: false,
         contentType: false,
@@ -341,6 +341,7 @@ $(document).ready(function () {
                     }
                     $("#permits_table").DataTable()
                     $("#permits_table_nav_tab").click()
+                    $("#permits_table").active()
                     if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
 
                     } else {
@@ -393,11 +394,9 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
-                        $("#finish_button").fadeIn()
+                         $("#finish_button").fadeIn()
                     }
 
-                    $("#finish_button").fadeIn()
-                    $("#ena_finish_button").fadeIn()
                 } else if (d.action === "make_update") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
