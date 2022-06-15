@@ -8,8 +8,11 @@ from django.core.management import BaseCommand
 from tools import resolve_env
 from web.apps.web_copo.management.commands import update_samplefield
 
+# To run this file in the PyCharm terminal: $ python manage.py fix_missing_sample_relationships
 
 # The class must be named Command, and subclass BaseCommand
+
+
 class Command(BaseCommand):
     help = "Fix missing relationships between sample specimens"
     Entrez.email = "copo@earlham.ac.uk"
@@ -47,29 +50,20 @@ class Command(BaseCommand):
         # Retrieve the accession also known as biosample accession from the ENA webin submission portal
         # Look at the xml format in the DTOLSubmission class to see how to retrieve a value of a tag for the accession
         # Use the links sent to determine how to search for the biosample from the ENA website
-
-        """
-        from tools import resolve_env
-        import subprocess
-        import re
-        pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
-        user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
-        ena_service = resolve_env.get_env('ENA_SERVICE')
-        ena_sample_retrieval = ena_service[:-len(
-            'submit/')] + "samples/"
-         curl_cmd = "curl -u " + user_token + \
-                   ':' + pass_word + " " + ena_sample_retrieval \
-                    + sraAccession """
-        ena_api_search_service = "https://www.ebi.ac.uk/ena/portal/api/search"
+        # sraAccession="ERS12158261"
+        ena_api_search_service = "https://wwwdev.ebi.ac.uk/ena/portal/api/search"
         curl_cmd = r"""curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'result=sample&query=secondary_sample_accession={}&fields=accession&format=json' {}""".format(
             sraAccession, ena_api_search_service)
 
         try:
-            xml_source_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
-            decodedOutput = xml_source_submitted_on_ENA.decode('utf-8')  # Covert bytes to string
+            source_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
+            decodedOutput = source_submitted_on_ENA.decode('utf-8')  # Convert bytes to string
             pattern_accession = "SAMEA\d{9}"
-            accession_value = re.search(pattern_accession, decodedOutput).group(0)
-            return accession_value
+            # Checks if pattern matches and the field exists to prevent an AttributeError: 'NoneType' error
+            isPatternAMatch = re.search(pattern_accession, decodedOutput)
+            if isPatternAMatch:
+                accession_value = isPatternAMatch.group(0)
+                return accession_value
         except subprocess.CalledProcessError as error:
             print("Ping stdout output: ", error.output)
 
@@ -104,7 +98,8 @@ class Command(BaseCommand):
             command = update_samplefield.Command()  # Instantiate the Command() before using it
 
             # Check if "biosampleAccession" field and "sraAccession" field exist in the source object
-            if source_object[0]["biosampleAccession"] and source_object[0]["sraAccession"]:
+            # .get(<field-name>,"") prevents a KeyError if a field does not exist
+            if source_object[0].get("biosampleAccession", "") and source_object[0].get("sraAccession", ""):
                 print("\"biosampleAccession\" and \"sraAccession\" fields exist")
                 self.update_sample_relationship(command, sample, source_object)
             else:
@@ -113,17 +108,11 @@ class Command(BaseCommand):
                 """Access the ENA production webin submission portal to get the values of 
                    the"biosampleAccession" field and the "accession" """
 
-                error_to_parse = source_object[0]["error"]
+                error_to_parse = source_object[0].get("error", "")
                 if "The object being added already exists in the submission account with accession" in error_to_parse:
                     # Catch alias and accession
                     pattern_accession = "ERS\d{7}"
                     sraAccession = re.search(pattern_accession, error_to_parse).group()
-
-                    # curl_cmd = "curl -u " + self.user_token + \
-                    #            ':' + self.pass_word + " " + self.ena_sample_retrieval \
-                    #            + sraAccession
-
-                    # xml_source_submitted_on_ENA = subprocess.check_output(curl_cmd, shell=True)
 
                     accession = self.retrieve_accession_from_ena(sraAccession)
 
@@ -141,9 +130,23 @@ class Command(BaseCommand):
                                           source_object[0]["_id"])
 
                     self.update_sample_relationship(command, sample, source_object)
+
+                    """ Insert a note/comment field in the "SourcesCollection" and "SampleCollection" 
+                        as a record to convey that the sample was updated with the script 
+                    """
+                    da.Source().add_field("copo_admin_note", "Sample was updated with the script, "
+                                                             "\"fix_missing_sample_relationships.py\"",
+                                          source_object[0]["_id"])
+
+                    da.Sample().add_field("copo_admin_note", "Sample was updated with the script, "
+                                                             "\"fix_missing_sample_relationships.py\"",
+                                          sample["_id"])
                 else:
                     # If "error" field does not exist or the error is in a different format than expected
-                    print('******************************')
-                    print(f"Look at the sample with biosampleAccesion {sample['biosampleAccession']} to determine "
+                    print('\n****************************************************************************************')
+                    print('****************************************************************************************\n')
+                    print(f"Look at the sample with biosampleAccession, {sample['biosampleAccession']}, to determine "
                           f"what the error could be.")
-                    print('******************************')
+                    print('\n****************************************************************************************')
+                    print('****************************************************************************************')
+
