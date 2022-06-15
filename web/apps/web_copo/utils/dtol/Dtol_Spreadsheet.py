@@ -64,8 +64,10 @@ class DtolSpreadsheet:
         self.req = ThreadLocal.get_current_request()
         self.profile_id = self.req.session.get("profile_id", None)
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
+        sample_permits = Path(settings.MEDIA_ROOT) / "sample_permits"
         display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
         self.these_images = sample_images / self.profile_id
+        self.these_permits = sample_permits / self.profile_id
         self.display_images = display_images / self.profile_id
         self.data = None
         self.required_field_validators = list()
@@ -306,13 +308,104 @@ class DtolSpreadsheet:
                         html_id="images")
         return output
 
+    def check_permit_names(self, files):
+        # compare list of sample names with specimen ids already uploaded
+        samples = self.sample_data
+        # get list of specimen_ids in sample
+        specimen_id_column_index = 0
+        output = list()
+        for num, col_name in enumerate(samples[0]):
+            if col_name == "SPECIMEN_ID":
+                specimen_id_column_index = num
+            elif col_name == "SAMPLING_PERMITS_REQUIRED":
+                sampling_permits_required_index = num
+            elif col_name == "ETHICS_PERMITS_REQUIRED":
+                ethics_permits_required_index = num
+            elif col_name == "NAGOYA_PERMITS_REQUIRED":
+                nagoya_permits_required_index = num
+        if os.path.isdir(self.these_permits):
+            rmtree(self.these_permits)
+        self.these_permits.mkdir(parents=True)
+
+        write_path = Path(self.these_permits)
+        #display_write_path = Path(self.display_images)
+        for f in files:
+            file = files[f]
+
+            file_path = write_path / file.name
+            file_path = Path(settings.MEDIA_ROOT) / "sample_permits" / self.profile_id / file.name
+            with default_storage.open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            filename = os.path.splitext(file.name)[0].upper()
+            # now iterate through samples data to see if there is a match between specimen_id and permit name
+        permit_path = Path(settings.MEDIA_ROOT) / "sample_permits" / self.profile_id
+        fail_flag = False
+        for num, sample in enumerate(samples):
+            if num != 0:
+                specimen_id = sample[specimen_id_column_index].upper()
+
+                file_list = [f for f in os.listdir(permit_path) if isfile(join(permit_path, f))]
+                if sample[ethics_permits_required_index] == "Y":
+                    found = False
+                    for filename in file_list:
+                        if filename == specimen_id+"_ETHICS_PERMITS.pdf":
+                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                            output.append({"file_name": str(p), "specimen_id": specimen_id})
+                            found = True
+                            break
+                    if not found:
+                        output.append({
+                            "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
+                                                                + "</strong>"
+                        })
+                        fail_flag = True
+                if sample[sampling_permits_required_index] == "Y":
+                    found = False
+                    for filename in file_list:
+                        if filename == specimen_id+"_SAMPLING_PERMITS.pdf":
+                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                            output.append({"file_name": str(p), "specimen_id": specimen_id})
+                            found = True
+                            break
+                    if not found:
+                        output.append({
+                            "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
+                                                                + "</strong>"
+                        })
+                        fail_flag = True
+                if sample[nagoya_permits_required_index] == "Y":
+                    found = False
+                    for filename in file_list:
+                        if filename == specimen_id+"_NAGOYA_PERMITS.pdf":
+                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                            output.append({"file_name": str(p), "specimen_id": specimen_id})
+                            found = True
+                            break
+                    if not found:
+                        output.append({
+                            "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
+                                                                + "</strong>"
+                        })
+                        fail_flag = True
+        # save to session
+        request = ThreadLocal.get_current_request()
+        request.session["permit_specimen_match"] = output
+        notify_frontend(data={"profile_id": self.profile_id, "fail_flag": fail_flag}, msg=output, action="make_permits_table",
+                        html_id="permits")
+        return output
+
     def collect(self):
         # create table data to show to the frontend from parsed manifest
+        permits_required =  False
         sample_data = []
         headers = list()
         for col in list(self.data.columns):
             headers.append(col)
         sample_data.append(headers)
+        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get("NAGOYA_PERMITS_REQUIRED", "")):
+            permits_required = True
         for index, row in self.data.iterrows():
             r = list(row)
             for idx, x in enumerate(r):
@@ -326,7 +419,7 @@ class DtolSpreadsheet:
             DtolSpreadsheet().detect_updates()
 
         else:
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+            notify_frontend(data={"profile_id": self.profile_id, "permits_required" : permits_required}, msg=sample_data, action="make_table",
                             html_id="sample_table")
 
     def save_records(self):
@@ -354,7 +447,7 @@ class DtolSpreadsheet:
             s["tol_project"] = self.type
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
-            if "erga" in self.type.lower() and s["TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_ID"]:
+            if "erga" in self.type.lower() and s["ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"]:
                     s["status"] = "private"
             else:
                 s["status"] = "pending"

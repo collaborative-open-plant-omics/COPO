@@ -1478,6 +1478,13 @@ def sample_images(request):
 
     return HttpResponse(json.dumps(matchings))
 
+def sample_permits(request):
+    files = request.FILES
+    dtol = DtolSpreadsheet()
+    matchings = dtol.check_permit_names(files)
+
+    return HttpResponse(json.dumps(matchings))
+
 
 def process_column_name(column):
     if "[" in column:

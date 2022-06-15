@@ -308,12 +308,19 @@
                             Upload Barcoding Data
                         </label>
                         -->
-                        <label class="ui teal button" for="images" id="files_label" disabled>
+                        <!--<label class="ui teal button disabled" for="images" id="files_label" disabled>
 
                             <input enctype='multipart/formdata' id="images" name="images" type="file"
                                    accept=".png,.jpg, .jpeg" multiple style="display:none"
-                                   onchange="" disabled>
+                                   onchange="">
                             Upload Images
+                        </label>-->
+                        <label class="ui orange button disabled" for="permits" id="files_label" disabled>
+
+                            <input enctype='multipart/formdata' id="permits" name="permits" type="file"
+                                   accept=".pdf" multiple style="display:none"
+                                   onchange="upload_permit_files(this.files)">
+                            Upload Permits
                         </label>
                         <button class="ui green button" id="finish_button" style="display:none">Finish</button>
                         <button class="ui green button" id="confirm_button" style="display:none">Confirm</button>
@@ -364,6 +371,9 @@
                     <li>
                         <a data-toggle="tab" id="image_table_nav_tab" href="#image">Sample Images</a>
                     </li>
+                     <li>
+                        <a data-toggle="tab" id="permits_table_nav_tab" href="#permits_div">Sample Permits</a>
+                    </li>
 
                 </ul>
                 <div class="tab-content" style="padding:30px">
@@ -379,7 +389,16 @@
 
                     </div>
                     <div class="tab-pane" id="image">
-                        <table id="image_table" class="table table-striped table-bordered" dataTable>
+                        <table id="image_table" class="table table-striped table-bordered">
+
+                            <thead></thead>
+                            <tbody></tbody>
+
+
+                        </table>
+                    </div>
+                    <div class="tab-pane" id="permits_div">
+                        <table id="permits_table" class="table table-striped table-bordered" >
 
                             <thead></thead>
                             <tbody></tbody>

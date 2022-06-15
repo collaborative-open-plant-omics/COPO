@@ -29,6 +29,37 @@ function upload_image_files(file) {
     })
 }
 
+function upload_permit_files(file) {
+    var csrftoken = $.cookie('csrftoken');
+
+    form = new FormData()
+    var count = 0
+    for (f in file) {
+        form.append(count.toString(), file[f])
+        count++
+    }
+    jQuery.ajax({
+        url: '/copo/sample_permits/',
+        data: form,
+        cache: false,
+        contentType: false,
+        processData: false,
+
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+
+    }).error(function (data) {
+        $("#upload_controls").fadeIn()
+        console.error(data)
+        BootstrapDialog.show({
+            title: 'Error',
+            message: "Error " + data
+        });
+    }).done(function (data) {
+
+    })
+}
+
 function upload_spreadsheet(file) {
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
@@ -275,6 +306,34 @@ $(document).ready(function () {
                     $("#image_table").DataTable()
                     $("#image_table_nav_tab").click()
                     $("#finish_button").fadeIn()
+                } else if (d.action === "make_permits_table") {
+                    // make table of permits matched to
+                    // specimen_ids
+                    if ($.fn.DataTable.isDataTable('#permits_table')) {
+                        $("#permits_table").DataTable().clear().destroy();
+                    }
+                    var headers = $("<tr><th>Specimen ID</th><th>Permit Files</th><th>Notes</th></tr>")
+                    $("#permits_table").find("thead").empty().append(headers)
+                    $("#permits_table").find("tbody").empty()
+                    var table_row
+                    for (r in d.message) {
+                        row = d.message[r]
+                        if (row.file_name === "None") {
+                            var img_tag = "Permits must be named using the same Specimen ID as the manifest"
+                        } else {
+                            var img_tag = ""
+                        }
+                        table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
+                        $("#permits_table").append(table_row)
+                    }
+                    $("#permits_table").DataTable()
+                    $("#permits_table_nav_tab").click()
+                    $("#permits_table").active()
+                    if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
+
+                    } else {
+                         $("#finish_button").fadeIn()
+                    }
                 } else if (d.action === "make_table") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
@@ -318,7 +377,13 @@ $(document).ready(function () {
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
-                    $("#finish_button").fadeIn()
+                    $("#files_label").removeClass("disabled")
+                    if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
+
+                    } else {
+                         $("#finish_button").fadeIn()
+                    }
+
                 } else if (d.action === "make_update") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
