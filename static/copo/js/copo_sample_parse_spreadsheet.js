@@ -328,7 +328,6 @@ $(document).ready(function () {
                     }
                     $("#permits_table").DataTable()
                     $("#permits_table_nav_tab").click()
-                    $("#permits_table").active()
                     if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
 
                     } else {
