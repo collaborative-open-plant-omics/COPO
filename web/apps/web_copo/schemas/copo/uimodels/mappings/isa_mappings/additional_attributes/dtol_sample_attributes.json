@@ -2241,6 +2241,29 @@
     "label": "voucherInstitution",
     "show_in_table": true,
     "dwc": ""
+  },
+  {
+    "help_tip": "Sample format",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "SAMPLE_FORMAT"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SAMPLE_FORMAT",
+    "label": "sampleFormat",
+    "show_in_table": true,
+    "dwc": ""
   }
 
 ]

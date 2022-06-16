@@ -70,7 +70,7 @@ DATAFILE_OBJECT_PREFIX = "datafiles_"
 DESCRIPTION_GRACE_PERIOD = 10  # no of days after which pending descriptions are deleted
 
 # settings for TOL schemas
-CURRENT_DTOL_VERSION = "2.4"
+CURRENT_DTOL_VERSION = "2.4.1"
 CURRENT_ASG_VERSION = "2.4"
 CURRENT_ERGA_VERSION = "2.4"
 CURRENT_DTOLENV_VERSION = "2.4"

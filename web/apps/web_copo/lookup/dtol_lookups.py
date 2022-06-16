@@ -919,6 +919,13 @@ DTOL_ENUMS = {
         "DNA_BARCODING_COMPLETED",
         "DNA_BARCODE_EXEMPT",
         "DNA_BARCODING_FAILED"
+    ],
+    "SAMPLE_FORMAT" : [
+        "live biological sample from infectious organism",
+        "inactivated biological sample from infectious organism",
+        "biological sample/tissue from non-infectious organism",
+        "DNA",
+        "RNA"
     ]
 }
 DTOL_RULES = {
