@@ -5,7 +5,6 @@ from Bio import Entrez
 from dal import cursor_to_list
 from dal.copo_da import Sample
 from django.core.management import BaseCommand
-from tools import resolve_env
 from web.apps.web_copo.management.commands import update_samplefield
 
 # To run this file in the PyCharm terminal: $ python manage.py fix_missing_sample_relationships
@@ -14,23 +13,8 @@ from web.apps.web_copo.management.commands import update_samplefield
 
 
 class Command(BaseCommand):
-    help = "Fix missing relationships between sample specimens"
+    help = "Fix missing relationships between sample specimens"  # Show this when the user types help
     Entrez.email = "copo@earlham.ac.uk"
-
-    def __init__(self):
-        self.TAXONOMY_FIELDS = ["TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS",
-                                "SCIENTIFIC_NAME", "COMMON_NAME", "TAXON_REMARKS",
-                                "INFRASPECIFIC_EPITHET"]
-        self.rankdict = {
-            "order": "ORDER_OR_GROUP",
-            "family": "FAMILY",
-            "genus": "GENUS"
-        }
-        self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
-        self.user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
-        self.ena_service = resolve_env.get_env('ENA_SERVICE')  # 'https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/'
-        self.ena_sample_retrieval = self.ena_service[:-len(
-            'submit/')] + "samples/"  # https://wwwdev.ebi.ac.uk/ena/submit/drop-box/samples/" \
 
     def get_sample_relationship(self, sample):
         organism_part = sample['ORGANISM_PART']
@@ -50,7 +34,7 @@ class Command(BaseCommand):
         # Retrieve the accession also known as biosample accession from the ENA webin submission portal
         # Look at the xml format in the DTOLSubmission class to see how to retrieve a value of a tag for the accession
         # Use the links sent to determine how to search for the biosample from the ENA website
-        # sraAccession="ERS12158261"
+        sraAccession="ERS12158254"
         ena_api_search_service = "https://wwwdev.ebi.ac.uk/ena/portal/api/search"
         curl_cmd = r"""curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'result=sample&query=secondary_sample_accession={}&fields=accession&format=json' {}""".format(
             sraAccession, ena_api_search_service)
@@ -60,10 +44,10 @@ class Command(BaseCommand):
             decodedOutput = source_submitted_on_ENA.decode('utf-8')  # Convert bytes to string
             pattern_accession = "SAMEA\d{9}"
             # Checks if pattern matches and the field exists to prevent an AttributeError: 'NoneType' error
-            isPatternAMatch = re.search(pattern_accession, decodedOutput)
-            if isPatternAMatch:
-                accession_value = isPatternAMatch.group(0)
-                return accession_value
+            # isPatternAMatch = re.search(pattern_accession, decodedOutput)
+            # if isPatternAMatch:
+            accession_value = re.search(pattern_accession, decodedOutput).group(0)
+            return accession_value
         except subprocess.CalledProcessError as error:
             print("Ping stdout output: ", error.output)
 
@@ -134,7 +118,7 @@ class Command(BaseCommand):
                     """ Insert a note/comment field in the "SourcesCollection" and "SampleCollection" 
                         as a record to convey that the sample was updated with the script 
                     """
-                    da.Source().add_field("copo_admin_note", "Sample was updated with the script, "
+                    da.Source().add_field("copo_admin_note", "Source was updated with the script, "
                                                              "\"fix_missing_sample_relationships.py\"",
                                           source_object[0]["_id"])
 
