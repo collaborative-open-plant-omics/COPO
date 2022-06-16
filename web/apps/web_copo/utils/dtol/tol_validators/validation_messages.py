@@ -95,4 +95,6 @@ MESSAGES = {
                                                "<strong>%s</strong>.",
     "validation_msg_invalid_link": "Invalid URL: <strong>%s</strong> in column <strong>%s</strong> at row "
                                    "<strong>%s</strong>. The entered value is not a valid URL."
+    "validation_msg_overwrite_symbionts": "<strong>Warning: COPO will overwrite any <strong>SYMBIONT</strong> field to match "
+                                          "the corresponding TARGET, unless otherwise stated in the SOP</br></strong>"
 }

@@ -793,6 +793,12 @@ class Sample(DAComponent):
             {"_id": 1}
         ))
 
+    def get_project_samples(self, projects):
+        return cursor_to_list(self.get_collection_handle().find(
+            {"sample_type": {"$in": projects}},
+            {"_id": 1}
+        ))
+
     def get_all_tol_samples(self):
         return self.get_collection_handle().find({"tol_project": {"$in": ["ASG", "DTOL"]}})
 
@@ -1014,6 +1020,25 @@ class Sample(DAComponent):
         ids = self.get_collection_handle().aggregate(
             [
                 {"$match": {"sample_type": {"$in": TOL_PROFILE_TYPES}, "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$sort": {"time_created": -1}},
+                {"$group":
+                    {
+                        "_id": "$manifest_id",
+                        "created": {"$first": "$time_created"}
+                    }
+                }
+            ])
+        out = cursor_to_list_no_ids(ids)
+        return out
+
+    def get_manifests_by_date_and_project(self, project, d_from, d_to):
+        projectlist = project.split(",")
+        projectlist = list(map(lambda x: x.strip(), projectlist))
+        # remove any empty elements in the list (e.g. where 2 or more comas have been typed in error
+        projectlist[:] = [x for x in projectlist if x]
+        ids = self.get_collection_handle().aggregate(
+            [
+                {"$match": {"sample_type": {"$in": projectlist}, "time_created": {"$gte": d_from, "$lt": d_to}}},
                 {"$sort": {"time_created": -1}},
                 {"$group":
                     {
@@ -1853,13 +1878,13 @@ class Profile(DAComponent):
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)"]}}).sort(
-            "date_modified",
+            "date_created",
             pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_modified", pymongo.DESCENDING)
+            {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_dtolenv_profiles(self):

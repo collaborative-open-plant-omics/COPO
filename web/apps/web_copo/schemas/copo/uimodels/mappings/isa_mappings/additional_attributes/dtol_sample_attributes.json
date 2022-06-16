@@ -1146,7 +1146,7 @@
     "help_tip": "",
     "required": "false",
     "default_value": "",
-    "show_as_attribute": true,
+    "show_as_attribute": false,
     "control_meta": {},
     "control": "text",
     "versions": [
@@ -1154,7 +1154,9 @@
     ],
     "ref": "",
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg",
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1162,7 +1164,7 @@
     "show_in_form": false,
     "id": "copo.sample.species_list",
     "label": "species_list",
-    "show_in_table": true,
+    "show_in_table": false,
     "dwc": ""
   },
   {
@@ -1812,7 +1814,9 @@
       "biosampleAccession"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1834,7 +1838,9 @@
       "sraAccession"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1856,7 +1862,9 @@
       "submissionAccession"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1878,7 +1886,9 @@
       "status"
     ],
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1901,7 +1911,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -1924,7 +1935,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "erga"
     ],
     "ref": "",
     "deprecated": false,

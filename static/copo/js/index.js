@@ -13,6 +13,9 @@ $(document).ready(function () {
 
     var componentMeta = get_component_meta(component);
 
+    $(document).on("click", "#accept_reject_shortcut", function (evt) {
+        document.location = "/copo/accept_reject_sample"
+    })
 
     //load work profiles
     var tableLoader = $('<div class="copo-i-loader"></div>');
@@ -523,5 +526,11 @@ $(document).ready(function () {
         // }
     }
 
+    for (g in groups) {
+        if (groups[g].includes("sample_managers")) {
+            $("#accept_reject_shortcut").show()
+            break;
+        }
+    }
 
 }) //end document ready

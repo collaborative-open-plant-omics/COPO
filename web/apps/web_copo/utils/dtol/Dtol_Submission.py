@@ -252,7 +252,7 @@ def process_pending_dtol_samples():
         # query for public names and update
         notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
                         html_id="dtol_sample_info")
-        l.log("querying public name service for line 223", type=Logtype.FILE)
+        l.log("querying public name service for line 251", type=Logtype.FILE)
         public_names = query_public_name_service(public_name_list)
         if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
             # hadle failure to get public names and halt submission

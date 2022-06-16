@@ -23,8 +23,10 @@ dtol_api_patterns = [
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', sample.get_sample_statuses_for_manifest,
             name='get_sample_statuses_for_manifest'),
     re_path(r'manifest/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
-            sample.get_dtol_manifests_between_dates, name='get_dtol_manifests_between_dates'),
+            sample.get_all_manifests_between_dates, name='get_all_manifests_between_dates'),
     # dates must be ISO 8601 formatted
+    re_path(r'manifest/(?P<project>[a-zA-Z, ]+)/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
+            sample.get_project_manifests_between_dates, name='get_project_manifests_between_dates'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', sample.get_for_manifest, name='get_for_manifest'),
 
     re_path(r'manifest/', sample.get_dtol_manifests, name='get_manifests'),
@@ -34,7 +36,7 @@ dtol_api_patterns = [
     re_path(r'sample/sample_field/(?P<dtol_field>[A-Za-z0-9-_]+)/(?P<value>[A-Za-z0-9-_ ,.@]+)', sample.get_by_field,
             name='get_by_dtol_field'),
     re_path(r'sample/dtol/num_samples', sample.get_num_dtol_samples, name='get_num_dtol_samples'),
-    re_path(r'sample/dtol/', sample.get_dtol_samples, name='get_manifests'),
+    re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', sample.get_project_samples, name='get_project_samples'),
     re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', sample.get_samples_from_study_accessions,
             name='get_samples_from_study_accession'),
     re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', sample.get_study_from_sample_accession,

@@ -88,6 +88,46 @@ paths:
         "400":
           description: \'from\' must be earlier than \'to\'
 
+  /manifest/{project}/{from}/{to}:
+    get:
+      tags:
+        - Manifest
+      summary:
+        Get manifest ids of a project between dates
+      description: >
+        Returns an array of manifest ids for samples submitted between dates {from} / {to} in project {project}
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: a comma separate list of supported EBP projects in lower case (dtol|asg|dtol_env|erga)
+          schema:
+            type: string
+        - name: from
+          in: path
+          required: true
+          description: ISO 8601 formatted full date-time, manifests greater than or equal to this will be matched, e.g. 2020-09-24T17:00:22+00:00
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: path
+          required: true
+          description: ISO 8601 formatted full date-time, manifests less than this will be matched, e.g. 2020-09-24T17:00:22+00:00
+          schema:
+            type: string
+            format: date-time
+
+      responses:
+        "200": # status code
+          description: A JSON array of sample manifest uuid objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManifestList'
+        "400":
+          description: \'from\' must be earlier than \'to\ and project must be in the list of supported projects'
+
 
   /manifest/{manifest_id}/sample_statuses:
     get:
@@ -116,14 +156,22 @@ paths:
         "400":
           description: invalid manifest_id
 
-  /sample/dtol:
+  /sample/{project}:
     get:
       tags:
         - Sample
       summary:
-        Get all DTOL Samples
+        Get all Samples in a project
       description: >
-        Get a list of all the DTOL samples in COPO
+        Get a list of all the samples of a project in COPO
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: comma separated list of supported projects
+          schema:
+            type: string
+            minimum: 1
 
       responses:
         "200": # status code
@@ -652,3 +700,6 @@ components:
           type: string
         TAXON_REMARKS:
           type: string
+        latest_update:
+          type: string
+          format: date-time

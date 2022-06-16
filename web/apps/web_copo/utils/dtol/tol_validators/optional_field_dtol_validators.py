@@ -15,6 +15,7 @@ class DtolEnumerationValidator(TolValidtor):
         whole_used_specimens = set()
         manifest_specimen_taxon_pairs = {}
         regex_human_readable = ""
+        flag_symbiont = False
         p_type = Profile().get_type(profile_id=self.profile_id)
         if "ERGA" in p_type:
             p_type = "ERGA"
@@ -208,6 +209,8 @@ class DtolEnumerationValidator(TolValidtor):
                                     self.flag = False
                             else:
                                 manifest_specimen_taxon_pairs[c.strip()] = self.data.at[cellcount -1, "TAXON_ID"]
+                        else:
+                            flag_symbiont = True
 
                     #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
                     elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
@@ -254,4 +257,6 @@ class DtolEnumerationValidator(TolValidtor):
                                 msg["validation_msg_future_date"] % (c, str(cellcount + 1), header)
                             )
                             self.flag = False
+        if flag_symbiont:
+            self.warnings.insert(0, msg["validation_msg_overwrite_symbionts"])
         return self.errors, self.warnings, self.flag
