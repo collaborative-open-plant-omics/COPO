@@ -1371,7 +1371,6 @@ def sample_spreadsheet(request):
         pass
 
     if dtol.loadManifest(m_format=fmt):
-
         srlz_dtol = pickle.dumps(dtol.file)
         p_id = request.session["profile_id"]
         r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
@@ -1398,6 +1397,7 @@ def create_spreadsheet_samples(request):
     dtol.save_records()
     return HttpResponse(status=200)
 
+
 def update_spreadsheet_samples(request):
     validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
@@ -1409,7 +1409,7 @@ def update_spreadsheet_samples(request):
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
-    #todo control for someone being both
+    # todo control for someone being both
     profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
@@ -1493,6 +1493,7 @@ def sample_images(request):
     matchings = dtol.check_image_names(files)
 
     return HttpResponse(json.dumps(matchings))
+
 
 def sample_permits(request):
     files = request.FILES
@@ -1673,6 +1674,18 @@ def handle_csv_column_validate_spreadsheet(request):
         else:
             print(str(idx) + " Fail: " + resp.reason)
     return HttpResponse(json.dumps(out))
+
+
+def get_manifest_submission_list(request):
+    profile_id = request.session["profile_id"]
+    docs = Submission().get_collection_handle().find({"$and": [
+        {"profile_id": profile_id},
+        {"manifest_submission": {"$exists": True}},
+        {"manifest_submission": {"$eq": 1}}
+    ]})
+    output = list(docs)
+    out = json_util.dumps(output)
+    return HttpResponse(out)
 
 
 def handle_csv_column_update_samples(request):

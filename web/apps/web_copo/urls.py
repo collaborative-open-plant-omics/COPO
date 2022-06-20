@@ -199,4 +199,6 @@ urlpatterns = [
          name="parse_ena_spreadsheet"),
     path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,
          name="save_ena_records"),
+    path('get_manifest_submission_list/', ajax_handlers.get_manifest_submission_list,
+         name="get_manifest_submission_list"),
 ]
