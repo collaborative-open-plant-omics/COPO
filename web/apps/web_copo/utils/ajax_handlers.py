@@ -1688,6 +1688,12 @@ def get_manifest_submission_list(request):
     return HttpResponse(out)
 
 
+def init_manifest_submission(request):
+    submission_id = request.POST["submission_id"]
+    schedule_submission(submission_id, "ena")
+    return HttpResponse()
+
+
 def handle_csv_column_update_samples(request):
     data = json.loads(request.POST["data"])
     for el in data:
