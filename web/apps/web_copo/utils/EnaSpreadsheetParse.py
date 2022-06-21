@@ -89,41 +89,48 @@ def save_ena_records(request):
     datafile_list = list()
     for p in range(1, len(sample_data)):
         # for each row in the manifest
+
         s = (map_to_dict(sample_data[0], sample_data[p]))
-        source = dict()
-        curl_cmd = "curl " + \
-                   "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["organism"].replace(" ", "%20")
-        receipt = subprocess.check_output(curl_cmd, shell=True)
-        print(receipt)
 
-        taxinfo = json.loads(receipt.decode("utf-8"))
+        # check if sample already exists, if so, add new datafile
+        sample = Sample().get_collection_handle().find_one({"sample_name": s["sample_name"]})
+        if not sample:
+            source = dict()
+            curl_cmd = "curl " + \
+                       "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["organism"].replace(" ", "%20")
+            receipt = subprocess.check_output(curl_cmd, shell=True)
+            print(receipt)
 
-        # create source from organism
-        termAccession = "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])
-        source["organism"] = \
-            {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
-                termAccession}
-        source["profile_id"] = request.session["profile_id"]
-        source["date_created"] = datetime.datetime.utcnow()
-        source["profile_id"] = profile_id
-        source["deleted"] = "0"
-        source_id = str(
-            Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession}, {"$set": source},
-                                                                 upsert=True, return_document=ReturnDocument.AFTER)["_id"])
+            taxinfo = json.loads(receipt.decode("utf-8"))
 
-        # create associated sample
-        sample = dict()
-        sample["sample_type"] = "isasample"
-        sample["profile_id"] = request.session["profile_id"]
-        sample["derivesFrom"] = [source_id]
-        sample["date_modified"] = datetime.datetime.utcnow()
-        sample["profile_id"] = profile_id
-        sample["name"] = s["sample_name"]
-        sample["deleted"] = "0"
-        sample_id = str(
-            Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample}, upsert=True,
-                                                                 return_document=ReturnDocument.AFTER)[
-                "_id"])
+            # create source from organism
+            termAccession = "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])
+            source["organism"] = \
+                {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
+                    termAccession}
+            source["profile_id"] = request.session["profile_id"]
+            source["date_created"] = datetime.datetime.utcnow()
+            source["profile_id"] = profile_id
+            source["deleted"] = "0"
+            source_id = str(
+                Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession}, {"$set": source},
+                                                                     upsert=True, return_document=ReturnDocument.AFTER)["_id"])
+
+            # create associated sample
+            sample = dict()
+            sample["sample_type"] = "isasample"
+            sample["profile_id"] = request.session["profile_id"]
+            sample["derivesFrom"] = [source_id]
+            sample["date_modified"] = datetime.datetime.utcnow()
+            sample["profile_id"] = profile_id
+            sample["name"] = s["sample_name"]
+            sample["deleted"] = "0"
+            sample_id = str(
+                Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample}, upsert=True,
+                                                                     return_document=ReturnDocument.AFTER)[
+                    "_id"])
+        else:
+            sample_id = str(sample["_id"])
 
         df = dict()
         p = Profile().get_record(profile_id)
