@@ -1378,7 +1378,7 @@ DTOL_ENA_MAPPINGS = {
         "ena": "original decimal longitude"
     },
     "PROXY_VOUCHER_ID": {
-        "ena": "proxy voucher ID"
+        "ena": "specimen_voucher"
     }
 }
 
