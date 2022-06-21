@@ -1694,6 +1694,22 @@ def init_manifest_submission(request):
     return HttpResponse()
 
 
+def process_urls(request):
+    file_list = json.loads(request.POST["data"])
+    bucket_name = str(request.user.id) + "_" + request.user.username
+    s3con = s3()
+    if not s3con.check_for_s3_bucket(bucket_name):
+        s3con.make_s3_bucket(bucket_name)
+    urls_list = list()
+    for file_name in file_list:
+        if file_name and not file_name.endswith("/"):
+            file_name = file_name.replace("*", "")
+            url = s3con.get_presigned_url(bucket=bucket_name, key=file_name)
+            file_url = {"name": file_name, "url": url}
+            urls_list.append(file_url)
+    return HttpResponse(json.dumps(urls_list))
+
+
 def handle_csv_column_update_samples(request):
     data = json.loads(request.POST["data"])
     for el in data:

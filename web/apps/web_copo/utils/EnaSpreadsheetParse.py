@@ -93,12 +93,13 @@ def save_ena_records(request):
         s = (map_to_dict(sample_data[0], sample_data[p]))
 
         # check if sample already exists, if so, add new datafile
-        sample = Sample().get_collection_handle().find_one({"sample_name": s["sample_name"]})
+        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"]})
         if not sample:
             source = dict()
             curl_cmd = "curl " + \
                        "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["organism"].replace(" ", "%20")
             receipt = subprocess.check_output(curl_cmd, shell=True)
+            # ToDo - exit if species not found
             print(receipt)
 
             taxinfo = json.loads(receipt.decode("utf-8"))

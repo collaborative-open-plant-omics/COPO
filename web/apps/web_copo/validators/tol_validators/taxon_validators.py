@@ -1,5 +1,5 @@
 from Bio import Entrez
-
+from dal.copo_da import Profile
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
