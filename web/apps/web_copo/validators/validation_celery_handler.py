@@ -226,6 +226,7 @@ class ProcessValidationQueue:
                 self.make_table(qm)
 
     def make_table(self, qm):
+        permits_required = False
         notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
                         html_id="sample_info")
         notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
@@ -237,6 +238,8 @@ class ProcessValidationQueue:
         for col in list(self.data.columns):
             headers.append(col)
         sample_data.append(headers)
+        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get("NAGOYA_PERMITS_REQUIRED", "")):
+            permits_required = True
         for index, row in self.data.iterrows():
             r = list(row)
             for idx, x in enumerate(r):
@@ -246,7 +249,7 @@ class ProcessValidationQueue:
 
         notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
                         html_id="")
-        notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+        notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data, action="make_table",
                         html_id="sample_table")
 
     def make_update_notifications(self, qm):

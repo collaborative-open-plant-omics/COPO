@@ -17,7 +17,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Submission
+from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
