@@ -1226,7 +1226,7 @@
     "control_meta": {},
     "control": "text",
     "versions": [
-      "SPECIMEN_IDENTITY_RISK"
+      "SPECIMEN_ID_RISK"
     ],
     "ref": "",
     "specifications": [
