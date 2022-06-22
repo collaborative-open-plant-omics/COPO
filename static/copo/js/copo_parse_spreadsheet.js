@@ -31,7 +31,7 @@ function upload_image_files(file) {
 
 function upload_permit_files(file) {
     var csrftoken = $.cookie('csrftoken');
-
+    var validation_record_id = $(document).data("validation_record_id")
     form = new FormData()
     var count = 0
     for (f in file) {
@@ -40,7 +40,7 @@ function upload_permit_files(file) {
     }
     jQuery.ajax({
         url: '/copo/sample_permits/',
-        data: form,
+        data: {"form": form, "validation_record_id": validation_record_id},
         cache: false,
         contentType: false,
         processData: false,
@@ -345,7 +345,7 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
 
                     } else {
-                         $("#finish_button").fadeIn()
+                        $("#finish_button").fadeIn()
                     }
                 } else if (d.action === "make_table") {
                     // make table of metadata parsed from spreadsheet
@@ -394,7 +394,7 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
-                         $("#finish_button").fadeIn()
+                        $("#finish_button").fadeIn()
                     }
 
                 } else if (d.action === "make_update") {
@@ -460,35 +460,35 @@ $(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreads
 $(document).on("click", ".new-samples-spreadsheet-template-erga", function (event) {
     BootstrapDialog.show({
 
-            title: "Accept Code of Conduct",
-            message: "By uploading a manifest to COPO you confirm that you are an ERGA member and thus adhere to ERGA's " +
-                "code of conduct. You further confirm that you read, understood and followed the " +
-                "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
-        "Code of Practice</a>",
-            cssClass: "copo-modal1",
-            closable: true,
-            animate: true,
-            type: BootstrapDialog.TYPE_INFO,
-            buttons: [
-                {
-                    label: "Cancel",
-                    cssClass: "tiny ui basic" +
-                        " button",
-                    id: "code_cancel",
-                    action: function (dialogRef) {
-                        $("#sample_spreadsheet_modal").modal("hide")
-                        dialogRef.close();
+        title: "Accept Code of Conduct",
+        message: "By uploading a manifest to COPO you confirm that you are an ERGA member and thus adhere to ERGA's " +
+            "code of conduct. You further confirm that you read, understood and followed the " +
+            "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
+            "Code of Practice</a>",
+        cssClass: "copo-modal1",
+        closable: true,
+        animate: true,
+        type: BootstrapDialog.TYPE_INFO,
+        buttons: [
+            {
+                label: "Cancel",
+                cssClass: "tiny ui basic" +
+                    " button",
+                id: "code_cancel",
+                action: function (dialogRef) {
+                    $("#sample_spreadsheet_modal").modal("hide")
+                    dialogRef.close();
 
-                    }
-                },
-                {
-                    label: "Ok",
-                    cssClass: "tiny ui basic button",
-                    action: function (dialogRef) {
-                        dialogRef.close();
-                    }
                 }
-            ]
+            },
+            {
+                label: "Ok",
+                cssClass: "tiny ui basic button",
+                action: function (dialogRef) {
+                    dialogRef.close();
+                }
+            }
+        ]
 
     })
 
