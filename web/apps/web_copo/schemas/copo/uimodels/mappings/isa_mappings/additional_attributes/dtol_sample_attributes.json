@@ -1238,7 +1238,7 @@
     "hidden": "true",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.SPECIMEN_IDENTITY_RISK",
+    "id": "copo.sample.SPECIMEN_ID_RISK",
     "label": "Specimen Identification Risk",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences"
