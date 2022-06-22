@@ -61,6 +61,30 @@ def make_target_sample(sample):
 
     return sample
 
+def make_species_list(sample):
+    # need to pop taxon info, and add back into sample_list
+    if not "species_list" in sample:
+        sample["species_list"] = list()
+    out = dict()
+    symbiont = sample.pop("SYMBIONT")
+    if symbiont.upper() not in ["SYMBIONT", "TARGET"]:
+        if symbiont:
+            out["SYMBIONT_SOP2dot2"] = symbiont
+        symbiont = "TARGET"
+
+    out["SYMBIONT"] = symbiont.upper()
+    out["TAXON_ID"] = sample.get("TAXON_ID", "")
+    out["ORDER_OR_GROUP"] = sample.get("ORDER_OR_GROUP", "")
+    out["FAMILY"] = sample.get("FAMILY", "")
+    out["GENUS"] = sample.get("GENUS", "")
+    out["SCIENTIFIC_NAME"] = sample.get("SCIENTIFIC_NAME", "")
+    out["INFRASPECIFIC_EPITHET"] = sample.get("INFRASPECIFIC_EPITHET", "")
+    out["CULTURE_OR_STRAIN_ID"] = sample.get("CULTURE_OR_STRAIN_ID", "")
+    out["COMMON_NAME"] = sample.get("COMMON_NAME", "")
+    out["TAXON_REMARKS"] = sample.get("TAXON_REMARKS", "")
+    sample["species_list"].append(out)
+    return sample
+
 
 class DtolSpreadsheet:
     fields = ""
@@ -460,7 +484,7 @@ class DtolSpreadsheet:
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
             '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
-        for p in range(1, len(sample_data)):
+        for p in range(0, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
