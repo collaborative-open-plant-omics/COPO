@@ -411,7 +411,7 @@ class DtolSpreadsheet:
 
     def collect(self):
         # create table data to show to the frontend from parsed manifest
-        permits_required =  False
+        permits_required = False
         sample_data = []
         headers = list()
         for col in list(self.data.columns):
@@ -432,7 +432,7 @@ class DtolSpreadsheet:
             DtolSpreadsheet().detect_updates()
 
         else:
-            notify_frontend(data={"profile_id": self.profile_id, "permits_required" : permits_required}, msg=sample_data, action="make_table",
+            notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data, action="make_table",
                             html_id="sample_table")
 
     def save_records(self):
