@@ -327,7 +327,7 @@ class DtolSpreadsheet:
         # get list of specimen_ids in sample
         specimen_id_column_index = 0
         output = list()
-        for num, col_name in enumerate(samples[0]):
+        for num, col_name in enumerate(samples.columns):
             if col_name == "SPECIMEN_ID":
                 specimen_id_column_index = num
             elif col_name == "SAMPLING_PERMITS_REQUIRED":
@@ -355,53 +355,53 @@ class DtolSpreadsheet:
             # now iterate through samples data to see if there is a match between specimen_id and permit name
         permit_path = Path(settings.MEDIA_ROOT) / "sample_permits" / self.profile_id
         fail_flag = False
-        for num, sample in enumerate(samples):
-            if num != 0:
-                specimen_id = sample[specimen_id_column_index].upper()
+        for num, sample in enumerate(samples.values):
 
-                file_list = [f for f in os.listdir(permit_path) if isfile(join(permit_path, f))]
-                if sample[ethics_permits_required_index] == "Y":
-                    found = False
-                    for filename in file_list:
-                        if filename == specimen_id+"_ETHICS_PERMITS.pdf":
-                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                            output.append({"file_name": str(p), "specimen_id": specimen_id})
-                            found = True
-                            break
-                    if not found:
-                        output.append({
-                            "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
-                                                                + "</strong>"
-                        })
-                        fail_flag = True
-                if sample[sampling_permits_required_index] == "Y":
-                    found = False
-                    for filename in file_list:
-                        if filename == specimen_id+"_SAMPLING_PERMITS.pdf":
-                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                            output.append({"file_name": str(p), "specimen_id": specimen_id})
-                            found = True
-                            break
-                    if not found:
-                        output.append({
-                            "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
-                                                                + "</strong>"
-                        })
-                        fail_flag = True
-                if sample[nagoya_permits_required_index] == "Y":
-                    found = False
-                    for filename in file_list:
-                        if filename == specimen_id+"_NAGOYA_PERMITS.pdf":
-                            p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                            output.append({"file_name": str(p), "specimen_id": specimen_id})
-                            found = True
-                            break
-                    if not found:
-                        output.append({
-                            "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
-                                                                + "</strong>"
-                        })
-                        fail_flag = True
+            specimen_id = sample[specimen_id_column_index].upper()
+
+            file_list = [f for f in os.listdir(permit_path) if isfile(join(permit_path, f))]
+            if sample[ethics_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_ETHICS_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
+            if sample[sampling_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_SAMPLING_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
+            if sample[nagoya_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_NAGOYA_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["permit_specimen_match"] = output

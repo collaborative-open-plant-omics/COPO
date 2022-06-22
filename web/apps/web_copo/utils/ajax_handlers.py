@@ -1497,7 +1497,7 @@ def sample_images(request):
 
 def sample_permits(request):
     files = request.FILES
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=request.POST["validation_record_id"])
     matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
