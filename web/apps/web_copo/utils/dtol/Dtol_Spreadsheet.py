@@ -433,6 +433,7 @@ class DtolSpreadsheet:
                         html_id="permits")
         return output
 
+    '''
     def collect(self):
         # create table data to show to the frontend from parsed manifest
         permits_required = False
@@ -441,7 +442,8 @@ class DtolSpreadsheet:
         for col in list(self.data.columns):
             headers.append(col)
         sample_data.append(headers)
-        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get("NAGOYA_PERMITS_REQUIRED", "")):
+        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get(
+        "NAGOYA_PERMITS_REQUIRED", "")):
             permits_required = True
         for index, row in self.data.iterrows():
             r = list(row)
@@ -458,6 +460,7 @@ class DtolSpreadsheet:
         else:
             notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data, action="make_table",
                             html_id="sample_table")
+    '''
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
@@ -484,8 +487,8 @@ class DtolSpreadsheet:
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
             '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
-        for p in range(0, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
+        for index, p in sample_data.iterrows():
+            s = dict(p)
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_ASG_VERSION

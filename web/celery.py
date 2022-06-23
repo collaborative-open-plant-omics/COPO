@@ -31,7 +31,7 @@ app.conf.beat_schedule = {
     },
     'process_tol_validations': {
         'task': 'web.apps.web_copo.tasks.process_tol_validations',
-        'schedule': timedelta(seconds=5)
+        'schedule': timedelta(seconds=3)
     },
     'find_incorrectly_rejected_samples': {
         'task': 'web.apps.web_copo.tasks.find_incorrectly_rejected_samples',
