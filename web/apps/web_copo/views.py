@@ -33,7 +33,7 @@ from tools.resolve_env import get_env
 from web.apps.web_copo.s3.s3Connection import S3Connection
 from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
-
+from web.apps.web_copo.models import UserDetails, StatusMessage
 
 @login_required
 def index(request):
@@ -76,17 +76,12 @@ def error_page(request):
 
 
 def test(request):
-    s3 = S3Connection()
-    buckets = s3.list_buckets()
-
-    response = s3.s3_client.generate_presigned_url('put_object', Params={'Bucket': '1193', 'Key': 'badger.jpg'}, ExpiresIn=100)
-    with open("badger.jpg", 'rb') as f:
-        file = f.read()
-        resp = requests.put(response, data=file)
-    print(resp.content)
-    print(response)
-    # curl -v -T 'badger.jpg' 'http://ei-copo.obj-data.nbi.ac.uk/1193/badger.jpg?AWSAccessKeyId=copo%40nbi.ac.uk&Signature=9hOgMNbs6d
-    # %2Bh5zKAilvY5we1BCQ%3D&Expires=1646825941'
+    ud = request.user.userdetails
+    sm = StatusMessage(message_owner=ud, message="hello world")
+    sm.save()
+    status_msgs = request.user.userdetails.statusmessage_set.all()
+    for x in status_msgs:
+        print(x.message)
 
     return HttpResponse("")
 
