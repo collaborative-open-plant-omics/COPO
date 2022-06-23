@@ -38,9 +38,10 @@ function upload_permit_files(file) {
         form.append(count.toString(), file[f])
         count++
     }
+    form.append("validation_record_id",validation_record_id)
     jQuery.ajax({
         url: '/copo/sample_permits/',
-        data: {"form": form, "validation_record_id": validation_record_id},
+        data: form,
         cache: false,
         contentType: false,
         processData: false,
@@ -341,7 +342,6 @@ $(document).ready(function () {
                     }
                     $("#permits_table").DataTable()
                     $("#permits_table_nav_tab").click()
-                    $("#permits_table").active()
                     if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
 
                     } else {
