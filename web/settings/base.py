@@ -146,6 +146,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
+                'web.apps.web_copo.context_processors.copo_user_status_messages.latest_message'
             ],
             'debug': DEBUG,
         },

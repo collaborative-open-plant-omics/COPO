@@ -76,14 +76,7 @@ def error_page(request):
 
 
 def test(request):
-    ud = request.user.userdetails
-    sm = StatusMessage(message_owner=ud, message="hello world")
-    sm.save()
-    status_msgs = request.user.userdetails.statusmessage_set.all()
-    for x in status_msgs:
-        print(x.message)
-
-    return HttpResponse("")
+    return render(request, "copo/test.html")
 
 @login_required()
 def ena_read_manifest_validate(request, profile_id):

@@ -57,9 +57,12 @@ class Repository(models.Model):
 
 
 class StatusMessage(models.Model):
-    message_owner = models.ForeignKey(UserDetails, on_delete=models.CASCADE)
+    message_owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     message = models.TextField(max_length=500, blank=False, default="All Tasks Complete")
+
+    class Meta:
+        get_latest_by = 'created'
 
 
 class test_model(models.Model):
