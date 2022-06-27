@@ -395,6 +395,7 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
+                        $("#ena_finish_button").fadeIn()
                         $("#finish_button").fadeIn()
                     }
 
