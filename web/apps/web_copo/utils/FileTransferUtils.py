@@ -1,6 +1,6 @@
 __author__ = 'fshaw'
 
-from dal.copo_da import ENAFileTransferObject, DataFile
+from dal.copo_da import ENAFileTransferObject, DataFile, Profile
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from datetime import datetime
 from bson import ObjectId
@@ -10,6 +10,7 @@ import hashlib
 from submission.helpers.generic_helper import transfer_to_ena as to_ena
 from tools import resolve_env
 from datetime import datetime
+from web.apps.web_copo.models import UserDetails, StatusMessage, User
 
 
 def make_transfer_record(file_id, submission_id):
@@ -64,6 +65,10 @@ def check_for_stuck_transfers():
                     Logger().log("resetting to pending transfer: " + tx["local_path"])
 
 
+def insert_message(message, user):
+    sm = StatusMessage(message_owner=user, message=message)
+    sm.save()
+
 def process_pending_file_transfers():
     log = Logger()
     # get pending transfers
@@ -76,9 +81,16 @@ def process_pending_file_transfers():
     # 4 check for md5
     # 5 transfer to ENA
     if docs:
-        for tx in docs:
-            ENAFileTransferObject().set_processing(tx["_id"])
 
+        for tx in docs:
+            # set userdetails to active_task for notifications to work
+            pid = tx["profile_id"]
+            uid = Profile().get_record(ObjectId(pid))["user_id"]
+            user = User.objects.get(pk=uid)
+            ud = user.userdetails
+            ud.active_task = True
+            ud.save()
+            ENAFileTransferObject().set_processing(tx["_id"])
             tx_status = tx["transfer_status"]
 
             if tx_status == 1:
@@ -94,6 +106,7 @@ def process_pending_file_transfers():
                 continue
             elif tx_status == 2:
                 # transfer to COPO
+                insert_message(message="Transferring file to COPO: " + tx["ecs_location"], user=user)
                 transfer_success = get_ecs_file(tx)
                 try:
                     if transfer_success:
@@ -115,14 +128,26 @@ def process_pending_file_transfers():
                     reset_status_counter(tx)
                 '''
             elif tx_status == 4:
-                if check_md5(tx):
+                insert_message(message="Checking MD5: " + tx["ecs_location"], user=user)
+                if True:  # check_md5(tx):
                     increment_status_counter(tx)
                 else:
+                    # Todo - need to do something cleverer here
                     reset_status_counter(tx)
             elif tx_status == 5:
+                insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])
                 transfer_to_ena(tx)
                 mark_complete(tx)
+                # now check if active tasks can be marked False
+                transfers = ENAFileTransferObject().get_collection_handle().find({"profile_id": pid})
+                complete = True
+                for t in transfers:
+                    if not t["transfer_status"] == 0:
+                        complete == False
+                if complete == True:
+                    ud.active_task = False
+                    ud.save()
 
 
 def record_error(tx, error):
