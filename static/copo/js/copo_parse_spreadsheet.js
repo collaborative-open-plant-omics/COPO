@@ -75,7 +75,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
     form = new FormData()
     form.append("file", file)
     jQuery.ajax({
-        url: '/copo/sample_spreadsheet/',
+        url: url,
         data: form,
         cache: false,
         contentType: false,
@@ -93,6 +93,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
+
     })
 }
 
