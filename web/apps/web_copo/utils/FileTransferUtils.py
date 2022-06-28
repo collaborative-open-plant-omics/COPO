@@ -81,6 +81,12 @@ def process_pending_file_transfers():
     # 4 check for md5
     # 5 transfer to ENA
     if docs:
+        # cast cursor to list for double iteration
+        docs = list(docs)
+        for tx in docs:
+            # first iterate all transfer records and set to processing so celery won't pick them again and send for processing as this
+            # can lead to circular operations which won't terminate
+            ENAFileTransferObject().set_processing(tx["_id"])
 
         for tx in docs:
             # set userdetails to active_task for notifications to work
@@ -90,7 +96,7 @@ def process_pending_file_transfers():
             ud = user.userdetails
             ud.active_task = True
             ud.save()
-            ENAFileTransferObject().set_processing(tx["_id"])
+
             tx_status = tx["transfer_status"]
 
             if tx_status == 1:
@@ -135,9 +141,10 @@ def process_pending_file_transfers():
                     # Todo - need to do something cleverer here
                     reset_status_counter(tx)
             elif tx_status == 5:
+                mark_complete(tx)
                 insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])
-                mark_complete(tx)
+
                 transfer_to_ena(tx)
 
                 # now check if active tasks can be marked False
