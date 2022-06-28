@@ -150,7 +150,7 @@ function do_display_manifest_submissions(data) {
                         //define menu
                         var componentMenu = renderHTML.find(".component-menu");
                         componentMenu.html('');
-                        componentMenu.append('<div id="submit_' + rowdata["record_id"] + '" class="submit_button_clicked item">Submit</div>');
+                        componentMenu.append('<div data-task="submit" id="submit_' + rowdata["record_id"] + '" class="submissionmenu submit_button_clicked item">Submit</div>');
                         componentMenu.append('<div class="divider"></div>');
                         componentMenu.append('<div data-task="view_datafiles" class="item submissionmenu">View Datafiles</div>');
                         componentMenu.append('<div data-task="view_accessions" class="item submissionmenu">View Accessions</div>');

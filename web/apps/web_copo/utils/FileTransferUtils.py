@@ -137,10 +137,11 @@ def process_pending_file_transfers():
             elif tx_status == 5:
                 insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])
-                transfer_to_ena(tx)
                 mark_complete(tx)
+                transfer_to_ena(tx)
+
                 # now check if active tasks can be marked False
-                transfers = ENAFileTransferObject().get_collection_handle().find({"profile_id": pid})
+                transfers = ENAFileTransferObject().ENAFileTransferObjectCollection.find({"profile_id": pid})
                 complete = True
                 for t in transfers:
                     if not t["transfer_status"] == 0:
