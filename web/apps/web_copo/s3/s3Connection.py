@@ -18,6 +18,7 @@ class S3Connection():
         self.ecs_endpoint = s.ECS_ENDPOINT
         self.ecs_access_key_id = s.ECS_ACCESS_KEY_ID
         self.ecs_secret_key = s.ECS_SECRET_KEY
+
         self.expiration = 60 * 60 * 24
         self.path = '/'
         self.s3_client = boto3.client('s3', endpoint_url=self.ecs_endpoint, verify=False,
@@ -25,6 +26,7 @@ class S3Connection():
                                       aws_access_key_id=self.ecs_access_key_id,
                                       aws_secret_access_key=self.ecs_secret_key)
         self.transport_params = {'client': self.s3_client}
+        print("endpoint", self.ecs_endpoint, "access key", self.ecs_access_key_id, "secret", self.ecs_secret_key)
 
     def list_buckets(self):
         try:
@@ -91,8 +93,10 @@ class S3Connection():
         :param bucket_name: name of bucket to make
         :return: the bucket
         '''
+
         try:
             bucket = self.s3_client.create_bucket(Bucket=str(bucket_name))
+
         except Exception as e:
             print(e)
             response = "error"
