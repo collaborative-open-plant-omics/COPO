@@ -95,6 +95,7 @@ class Command(BaseCommand):
             print(list(d_updates[sample['biosampleAccession']].keys()))
             flag = False
             for field in list(d_updates[sample['biosampleAccession']].keys()):
+                # TODO - this may also need to catch cases where update field is Voucher ID or biobanking_id
                 if DTOL_ENA_MAPPINGS.get(field, "") or field == "COLLECTION_LOCATION":
                     flag = True
             if flag:
