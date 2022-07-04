@@ -249,13 +249,14 @@ def save_ena_records(request):
                         duplicates.append(s_bm.get("file_location"))
                         update_ids.append(s["_id"])
         if len(duplicates) > 0:
-            submission = submission.pop("accessions")
+            submission.pop("accessions")
             Submission().get_collection_handle().update_one({"_id": update_ids[0]}, {"$set": submission})
             sub_id = update_ids[0]
         else:
             sub_id = Submission().get_collection_handle().insert_one(submission)["_id"]
     else:
-        sub_id = Submission().get_collection_handle().insert_one(submission)["_id"]
+        sub = Submission().get_collection_handle().insert_one(submission)
+        sub_id = str(sub.inserted_id)
 
     for f in datafile_list:
         tx.make_transfer_record(file_id=f["_id"], submission_id=str(sub_id))
