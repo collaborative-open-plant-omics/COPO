@@ -35,7 +35,7 @@ decorator==4.4.0
 deepdiff==4.0.7
 defusedxml==0.6.0
 dict.sorted==1.0.0
-Django==3.1
+Django==3.2.14
 django-brotli==0.2.0
 django-allauth==0.46.0
 django-allow-cidr
@@ -91,7 +91,7 @@ lxml==4.1.1
 MarkupSafe
 mccabe==0.6.1
 meld3==2.0.0
-mistune==0.8.4
+mistune==2.0.3
 mock==3.0.5
 more-itertools==7.2.0
 msgpack
