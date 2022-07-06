@@ -274,107 +274,9 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSameAs",
         "sampleSymbiontOf",
         "copo_profile_title",
-
         "tol_project"
     ],
-    "erga" : [
-        "TUBE_OR_WELL_ID",
-        "SPECIMEN_ID",
-        "TAXON_ID",
-        "ORDER_OR_GROUP",
-        "FAMILY",
-        "GENUS",
-        "SCIENTIFIC_NAME",
-        "INFRASPECIFIC_EPITHET",
-        "CULTURE_OR_STRAIN_ID",
-        "COMMON_NAME",
-        "TAXON_REMARKS",
-        "LIFESTAGE",
-        "SEX",
-        "ORGANISM_PART",
-        "GAL",
-        "GAL_SAMPLE_ID",
-        "SAMPLE_COORDINATOR",
-        "SAMPLE_COORDINATOR_AFFILIATION",
-        "SAMPLE_COORDINATOR_ORCID_ID",
-        "COLLECTOR_SAMPLE_ID",
-        "COLLECTED_BY",
-        "COLLECTOR_AFFILIATION",
-        "DATE_OF_COLLECTION",
-        "COLLECTION_LOCATION",
-        "DECIMAL_LATITUDE",
-        "DECIMAL_LONGITUDE",
-        "HABITAT",
-        "DESCRIPTION_OF_COLLECTION_METHOD",
-        "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
-        "IDENTIFIED_BY",
-        "IDENTIFIER_AFFILIATION",
-        "IDENTIFIED_HOW",
-        "SPECIMEN_ID_RISK",
-        "MIXED_SAMPLE_RISK",
-        "PRESERVED_BY",
-        "PRESERVER_AFFILIATION",
-        "PRESERVATION_APPROACH",
-        "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
-        "DATE_OF_PRESERVATION",
-        "SIZE_OF_TISSUES_IN_TUBE",
-        "TUBE_OR_WELL_ID_FOR_BARCODING",
-        "TISSUE_FOR_BARCODING",
-        "BARCODE_PLATE_PRESERVATIVE",
-        "PURPOSE_OF_SPECIMEN",
-        "HAZARD_GROUP",
-        "REGULATORY_COMPLIANCE",
-        "VOUCHER_ID",
-        "RELATIONSHIP",
-        "GRID_REFERENCE",
-        "DEPTH",
-        "ELEVATION",
-        "TIME_OF_COLLECTION",
-        "IDENTIFIER_AFFILIATION",
-        "PRESERVATIVE_SOLUTION",
-        "SIZE_OF_TISSUE_IN_TUBE",
-        "TISSUE_REMOVED_FOR_BARCODING",
-        "OTHER_INFORMATION",
-        "SYMBIONT",
-        "ORIGINAL_GEOGRAPHIC_LOCATION",
-        "ORIGINAL_COLLECTION_DATE",
-        "ORIGINAL_DECIMAL_LATITUDE",
-        "ORIGINAL_DECIMAL_LONGITUDE",
-        "BARCODING_STATUS",
-        "TISSUE_REMOVED_FOR_BIOBANKING",
-        "TISSUE_VOUCHER_ID_FOR_BIOBANKING",
-        "TISSUE_FOR_BIOBANKING",
-        "DNA_REMOVED_FOR_BIOBANKING",
-        "DNA_VOUCHER_ID_FOR_BIOBANKING",
-        "PROXY_VOUCHER_ID",
-        "VOUCHER_LINK",
-        "PROXY_VOUCHER_LINK",
-        "VOUCHER_INSTITUTION",
-        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE",
-        "INDIGENOUS_RIGHTS_DEF",
-        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID",
-        "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
-        "ETHICS_PERMITS_REQUIRED",
-        "ETHICS_PERMITS_DEF",
-        "SAMPLING_PERMITS_REQUIRED",
-        "SAMPLING_PERMITS_DEF",
-        "boldAccession",
-        "public_name",
-        "biosampleAccession",
-        "created_by",
-        "time_created",
-        "submissionAccession",
-        "sraAccession",
-        "manifest_id",
-        "time_updated",
-        "updated_by",
-        "status",
-        "sampleDerivedFrom",
-        "sampleSameAs",
-        "sampleSymbiontOf",
-        "copo_profile_title",
-        "tol_project"
-    ]
+
 }
 DTOL_ENUMS = {
 
@@ -388,7 +290,7 @@ DTOL_ENUMS = {
             "EARLHAM INSTITUTE",
             "NATURAL HISTORY MUSEUM"],
 
-        "DTOL_ENV" : [
+        "DTOL_ENV": [
             "SANGER INSTITUTE",
             "UNIVERSITY OF OXFORD",
             "MARINE BIOLOGICAL ASSOCIATION",
@@ -418,8 +320,9 @@ DTOL_ENUMS = {
             "SVARDAL LAB, ANTWERP",
             "HANSEN LAB, DENMARK",
             "INDUSTRY PARTNER",
-            "LEIBNIZ INSTITUTE FOR THE ANALYSIS OF BIODIVERSITY CHANGE, MUSEUM KOENIG, BONN"
-    ]},
+            "LEIBNIZ INSTITUTE FOR THE ANALYSIS OF BIODIVERSITY CHANGE, MUSEUM KOENIG, BONN",
+            "other ERGA associated GAL"
+        ]},
     "PARTNER": [
         "UNIVERSITY OF DERBY",
         "DALHOUSIE UNIVERSITY",
@@ -472,17 +375,17 @@ DTOL_ENUMS = {
         "NOT_PROVIDED"
     ],
     "HAZARD_GROUP": {
-        "DTOL" : [
+        "DTOL": [
             "HG1",
             "HG2",
             "HG3"
         ],
-        "ASG" : [
+        "ASG": [
             "HG1",
             "HG2",
             "HG3"
         ],
-        "ERGA" : [
+        "ERGA": [
             "1",
             "2",
             "3",
@@ -610,7 +513,7 @@ DTOL_ENUMS = {
             "DNA_BARCODING_ONLY",
             "RNA_SEQUENCING",
             "R&D"
-            ]
+        ]
     },
     "SIZE_OF_TISSUE_IN_TUBE": [
         "VS",
@@ -1090,11 +993,11 @@ DTOL_ENUMS = {
         "Y",
         "N"
     ],
-    "SEQUENCING_CENTRE" : [
+    "SEQUENCING_CENTRE": [
         "EARLHAM INSTITUTE",
         "SANGER INSTITUTE"
     ],
-    "WATER_BODY_TYPE" : [
+    "WATER_BODY_TYPE": [
         "STREAM",
         "RIVER",
         "POND",
@@ -1103,16 +1006,16 @@ DTOL_ENUMS = {
         "ESTUARY",
         "OPEN SEA"
     ],
-    "WATER_TYPE" : [
+    "WATER_TYPE": [
         "FRESH_WATER",
         "SALT_WATER",
         "BRACKISH_WATER"
     ],
-    "SORTER_AFFILIATION" : [
+    "SORTER_AFFILIATION": [
         "EARLHAM INSTITUTE",
         "UNIVERSITY OF OXFORD"
     ],
-    "CELL_NUMBER" : [
+    "CELL_NUMBER": [
         "1",
         "2-10",
         "11-50",
@@ -1129,7 +1032,7 @@ DTOL_ENUMS = {
         "DNA_BARCODE_EXEMPT",
         "DNA_BARCODING_FAILED"
     ],
-    "SAMPLE_FORMAT" : [
+    "SAMPLE_FORMAT": [
         "live biological sample from infectious organism",
         "inactivated biological sample from infectious organism",
         "biological sample/tissue from non-infectious organism",
@@ -1214,20 +1117,20 @@ DTOL_RULES = {
         "human_readable": "integer"
     },
     "CHLOROPHYL_A": {
-        "strict_regex" : "^\d+$",
-        "human_readable" : "integer"
+        "strict_regex": "^\d+$",
+        "human_readable": "integer"
     },
-    "SALINITY" : {
-        "strict_regex" : "^\d+$",
-        "human_readable" : "integer"
+    "SALINITY": {
+        "strict_regex": "^\d+$",
+        "human_readable": "integer"
     },
-    "DISSOLVED_OXYGEN" : {
-        "strict_regex" : "^\d+$",
-        "human_readable" : "integer"
+    "DISSOLVED_OXYGEN": {
+        "strict_regex": "^\d+$",
+        "human_readable": "integer"
     },
-    "TEMPERATURE" : {
-        "strict_regex" : "^\d+$",
-        "human_readable" : "integer"
+    "TEMPERATURE": {
+        "strict_regex": "^\d+$",
+        "human_readable": "integer"
     },
     "ORIGINAL_DECIMAL_LATITUDE": {
         "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
@@ -1361,24 +1264,34 @@ DTOL_ENA_MAPPINGS = {
         "ena": "sample coordinator ORCID ID"
     },
     "TISSUE_VOUCHER_ID_FOR_BIOBANKING": {
-        "ena": "biomaterial"
+        "ena": "bio_material"
     },
     "DNA_VOUCHER_ID_FOR_BIOBANKING": {
-        "ena": "biomaterial"
+        "ena": "bio_material"
     },
-    # TODO doucle check with DTOL
     "DESCRIPTION_OF_COLLECTION_METHOD": {
-        "ena": "sample collection device/sample collection method"
+        "ena": "sample collection device or method"
     },
-    #todo check right ENA field
     "ORIGINAL_DECIMAL_LATITUDE": {
-        "ena": "original decimal latitude"
+        "ena": "original geographic location (latitude)"
     },
     "ORIGINAL_DECIMAL_LONGITUDE": {
-        "ena": "original decimal longitude"
+        "ena": "original geographic location (longitude)"
     },
     "PROXY_VOUCHER_ID": {
-        "ena": "specimen_voucher"
+        "ena": "proxy voucher"
+    },
+    "VOUCHER_LINK": {
+        "ena": "specimen voucher url"
+    },
+    "PROXY_VOUCHER_LINK": {
+        "ena": "proxy voucher url"
+    },
+    "VOUCHER_INSTITUTION": {
+        "ena": "voucher institution url"
+    },
+    "COLLECTOR_ORCID_ID": {
+        "ena": "collector ORCID ID"
     }
 }
 
@@ -1421,7 +1334,6 @@ SPECIMEN_PREFIX = {
         "SENCKENBERG RESEARCH INSTITUTE": "SENCK",
         "UNIVERSITY OF VIENNA (CEPHALOPOD)": "VIEC",
         "UNIVERSITY OF OREGON": "UOREG",
-        "UNIVERSITY OF CALIFORNIA": "UCALI"
     }
 }
 

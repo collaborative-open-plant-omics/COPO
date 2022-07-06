@@ -1,5 +1,5 @@
 __author__ = 'fshaw'
-
+import os
 from dal.copo_da import ENAFileTransferObject, DataFile, Profile
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from datetime import datetime
@@ -11,7 +11,7 @@ from submission.helpers.generic_helper import transfer_to_ena as to_ena
 from tools import resolve_env
 from datetime import datetime
 from web.apps.web_copo.models import UserDetails, StatusMessage, User
-
+import threading
 
 def make_transfer_record(file_id, submission_id):
     # N.B. called from celery
@@ -134,7 +134,7 @@ def process_pending_file_transfers():
                     reset_status_counter(tx)
                 '''
             elif tx_status == 4:
-                insert_message(message="Checking MD5: " + tx["ecs_location"], user=user)
+                # insert_message(message="Checking MD5: " + tx["ecs_location"], user=user)
                 if True:  # check_md5(tx):
                     increment_status_counter(tx)
                 else:
@@ -145,17 +145,11 @@ def process_pending_file_transfers():
                 insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])
 
-                transfer_to_ena(tx)
+                thread = ToENA(tx=tx, user_details=ud, pid=pid)
+                thread.start()
+                # transfer_to_ena(tx)
 
-                # now check if active tasks can be marked False
-                transfers = ENAFileTransferObject().ENAFileTransferObjectCollection.find({"profile_id": pid})
-                complete = True
-                for t in transfers:
-                    if not t["transfer_status"] == 0:
-                        complete == False
-                if complete == True:
-                    ud.active_task = False
-                    ud.save()
+
 
 
 def record_error(tx, error):
@@ -239,6 +233,41 @@ def check_md5(tx):
         return False
 
 
+class ToENA(threading.Thread):
+    def __init__(self, tx, user_details, pid):
+        self.tx = tx
+        self.ud = user_details
+        self.pid = pid
+        super(ToENA, self).__init__()
+
+    def run(self):
+        # transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwargs):
+        ena_service = resolve_env.get_env('ENA_SERVICE')
+        pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
+        user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
+        webin_user = resolve_env.get_env('WEBIN_USER')
+        webin_domain = resolve_env.get_env('WEBIN_USER').split("@")[1]
+        # Logger().log("transfering file: " + tx["file_id"])
+        kwargs = dict()
+        try:
+            to_ena(webin_user, pass_word, self.tx["remote_path"], [self.tx["local_path"]], **kwargs)
+        except Exception as e:
+            record_error("error transfering to ENA: " + str(e))
+            reset_status_counter(self.tx)
+        # now check if active tasks can be marked False
+        transfers = ENAFileTransferObject().ENAFileTransferObjectCollection.find({"profile_id": self.pid})
+        complete = True
+        if os.path.exists(self.tx["local_path"]):
+            Logger().log("deleting file after check")
+            os.remove(self.tx["local_path"])
+        for t in transfers:
+            if not t["transfer_status"] == 0:
+                complete = False
+        if complete == True:
+            self.ud.active_task = False
+            self.ud.save()
+
+
 def transfer_to_ena(tx):
     # transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwargs):
     ena_service = resolve_env.get_env('ENA_SERVICE')
@@ -249,7 +278,12 @@ def transfer_to_ena(tx):
     # Logger().log("transfering file: " + tx["file_id"])
     kwargs = dict()
     try:
+        Logger().log("doing transfer")
         to_ena(webin_user, pass_word, tx["remote_path"], [tx["local_path"]], **kwargs)
+        Logger().log("deleting file")
+        if os.path.exists(tx["local_path"]):
+            Logger().log("deleting file after check")
+            os.remove(tx["local_path"])
     except Exception as e:
         record_error("error transfering to ENA: " + str(e))
         reset_status_counter(tx)

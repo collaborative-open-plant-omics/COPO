@@ -600,6 +600,15 @@ def build_specimen_sample_xml(sample):
                     tag.text = attribute_name
                     value = ET.SubElement(sample_attribute, 'VALUE')
                     value.text = "spore-bearing structure"
+                elif item[0] == "VOUCHER_ID" or item[0] == "DNA_VOUCHER_ID_FOR_BIOBANKING":
+                    attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+
+                    for val_text in item[1].split('|'):
+                        sample_attribute = ET.SubElement(sample_attributes, 'SAMPLE_ATTRIBUTE')
+                        tag = ET.SubElement(sample_attribute, 'TAG')
+                        tag.text = attribute_name
+                        value = ET.SubElement(sample_attribute, 'VALUE')
+                        value.text = val_text.strip()
                 else:
                     attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
                     sample_attribute = ET.SubElement(sample_attributes, 'SAMPLE_ATTRIBUTE')
