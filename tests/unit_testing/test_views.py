@@ -1,20 +1,411 @@
 # Created by AProvidence on 02-04-2022
+from dal.copo_da import Profile
 from django.conf import settings
-from django.test import TestCase, Client
+from django.contrib.auth.models import User, Group
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse, resolve
+from faker import Faker
 from web.apps.web_copo import views
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
 from web.landing import views as landing_views
 from web.urls import urlpatterns as app_urls
 from django.views.generic import TemplateView
+from htmlvalidator.client import ValidatingClient
 
 
-class ViewsTest(TestCase):
+# self.assertRedirects(response, reverse('web_copo:auth'))
+
+class BaseTest(TestCase):
+    """ Set up fake/mock data for the TestCase in the "test_copo" database"""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        settings.UNIT_TESTING = True
+        cls.fake = Faker()
+        # cls.client = ValidatingClient()
+
+        """ User and Profile """
+        # Create a user model object and save it in the "test_copo" temporary PostgreSQL database
+        cls.username = cls.fake.first_name().lower()
+        cls.user_password = User.objects.make_random_password()
+        cls.user = User.objects.create_user(username=cls.username,
+                                            first_name=cls.fake.first_name(),
+                                            last_name=cls.fake.last_name(),
+                                            email=cls.fake.free_email(),
+                                            password=cls.user_password)
+        cls.user.save()
+
+        # Create a DTOL profile on the COPO website
+        dtol_profile = {"copo_id": "000000000", "description": "DTOL Test Description", "user_id": cls.user.id,
+                        "type": "Darwin Tree of Life (DTOL)", "title": "DTOL Test Title"}
+
+        cls.user_pid = Profile().get_collection_handle().insert(dtol_profile)
+
+        # Admin
+
+        cls.admin_index_url = reverse('admin:index')
+        cls.set_admin_urls(cls)
+        cls.create_admin_user(cls)
+
+    def set_admin_urls(self):
+        # app name: admin
+        # pattern name: index
+        # reverse('admin:index')
+
+        admin_account_emailaddress_changelist_url = reverse('admin:account_emailaddress_changelist')
+        admin_account_emailaddress_add_url = reverse('admin:account_emailaddress_add')
+        admin_auth_group_changelist_url = reverse('admin:auth_group_changelist')
+        admin_auth_group_add_url = reverse('admin:auth_group_add')
+        admin_auth_user_changelist_url = reverse('admin:auth_user_changelist')
+        admin_auth_user_password_change_url = reverse('admin:auth_user_password_change', args=[1])
+        admin_auth_user_change_url = reverse('admin:auth_user_change', args=[1])
+        admin_auth_user_add_url = reverse('admin:auth_user_add')
+        admin_chunked_upload_chunkedupload_changelist_url = reverse('admin:chunked_upload_chunkedupload_changelist')
+        admin_chunked_upload_chunkedupload_add_url = reverse('admin:chunked_upload_chunkedupload_add')
+        admin_jsi18n_url = reverse('admin:jsi18n')
+        admin_logout_url = reverse('admin:logout')
+        admin_password_change_url = reverse('admin:password_change')
+        admin_password_change_done_url = reverse('admin:password_change_done')
+        admin_sites_site_changelist_url = reverse('admin:sites_site_changelist')
+        admin_sites_site_change_url = reverse('admin:sites_site_change', args=[1])
+        admin_sites_site_add_url = reverse('admin:sites_site_add')
+        admin_socialaccount_socialaccount_changelist_url = reverse('admin:socialaccount_socialaccount_changelist')
+        admin_socialaccount_socialapp_changelist_url = reverse('admin:socialaccount_socialapp_changelist')
+        admin_web_copo_banner_view_changelist_url = reverse('admin:web_copo_banner_view_changelist')
+
+        # Get a list of strings of the admin urls
+        admin_urls_list = [
+            self.admin_index_url,
+            admin_account_emailaddress_changelist_url,
+            admin_account_emailaddress_add_url,
+            admin_auth_group_changelist_url,
+            admin_auth_group_add_url,
+            admin_auth_user_changelist_url,
+            admin_auth_user_password_change_url,
+            admin_auth_user_change_url,
+            admin_auth_user_add_url,
+            admin_chunked_upload_chunkedupload_changelist_url,
+            admin_chunked_upload_chunkedupload_add_url,
+            admin_jsi18n_url,
+            self.admin_login_url,
+            admin_logout_url,
+            admin_password_change_url,
+            admin_password_change_done_url,
+            admin_sites_site_changelist_url,
+            admin_sites_site_change_url,
+            admin_sites_site_add_url,
+            admin_socialaccount_socialaccount_changelist_url,
+            admin_socialaccount_socialapp_changelist_url,
+            admin_web_copo_banner_view_changelist_url,
+        ]
+
+        return admin_urls_list
+
+    def set_admin_redirection_urls(self):
+        self.admin_login_url = reverse('admin:login')
+
+    def create_admin_user(self):
+        self.admin_username = self.fake.first_name().lower()
+        self.admin_password = User.objects.make_random_password()
+        self.admin_user = User.objects.create_superuser(username=self.admin_username,
+                                                        first_name=self.fake.first_name(),
+                                                        last_name=self.fake.last_name(),
+                                                        email=self.fake.company_email(),
+                                                        password=self.admin_password)
+        self.admin_user.save()
+
+
+class AdminViewTests(BaseTest):
+    """ Test the view for "admin" """
+    print("Admin view tests")
+
+    def test_admin_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        response = self.client.get("copo/ebp")
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_view_url_accessible_by_name(self):
+        """Test the urls for "admin" """
+        print('Admin URLs test')
+        self.create_admin_user()
+        admin_webpages = self.set_admin_urls()
+        admin_redirect_webpages = reverse('admin:logout')  # [self.admin_index_url]
+        admin_logout_url = reverse('admin:logout')
+        for webpage in admin_webpages:
+            self.client.login(username=self.admin_username, password=self.admin_password)
+            response = self.client.get(webpage)
+            print(webpage)
+            if webpage == admin_logout_url:  # if webpage in admin_redirect_webpages:
+                #     self.assertEqual(response.status_code, 302, response)
+                # #     self.assertContains(response, self.admin_login_url)
+                self.assertRedirects(response, self.admin_login_url)  # '/admin/login/')
+            self.assertEqual(response.status_code, 200, webpage)
+
+    def test_admin_login_redirection_view(self):
+        # Checks that admin login view redirects
+        admin_login_url = reverse('admin:login')
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        response = self.client.get(admin_login_url)
+        self.assertRedirects(response, '/admin/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_admin_login_redirection_view1(self):
+        # Checks that admin login view redirects
+        admin_login_url = reverse('admin:account_emailaddress_changelist')
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        response = self.client.get(admin_login_url)
+        # self.assertRedirects(response, '/admin/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_admin_view_uses_correct_template(self):
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        response = self.client.get(reverse('ebp'))
+        self.assertTemplateUsed(response, "ebp_resources.html")
+
+    def test_admin_view_template_content(self):
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        response = self.client.get(reverse('ebp'))
+        self.assertContains(response, "Earth Biogenome Project")
+
+    def test_admin_password_change_view_with_anonymous_user(self):
+        admin_login_url = reverse('admin:login')
+        admin_password_change_url = reverse('admin:password_change')
+        response = self.client.get(admin_password_change_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertContains(response, admin_login_url)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_password_change_done_view_with_anonymous_user(self):
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        admin_password_change_done_url = reverse('admin:password_change_done')
+        response = self.client.get(admin_password_change_done_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertContains(response, self.admin_login_url)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_sites_site_changelist_view_with_anonymous_user(self):
+        admin_sites_site_changelist_url = reverse('admin:sites_site_changelist')
+        response = self.client.get(admin_sites_site_changelist_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_sites_site_change_view_with_anonymous_user(self):
+        admin_sites_site_change_url = reverse('admin:sites_site_change', args=[1])
+        response = self.client.get(admin_sites_site_change_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_sites_site_add_view_with_anonymous_user(self):
+        admin_sites_site_add_url = reverse('admin:sites_site_add')
+        response = self.client.get(admin_sites_site_add_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_socialaccount_socialaccount_changelist_view_with_anonymous_user(self):
+        admin_socialaccount_socialaccount_changelist_url = reverse('admin:socialaccount_socialaccount_changelist')
+        response = self.client.get(admin_socialaccount_socialaccount_changelist_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_socialaccount_socialapp_changelist_view_with_anonymous_user(self):
+        admin_socialaccount_socialapp_changelist_url = reverse('admin:socialaccount_socialapp_changelist')
+        response = self.client.get(admin_socialaccount_socialapp_changelist_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_web_copo_banner_view_changelist_view_with_anonymous_user(self):
+        admin_web_copo_banner_view_changelist_url = reverse('admin:web_copo_banner_view_changelist')
+        response = self.client.get(admin_web_copo_banner_view_changelist_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=%2Fadmin%2Fpassword_change%2F')
+
+    def test_admin_change_view_loads_normally(self):
+        print('Test change view url loads normally')
+        self.create_admin_user()
+        test_group = Group.objects.create(name='Test Group')
+        admin_change_view_url = reverse(
+            'admin:{}_{}_change'.format(
+                test_group._meta.app_label,
+                type(test_group).__name__.lower()
+            ),
+            args=(test_group.pk,)
+        )
+        self.client.login(username=self.admin_username, password=self.admin_password)
+        change_view_response = self.client.get(admin_change_view_url)
+        self.assertEqual(change_view_response.status_code, 200)
+
+
+class DtolViewTests(BaseTest):
+    """ Test the view for "DTOL" """
+    print("DTOL view tests")
+
+    def test_dtol_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("copo/dtol")
+        self.assertEqual(response.status_code, 200)
+
+    def test_dtol_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('dtol'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('dtol'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_dtol_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('dtol'))
+        self.assertTemplateUsed(response, "dtol.html")
+
+    def test_dtol_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('dtol'))
+        self.assertContains(response, "<h3>Resources for DToL collectors and submitters</h3>")
+
+
+class EbpViewTests(BaseTest):
+    """ Test the view for "ebp" """
+    print("Ebp view tests")
+
+    def test_ebp_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("copo/ebp")
+        self.assertEqual(response.status_code, 200)
+
+    def test_ebp_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('ebp'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('ebp'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_ebp_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('ebp'))
+        self.assertTemplateUsed(response, "ebp_resources.html")
+
+    def test_ebp_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('ebp'))
+        self.assertContains(response, "Earth Biogenome Project")
+
+
+class LandingViewTests(BaseTest):
+    """ Test the view for "landing" """
+    print("Landing view tests")
+
+    def test_landing_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_landing_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('index'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_landing_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('index'))
+        self.assertTemplateUsed(response, "index.html")
+
+    def test_landing_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, "<h2>COPO team</h2>")
+
+
+class ManifestsViewTests(BaseTest):
+    """ Test the view for "manifests" """
+    print("Manifests view tests")
+
+    def test_manifests_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("copo/manifests")
+        self.assertEqual(response.status_code, 200)
+
+    def test_manifests_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('manifests'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('manifests'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_manifests_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('manifests'))
+        self.assertTemplateUsed(response, "manifests.html")
+
+    def test_manifests_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('manifests'))
+        self.assertContains(response, "<h2>COPO team</h2>")
+
+
+class NewsViewTests(BaseTest):
+    """ Test the view for "news" """
+    print("news view tests")
+
+    def test_news_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("copo/news")
+        self.assertEqual(response.status_code, 200)
+
+    def test_news_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('news'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('news'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_news_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('news'))
+        self.assertTemplateUsed(response, "news.html")
+
+    def test_news_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('news'))
+        self.assertContains(response, "<h2>Latest News</h2>")
+
+
+class PeopleViewTests(BaseTest):
+    """ Test the view for "people" """
+    print("People view tests")
+
+    def test_people_view_url_exists_at_correct_location(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get("copo/people")
+        self.assertEqual(response.status_code, 200)
+
+    def test_people_view_url_accessible_by_name(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('people'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('people'), {'profile_id': str(self.user_pid)})
+        self.assertEqual(response.status_code, 200)
+
+    def test_people_view_uses_correct_template(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('people'))
+        self.assertTemplateUsed(response, "people.html")
+
+    def test_people_view_template_content(self):
+        self.client.login(username=self.username, password=self.user_password)
+        response = self.client.get(reverse('people'))
+        self.assertContains(response, "<h2>COPO team</h2>")
+
+
+class ViewsTest(BaseTest):
     # Main templates used: copo/error_page.html, copo/base_simple.html
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         settings.UNIT_TESTING = True
+        cls.fake = Faker()
+        cls.factory = RequestFactory()
 
         cls.client = Client()
         cls.error_url = reverse('web_copo:error_page')
@@ -216,7 +607,6 @@ class ViewsTest(TestCase):
     # path('stats/<str:view>', views.stats, name='stats')
     def test_status_url_is_resolved(self):
         self.assertEqual(resolve(self.stats_url).func, views.stats)
-
 
     def test_login_url_is_resolved(self):
         self.assertEqual(resolve(self.login_url).func, views.login)
@@ -616,7 +1006,6 @@ class ViewsTest(TestCase):
 
     def test_landing_views(self):
         pass
-
 
     # Other tests to be done:
     # Some parts can be logged in since login authentication

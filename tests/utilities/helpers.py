@@ -31,3 +31,34 @@ def one_of_these_elements_is_visible(element1, element2):
             return False
 
     return wait_for_condition
+
+
+# Create a DummySMTP class that replaces smtplib.SMTP so that actual emails are not sent
+smtp = None
+inbox = []
+
+
+class Message(object):
+    def __init__(self, from_address, to_address, fullmessage):
+        self.from_address = from_address
+        self.to_address = to_address
+        self.fullmessage = fullmessage
+
+
+class DummySMTP(object):
+    def __init__(self, address):
+        self.address = address
+        global smtp
+        smtp = self
+
+    def login(self, username, password):
+        self.username = username
+        self.password = password
+
+    def sendmail(self, from_address, to_address, fullmessage):
+        global inbox
+        inbox.append(Message(from_address, to_address, fullmessage))
+        return []
+
+    def quit(self):
+        self.has_quit = True

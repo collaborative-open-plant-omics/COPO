@@ -63,6 +63,10 @@ def stats(request, view=""):
         return render(request, context={}, template_name="copo/stats/time_series_statistics.html")
 
 
+def test(request):
+    return render(request, template_name='copo/test.html')
+
+
 '''
 def test_submission(request):
     delegate_submission(request)
@@ -342,11 +346,11 @@ def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    x=0
+    x = 0
     profile_ids = []
-    while request.POST.get("target_id["+str(x)+"][record_id]", ""):
-        profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
-        x+=1
+    while request.POST.get("target_id[" + str(x) + "][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id[" + str(x) + "][record_id]", ""))
+        x += 1
 
     response = HttpResponse(content_type="application/json")
     response.status_code = 200
@@ -361,7 +365,6 @@ def delete_profile(request):
     undeleted_json = json.dumps({"undeleted": profiles_undeleted})
     response.write(undeleted_json)
     return response
-
 
 
 @login_required

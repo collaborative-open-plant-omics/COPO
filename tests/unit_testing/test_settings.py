@@ -2,6 +2,8 @@
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import SimpleTestCase
+from django.urls import reverse
+from web.settings.base import ALLOWED_HOSTS
 from web.settings.chunked_upload import *
 from web.settings.logger import skip_static_requests
 from django.templatetags.static import static
@@ -29,6 +31,12 @@ class SettingsTest(SimpleTestCase):
         self.assertEqual(MIMETYPE, 'application/json')
         self.assertTrue("None", MAX_BYTES)
         # self.assertRaises(ImportError, ENCODER, DjangoJSONEncoder)
+
+    def test_allowed_host(self):
+        for host in ALLOWED_HOSTS:
+            copo_index_url = reverse('web_copo:auth')
+            response = self.client.get(copo_index_url, HTTP_HOST=host)
+            self.assertEqual(response.status_code, 200)
 
 
 class LoggerTest(StaticLiveServerTestCase):
