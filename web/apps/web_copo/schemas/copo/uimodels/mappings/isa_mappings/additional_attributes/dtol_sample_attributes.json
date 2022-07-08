@@ -2256,7 +2256,7 @@
   },
   {
     "help_tip": "Sample format",
-    "required": "true",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
