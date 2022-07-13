@@ -2,9 +2,33 @@
 {% load static %}
 
 {% block css_block %}
+    {# Manifest webpage #}
+    <link rel="stylesheet" href="{% static 'copo/css/bootstrap/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'copo/css/awesome/font-awesome-ie7.min.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/select2-405/css/select2.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/ace-fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-min.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-skins.min.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-ie.min.css' %}">
+
     .modal-dialog {
     width: 1200px
     }
+{% endblock %}
+{% block javascript_block %}
+    <script src="{% static 'copo/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'copo/fuelux/js/fuelux.wizard.min.js' %}"></script>
+    <script src="{% static 'copo/js/jquery.validate.min.js' %}"></script>
+    <script src="{% static 'copo/js/additional-methods.min.js' %}"></script>
+    <script src="{% static 'copo/js/bootbox.min.js' %}"></script>
+    <script src="{% static 'copo/js/jquery.maskedinput.min.js' %}"></script>
+    <script src="{% static 'copo/select2-405/select2.min.js' %}"></script>
+    <script src="{% static 'copo/js/ace-elements.min.js' %}"></script>
+    <script src="{% static 'copo/js/ace.min.js' %}"></script>
+    <script src="{% static 'copo/js/ace-extra.min.js' %}"></script>
+    <script src="{% static 'copo/js/html5shiv.js' %}"></script>
+    <script src="{% static 'copo/js/respond.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -129,10 +153,8 @@
         </div><!-- /.main-container-inner -->
     </div><!-- /.main-container -->
 {% endblock %}
-<!-- basic scripts -->
 
-<!--[if !IE]> -->
-{% block script_block %}
+{% block js_block %}
     <script type="text/javascript">
         window.jQuery || document.write("<script src='static/copo/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
     </script>

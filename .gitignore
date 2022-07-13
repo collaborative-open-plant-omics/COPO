@@ -92,7 +92,7 @@ copo_keys/*
 
 # virtualenv
 .venv/
-venv/
+venv_bak/
 ENV/
 
 # Spyder project settings

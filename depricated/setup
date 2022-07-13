@@ -384,7 +384,7 @@ then
       #echo *:*:copo:postgres_user:postgres_user > ~/.pgpass
       #chmod 0600 ~/.pgpass
       #service postgresql restart
-      # install venv
+      # install venv_bak
       $pac_man install -y python-setuptools
       easy_install pip
       $pac_man -y install python3-pip

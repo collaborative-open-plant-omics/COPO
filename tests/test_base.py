@@ -18,9 +18,9 @@ from selenium.webdriver.firefox.options import Options
 # To execute the Django’s test suite: $ python manage.py test
 
 """ 
-(venv) $ coverage run manage.py test -v 2
-(venv) $ coverage report -m --omit="/usr/users/EI_ga012/providen/Documents/EI/Projects/COPO/venv/*"
-(venv) $ coverage html
+(venv_bak) $ coverage run manage.py test -v 2
+(venv_bak) $ coverage report -m --omit="/usr/users/EI_ga012/providen/Documents/EI/Projects/COPO/venv_bak/*"
+(venv_bak) $ coverage html
 """
 
 
