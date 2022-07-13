@@ -43,7 +43,12 @@ class S3Connection():
         except Exception as e:
             print(e)
             return False
-        return response["Contents"]
+        try:
+            contents = response["Contents"]
+        except KeyError as e:
+            # empty buckets have no 'Contents' fields
+            return list()
+        return contents
 
     def get_object(self, bucket, key, loc):
         try:
@@ -119,12 +124,13 @@ class S3Connection():
             missing_files = list()
             # get objects in the supplied bucket name
             bucket_files = self.list_objects(bucket=bucket_name)
-
+            '''
             if not bucket_files:
                 msg = "Bucket not found: " + bucket_name
                 notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                                 html_id="sample_info", group_name=channels_group_name)
-                return msg
+                return False
+            '''
             for f in file_list:
 
                 # if found, iterate list of given files to see if each if present in the bucket
@@ -139,7 +145,7 @@ class S3Connection():
                     # time.sleep(2)
                     for bucket_file in bucket_files:
 
-                        if file in bucket_file["Key"]:
+                        if file == bucket_file["Key"]:
                             print("Found", bucket_file["Key"])
                             found_flag = 1
                             break
@@ -156,7 +162,12 @@ class S3Connection():
             else:
                 return True
 
+        except KeyError as e:
+            notify_frontend(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
+                            html_id="sample_info", group_name=channels_group_name)
+            return False
         except Exception as e:
-            print(e)
-            response = "error"
+            notify_frontend(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
+                            html_id="sample_info", group_name=channels_group_name)
+            return False
         return response
