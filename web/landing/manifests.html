@@ -121,20 +121,20 @@
                     </form>
                 </div>
 
-
                 <div class="modal-footer row-fluid wizard-actions">
                     <button class="btn btn-sm btn-prev">
-                        <i class="icon-arrow-left"></i>
+                        <i class="fa fa-arrow-left"></i>
                         Prev
                     </button>
 
                     <button class="btn btn-success btn-sm btn-next" data-last="Finish ">
                         Next
-                        <i class="icon-arrow-right icon-on-right"></i>
+                        <i class="fa fa-arrow-right"></i>
                     </button>
 
                     <button class="btn btn-danger btn-sm pull-left" data-dismiss="modal">
-                        <i class="icon-remove"></i>
+                        <i class="fa fa-times"></i>
+
                         Cancel
                     </button>
                 </div>
@@ -146,7 +146,6 @@
 {% endblock %}
 
 {% block headblock %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'copo/select2-405/css/select2.css' %}">
     <link rel="stylesheet" href="{% static 'copo/css/copo/ace-fonts.css' %}">
     <link rel="stylesheet" href="{% static 'copo/css/copo/ace-rtl.min.css' %}">
@@ -185,30 +184,29 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            // Number of organisms
-            var select = "";
-            for (let i = 1; i <= 100; i++) {
-                select += "<option val=" + i + ">" + i + "</option>";
-            }
-            $("#numberOfSamples").html(select);
 
-            // Generate a dropdown menu for common field values
-            $("#commonvalue").selectpicker();
 
             // Get all DTOL fields from manifest schemas
             {#var manifestType = document.querySelector('#manifestType').value;#}
             {#var sample = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode = False)#}
             {#var fields = jp.match(#}
             {#    '$.properties[?(@.specifications[*] == ' + manifestType.lower() + ')].versions[0]', sample)#}
-            // Hides the modal after the "ok" button is clicked
-            $(document).on("click", ".okbtn", function (e) {
-                $('#manifestType').val([]);
-                $('#numberOfSamples').val([1]);
-                $('#commonvalue').val([]);
-                $("#modal-wizard").modal("hide");
+            $.ajax({
+                type: "GET",
+                url: "/demo_trial_application/json_source",
+                dataType: "json",
+                success: function (data) {
+                    $.each(data.aaData, function (i, obj) {
+                        alert(obj.value + ":" + obj.text);
+                        var div_data = "<option value=" + obj.value + ">" + obj.text + "</option>";
+                        alert(div_data);
+                        $(div_data).appendTo('#ch_user1');
+                    });
+                }
             });
         });
-
+        
+        // Needed for the manifests webpage
         jQuery(function ($) {
 
             $('[data-rel=tooltip]').tooltip();
@@ -308,7 +306,9 @@
             });
 
             $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
-        })
+        });
+
+
     </script>
 
 {% endblock %}
