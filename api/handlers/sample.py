@@ -9,7 +9,7 @@ from django.http import HttpResponse
 
 from api.utils import get_return_template, extract_to_template, finish_request
 from dal.copo_da import Sample, Source, Submission
-from web.apps.web_copo.lookup import dtol_lookups as  lookup
+from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 
 
@@ -67,6 +67,7 @@ def filter_for_API(sample_list, add_all_fields=False):
     export = lookup.DTOL_EXPORT_TO_STS_FIELDS[profile_type]
     out = list()
     for s in sample_list:
+        embargoed = False
         if isinstance(s, InvalidId):
             break
         species_list = s.pop("species_list", "")
@@ -74,6 +75,17 @@ def filter_for_API(sample_list, add_all_fields=False):
             s = {**s, **species_list[0]}
         s_out = dict()
         for k, v in s.items():
+            # check if there is a traditional right embargo
+            if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
+                if v == "N":
+                    # we need not do anything, since no rights apply
+                    s_out[k] = v
+                else:
+                    # ToDo - check local context hub
+                    s_out = {"status": "embargoed"}
+                    out.append(s_out)
+                    embargoed = True
+                    break
             # always export copo id
             if k == "_id":
                 s_out["copo_id"] = str(v)
@@ -83,18 +95,18 @@ def filter_for_API(sample_list, add_all_fields=False):
                 if k in time_fields:
                     s_out[k] = format_date(v)
                 elif k in ["created_by", "updated_by"]:
-                    s_out[k] = "*****@"+v.split("@")[1]
+                    s_out[k] = "*****@" + v.split("@")[1]
                 else:
                     s_out[k] = v
             if k == "changelog":
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
         # iterate through fields to be exported and add them in blank if not present in the sample object
-        if add_all_fields:
+        if add_all_fields and not embargoed:
             for k in export:
                 if k not in s_out.keys():
                     s_out[k] = ""
-        out.append(s_out)
+            out.append(s_out)
     return out
 
 
@@ -114,6 +126,7 @@ def get_all_manifests_between_dates(request, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
     return finish_request(manifest_ids)
 
+
 def get_project_manifests_between_dates(request, project, d_from, d_to):
     # get $project manifests between d_from and d_to
     # dates must be ISO 8601 formatted
@@ -121,8 +134,9 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     d_to = parser.parse(d_to)
     if d_from > d_to:
         return HttpResponse(status=400, content="'from' must be earlier than'to'")
-    manifest_ids = Sample().get_manifests_by_date_and_project(project,d_from, d_to)
+    manifest_ids = Sample().get_manifests_by_date_and_project(project, d_from, d_to)
     return finish_request(manifest_ids)
+
 
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
