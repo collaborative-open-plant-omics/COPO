@@ -397,10 +397,6 @@ DTOL_ENUMS = {
         "N",
         "NOT_APPLICABLE"
     ],
-    "SPECIMEN_ID_RISK": [
-        "Y",
-        "N"
-    ],
     "MIXED_SAMPLE_RISK": [
         "Y",
         "N"
