@@ -101,14 +101,12 @@
                             <div class="well">
                                 <label>Are there common values for these fields?</label>
                                 <br>
-                                {#                            <div class="col-xs-12 col-sm-9">#}
+
                                 <select id="commonvalue" name="commonvalue" class="selectpicker" multiple
                                         data-live-search="true">
-                                    <option value="SPECIMEN_ID">Specimen ID</option>
-                                    <option value="FAMILY">Family</option>
                                 </select>
-                                {#                            </div>#}
                             </div>
+
 
                         </div>
 
@@ -186,26 +184,8 @@
         $(document).ready(function () {
 
 
-            // Get all DTOL fields from manifest schemas
-            {#var manifestType = document.querySelector('#manifestType').value;#}
-            {#var sample = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode = False)#}
-            {#var fields = jp.match(#}
-            {#    '$.properties[?(@.specifications[*] == ' + manifestType.lower() + ')].versions[0]', sample)#}
-            $.ajax({
-                type: "GET",
-                url: "/demo_trial_application/json_source",
-                dataType: "json",
-                success: function (data) {
-                    $.each(data.aaData, function (i, obj) {
-                        alert(obj.value + ":" + obj.text);
-                        var div_data = "<option value=" + obj.value + ">" + obj.text + "</option>";
-                        alert(div_data);
-                        $(div_data).appendTo('#ch_user1');
-                    });
-                }
-            });
         });
-        
+
         // Needed for the manifests webpage
         jQuery(function ($) {
 

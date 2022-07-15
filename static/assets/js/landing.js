@@ -22,6 +22,35 @@ $(document).ready(function () {
         $("#modal-wizard").modal("hide");
     });
 
+    // Get all DTOL fields from manifest schemas
+    // const token = $.cookie('csrftoken');
+    const csrftoken = $('[name="csrfmiddlewaretoken"]').val();
+    const manifest_type = document.querySelector('#manifestType').value;
+    console.log(manifest_type)
+    alert('right before ajax call')
+    $.ajax({
+        type: "POST",
+        headers: {'X-CSRFToken': csrftoken},
+        url: "get_manifest_fields/",
+        dataType: "json",
+        data: {
+            "manifest_type": manifest_type
+        },
+        done: function (data) {
+            console.log(data)
+            for (let i = 0; i < data.length; i++) {
+                const option = data[i];
+                $('#commonvalue').append('<option value="' + option + '">' + option + '</option>')
+            }
+
+        },
+        error: function (error) {
+            console.log(error)
+            alert("Oh no!");
+        }
+    });
+
+
     // Other code
     $(document).on("click", ".card", function () {
         window.location = "/copo/stats#"
