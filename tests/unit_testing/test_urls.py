@@ -436,6 +436,3 @@ class UrlsTest(TestCase):
             #     self.assertEqual(response.status_code, 200, response)
             self.assertEqual(response.status_code, 302, response)
             print(f"{response.status_code}: ", webpage)
-
-    def test_rest_urls(self):
-        pass

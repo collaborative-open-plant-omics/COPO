@@ -1,9 +1,10 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 from django.urls import path, re_path
-
+from web.apps.web_copo.utils import ajax_handlers
 from .annotate_views import search_all, post_annotations, handle_upload
 from .handlers import sample, person, general, stats
+from django.views.generic import TemplateView
 
 app_name = 'api'
 
@@ -58,4 +59,10 @@ stats_api_patterns = [
             name='samples_hist_json'),
 ]
 
-urlpatterns = generic_api_patterns + dtol_api_patterns + stats_api_patterns
+manifest_patterns = [
+    re_path(r'get_manifest_fields/', ajax_handlers.get_manifest_fields,
+            name="get_manifest_fields"),
+    re_path(r'manifests', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
+]
+
+urlpatterns = generic_api_patterns + dtol_api_patterns + stats_api_patterns + manifest_patterns

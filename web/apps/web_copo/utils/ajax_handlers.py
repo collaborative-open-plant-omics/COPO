@@ -16,6 +16,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse
 from jsonpickle import encode
 
 import web.apps.web_copo.lookup.lookup as ol
@@ -44,7 +45,6 @@ from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
 import jsonpath_rw_ext as jp
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.lookup import lookup as lk
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -1712,3 +1712,4 @@ def is_number(s):
         return True
     except ValueError:
         return False
+

@@ -80,11 +80,10 @@
                             <div class="well">
                                 <label>Choose the type of manifest that you would like to describe</label>
                                 <select class="form-control input-lg required" id="manifestType">
-                                    <option value="" disabled selected>Choose type</option>
-                                    <option value="ASG">ASG</option>
-                                    <option value="DTOL">DTOL</option>
-                                    <option value="ERGA">ERGA</option>
-                                    <option value="ENV">ENV</option>
+                                    <option value="asg">ASG</option>
+                                    <option value="dtol">DTOL</option>
+                                    <option value="erga">ERGA</option>
+                                    <option value="env">ENV</option>
                                 </select>
                             </div>
 
@@ -94,7 +93,7 @@
                             <div class="well">
                                 <label>How many organisms would you like to describe?</label>
                                 <br>
-                                <select id="numberOfSamples"></select>
+                                <input id="numberOfSamples" type="number" value="1" min="1" max="10000"/>
 
                             </div>
 
@@ -102,10 +101,9 @@
                                 <label>Are there common values for these fields?</label>
                                 <br>
 
-                                <select id="commonvalue" name="commonvalue" class="selectpicker" multiple
-                                        data-live-search="true">
-                                </select>
+                                <select id="commonfields"></select>
                             </div>
+                            <div style="overflow:scroll;" id="table"></div>
 
 
                         </div>
@@ -167,6 +165,7 @@
     <script src="{% static 'assets/js/ace-extra.min.js' %}"></script>
     <script src="{% static 'copo/js/html5shiv.js' %}"></script>
     <script src="{% static 'copo/js/respond.min.js' %}"></script>
+    <script src="{% static 'assets/js/manifests.js' %}"></script>
 
     <script type="text/javascript">
         window.jQuery || document.write("<script src='copo/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
