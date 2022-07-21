@@ -3,7 +3,7 @@ $(document).ready(function () {
         window.location = "/copo/stats#"
     })
 
-    $('.ui.dropdown').dropdown();
+    // $('.ui.dropdown').dropdown();
     const image = getRandomInt(images.length);
     $('body').css("background-image", "url(" + images[image] + ")")
 

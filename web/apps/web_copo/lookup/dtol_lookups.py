@@ -166,7 +166,8 @@ DTOL_EXPORT_TO_STS_FIELDS = {
 
         "tol_project"
     ],
-    "erga": []
+    "erga": [],
+    "env": []
 
 }
 DTOL_ENUMS = {

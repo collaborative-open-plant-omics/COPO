@@ -49,245 +49,88 @@
         </table>
     </div>
 
-
-    <div id="modal-wizard" class="modal fade" role="dialog">
+    <!-- Modal -->
+    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header row-fluid" data-target="#modal-step-contents">
-                    <h4 class="modal-title" style="text-align:center;"><b>Tree of Life Manifest Wizard</b></h4>
-                    <br>
-                    <ul class="wizard-steps">
-                        <li data-target="#modal-step1" class="active">
-                            <span class="step">1</span>
-                            <span class="title">Type</span>
-                        </li>
-
-                        <li data-target="#modal-step2">
-                            <span class="step">2</span>
-                            <span class="title">Sample Quantity</span>
-                        </li>
-
-                        <li data-target="#modal-step3">
-                            <span class="step">3</span>
-                            <span class="title">Manifest Template</span>
-                        </li>
-                    </ul>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Tree of Life Manifest Wizard</h4>
                 </div>
+                <div class="modal-body">
 
-                <div class="modal-body step-content row-fluid" id="modal-step-contents">
-                    <form id="modal-form">
-                        <div class="step-pane active" id="modal-step1">
-                            <div class="well">
-                                <label>Choose the type of manifest that you would like to describe</label>
-                                <select class="form-control input-lg required" id="manifestType">
-                                    <option value="asg">ASG</option>
-                                    <option value="dtol">DTOL</option>
-                                    <option value="erga">ERGA</option>
-                                    <option value="env">ENV</option>
-                                </select>
-                            </div>
 
+                    <!-------------------------------->
+                    <div id="manifest-wizard" class="wizard">
+                        <div class="steps-container">
+                            <ul class="steps">
+                                <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Step
+                                    1<span class="chevron"></span></li>
+                                <li data-target="#step2"><span class="badge">2</span>Step 2<span class="chevron"></span>
+                                </li>
+                                <li data-target="#step3"><span class="badge">3</span>Step 3<span class="chevron"></span>
+                                </li>
+                            </ul>
                         </div>
 
-                        <div class="step-pane" id="modal-step2">
-                            <div class="well">
-                                <label>How many organisms would you like to describe?</label>
-                                <br>
-                                <input id="numberOfSamples" type="number" value="1" min="1" max="10000"/>
-
-                            </div>
-
-                            <div class="well">
-                                <label>Are there common values for these fields?</label>
-                                <br>
-
-                                <select id="commonfields"></select>
-                            </div>
-                            <div style="overflow:scroll;" id="table"></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-pane active" id="step1">This is step 1</div>
+                        <div class="step-pane" id="step2">This is step 2</div>
+                        <div class="step-pane" id="step3">This is step 3</div>
+                    </div>
 
 
-                        </div>
-
-                        <div class="step-pane" id="modal-step3">
-                            <div class="center">
-                                <h3 class="green">Congrats!</h3>
-                                Your manifest template is ready to be downloaded! Click finish to download!
-                            </div>
-                        </div>
-                    </form>
+                    <div class="modal-footer actions">
+                        <button type="button" class="btn btn-mini btn-prev"><i class="icon-arrow-left"></i>Prev
+                        </button>
+                        <button type="button" class="btn btn-success btn-mini btn-next" data-last="Finish">Next<i
+                                class=""></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="modal-footer row-fluid wizard-actions">
-                    <button class="btn btn-sm btn-prev">
-                        <i class="fa fa-arrow-left"></i>
-                        Prev
-                    </button>
-
-                    <button class="btn btn-success btn-sm btn-next" data-last="Finish ">
-                        Next
-                        <i class="fa fa-arrow-right"></i>
-                    </button>
-
-                    <button class="btn btn-danger btn-sm pull-left" data-dismiss="modal">
-                        <i class="fa fa-times"></i>
-
-                        Cancel
-                    </button>
-                </div>
             </div>
         </div>
     </div>
-    </div>
+
+    {#    <div class="modal-footer row-fluid wizard-actions">#}
+    {#        <button id="prevBtn" class="btn btn-sm btn-prev">#}
+    {#            <i class="fa fa-arrow-left"></i>#}
+    {#            Prev#}
+    {#        </button>#}
+    {##}
+    {#        <button class="btn btn-success btn-sm btn-next" data-last="Finish">#}
+    {#            Next#}
+    {#            <i id="nextIcon" class="fa fa-arrow-right"></i>#}
+    {#        </button>#}
+    {##}
+    {#        <button id="closeBtn" class="btn btn-danger btn-sm pull-left" data-dismiss="modal">#}
+    {#            <i class="fa fa-times"></i>#}
+    {##}
+    {#            Cancel#}
+    {#        </button>#}
+    {#    </div>#}
+
 
 {% endblock %}
 
 {% block headblock %}
-    <link rel="stylesheet" href="{% static 'copo/select2-405/css/select2.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-fonts.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-rtl.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/ace-min.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-skins.min.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/ace-ie.min.css' %}">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.8/css/bootstrap-select.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://www.fuelcdn.com/fuelux/3.17.1/css/fuelux.min.css" rel="stylesheet">
 
-    <script src="{% static 'copo/js/bootstrap.min.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.8/js/bootstrap-select.js"></script>
-    <script src="{% static 'assets/fuelux/js/fuelux.wizard.min.js' %}"></script>
-    <script src="{% static 'assets/js/landing.js' %}"></script>
-    <script src="{% static 'copo/js/jquery.validate.min.js' %}"></script>
-    <script src="{% static 'assets/js/additional-methods.min.js' %}"></script>
-    <script src="{% static 'assets/js/bootbox.min.js' %}"></script>
-    <script src="{% static 'copo/js/jquery.maskedinput.min.js' %}"></script>
-    <script src="{% static 'copo/select2-405/select2.min.js' %}"></script>
-    <script src="{% static 'assets/js/ace-elements.min.js' %}"></script>
-    <script src="{% static 'assets/js/ace.min.js' %}"></script>
-    <script src="{% static 'assets/js/ace-extra.min.js' %}"></script>
-    <script src="{% static 'copo/js/html5shiv.js' %}"></script>
-    <script src="{% static 'copo/js/respond.min.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+
     <script src="{% static 'assets/js/manifests.js' %}"></script>
 
-    <script type="text/javascript">
-        window.jQuery || document.write("<script src='copo/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script src="https://www.fuelcdn.com/fuelux/3.17.1/js/fuelux.min.js"></script>
 
-    <script type="text/javascript">
-        if ("ontouchend" in document) document.write("<script src='copo/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
-    </script>
-
-    <script src="{% static 'copo/typeahead/typeahead-bs2.min.js' %}"></script>
-
-    <script src="{% static 'assets/js/ace-elements.min.js' %}"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-
-        });
-
-        // Needed for the manifests webpage
-        jQuery(function ($) {
-
-            $('[data-rel=tooltip]').tooltip();
-
-            $(".select2").css('width', '200px').select2({allowClear: true})
-                .on('change', function () {
-                    $(this).closest('form').validate().element($(this));
-                });
-
-
-            // var $validation = false;
-            $('#modal-wizard .modal-header').ace_wizard().on('change', function (e, info) {
-                //if(info.step == 1 && $validation) {
-                //	if(!$('#validation-form').valid()) return false;
-                //}
-            }).on('finished', function (e) {
-                bootbox.dialog({
-                    message: "Thank you! The manifest template was generated and will now begin downloading.",
-                    buttons: {
-                        "success": {
-                            "label": "OK",
-                            "className": "btn-sm btn-primary okbtn"
-                        }
-                    }
-                }).on('hidden.bs.modal', function () {
-                    $('#modal-wizard').removeData('bs.modal');
-                    $(this).removeData('bs.modal');
-
-                }).on('stepclick', function (e) {
-                    //return false;//prevent clicking on steps
-                });
-
-
-            });
-
-
-            $('#validation-form').validate({
-                errorElement: 'div',
-                errorClass: 'help-block',
-                focusInvalid: false,
-                rules: {
-                    manifestType: {
-                        required: true,
-                    },
-                    manifestdomain: {
-                        required: true,
-                    },
-                    numberOfSamples: {
-                        required: true,
-                    },
-                    commonvalue: {
-                        required: true
-                    }
-                },
-                messages: {
-                    manifestType: {
-                        required: "Please provide a valid email.",
-                        email: "Please provide a valid email."
-                    },
-                    manifestdomain: {
-                        required: "Please specify a password.",
-                        minlength: "Please specify a secure password."
-                    },
-                    numberOfSamples: "Please choose at least one option",
-                    commonvalue: "Please choose gender",
-                },
-
-                invalidHandler: function (event, validator) { //display error alert on form submit
-                    $('.alert-danger', $('.login-form')).show();
-                },
-
-                highlight: function (e) {
-                    $(e).closest('.form-group').removeClass('has-info').addClass('has-error');
-                },
-
-                success: function (e) {
-                    $(e).closest('.form-group').removeClass('has-error').addClass('has-info');
-                    $(e).remove();
-                },
-
-                errorPlacement: function (error, element) {
-                    if (element.is(':checkbox') || element.is(':radio')) {
-                        var controls = element.closest('div[class*="col-"]');
-                        if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
-                        else error.insertAfter(element.nextAll('.lbl:eq(0)').eq(0));
-                    } else if (element.is('.select2')) {
-                        error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
-                    } else if (element.is('.chosen-select')) {
-                        error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
-                    } else error.insertAfter(element.parent());
-                },
-
-                submitHandler: function (form) {
-                },
-                invalidHandler: function (form) {
-                }
-            });
-
-            $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
-        });
-
-
-    </script>
+    <script src="https://www.fuelcdn.com/fuelux/3.17.1/js/fuelux.min.js"></script>
 
 {% endblock %}

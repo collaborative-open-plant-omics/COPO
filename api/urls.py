@@ -62,7 +62,7 @@ stats_api_patterns = [
 manifest_patterns = [
     re_path(r'get_manifest_fields/', ajax_handlers.get_manifest_fields,
             name="get_manifest_fields"),
-    re_path(r'manifests', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
+    re_path(r'index', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
 ]
 
 urlpatterns = generic_api_patterns + dtol_api_patterns + stats_api_patterns + manifest_patterns
