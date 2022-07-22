@@ -1,13 +1,14 @@
 $(document).ready(function () {
     // Trigger manifest wizard modal
+    $('#orderWizard').wizard();
     $(document).on("click", "#show_manifest_wzd_button", function (e) {
         $("#modal-placeholder").modal("show");
         $('#manifest-wizard').wizard();
         // Preload dropdownlist with default manifest type
-        //$("#manifestType").children()[1].click();
+        $("#manifestType").children()[1].click();
     });
 
-    $(document).on("shown.bs.modal", "#modal-wizard", get_field_handler)
+    $(document).on("shown.bs.modal", "#manifest-wizard", get_field_handler)
 
     $(document).on("change", "#manifestType", get_field_handler)
 
@@ -27,16 +28,16 @@ $(document).ready(function () {
         });
     });
 
-    $(document).on("hidden.bs.modal", "#modal-wizard", function (e, info) {
-        // {#$('#modal-wizard').removeData('bs.modal');#}
+    $(document).on("hidden.bs.modal", "#manifest-wizard", function (e, info) {
+        // {#$('#manifest-wizard').removeData('bs.modal');#}
         // $(this).remove();
         // $(this).html('');
-        alert('Modal has been reset');
+        // alert('Modal has been reset');
         // $(this).find('#modal-form').trigger('reset');
         // $(this).find("#manifestType").html("")
         $('#modal-form').find('#numberOfSamples').val(1);
-        $('#modal-wizard .wizard-steps li[data-target="#modal-step1"]').attr("class", "active").show();
-        $(this).find('#modal-wizard .wizard-steps').trigger('reset');
+        $('#manifest-wizard .wizard-steps li[data-target="#modal-step1"]').attr("class", "active").show();
+        $(this).find('#manifest-wizard .wizard-steps').trigger('reset');
 
         // showStep(1);
         // console.log(info["step"]);
@@ -45,7 +46,7 @@ $(document).ready(function () {
         // $(document).on("click", "#prevBtn", function () {
         // });
 
-        // $('#modal-wizard > .step' + step).show();
+        // $('#manifest-wizard > .step' + step).show();
         // $('#modal-form').find('input[type="number"]').val(1);
         // $('#modal-form').find('select[id="commonfields"]').val('---------');
         //          {#modal-content#}
@@ -55,40 +56,67 @@ $(document).ready(function () {
 
 //
 function showStep(step) {
-    $('#modal-wizard').data('wizard-steps', step);
-    $('#modal-wizard > .wizard-steps').hide();
-    $('#modal-wizard > .wizard-steps .active[data-target=#modal-step' + step + ']').show();
+    $('#manifest-wizard').data('wizard-steps', step);
+    $('#manifest-wizard > .wizard-steps').hide();
+    $('#manifest-wizard > .wizard-steps .active[data-target=#modal-step' + step + ']').show();
 }
 
 function wizard_handler() {
-
-    $('#manifest-wizard').on('change', function (e, data) {
+    const wizard = $("#manifest-wizard");
+    wizard.on('change', function (e, data) {
         console.log('change');
-        console.log(data.step);
+        // console.log(data.step);
         var item = $('#manifest-wizard').wizard('selectedItem');
         console.log(item.step);
-        if (data.step === 3 && data.direction === 'next') {
-            // return e.preventDefault();
-        }
-    }).on('changed', function (e, data) {
-        alert('hi 2')
+        // if (data.step === 3 && data.direction === 'next') {
+        //     // return e.preventDefault();
+        // }
+    }).on('changed.fu.wizard', function (e, data) {
+        // alert('hi 2')
         console.log('changed');
     }).on('finished', function (e, data) {
         console.log('finished');
-    }).on('stepclick', function (e, data) {
+    }).on('stepclick.fu.wizard', function (e, data) {
 
         console.log('step' + data.step + ' clicked');
     });
+    //
+    // $('#manifest-wizard').on('actionclicked.fu.wizard', function (evt, data) {
+    //     var index = data.step;
+    //     if (data.direction === 'next')
+    //         index += 1;
+    //     else
+    //         index -= 1;
+    //     var label = $('li[data-target="#step' + index + '"]').data('index');
+    //     console.log("this is the current step label:", label);
+    // });
 
-    $('.btn-prev').on('click', function () {
-        $('#manifest-wizard').wizard('previous');
-        console.log("previous");
-    });
+    // $('.btn-prev').on('click', function () {
+    //     $('#manifest-wizard').wizard('previous');
+    // });
+    //
+    // $('.btn-next').on('click', function () {
+    //     $('#manifest-wizard').wizard('next', 'foo');
+    // });
 
-    $('.btn-next').on('click', function () {
-        $('#manifest-wizard').wizard('next');
-        console.log("next");
-    });
+
+    // var wizard = $('#manifest-wizard').wizard();
+    // var buttons = wizard.siblings('.actions1').eq(0);
+    // var wizard_data = wizard.data('#manifest-wizard');
+
+    // prevBtn.remove();
+    // wizard_data.$nextBtn.remove();
+    //
+    // wizard_data.$prevBtn = buttons.find('.btn-prev').eq(0).on("click", function () {
+    //     $('#manifest-wizard').wizard('previous');
+    // }).attr('disabled', 'disabled');
+    // wizard_data.$nextBtn = buttons.find('.btn-next').eq(0).on("click", function () {
+    //     $('#manifest-wizard').wizard('next');
+    // }).removeAttr('disabled');
+    // wizard_data.nextText = wizard.$nextBtn.text();
+
+
+    $('.actions1 .btn[data-dismiss=modal]').removeAttr('disabled');
 }
 
 function get_field_handler() {
@@ -107,7 +135,7 @@ function get_field_handler() {
     }).done(function (data) {
         console.log(data)
         let option = [];
-        //var idx = $("#modal-wizard").selectedItem()
+        //var idx = $("#manifest-wizard").selectedItem()
         //console.log(idx)
         // Add a default value to the dropdown menu
         $("#commonfields").empty()
