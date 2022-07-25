@@ -1,0 +1,17 @@
+﻿.fuelux .wizard > .actions {
+    z-index: 1000;
+    position: initial !important;
+    right: 0px;
+    top: auto;
+    bottom: 0px !important;
+    line-height: 46px;
+    float: right;
+
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    vertical-align: middle;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0px 4px 0px 0px;
+}

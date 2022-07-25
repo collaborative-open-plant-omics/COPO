@@ -48,13 +48,14 @@
             </tbody>
         </table>
     </div>
-    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Tree of Life Manifest Wizard</h4>
+                    <h4 id=modalLabel class="modal-title" style="text-align:center;"><b>Tree of Life Manifest Wizard</b>
+                    </h4>
                 </div>
 
                 <!-------------------------------->
@@ -87,7 +88,7 @@
                                     {#                                        <option value="erga">ERGA</option>#}
                                     {#                                        <option value="env">ENV</option>#}
                                     {#                                    </select>#}
-                                    <div id="manifestType" class="input-append dropdown combobox required">
+                                    <div id="manifestType" class="input-append dropdown combobox">
                                         <input class="span2" type="text">
                                         <button type="button" class="btn" data-toggle="dropdown"><i class="caret"></i>
                                         </button>
@@ -99,43 +100,34 @@
                                         </ul>
                                     </div>
                                 </div>
-
                             </div>
                             <div class="step-pane" data-step="2">
                                 <div class="well">
                                     <label>How many organisms would you like to describe?</label>
                                     <br>
-                                    {#                                    <input class="form-control" id="numberOfSamples" type="number" value="1" min="1"#}
-                                    {#                                           max="10000"/>#}
-
-                                    <div id="numberOfSamples" class="spinbox">
-                                        <input type="text" class="input-mini spinbox-input" maxlength="3">
-                                        <div class="spinbox-buttons	btn-group btn-group-vertical">
-                                            <button type="button" class="btn spinner-up btn-xs">
-                                                <i class="fa fa-chevron-up"></i>
-                                            </button>
-                                            <button type="button" class="btn spinbox-down btn-xs">
-                                                <i class="fa fa-chevron-down"></i>
-                                            </button>
-                                        </div>
-                                        {#                                        <input type="text" class="input-mini spinner-input" maxlength="3">#}
-                                        {#                                        <div class="spinner-buttons	btn-group btn-group-vertical">#}
-                                        {#                                            <button type="button" class="btn spinner-up btn-xs">#}
-                                        {#                                                <i class="fa fa-chevron-up"></i>#}
-                                        {#                                            </button>#}
-                                        {#                                            <button type="button" class="btn spinner-down btn-xs">#}
-                                        {#                                                <i class="fa fa-chevron-down"></i>#}
-                                        {#                                            </button>#}
-                                        {#                                        </div>#}
-                                    </div>
-
+                                    <input class="form-control" id="numberOfSamples"
+                                           type="number" value="1" min="1"
+                                           max="10000"/>
                                 </div>
 
                                 <div class="well">
-                                    <label>Are there common values for these fields?</label>
+                                    <label>Are there common values for these fields?&nbsp;
+                                        <i id="info" class="fa fa-info-circle" aria-hidden="true"></i>
+
+                                    </label>
                                     <br>
 
-                                    <select class="form-control" id="commonfields"></select>
+                                    {#                                    <select class="form-control" id="commonfields"></select>#}
+
+                                    <div id="commonfields" class="input-append dropdown combobox">
+                                        <input class="span2" type="text">
+                                        <button type="button" class="btn" data-toggle="dropdown"><i class="caret"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </div>
+
+
                                 </div>
                                 <div style="overflow:scroll;" id="table"></div>
 
@@ -143,9 +135,10 @@
                             </div>
 
                             <div class="step-pane" data-step="3">
-                                <div class="center">
-                                    <h3 class="green">Congrats!</h3>
-                                    Your manifest template is ready to be downloaded! Click finish to download!
+                                <div style="text-align:center;">
+                                    <h3 style="color: #00bb00">Congrats!</h3>
+                                    <br>
+                                    Your manifest template is ready to be downloaded. Click finish to download.
                                 </div>
                             </div>
 
@@ -158,7 +151,7 @@
                             <i class="fa fa-arrow-left"></i> Prev
                         </button>
                         <button type="button" class="btn btn-sm btn-success btn-next" data-last="Finish">
-                            Next&nbsp;<i class="fa fa-arrow-right"></i>
+                            Next&nbsp;<i id="rightIcon" class="fa fa-arrow-right"></i>
                         </button>
                     </div>
 
@@ -171,84 +164,19 @@
         </div>
     </div>
     {#    ............................................#}
-
-    <!-- Modal -->
-    {##}
-    {#    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
-    {#        <div class="modal-dialog" role="document">#}
-    {#            <div class="modal-content">#}
-    {#                <div class="modal-header">#}
-    {#                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span#}
-    {#                            aria-hidden="true">&times;</span></button>#}
-    {#                    <h4 class="modal-title" id="myModalLabel">Tree of Life Manifest Wizard</h4>#}
-    {#                </div>#}
-    {##}
-    {#                <!-------------------------------->#}
-    {#                <div id="manifest-wizard" class=" wizard">#}
-    {#                    <div class="steps-container">#}
-    {#                        <ul class="steps">#}
-    {#                            <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Step#}
-    {#                                1<span class="chevron"></span></li>#}
-    {#                            <li data-target="#step2"><span class="badge">2</span>Step 2<span#}
-    {#                                    class="chevron"></span>#}
-    {#                            </li>#}
-    {#                            <li data-target="#step3"><span class="badge">3</span>Step 3<span#}
-    {#                                    class="chevron"></span>#}
-    {#                            </li>#}
-    {#                        </ul>#}
-    {#                    </div>#}
-    {##}
-    {#                </div>#}
-    {#                <div class="modal-body step-content">#}
-    {#                    <div class="step-pane active" id="step1">This is step 1</div>#}
-    {#                    <div class="step-pane" id="step2">This is step 2</div>#}
-    {#                    <div class="step-pane" id="step3">This is step 3</div>#}
-    {#                </div>#}
-    {##}
-    {##}
-    {#                <div class="modal-footer actions1">#}
-    {#                    <button type="button" class="btn btn-mini btn-prev"><i class="icon-arrow-left"></i>Prev#}
-    {#                    </button>#}
-    {#                    <button type="button" class="btn btn-success btn-mini btn-next" data-last="Finish">Next<i#}
-    {#                            class=""></i>#}
-    {#                    </button>#}
-    {#                </div>#}
-    {##}
-    {##}
-    {#            </div>#}
-    {#        </div>#}
-    {#    </div>#}
-
-
-    {#    <div class="modal-footer row-fluid wizard-actions">#}
-    {#        <button id="prevBtn" class="btn btn-sm btn-prev">#}
-    {#            <i class="fa fa-arrow-left"></i>#}
-    {#            Prev#}
-    {#        </button>#}
-    {##}
-    {#        <button class="btn btn-success btn-sm btn-next" data-last="Finish">#}
-    {#            Next#}
-    {#            <i id="nextIcon" class="fa fa-arrow-right"></i>#}
-    {#        </button>#}
-    {##}
-    {#        <button id="closeBtn" class="btn btn-danger btn-sm pull-left" data-dismiss="modal">#}
-    {#            <i class="fa fa-times"></i>#}
-    {##}
-    {#            Cancel#}
-    {#        </button>#}
-    {#    </div>#}
-
-
 {% endblock %}
 
 {% block headblock %}
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
           crossorigin="anonymous">
-    <link href="https://www.fuelcdn.com/fuelux/3.17.1/css/fuelux.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.fuelcdn.com/fuelux/3.17.1/css/fuelux.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/manifests.css' %}">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             cintegrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
+
 
     <script src="{% static 'assets/js/manifests.js' %}"></script>
 
@@ -256,25 +184,6 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuelux/3.17.2/js/fuelux.min.js"></script>
-    <script src="{% static 'assets/fuelux/js/spinbox.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>
 
-    <style>
-        .fuelux .wizard > .actions {
-            z-index: 1000;
-            position: initial !important;
-            right: 0px;
-            top: auto;
-            bottom: 0px !important;
-            line-height: 46px;
-            float: right;
-
-            padding-left: 15px;
-            padding-right: 15px;
-            padding-bottom: 15px;
-            vertical-align: middle;
-            background-color: transparent !important;
-            border: none !important;
-            border-radius: 0px 4px 0px 0px;
-        }
-    </style>
 {% endblock %}
