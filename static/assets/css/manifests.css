@@ -15,3 +15,11 @@
     border: none !important;
     border-radius: 0px 4px 0px 0px;
 }
+
+.fieldtable. tr:nth-child(even) {
+    background-color: #D6EEEE;
+}
+
+tr:hover {
+    background-color: #D6EEEE;
+}

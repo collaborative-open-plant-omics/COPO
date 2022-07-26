@@ -1385,6 +1385,7 @@ def create_spreadsheet_samples(request):
     dtol.save_records()
     return HttpResponse(status=200)
 
+
 def update_spreadsheet_samples(request):
     sample_data = request.session["sample_data"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
@@ -1396,7 +1397,7 @@ def update_spreadsheet_samples(request):
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
-    #todo control for someone being both
+    # todo control for someone being both
     profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
@@ -1713,3 +1714,10 @@ def is_number(s):
     except ValueError:
         return False
 
+
+def get_manifest_fields(request):
+    manifest_type = request.GET["manifest_type"]
+    all_sample_fields = lkup.DTOL_EXPORT_TO_STS_FIELDS[manifest_type]
+    # Get file names that begin with an uppercase letter
+    sample_fields = list(filter(lambda x: x[0].isupper() == True, all_sample_fields))
+    return HttpResponse(json.dumps(sample_fields))

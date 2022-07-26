@@ -82,12 +82,6 @@
                             <div class="step-pane" data-step="1">
                                 <div class="well">
                                     <label>Choose the type of manifest that you would like to describe</label>
-                                    {#                                    <select class="form-control required" id="manifestType">#}
-                                    {#                                        <option value="asg">ASG</option>#}
-                                    {#                                        <option value="dtol">DTOL</option>#}
-                                    {#                                        <option value="erga">ERGA</option>#}
-                                    {#                                        <option value="env">ENV</option>#}
-                                    {#                                    </select>#}
                                     <div id="manifestType" class="input-append dropdown combobox">
                                         <input class="span2" type="text">
                                         <button type="button" class="btn" data-toggle="dropdown"><i class="caret"></i>
@@ -117,19 +111,16 @@
                                     </label>
                                     <br>
 
-                                    {#                                    <select class="form-control" id="commonfields"></select>#}
-
-                                    <div id="commonfields" class="input-append dropdown combobox">
-                                        <input class="span2" type="text">
-                                        <button type="button" class="btn" data-toggle="dropdown"><i class="caret"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </div>
+                                    <select class="form-control" id="commonfields"
+                                            onchange="insertTableRow(this)"></select>
 
 
                                 </div>
-                                <div style="overflow:scroll;" id="table"></div>
+
+                                <div>
+                                    <div id="table" class="fieldtable">
+                                    </div>
+                                </div>
 
 
                             </div>

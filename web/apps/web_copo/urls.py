@@ -189,6 +189,4 @@ urlpatterns = [
          name="handle_csv_column_update_spreadsheet"),
     path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
          name="handle_csv_column_validate_spreadsheet"),
-    path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
-         name="handle_csv_column_update_samples")
 ]
