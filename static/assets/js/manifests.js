@@ -7,7 +7,11 @@ $(document).ready(function () {
         // after the "finished" button is pressed
         $('#manifest-wizard').wizard('selectedItem', {step: 1});
         // Show "right icon" after it is removed from last step
-        document.getElementById('rightIcon').style.visibility = 'visibility';
+        // $('#rightIcon').addClass('fa fa-arrow-right');
+        // document.getElementById('rightIcon').style.visibility = 'visibility';
+        // Show "Next" after it was removed from last step
+        // document.getElementById('nextBtn').value = 'Next';
+        // document.getElementById('nextBtn').innerHTML = 'Next';
 
 
         $('#manifestType').combobox('selectByIndex', '0'); // Preload with default manifest type
@@ -46,6 +50,7 @@ $(document).ready(function () {
 });
 
 function wizard_handler() {
+    // wizard handler
     $("#manifest-wizard").on('change.fu.wizard', function (e, data) {
         console.log('change');
         toggleNextIconVisibility();
@@ -66,6 +71,14 @@ function wizard_handler() {
         toggleNextIconVisibility();
 
     });
+    // Navigate wizard
+    $('.btn-prev').on('click', function () {
+        $('#manifest-wizard').wizard('previous');
+    });
+
+    $('.btn-next').on('click', function () {
+        $('#manifest-wizard').wizard('next');
+    });
 }
 
 function get_common_fields_handler() {
@@ -83,7 +96,7 @@ function get_common_fields_handler() {
         let option = [];
         // Add a default value to the dropdown menu
         $("#commonfields").empty();
-        // $('#commonfields').append('<option selected disabled hidden value=""' + '>' + '----------' + '</option>')
+        $('#commonfields').append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
         for (let i = 0; i < data.length; i++) {
             option = data[i];
             $('#commonfields').append('<option value="' + option + '">' + option + '</option>')
@@ -98,12 +111,21 @@ function get_common_fields_handler() {
 
 }
 
-function toggleNextIconVisibility(step) {
+function toggleNextIconVisibility() {
     let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
     try {
+        // document.getElementById('nextBtn').value = 'Next';
+        // document.getElementById('nextBtn').innerHTML = 'Next';
+        document.getElementById('nextBtn').innerHtml = 'Next <i  id="rightIcon" class="fa fa-arrow-right"></i>';
+        // $('#rightIcon').addClass('fa fa-arrow-right');
         if (currentStep === 3) {
             // Hide the "next" icon from the last step of the wizard
-            document.getElementById('rightIcon').style.visibility = 'hidden';
+            // document.getElementById('rightIcon').style.visibility = 'hidden';
+            // $('#rightIcon').removeClass('fa fa-arrow-right');
+
+            // document.getElementById('nextBtn').innerHTML = 'Finish';
+            console.log('at step 3');
+            document.getElementById('nextBtn').innerHtml = 'Finish';
         }
     } catch (error) {
         console.log(error.message)
@@ -141,7 +163,8 @@ function insertTableRow(common_field) {
     const tr = document.createElement('tr');
 
     // $(tableID).css({'height': '100px'});
-    $('#tableID').addClass(' tr:nth-child(even)');
+    $(table).addClass('hoverTable');
+    // $(table).addClass('zebraStripedTable');
 
     // Insert a row into a table
     const row = table.insertRow();
@@ -181,12 +204,49 @@ function insertTableRow(common_field) {
     let number_of_rows = $("#table").find('tr').length / 2; //$("#table tr").length / 2;
 
     console.log('Number of rows in the table: ' + number_of_rows);
-    // Add a scroll to the table once it has at least 5 rows in it
-    if (number_of_rows >= 5) {
+    // Add a scroll to the table once it has at least 10 rows in it
+    if (number_of_rows >= 10) {
         console.log('Number of rows is more than or equal to 5');
         $(tableID).css({'overflow': 'scroll'});
         $(tableID).css({'height': '100px'});
     }
 
 
+}
+
+function generateManifestTemplate() {
+    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    const number_of_table_rows = document.getElementById("numberOfSamples").value;
+    const number_of_common_fields = $("#table").find('tr').length / 2;
+    const table = document.createElement('table');
+    let common_fields_list = []
+    let common_values_list = []
+    for (const row of number_of_table_rows) {
+        for (const cell of row.cells) {
+            console.log(cell.innerHTML)
+            common_fields_list.append(cell.innerHTML[0])
+            common_values_list.append(cell.innerHTML[1])
+
+        }
+    }
+    console.log('Common field names list: ', common_fields_list);
+    console.log('Common field values list: ', common_values_list);
+
+    $.ajax({
+        type: "POST",
+        url: "generate_manifest_template/",
+        dataType: "json",
+        data: {
+            "row_count": number_of_table_rows,
+            "manifest_type": manifest_type
+        }
+    }).done(function (data) {
+
+
+    }).fail(function (error) {
+            console.log(error);
+        }
+    ).always(function () {
+        //do  something whether request is ok or fail
+    });
 }

@@ -1721,3 +1721,27 @@ def get_manifest_fields(request):
     # Get file names that begin with an uppercase letter
     sample_fields = list(filter(lambda x: x[0].isupper() == True, all_sample_fields))
     return HttpResponse(json.dumps(sample_fields))
+
+
+def generate_manifest_template(request):
+    manifest_type = request.GET["manifest_type"]
+    number_of_rows = request.POST["row_count"]
+
+    df = pd.DataFrame(index=np.arrange(number_of_rows), columns=['a', 'b', 'c', 'd'])
+
+    if manifest_type == "asg":
+        blank_manifest_template_path = 'static/assets/manifests/ASG_MANIFEST_v2.3.xlsx';
+    elif manifest_type == "dtol":
+        blank_manifest_template_path = 'static/assets/manifests/DTOL_MANIFEST_v2.3.xlsx';
+    elif manifest_type == "erga":
+        blank_manifest_template_path = '';
+    else:
+        blank_manifest_template_path = '';
+
+    dataframe = pd.read_excel(blank_manifest_template_path);
+    # for i in number_of_rows:
+    # common_value = [12.34, 17.56, 12.45];
+    # dataframe = dataframe.append({"ColumnName": YourDataInAList}, ignore_index=True)
+    # dataframe.to_excel("./YourNewExcel.xlsx", index=False);
+
+    return

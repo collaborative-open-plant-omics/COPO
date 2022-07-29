@@ -1,4 +1,4 @@
-﻿.fuelux .wizard > .actions {
+﻿.fuelux .modal-body .wizard .modal-footer > .actions {
     z-index: 1000;
     position: initial !important;
     right: 0px;
@@ -13,13 +13,10 @@
     vertical-align: middle;
     background-color: transparent !important;
     border: none !important;
+    /*border-top: 1px solid #e9ecef !important;*/
     border-radius: 0px 4px 0px 0px;
 }
 
-.fieldtable. tr:nth-child(even) {
-    background-color: #D6EEEE;
-}
-
-tr:hover {
+.hoverTable tr:hover {
     background-color: #D6EEEE;
 }
