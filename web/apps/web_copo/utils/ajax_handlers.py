@@ -5,6 +5,8 @@ import json
 import os
 import time
 import urllib.parse
+import itertools
+import xlsxwriter
 from datetime import datetime
 from Bio import Entrez
 import jsonpickle
@@ -27,6 +29,7 @@ from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoG
     Repository, Person
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
+from django.conf import settings
 from submission.ckanSubmission import CkanSubmit as ckan
 from submission.dataverseSubmission import DataverseSubmit as ds
 from submission.dspaceSubmission import DspaceSubmit as dspace
@@ -1724,24 +1727,55 @@ def get_manifest_fields(request):
 
 
 def generate_manifest_template(request):
-    manifest_type = request.GET["manifest_type"]
-    number_of_rows = request.POST["row_count"]
+    manifest_type = request.POST["manifest_type"]
+    number_of_samples = int(request.POST["row_count"])  # Convert to int
+    # Get array lists
+    common_fields = request.POST.getlist('common_fields_list[]', [])
+    common_values = request.POST.getlist("common_values_list[]", [])
+    manifests_dir = os.path.join("static", "assets", "manifests")
+    file_name = ''
+    manifest_template_path = ''
 
-    df = pd.DataFrame(index=np.arrange(number_of_rows), columns=['a', 'b', 'c', 'd'])
+    print('Manifest type: ', manifest_type)
+    print('Number of table rows: ', number_of_samples)
+    print('All common fields: ', common_fields)
+    print('All common values: ', common_values)
 
+    # Set the path to the blank manifest template for the manifest type
     if manifest_type == "asg":
-        blank_manifest_template_path = 'static/assets/manifests/ASG_MANIFEST_v2.3.xlsx';
+        file_name = 'ASG_MANIFEST_v2.3.xlsx'
     elif manifest_type == "dtol":
-        blank_manifest_template_path = 'static/assets/manifests/DTOL_MANIFEST_v2.3.xlsx';
+        file_name = 'DTOL_MANIFEST_v2.3.xlsx'
     elif manifest_type == "erga":
-        blank_manifest_template_path = '';
+        file_name = ''
     else:
-        blank_manifest_template_path = '';
+        file_name = ''
 
-    dataframe = pd.read_excel(blank_manifest_template_path);
-    # for i in number_of_rows:
-    # common_value = [12.34, 17.56, 12.45];
-    # dataframe = dataframe.append({"ColumnName": YourDataInAList}, ignore_index=True)
-    # dataframe.to_excel("./YourNewExcel.xlsx", index=False);
+    manifest_template_path = os.path.join(manifests_dir, file_name)
 
-    return
+    print('Manifest file path: ', manifest_template_path)
+
+    # Duplicate the common field value according to the number of samples desired
+    row_values = []
+    for i in common_values:
+        row_values.append([i] * int(number_of_samples))
+    print('Actual row values: ', row_values)
+    dataframe = pd.DataFrame(row_values, columns=common_fields)
+    dataframe_excel = pd.read_excel(manifest_template_path)
+    # Remove all existing duplicates from the excel file if
+    # any exists since the data is alqays appended to the file
+    # dataframe_excel.drop_duplicates()
+    result = pd.concat([dataframe_excel, dataframe], ignore_index=True)
+    result.to_excel(manifest_template_path, index=False, startrow=1)
+    # # Create a Pandas Excel writer using XlsxWriter as the engine.
+    # new_excel_writer = pd.ExcelWriter('_' + file_name, engine='xlsxwriter')
+    #
+    # result.to_excel(new_excel_writer, index=False, startrow=1, sheet_name='Sheet1')
+
+    return HttpResponse(manifest_template_path)
+
+#
+# def append_data_frame_to_excel(dataframe, excel_file_path):
+#     dataframe_excel = pd.read_excel(excel_file_path)
+#     result = pd.concat([dataframe_excel, dataframe], ignore_index=True)
+#     result.to_excel(excel_file_path, index=False)

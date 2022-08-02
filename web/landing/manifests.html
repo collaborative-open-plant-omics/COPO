@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-
+    {% csrf_token %}
     <p>
         Current Tree of Life Manifests
     </p>
@@ -118,9 +118,9 @@
 
                                     </div>
 
-                                    <div>
-                                        <div id="table">
-                                        </div>
+                                    <div id="tableDiv">
+                                        <table id="tableID">
+                                        </table>
                                     </div>
 
 

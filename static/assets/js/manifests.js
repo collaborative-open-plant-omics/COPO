@@ -103,7 +103,7 @@ function get_common_fields_handler() {
         }
 
     }).fail(function (error) {
-            console.log(error);
+            console.log('Error:', error);
         }
     ).always(function () {
         //do  something whether request is ok or fail
@@ -124,7 +124,7 @@ function toggleNextIconVisibility() {
             // $('#rightIcon').removeClass('fa fa-arrow-right');
 
             // document.getElementById('nextBtn').innerHTML = 'Finish';
-            console.log('at step 3');
+            // console.log('at step 3');
             document.getElementById('nextBtn').innerHtml = 'Finish';
         }
     } catch (error) {
@@ -156,11 +156,11 @@ function removeTableRow(row) {
 }
 
 function insertTableRow(common_field) {
-    const tableID = document.getElementById("table");
-    const table = document.createElement('table');
+    const tableDiv = document.getElementById("tableDiv");
+    const table = document.getElementById("tableID");
     table.style.margin = "auto"; // Centre the table
 
-    const tr = document.createElement('tr');
+    // const tr = document.createElement('tr');
 
     // $(tableID).css({'height': '100px'});
     $(table).addClass('hoverTable');
@@ -196,19 +196,14 @@ function insertTableRow(common_field) {
     // Remove selected common field from the dropdown menu
     removeOptionFromCommonFieldDropdownList(common_field.value);
 
-    table.appendChild(tr);
-    tableID.appendChild(table);
+    let number_of_rows = table.rows.length
 
-    // Number of rows is equivalent to the total number of open and closed tags divided by 2
-    // since one of this "<tr></tr>" is equivalent to one row
-    let number_of_rows = $("#table").find('tr').length / 2; //$("#table tr").length / 2;
-
-    console.log('Number of rows in the table: ' + number_of_rows);
-    // Add a scroll to the table once it has at least 10 rows in it
+    // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
+    // once it has at least 10 rows in it
     if (number_of_rows >= 10) {
-        console.log('Number of rows is more than or equal to 5');
-        $(tableID).css({'overflow': 'scroll'});
-        $(tableID).css({'height': '100px'});
+        console.log('Number of rows is more than or equal to 10');
+        $(tableDiv).css({'overflow': 'scroll'});
+        $(tableDiv).css({'height': '100px'});
     }
 
 
@@ -216,35 +211,66 @@ function insertTableRow(common_field) {
 
 function generateManifestTemplate() {
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
-    const number_of_table_rows = document.getElementById("numberOfSamples").value;
-    const number_of_common_fields = $("#table").find('tr').length / 2;
-    const table = document.createElement('table');
+    const table = document.getElementById("tableID");
+    const number_of_samples = document.getElementById("numberOfSamples").value;
+    const number_of_common_fields = table.rows.length;
+    const csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
+
+
     let common_fields_list = []
     let common_values_list = []
-    for (const row of number_of_table_rows) {
-        for (const cell of row.cells) {
-            console.log(cell.innerHTML)
-            common_fields_list.append(cell.innerHTML[0])
-            common_values_list.append(cell.innerHTML[1])
 
-        }
+
+    for (let i = 0; i < number_of_common_fields; i++) {
+        let common_field = document.getElementById("tableID").rows[i].cells[0].innerHTML;
+        let common_value = document.getElementById("tableID").rows[i].cells[1].querySelector('input').value;
+
+        common_fields_list.push(common_field); //.append() cannot be used on lists in JavaScript so .push() is used instead
+        common_values_list.push(common_value);
     }
+
+    console.log('Number of common fields: ' + number_of_common_fields);
     console.log('Common field names list: ', common_fields_list);
     console.log('Common field values list: ', common_values_list);
 
     $.ajax({
         type: "POST",
         url: "generate_manifest_template/",
-        dataType: "json",
-        data: {
-            "row_count": number_of_table_rows,
-            "manifest_type": manifest_type
-        }
-    }).done(function (data) {
+        headers: {'X-CSRFToken': csrftoken},
+        // contentType: 'charset=UTF-8',
+        // dataType: "json",
+        responseType: 'blob',
 
+        data: {
+            "row_count": number_of_samples,
+            "manifest_type": manifest_type,
+            "common_fields_list": common_fields_list,
+            "common_values_list": common_values_list
+        }
+    }).done(function (excel_url) {
+
+        console.log('Success')
+        console.log('Excel path: ', excel_url)
+        let downloadLink = document.createElement('a');
+
+        let filename = excel_url.split('#').shift().split('?').shift().split('/').pop()
+        // let blob = fetch(excel_url).then(r => r.blob());
+        // downloadLink.href = window.URL.createObjectURL(new Blob([blob], {type: "'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8'"}));
+
+
+        downloadLink.href = excel_url;
+        downloadLink.download = filename;
+        // downloadLink.pathname = excel_url;
+        console.log('Filename: ', filename)
+        console.log('Download link: ', downloadLink)
+        // console.log('Download link: ', downloadLink.pathname)
+        download._href =
+            document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
 
     }).fail(function (error) {
-            console.log(error);
+            console.log('Error:', error);
         }
     ).always(function () {
         //do  something whether request is ok or fail
