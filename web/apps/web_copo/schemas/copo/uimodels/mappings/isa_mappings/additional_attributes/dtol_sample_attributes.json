@@ -1231,8 +1231,7 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg",
-      "erga"
+      "asg"
     ],
     "deprecated": false,
     "hidden": "true",
