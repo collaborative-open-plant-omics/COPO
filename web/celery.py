@@ -29,6 +29,10 @@ app.conf.beat_schedule = {
         'task': 'web.apps.web_copo.tasks.process_dtol_sample_submission',
         'schedule': timedelta(seconds=10)
     },
+    'process_tol_validations': {
+        'task': 'web.apps.web_copo.tasks.process_tol_validations',
+        'schedule': timedelta(seconds=3)
+    },
     'find_incorrectly_rejected_samples': {
         'task': 'web.apps.web_copo.tasks.find_incorrectly_rejected_samples',
         'schedule': timedelta(seconds=60)
@@ -44,9 +48,16 @@ app.conf.beat_schedule = {
     'poll_expired_viewlocks': {
         'task': 'web.apps.web_copo.tasks.poll_expired_viewlocks',
         'schedule': timedelta(seconds=60)
+    },
+    'process_ena_transfers': {
+        'task': 'web.apps.web_copo.tasks.process_pending_file_transfers',
+        'schedule': timedelta(seconds=5)
+    },
+    'check_for_stuck_transfers': {
+        'task': 'web.apps.web_copo.tasks.check_for_stuck_transfers',
+        'schedule': timedelta(seconds=20)
     }
 }
-
 
 
 @app.task(bind=True)

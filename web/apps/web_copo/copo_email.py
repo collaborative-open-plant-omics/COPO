@@ -44,6 +44,8 @@ class CopoEmail:
             users = User.objects.filter(groups__name='dtol_sample_notifiers')
         elif kwargs.get("project", "") in ["ERGA"]:
             users = User.objects.filter(groups__name='erga_sample_notifiers')
+        elif kwargs.get("project", "") in ["DTOL_ENV"]:
+            users = User.objects.filter(groups__name='dtolenv_sample_notifiers')
         else:
             users = []
         email_addresses = list()

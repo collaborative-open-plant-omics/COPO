@@ -47,11 +47,12 @@ $(document).ready(function () {
             var data = JSON.parse(e.data);
 
             if (data.hasOwnProperty('type') && data.type == "submission_status") {
+
                 var event_target_id = '';
                 try {
                     event_target_id = data.submission_id;
                 } catch (err) {
-                    ;
+
                 }
 
                 if (event_target_id) {
@@ -65,7 +66,7 @@ $(document).ready(function () {
                     event_target_id = data.submission_id;
                     event_status_message = data.status_message;
                 } catch (err) {
-                    ;
+
                 }
 
                 if (event_target_id && event_status_message) {
@@ -77,29 +78,32 @@ $(document).ready(function () {
 
         };
 
-        // submissionSocket.send(JSON.stringify({
-        //         'message': message
-        //     }));
+    //submissionSocket.send(JSON.stringify({
+    //    'message': message
+    //}));
+    submissionSocket.onconnecting = function (e) {
+        console.log("connecting" + e)
+    }
+    submissionSocket.onclose = function (e) {
+        console.log(e)
+        console.error('Submission socket closed unexpectedly' + e);
+    };
 
-        submissionSocket.onclose = function (e) {
-            console.error('Submission socket closed unexpectedly');
-        };
+    //submission tasks
+    $(document).on('click', '.submissionmenu', function (event) {
+        event.preventDefault();
+        dispatch_submission_events($(this));
+    });
 
-        //submission tasks
-        $(document).on('click', '.submissionmenu', function (event) {
-            event.preventDefault();
-            dispatch_submission_events($(this));
-        });
-
-        //handle destination repository change
-        $(document).on('destination_repo_change', function (event) {
-            handle_repo_change_event($("#" + event.elementId).closest(".submission-panel").attr("data-id"));
-        });
+    //handle destination repository change
+    $(document).on('destination_repo_change', function (event) {
+        handle_repo_change_event($("#" + event.elementId).closest(".submission-panel").attr("data-id"));
+    });
 
 
-        $(document).on('click', '#publish_dataset', function (event) {
-            e = $(event.currentTarget)
-            sub_id = $(e).data('submission_id')
+    $(document).on('click', '#publish_dataset', function (event) {
+        e = $(event.currentTarget)
+        sub_id = $(e).data('submission_id')
             $.ajax({
                 url: "/copo/dataverse_publish/",
                 type: "POST",
@@ -220,14 +224,15 @@ $(document).ready(function () {
 
         function do_display_submissions(data) {
             var dtd = data.table_data.dataSet;
-            set_empty_component_message(dtd.length); //display empty submission message.
+            var tableID = componentMeta.tableID;
+            set_empty_component_message(dtd.length, "#" + tableID); //display empty submission message.
 
             if (dtd.length == 0) {
                 return false;
             }
 
             var dataSet = get_table_dataset(dtd);
-            var tableID = componentMeta.tableID;
+
 
             //set data
             var table = null;
@@ -486,7 +491,11 @@ $(document).ready(function () {
                 success: function (data) {
                     for (const key of Object.keys(data)) {
                         //update submission record status and submission status message
-                        var table = $('#' + componentMeta.tableID).DataTable();
+                        if (data[key].manifest_submission) {
+                            var table = $('#manifest_table').DataTable();
+                        } else {
+                            var table = $('#' + componentMeta.tableID).DataTable();
+                        }
                         var rec = data[key];
                         var submission_data = table.row('#row_' + rec.record_id).data();
                         submission_data.complete = rec.complete;
@@ -506,6 +515,7 @@ $(document).ready(function () {
 
                             var messageTitle = "";
                             var getInstructionsPane = format_feedback_message(rec.transcript_message, messageClass, messageTitle);
+                            viewPort.empty()
                             viewPort.prepend(getInstructionsPane);
                         }
                     }
@@ -1289,7 +1299,7 @@ $(document).ready(function () {
                     loader.remove();
                     let dataSet = data.submission_accessions.dataSet;
                     let columns = data.submission_accessions.columns;
-                    let message = "No accessions recorded!";
+                    let message = "No accessions recorded";
 
                     if (data.submission_accessions.hasOwnProperty("message") && data.submission_accessions.message != "") {
                         message = data.submission_accessions.message
@@ -1642,7 +1652,7 @@ $(document).ready(function () {
             }
 
             if (task == "delete") {
-                ;//will need to think this again...in terms of deletion policy
+                //will need to think this again...in terms of deletion policy
             }
             //table.rows().deselect(); //deselect all rows
 
@@ -1879,3 +1889,4 @@ function show_submission_metadata(submission_id) {
     dialog.setMessage($dialogContent);
     dialog.open();
 }
+

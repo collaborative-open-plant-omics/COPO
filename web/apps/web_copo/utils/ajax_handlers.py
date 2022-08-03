@@ -17,13 +17,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest
 from jsonpickle import encode
-
+from bson.binary import Binary
+import pickle
 import web.apps.web_copo.lookup.lookup as ol
 import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person
+    Repository, Person, ValidationQueue
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -38,10 +39,15 @@ from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+
+# from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
+from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
+from submission.submissionDelegator import schedule_submission
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -152,11 +158,14 @@ def get_submission_status(request):
     # get completed submissions
     submission_records = Submission().get_collection_handle().find(
         {"_id": {"$in": submission_ids}},
-        {'_id': 1, 'complete': 1, 'transcript': 1})
+        {'_id': 1, 'complete': 1, 'transcript': 1, 'manifest_submission': 1})
 
     for rec in submission_records:
+
         record_id = str(rec['_id'])
         new_data = dict(record_id=record_id)
+        if rec.get("manifest_submission", 0):
+            new_data["manifest_submission"] = 1
         context[new_data["record_id"]] = new_data
 
         new_data["complete"] = str(rec.get("complete", False)).lower()
@@ -1351,7 +1360,7 @@ def get_subsample_stages(request):
 def sample_spreadsheet(request):
     file = request.FILES["file"]
     name = file.name
-    dtol = DtolSpreadsheet(file=file)
+    dtol = DtolSpreadsheet(file=file, p_id=request.session["profile_id"])
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     elif name.endswith("csv"):
@@ -1362,10 +1371,16 @@ def sample_spreadsheet(request):
         pass
 
     if dtol.loadManifest(m_format=fmt):
-        l.log("Dtol manifest loaded", type=Logtype.FILE)
-        if dtol.validate_taxonomy() and dtol.validate():
-            l.log("About to collect Dtol manifest", type=Logtype.FILE)
-            dtol.collect()
+        srlz_dtol = pickle.dumps(dtol.file)
+        p_id = request.session["profile_id"]
+        r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
+                      "taxon_validation_status": "pending", "err_msg": [],
+                      "time_added": datetime.utcnow(),
+                      "file_name": name,
+                      "isupdate": False
+                      }}
+        ValidationQueue().get_collection_handle().update_one({"profile_id": p_id}, r, upsert=True)
+
     return HttpResponse()
 
     '''
@@ -1376,16 +1391,17 @@ def sample_spreadsheet(request):
 
 
 def create_spreadsheet_samples(request):
-    sample_data = request.session["sample_data"]
+    validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.save_records()
     return HttpResponse(status=200)
 
+
 def update_spreadsheet_samples(request):
-    sample_data = request.session["sample_data"]
+    validation_record_id = request.GET["validation_record_id"]
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
     return HttpResponse(status=200)
 
@@ -1393,12 +1409,14 @@ def update_spreadsheet_samples(request):
 def update_pending_samples_table(request):
     # samples = Sample().get_unregistered_dtol_samples()
     member_groups = get_group_membership_asString()
-    #todo control for someone being both
+    # todo control for someone being both
     profiles = []
     if "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_profiles()
     if "erga_sample_managers" in member_groups:
         profiles += Profile().get_erga_profiles()
+    if "dtolenv_sample_managers" in member_groups:
+        profiles += Profile().get_dtolenv_profiles()
     return HttpResponse(json_util.dumps(profiles))
 
 
@@ -1473,6 +1491,14 @@ def sample_images(request):
     files = request.FILES
     dtol = DtolSpreadsheet()
     matchings = dtol.check_image_names(files)
+
+    return HttpResponse(json.dumps(matchings))
+
+
+def sample_permits(request):
+    files = request.FILES
+    dtol = DtolSpreadsheet(validation_record_id=request.POST["validation_record_id"])
+    matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
 
@@ -1606,45 +1632,7 @@ def handle_csv_column_validate_spreadsheet(request):
 
     out = list()
     to_lookup = list()
-    '''
-    for idx, el in enumerate(df_unique_vals):
-        # get characteristics or factors for the given column name for samples in the records parameter
-        column_p = process_column_name(el["column"])
-        sample_ids_bson = [ObjectId(el["record_id"])]
-        is_unit = True
-        if "Characteristics" in el["column"]:
-            # otherwise user must query querying for characteristics or factors
-            samples = Sample().get_characteristic(column=column_p, records=sample_ids_bson)
-            lookuptype = "characteristics"
-            is_unit = False
-        elif "Factors" in el["column"]:
-            samples = Sample().get_factor(column=column_p, records=sample_ids_bson)
-            lookuptype = "factorValues"
-            is_unit = False
-        for s in samples:
-            row = {"_id": s["_id"],
-                   "name": s["name"],
-                   "label": s[lookuptype]["category"]["annotationValue"],
-                   "label_source": s[lookuptype]["category"]["termSource"],
-                   "value": s[lookuptype]["value"]["annotationValue"],
-                   "value_source": s[lookuptype]["value"]["termSource"],
-                   "unit": s[lookuptype]["unit"]["annotationValue"],
-                   "unit_source": s[lookuptype]["unit"]["termSource"],
-                   }
-        term = el["value"]
-        if not is_unit:
-            if is_number(term):
-                # automatically accept numeric updates for category cells, these don't need ols validation e.g. 13 (
-                # milimeters)
-                el["status"] = "accepted"
-                out.append(el)
-                continue;
-        if is_unit:
-            row["ontology_names"] = row["unit_source"]
-        else:
-            row["ontology_names"] = row["value_source"]
-        to_lookup.append(row)
-    '''
+
     # make data frame out of to_lookup and unique it to minimize calls to ols
     df = pd.DataFrame(data)
     df["column"] = ""
@@ -1688,6 +1676,40 @@ def handle_csv_column_validate_spreadsheet(request):
     return HttpResponse(json.dumps(out))
 
 
+def get_manifest_submission_list(request):
+    profile_id = request.session["profile_id"]
+    docs = Submission().get_collection_handle().find({"$and": [
+        {"profile_id": profile_id},
+        {"manifest_submission": {"$exists": True}},
+        {"manifest_submission": {"$eq": 1}}
+    ]})
+    output = list(docs)
+    out = json_util.dumps(output)
+    return HttpResponse(out)
+
+
+def init_manifest_submission(request):
+    submission_id = request.POST["submission_id"]
+    schedule_submission(submission_id, "ena")
+    return HttpResponse()
+
+
+def process_urls(request):
+    file_list = json.loads(request.POST["data"])
+    bucket_name = str(request.user.id) + "_" + request.user.username
+    s3con = s3()
+    if not s3con.check_for_s3_bucket(bucket_name):
+        s3con.make_s3_bucket(bucket_name)
+    urls_list = list()
+    for file_name in file_list:
+        if file_name and not file_name.endswith("/"):
+            file_name = file_name.replace("*", "")
+            url = s3con.get_presigned_url(bucket=bucket_name, key=file_name)
+            file_url = {"name": file_name, "url": url}
+            urls_list.append(file_url)
+    return HttpResponse(json.dumps(urls_list))
+
+
 def handle_csv_column_update_samples(request):
     data = json.loads(request.POST["data"])
     for el in data:
@@ -1701,6 +1723,10 @@ def handle_csv_column_update_samples(request):
         Sample().set_characteristic_or_factor(column=column_p, records=sample_ids_bson, element=el,
                                               char_or_fac=lookuptype)
     return HttpResponse("Complete")
+
+
+def parse_ena_spreadsheet(request):
+    return HttpResponse(request)
 
 
 def is_number(s):

@@ -56,8 +56,8 @@ def format_date(input_date):
     return input_date.replace(tzinfo=datetime.timezone.utc).isoformat()
 
 
-def filter_for_STS(sample_list, add_all_fields=False):
-    # add field here which should be time formatted
+def filter_for_API(sample_list, add_all_fields=False):
+    # add field(s) here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
     if len(sample_list) > 0:
@@ -127,13 +127,13 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
-    out = filter_for_STS(sample_list, add_all_fields=True)
+    out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
 
 
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)
-    out = filter_for_STS(sample_list)
+    out = filter_for_API(sample_list)
     return finish_request(out)
 
 
@@ -147,7 +147,7 @@ def get_by_biosample_ids(request, biosample_ids):
     sample = Sample().get_by_biosample_ids(ids)
     out = list()
     if sample:
-        out = filter_for_STS(sample)
+        out = filter_for_API(sample)
     return finish_request(out)
 
 
@@ -165,7 +165,7 @@ def get_project_samples(request, project):
     samples = Sample().get_project_samples(projectlist)
     out = list()
     if samples:
-        out = filter_for_STS(samples)
+        out = filter_for_API(samples)
     return finish_request(out)
 
 
@@ -180,7 +180,7 @@ def get_by_copo_ids(request, copo_ids):
     out = list()
     if samples:
         if not type(samples) == InvalidId:
-            out = filter_for_STS(samples, add_all_fields=True)
+            out = filter_for_API(samples, add_all_fields=True)
         else:
             return HttpResponse(status=400, content="InvalidId found in request")
     return finish_request(out)
@@ -196,7 +196,7 @@ def get_by_field(request, dtol_field, value):
     out = list()
     sample_list = Sample().get_by_field(dtol_field, vals)
     if sample_list:
-        out = filter_for_STS(sample_list, add_all_fields=True)
+        out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
 
 

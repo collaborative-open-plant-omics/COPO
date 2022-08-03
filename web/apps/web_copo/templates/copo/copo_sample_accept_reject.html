@@ -80,6 +80,11 @@
             background-color: #fff3ce !important;
         }
 
+        .filter_margin {
+            margin-top: 46px
+        }
+
+
     </style>
 {% endblock %}
 
@@ -170,6 +175,9 @@
                 <li class="hot_tab in">
                     <a data-toggle="tab" href="rejected">Rejected Samples</a>
                 </li>
+                <li class="hot_tab in">
+                    <a data-toggle="tab" href="private">Private Samples</a>
+                </li>
             </ul>
 
 
@@ -198,7 +206,7 @@
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
     <script src="{% static 'copo/js/dtol_functions.js' %}"></script>
-    <script src="{% static 'copo/js/copo_sample_parse_spreadsheet.js' %}"></script>
+    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
     <script>socket = undefined</script>

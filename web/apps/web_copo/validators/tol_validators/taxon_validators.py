@@ -1,26 +1,28 @@
 from Bio import Entrez
-
 from dal.copo_da import Profile
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
-from .tol_validator import TolValidtor
-from .validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
 whole_used_specimens = set()
 regex_human_readable = ""
 
 
-class DtolEnumerationValidator(TolValidtor):
+class DtolEnumerationValidator(Validator):
 
     def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
         super().__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
-        #self.warnings = list()
+        # self.warnings = list()
         self.taxonomy_dict = {}
 
     def validate(self):
+        p_type = Profile().get_type(profile_id=self.profile_id)
+        if "DTOL_ENV" in p_type:
+            p_type = "DTOL_ENV"
         Entrez.api_key = lookup.NIH_API_KEY
-        # build dictioanry of species in this manifest  max 200 IDs per query
+        # build dictionary of species in this manifest  max 200 IDs per query
         taxon_id_set = set([x for x in self.data['TAXON_ID'].tolist() if x])
         notify_frontend(data={"profile_id": self.profile_id},
                         msg="Querying NCBI for TAXON_IDs in manifest ",
@@ -29,8 +31,12 @@ class DtolEnumerationValidator(TolValidtor):
         taxon_id_list = list(taxon_id_set)
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
+                notify_frontend(data={"profile_id": self.profile_id},
+                                msg="Checking Taxonomic ID: " + str(taxon),
+                                action="info",
+                                html_id="sample_info")
                 # check if taxon is submittable
-                ena_taxon_errors = check_taxon_ena_submittable(taxon)
+                ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
                     self.flag = False
@@ -44,6 +50,22 @@ class DtolEnumerationValidator(TolValidtor):
                 records = Entrez.read(handle)
                 for element in records:
                     self.taxonomy_dict[element['TaxId']] = element
+
+        #if DTOL_ENV we only check the rank is species
+        if p_type == "DTOL_ENV":
+            for index, row in self.data[['TAXON_ID']].iterrows():
+                taxon_id = row['TAXON_ID'].strip()
+                if not taxon_id:
+                    self.errors.append(msg["validation_msg_missing_data"] % ("TAXON_ID", str(index + 2), "[]"))
+                    self.flag = False
+                    continue
+                if self.taxonomy_dict[taxon_id]['Rank'] != 'species':
+                    if not "SYMBIONT" in self.data.at[index, "SYMBIONT"]:
+                        self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
+                        self.flag = False
+            return self.errors, self.warnings, self.flag
+
+
         for index, row in self.data[
             ['ORDER_OR_GROUP', 'FAMILY', 'GENUS', 'TAXON_ID', 'SCIENTIFIC_NAME']].iterrows():
             if all(row[header].strip() == "" for header in ['TAXON_ID', 'SCIENTIFIC_NAME']):
@@ -80,7 +102,7 @@ class DtolEnumerationValidator(TolValidtor):
                 self.data.at[index, "TAXON_ID"] = records['IdList'][0]
                 taxon_id = records['IdList'][0]
                 # check if taxon is submittable
-                ena_taxon_errors = check_taxon_ena_submittable(taxon_id)
+                ena_taxon_errors = check_taxon_ena_submittable(taxon_id, by="id")
                 if ena_taxon_errors:
                     self.errors += ena_taxon_errors
                     self.flag = False

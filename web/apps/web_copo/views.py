@@ -30,9 +30,10 @@ from web.apps.web_copo.utils import EnaImports as eimp
 from web.apps.web_copo.utils import group_functions
 from .lookup.lookup import HTML_TAGS
 from tools.resolve_env import get_env
-
+from web.apps.web_copo.s3.s3Connection import S3Connection
+from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
-
+from web.apps.web_copo.models import UserDetails, StatusMessage
 
 @login_required
 def index(request):
@@ -72,6 +73,15 @@ def test_submission(request):
 
 def error_page(request):
     return render(request, context={}, template_name="copo/error_page.html")
+
+
+def test(request):
+    return render(request, "copo/test.html")
+
+@login_required()
+def ena_read_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
 
 @login_required
@@ -336,16 +346,17 @@ def copo_forms(request):
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(out, content_type='application/json')
 
+
 @login_required()
 def delete_profile(request):
     context = dict()
     task = request.POST.get("task", str())
 
-    x=0
+    x = 0
     profile_ids = []
-    while request.POST.get("target_id["+str(x)+"][record_id]", ""):
-        profile_ids.append(request.POST.get("target_id["+str(x)+"][record_id]", ""))
-        x+=1
+    while request.POST.get("target_id[" + str(x) + "][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id[" + str(x) + "][record_id]", ""))
+        x += 1
 
     response = HttpResponse(content_type="application/json")
     response.status_code = 200
@@ -360,7 +371,6 @@ def delete_profile(request):
     undeleted_json = json.dumps({"undeleted": profiles_undeleted})
     response.write(undeleted_json)
     return response
-
 
 
 @login_required

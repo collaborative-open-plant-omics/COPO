@@ -24,7 +24,7 @@ class UserDetails(models.Model):
         blank=True,
         null=True,
     )
-
+    active_task = models.BooleanField(default=False)
     # class Meta:
     # app_label = 'django.contrib.auth'
 
@@ -54,6 +54,15 @@ class Repository(models.Model):
             ('vendor_rights', 'Global vendor rights'),
             ('any_rights', 'Global any rights'),
         )
+
+
+class StatusMessage(models.Model):
+    message_owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    message = models.TextField(max_length=500, blank=False, default="All Tasks Complete")
+
+    class Meta:
+        get_latest_by = 'created'
 
 
 class test_model(models.Model):

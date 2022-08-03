@@ -55,6 +55,14 @@ class Command(BaseCommand):
         print(type(list(d_updates.keys())))
         print(list(d_updates.keys()))
         samplesindb = da.Sample().get_by_biosample_ids(list(d_updates.keys()))
+        if len(samplesindb) < len(list(d_updates.keys())):
+            print("**********************************************************************************")
+            print("one or more samples couldn't be found")
+            found_accessions = [sample.get("biosampleAccession") for sample in samplesindb]
+            diff = [x for x in list(d_updates.keys()) if x not in found_accessions]
+            for element in diff:
+                print(element, "may be a Source")
+            print("**********************************************************************************")
         for sample in samplesindb:
             for field in d_updates[sample['biosampleAccession']]:
                 value = d_updates[sample['biosampleAccession']][field]
@@ -87,6 +95,7 @@ class Command(BaseCommand):
             print(list(d_updates[sample['biosampleAccession']].keys()))
             flag = False
             for field in list(d_updates[sample['biosampleAccession']].keys()):
+                # TODO - this may also need to catch cases where update field is Voucher ID or biobanking_id
                 if DTOL_ENA_MAPPINGS.get(field, "") or field == "COLLECTION_LOCATION":
                     flag = True
             if flag:

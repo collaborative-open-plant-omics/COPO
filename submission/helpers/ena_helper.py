@@ -11,6 +11,7 @@ from submission.helpers import generic_helper as ghlper
 import web.apps.web_copo.schemas.utils.data_utils as data_utils
 from dal.copo_da import Profile
 
+
 class SubmissionHelper:
     def __init__(self, submission_id=str()):
         self.submission_id = submission_id
@@ -80,7 +81,10 @@ class SubmissionHelper:
         release_date = attributes.get("project_details", dict()).get("project_release_date", str())
 
         if release_date:
-            release_date = datetime.strptime(release_date, '%d/%m/%Y').strftime('%Y-%m-%d')
+            try:
+                release_date = datetime.strptime(release_date, '%d/%m/%Y').strftime('%Y-%m-%d')
+            except:
+                pass
             present = datetime.now()
             past = datetime.strptime(release_date, "%Y-%m-%d")
 
@@ -127,7 +131,9 @@ class SubmissionHelper:
         submission_record = self.collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"bundle": 1})
         object_ids = [ObjectId(x) for x in submission_record.get("bundle", list())]
 
-        datafiles = cursor_to_list(ghlper.get_datafiles_handle().find({"_id": {"$in": object_ids}}, {'_id': 1, 'file_location': 1, "description.attributes": 1, "name": 1, "file_hash": 1}))
+        datafiles = cursor_to_list(ghlper.get_datafiles_handle().find({"_id": {"$in": object_ids}},
+                                                                      {'_id': 1, 'file_location': 1, "description.attributes": 1, "name": 1,
+                                                                       "file_hash": 1}))
 
         samples_id = list()
         df_attributes = []  # datafiles attributes
@@ -180,7 +186,7 @@ class SubmissionHelper:
             sra_source = dict()
             sra_sources[str(source["_id"])] = sra_source
 
-            sra_source["name"] = source["name"]
+            sra_source["name"] = source.get("name", "")
             sra_source["taxon_id"] = source.get("organism", dict()).get('termAccession', str())
             if 'NCBITaxon_' in sra_source["taxon_id"]:
                 sra_source["taxon_id"] = sra_source["taxon_id"].split('NCBITaxon_')[-1]

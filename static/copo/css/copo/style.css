@@ -4,8 +4,6 @@
 /*}*/
 
 
-
-
 .wrapper {
     margin: 0 auto;
     background-color: rgba(255, 255, 255, 0.8);
@@ -161,6 +159,13 @@ div.dataTables_processing.ui.segment {
 .copo-noselect-table.dataTable tbody tr.selected {
     background-color: transparent !important;
 }
+
+.copo-noselect-table.dataTable tbody tr.selected .panel-body {
+    background-color: #ff8c8c !important;
+    color: white !important;
+    font-weight: bolder !important;
+}
+
 
 .description-bundle-table {
     width: 100%;
@@ -671,9 +676,9 @@ div.dataTables_processing.ui.segment {
 
 span.describing-flag:before {
     /*position: absolute;*/
-    font-family: 'FontAwesome';
-    content: "\f02c";
     color: #000;
+    content: "\f02c";
+    font-family: "FontAwesome";
     font-size: 14px;
 }
 
@@ -1435,13 +1440,13 @@ td.summary-details-control {
 }
 
 td.summary-details-control:before {
-    position: absolute;
-    font-family: 'FontAwesome';
-    content: "\f055";
     color: forestgreen;
+    content: "\f055";
+    font-family: "FontAwesome";
+    font-size: 14px;
     /*top: 30%;*/
     left: 50%;
-    font-size: 14px;
+    position: absolute;
 }
 
 tr.shown td.summary-details-control {
@@ -1450,13 +1455,13 @@ tr.shown td.summary-details-control {
 }
 
 tr.shown td.summary-details-control:before {
-    position: absolute;
-    font-family: 'FontAwesome';
-    content: "\f056";
     color: darkred;
+    content: "\f056";
+    font-family: "FontAwesome";
+    font-size: 14px;
     /*top: 30%;*/
     left: 50%;
-    font-size: 14px;
+    position: absolute;
 }
 
 tr.showing td.summary-details-control {
@@ -1464,13 +1469,13 @@ tr.showing td.summary-details-control {
 }
 
 tr.showing td.summary-details-control:before {
-    position: absolute;
-    font-family: 'FontAwesome';
-    content: "\f110";
     color: forestgreen;
+    content: "\f110";
+    font-family: "FontAwesome";
+    font-size: 14px;
     /*top: 30%;*/
     left: 50%;
-    font-size: 14px;
+    position: absolute;
 }
 
 span.summary-details-control {
@@ -1479,23 +1484,23 @@ span.summary-details-control {
 }
 
 span.summary-details-control:before {
-    position: absolute;
-    font-family: 'FontAwesome';
-    content: "\f055";
     color: #3a6c55;
+    content: "\f055";
+    font-family: "FontAwesome";
+    font-size: 14px;
     /*top: 10%;*/
     left: 50%;
-    font-size: 14px;
+    position: absolute;
 }
 
 div.shown span.summary-details-control:before {
-    position: absolute;
-    font-family: 'FontAwesome';
-    content: "\f056";
     color: darkred;
+    content: "\f056";
+    font-family: "FontAwesome";
+    font-size: 14px;
     /*top: 10%;*/
     left: 50%;
-    font-size: 14px;
+    position: absolute;
 }
 
 span.panel-details-control {
@@ -1503,16 +1508,16 @@ span.panel-details-control {
 }
 
 span.panel-details-control:before {
-    font-family: 'FontAwesome';
-    content: "\f055";
     color: rgba(0, 51, 102, 0.4);
+    content: "\f055";
+    font-family: "FontAwesome";
     font-size: 14px;
 }
 
 div.shown span.panel-details-control:before {
-    font-family: 'FontAwesome';
-    content: "\f056";
     color: rgba(0, 51, 102, 0.4);
+    content: "\f056";
+    font-family: "FontAwesome";
     font-size: 14px;
 }
 
@@ -1524,16 +1529,16 @@ span.side-help-trigger {
 }
 
 span.side-help-trigger:before {
-    font-family: 'FontAwesome';
-    content: "\f067";
     color: rgba(0, 0, 0, 1.0);
+    content: "\f067";
+    font-family: "FontAwesome";
     font-size: 14px;
 }
 
 div.shown span.side-help-trigger:before {
-    font-family: 'FontAwesome';
-    content: "\f068";
     color: #db2828;
+    content: "\f068";
+    font-family: "FontAwesome";
     font-size: 14px;
 }
 
@@ -1826,18 +1831,18 @@ div.shown span.side-help-trigger:before {
 }
 
 #cover-spin::after {
-    content: '';
-    display: block;
-    position: absolute;
-    left: 40%;
-    top: 40%;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
     border: 16px solid #f3f3f3;
     border-radius: 50%;
     border-top: 16px solid #3498db;
-    width: 80px;
+    content: "";
+    display: block;
     height: 80px;
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
+    left: 40%;
+    position: absolute;
+    top: 40%;
+    width: 80px;
 }
 
 /*end cover spin*/
@@ -1933,11 +1938,11 @@ div.shown span.side-help-trigger:before {
 .loading-spinner {
     background-color: #ffffff;
     background-image: url("/static/copo/img/loading.gif");
-    background-size: 24px 24px;
-    background-position:right center;
+    background-position: right center;
     background-repeat: no-repeat;
+    background-size: 24px 24px;
 }
 
-.cell-no-content{
+.cell-no-content {
     background-color: #fff3f3 !important;
 }
