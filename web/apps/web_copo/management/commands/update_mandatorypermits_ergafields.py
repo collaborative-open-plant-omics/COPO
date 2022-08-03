@@ -25,6 +25,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         samples_to_update = da.Sample().get_by_project_and_field("ERGA", "manifest_version", ["pilot"])
         for sample in samples_to_update:
-            print(sample["_id"])
+            print(sample.get("_id", ""))
             for field in self.TO_UPDATE_FIELDS:
                 da.Sample().add_field(self.TO_UPDATE_FIELDS[field], sample.get(field), sample['_id'])
