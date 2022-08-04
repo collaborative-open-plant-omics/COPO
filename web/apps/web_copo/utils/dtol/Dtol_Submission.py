@@ -469,7 +469,7 @@ def update_bundle_sample_xml(sample_list, bundlefile):
                         tag = ET.SubElement(sample_attribute, 'TAG')
                         tag.text = attribute_name
                         value = ET.SubElement(sample_attribute, 'VALUE')
-                        value.text = str(item[1]).split('|')[0]
+                        value.text = str(item[1]).split('|')[0].strip()
                         attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_2']['ena']
                         sample_attribute = ET.SubElement(sample_attributes, 'SAMPLE_ATTRIBUTE')
                         tag = ET.SubElement(sample_attribute, 'TAG')
@@ -571,7 +571,7 @@ def build_specimen_sample_xml(sample):
                     tag = ET.SubElement(sample_attribute, 'TAG')
                     tag.text = attribute_name
                     value = ET.SubElement(sample_attribute, 'VALUE')
-                    value.text = str(item[1]).split('|')[0]
+                    value.text = str(item[1]).split('|')[0].strip()
                     attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_2']['ena']
                     sample_attribute = ET.SubElement(sample_attributes, 'SAMPLE_ATTRIBUTE')
                     tag = ET.SubElement(sample_attribute, 'TAG')
