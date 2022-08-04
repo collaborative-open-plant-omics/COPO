@@ -70,28 +70,6 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "INDIGENOUS_RIGHTS_APPLICABLE"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "specifications": [
-      "erga"
-    ],
-    "show_in_form": true,
-    "label": "Indigenous Rights Applicable",
-    "id": "copo.sample.INDIGENOUS_RIGHTS_APPLICABLE",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "versions": [
       "INDIGENOUS_RIGHTS_DEF"
     ],
     "ref": "",
@@ -114,7 +92,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE"
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE"
     ],
     "ref": "",
     "deprecated": false,
@@ -123,8 +101,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Associated Traditional Knowledge Applicable",
-    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_APPLICABLE",
+    "label": "Associated Traditional Knowledge Or Biocultural Righta Applicable",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -133,10 +111,10 @@
   },
   {
     "help_tip": "",
-    "required": "true",
+    "required": "false",
     "control_meta": {},
     "versions": [
-      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL"
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"
     ],
     "ref": "",
     "deprecated": false,
@@ -145,8 +123,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Associated Traditional Knowledge Label",
-    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL",
+    "label": "Associated Traditional Knowledge or Biocultural Project ID",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -180,7 +158,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "ETHICS_PERMITS_MANDATORY"
+      "ETHICS_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -189,8 +167,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Ethics Permits Mandatory",
-    "id": "copo.sample.ETHICS_PERMITS_MANDATORY",
+    "label": "Ethics Permits Required",
+    "id": "copo.sample.ETHICS_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -224,7 +202,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "SAMPLING_PERMITS_MANDATORY"
+      "SAMPLING_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -233,8 +211,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Sampling Permits Mandatory",
-    "id": "copo.sample.SAMPLING_PERMITS_MANDATORY",
+    "label": "Sampling Permits Required",
+    "id": "copo.sample.SAMPLING_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -268,7 +246,7 @@
     "required": "true",
     "control_meta": {},
     "versions": [
-      "NAGOYA_PERMITS_MANDATORY"
+      "NAGOYA_PERMITS_REQUIRED"
     ],
     "ref": "",
     "deprecated": false,
@@ -277,8 +255,8 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "Nagoya Permits Mandatory",
-    "id": "copo.sample.NAGOYA_PERMITS_MANDATORY",
+    "label": "Nagoya Permits Required",
+    "id": "copo.sample.NAGOYA_PERMITS_REQUIRED",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
@@ -439,29 +417,6 @@
     "dwc": "",
     "type": "string"
   },
-   {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "SYMBIONT"
-    ],
-    "ref": "",
-    "specifications": [
-      "erga"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SYMBIONT",
-    "label": "Symbiont",
-    "show_in_table": true,
-    "dwc": ""
-  },
   {
     "help_tip": "Collector ORCID ID",
     "required": "true",
@@ -482,29 +437,6 @@
     "show_in_form": true,
     "id": "copo.sample.COLLECTOR_ORCID_ID",
     "label": "Collector Orcid Identifier",
-    "show_in_table": true,
-    "dwc": ""
-  },
-  {
-    "help_tip": "Approach to preservation",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "PRESERVATION_APPROACH"
-    ],
-    "ref": "",
-    "specifications": [
-      "erga"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PRESERVATION_APPROACH",
-    "label": "Preservation Approach",
     "show_in_table": true,
     "dwc": ""
   }

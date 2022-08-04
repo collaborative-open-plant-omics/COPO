@@ -12,7 +12,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "show_in_form": true,
     "label": "Collected By",
@@ -36,7 +37,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "show_in_form": true,
     "label": "Date of Collection",
@@ -161,7 +163,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -261,7 +264,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -311,7 +315,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -436,7 +441,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -461,7 +467,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -486,7 +493,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -511,7 +519,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -539,7 +548,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -564,7 +574,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -589,7 +600,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -614,7 +626,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -689,7 +702,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -714,7 +728,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -739,7 +754,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -789,7 +805,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -839,7 +856,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -863,7 +881,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -889,7 +908,8 @@
       "dtol",
       "asg",
       "bc",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -913,7 +933,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -983,7 +1004,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1008,7 +1030,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1107,7 +1130,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1157,7 +1181,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1369,7 +1394,8 @@
     "ref": "",
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1559,7 +1585,8 @@
     ],
     "specifications": [
       "dtol",
-      "asg"
+      "asg",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1631,7 +1658,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1956,7 +1984,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1980,7 +2009,8 @@
     "specifications": [
       "dtol",
       "asg",
-      "erga"
+      "erga",
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -2015,5 +2045,237 @@
     "show_in_table": true,
     "control": "text",
     "default_value": ""
+  },
+  {
+    "help_tip": "The original geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "ORIGINAL_DECIMAL_LATITUDE"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.ORIGINAL_DECIMAL_LATITUDE",
+    "label": "originalDecimalLatitude",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/decimalLatitude"
+  },
+  {
+    "help_tip": "The original geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "ORIGINAL_DECIMAL_LONGITUDE"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.ORIGINAL_DECIMAL_LONGITUDE",
+    "label": "originalDecimalLongitude",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/decimalLongitude"
+  },
+  {
+    "help_tip": "Mixed sample risk",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "MIXED_SAMPLE_RISK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.MIXED_SAMPLE_RISK",
+    "label": "mixedSampleRisk",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Barcoding Status",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "BARCODING_STATUS"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.BARCODING_STATUS",
+    "label": "barcodingStatus",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Proxy voucher ID",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "PROXY_VOUCHER_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.PROXY_VOUCHER_ID",
+    "label": "proxyVoucherId",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Voucher Link",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "VOUCHER_LINK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.VOUCHER_LINK",
+    "label": "voucherLink",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Proxy voucher Link",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "PROXY_VOUCHER_LINK"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.PROXY_VOUCHER_LINK",
+    "label": "proxyVoucherLink",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Voucher Institution",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "VOUCHER_INSTITUTION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol",
+      "asg",
+      "erga",
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.VOUCHER_INSTITUTION",
+    "label": "voucherInstitution",
+    "show_in_table": true,
+    "dwc": ""
+  },
+  {
+    "help_tip": "Sample format",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "SAMPLE_FORMAT"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SAMPLE_FORMAT",
+    "label": "sampleFormat",
+    "show_in_table": true,
+    "dwc": ""
   }
+
 ]

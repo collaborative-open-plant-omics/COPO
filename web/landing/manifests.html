@@ -1,3 +1,4 @@
+
 {% extends "secondary.html" %}
 {% load static %}
 
@@ -9,14 +10,13 @@
 {% endblock %}
 
 {% block content %}
-    {% csrf_token %}
+
     <p>
         Current Tree of Life Manifests
     </p>
 
 
     <div style="margin-left: 40px">
-        <button type="button" class="ui primary button" id="show_manifest_wzd_button">Manifest Wizard</button>
         <table class="ui padded table">
             <thead>
             <tr>
@@ -28,19 +28,22 @@
             <tbody>
             <tr>
                 <td>DTOL - (Darwin Tree of Life)</td>
-                <td>2.3</td>
-                <td><a href="#t786" class="new-component-template copo-tooltip">DTOL_MANIFEST_v2.3.xlsx</a></td>
-                {#                 <td><a href="{% static 'assets/manifests/DTOL_MANIFEST_v2.3.xlsx' %}">DTOL_MANIFEST_v2.3.xlsx</a></td>#}
+                <td>2.4</td>
+                <td><a href="{% static 'assets/manifests/DToL_SAMPLE_MANIFEST_v2.4.xlsx' %}">DTOL_MANIFEST_v2.4.xlsx</a></td>
             </tr>
             <tr>
                 <td>ASG - (Aquatic Symbiosis Genomics)</td>
-                <td>2.3.1</td>
-                <td>
-                    <!--<a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a> !--></td>
+                <td>2.4</td>
+                <td><!--<a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a>--!></td>
+            </tr>
+            <tr>
+                <td>ERGA - (Aquatic Symbiosis Genomics)</td>
+                <td>2.4</td>
+                <td><a href="{% static 'assets/manifests/ERGA_SAMPLE_MANIFEST_V2.4.xlsx' %}">ERGA_MANIFEST_v2.4.xlsx</a></td>
             </tr>
             <tr>
                 <td>Barcoding</td>
-                <td>2.3</td>
+                <td>1.0</td>
                 <td><a href="{% static 'assets/manifests/TOL_BARCODE_MANIFEST_TEMPLATE.xlsx' %}">ToL_BARCODING_MANIFEST.xlsx</a>
                 </td>
             </tr>
@@ -48,141 +51,6 @@
             </tbody>
         </table>
     </div>
-    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 id=modalLabel class="modal-title" style="text-align:center;"><b>Tree of Life Manifest Wizard</b>
-                    </h4>
-                </div>
 
-                <!-------------------------------->
-
-                <div class="modal-body">
-                    <div class="wizard" id="manifest-wizard">
-                        <div class="steps-container">
-                            <ul class="steps">
-                                <li data-step="1" class="active">
-                                    <span class="badge badge-info">1</span>Type<span class="chevron"></span>
-                                </li>
-                                <li data-step="2">
-                                    <span class="badge">2</span>Sample Quantity<span class="chevron"></span>
-                                </li>
-                                <li data-step="3">
-                                    <span class="badge">3</span>Manifest Template<span class="chevron"></span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <form id="wizardForm" method="post" class="form-horizontal">
-
-                            <div class="step-content">
-                                <div class="step-pane" data-step="1">
-                                    <div class="well">
-                                        <label>Choose the type of manifest that you would like to describe</label>
-                                        <div id="manifestType" class="input-append dropdown combobox">
-                                            <input class="span2" type="text">
-                                            <button type="button" class="btn" data-toggle="dropdown"><i
-                                                    class="caret"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li data-value="asg"><a href="#">ASG</a></li>
-                                                <li data-value="dtol"><a href="#">DTOL</a></li>
-                                                <li data-value="erga"><a href="#">ERGA</a></li>
-                                                <li data-value="env"><a href="#">ENV</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="step-pane" data-step="2">
-                                    <div class="well">
-                                        <label>How many organisms would you like to describe?</label>
-                                        <br>
-                                        <input class="form-control" id="numberOfSamples"
-                                               type="number" value="1" min="1"
-                                               max="10000"/>
-                                    </div>
-
-                                    <div class="well">
-                                        <label>Are there common values for these fields?&nbsp;
-                                            <i id="info" class="fa fa-info-circle" aria-hidden="true"></i>
-
-                                        </label>
-                                        <br>
-
-                                        <select class="form-control" id="commonfields"
-                                                onchange="insertTableRow(this)"></select>
-
-
-                                    </div>
-
-                                    <div id="tableDiv">
-                                        <table id="tableID">
-                                        </table>
-                                    </div>
-
-
-                                </div>
-
-                                <div class="step-pane" data-step="3">
-                                    <p style="text-align:center; font-size: medium">The manifest template is ready to be
-                                        downloaded. Click
-                                        <i
-                                                onclick="generateManifestTemplate()" class="fa fa-download"
-                                                style="color: #00bb00"></i>
-                                        to download.
-                                    </p>
-
-                                </div>
-
-
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <div class="actions">
-                        <button type="button" class="btn btn-sm btn-primary btn-prev">
-                            <i class="fa fa-arrow-left"></i> Prev
-                        </button>
-                        <button id='nextBtn' type="button" class="btn btn-sm btn-success btn-next" data-last="Finish">
-                            Next&nbsp;<i id="rightIcon" class="fa fa-arrow-right"></i>
-                        </button>
-
-                    </div>
-                </div>
-
-
-                <!-------------------------------->
-
-            </div>
-        </div>
-    </div>
-
-{% endblock %}
-
-{% block headblock %}
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
-          crossorigin="anonymous">
-    <link rel="stylesheet" href="https://www.fuelcdn.com/fuelux/3.17.1/css/fuelux.min.css">
-    <link rel="stylesheet" href="{% static 'assets/css/manifests.css' %}">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            cintegrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-            crossorigin="anonymous"></script>
-
-
-    <script src="{% static 'assets/js/manifests.js' %}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuelux/3.17.2/js/fuelux.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>
 
 {% endblock %}

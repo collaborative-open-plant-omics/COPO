@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
-from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers
+from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views
 
 app_name = 'web_copo'
@@ -12,7 +12,7 @@ urlpatterns = [
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
-    path('test', views.test, name='test'),
+    path('test/', views.test, name='test'),
     path('stats/<str:view>', views.stats, name='stats'),
     path('stats/', views.stats, name='stats'),
     path('login/', views.login, name='auth'),
@@ -171,6 +171,9 @@ urlpatterns = [
          name="sample_spreadsheet"),
     path('sample_images/', ajax_handlers.sample_images,
          name="sample_images"),
+    path('https://code-with-me.global.jetbrains.com/p5Tx6g-qitYtH3meHrwomg#p=PY&fp=84D424337202EAA09B68E9C7A9A414A761E4563899053D13CA08F05A5BC82EDF/',
+         ajax_handlers.sample_permits,
+         name="sample_permits"),
     path('create_spreadsheet_samples/', ajax_handlers.create_spreadsheet_samples,
          name="create_spreadsheet_samples"),
     path('update_spreadsheet_samples/', ajax_handlers.update_spreadsheet_samples,
@@ -189,4 +192,18 @@ urlpatterns = [
          name="handle_csv_column_update_spreadsheet"),
     path('handle_csv_column_validate_spreadsheet/', ajax_handlers.handle_csv_column_validate_spreadsheet,
          name="handle_csv_column_validate_spreadsheet"),
+    path('handle_csv_column_update_samples/', ajax_handlers.handle_csv_column_update_samples,
+         name="handle_csv_column_update_samples"),
+    path('ena_read_manifest_validate/<profile_id>', views.ena_read_manifest_validate,
+         name="ena_read_manifest_validate"),
+    path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
+         name="parse_ena_spreadsheet"),
+    path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,
+         name="save_ena_records"),
+    path('get_manifest_submission_list/', ajax_handlers.get_manifest_submission_list,
+         name="get_manifest_submission_list"),
+    path('init_manifest_submission/', ajax_handlers.init_manifest_submission,
+         name="init_manifest_submission"),
+    path('process_urls', ajax_handlers.process_urls,
+         name="process_urls"),
 ]

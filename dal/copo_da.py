@@ -6,6 +6,7 @@ from datetime import datetime, timezone, date
 
 import pandas as pd
 import pymongo
+from pymongo import ReturnDocument
 import pymongo.errors as pymongo_errors
 from bson import ObjectId, json_util
 from bson.errors import InvalidId
@@ -13,7 +14,7 @@ from chunked_upload.models import ChunkedUpload
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
-
+from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
 from dal.copo_base_da import DataSchemas
@@ -49,8 +50,10 @@ SubmissionQueueCollection = 'SubmissionQueueCollection'
 MetadataTemplateCollection = 'MetadataTemplateCollection'
 FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
-TestCollection = 'TestCollection'
 BarcodeCollection = 'BarcodeCollection'
+ValidationQueueCollection = 'ValidationQueueCollection'
+ENAFileTransferCollection = 'EnaFileTransferCollection'
+TestCollection = 'TestCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -67,7 +70,9 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    metadata_template=get_collection_ref(MetadataTemplateCollection),
                    stats=get_collection_ref(StatsCollection),
                    test=get_collection_ref(TestCollection),
-                   barcode=get_collection_ref(BarcodeCollection)
+                   barcode=get_collection_ref(BarcodeCollection),
+                   validationQueue=get_collection_ref(ValidationQueueCollection),
+                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection)
                    )
 
 
@@ -99,7 +104,7 @@ class ProfileInfo:
         for k, v in num_dict.items():
             if handle_dict.get(v, None):
                 status[k] = handle_dict.get(v).count(
-                    {'profile_id': self.profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+                    {'profile_id': self.profile_id})
 
         return status
 
@@ -317,6 +322,39 @@ class DAComponent:
 class TestObjectType(DAComponent):
     def __init__(self, profile_id=None):
         super(TestObjectType, self).__init__(profile_id, "test")
+
+
+class ValidationQueue(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ValidationQueue, self).__init__(profile_id, "validationQueue")
+
+    def get_queued_manifests(self):
+        m_list = self.get_collection_handle().find({"schema_validation_status": "pending", "taxon_validation_status": "pending"})
+        out = list(m_list)
+        for el in out:
+            self.get_collection_handle().update_one({"_id": el["_id"]}, {"$set": {"schema_validation_status": "processing", "taxon_validation_status":
+                "processing"}})
+        return out
+
+    def update_manifest_data(self, record_id, manifest_data):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"manifest_data": manifest_data}})
+
+    def set_update_flag(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"isupdate": True}})
+
+    def set_taxon_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
+
+    def set_taxon_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                           err}})
+
+    def set_schema_validation_complete(self, record_id):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "complete"}})
+
+    def set_schema_validation_error(self, record_id, err):
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                                                            err}})
 
 
 class Publication(DAComponent):
@@ -793,6 +831,12 @@ class Sample(DAComponent):
             {"_id": 1}
         ))
 
+    def get_project_samples(self, projects):
+        return cursor_to_list(self.get_collection_handle().find(
+            {"sample_type": {"$in": projects}},
+            {"_id": 1}
+        ))
+
     def get_all_tol_samples(self):
         return self.get_collection_handle().find({"tol_project": {"$in": ["ASG", "DTOL"]}})
 
@@ -884,11 +928,28 @@ class Sample(DAComponent):
              }
         )
 
+    def add_rejected_status_for_tolid(self, specimen_id):
+        return self.get_collection_handle().update_many(
+            {
+                "SPECIMEN_ID": specimen_id
+            },
+            {"$set":
+                 {'tolid_error': "public name request has been rejected at Sanger",
+                  'status': 'rejected'}
+             }
+        )
+
+    def get_by_profile_and_field(self, profile_id, field, value):
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}))
+
+    def get_by_project_and_field(self, project, field, value):
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
+
     def get_dtol_from_profile_id(self, profile_id, filter):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["rejected", "accepted", "processing", "conflicting"]}})
+                {'profile_id': profile_id, "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -898,7 +959,7 @@ class Sample(DAComponent):
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "conflicting"})
             samples = list(cursor)
-            id_query = [str(x["_id"]) for x in samples]
+            id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
             for bc in barcodes:
                 for idx, s in enumerate(samples):
@@ -997,6 +1058,25 @@ class Sample(DAComponent):
         ids = self.get_collection_handle().aggregate(
             [
                 {"$match": {"sample_type": {"$in": TOL_PROFILE_TYPES}, "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$sort": {"time_created": -1}},
+                {"$group":
+                    {
+                        "_id": "$manifest_id",
+                        "created": {"$first": "$time_created"}
+                    }
+                }
+            ])
+        out = cursor_to_list_no_ids(ids)
+        return out
+
+    def get_manifests_by_date_and_project(self, project, d_from, d_to):
+        projectlist = project.split(",")
+        projectlist = list(map(lambda x: x.strip(), projectlist))
+        # remove any empty elements in the list (e.g. where 2 or more comas have been typed in error
+        projectlist[:] = [x for x in projectlist if x]
+        ids = self.get_collection_handle().aggregate(
+            [
+                {"$match": {"sample_type": {"$in": projectlist}, "time_created": {"$gte": d_from, "$lt": d_to}}},
                 {"$sort": {"time_created": -1}},
                 {"$group":
                     {
@@ -1300,6 +1380,11 @@ class Submission(DAComponent):
         :return:
         """
 
+        # first check if this is a manifest submission
+        s = self.get_collection_handle().find_one({"_id": ObjectId(submission_id)})
+        if s.get("manifest_submission", 0):
+            return s["repository"]
+
         # specify filtering
         filter_by = dict(_id=ObjectId(str(submission_id)))
 
@@ -1441,6 +1526,12 @@ class Submission(DAComponent):
         doc = self.get_collection_handle().find_one({"_id": ObjectId(sub_id)})
 
         return doc.get("complete", False)
+
+    def is_manifest_submission(self, sub_id):
+        docs = Submission().get_collection_handle().find_one(
+            {"_id": ObjectId(sub_id)}
+        )
+        return docs.get("manifest_submission", 0) == 1
 
     def insert_dspace_accession(self, sub, accessions):
         # check if submission accessions are not a list, if not delete as multiple accessions cannot be added to object
@@ -1632,6 +1723,13 @@ class Submission(DAComponent):
         projection = "accessions.study_accessions"
         return cursor_to_list(self.get_collection_handle().find({query: {"$exists": True}}, {projection: 1}))
 
+    def set_manifest_submission_pending(self, s_id):
+        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$set": {"processing_status": "pending", "date_modified":
+            datetime.utcnow()}}):
+            return True
+        else:
+            return False
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -1749,7 +1847,6 @@ class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
 
-
     def get_num(self):
         return self.get_collection_handle().count({})
 
@@ -1835,8 +1932,7 @@ class Profile(DAComponent):
 
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)",
-                              "Darwin Tree of Life Earlham Institute Only (DTOL_EI)"]}}).sort(
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)"]}}).sort(
             "date_created",
             pymongo.DESCENDING)
         return cursor_to_list(p)
@@ -1844,6 +1940,11 @@ class Profile(DAComponent):
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtolenv_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified", pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):
@@ -1855,13 +1956,13 @@ class Profile(DAComponent):
         return cursor_to_list(p)
 
     def validate_and_delete(self, profile_id):
-        #check if any submission object reference this profile, if so do not delete
+        # check if any submission object reference this profile, if so do not delete
         if Submission().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are datafiles associated with the profile, if so do not delete
+        # check if there are datafiles associated with the profile, if so do not delete
         if DataFile().get_records_by_field("profile_id", profile_id):
             return False
-        #check if there are samples associated with the profile, if so di not delete
+        # check if there are samples associated with the profile, if so di not delete
         if cursor_to_list(Sample().get_from_profile_id(profile_id)):
             return False
         self.get_collection_handle().remove({"_id": ObjectId(profile_id)})
@@ -2292,6 +2393,31 @@ class Barcode(DAComponent):
         self.get_collection_handle().update_many({"specimen_id": specimen_id},
                                                  {"$set": {"sample_id": sample_id, "specimen_id": specimen_id}},
                                                  upsert=True)
+
+
+class ENAFileTransferObject(DAComponent):
+    def __init__(self, profile_id=None):
+        super(ENAFileTransferObject, self).__init__(profile_id, "ENAFileTransferObject")
+        self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
+        self.profile_id = profile_id
+        self.profile_id = profile_id
+        self.component = str()
+
+    def get_pending_transfers(self):
+        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
+
+    def get_processing_transfers(self):
+        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})
+
+    def set_processing(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
+                                                        {"$set": {"status": "processing", "last_checked": datetime.utcnow()}})
+
+    def set_pending(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending", "last_checked": datetime.utcnow()}})
+
+    def set_complete(self, tx_id):
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
 
 
 def is_number(s):

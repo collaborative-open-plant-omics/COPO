@@ -16,7 +16,25 @@ $(document).ready(function () {
     $(document).on("click", "#accept_reject_shortcut", function (evt) {
         document.location = "/copo/accept_reject_sample"
     })
+    $(document).on("click", ".expanding_menu > div", function (e) {
+        var el = $(e.currentTarget)
+        el.closest("tr").removeClass("selected")
 
+    })
+    $(document).on("click", ".item a", function (e) {
+        var el = $(e.currentTarget)
+        if (el.hasClass("action")) {
+            var action_type = el.data("action_type")
+            var id = el.closest(".expanding_menu").attr("id")
+            id = id.split("_")[1]
+            if (action_type == "dtol" || action_type == "erga") {
+                url = "/copo/copo_samples/" + id + "/view"
+            } else if (action_type == "reads") {
+                url = "/copo/ena_read_manifest_validate/" + id
+            }
+            document.location = url
+        }
+    })
     //load work profiles
     var tableLoader = $('<div class="copo-i-loader"></div>');
     $("#component_table_loader").append(tableLoader);
@@ -191,13 +209,14 @@ $(document).ready(function () {
                             var renderHTML = $(".datatables-panel-template")
                                 .clone()
                                 .removeClass("datatables-panel-template")
-                                .addClass("copo-records-panel");
+                                .addClass("copo-records-panel")
+
 
                             //set heading
-                            if (data.type.includes("DTOL_EI")) {
+                            if (data.type.includes("DTOL_ENV")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
-                                    ' style="">' + data.title + '&nbsp<small>(DTOL-EI)</small></span>');
-                                renderHTML.find(".panel-heading").css('background-color', "#16ab39")
+                                    ' style="">' + data.title + '&nbsp<small>(DTOL-ENV)</small></span>');
+                                renderHTML.find(".panel-heading").css('background-color', "#fb7d0d")
                             } else if (data.type.includes("DTOL")) {
                                 renderHTML.find(".panel-heading").find(".row-title").html('<span id=' + data.record_id +
                                     ' style="">' + data.title + '&nbsp<small>(DTOL)</small></span>');
@@ -220,20 +239,25 @@ $(document).ready(function () {
                                     renderHTML.find(".panel-heading").css("background-color", "#f26202")
                                 }
                             }
+
                             //set body
                             var bodyRow = $('<div class="row"></div>');
 
+                            var menu = $("#expanding_menu").clone()
+                            $(menu).attr("id", "menu_" + data.record_id)
+                            component_buttons = append_component_buttons(data.record_id)
+                            $(menu).find(".comp").append(component_buttons)
                             var colsHTML = $('<div class="col-sm-12 col-md-12 col-lg-12"></div>')
                                 .append('<div>Created:</div>')
                                 .append('<div style="margin-bottom: 10px;">' + data.profile_date + '</div>')
                                 .append('<div>Description:</div>')
                                 .append('<div style="margin-bottom: 10px;">' + data.description + '</div>')
-                                .append(append_component_buttons(data.record_id));
+                                .append(menu);
 
 
                             bodyRow.append(colsHTML);
                             renderHTML.find(".panel-body").html(bodyRow);
-
+                            renderHTML.attr("profile_type", data.type);
                             return $('<div/>').append(renderHTML).html();
                         }
                     },
@@ -278,6 +302,8 @@ $(document).ready(function () {
                 });
 
             place_task_buttons(componentMeta); //this will place custom buttons on the table for executing tasks on records
+
+
         }
 
         $('#' + tableID + '_wrapper')
@@ -297,7 +323,7 @@ $(document).ready(function () {
                 set_selected_rows(dt);
             });
         }
-
+        filter_action_menu()
     } //end of func
 
     function set_selected_rows(dt) {
@@ -324,8 +350,7 @@ $(document).ready(function () {
         //components row
         var components = get_profile_components();
         var componentsDIV = $('<div/>', {
-            class: "pull-right",
-            style: "margin-top:15px;"
+            class: "item"
         });
 
 
@@ -396,6 +421,22 @@ $(document).ready(function () {
         });
     }
 
+    function filter_action_menu() {
+        $(".copo-records-panel").each(function (idx, el) {
+            var t = $(el).attr("profile_type")
+            if (t.includes("ERGA")) {
+                $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='dtol_option']").hide()
+            } else if (t.includes("DTOL") || t.includes("ASG")) {
+                $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='erga_option']").hide()
+            } else if (t.includes("Stand-alone")) {
+                $(el).find("a[anchor_type='dtol_option']").hide()
+                $(el).find("a[anchor_type='erga_option']").hide()
+            }
+        })
+    }
+
     function load_profiles() {
         $.ajax({
             url: copoVisualsURL,
@@ -410,6 +451,7 @@ $(document).ready(function () {
             success: function (data) {
                 do_render_profile_table(data);
                 tableLoader.remove();
+                filter_action_menu()
             },
             error: function () {
                 alert("Couldn't retrieve profiles!");
@@ -431,12 +473,14 @@ $(document).ready(function () {
         //add task
         if (task == "add") {
             initiate_form_call(component);
+
             return false;
         }
 
 
         //edit task
         if (task == "edit") {
+            var csrftoken = $.cookie('csrftoken');
             $.ajax({
                 url: copoFormsURL,
                 type: "POST",
@@ -469,27 +513,27 @@ $(document).ready(function () {
                 }
             }).done(function (data_response) {
                 BootstrapDialog.show({
-                       title: "Profile/s deleted",
-                       message: "All profile/s selected have been deleted.",
-                       cssClass: "copo-modal1",
-                       closable: true,
-                       animate: true,
-                       type : BootstrapDialog.TYPE_INFO
-                    });
-                for (var i=0; i < records.length; i++) {
+                    title: "Profile/s deleted",
+                    message: "All profile/s selected have been deleted.",
+                    cssClass: "copo-modal1",
+                    closable: true,
+                    animate: true,
+                    type: BootstrapDialog.TYPE_INFO
+                });
+                for (var i = 0; i < records.length; i++) {
                     document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
                 }
             }).error(function (data_response) {
                 BootstrapDialog.show({
-                       title: "Profile deletion - error",
-                       message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
-                           "samples associated can be deleted.",
-                       cssClass: "copo-modal1",
-                       closable: true,
-                       animate: true,
-                       type : BootstrapDialog.TYPE_DANGER
-                    });
-                for (var i=0; i < records.length; i++) {
+                    title: "Profile deletion - error",
+                    message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
+                        "samples associated can be deleted.",
+                    cssClass: "copo-modal1",
+                    closable: true,
+                    animate: true,
+                    type: BootstrapDialog.TYPE_DANGER
+                });
+                for (var i = 0; i < records.length; i++) {
                     if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
                         document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
                     }

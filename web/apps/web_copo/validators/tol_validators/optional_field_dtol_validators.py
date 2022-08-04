@@ -4,11 +4,11 @@ from dal.copo_da import Profile, Sample
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
-from .tol_validator import TolValidtor
-from .validation_messages import MESSAGES as msg
+from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
+import validators
 
-
-class DtolEnumerationValidator(TolValidtor):
+class DtolEnumerationValidator(Validator):
 
     def validate(self):
         whole_used_specimens = set()
@@ -18,6 +18,8 @@ class DtolEnumerationValidator(TolValidtor):
         p_type = Profile().get_type(profile_id=self.profile_id)
         if "ERGA" in p_type:
             p_type = "ERGA"
+        elif "DTOL_ENV" in p_type:
+            p_type = "DTOL_ENV"
         elif "DTOL" in p_type:
             p_type = "DTOL"
         elif "ASG" in p_type:
@@ -34,8 +36,13 @@ class DtolEnumerationValidator(TolValidtor):
                             html_id="sample_info")
             if header in self.fields:
 
-                # check if there is an enum for this header
-                allowed_vals = lookup.DTOL_ENUMS.get(header, "")
+                # check if there is an enum for this header specific to the project
+                lookup_entry = lookup.DTOL_ENUMS.get(header, "")
+                if type(lookup_entry) is dict:
+                    allowed_vals =  lookup_entry.get(p_type, "")
+                else:
+                    # check if there is a general enum for this header, else ""
+                    allowed_vals = lookup_entry
 
                 # check if there's a regex rule for the header and exceptional handling
                 if lookup.DTOL_RULES.get(header, ""):
@@ -67,11 +74,6 @@ class DtolEnumerationValidator(TolValidtor):
                         #todo move this in lookups and re-structure, this is in interest of time
                         if header == "BARCODE_HUB" and "ASG" in p_type:
                             allowed_vals = lookup.DTOL_ENUMS.get("PARTNER", "") + ["NOT_PROVIDED"]
-                        if header == "GAL":
-                            if "DTOL" in p_type:
-                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("DTOL", "")
-                            elif "ERGA" in p_type:
-                                allowed_vals = lookup.DTOL_ENUMS.get("GAL", "").get("ERGA", "")
                         if header == "COLLECTION_LOCATION" or header=="ORIGINAL_FIELD_COLLECTION_LOCATION":
                             # special check for COLLETION_LOCATION as this needs invalid list error for feedback
                             c_value = str(c).split('|')[0].strip()
@@ -112,14 +114,22 @@ class DtolEnumerationValidator(TolValidtor):
                                 c, header, str(cellcount + 1), regex_human_readable))
                             self.flag = False
                     if optional_regex:
-                        # handle regular expression that will only trigger a warning
+                        # handle regular expression that will only trigger a warning exclude ERGA from this warning
                         if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE):
-                            if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID']:
+                            if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID'] and p_type == "ERGA":
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
                             else:  # not in use atm, here in case we add more optional validations
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
+
+                    #validate link fields
+                    if header.endswith('_LINK') or header == "VOUCHER_INSTITUTION":
+                        if c.strip() and not validators.url(c.strip()):
+                            self.errors.append(msg["validation_msg_invalid_link"] % (
+                                c, header, str(cellcount+1)
+                            ))
+                            self.flag = False
 
                     # validation checks for SERIES
                     if header == "SERIES":
@@ -142,6 +152,7 @@ class DtolEnumerationValidator(TolValidtor):
                                 self.flag = False
                     #check SPECIMEN_ID has the right prefix
                     elif header == "SPECIMEN_ID":
+                        #both DTOL and DTOL_ENV
                         if "DTOL" in p_type:
                             current_gal = self.data.at[cellcount - 1, "GAL"]
                             specimen_regex = re.compile(lookup.SPECIMEN_PREFIX["GAL"][p_type.lower()].get(current_gal,
@@ -200,7 +211,7 @@ class DtolEnumerationValidator(TolValidtor):
                         else:
                             flag_symbiont = True
 
-                        #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
+                    #if TISSUE_REMOVED_FOR_BARCODING is not YES, the barcoding columns will be overwritten
                     elif header == "TISSUE_REMOVED_FOR_BARCODING" and c.strip() != "Y":
                         barcoding_flag = True
                         for barfield in barcoding_fields:
@@ -210,6 +221,20 @@ class DtolEnumerationValidator(TolValidtor):
                         if barcoding_flag == False:
                             self.warnings.append(msg["validation_msg_warning_barcoding"] % (
                                 str(cellcount+1), c
+                            ))
+                    #if tissue removed for biobanking warning that voucher should be present
+                    elif header == "TISSUE_REMOVED_FOR_BIOBANKING" and c.strip() == "Y":
+                        if self.data.at[cellcount-1, "TISSUE_VOUCHER_ID_FOR_BIOBANKING"].strip() in lookup.BLANK_VALS:
+                            self.warnings.append(msg["validation_msg_warning_na_value_voucher"] % (
+                                self.data.at[cellcount-1, "TISSUE_VOUCHER_ID_FOR_BIOBANKING"].strip(),
+                                "TISSUE_VOUCHER_ID_FOR_BIOBANKING", str(cellcount + 1), "TISSUE_VOUCHER_ID_FOR_BIOBANKING"
+                            ))
+                    #if dna removed for biobanking warning that voucher should be present
+                    elif header == "DNA_REMOVED_FOR_BIOBANKING" and c.strip() == "Y":
+                        if self.data.at[cellcount-1, "DNA_VOUCHER_ID_FOR_BIOBANKING"].strip() in lookup.BLANK_VALS:
+                            self.warnings.append(msg["validation_msg_warning_na_value_voucher"] % (
+                                self.data.at[cellcount-1, "DNA_VOUCHER_ID_FOR_BIOBANKING"].strip(),
+                                "DNA_VOUCHER_ID_FOR_BIOBANKING", str(cellcount + 1), "DNA_VOUCHER_ID_FOR_BIOBANKING"
                             ))
                     #if original collection date is provided so must be the orginal geographic collection
                     elif header == "ORIGINAL_COLLECTION_DATE" and c.strip():
@@ -232,5 +257,5 @@ class DtolEnumerationValidator(TolValidtor):
                             )
                             self.flag = False
         if flag_symbiont:
-            self.warnings.append(msg["validation_msg_overwrite_symbionts"])
+            self.warnings.insert(0, msg["validation_msg_overwrite_symbionts"])
         return self.errors, self.warnings, self.flag

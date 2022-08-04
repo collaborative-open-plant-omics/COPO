@@ -170,6 +170,13 @@
     <script>
 
         $(document).ready(function () {
+            $("#bell_notification").popover({
+                html: true,
+                content: function () {
+                    return $("#hidden_notification").html();
+                },
+            })
+
             $("#gdpr_check").closest(".modal-dialog").find("button").attr("disabled", true)
             //global search box
             $("#global_search_form").submit(function (event) {
@@ -306,6 +313,10 @@
             opacity: 0;
         }
 
+        .hidden {
+            display: none;
+        }
+
         .selectize-control.onto-select.loading::before {
             opacity: 0.4;
         }
@@ -367,6 +378,14 @@
 {% include "components_template.html" %}
 <!-- end template components -->
 
+<div id="hidden_notification" class="hidden">
+    <div>
+        Message Recieved:<br/>{{ created }}</div>
+    <br/>
+    <b>{{ latest_message }}</b>
+</div>
+</div>
+
 
 <nav id="copo-global-nav" class="navbar navbar-default navbar-fixed-top"
      style="background: rgba(38, 38, 38, 0.95);">
@@ -398,11 +417,9 @@
             </li>
 
             <li class="dropdown" title="Notifications">
-                <a id="trigger-notifications" href="#" class="dropdown-toggle " data-toggle="dropdown" role="button"
-                   aria-haspopup="true"
-                   aria-expanded="false">
-                        <span data-copo-tour-id="notifications_button"><i class="fa fa-bell"
-                                                                          aria-hidden="true"></i></span>
+                <a data-container="body" title="Current Tasks"
+                   data-placement="bottom" id="bell_notification">
+                    <i class="fa fa-bell" aria-hidden="true"></i></span>
                 </a>
             </li>
 

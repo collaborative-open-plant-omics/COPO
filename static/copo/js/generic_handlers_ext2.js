@@ -12,25 +12,29 @@ $(document).ready(function () {
 
 });
 
-function set_empty_component_message(dataRows) {
+function set_empty_component_message(dataRows, table_id = "*") {
     //decides, based on presence of record, to display table or getting started info
 
     if (dataRows == 0) {
         if ($(".table-parent-div").length) {
-            $(".table-parent-div").hide();
+            $(table_id).find(".table-parent-div").hide();
+            $("#wizard_submissions_label").hide()
+            $("#manifest_submissions_label").hide()
         }
 
         if ($(".page-welcome-message").length) {
-            $(".page-welcome-message").show();
+            $(table_id).find(".page-welcome-message").show();
         }
 
     } else {
         if ($(".table-parent-div").length) {
-            $(".table-parent-div").show();
+            $(table_id).find(".table-parent-div").show();
+            $("#wizard_submissions_label").show()
+            $("#manifest_submissions_label").show()
         }
 
         if ($(".page-welcome-message").length) {
-            $(".page-welcome-message").hide();
+            $(table_id).find(".page-welcome-message").hide();
         }
     }
 }

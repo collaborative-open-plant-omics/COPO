@@ -19,6 +19,7 @@ import dal.mongo_util as mutil
 from contextlib import closing
 from django.conf import settings
 from submission.helpers import generic_helper as ghlper
+from dal.copo_da import Submission
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from submission.helpers.ena_helper import SubmissionHelper
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -26,6 +27,7 @@ from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_EXPERIMENT_TEMPLATE, SRA_RUN_TEMPLATE, \
     SRA_PROJECT_TEMPLATE, SRA_SAMPLE_TEMPLATE, \
     SRA_SUBMISSION_MODIFY_TEMPLATE, ENA_CLI
+import web.apps.web_copo.utils.FileTransferUtils as tx
 
 REPOSITORIES = settings.REPOSITORIES
 BASE_DIR = settings.BASE_DIR
@@ -138,7 +140,7 @@ class EnaReads:
 
         # check status of submission record
         submission_record = collection_handle.find_one({"_id": ObjectId(self.submission_id)},
-                                                       {"profile_id": 1, "complete": 1})
+                                                       {"profile_id": 1, "complete": 1, "manifest_submission": 1})
 
         if not submission_record:
             return dict(status=False, message='Submission record not found!')
@@ -199,11 +201,13 @@ class EnaReads:
         # context = self._submit_datafiles_cli(submission_xml_path=submission_xml_path)
 
         # submit datafiles via the RESTful pathway
+
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
+        # todo branch here for manifest submissions, as we will be handling datafiles differently
 
         # process study release
         self.process_study_release()
@@ -858,9 +862,13 @@ class EnaReads:
         kwargs = dict(submission_id=self.submission_id)
         ghlper.transfer_to_ena(webin_user=self.webin_user, pass_word=self.pass_word, remote_path=
         self.remote_location, file_paths=mock_file_names, **kwargs)
-
-        # schedule the transfer of actual datafiles to ENA Dropbox
-        ghlper.schedule_file_transfer(submission_id=self.submission_id, remote_location=self.remote_location)
+        # branch for manifest submissions
+        if Submission().is_manifest_submission(self.submission_id):
+            pass
+            # self._setup_files_transfer(self.submission_id)
+        else:
+            # schedule the transfer of actual datafiles to ENA Dropbox
+            ghlper.schedule_file_transfer(submission_id=self.submission_id, remote_location=self.remote_location)
 
         # get sequencing instruments
         instruments = COPOLookup(data_source='sequencing_instrument').broker_data_source()
@@ -1842,3 +1850,8 @@ class EnaReads:
                                           status_message=message)
 
         return True
+
+    def _setup_files_transfer(self, submission_record_id):
+        submission = Submission().get_record(submission_record_id)
+        for file_id in submission["bundle"]:
+            tx.make_transfer_record(file_id=file_id, submission_id=submission_record_id)

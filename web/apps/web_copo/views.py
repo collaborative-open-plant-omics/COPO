@@ -30,9 +30,10 @@ from web.apps.web_copo.utils import EnaImports as eimp
 from web.apps.web_copo.utils import group_functions
 from .lookup.lookup import HTML_TAGS
 from tools.resolve_env import get_env
-
+from web.apps.web_copo.s3.s3Connection import S3Connection
+from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
-
+from web.apps.web_copo.models import UserDetails, StatusMessage
 
 @login_required
 def index(request):
@@ -76,6 +77,15 @@ def test_submission(request):
 
 def error_page(request):
     return render(request, context={}, template_name="copo/error_page.html")
+
+
+def test(request):
+    return render(request, "copo/test.html")
+
+@login_required()
+def ena_read_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
 
 @login_required

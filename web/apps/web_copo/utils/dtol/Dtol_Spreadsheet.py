@@ -3,6 +3,7 @@ import inspect
 import math
 import os
 import uuid
+import pickle
 from os.path import join, isfile
 from pathlib import Path
 from shutil import rmtree
@@ -16,7 +17,7 @@ from django_tools.middlewares import ThreadLocal
 
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile
+from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -25,11 +26,40 @@ from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
-from .tol_validators import optional_field_dtol_validators as optional_validators
-from .tol_validators import required_field_dtol_validators as required_validators
-from .tol_validators import taxon_validators
-from .tol_validators.tol_validator import TolValidtor
+from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
+    taxon_validators
+from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+from web.apps.web_copo.validators.validator import Validator
+from dal import cursor_to_list
+from exceptions_and_logging import logger
 
+l = logger.Logger("exceptions_and_logging/logs")
+
+
+def make_target_sample(sample):
+    # need to pop taxon info, and add back into sample_list
+    if not "species_list" in sample:
+        sample["species_list"] = list()
+    out = dict()
+    symbiont = sample.pop("SYMBIONT")
+    if symbiont.upper() not in ["SYMBIONT", "TARGET"]:
+        if symbiont:
+            out["SYMBIONT_SOP2dot2"] = symbiont
+        symbiont = "TARGET"
+
+    out["SYMBIONT"] = symbiont.upper()
+    out["TAXON_ID"] = sample.pop("TAXON_ID")
+    out["ORDER_OR_GROUP"] = sample.pop("ORDER_OR_GROUP")
+    out["FAMILY"] = sample.pop("FAMILY")
+    out["GENUS"] = sample.pop("GENUS")
+    out["SCIENTIFIC_NAME"] = sample.pop("SCIENTIFIC_NAME")
+    out["INFRASPECIFIC_EPITHET"] = sample.pop("INFRASPECIFIC_EPITHET")
+    out["CULTURE_OR_STRAIN_ID"] = sample.pop("CULTURE_OR_STRAIN_ID")
+    out["COMMON_NAME"] = sample.pop("COMMON_NAME")
+    out["TAXON_REMARKS"] = sample.pop("TAXON_REMARKS")
+    sample["species_list"].append(out)
+
+    return sample
 
 def make_species_list(sample):
     # need to pop taxon info, and add back into sample_list
@@ -60,12 +90,26 @@ class DtolSpreadsheet:
     fields = ""
     sra_settings = d_utils.json_to_pytype(SRA_SETTINGS, compatibility_mode=False).get("properties", dict())
 
-    def __init__(self, file=None):
+    def __init__(self, file=None, p_id="", validation_record_id=""):
         self.req = ThreadLocal.get_current_request()
-        self.profile_id = self.req.session.get("profile_id", None)
+        if p_id == "" and validation_record_id:
+            self.vr = ValidationQueue().get_record(validation_record_id)
+            p_id = self.vr.get("profile_id", "")
+        if file:
+            self.file = file
+        else:
+            self.sample_data = self.req.session.get("sample_data", "")
+            if self.sample_data == "":
+                self.sample_data = pickle.loads(self.vr["manifest_data"])
+            self.isupdate = self.req.session.get("isupdate", False)
+
+        self.profile_id = p_id
+
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
+        sample_permits = Path(settings.MEDIA_ROOT) / "sample_permits"
         display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
         self.these_images = sample_images / self.profile_id
+        self.these_permits = sample_permits / self.profile_id
         self.display_images = display_images / self.profile_id
         self.data = None
         self.required_field_validators = list()
@@ -78,11 +122,6 @@ class DtolSpreadsheet:
         self.validator_list = []
         # if a file is passed in, then this is the first time we have seen the spreadsheet,
         # if not then we are looking at creating samples having previously validated
-        if file:
-            self.file = file
-        else:
-            self.sample_data = self.req.session.get("sample_data", "")
-            self.isupdate = self.req.session.get("isupdate", False)
 
         # get type of manifest
         t = Profile().get_type(self.profile_id)
@@ -90,8 +129,8 @@ class DtolSpreadsheet:
             self.type = "ASG"
         elif "ERGA" in t:
             self.type = "ERGA"
-        elif "DTOL_EI" in t:
-            self.type = "DTOL_EI"
+        elif "DTOL_ENV" in t:
+            self.type = "DTOL_ENV"
         else:
             self.type = "DTOL"
 
@@ -99,19 +138,19 @@ class DtolSpreadsheet:
         required = dict(globals().items())["required_validators"]
         for element_name in dir(required):
             element = getattr(required, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.required_field_validators.append(element)
         # create list of optional validators
         optional = dict(globals().items())["optional_validators"]
         for element_name in dir(optional):
             element = getattr(optional, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.optional_field_validators.append(element)
         # create list of taxon validators
         optional = dict(globals().items())["taxon_validators"]
         for element_name in dir(optional):
             element = getattr(optional, element_name)
-            if inspect.isclass(element) and issubclass(element, TolValidtor) and not element.__name__ == "TolValidtor":
+            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.taxon_field_validators.append(element)
 
     def loadManifest(self, m_format):
@@ -306,13 +345,106 @@ class DtolSpreadsheet:
                         html_id="images")
         return output
 
+    def check_permit_names(self, files):
+        # compare list of sample names with specimen ids already uploaded
+        samples = self.sample_data
+        # get list of specimen_ids in sample
+        specimen_id_column_index = 0
+        output = list()
+        for num, col_name in enumerate(samples.columns):
+            if col_name == "SPECIMEN_ID":
+                specimen_id_column_index = num
+            elif col_name == "SAMPLING_PERMITS_REQUIRED":
+                sampling_permits_required_index = num
+            elif col_name == "ETHICS_PERMITS_REQUIRED":
+                ethics_permits_required_index = num
+            elif col_name == "NAGOYA_PERMITS_REQUIRED":
+                nagoya_permits_required_index = num
+        if os.path.isdir(self.these_permits):
+            rmtree(self.these_permits)
+        self.these_permits.mkdir(parents=True)
+
+        write_path = Path(self.these_permits)
+        #display_write_path = Path(self.display_images)
+        for f in files:
+            file = files[f]
+
+            file_path = write_path / file.name
+            file_path = Path(settings.MEDIA_ROOT) / "sample_permits" / self.profile_id / file.name
+            with default_storage.open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            filename = os.path.splitext(file.name)[0].upper()
+            # now iterate through samples data to see if there is a match between specimen_id and permit name
+        permit_path = Path(settings.MEDIA_ROOT) / "sample_permits" / self.profile_id
+        fail_flag = False
+        for num, sample in enumerate(samples.values):
+
+            specimen_id = sample[specimen_id_column_index].upper()
+
+            file_list = [f for f in os.listdir(permit_path) if isfile(join(permit_path, f))]
+            if sample[ethics_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_ETHICS_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
+            if sample[sampling_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_SAMPLING_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
+            if sample[nagoya_permits_required_index] == "Y":
+                found = False
+                for filename in file_list:
+                    if filename == specimen_id+"_NAGOYA_PERMITS.pdf":
+                        p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
+                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        found = True
+                        break
+                if not found:
+                    output.append({
+                        "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
+                                                            + "</strong>"
+                    })
+                    fail_flag = True
+        # save to session
+        request = ThreadLocal.get_current_request()
+        request.session["permit_specimen_match"] = output
+        notify_frontend(data={"profile_id": self.profile_id, "fail_flag": fail_flag}, msg=output, action="make_permits_table",
+                        html_id="permits")
+        return output
+
+    '''
     def collect(self):
         # create table data to show to the frontend from parsed manifest
+        permits_required = False
         sample_data = []
         headers = list()
         for col in list(self.data.columns):
             headers.append(col)
         sample_data.append(headers)
+        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get(
+        "NAGOYA_PERMITS_REQUIRED", "")):
+            permits_required = True
         for index, row in self.data.iterrows():
             r = list(row)
             for idx, x in enumerate(r):
@@ -326,12 +458,28 @@ class DtolSpreadsheet:
             DtolSpreadsheet().detect_updates()
 
         else:
-            notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+            notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data, action="make_table",
                             html_id="sample_table")
+    '''
 
     def save_records(self):
         # create mongo sample objects from info parsed from manifest and saved to session variable
-        sample_data = self.sample_data
+        # sample_data = self.sample_data
+
+        binary = pickle.loads(self.vr["manifest_data"])
+        try:
+            sample_data = pandas.read_excel(binary, keep_default_na=False,
+                                            na_values=lookup.NA_VALS)
+        except ValueError:
+            sample_data = binary
+        sample_data = sample_data.loc[:, ~sample_data.columns.str.contains('^Unnamed')]
+        '''
+        for column in self.allowed_empty:
+            self.data[column] = self.data[column].fillna("")
+        '''
+        sample_data = sample_data.apply(lambda x: x.astype(str))
+        sample_data = sample_data.apply(lambda x: x.str.strip())
+        sample_data.columns = sample_data.columns.str.replace(" ", "")
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
@@ -339,11 +487,13 @@ class DtolSpreadsheet:
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
             '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
-        for p in range(1, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
+        for index, p in sample_data.iterrows():
+            s = dict(p)
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_ASG_VERSION
+            elif "dtolenv" in self.type.lower():
+                s["manifest_version"] = settings.CURRENT_DTOLENV_VERSION
             elif "dtol" in self.type.lower():
                 s["manifest_version"] = settings.CURRENT_DTOL_VERSION
             elif "erga" in self.type.lower():
@@ -355,7 +505,10 @@ class DtolSpreadsheet:
             s["tol_project"] = self.type
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
-            s["status"] = "pending"
+            if "erga" in self.type.lower() and s["ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"]:
+                    s["status"] = "private"
+            else:
+                s["status"] = "pending"
             s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Creating Sample with ID: " + s.get("TUBE_OR_WELL_ID") + "/" + s["SPECIMEN_ID"],
@@ -392,12 +545,15 @@ class DtolSpreadsheet:
                     fields = {"file_location": im["file_name"]}
                     df = DataFile().save_record({}, **fields)
                     DataFile().insert_sample_id(df["_id"], sampl["_id"])
-                    break;
+                    break
 
         uri = request.build_absolute_uri('/')
         # query public service service a first time now to trigger request for public names that don't exist
         public_names = query_public_name_service(public_name_list)
         for name in public_names:
+            if name.get("status", "") == "Rejected":
+                Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                continue
             Sample().update_public_name(name)
         profile_id = request.session["profile_id"]
         profile = Profile().get_record(profile_id)
@@ -406,17 +562,22 @@ class DtolSpreadsheet:
         CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description, project=self.type.upper())
 
     def update_records(self):
-        sample_data = self.sample_data
+        binary = pickle.loads(self.vr["manifest_data"])
+        try:
+            sample_data = pandas.read_excel(binary, keep_default_na=False,
+                                            na_values=lookup.NA_VALS)
+        except ValueError:
+            sample_data = binary
 
         request = ThreadLocal.get_current_request()
         public_name_list = list()
-        for p in range(1, len(sample_data)):
-            s = (map_to_dict(sample_data[0], sample_data[p]))
+        for p in range(0, len(sample_data)):
+            s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
                             msg="Updating Sample with ID: " + s["TUBE_OR_WELL_ID"] + "/" + s["SPECIMEN_ID"],
                             action="info",
                             html_id="sample_info")
-            rack_tube = s.get("RACK_OR_PLATE_ID","") + "/" + s["TUBE_OR_WELL_ID"]
+            rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
@@ -437,6 +598,9 @@ class DtolSpreadsheet:
             # query public service service a first time now to trigger request for public names that don't exist
             public_names = query_public_name_service(public_name_list)
             for name in public_names:
+                if name.get("status", "") == "Rejected":
+                    Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                    continue
                 Sample().update_public_name(name)
             profile_id = request.session["profile_id"]
             profile = Profile().get_record(profile_id)
@@ -497,12 +661,3 @@ class DtolSpreadsheet:
         notify_frontend(data={"profile_id": self.profile_id}, msg=report,
                         action="info",
                         html_id="sample_info")
-
-
-    def check_for_target_or_add_to_symbiont_list(self, s):
-        # method checks if there is an existing target sample to attach this symbiont to. If so we attach, if not,
-        # we create the tax data, and append to a list of use by a later sample
-        if not Sample().check_and_add_symbiont(s):
-            # add to list
-            out = make_tax_from_sample(s)
-            self.symbiont_list.append(out)

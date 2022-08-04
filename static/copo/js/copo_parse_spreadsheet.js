@@ -29,7 +29,44 @@ function upload_image_files(file) {
     })
 }
 
-function upload_spreadsheet(file) {
+function upload_permit_files(file) {
+    var csrftoken = $.cookie('csrftoken');
+    var validation_record_id = $(document).data("validation_record_id")
+    form = new FormData()
+    var count = 0
+    for (f in file) {
+        form.append(count.toString(), file[f])
+        count++
+    }
+    form.append("validation_record_id",validation_record_id)
+    jQuery.ajax({
+        url: '/copo/sample_permits/',
+        data: form,
+        cache: false,
+        contentType: false,
+        processData: false,
+
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+
+    }).error(function (data) {
+        $("#upload_controls").fadeIn()
+        console.error(data)
+        BootstrapDialog.show({
+            title: 'Error',
+            message: "Error " + data
+        });
+    }).done(function (data) {
+
+    })
+}
+
+function upload_spreadsheet(upload_type = upload_type, file = file) {
+    if (upload_type === "ena_seq_reads") {
+        url = "/copo/parse_ena_spreadsheet/"
+    } else if (upload_type === "sample_spreadsheet") {
+        url = '/copo/sample_spreadsheet/'
+    }
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
     $("#warning_info").fadeOut("fast")
@@ -38,7 +75,7 @@ function upload_spreadsheet(file) {
     form = new FormData()
     form.append("file", file)
     jQuery.ajax({
-        url: '/copo/sample_spreadsheet/',
+        url: url,
         data: form,
         cache: false,
         contentType: false,
@@ -56,6 +93,7 @@ function upload_spreadsheet(file) {
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
+
     })
 }
 
@@ -63,6 +101,8 @@ $(document).ready(function () {
 
 
     $(document).on("click", "#finish_button", function (el) {
+        el.preventDefault()
+
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
             return false
         }
@@ -81,8 +121,7 @@ $(document).ready(function () {
             buttons: [
                 {
                     label: "Cancel",
-                    cssClass: "tiny ui basic" +
-                        " button",
+                    cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         dialogRef.close();
                     }
@@ -95,6 +134,7 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/create_spreadsheet_samples",
+                            data: {"validation_record_id": $(document).data("validation_record_id")}
 
                         }).done(function () {
                             location.reload()
@@ -138,7 +178,9 @@ $(document).ready(function () {
 
                         $.ajax({
                             url: "/copo/update_spreadsheet_samples",
-
+                            data: {
+                                "validation_record_id": $(document).data("validation_record_id")
+                            }
                         }).done(function () {
                             location.reload()
                         }).error(function (data) {
@@ -158,7 +200,8 @@ $(document).ready(function () {
     var socket;
     var socket2;
     window.addEventListener("beforeunload", function (event) {
-        //socket.close()
+        socket.close()
+        socket2.close()
     });
 
     if (window.location.protocol === "https:") {
@@ -196,6 +239,9 @@ $(document).ready(function () {
         //handlers for channels messages sent from backend
         d = JSON.parse(e.data)
         //actions here should be performed regardeless of profile
+        if (d.action === "store_validation_record_id") {
+            $(document).data("validation_record_id", d.message)
+        }
         if (d.action === "delete_row") {
             console.log("deleteing row")
             s_id = d.html_id
@@ -275,6 +321,33 @@ $(document).ready(function () {
                     $("#image_table").DataTable()
                     $("#image_table_nav_tab").click()
                     $("#finish_button").fadeIn()
+                } else if (d.action === "make_permits_table") {
+                    // make table of permits matched to
+                    // specimen_ids
+                    if ($.fn.DataTable.isDataTable('#permits_table')) {
+                        $("#permits_table").DataTable().clear().destroy();
+                    }
+                    var headers = $("<tr><th>Specimen ID</th><th>Permit Files</th><th>Notes</th></tr>")
+                    $("#permits_table").find("thead").empty().append(headers)
+                    $("#permits_table").find("tbody").empty()
+                    var table_row
+                    for (r in d.message) {
+                        row = d.message[r]
+                        if (row.file_name === "None") {
+                            var img_tag = "Permits must be named using the same Specimen ID as the manifest"
+                        } else {
+                            var img_tag = ""
+                        }
+                        table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
+                        $("#permits_table").append(table_row)
+                    }
+                    $("#permits_table").DataTable()
+                    $("#permits_table_nav_tab").click()
+                    if (d.data.hasOwnProperty("fail_flag") && d.data.fail_flag == true) {
+
+                    } else {
+                        $("#finish_button").fadeIn()
+                    }
                 } else if (d.action === "make_table") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
@@ -318,7 +391,14 @@ $(document).ready(function () {
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
-                    $("#finish_button").fadeIn()
+                    $("#files_label").removeClass("disabled")
+                    if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
+
+                    } else {
+                        $("#ena_finish_button").fadeIn()
+                        $("#finish_button").fadeIn()
+                    }
+
                 } else if (d.action === "make_update") {
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
@@ -382,41 +462,52 @@ $(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreads
 $(document).on("click", ".new-samples-spreadsheet-template-erga", function (event) {
     BootstrapDialog.show({
 
-            title: "Accept Code of Conduct",
-            message: "By uploading a manifest to COPO you confirm that you read, understood and followed the " +
-                "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
-        "Code of Practice</a>",
-            cssClass: "copo-modal1",
-            closable: true,
-            animate: true,
-            type: BootstrapDialog.TYPE_INFO,
-            buttons: [
-                {
-                    label: "Cancel",
-                    cssClass: "tiny ui basic" +
-                        " button",
-                    id: "code_cancel",
-                    action: function (dialogRef) {
-                        $("#sample_spreadsheet_modal").modal("hide")
-                        dialogRef.close();
+        title: "Accept Code of Conduct",
+        message: "By uploading a manifest to COPO you confirm that you are an ERGA member and thus adhere to ERGA's " +
+            "code of conduct. You further confirm that you read, understood and followed the " +
+            "<a href='https://bit.ly/3zHun36'>ERGA Sample " +
+            "Code of Practice</a>",
+        cssClass: "copo-modal1",
+        closable: true,
+        animate: true,
+        type: BootstrapDialog.TYPE_INFO,
+        buttons: [
+            {
+                label: "Cancel",
+                cssClass: "tiny ui basic" +
+                    " button",
+                id: "code_cancel",
+                action: function (dialogRef) {
+                    $("#sample_spreadsheet_modal").modal("hide")
+                    dialogRef.close();
 
-                    }
-                },
-                {
-                    label: "Ok",
-                    cssClass: "tiny ui basic button",
-                    action: function (dialogRef) {
-                        dialogRef.close();
-                    }
                 }
-            ]
+            },
+            {
+                label: "Ok",
+                cssClass: "tiny ui basic button",
+                action: function (dialogRef) {
+                    dialogRef.close();
+                }
+            }
+        ]
 
-        })
+    })
 
 })
 
 $(document).on("click", "#code_cancel", function (event) {
     var data = $("#sample_info").html()
+})
+
+
+$(document).on("click", "#ena_finish_button", function (event) {
+    event.preventDefault()
+    $.ajax({
+        url: "/copo/save_ena_records"
+    }).done(function (d) {
+        window.location.href = "/copo/copo_submissions/" + $("#profile_id").val() + "/view"
+    })
 })
 
 $(document).on("click", "#export_errors_button", function (event) {

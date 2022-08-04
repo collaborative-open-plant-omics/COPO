@@ -213,8 +213,8 @@ function json2HtmlForm(data) {
             if (!groups.includes("erga_users")) {
                 $('select option[value *= "(ERGA)"]').hide();
             }
-            if (!groups.includes("dtolp_users")) {
-                $('select option[value *= "(DTOLP)"]').hide();
+            if (!groups.includes("dtolenv_users")) {
+                $('select option[value *= "(DTOL_ENV)"]').hide();
             }
 
         },
