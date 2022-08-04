@@ -2,11 +2,11 @@ __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 import datetime
 import sys
-
+import requests
 import dateutil.parser as parser
 from bson.errors import InvalidId
 from django.http import HttpResponse
-
+import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from dal.copo_da import Sample, Source, Submission
 from web.apps.web_copo.lookup import dtol_lookups as lookup
@@ -57,6 +57,7 @@ def format_date(input_date):
 
 
 def filter_for_API(sample_list, add_all_fields=False):
+
     # add field(s) here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
@@ -77,15 +78,27 @@ def filter_for_API(sample_list, add_all_fields=False):
         for k, v in s.items():
             # check if there is a traditional right embargo
             if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
-                if v == "N":
+                if v in ["N", "n"]:
                     # we need not do anything, since no rights apply
                     s_out[k] = v
                 else:
                     # ToDo - check local context hub
-                    s_out = {"status": "embargoed"}
-                    out.append(s_out)
-                    embargoed = True
-                    break
+                    project_id = s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", "")
+                    if not project_id:
+                        # rights are applicable, but no contexts id provided, therefore embargo
+                        s_out = {"status": "embargoed"}
+                        out.append(s_out)
+                        embargoed = True
+                        break
+                    else:
+                        q = query_local_contexts_hub(project_id)
+                        if q == "public":
+                            s_out[k] = v
+                        else:
+                            s_out = {"status": "embargoed"}
+                            out.append(s_out)
+                            embargoed = True
+                            break
             # always export copo id
             if k == "_id":
                 s_out["copo_id"] = str(v)
@@ -114,6 +127,13 @@ def get_dtol_manifests(request):
     # get all manifests of dtol samples
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
+
+
+def query_local_contexts_hub(project_id):
+    lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
+    resp = requests.get(lch_url)
+    j_resp = json.loads(resp.content)
+    print(resp)
 
 
 def get_all_manifests_between_dates(request, d_from, d_to):
