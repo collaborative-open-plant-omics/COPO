@@ -8,6 +8,7 @@ from web.apps.web_copo.utils.group_functions import get_group_membership_asStrin
 
 class ModelsTest(BaseTest):
     """ Simple tests """
+
     # banner_view = banner_view(header_txt='', body_txt='', active=False)
     # view_lock = ViewLock(url='', user='', timeLocked='', timeout='')
     # test_model = test_model(url='', c='')
@@ -88,8 +89,8 @@ class ModelsTest(BaseTest):
         self.assertTrue(profile["description"], "ERGA Test Description")
         self.assertTrue(type(profile) is dict)
 
-    groups = get_group_membership_asString()
-    self.assertTrue(groups, "dtol_sample_managers")
+        groups = get_group_membership_asString()
+        self.assertTrue(groups, "dtol_sample_managers")
 
     # def test_view_lock_model(self):
     #     """ Test the creation of an admin user """
@@ -99,4 +100,3 @@ class ModelsTest(BaseTest):
     #     print(view_lock.isViewLockedCreate(url=login_url))
     # self.assertEqual(view_lock.lockView(login_url))
     # self.assertEqual()
-

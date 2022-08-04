@@ -209,6 +209,56 @@ function insertTableRow(common_field) {
 
 }
 
+$(document).on("click", "#downloadBtn", getManifestTemplate)
+
+function getManifestTemplate(e) {
+    e.preventDefault()
+    // csrftoken = $.cookie('csrftoken');
+    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    const table = document.getElementById("tableID");
+    const number_of_samples = document.getElementById("numberOfSamples").value;
+    const number_of_common_fields = table.rows.length;
+    let csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
+
+    let common_fields_list = []
+    let common_values_list = []
+
+
+    for (let i = 0; i < number_of_common_fields; i++) {
+        let common_field = document.getElementById("tableID").rows[i].cells[0].innerHTML;
+        let common_value = document.getElementById("tableID").rows[i].cells[1].querySelector('input').value;
+
+        common_fields_list.push(common_field); //.append() cannot be used on lists in JavaScript so .push() is used instead
+        common_values_list.push(common_value);
+    }
+
+    console.log('Number of common fields: ' + number_of_common_fields);
+    console.log('Common field names list: ', common_fields_list);
+    console.log('Common field values list: ', common_values_list);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'generate_manifest_template/');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            console.log('Success 1')
+            let link = document.createElement('a');
+            let blob = new Blob([this.response], {});
+            link.download = "manifest_template.xlsx"
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+            $(".loading_div").hide()
+        }
+    }
+    xhr.setRequestHeader('X-CSRFToken', csrftoken)
+    xhr.responseType = 'blob';
+    xhr.send(JSON.stringify({
+        "row_count": number_of_samples,
+        "manifest_type": manifest_type,
+        "common_fields_list": common_fields_list,
+        "common_values_list": common_values_list
+    }));
+}
+
 function generateManifestTemplate() {
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
     const table = document.getElementById("tableID");
@@ -237,9 +287,9 @@ function generateManifestTemplate() {
         type: "POST",
         url: "generate_manifest_template/",
         headers: {'X-CSRFToken': csrftoken},
-        // contentType: 'charset=UTF-8',
+        // contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
         // dataType: "json",
-        responseType: 'blob',
+        // responseType: 'blob',
 
         data: {
             "row_count": number_of_samples,
@@ -247,28 +297,68 @@ function generateManifestTemplate() {
             "common_fields_list": common_fields_list,
             "common_values_list": common_values_list
         }
-    }).done(function (excel_url) {
-
+    }).done(function (data) {
         console.log('Success')
-        console.log('Excel path: ', excel_url)
-        let downloadLink = document.createElement('a');
+        console.log(string.parse(data))
+        // var link = document.createElement('a');
+        // ht = window.URL.createObjectURL(data);
+        // link.download = 'filename.xlsx';
+        // window.location.href = ht //'static/assets/manifests/ASG_MANIFEST_v2.3.xlsx' //data
+        //
+        // document.body.appendChild(link);
+        // link.click();
+        // document.body.removeChild(link);
 
-        let filename = excel_url.split('#').shift().split('?').shift().split('/').pop()
-        // let blob = fetch(excel_url).then(r => r.blob());
-        // downloadLink.href = window.URL.createObjectURL(new Blob([blob], {type: "'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8'"}));
+        //let downloadLink = document.createElement('a');
+        //
+        // let filename = excel_url.split('#').shift().split('?').shift().split('/').pop();
+        //
+        // downloadLink.href = excel_url;
+        // downloadLink.download = filename;
+        // // downloadLink.target = "_self"
+        // console.log('Filename: ', filename)
+        // console.log('Download link: ', downloadLink)
+        //
+        // document.body.addChild(downloadLink);
+        // downloadLink.click();
+        // document.body.removeChild(downloadLink);
 
+        // console.log('Success')
+        //
+        // let downloadLink = document.createElement('a');
+        // // let blob = new Blob([data], {});
+        // let filename = excel_url.split('#').shift().split('?').shift().split('/').pop();
+        // console.log(data)
 
-        downloadLink.href = excel_url;
-        downloadLink.download = filename;
-        // downloadLink.pathname = excel_url;
-        console.log('Filename: ', filename)
-        console.log('Download link: ', downloadLink)
-        // console.log('Download link: ', downloadLink.pathname)
-        download._href =
-            document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        // downloadLink.href = data //window.URL.createObjectURL(new Blob([data])); //xcel_url;
+        // downloadLink.download = "manifest_template.xlsx";
+        // downloadLink.target = "_self"
 
+        // document.body.addChild(downloadLink);
+        // downloadLink.click();
+        // window.URL.revokeObjectURL(downloadLink.href);
+        // document.body.removeChild(downloadLink);
+
+        // let xhr = new XMLHttpRequest();
+        // xhr.open('get', excel_url, true);
+        // xhr.responseType = "Blob"; // the return type blob blob stores a lot of binary data
+        // xhr.onload = function () {
+        //     console.log(xhr)
+        //     if (this.status === 200) {
+        //         var blob = this.response;
+        //         var reader = new FileReader();
+        //         reader.readAsDataURL(BLOB); // convert to Base64, which can be directly put into a tag
+        //         reader.onload = function (e) {
+        //             var a = document.createElement("a"); // the conversion is complete, creating an a tag for downloading
+        //             a.download = name + ".xls";
+        //             a.href = e.target.result;
+        //             $("body").Append(a); // fix that click cannot be triggered in firebox
+        //             a.click();
+        //             $(a).remove();
+        //         };
+        //     }
+        // }
+        // xhr.send(); // send Ajax request
     }).fail(function (error) {
             console.log('Error:', error);
         }

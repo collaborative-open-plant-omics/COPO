@@ -7,10 +7,8 @@ from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
 from htmlvalidator.client import ValidatingClient
 from faker import Faker
-from password_generator import PasswordGenerator
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-
 
 # Ensure that the “copodev” django server is running before running selenium tests
 # Run this command before running the selenium tests:
@@ -18,15 +16,16 @@ from selenium.webdriver.firefox.options import Options
 # To execute the Django’s test suite: $ python manage.py test
 
 """ 
-(venv_bak) $ coverage run manage.py test -v 2
-(venv_bak) $ coverage report -m --omit="/usr/users/EI_ga012/providen/Documents/EI/Projects/COPO/venv_bak/*"
-(venv_bak) $ coverage html
+(venv) $ coverage run manage.py test -v 2
+(venv) $ coverage report -m --omit="/usr/users/EI_ga012/providen/Documents/EI/Projects/COPO/venv/*"
+(venv) $ coverage html
 """
 
 
 class BaseTest(TestCase):
     # setUp method and tearDown method are ran before and after each testcase respectively
     """ Set up fake/mock data for the TestCase in the "test_copo" database"""
+
     def setUp(self):
         super().setUp()
         settings.UNIT_TESTING = True
@@ -41,12 +40,12 @@ class BaseTest(TestCase):
         self.user = User.objects.create_user(username=fake.first_name().lower(),
                                              first_name=fake.first_name(),
                                              last_name=fake.last_name(), email=fake.free_email(),
-                                             password=PasswordGenerator().generate())
+                                             password=User.objects.make_random_password())
         # Create an admin user model object
         self.superuser = User.objects.create_superuser(username=fake.first_name().lower(),
                                                        first_name=fake.first_name(),
                                                        last_name=fake.last_name(), email=fake.company_email(),
-                                                       password=PasswordGenerator().generate())
+                                                       password=User.objects.make_random_password())
 
         # Create an ASG profile on the COPO website
         asg_profile = {"copo_id": "000000002", "description": "ASG Test Description", "user_id": self.user.id,
@@ -66,9 +65,7 @@ class BaseTest(TestCase):
         self.dtol_pid = Profile().get_collection_handle().insert(dtol_profile)
         self.erga_pid = Profile().get_collection_handle().insert(erga_profile)
 
-        self.loggedin_client.login(username=self.user.username, password=PasswordGenerator().generate())
-
-
+        self.loggedin_client.login(username=self.user.username, password=User.objects.make_random_password())
 
         """" Rest URLs declaration"""
         self._define_rest_urls()
@@ -131,8 +128,7 @@ class BaseTest(TestCase):
             firstname: fake.first_name(),
             lastname: fake.last_name(),
             email: fake.email(),
-            password: PasswordGenerator().generate(),
-
+            password: User.objects.make_random_password(),
 
         }
 

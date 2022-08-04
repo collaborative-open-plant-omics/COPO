@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from faker import Faker
-from password_generator import PasswordGenerator
 from pymongo import MongoClient
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
@@ -53,7 +52,7 @@ class ERGATaxonValidationTest(TestCase):
         # Create a user model object and save it in the test_copo temporary database
         cls.user = User.objects.create_user(username=username, first_name=firstname,
                                             last_name=lastname, email=email,
-                                            password=PasswordGenerator().generate())
+                                            password=User.objects.make_random_password())
         cls.user.save()
 
         # Create a ERGA profile on the COPO website
