@@ -9,11 +9,9 @@
 {% endblock %}
 
 {% block content %}
-    {% csrf_token %}
     <p>
         Current Tree of Life Manifests
     </p>
-
 
     <div style="margin-left: 40px">
         <button type="button" class="ui primary button" id="show_manifest_wzd_button">Manifest Wizard</button>
@@ -29,20 +27,31 @@
             <tr>
                 <td>DTOL - (Darwin Tree of Life)</td>
                 <td>2.4</td>
-                <td><a href="{% static 'assets/manifests/DToL_SAMPLE_MANIFEST_v2.4.xlsx' %}">DTOL_MANIFEST_v2.4.xlsx</a>
+                <td><i style="color: rgb(22, 171, 57)" class="fa fa-table" title='Get DTOL_MANIFEST_v2.4'
+                       onclick="showWizard('dtol')"
+                       aria-hidden="true"></i>
                 </td>
+                {#                <td><a href="{% static 'assets/manifests/DToL_SAMPLE_MANIFEST_v2.4.xlsx' %}">DTOL_MANIFEST_v2.4.xlsx</a>#}
+                {#                </td>#}
             </tr>
             <tr>
                 <td>ASG - (Aquatic Symbiosis Genomics)</td>
                 <td>2.4</td>
-                <td>
-                    <!--<a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a>!--></td>
+                <td></td>
+                {#                <td><i style="color: rgb(88, 41, 187)" class="fa fa-table" title='Get ASG_MANIFEST_v2.4' onclick="showWizard('asg')"#}
+                {#                       aria-hidden="true"></i></td>#}
+                {#                <td>#}
+                {#                    <!--<a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a>!--></td>#}
             </tr>
             <tr>
                 <td>ERGA - (Aquatic Symbiosis Genomics)</td>
                 <td>2.4</td>
-                <td><a href="{% static 'assets/manifests/ERGA_SAMPLE_MANIFEST_V2.4.xlsx' %}">ERGA_MANIFEST_v2.4.xlsx</a>
+                <td><i style="color: rgb(230, 26, 141)" class="fa fa-table" title='Get ERGA_MANIFEST_v2.4'
+                       onclick="showWizard('erga')"
+                ></i>
                 </td>
+                {#                <td><a href="{% static 'assets/manifests/ERGA_SAMPLE_MANIFEST_V2.4.xlsx' %}">ERGA_MANIFEST_v2.4.xlsx</a>#}
+                {#                </td>#}
             </tr>
             <tr>
                 <td>Barcoding</td>
@@ -54,18 +63,19 @@
             </tbody>
         </table>
     </div>
-    <!---------- Modal ---------->
-    <div class="modal fade fuelux" id="modal-placeholder" tabindex="-1" role="dialog" aria-labelledby="modalLabel">
+    <!---------- Modal starts ---------->
+    <div class="modal fade fuelux" id="modal-placeholder" data-backdrop="static" data-keyboard="false" tabindex="-1"
+         role="dialog"
+         aria-labelledby="modalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    <button id="closeModalIcon" type="button" class="close"
+                            aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
                     <h4 id=modalLabel class="modal-title" style="text-align:center;"><b>Tree of Life Manifest Wizard</b>
                     </h4>
                 </div>
-
-                <!-------------------------------->
 
                 <div class="modal-body">
                     <div class="wizard" id="manifest-wizard">
@@ -84,13 +94,13 @@
                         </div>
 
                         <form id="wizardForm" method="post" class="form-horizontal">
-
+                            {% csrf_token %}
                             <div class="step-content">
                                 <div class="step-pane" data-step="1">
                                     <div class="well">
                                         <label>Choose the type of manifest that you would like to describe</label>
                                         <div id="manifestType" class="input-append dropdown combobox">
-                                            <input class="span2" type="text">
+                                            <input class="span2" type="text"/>
                                             <button type="button" class="btn" data-toggle="dropdown"><i
                                                     class="caret"></i>
                                             </button>
@@ -139,9 +149,6 @@
                                         <i id="downloadBtn"
                                            class="fa fa-download"
                                            style="color: #00bb00"></i>
-                                        {#                                          <i id="downloadBtn"#}
-                                        {#                                           onclick="generateManifestTemplate()" class="fa fa-download"#}
-                                        {#                                           style="color: #00bb00"></i>#}
                                         to download.
                                     </p>
 
@@ -166,13 +173,10 @@
                     </div>
                 </div>
 
-
-                <!-------------------------------->
-
             </div>
         </div>
     </div>
-
+    <!---------- Modal ends ---------->
 {% endblock %}
 
 {% block headblock %}
@@ -183,7 +187,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/manifests.css' %}">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            cintegrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
 
 

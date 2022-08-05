@@ -13,13 +13,14 @@ $(document).ready(function () {
         // document.getElementById('nextBtn').value = 'Next';
         // document.getElementById('nextBtn').innerHTML = 'Next';
 
-
+        $("#tableID tbody tr").remove(); // Remove all existing rows from the table
         $('#manifestType').combobox('selectByIndex', '0'); // Preload with default manifest type
+
         get_common_fields_handler();// Preload with the common fields dropdown menu
     });
 
+    $(document).on("click", "#downloadBtn", generateManifestTemplate)
 
-    $(document).on("change", "#manifestType", get_common_fields_handler);
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
         bootbox.dialog({
@@ -33,6 +34,29 @@ $(document).ready(function () {
         });
     });
 
+    // Show popup dialog when close icon is clicked
+    $(document).on("click", "#closeModalIcon", function () {
+        bootbox.confirm({
+            message: "Are you sure that you would like to close the dialog? All inputted values will be lost.",
+            buttons: {
+                confirm: {
+                    // label: 'Yes',
+                    // className: 'btn-success'
+
+                    label: '<i class="fa fa-check"></i> Yes, close dialog'
+                },
+                cancel: {
+                    // label: 'No',
+                    // className: 'btn-danger'
+                    label: '<i class="fa fa-times"></i> Cancel'
+                }
+            },
+            callback: function (result) {
+                if (result)
+                    $("#modal-placeholder").modal("hide");
+            }
+        });
+    });
 
     $(document).on("hidden.bs.modal", "#manifest-wizard", function (e, info) {
         // {#$('#manifest-wizard').removeData('bs.modal');#}
@@ -46,29 +70,55 @@ $(document).ready(function () {
         $(this).find('#manifest-wizard .modal-content').trigger('reset');
     });
 
+    $(document).on("change", "#manifestType", get_common_fields_handler);
+
+    // get the element
+    const element = document.getElementById('downloadBtn')
+
+// always checking if the element is clicked, if so, do alert('hello')
+    element.addEventListener("click", () => {
+        alert("button was clicked");
+    });
     wizard_handler();
 });
 
 function wizard_handler() {
-    // wizard handler
-    $("#manifest-wizard").on('change.fu.wizard', function (e, data) {
+
+    $("#manifest-wizard").on('change.fu.wizard', function () {
+        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         console.log('change');
         toggleNextIconVisibility();
-    }).on('changed.fu.wizard', function (e, data) {
+        console.log(currentStep)
+        if (currentStep === 3)
+            $('.close').hide();
+    }).on('changed.fu.wizard', function () {
+        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         console.log('changed');
         toggleNextIconVisibility();
+        console.log(currentStep)
+        if (currentStep === 3)
+            $('.close').hide();
 
-    }).on('finished.fu.wizard', function (e, data) {
+
+    }).on('finished.fu.wizard', function () {
         console.log('finished');
         $("#modal-placeholder").modal("hide");
-        $(this).find('#manifest-wizard .modal-content').html('reset');
+
 
     }).on('stepclick.fu.wizard', function (e, data) {
+        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         toggleNextIconVisibility()
+        console.log(currentStep)
+        if (currentStep === 3)
+            $('.close').hide();
 
         console.log('step' + data.step + ' clicked');
-    }).on('actionclicked.fu.wizard', function (evt, data) {
+    }).on('actionclicked.fu.wizard', function () {
+        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         toggleNextIconVisibility();
+        console.log(currentStep)
+        if (currentStep === 3)
+            $('.close').hide();
 
     });
     // Navigate wizard
@@ -103,10 +153,8 @@ function get_common_fields_handler() {
         }
 
     }).fail(function (error) {
-            console.log('Error:', error);
-        }
-    ).always(function () {
-        //do  something whether request is ok or fail
+        console.log('Error:', error.message);
+
     });
 
 }
@@ -114,17 +162,9 @@ function get_common_fields_handler() {
 function toggleNextIconVisibility() {
     let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
     try {
-        // document.getElementById('nextBtn').value = 'Next';
-        // document.getElementById('nextBtn').innerHTML = 'Next';
         document.getElementById('nextBtn').innerHtml = 'Next <i  id="rightIcon" class="fa fa-arrow-right"></i>';
-        // $('#rightIcon').addClass('fa fa-arrow-right');
         if (currentStep === 3) {
             // Hide the "next" icon from the last step of the wizard
-            // document.getElementById('rightIcon').style.visibility = 'hidden';
-            // $('#rightIcon').removeClass('fa fa-arrow-right');
-
-            // document.getElementById('nextBtn').innerHTML = 'Finish';
-            // console.log('at step 3');
             document.getElementById('nextBtn').innerHtml = 'Finish';
         }
     } catch (error) {
@@ -147,24 +187,12 @@ function removeOptionFromCommonFieldDropdownList(commonField) {
     }
 }
 
-function removeTableRow(row) {
-    // Find the cell value of common field name 
-    let common_field = $(row).closest('tr').find('.cfID').text();
-    // Append the common field name to the dropdown list now that before the is removed
-    $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
-    $(row).closest('tr').remove(); // Remove row
-}
-
 function insertTableRow(common_field) {
     const tableDiv = document.getElementById("tableDiv");
     const table = document.getElementById("tableID");
+
     table.style.margin = "auto"; // Centre the table
-
-    // const tr = document.createElement('tr');
-
-    // $(tableID).css({'height': '100px'});
     $(table).addClass('hoverTable');
-    // $(table).addClass('zebraStripedTable');
 
     // Insert a row into a table
     const row = table.insertRow();
@@ -189,7 +217,7 @@ function insertTableRow(common_field) {
     deleteIcon.setAttribute('onclick', 'removeTableRow(this)');
     deleteIcon.setAttribute('class', "fa fa-minus-circle");
     deleteIcon.setAttribute('title', "Remove from manifest");
-    deleteIcon.style.marginLeft = "10px"; // Create space between the icon and the input cell
+    deleteIcon.style.marginLeft = "10px"; // Create space between the icon and the input value cell
     $(delete_icon_cell).css({'color': 'red'});
     delete_icon_cell.appendChild(deleteIcon);
 
@@ -199,43 +227,44 @@ function insertTableRow(common_field) {
     let number_of_rows = table.rows.length
 
     // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
-    // once it has at least 10 rows in it
+    // once it has at least 10 rows within it
     if (number_of_rows >= 10) {
         console.log('Number of rows is more than or equal to 10');
         $(tableDiv).css({'overflow': 'scroll'});
         $(tableDiv).css({'height': '100px'});
     }
-
-
 }
 
-$(document).on("click", "#downloadBtn", getManifestTemplate)
+function removeTableRow(row) {
+    // Find the cell value of common field name
+    let common_field = $(row).closest('tr').find('.cfID').text();
+    // Append the common field name to the dropdown list now that before the is removed
+    $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
+    $(row).closest('tr').remove(); // Remove row
+}
 
-function getManifestTemplate(e) {
-    e.preventDefault()
-    // csrftoken = $.cookie('csrftoken');
+function generateManifestTemplate(event) {
+    // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
+    event.preventDefault()
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
-    let csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
-
+    let csrftoken = $.cookie('csrftoken');//$('[name="csrfmiddlewaretoken"]').attr('value'); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
+    console.log(csrftoken)
     let common_fields_list = []
     let common_values_list = []
-
 
     for (let i = 0; i < number_of_common_fields; i++) {
         let common_field = document.getElementById("tableID").rows[i].cells[0].innerHTML;
         let common_value = document.getElementById("tableID").rows[i].cells[1].querySelector('input').value;
 
-        common_fields_list.push(common_field); //.append() cannot be used on lists in JavaScript so .push() is used instead
+        //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
+        common_fields_list.push(common_field);
         common_values_list.push(common_value);
     }
 
-    console.log('Number of common fields: ' + number_of_common_fields);
-    console.log('Common field names list: ', common_fields_list);
-    console.log('Common field values list: ', common_values_list);
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.open('POST', 'generate_manifest_template/');
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
@@ -259,110 +288,34 @@ function getManifestTemplate(e) {
     }));
 }
 
-function generateManifestTemplate() {
-    const manifest_type = $('#manifestType').combobox('selectedItem').value;
-    const table = document.getElementById("tableID");
-    const number_of_samples = document.getElementById("numberOfSamples").value;
-    const number_of_common_fields = table.rows.length;
-    const csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
+function showWizard(manifest_type) {
+    $("#modal-placeholder").modal("show");
+    $('#manifest-wizard').wizard();
+    // Automatically navigate to step 2 when the modal is launched
+    // since step 1 is about selecting the manifest which has been done indirectly
+    $('#manifest-wizard').wizard('selectedItem', {step: 2});
+    $("#tableID tbody tr").remove(); // Remove all existing rows from the table
+    document.getElementById('numberOfSamples').value = '1'; // Preload with default number of samples
+    $('.btn-prev').hide();
+    switch (manifest_type) {
+        case "asg":
+            $('#manifestType').combobox('selectByIndex', '0'); // Preload with "ASG" manifest type
+            break;
+        case "dtol":
+            $('#manifestType').combobox('selectByIndex', '1'); // Preload with "DTOL" manifest type
+            break;
+        case "erga":
+            $('#manifestType').combobox('selectByIndex', '2'); // Preload with "ERGA" manifest type
+            break;
+        case "env":
+            $('#manifestType').combobox('selectByIndex', '3'); // Preload with "ENV" manifest type
+            break;
 
+        default:
+            $('#manifestType').combobox('selectByIndex', '0'); // Preload with "ASG" manifest type as default
 
-    let common_fields_list = []
-    let common_values_list = []
-
-
-    for (let i = 0; i < number_of_common_fields; i++) {
-        let common_field = document.getElementById("tableID").rows[i].cells[0].innerHTML;
-        let common_value = document.getElementById("tableID").rows[i].cells[1].querySelector('input').value;
-
-        common_fields_list.push(common_field); //.append() cannot be used on lists in JavaScript so .push() is used instead
-        common_values_list.push(common_value);
+            break;
     }
 
-    console.log('Number of common fields: ' + number_of_common_fields);
-    console.log('Common field names list: ', common_fields_list);
-    console.log('Common field values list: ', common_values_list);
-
-    $.ajax({
-        type: "POST",
-        url: "generate_manifest_template/",
-        headers: {'X-CSRFToken': csrftoken},
-        // contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        // dataType: "json",
-        // responseType: 'blob',
-
-        data: {
-            "row_count": number_of_samples,
-            "manifest_type": manifest_type,
-            "common_fields_list": common_fields_list,
-            "common_values_list": common_values_list
-        }
-    }).done(function (data) {
-        console.log('Success')
-        console.log(string.parse(data))
-        // var link = document.createElement('a');
-        // ht = window.URL.createObjectURL(data);
-        // link.download = 'filename.xlsx';
-        // window.location.href = ht //'static/assets/manifests/ASG_MANIFEST_v2.3.xlsx' //data
-        //
-        // document.body.appendChild(link);
-        // link.click();
-        // document.body.removeChild(link);
-
-        //let downloadLink = document.createElement('a');
-        //
-        // let filename = excel_url.split('#').shift().split('?').shift().split('/').pop();
-        //
-        // downloadLink.href = excel_url;
-        // downloadLink.download = filename;
-        // // downloadLink.target = "_self"
-        // console.log('Filename: ', filename)
-        // console.log('Download link: ', downloadLink)
-        //
-        // document.body.addChild(downloadLink);
-        // downloadLink.click();
-        // document.body.removeChild(downloadLink);
-
-        // console.log('Success')
-        //
-        // let downloadLink = document.createElement('a');
-        // // let blob = new Blob([data], {});
-        // let filename = excel_url.split('#').shift().split('?').shift().split('/').pop();
-        // console.log(data)
-
-        // downloadLink.href = data //window.URL.createObjectURL(new Blob([data])); //xcel_url;
-        // downloadLink.download = "manifest_template.xlsx";
-        // downloadLink.target = "_self"
-
-        // document.body.addChild(downloadLink);
-        // downloadLink.click();
-        // window.URL.revokeObjectURL(downloadLink.href);
-        // document.body.removeChild(downloadLink);
-
-        // let xhr = new XMLHttpRequest();
-        // xhr.open('get', excel_url, true);
-        // xhr.responseType = "Blob"; // the return type blob blob stores a lot of binary data
-        // xhr.onload = function () {
-        //     console.log(xhr)
-        //     if (this.status === 200) {
-        //         var blob = this.response;
-        //         var reader = new FileReader();
-        //         reader.readAsDataURL(BLOB); // convert to Base64, which can be directly put into a tag
-        //         reader.onload = function (e) {
-        //             var a = document.createElement("a"); // the conversion is complete, creating an a tag for downloading
-        //             a.download = name + ".xls";
-        //             a.href = e.target.result;
-        //             $("body").Append(a); // fix that click cannot be triggered in firebox
-        //             a.click();
-        //             $(a).remove();
-        //         };
-        //     }
-        // }
-        // xhr.send(); // send Ajax request
-    }).fail(function (error) {
-            console.log('Error:', error);
-        }
-    ).always(function () {
-        //do  something whether request is ok or fail
-    });
+    get_common_fields_handler();// Preload with the common fields dropdown menu
 }

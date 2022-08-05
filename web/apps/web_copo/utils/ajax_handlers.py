@@ -1740,26 +1740,20 @@ def is_number(s):
 def get_manifest_fields(request):
     manifest_type = request.GET["manifest_type"]
     all_sample_fields = lkup.DTOL_EXPORT_TO_STS_FIELDS[manifest_type]
-    # Get file names that begin with an uppercase letter
+    # Get field names that begin with an uppercase letter
     sample_fields = list(filter(lambda x: x[0].isupper() == True, all_sample_fields))
     return HttpResponse(json.dumps(sample_fields))
 
 
 def generate_manifest_template(request):
-    manifest_type = json_util.loads(request.body)["manifest_type"]  # request.POST["manifest_type"]
+    manifest_type = json_util.loads(request.body)["manifest_type"]
     number_of_samples = int(
-        json_util.loads(request.body)["row_count"])  # int(request.POST["row_count"])  # Convert to int
-    # Get array lists
+        json_util.loads(request.body)["row_count"])  # Convert to int
     common_fields = json_util.loads(request.body)[
-        "common_fields_list"]  # request.POST.getlist('common_fields_list[]', [])
+        "common_fields_list"]
     common_values = json_util.loads(request.body)[
-        "common_values_list"]  # request.POST.getlist("common_values_list[]", [])
+        "common_values_list"]
     manifests_dir = os.path.join("static", "assets", "manifests")
-
-    print('Manifest type: ', manifest_type)
-    print('Number of table rows: ', number_of_samples)
-    print('All common fields: ', common_fields)
-    print('All common values: ', common_values)
 
     # Set the path to the blank manifest template based on the manifest type
     if manifest_type == "asg":
@@ -1773,26 +1767,19 @@ def generate_manifest_template(request):
 
     manifest_template_path = os.path.join(manifests_dir, filename)
 
-    print('Manifest file path: ', manifest_template_path)
-
     # Duplicate the common field value according to the number of samples desired
     row_values = [[i] * int(number_of_samples) for i in common_values]
-    print('Actual row values: ', row_values)
 
     # Create Excel file dataframe using dictionary comprehension
     excel_data = {common_fields[i]: row_values[i] for i in range(len(common_fields))}
-    common_values_dataframe = pd.DataFrame(excel_data)
+
+    common_field_values_dataframe = pd.DataFrame(excel_data)
     blank_manifest_dataframe = pd.read_excel(manifest_template_path)
 
-    # Remove all existing duplicates from the excel file if
-    # any exists since the data is always appended to the file
-    # blank_manifest_dataframe.drop_duplicates()
-
-    prepopulated_dataframe = pd.concat([blank_manifest_dataframe, common_values_dataframe], ignore_index=True)
+    prepopulated_dataframe = pd.concat([blank_manifest_dataframe, common_field_values_dataframe], ignore_index=True)
     response = HttpResponse(
-        content_type='application/ms-excel')  # application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename={filename}'  # {filename}.xlsx'
+        content_type='application/ms-excel')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
     prepopulated_dataframe.to_excel(response, index=False, startrow=0)
-    print('Current dataframe', prepopulated_dataframe)
 
     return response
