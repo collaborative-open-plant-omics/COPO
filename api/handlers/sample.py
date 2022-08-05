@@ -67,6 +67,18 @@ def filter_for_API(sample_list, add_all_fields=False):
         profile_type = "dtol"
     export = lookup.DTOL_EXPORT_TO_STS_FIELDS[profile_type]
     out = list()
+    rights_to_lookup = list()
+    notices = dict()
+    for s in sample_list:
+        # check for rights applicable
+        if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
+            # if applicable save project id
+            rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
+    # now we have a list of project ids which pertain to a protected sample, so unique to get only one copy of each project
+    rights_to_lookup = list(set(rights_to_lookup))
+    for r in rights_to_lookup:
+        notices[r] = query_local_contexts_hub(r)
+
     for s in sample_list:
         embargoed = False
         if isinstance(s, InvalidId):
@@ -91,8 +103,8 @@ def filter_for_API(sample_list, add_all_fields=False):
                         embargoed = True
                         break
                     else:
-                        q = query_local_contexts_hub(project_id)
-                        if q == "public":
+                        q = notices[project_id]
+                        if q.get("project_privacy", "").lower() == "public":
                             s_out[k] = v
                         else:
                             s_out = {"status": "embargoed"}
@@ -133,7 +145,8 @@ def query_local_contexts_hub(project_id):
     lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
     resp = requests.get(lch_url)
     j_resp = json.loads(resp.content)
-    print(resp)
+    print(j_resp)
+    return j_resp
 
 
 def get_all_manifests_between_dates(request, d_from, d_to):
