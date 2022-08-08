@@ -9,12 +9,19 @@
 {% endblock %}
 
 {% block content %}
-    <p>
-        Current Tree of Life Manifests
-    </p>
+    <p style="  display: inline-block;vertical-align: middle;margin: 10px 0;">
+        Current Tree of Life Manifests </p>
+    <span style="display: inline;">&nbsp;</span>
+    <button style="display: inline-block;vertical-align: middle;margin: 10px 0;font-size: 1.7rem;"
+            id="show_manifest_wzd_button"
+            type="button" class="big circular ui icon teal button copo-tooltip"
+            title="Get manifest template">
+        <i class="fa fa-table"></i>
+    </button>
+
 
     <div style="margin-left: 40px">
-        <button type="button" class="ui primary button" id="show_manifest_wzd_button">Manifest Wizard</button>
+        {#        <button type="button" class="ui primary button" id="show_manifest_wzd_button">Manifest Wizard</button>#}
         <table class="ui padded table">
             <thead>
             <tr>
@@ -145,11 +152,7 @@
 
                                 <div class="step-pane" data-step="3">
                                     <p style="text-align:center; font-size: medium">The manifest template is ready to be
-                                        downloaded. Click
-                                        <i id="downloadBtn"
-                                           class="fa fa-download"
-                                           style="color: #00bb00"></i>
-                                        to download.
+                                        downloaded. Click the finish button to download it.
                                     </p>
 
                                 </div>
@@ -158,19 +161,20 @@
                             </div>
 
                         </form>
-                    </div>
-                </div>
+                        <div class="actions">
+                            <button type="button" class="btn btn-sm btn-primary btn-prev">
+                                <i class="fa fa-arrow-left"></i> Prev
+                            </button>
 
-                <div class="modal-footer">
-                    <div class="actions">
-                        <button type="button" class="btn btn-sm btn-primary btn-prev">
-                            <i class="fa fa-arrow-left"></i> Prev
-                        </button>
-                        <button id='nextBtn' type="button" class="btn btn-sm btn-success btn-next" data-last="Finish">
-                            Next&nbsp;<i id="rightIcon" class="fa fa-arrow-right"></i>
-                        </button>
+                            <button id='nextBtn' type="button" class="btn btn-sm btn-success btn-next"
+                                    data-last="Finish">
+                                Next&nbsp;<i id="rightIcon" class="fa fa-arrow-right"></i>
+                            </button>
 
+                        </div>
                     </div>
+
+
                 </div>
 
             </div>

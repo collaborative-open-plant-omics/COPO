@@ -1742,7 +1742,26 @@ def get_manifest_fields(request):
     all_sample_fields = lkup.DTOL_EXPORT_TO_STS_FIELDS[manifest_type]
     # Get field names that begin with an uppercase letter
     sample_fields = list(filter(lambda x: x[0].isupper() == True, all_sample_fields))
+    sample_fields.sort()  # Sort the list in ascending order
     return HttpResponse(json.dumps(sample_fields))
+
+
+def get_common_value_dropdown_list(request):
+    manifest_type = request.GET["manifest_type"]
+    common_field = request.GET["common_field"]
+
+    fieldsBasedOnManifestType = ["GAL", "HAZARD_GROUP", "PURPOSE_OF_SPECIMEN"]
+    if common_field in fieldsBasedOnManifestType:
+        # Get dropdown list based on the manifest type
+        common_value_dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
+        print('Inside get_common_value_dropdown_list function fieldsBasedOnManifestType: ', common_value_dropdownlist)
+    else:
+        # Get dropdown list
+        common_value_dropdownlist = lkup.DTOL_ENUMS.get(common_field, [])
+        print('Inside get_common_value_dropdown_list function: ', common_value_dropdownlist)
+
+    common_value_dropdownlist.sort()  # Sort the list in ascending order
+    return HttpResponse(json.dumps(common_value_dropdownlist))
 
 
 def generate_manifest_template(request):
@@ -1782,4 +1801,10 @@ def generate_manifest_template(request):
     response['Content-Disposition'] = f'attachment; filename={filename}'
     prepopulated_dataframe.to_excel(response, index=False, startrow=0)
 
+    validate_manifest(common_field_values_dataframe)
     return response
+
+
+def validate_manifest(file):
+    dtol = DtolSpreadsheet(file=file)
+    dtol.loadManifest(m_format="xlsx")

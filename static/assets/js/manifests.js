@@ -1,17 +1,12 @@
 $(document).ready(function () {
     // Trigger manifest wizard modal
+    $('#rightIcon').show();
     $(document).on("click", "#show_manifest_wzd_button", function (e) {
         $("#modal-placeholder").modal("show");
         $('#manifest-wizard').wizard();
-        // Automatically goes to step 1 especially when the modal is relaunched
-        // after the "finished" button is pressed
+        $('#rightIcon').show(); // Show "right icon" after it was removed from last step
+        // Automatically go to step 1 when the modal is launched
         $('#manifest-wizard').wizard('selectedItem', {step: 1});
-        // Show "right icon" after it is removed from last step
-        // $('#rightIcon').addClass('fa fa-arrow-right');
-        // document.getElementById('rightIcon').style.visibility = 'visibility';
-        // Show "Next" after it was removed from last step
-        // document.getElementById('nextBtn').value = 'Next';
-        // document.getElementById('nextBtn').innerHTML = 'Next';
 
         $("#tableID tbody tr").remove(); // Remove all existing rows from the table
         $('#manifestType').combobox('selectByIndex', '0'); // Preload with default manifest type
@@ -40,14 +35,9 @@ $(document).ready(function () {
             message: "Are you sure that you would like to close the dialog? All inputted values will be lost.",
             buttons: {
                 confirm: {
-                    // label: 'Yes',
-                    // className: 'btn-success'
-
                     label: '<i class="fa fa-check"></i> Yes, close dialog'
                 },
                 cancel: {
-                    // label: 'No',
-                    // className: 'btn-danger'
                     label: '<i class="fa fa-times"></i> Cancel'
                 }
             },
@@ -59,76 +49,41 @@ $(document).ready(function () {
     });
 
     $(document).on("hidden.bs.modal", "#manifest-wizard", function (e, info) {
-        // {#$('#manifest-wizard').removeData('bs.modal');#}
-        // $(this).remove();
-        // $(this).html('');
-        // alert('Modal has been reset');
-        // $(this).find('#modal-form').trigger('reset');
-        // $(this).find("#manifestType").html("")
-        // $('#modal-form').find('#numberOfSamples').val(1);
-
-        $(this).find('#manifest-wizard .modal-content').trigger('reset');
     });
 
     $(document).on("change", "#manifestType", get_common_fields_handler);
 
-    // get the element
-    const element = document.getElementById('downloadBtn')
-
-// always checking if the element is clicked, if so, do alert('hello')
-    element.addEventListener("click", () => {
-        alert("button was clicked");
-    });
     wizard_handler();
 });
 
-function wizard_handler() {
 
+function wizard_handler() {
     $("#manifest-wizard").on('change.fu.wizard', function () {
-        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         console.log('change');
-        toggleNextIconVisibility();
-        console.log(currentStep)
-        if (currentStep === 3)
-            $('.close').hide();
     }).on('changed.fu.wizard', function () {
         let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-        console.log('changed');
-        toggleNextIconVisibility();
-        console.log(currentStep)
-        if (currentStep === 3)
-            $('.close').hide();
-
-
-    }).on('finished.fu.wizard', function () {
+        if (currentStep === 3) {
+            $('#rightIcon').hide();
+        } else {
+            $('#rightIcon').show();
+        }
+    }).on('finished.fu.wizard', function (e) {
         console.log('finished');
         $("#modal-placeholder").modal("hide");
-
-
+        generateManifestTemplate(e);
     }).on('stepclick.fu.wizard', function (e, data) {
-        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-        toggleNextIconVisibility()
-        console.log(currentStep)
-        if (currentStep === 3)
-            $('.close').hide();
-
-        console.log('step' + data.step + ' clicked');
-    }).on('actionclicked.fu.wizard', function () {
-        let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-        toggleNextIconVisibility();
-        console.log(currentStep)
-        if (currentStep === 3)
-            $('.close').hide();
-
+        console.log('Step' + data.step + ' clicked');
+    }).on('actionclicked.fu.wizard', function (e) {
+        // e.preventDefault();
     });
-    // Navigate wizard
-    $('.btn-prev').on('click', function () {
-        $('#manifest-wizard').wizard('previous');
-    });
-
-    $('.btn-next').on('click', function () {
-        $('#manifest-wizard').wizard('next');
-    });
+    // // Navigate wizard
+    // $('.btn-prev').on('click', function () {
+    //     $('#manifest-wizard').wizard('previous');
+    // });
+    //
+    // $('.btn-next').on('click', function () {
+    //     $('#manifest-wizard').wizard('next');
+    // });
 }
 
 function get_common_fields_handler() {
@@ -159,17 +114,39 @@ function get_common_fields_handler() {
 
 }
 
-function toggleNextIconVisibility() {
-    let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-    try {
-        document.getElementById('nextBtn').innerHtml = 'Next <i  id="rightIcon" class="fa fa-arrow-right"></i>';
-        if (currentStep === 3) {
-            // Hide the "next" icon from the last step of the wizard
-            document.getElementById('nextBtn').innerHtml = 'Finish';
+function get_common_value_dropdown_list_handler(common_field) {
+    // Get dropdown list fields from manifest schema based on the common field and/ manifest type
+    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    let dropdownlist = []
+    $.ajax({
+        type: "GET",
+        url: "get_common_value_dropdown_list/",
+        dataType: "json",
+        data: {
+            "manifest_type": manifest_type,
+            "common_field": common_field
         }
-    } catch (error) {
-        console.log(error.message)
-    }
+    }).done(function (data) {
+        /*    let option = [];
+            // Add a default value to the dropdown menu
+            $("#commonfields").empty();
+            $('#commonfields').append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
+            for (let i = 0; i < data.length; i++) {
+                option = data[i];
+                $('#commonfields').append('<option value="' + option + '">' + option + '</option>')
+            }*/
+        // <select className="form-control" id="commonfields"
+        //         onChange="insertTableRow(this)"></select>
+        dropdownlist = data
+        console.log('In get_common_value_dropdown_list_handler function', dropdownlist)
+        callback(data);
+
+    }).fail(function (error) {
+        console.log('Error:', error.message);
+
+    });
+    return dropdownlist;
+
 }
 
 function removeOptionFromCommonFieldDropdownList(commonField) {
@@ -204,11 +181,41 @@ function insertTableRow(common_field) {
 
     // Input value cell
     let value_input_cell = row.insertCell();
-    const value_input = document.createElement('input');
-    value_input.setAttribute('type', 'text');
-    value_input.setAttribute('placeholder', "Enter common value");
-    value_input.setAttribute('id', "commonvalueID");
-    value_input_cell.appendChild(value_input);
+    //////////////////////////////////////////////////////////
+    // const value_input = document.createElement('input');
+    // Get dropdown list
+    get_common_value_dropdown_list_handler(function (common_field, data) {
+        console.log('****', data);
+    });
+
+
+    /////////////////////
+    let dropdownlist = get_common_value_dropdown_list_handler(common_field.value)
+    if (dropdownlist !== []) {
+        console.log("Dropdownlist is not empty")
+        console.log('In insertTableRow function', dropdownlist)
+        const value_input = document.createElement('select');
+        value_input.setAttribute('class', 'form-control');
+        let option = [];
+        $(value_input).empty();
+
+        for (let i = 0; i < dropdownlist.length; i++) {
+            option = dropdownlist[i];
+            $(value_input).append('<option value="' + option + '">' + option + '</option>')
+        }
+        value_input.setAttribute('id', "commonvalueID");
+        value_input_cell.appendChild(value_input);
+    } else {
+        console.log("Dropdownlist is empty")
+        //Get Input value
+        const value_input = document.createElement('input');
+        value_input.setAttribute('type', 'text');
+        value_input.setAttribute('placeholder', "Enter common value");
+        value_input.setAttribute('id', "commonvalueID");
+        value_input_cell.appendChild(value_input);
+
+    }
+    //////////////////////////////////////////////////////////
 
     // Delete icon cell
     let delete_icon_cell = row.insertCell();
@@ -250,7 +257,7 @@ function generateManifestTemplate(event) {
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
-    let csrftoken = $.cookie('csrftoken');//$('[name="csrfmiddlewaretoken"]').attr('value'); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val(); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val();
+    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value'); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val(); //$('[name="csrfmiddlewaretoken"]').val();
     console.log(csrftoken)
     let common_fields_list = []
     let common_values_list = []
@@ -268,7 +275,7 @@ function generateManifestTemplate(event) {
     xhr.open('POST', 'generate_manifest_template/');
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-            console.log('Success 1')
+            console.log('Success')
             let link = document.createElement('a');
             let blob = new Blob([this.response], {});
             link.download = "manifest_template.xlsx"
