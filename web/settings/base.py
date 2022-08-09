@@ -57,6 +57,7 @@ PROJECT_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.orcid',
     'rest_framework',
+    'rest_framework.authtoken',
     'chunked_upload',
     'compressor',
     'django_extensions',
@@ -104,8 +105,12 @@ AUTHENTICATION_BACKENDS = (
 )
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 10
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication'
+    )
 }
 
 CORS_ORIGIN_WHITELIST = (
