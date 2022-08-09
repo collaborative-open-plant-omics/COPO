@@ -1,4 +1,5 @@
 $(document).ready(function () {
+
     // Trigger manifest wizard modal
     $('#rightIcon').show();
     $(document).on("click", "#show_manifest_wzd_button", function (e) {
@@ -114,10 +115,10 @@ function get_common_fields_handler() {
 
 }
 
-function get_common_value_dropdown_list_handler(common_field) {
+function get_common_value_dropdown_list_handler(common_field_cell, common_field, value_input_cell) {
     // Get dropdown list fields from manifest schema based on the common field and/ manifest type
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
-    let dropdownlist = []
+
     $.ajax({
         type: "GET",
         url: "get_common_value_dropdown_list/",
@@ -127,25 +128,55 @@ function get_common_value_dropdown_list_handler(common_field) {
             "common_field": common_field
         }
     }).done(function (data) {
-        /*    let option = [];
-            // Add a default value to the dropdown menu
-            $("#commonfields").empty();
-            $('#commonfields').append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
+        console.log('In get_common_value_dropdown_list_handler function', data)
+        if (data !== [] && data.length !== 0) {
+            console.log("Dropdownlist is not empty");
+            common_field_cell.style.width = '150px'; // Add space between the value and field
+            const value_input = document.createElement('select');
+            value_input.setAttribute('class', 'form-control');
+            let option = [];
+            $(value_input).empty();
+            $(value_input).append('<option selected disabled hidden value=""' + '>' + 'Choose common value' + '</option>')
             for (let i = 0; i < data.length; i++) {
                 option = data[i];
-                $('#commonfields').append('<option value="' + option + '">' + option + '</option>')
-            }*/
-        // <select className="form-control" id="commonfields"
-        //         onChange="insertTableRow(this)"></select>
-        dropdownlist = data
-        console.log('In get_common_value_dropdown_list_handler function', dropdownlist)
-        callback(data);
+                $(value_input).append('<option value="' + option + '">' + option + '</option>');
+            }
+            value_input.setAttribute('id', "commonvalueID");
+            value_input_cell.appendChild(value_input);
+        } else {
+            console.log("Dropdownlist is empty");
+            common_field_cell.style.width = '250px'; // Add space between the value and field
+            let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
+            //Get Input value
+            const value_input = document.createElement('input');
+            value_input.setAttribute('type', 'text');
+            value_input.setAttribute('id', "commonvalueID");
+
+            if (date_fields.includes(common_field)) {
+                console.log("Common field requires a date picker");
+                // Get date picker for for common field that requires a date as its value
+                // Date selected has to be before the current date i.e. a past date
+                value_input.setAttribute('placeholder', "Select date");
+                // value_input.setAttribute('class', 'datepicker');
+                value_input.setAttribute('type', 'date');
+                // The datepicker function reverts to the "datepicker" defined by the jQueryUI
+                // and does not use the one defined by fuelux
+                // $.fn.datepicker.noConflict();
+                value_input.datepicker({dateFormat: "yyyy-mm-dd", maxDate: 0});
+                value_input_cell.appendChild(value_input);
+            } else {
+                console.log("Common field does not require a date picker");
+                value_input.setAttribute('placeholder', "Enter common value");
+                value_input_cell.appendChild(value_input);
+            }
+
+        }
 
     }).fail(function (error) {
         console.log('Error:', error.message);
 
     });
-    return dropdownlist;
+
 
 }
 
@@ -177,45 +208,12 @@ function insertTableRow(common_field) {
     let common_field_cell = row.insertCell();
     common_field_cell.innerHTML = common_field.value;
     common_field_cell.setAttribute('class', 'cfID');
-    common_field_cell.style.width = '250px'; // Add space between the value and field
+    // common_field_cell.style.width = '250px'; // Add space between the value and field
 
     // Input value cell
     let value_input_cell = row.insertCell();
-    //////////////////////////////////////////////////////////
-    // const value_input = document.createElement('input');
-    // Get dropdown list
-    get_common_value_dropdown_list_handler(function (common_field, data) {
-        console.log('****', data);
-    });
 
-
-    /////////////////////
-    let dropdownlist = get_common_value_dropdown_list_handler(common_field.value)
-    if (dropdownlist !== []) {
-        console.log("Dropdownlist is not empty")
-        console.log('In insertTableRow function', dropdownlist)
-        const value_input = document.createElement('select');
-        value_input.setAttribute('class', 'form-control');
-        let option = [];
-        $(value_input).empty();
-
-        for (let i = 0; i < dropdownlist.length; i++) {
-            option = dropdownlist[i];
-            $(value_input).append('<option value="' + option + '">' + option + '</option>')
-        }
-        value_input.setAttribute('id', "commonvalueID");
-        value_input_cell.appendChild(value_input);
-    } else {
-        console.log("Dropdownlist is empty")
-        //Get Input value
-        const value_input = document.createElement('input');
-        value_input.setAttribute('type', 'text');
-        value_input.setAttribute('placeholder', "Enter common value");
-        value_input.setAttribute('id', "commonvalueID");
-        value_input_cell.appendChild(value_input);
-
-    }
-    //////////////////////////////////////////////////////////
+    get_common_value_dropdown_list_handler(common_field_cell, common_field.value, value_input_cell)
 
     // Delete icon cell
     let delete_icon_cell = row.insertCell();
@@ -263,8 +261,8 @@ function generateManifestTemplate(event) {
     let common_values_list = []
 
     for (let i = 0; i < number_of_common_fields; i++) {
-        let common_field = document.getElementById("tableID").rows[i].cells[0].innerHTML;
-        let common_value = document.getElementById("tableID").rows[i].cells[1].querySelector('input').value;
+        let common_field = table.rows[i].cells[0].innerHTML;
+        let common_value = table.rows[i].cells[1].querySelector('input').value;
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);

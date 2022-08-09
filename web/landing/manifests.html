@@ -138,7 +138,7 @@
 
                                         <select class="form-control" id="commonfields"
                                                 onchange="insertTableRow(this)"></select>
-
+                                        {#                                        <input type="text" id="commonvalueID" placeholder="Select date">#}
 
                                     </div>
 
@@ -189,11 +189,16 @@
           crossorigin="anonymous">
     <link rel="stylesheet" href="https://www.fuelcdn.com/fuelux/3.17.1/css/fuelux.min.css">
     <link rel="stylesheet" href="{% static 'assets/css/manifests.css' %}">
+    {#Neded for date picker#}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
-
+    {#Neded for date picker#}
+    {#    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>#}
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
     <script src="{% static 'assets/js/manifests.js' %}"></script>
 
@@ -202,5 +207,12 @@
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuelux/3.17.2/js/fuelux.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>
-
+    {#    <script>#}
+    {#        $(function () {#}
+    {#            $.fn.datepicker.noConflict();#}
+    {#            $("#commonvalueID1").datepicker({dateFormat: "yyyy-mm-dd", maxDate: 0});#}
+    {##}
+    {#.datepicker.({dateFormat: "yy-mm-dd", maxDate: 0});#}
+    {#        });#}
+    {#    </script>#}
 {% endblock %}
