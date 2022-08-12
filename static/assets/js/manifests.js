@@ -9,8 +9,9 @@ $(document).ready(function () {
         // Automatically go to step 1 when the modal is launched
         $('#manifest-wizard').wizard('selectedItem', {step: 1});
 
+        document.getElementById('numberOfSamples').value = '1'; // Preload with default number of samples
         $("#tableID tbody tr").remove(); // Remove all existing rows from the table
-        $('#manifestType').combobox('selectByIndex', '0'); // Preload with default manifest type
+        $('#manifestType').combobox('selectByIndex', '0') // Preload with default manifest type
 
         get_common_fields_handler();// Preload with the common fields dropdown menu
     });
@@ -131,6 +132,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
         if (data !== [] && data.length !== 0) {
             common_field_cell.style.width = '150px'; // Add space between the value and field
             const value_input = document.createElement('select');
+            value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
             let option = [];
             $(value_input).empty();
@@ -139,14 +141,12 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 option = data[i];
                 $(value_input).append('<option value="' + option + '">' + option + '</option>');
             }
-            value_input.setAttribute('id', "commonvalueID");
             value_input_cell.appendChild(value_input);
         } else {
             common_field_cell.style.width = '250px'; // Add space between the value and field
             let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
             //Get Input value
             const value_input = document.createElement('input');
-            // value_input.setAttribute('type', 'text');
             value_input.setAttribute('id', "commonvalueID");
 
             if (date_fields.includes(common_field)) {
@@ -163,13 +163,12 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 value_input.setAttribute('type', 'time');
                 value_input.setAttribute('min', "12:00")
                 value_input.setAttribute('max', "24:00")
-
+                value_input_cell.appendChild(value_input);
             } else {
                 value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
                 value_input_cell.appendChild(value_input);
             }
-
         }
 
     }).fail(function (error) {
@@ -250,6 +249,7 @@ function removeTableRow(row) {
 function generateManifestTemplate(event) {
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
+    console.log('Inside generate manifest template');
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
@@ -259,14 +259,27 @@ function generateManifestTemplate(event) {
     let common_fields_list = []
     let common_values_list = []
 
+    console.log('Number of common fields:', number_of_common_fields);
+
     for (let i = 0; i < number_of_common_fields; i++) {
         let common_field = table.rows[i].cells[0].innerHTML;
-        let common_value = table.rows[i].cells[1].querySelector('input').value;
+        // let common_value = table.rows[i].cells[1].querySelector('input').value;
+        // Get value from the input tag or select tag
+        let common_value = table.rows[i].cells[1].querySelector('input').value || table.rows[i].cells[1].querySelector('select').value;
+        console.log('Common field: ', common_field)
+        console.log('Common value: ', common_value)
+        let selectTag = document.getElementById('commonvalueID');
+        let selectTagValue = selectTag.options[select.selectedIndex].value;
+        console.log('Select tag value 1: ', selectTagValue)
+        console.log('Select tag value 2: ', $('#commonvalueID').val());
+
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);
         common_values_list.push(common_value);
     }
+    console.log('Common fields list: ', common_fields_list)
+    console.log('Common values list: ', common_values_list)
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'generate_manifest_template/');
@@ -278,7 +291,10 @@ function generateManifestTemplate(event) {
             link.href = URL.createObjectURL(blob);
             link.click();
             window.URL.revokeObjectURL(link.href);
-            $(".loading_div").hide()
+            $(".loading_div").hide();
+            console.log('Inside XMLHTTPRequest');
+        } else {
+            console.log(`Error ${xhr.status}: ${xhr.statusText}`); //
         }
     }
     xhr.setRequestHeader('X-CSRFToken', csrftoken)

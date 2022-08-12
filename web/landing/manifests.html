@@ -16,7 +16,7 @@
             id="show_manifest_wzd_button"
             type="button" class="big circular ui icon teal button copo-tooltip"
             title="Launch manifest wizard">
-        <i class="fa fa-table fa-2x"></i>
+        <i class="fa fa-arrow-circle-o-down fa-2x"></i>
     </button>
 
 
@@ -48,7 +48,7 @@
                 <td>2.4</td>
                 <td></td>
                 <td></td>
-                {#<td><a href="{% static 'assets/manifests/ASG_MANIFEST_v2.3.xlsx' %}">ASG_MANIFEST_v2.3.xlsx</a></td>#}
+                {#<td><a href="{% static 'assets/manifests/ASG_MANIFEST_v2.4.xlsx' %}">ASG_MANIFEST_v2.4.xlsx</a></td>#}
                 {#                <td><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x" title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizard('asg')"#}
                 {#                       aria-hidden="true"></i></td>#}
                 {#                <td>#}
@@ -119,7 +119,8 @@
                                                     class="caret"></i>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li data-value="asg"><a href="#">ASG</a></li>
+                                                {# ASG manifest option is commented until v2.4 version is available #}
+                                                {#<li data-value="asg"><a href="#">ASG</a></li>#}
                                                 <li data-value="dtol"><a href="#">DTOL</a></li>
                                                 <li data-value="erga"><a href="#">ERGA</a></li>
                                                 <li data-value="env"><a href="#">ENV</a></li>
