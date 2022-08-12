@@ -1754,12 +1754,9 @@ def get_common_value_dropdown_list(request):
     if common_field in fieldsBasedOnManifestType:
         # Get dropdown list based on the manifest type
         common_value_dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
-        print('Inside get_common_value_dropdown_list function fieldsBasedOnManifestType: ', common_value_dropdownlist)
     else:
         # Get dropdown list
         common_value_dropdownlist = lkup.DTOL_ENUMS.get(common_field, [])
-        print('Inside get_common_value_dropdown_list function: ', common_value_dropdownlist)
-
     common_value_dropdownlist.sort()  # Sort the list in ascending order
     return HttpResponse(json.dumps(common_value_dropdownlist))
 
@@ -1776,7 +1773,7 @@ def generate_manifest_template(request):
 
     # Set the path to the blank manifest template based on the manifest type
     if manifest_type == "asg":
-        filename = 'ASG_MANIFEST_v2.3.xlsx'
+        filename = 'ASG_MANIFEST_v2.4.xlsx'  # ASG manifest v2.4 is not available as yet
     elif manifest_type == "dtol":
         filename = 'DToL_SAMPLE_MANIFEST_v2.4.xlsx'
     elif manifest_type == "erga":
@@ -1801,10 +1798,4 @@ def generate_manifest_template(request):
     response['Content-Disposition'] = f'attachment; filename={filename}'
     prepopulated_dataframe.to_excel(response, index=False, startrow=0)
 
-    validate_manifest(common_field_values_dataframe)
     return response
-
-
-def validate_manifest(file):
-    dtol = DtolSpreadsheet(file=file)
-    dtol.loadManifest(m_format="xlsx")

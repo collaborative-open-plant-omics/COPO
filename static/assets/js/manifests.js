@@ -128,9 +128,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             "common_field": common_field
         }
     }).done(function (data) {
-        console.log('In get_common_value_dropdown_list_handler function', data)
         if (data !== [] && data.length !== 0) {
-            console.log("Dropdownlist is not empty");
             common_field_cell.style.width = '150px'; // Add space between the value and field
             const value_input = document.createElement('select');
             value_input.setAttribute('class', 'form-control');
@@ -144,28 +142,30 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             value_input.setAttribute('id', "commonvalueID");
             value_input_cell.appendChild(value_input);
         } else {
-            console.log("Dropdownlist is empty");
             common_field_cell.style.width = '250px'; // Add space between the value and field
             let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
             //Get Input value
             const value_input = document.createElement('input');
-            value_input.setAttribute('type', 'text');
+            // value_input.setAttribute('type', 'text');
             value_input.setAttribute('id', "commonvalueID");
 
             if (date_fields.includes(common_field)) {
-                console.log("Common field requires a date picker");
+                value_input.setAttribute('type', 'text');
                 // Get date picker for for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('placeholder', "Select date");
-                // value_input.setAttribute('class', 'datepicker');
-                value_input.setAttribute('type', 'date');
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
                 // and does not use the one defined by fuelux
-                // $.fn.datepicker.noConflict();
-                value_input.datepicker({dateFormat: "yyyy-mm-dd", maxDate: 0});
+                $.fn.datepicker.noConflict();
+                $(value_input).datepicker({dateFormat: "yyyy-mm-dd", maxDate: 0});
                 value_input_cell.appendChild(value_input);
+            } else if (common_field === "TIME_OF_COLLECTION") {
+                value_input.setAttribute('type', 'time');
+                value_input.setAttribute('min', "12:00")
+                value_input.setAttribute('max', "24:00")
+
             } else {
-                console.log("Common field does not require a date picker");
+                value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
                 value_input_cell.appendChild(value_input);
             }
@@ -220,7 +220,7 @@ function insertTableRow(common_field) {
     const deleteIcon = document.createElement('i');
     deleteIcon.setAttribute('type', 'button');
     deleteIcon.setAttribute('onclick', 'removeTableRow(this)');
-    deleteIcon.setAttribute('class', "fa fa-minus-circle");
+    deleteIcon.setAttribute('class', "fa fa-trash-o");
     deleteIcon.setAttribute('title', "Remove from manifest");
     deleteIcon.style.marginLeft = "10px"; // Create space between the icon and the input value cell
     $(delete_icon_cell).css({'color': 'red'});
@@ -234,7 +234,6 @@ function insertTableRow(common_field) {
     // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
     // once it has at least 10 rows within it
     if (number_of_rows >= 10) {
-        console.log('Number of rows is more than or equal to 10');
         $(tableDiv).css({'overflow': 'scroll'});
         $(tableDiv).css({'height': '100px'});
     }
@@ -255,8 +254,8 @@ function generateManifestTemplate(event) {
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
-    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value'); //$.cookie('csrftoken'); //$('[name="csrfmiddlewaretoken"]').val(); //$('[name="csrfmiddlewaretoken"]').val();
-    console.log(csrftoken)
+    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value');
+
     let common_fields_list = []
     let common_values_list = []
 
@@ -273,7 +272,6 @@ function generateManifestTemplate(event) {
     xhr.open('POST', 'generate_manifest_template/');
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-            console.log('Success')
             let link = document.createElement('a');
             let blob = new Blob([this.response], {});
             link.download = "manifest_template.xlsx"

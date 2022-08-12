@@ -20,3 +20,8 @@
 .hoverTable tr:hover {
     background-color: #D6EEEE;
 }
+
+/* Center contents within a table*/
+.table {
+    text-align: center
+}
