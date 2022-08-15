@@ -157,7 +157,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
                 // and does not use the one defined by fuelux
                 $.fn.datepicker.noConflict();
-                $(value_input).datepicker({dateFormat: "yyyy-mm-dd", maxDate: 0});
+                $(value_input).datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
                 value_input_cell.appendChild(value_input);
             } else if (common_field === "TIME_OF_COLLECTION") {
                 value_input.setAttribute('type', 'time');
@@ -263,16 +263,14 @@ function generateManifestTemplate(event) {
 
     for (let i = 0; i < number_of_common_fields; i++) {
         let common_field = table.rows[i].cells[0].innerHTML;
-        // let common_value = table.rows[i].cells[1].querySelector('input').value;
-        // Get value from the input tag or select tag
-        let common_value = table.rows[i].cells[1].querySelector('input').value || table.rows[i].cells[1].querySelector('select').value;
         console.log('Common field: ', common_field)
-        console.log('Common value: ', common_value)
-        let selectTag = document.getElementById('commonvalueID');
-        let selectTagValue = selectTag.options[select.selectedIndex].value;
-        console.log('Select tag value 1: ', selectTagValue)
-        console.log('Select tag value 2: ', $('#commonvalueID').val());
+        // let common_value = table.rows[i].cells[1].querySelector('input').value;
 
+        let html = table.rows[i].cells[1].innerHTML;
+        console.log('Common value html tag: ', html)
+        // Get value from input tag or select tag
+        let common_value = table.rows[i].cells[1].innerHTML.includes('input') ? table.rows[i].cells[1].querySelector('input').value : table.rows[i].cells[1].querySelector('select').value;
+        console.log('Common value: ', common_value)
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);
@@ -293,7 +291,7 @@ function generateManifestTemplate(event) {
             window.URL.revokeObjectURL(link.href);
             $(".loading_div").hide();
             console.log('Inside XMLHTTPRequest');
-        } else {
+        } else if (xhr.status !== 200) {
             console.log(`Error ${xhr.status}: ${xhr.statusText}`); //
         }
     }

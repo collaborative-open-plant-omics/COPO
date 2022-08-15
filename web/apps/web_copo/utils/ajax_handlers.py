@@ -6,6 +6,8 @@ import os
 import time
 import urllib.parse
 from datetime import datetime
+from io import BytesIO
+
 from Bio import Entrez
 import jsonpickle
 import pandas as pd
@@ -15,7 +17,7 @@ from bson import json_util, ObjectId
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from jsonpickle import encode
 from bson.binary import Binary
 import pickle
@@ -1786,16 +1788,49 @@ def generate_manifest_template(request):
     # Duplicate the common field value according to the number of samples desired
     row_values = [[i] * int(number_of_samples) for i in common_values]
 
-    # Create Excel file dataframe using dictionary comprehension
+    # Create an Excel file dataframe using dictionary comprehension
     excel_data = {common_fields[i]: row_values[i] for i in range(len(common_fields))}
 
     common_field_values_dataframe = pd.DataFrame(excel_data)
-    blank_manifest_dataframe = pd.read_excel(manifest_template_path)
 
-    prepopulated_dataframe = pd.concat([blank_manifest_dataframe, common_field_values_dataframe], ignore_index=True)
-    response = HttpResponse(
-        content_type='application/ms-excel')
+    # Read all worksheets from blank manifest
+    blank_manifest_dataframe = pd.read_excel(manifest_template_path, sheet_name=None)
+
+    # Concatenate the common field values with the respective column names from the blank manifest template
+    df1_concat = pd.concat([blank_manifest_dataframe['Metadata Entry'], common_field_values_dataframe],
+                           ignore_index=True)
+
+    bytesIO = BytesIO()
+    pandas_writer = pd.ExcelWriter(bytesIO, engine='xlsxwriter')
+
+    # Add the Metadata Entry worksheet to the generated manifest worksheet from the blank manifest worksheet
+    df1_concat.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Metadata Entry')
+    # Add the Data Validation worksheet to the generated manifest worksheet from the blank manifest worksheet
+    blank_manifest_dataframe['Data Validation'].to_excel(pandas_writer, index=False, startrow=0,
+                                                         sheet_name='Data Validation')
+    # Add the OrganismPartDefinitions worksheet to the generated manifest worksheet from the blank manifest worksheet
+    blank_manifest_dataframe['OrganismPartDefinitions'].to_excel(pandas_writer, index=False, startrow=0,
+                                                                 sheet_name='OrganismPartDefinitions')
+    # Adjust column width for each work sheet
+    adjustExcelWorksheetColumnWidth(df1_concat, pandas_writer, 'Metadata Entry')
+    adjustExcelWorksheetColumnWidth(blank_manifest_dataframe['Data Validation'], pandas_writer, 'Data Validation')
+    adjustExcelWorksheetColumnWidth(blank_manifest_dataframe['OrganismPartDefinitions'], pandas_writer,
+                                    'OrganismPartDefinitions')
+    pandas_writer.save()
+
+    bytesIO.seek(0)
+    excel_workbook = bytesIO.getvalue()
+    # 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    # 'application/ms-excel'
+    response = HttpResponse(excel_workbook,
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename={filename}'
-    prepopulated_dataframe.to_excel(response, index=False, startrow=0)
 
     return response
+
+
+def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name):
+    for column in dataframe:
+        column_length = max(dataframe[column].astype(str).map(len).max(), len(column))
+        col_idx = dataframe.columns.get_loc(column)
+        pandas_writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)
