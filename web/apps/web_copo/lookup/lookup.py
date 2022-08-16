@@ -438,17 +438,20 @@ DROP_DOWNS = {
         {
             'value': 'ena',
             'label': 'ENA - Sequence Reads',
-            'description': 'This repository option defines metadata for submission of <strong>raw sequence reads</strong> to the European Nucleotide Archive (ENA)'
+            'description': 'This repository option defines metadata for submission of <strong>raw sequence reads</strong> to the European '
+                           'Nucleotide Archive (ENA)'
         },
         {
             'value': 'ena-asm',
             'label': 'ENA - Sequence Assemblies',
-            'description': 'This repository option defines metadata for submission of <strong>sequence assemblies</strong> to the European Nucleotide Archive (ENA)'
+            'description': 'This repository option defines metadata for submission of <strong>sequence assemblies</strong> to the European '
+                           'Nucleotide Archive (ENA)'
         },
         {
             'value': 'ena-ant',
             'label': 'ENA - Sequence Annotations',
-            'description': 'This repository option defines metadata for submission of <strong>sequence annotations</strong> to the European Nucleotide Archive (ENA)'
+            'description': 'This repository option defines metadata for submission of <strong>sequence annotations</strong> to the European '
+                           'Nucleotide Archive (ENA)'
         },
         {
             'value': 'figshare',
@@ -458,12 +461,15 @@ DROP_DOWNS = {
         {
             'value': 'miappe',
             'label': 'MIAPPE Compliant',
-            'description': 'MIAPPE is a Minimum Information (MI) standard for plant phenotyping. This repository option defines a list of attributes for describing a phenotyping experiment'
+            'description': 'MIAPPE is a Minimum Information (MI) standard for plant phenotyping. This repository option defines a list of '
+                           'attributes for describing a phenotyping experiment'
         },
         {
             'value': 'dcterms',
             'label': 'Dublin Core',
-            'description': 'Dublin Core is a generic community stardard metadata set for describing digital objects (such as images, video, pdfs, webpages) and physical objects (such as books or CDs). Items described with this schema can be submitted to Dataverse or dSpace instances'
+            'description': 'Dublin Core is a generic community stardard metadata set for describing digital objects (such as images, video, pdfs, '
+                           'webpages) and physical objects (such as books or CDs). Items described with this schema can be submitted to Dataverse '
+                           'or dSpace instances'
         },
 
         # {
@@ -496,12 +502,16 @@ DROP_DOWNS = {
         {
             "value": "biosample",
             "label": "Biosample Standard",
-            "description": "Biosmaple samples are based on <a href='https://www.ebi.ac.uk/biosamples/' target='_blank'>BioSamples</a>. They are <strong>repository agnostic</strong>, and are better suited for describing samples in a generic manner or in contexts where the target repository isn't known in advance."
+            "description": "Biosmaple samples are based on <a href='https://www.ebi.ac.uk/biosamples/' target='_blank'>BioSamples</a>. They are "
+                           "<strong>repository agnostic</strong>, and are better suited for describing samples in a generic manner or in contexts "
+                           "where the target repository isn't known in advance."
         },
         {
             "value": "isasample",
             "label": "COPO Standard",
-            "description": "COPO samples are based on the <a href='http://isa-tools.org/' target='_blank'>Investigation, Study and Assay </a> (ISA) specifications, and are better tailored for describing samples that will subsequently become part of data submissions to repositories such as <strong>ENA</strong> and <strong>Metabolights</strong>."
+            "description": "COPO samples are based on the <a href='http://isa-tools.org/' target='_blank'>Investigation, Study and Assay </a> (ISA) "
+                           "specifications, and are better tailored for describing samples that will subsequently become part of data submissions "
+                           "to repositories such as <strong>ENA</strong> and <strong>Metabolights</strong>."
         },
         {
             "value": "dtol",
@@ -665,7 +675,8 @@ UI_INFO = {
     'component_delete_body': "<p>You are about to delete the highlighted {component_name!s} record.</p> <p>Do you want to proceed?</p>",
     'component_delete_title': "<h4 class='modal-title'>Confirm Delete Action</h4>",
     'component_unassign_body': "<p>You are about to unassign the highlighted {component_name!s}.</p> <p>Do you want to proceed?</p>",
-    'component_unassign_title': "<h4 class='modal-title'>Confirm <span style='text-transform: capitalize;'>{component_name!s}</span> Unassignment</h4>"
+    'component_unassign_title': "<h4 class='modal-title'>Confirm <span style='text-transform: capitalize;'>{component_name!s}</span> "
+                                "Unassignment</h4>"
 
 }
 
@@ -685,8 +696,8 @@ WIZARD_FILES = {
     'cg_core': os.path.join(RESOLVER['wizards_datafile'], 'cg_core_stages.json'),
     'dtol_mappings': os.path.join(RESOLVER['wizards_sample'], 'dtol_field_mapping.json'),
     'dtol_manifests': os.path.join(RESOLVER['wizards_sample'], 'dtol_manifests'),
-    'sample_details': "web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/sample.json",
-    'ena_seq_manifest': "web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/ena_seq.json",
+    'sample_details': os.path.join(RESOLVER['isa_mappings'], 'sample.json'),
+    'ena_seq_manifest': os.path.join(RESOLVER['isa_mappings'], "ena_seq.json"),
 }
 
 # •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••#
@@ -697,7 +708,9 @@ WIZARD_FILES = {
 ONTOLOGY_LKUPS = {
     'ontologies_to_search': 'go,co,po',
     'fields_to_search': 'label,description,short_form',
-    'ebi_ols_autocomplete': 'http://www.ebi.ac.uk/ols/api/select?q={term!s}&ontology={ontology_names!s}&rows=50&local=true&type=class&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type,id',
+    'ebi_ols_autocomplete': 'http://www.ebi.ac.uk/ols/api/select?q={term!s}&ontology={'
+                            'ontology_names!s}&rows=50&local=true&type=class&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,'
+                            'description,type,id',
     'ontology_file_uri': 'http://data.bioontology.org/ontologies/',
     'copo_ontologies': os.path.join(RESOLVER['lookup'], "ontology_references.json")
 }
@@ -727,7 +740,8 @@ METADATA_RATING_TEMPLATE_LKUPS = {
 
 FIGSHARE_API_URLS = {
     'base_url': 'https://api.figshare.com/v2/{endpoint}',
-    'access_token': 'https://figshare.com/account/applications/authorize?client_id=978ec401ab6ad6c1d66f0b6cef3015d71a4734d7&scope=all&response_type=code&redirect_uri={redirect_url}/',
+    'access_token': 'https://figshare.com/account/applications/authorize?client_id=978ec401ab6ad6c1d66f0b6cef3015d71a4734d7&scope=all&response_type'
+                    '=code&redirect_uri={redirect_url}/',
     'login_return': '{return_url}?figshare_oauth=true',
     'authorization_token': 'https://api.figshare.com/v2/token'
 }
@@ -863,5 +877,3 @@ Here we are referencing json configs which are found in web/apps/web_copo/wizard
 adding here will make the schema importable as primer fields in a new experimatal template
 '''
 TEMPLATES_TO_APPEAR_IN_EDITOR = ["dc_stages", "miappe", "dcterms"]
-
-

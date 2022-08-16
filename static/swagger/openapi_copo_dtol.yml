@@ -11,7 +11,23 @@ servers:
   - url: https://copo-project.org/api
     description: Live Server
 
+
+
 paths:
+  /api-token:
+    post:
+      summary: Adds a new user
+      requestBody:
+        content:
+          application/json:
+            schema: # Request body contents
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+
   /manifest:
     get:
       tags:
@@ -346,8 +362,28 @@ paths:
                 $ref: '#/components/schemas/StatsNumber'
 
 
+#securityDefinitions:
+
+#  ApiKeyAuth:
+#    type: apiKey
+#    in: header
+#    name: X-API-Key
+
+# Global security (applies to all operations):
+#security:
+#  - ApiKeyAuth: [ ]
+security:
+  - app_id: [ ]
 
 components:
+
+  securitySchemes:
+    app_id:
+      type: apiKey
+      description: API key to authorize requests.
+      name: appid
+      in: header
+
   schemas:
     StatsNumber:
       type: object
@@ -355,12 +391,20 @@ components:
         number_found:
           type: integer
 
+    AuthBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
     SampleStatus:
       type: object
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -372,7 +416,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -384,7 +428,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -397,7 +441,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -410,7 +454,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -423,7 +467,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
