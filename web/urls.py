@@ -6,13 +6,13 @@ from django.views.static import serve
 
 import web.apps.web_copo.views as views
 from web.landing import views as landing_views
-from rest_framework.authtoken import views as auth_token_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('copo/', include('web.apps.web_copo.urls', namespace='copo')),
 
     path('rest/', include('web.apps.web_copo.rest_urls', namespace='rest')),
-    path('api-token/', auth_token_views.obtain_auth_token),
+
     path('api/', include('api.urls', namespace='api')),
 
     path('accounts/', include('allauth.urls')),

@@ -14,7 +14,7 @@ servers:
 
 
 paths:
-  /api-token:
+  /api-token/:
     post:
       summary: Adds a new user
       requestBody:
@@ -27,6 +27,13 @@ paths:
                   type: string
                 password:
                   type: string
+      responses:
+        200:
+          description: Username and Password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthBody'
 
   /manifest:
     get:

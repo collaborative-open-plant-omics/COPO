@@ -4,6 +4,7 @@ from django.urls import path, re_path
 
 from .annotate_views import search_all, post_annotations, handle_upload
 from .handlers import sample, person, general, stats
+from rest_framework.authtoken import views as auth_token_views
 
 app_name = 'api'
 
@@ -19,6 +20,7 @@ generic_api_patterns = [
 
 dtol_api_patterns = [
     path('', general.forward_to_swagger),
+    path('api-token/', auth_token_views.obtain_auth_token),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', sample.get, name='sample/get'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', sample.get_sample_statuses_for_manifest,
             name='get_sample_statuses_for_manifest'),
