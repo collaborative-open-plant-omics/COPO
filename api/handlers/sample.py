@@ -11,6 +11,9 @@ from api.utils import get_return_template, extract_to_template, finish_request
 from dal.copo_da import Sample, Source, Submission
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 
 def get(request, id):
@@ -135,19 +138,13 @@ def filter_for_API(sample_list, add_all_fields=False):
     return out
 
 
-def get_dtol_manifests(request):
-    # get all manifests of dtol samples
-    manifest_ids = Sample().get_manifests()
-    return finish_request(manifest_ids)
-
-
-def query_local_contexts_hub(project_id):
-    lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
-    resp = requests.get(lch_url)
-    j_resp = json.loads(resp.content)
-    print(j_resp)
-    return j_resp
-
+class GetManifests(APIView):
+    def get(self, request):
+        permission_classes = (IsAuthenticated,)
+        # get all manifests of dtol samples
+        manifest_ids = Sample().get_manifests()
+        output = finish_request(manifest_ids)
+        return Response(output)
 
 def get_all_manifests_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
@@ -159,7 +156,6 @@ def get_all_manifests_between_dates(request, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
     return finish_request(manifest_ids)
 
-
 def get_project_manifests_between_dates(request, project, d_from, d_to):
     # get $project manifests between d_from and d_to
     # dates must be ISO 8601 formatted
@@ -170,19 +166,16 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date_and_project(project, d_from, d_to)
     return finish_request(manifest_ids)
 
-
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
     out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
 
-
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)
     out = filter_for_API(sample_list)
     return finish_request(out)
-
 
 def get_by_biosample_ids(request, biosample_ids):
     # get sample associated with given biosample_id. This will return nothing if ENA submission has not yet occured
@@ -197,12 +190,10 @@ def get_by_biosample_ids(request, biosample_ids):
         out = filter_for_API(sample)
     return finish_request(out)
 
-
 def get_num_dtol_samples(request):
     samples = Sample().get_all_dtol_samples()
     number = len(samples)
     return HttpResponse(str(number))
-
 
 def get_project_samples(request, project):
     projectlist = project.split(",")
@@ -214,7 +205,6 @@ def get_project_samples(request, project):
     if samples:
         out = filter_for_API(samples)
     return finish_request(out)
-
 
 def get_by_copo_ids(request, copo_ids):
     # get sample by COPO id if known
@@ -232,7 +222,6 @@ def get_by_copo_ids(request, copo_ids):
             return HttpResponse(status=400, content="InvalidId found in request")
     return finish_request(out)
 
-
 def get_by_field(request, dtol_field, value):
     # generic method to return all samples where given "dtol_field" matches "value"
     vals = value.split(",")
@@ -245,45 +234,6 @@ def get_by_field(request, dtol_field, value):
     if sample_list:
         out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
-
-
-def get_all(request):
-    """
-    Method to handle a request for all
-    :param request: a Django HttpRequest object
-    :return: A dictionary containing all samples in COPO
-    """
-
-    out_list = []
-
-    # get sample and source objects
-    try:
-        sample_list = Sample().get_samples_across_profiles()
-    except TypeError as e:
-        # print(e)
-        return finish_request(error=API_ERRORS['NOT_FOUND'])
-    except InvalidId as e:
-        # print(e)
-        return finish_request(error=API_ERRORS['INVALID_PARAMETER'])
-    except:
-        # print("Unexpected error:", sys.exc_info()[0])
-        raise
-
-    for s in sample_list:
-        # get template for return type
-        t_source = get_return_template('SOURCE')
-        t_sample = get_return_template('SAMPLE')
-
-        # get source for sample
-        source = Source().GET(s['source_id'])
-        # extract fields for both source and sample
-        tmp_source = extract_to_template(object=source, template=t_source)
-        tmp_sample = extract_to_template(object=s, template=t_sample)
-        tmp_sample['source'] = tmp_source
-
-        out_list.append(tmp_sample)
-
-    return finish_request(out_list)
 
 
 def get_study_from_sample_accession(request, accessions):
@@ -328,3 +278,52 @@ def get_samples_from_study_accessions(request, accessions):
             out["sample_accessions"].append(smpl_accessions)
         to_finish.append(out)
     return finish_request(to_finish, num_found=sample_count)
+
+
+def query_local_contexts_hub(project_id):
+    lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
+    resp = requests.get(lch_url)
+    j_resp = json.loads(resp.content)
+    print(j_resp)
+    return j_resp
+
+
+def get_all(request):
+    """
+    Method to handle a request for all
+    :param request: a Django HttpRequest object
+    :return: A dictionary containing all samples in COPO
+    """
+
+    out_list = []
+
+    # get sample and source objects
+    try:
+        sample_list = Sample().get_samples_across_profiles()
+    except TypeError as e:
+        # print(e)
+        return finish_request(error=API_ERRORS['NOT_FOUND'])
+    except InvalidId as e:
+        # print(e)
+        return finish_request(error=API_ERRORS['INVALID_PARAMETER'])
+    except:
+        # print("Unexpected error:", sys.exc_info()[0])
+        raise
+
+    for s in sample_list:
+        # get template for return type
+        t_source = get_return_template('SOURCE')
+        t_sample = get_return_template('SAMPLE')
+
+        # get source for sample
+        source = Source().GET(s['source_id'])
+        # extract fields for both source and sample
+        tmp_source = extract_to_template(object=source, template=t_source)
+        tmp_sample = extract_to_template(object=s, template=t_sample)
+        tmp_sample['source'] = tmp_source
+
+        out_list.append(tmp_sample)
+
+    return finish_request(out_list)
+
+

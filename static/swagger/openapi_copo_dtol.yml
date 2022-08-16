@@ -16,7 +16,7 @@ servers:
 paths:
   /api-token/:
     post:
-      summary: Adds a new user
+      summary: Obtain API Token
       requestBody:
         content:
           application/json:
@@ -37,6 +37,8 @@ paths:
 
   /manifest:
     get:
+      security:
+        - app_id: [ ]
       tags:
         - Manifest
       summary:
@@ -379,8 +381,7 @@ paths:
 # Global security (applies to all operations):
 #security:
 #  - ApiKeyAuth: [ ]
-security:
-  - app_id: [ ]
+
 
 components:
 
@@ -388,7 +389,7 @@ components:
     app_id:
       type: apiKey
       description: API key to authorize requests.
-      name: appid
+      name: "Authorization"
       in: header
 
   schemas:
