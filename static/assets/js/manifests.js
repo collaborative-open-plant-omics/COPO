@@ -1,7 +1,7 @@
 $(document).ready(function () {
-
-    // Trigger manifest wizard modal
     $('#rightIcon').show();
+    $('#loading').hide();
+    // Trigger manifest wizard modal
     $(document).on("click", "#show_manifest_wzd_button", function (e) {
         $("#modal-placeholder").modal("show");
         $('#manifest-wizard').wizard();
@@ -161,7 +161,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 value_input_cell.appendChild(value_input);
             } else if (common_field === "TIME_OF_COLLECTION") {
                 value_input.setAttribute('type', 'time');
-                value_input.setAttribute('min', "12:00")
+                value_input.setAttribute('min', "0:00")
                 value_input.setAttribute('max', "24:00")
                 value_input_cell.appendChild(value_input);
             } else {
@@ -249,37 +249,27 @@ function removeTableRow(row) {
 function generateManifestTemplate(event) {
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
-    console.log('Inside generate manifest template');
+    const xhr = new XMLHttpRequest();
     const manifest_type = $('#manifestType').combobox('selectedItem').value;
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
-    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value');
 
+    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value');
     let common_fields_list = []
     let common_values_list = []
 
-    console.log('Number of common fields:', number_of_common_fields);
-
     for (let i = 0; i < number_of_common_fields; i++) {
         let common_field = table.rows[i].cells[0].innerHTML;
-        console.log('Common field: ', common_field)
-        // let common_value = table.rows[i].cells[1].querySelector('input').value;
 
-        let html = table.rows[i].cells[1].innerHTML;
-        console.log('Common value html tag: ', html)
         // Get value from input tag or select tag
         let common_value = table.rows[i].cells[1].innerHTML.includes('input') ? table.rows[i].cells[1].querySelector('input').value : table.rows[i].cells[1].querySelector('select').value;
-        console.log('Common value: ', common_value)
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);
         common_values_list.push(common_value);
     }
-    console.log('Common fields list: ', common_fields_list)
-    console.log('Common values list: ', common_values_list)
 
-    const xhr = new XMLHttpRequest();
     xhr.open('POST', 'generate_manifest_template/');
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
@@ -289,10 +279,8 @@ function generateManifestTemplate(event) {
             link.href = URL.createObjectURL(blob);
             link.click();
             window.URL.revokeObjectURL(link.href);
-            $(".loading_div").hide();
-            console.log('Inside XMLHTTPRequest');
         } else if (xhr.status !== 200) {
-            console.log(`Error ${xhr.status}: ${xhr.statusText}`); //
+            console.log(`Error ${xhr.status}: ${xhr.statusText}`);
         }
     }
     xhr.setRequestHeader('X-CSRFToken', csrftoken)

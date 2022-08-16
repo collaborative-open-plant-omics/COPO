@@ -5,13 +5,12 @@ import json
 import os
 import time
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, date, time
 from io import BytesIO
-
+from openpyxl.utils.cell import get_column_letter
 from Bio import Entrez
 import jsonpickle
 import pandas as pd
-import numpy as np
 import requests
 from bson import json_util, ObjectId
 from django.contrib.auth.models import Group
@@ -19,7 +18,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from jsonpickle import encode
-from bson.binary import Binary
+
 import pickle
 import web.apps.web_copo.lookup.lookup as ol
 import web.apps.web_copo.templatetags.html_tags as htags
@@ -1751,15 +1750,8 @@ def get_manifest_fields(request):
 def get_common_value_dropdown_list(request):
     manifest_type = request.GET["manifest_type"]
     common_field = request.GET["common_field"]
+    common_value_dropdownlist = get_common_field_dropdownlist(common_field, manifest_type)
 
-    fieldsBasedOnManifestType = ["GAL", "HAZARD_GROUP", "PURPOSE_OF_SPECIMEN"]
-    if common_field in fieldsBasedOnManifestType:
-        # Get dropdown list based on the manifest type
-        common_value_dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
-    else:
-        # Get dropdown list
-        common_value_dropdownlist = lkup.DTOL_ENUMS.get(common_field, [])
-    common_value_dropdownlist.sort()  # Sort the list in ascending order
     return HttpResponse(json.dumps(common_value_dropdownlist))
 
 
@@ -1788,39 +1780,55 @@ def generate_manifest_template(request):
     # Duplicate the common field value according to the number of samples desired
     row_values = [[i] * int(number_of_samples) for i in common_values]
 
-    # Create an Excel file dataframe using dictionary comprehension
+    # Create an Excel file dataframe for the common fields and values using dictionary comprehension
     excel_data = {common_fields[i]: row_values[i] for i in range(len(common_fields))}
 
     common_field_values_dataframe = pd.DataFrame(excel_data)
 
-    # Read all worksheets from blank manifest
+    # Read all worksheets from the blank manifest
     blank_manifest_dataframe = pd.read_excel(manifest_template_path, sheet_name=None)
 
+    # Read Metadata Entry worksheet
+    metadataEntry_worksheet = blank_manifest_dataframe['Metadata Entry']
+
+    # Read Data Validation worksheet
+    dataValidation_worksheet = blank_manifest_dataframe['Data Validation']
+
+    # Read OrganismPartDefinitions worksheet
+    organismPartDefinitions_worksheet = blank_manifest_dataframe['OrganismPartDefinitions']
+
     # Concatenate the common field values with the respective column names from the blank manifest template
-    df1_concat = pd.concat([blank_manifest_dataframe['Metadata Entry'], common_field_values_dataframe],
+    df1_concat = pd.concat([metadataEntry_worksheet, common_field_values_dataframe], axis=1,
                            ignore_index=True)
 
     bytesIO = BytesIO()
     pandas_writer = pd.ExcelWriter(bytesIO, engine='xlsxwriter')
 
-    # Add the Metadata Entry worksheet to the generated manifest worksheet from the blank manifest worksheet
+    # Add the Metadata Entry worksheet to the generated manifest
+    # worksheet from the blank manifest worksheet
     df1_concat.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Metadata Entry')
-    # Add the Data Validation worksheet to the generated manifest worksheet from the blank manifest worksheet
-    blank_manifest_dataframe['Data Validation'].to_excel(pandas_writer, index=False, startrow=0,
-                                                         sheet_name='Data Validation')
-    # Add the OrganismPartDefinitions worksheet to the generated manifest worksheet from the blank manifest worksheet
-    blank_manifest_dataframe['OrganismPartDefinitions'].to_excel(pandas_writer, index=False, startrow=0,
-                                                                 sheet_name='OrganismPartDefinitions')
-    # Adjust column width for each work sheet
-    adjustExcelWorksheetColumnWidth(df1_concat, pandas_writer, 'Metadata Entry')
-    adjustExcelWorksheetColumnWidth(blank_manifest_dataframe['Data Validation'], pandas_writer, 'Data Validation')
-    adjustExcelWorksheetColumnWidth(blank_manifest_dataframe['OrganismPartDefinitions'], pandas_writer,
-                                    'OrganismPartDefinitions')
+
+    # Add the Data Validation worksheet to the generated manifest
+    # worksheet from the blank manifest worksheet
+    dataValidation_worksheet.to_excel(pandas_writer, index=False, startrow=0,
+                                      sheet_name='Data Validation')
+
+    # Add the OrganismPartDefinitions worksheet to the generated manifest
+    # worksheet from the blank manifest worksheet
+    organismPartDefinitions_worksheet.to_excel(pandas_writer, index=False, startrow=0,
+                                               sheet_name='OrganismPartDefinitions')
+
+    # Adjust column width for each worksheet and add dropdown list to desired columns
+    adjustExcelWorksheetColumnWidth(df1_concat, pandas_writer, 'Metadata Entry', common_fields, manifest_type)
+    adjustExcelWorksheetColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation', common_fields,
+                                    manifest_type)
+    adjustExcelWorksheetColumnWidth(organismPartDefinitions_worksheet, pandas_writer,
+                                    'OrganismPartDefinitions', common_fields, manifest_type)
     pandas_writer.save()
 
     bytesIO.seek(0)
     excel_workbook = bytesIO.getvalue()
-    # 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
     # 'application/ms-excel'
     response = HttpResponse(excel_workbook,
                             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -1829,8 +1837,76 @@ def generate_manifest_template(request):
     return response
 
 
-def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name):
+# Style the header for each work sheet
+# dataframe.style.set_table_styles([{
+#     'selector': 'th',
+#     'props': [
+#         ('text_wrap', True),
+#         ('bold', True),
+#         ('background-color', '#93c47d'),
+#         ('color', 'black')]
+# }])
+
+def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, common_field, manifest_type):
     for column in dataframe:
         column_length = max(dataframe[column].astype(str).map(len).max(), len(column))
-        col_idx = dataframe.columns.get_loc(column)
-        pandas_writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)
+        column_index = dataframe.columns.get_loc(column)
+        pandas_writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
+
+        # Check if sheet is 'Metadata Entry' and column name is present amongst the fields that require a dropdownlist
+        if sheet_name == 'Metadata Entry' and column in lkup.DTOL_ENUMS:
+            # Get MS Excel official column header letter
+            # Indexing start at 0 by default; it should start at 1 in this case
+            excel_column_header_letter = get_column_letter(column_index + 1)
+
+            # Generate a dropdown list for 96 rows of the desired columns in the Excel spreadsheet
+            for row_count in range(2, 97):
+                common_value_dropdownlist = get_common_field_dropdownlist(column, manifest_type)
+                if "DATE" in column:
+                    pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
+                                                                     {'validate': 'date',
+                                                                      'criteria': 'between',
+                                                                      'maximum': 0})
+                elif "TIME" in column:
+                    pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
+                                                                     {'validate': 'list',
+                                                                      'criteria': 'between',
+                                                                      'minimum': time(0, 0),
+                                                                      'maximum': time(24, 0)})
+                else:
+
+                    pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
+                                                                     {'validate': 'list',
+                                                                      'source': common_value_dropdownlist})
+
+
+def get_common_field_dropdownlist(common_field, manifest_type):
+    def get_dropdown_items():
+        if common_field in fieldsBasedOnManifestType:
+            # Get dropdown list based on the manifest type
+            dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
+        else:
+            # Get dropdown list
+            dropdownlist = lkup.DTOL_ENUMS.get(common_field, [])
+
+        dropdownlist.sort()  # Sort the list in ascending order
+        return dropdownlist
+
+    fieldsBasedOnManifestType = ["GAL", "HAZARD_GROUP", "PURPOSE_OF_SPECIMEN"]
+    common_value_dropdownlist = []
+
+    # The "common field" parameter can be a list or not because the function,
+    # get_common_field_dropdownlist(common_field, manifest_type), is called in a
+    # couple functions in this file, ajax_handlers.py for various purposes
+
+    # Check if the "common field" parameter is a list or not
+    if isinstance(common_field, list):
+        common_field_lst = common_field  # Reassign the variable for naming convention's sake, readability and clarity
+        # Iterate through the list of common fields for each common field
+        for common_field in common_field_lst:
+            common_value_dropdownlist = get_dropdown_items()
+    else:
+        # "Common field" parameter is not a list
+        common_value_dropdownlist = get_dropdown_items()
+
+    return common_value_dropdownlist
