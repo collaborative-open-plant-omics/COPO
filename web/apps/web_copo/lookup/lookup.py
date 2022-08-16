@@ -685,8 +685,8 @@ WIZARD_FILES = {
     'cg_core': os.path.join(RESOLVER['wizards_datafile'], 'cg_core_stages.json'),
     'dtol_mappings': os.path.join(RESOLVER['wizards_sample'], 'dtol_field_mapping.json'),
     'dtol_manifests': os.path.join(RESOLVER['wizards_sample'], 'dtol_manifests'),
-    'sample_details': "web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/sample.json",
-    'ena_seq_manifest': "web/apps/web_copo/schemas/copo/uimodels/mappings/isa_mappings/ena_seq.json",
+    'sample_details': os.path.join(RESOLVER['isa_mappings'], 'sample.json'),
+    'ena_seq_manifest': os.path.join(RESOLVER['isa_mappings'], "ena_seq.json"),
 }
 
 # •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••#
