@@ -130,10 +130,12 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
         }
     }).done(function (data) {
         if (data !== [] && data.length !== 0) {
-            common_field_cell.style.width = '150px'; // Add space between the value and field
+            // common_field_cell.style.width = '150px'; // Add space between the value and field
+            value_input_cell.style.width = '200px';// Set width of the select tag field
             const value_input = document.createElement('select');
             value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
+
             let option = [];
             $(value_input).empty();
             $(value_input).append('<option selected disabled hidden value=""' + '>' + 'Choose common value' + '</option>')
@@ -143,15 +145,16 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             }
             value_input_cell.appendChild(value_input);
         } else {
-            common_field_cell.style.width = '250px'; // Add space between the value and field
+            // common_field_cell.style.width = '250px'; // Add space between the value and field
             let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
             //Get Input value
             const value_input = document.createElement('input');
             value_input.setAttribute('id', "commonvalueID");
+            value_input.setAttribute('class', 'form-control');
 
             if (date_fields.includes(common_field)) {
                 value_input.setAttribute('type', 'text');
-                // Get date picker for for common field that requires a date as its value
+                // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('placeholder', "Select date");
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
@@ -195,10 +198,12 @@ function removeOptionFromCommonFieldDropdownList(commonField) {
 }
 
 function insertTableRow(common_field) {
+    const modal = document.getElementById("modal-placeholder");
     const tableDiv = document.getElementById("tableDiv");
     const table = document.getElementById("tableID");
 
     table.style.margin = "auto"; // Centre the table
+
     $(table).addClass('hoverTable');
 
     // Insert a row into a table
@@ -207,7 +212,13 @@ function insertTableRow(common_field) {
     let common_field_cell = row.insertCell();
     common_field_cell.innerHTML = common_field.value;
     common_field_cell.setAttribute('class', 'cfID');
-    // common_field_cell.style.width = '250px'; // Add space between the value and field
+
+    // Truncate long field names
+    common_field_cell.style.whiteSpace = 'nowrap';
+    common_field_cell.style.textOverflow = 'ellipsis';
+    common_field_cell.style.overflow = 'hidden';
+    common_field_cell.style.maxWidth = '220px';
+    common_field_cell.style.paddingRight = '20px'; // Add space between the value field and field name
 
     // Input value cell
     let value_input_cell = row.insertCell();
@@ -234,16 +245,19 @@ function insertTableRow(common_field) {
     // once it has at least 10 rows within it
     if (number_of_rows >= 10) {
         $(tableDiv).css({'overflow': 'scroll'});
-        $(tableDiv).css({'height': '100px'});
+        $(tableDiv).css({'height': '200px'});
+        $(table).css({'margin-right': "20px"}); // Set distance between delete icon and scroll once table becomes scrollable
     }
 }
 
 function removeTableRow(row) {
     // Find the cell value of common field name
     let common_field = $(row).closest('tr').find('.cfID').text();
-    // Append the common field name to the dropdown list now that before the is removed
+    // Append the common field name to the dropdown list now that it has be removed from the tabled
     $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
     $(row).closest('tr').remove(); // Remove row
+
+
 }
 
 function generateManifestTemplate(event) {

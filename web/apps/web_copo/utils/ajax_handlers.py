@@ -1797,29 +1797,43 @@ def generate_manifest_template(request):
     # Read OrganismPartDefinitions worksheet
     organismPartDefinitions_worksheet = blank_manifest_dataframe['OrganismPartDefinitions']
 
-    # Concatenate the common field values with the respective column names from the blank manifest template
-    df1_concat = pd.concat([metadataEntry_worksheet, common_field_values_dataframe], axis=1,
-                           ignore_index=True)
+    # Get only the column names from the blank manifest
+    # Convert the list of column names into a dataframe
+    df1_columns = pd.DataFrame(columns=metadataEntry_worksheet.columns)
+
+    # Concatenate the common field and its common values with the respective column names
+    # from the blank manifest template
+    df1_concatenation = pd.concat([df1_columns, common_field_values_dataframe],
+                                  ignore_index=True)
 
     bytesIO = BytesIO()
     pandas_writer = pd.ExcelWriter(bytesIO, engine='xlsxwriter')
 
     # Add the Metadata Entry worksheet to the generated manifest
-    # worksheet from the blank manifest worksheet
-    df1_concat.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Metadata Entry')
+    # worksheet using data from the blank manifest worksheet
+    df1_concatenation.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Metadata Entry')
+
+    # df1_concatenation.style.set_table_styles([{
+    #     'selector': 'th',
+    #     'props': [
+    #         ('text_wrap', True),
+    #         ('bold', True),
+    #         ('background-color', '#93c47d'),
+    #         ('color', 'black')]
+    # }])
 
     # Add the Data Validation worksheet to the generated manifest
-    # worksheet from the blank manifest worksheet
+    # worksheet using data from the blank manifest worksheet
     dataValidation_worksheet.to_excel(pandas_writer, index=False, startrow=0,
                                       sheet_name='Data Validation')
 
     # Add the OrganismPartDefinitions worksheet to the generated manifest
-    # worksheet from the blank manifest worksheet
+    # worksheet using datafrom the blank manifest worksheet
     organismPartDefinitions_worksheet.to_excel(pandas_writer, index=False, startrow=0,
                                                sheet_name='OrganismPartDefinitions')
 
-    # Adjust column width for each worksheet and add dropdown list to desired columns
-    adjustExcelWorksheetColumnWidth(df1_concat, pandas_writer, 'Metadata Entry', common_fields, manifest_type)
+    # Adjust column width for each worksheet and add a dropdown list to desired columns
+    adjustExcelWorksheetColumnWidth(df1_concatenation, pandas_writer, 'Metadata Entry', common_fields, manifest_type)
     adjustExcelWorksheetColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation', common_fields,
                                     manifest_type)
     adjustExcelWorksheetColumnWidth(organismPartDefinitions_worksheet, pandas_writer,
@@ -1856,7 +1870,7 @@ def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, common
         # Check if sheet is 'Metadata Entry' and column name is present amongst the fields that require a dropdownlist
         if sheet_name == 'Metadata Entry' and column in lkup.DTOL_ENUMS:
             # Get MS Excel official column header letter
-            # Indexing start at 0 by default; it should start at 1 in this case
+            # Indexing starts at 0 by default but in this case, it should start at 1 so increment by 1
             excel_column_header_letter = get_column_letter(column_index + 1)
 
             # Generate a dropdown list for 96 rows of the desired columns in the Excel spreadsheet

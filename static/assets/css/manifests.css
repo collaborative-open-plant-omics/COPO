@@ -16,17 +16,28 @@
 /*    !*border-top: 1px solid #e9ecef !important;*!*/
 /*    border-radius: 0px 4px 0px 0px;*/
 /*}*/
+.hoverTable {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+}
+
 .hoverTable tr:hover {
     background-color: #D6EEEE;
 }
 
-/* Center contents within a table*/
-.table {
-    text-align: center
+.truncateLongTexts {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 1px;
+    width: 250px
 }
 
-/*.disabled {*/
-/*    pointer-events: none;*/
-/*    cursor: not-allowed;*/
-/*    opacity: 0.6;*/
+/*.hoverTable tr {*/
+/*    margin-bottom: 50px;*/
 /*}*/
+
+/* Center contents within a table*/
+.table {
+    text-align: center;
+}
