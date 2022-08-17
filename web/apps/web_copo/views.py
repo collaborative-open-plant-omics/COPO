@@ -16,7 +16,7 @@ from pexpect import run
 from rauth import OAuth2Service
 from io import StringIO
 import web.apps.web_copo.templatetags.html_tags as htags
-from api.handlers.general import *
+from api.views.general import *
 from dal import cursor_to_list
 from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals

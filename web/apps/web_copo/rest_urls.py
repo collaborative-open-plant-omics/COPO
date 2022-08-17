@@ -1,6 +1,6 @@
 from django.urls import path
 
-import api.handlers.general as api
+import api.views.general as api
 import web.apps.web_copo.repos.figshare as figshare
 import web.apps.web_copo.rest.EnaRest as rest
 import web.apps.web_copo.views as views

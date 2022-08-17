@@ -3,11 +3,9 @@ __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 from django.urls import path, re_path
 
 from .annotate_views import search_all, post_annotations, handle_upload
-from .handlers import person, general, stats
-from .handlers import sample as s
-import api.handlers.sample as APIViews
-
-from rest_framework.authtoken import views as auth_token_views
+from .views import person, general, stats
+from .views import sample as s
+import api.views.sample as APIViews
 
 app_name = 'api'
 
@@ -23,7 +21,7 @@ generic_api_patterns = [
 
 dtol_api_patterns = [
     path('', general.forward_to_swagger),
-    path('api-token/', auth_token_views.obtain_auth_token),
+    path('api-token/', general.CustomAuthToken.as_view()),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
     re_path(r'manifest/', APIViews.GetManifests.as_view(), name='get_manifests'), ]
 
