@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is define
     $('#rightIcon').show();
     $('#loading').hide();
     // Trigger manifest wizard modal
@@ -149,7 +150,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
             //Get Input value
             const value_input = document.createElement('input');
-            value_input.setAttribute('id', "commonvalueID");
+            // value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
 
             if (date_fields.includes(common_field)) {
@@ -157,17 +158,27 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('placeholder', "Select date");
+                $(value_input).addClass('datepicker');
+                // value_input_cell.setAttribute('class', 'datepicker');
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
                 // and does not use the one defined by fuelux
-                $.fn.datepicker.noConflict();
-                $(value_input).datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
+                // $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is defined
+                $(".datepicker").datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
                 value_input_cell.appendChild(value_input);
+                // The "hasDatepicker" class triggers the datepicker function so it's removed
+                // from a previous date field so that it can be displayed on following date fields
+                $(".datepicker").filter('.datepicker').removeClass('hasDatepicker').datepicker({
+                    dateFormat: "yy-mm-dd",
+                    maxDate: 0
+                });
             } else if (common_field === "TIME_OF_COLLECTION") {
+                value_input.setAttribute('id', "commonvalueID");
                 value_input.setAttribute('type', 'time');
                 value_input.setAttribute('min', "0:00")
                 value_input.setAttribute('max', "24:00")
                 value_input_cell.appendChild(value_input);
             } else {
+                value_input.setAttribute('id', "commonvalueID");
                 value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
                 value_input_cell.appendChild(value_input);
@@ -198,7 +209,6 @@ function removeOptionFromCommonFieldDropdownList(commonField) {
 }
 
 function insertTableRow(common_field) {
-    const modal = document.getElementById("modal-placeholder");
     const tableDiv = document.getElementById("tableDiv");
     const table = document.getElementById("tableID");
 
@@ -243,21 +253,42 @@ function insertTableRow(common_field) {
 
     // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
     // once it has at least 10 rows within it
-    if (number_of_rows >= 10) {
+    if (number_of_rows >= 6) {
         $(tableDiv).css({'overflow': 'scroll'});
         $(tableDiv).css({'height': '200px'});
-        $(table).css({'margin-right': "20px"}); // Set distance between delete icon and scroll once table becomes scrollable
+        $(tableDiv).css({'margin-right': "20px"}); // Set distance between delete icon and scroll once table becomes scrollable
     }
 }
 
+function sortOptionsList(selectTagIDName) {
+    let selectTagID = $(selectTagIDName);
+    let selectedValue = selectTagID.val(); // Cache selected value, before sorting the list
+    let options_list = selectTagID.find('option');
+    options_list.sort(function (a, b) {
+        return $(a).val() > $(b).val() ? 1 : -1;
+    });
+    selectTagID.html('').append(options_list);
+    selectTagID.val(selectedValue); // Set cached selected value
+}
+
 function removeTableRow(row) {
-    // Find the cell value of common field name
+    const tableDiv = document.getElementById("tableDiv");
+    const table = document.getElementById("tableID");
+    let number_of_rows = table.rows.length
+    // Find the cell value of the common field name
     let common_field = $(row).closest('tr').find('.cfID').text();
-    // Append the common field name to the dropdown list now that it has be removed from the tabled
+    // Append the common field name to the dropdown list now that it has be removed from the table
     $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
     $(row).closest('tr').remove(); // Remove row
-
-
+    sortOptionsList('#commonfields'); // Sort the options within the select tag
+    // Once the table is less than 6 rows, retain the initial height of the table/modal
+    // by removing the css that were added to make the table scrollable when more than or equal to 6 rows
+    // were present in the table
+    if (number_of_rows < 6) {
+        $(tableDiv).css({'overflow': ''});
+        $(tableDiv).css({'height': ''});
+        $(tableDiv).css({'margin-right': ""});
+    }
 }
 
 function generateManifestTemplate(event) {

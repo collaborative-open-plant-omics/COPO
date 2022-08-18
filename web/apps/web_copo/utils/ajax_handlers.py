@@ -1833,11 +1833,11 @@ def generate_manifest_template(request):
                                                sheet_name='OrganismPartDefinitions')
 
     # Adjust column width for each worksheet and add a dropdown list to desired columns
-    adjustExcelWorksheetColumnWidth(df1_concatenation, pandas_writer, 'Metadata Entry', common_fields, manifest_type)
-    adjustExcelWorksheetColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation', common_fields,
+    adjustExcelWorksheetColumnWidth(df1_concatenation, pandas_writer, 'Metadata Entry', manifest_type)
+    adjustExcelWorksheetColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation',
                                     manifest_type)
     adjustExcelWorksheetColumnWidth(organismPartDefinitions_worksheet, pandas_writer,
-                                    'OrganismPartDefinitions', common_fields, manifest_type)
+                                    'OrganismPartDefinitions', manifest_type)
     pandas_writer.save()
 
     bytesIO.seek(0)
@@ -1861,7 +1861,8 @@ def generate_manifest_template(request):
 #         ('color', 'black')]
 # }])
 
-def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, common_field, manifest_type):
+def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, manifest_type):
+    print(pandas_writer.sheets[sheet_name])
     for column in dataframe:
         column_length = max(dataframe[column].astype(str).map(len).max(), len(column))
         column_index = dataframe.columns.get_loc(column)
