@@ -70,10 +70,12 @@ def filter_for_API(sample_list, add_all_fields=False):
     rights_to_lookup = list()
     notices = dict()
     for s in sample_list:
-        # check for rights applicable
-        if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
-            # if applicable save project id
-            rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
+        # ERGA samples may be subject to traditional knowledge labels
+        if s.get("tol_project", "") in ["erga", "ERGA"]:
+            # check for rights applicable
+            if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
+                # if applicable save project id
+                rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
     # now we have a list of project ids which pertain to a protected sample, so unique to get only one copy of each project
     rights_to_lookup = list(set(rights_to_lookup))
     for r in rights_to_lookup:
@@ -90,7 +92,7 @@ def filter_for_API(sample_list, add_all_fields=False):
         for k, v in s.items():
             # check if there is a traditional right embargo
             if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
-                if v in ["N", "n"]:
+                if v in ["N", "n", False, ""]:
                     # we need not do anything, since no rights apply
                     s_out[k] = v
                 else:
@@ -140,7 +142,6 @@ def get_dtol_manifests(request):
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
 
-
 def query_local_contexts_hub(project_id):
     lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
     resp = requests.get(lch_url)
@@ -149,7 +150,7 @@ def query_local_contexts_hub(project_id):
     return j_resp
 
 
-def get_all_manifests_between_dates(request, d_from, d_to):
+def get_all_manifest_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
     # dates must be ISO 8601 formatted
     d_from = parser.parse(d_from)
@@ -171,7 +172,7 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     return finish_request(manifest_ids)
 
 
-def get_for_manifest(request, manifest_id):
+def get_samples_in_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
     out = filter_for_API(sample_list, add_all_fields=True)
