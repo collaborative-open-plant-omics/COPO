@@ -23,32 +23,31 @@ dtol_api_patterns = [
     path('', general.forward_to_swagger),
     path('api-token/', general.CustomAuthToken.as_view()),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
+    re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', s.get_samples_in_manifest, name='get_for_manifest'),
     re_path(r'manifest/', s.get_manifests, name='get_manifests'),
 
     # dates must be ISO 8601 formatted
     re_path(r'manifest/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
-            APIViews.GetAllManifestsBetweenDates.as_view(), name='get_all_manifests_between_dates'),
-    re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', APIViews.GetSamplesInManifest.as_view(), name='get_for_manifest'),
+            s.get_all_manifest_between_dates, name='get_all_manifests_between_dates'),
+
+    re_path(r'manifest/(?P<project>[a-zA-Z, ]+)/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
+            s.get_project_manifests_between_dates, name='get_project_manifests_between_dates'),
+
+    re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', s.get_sample_statuses_for_manifest,
+            name='get_sample_statuses_for_manifest'),
+
+    re_path(r'sample/biosample_id/(?P<biosample_ids>[A-Z0-9, ]+)', s.get_by_biosample_ids,
+            name='get_by_biosample_ids'),
+    re_path(r'sample/copo_id/(?P<copo_ids>[A-Za-z0-9, ]+)', s.get_by_copo_ids, name='get_by_biosample_ids'),
+    re_path(r'sample/sample_field/(?P<dtol_field>[A-Za-z0-9-_]+)/(?P<value>[A-Za-z0-9-_ ,.@]+)', s.get_by_field,
+            name='get_by_dtol_field'),
+    re_path(r'sample/dtol/num_samples', s.get_num_dtol_samples, name='get_num_dtol_samples'),
+    re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', s.get_project_samples, name='get_project_samples'),
+    re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_samples_from_study_accessions,
+            name='get_samples_from_study_accession'),
+    re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_study_from_sample_accession,
+            name='get_study_from_sample_accession'),
 ]
-'''
-re_path(r'manifest/(?P<project>[a-zA-Z, ]+)/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
-        sample.get_project_manifests_between_dates, name='get_project_manifests_between_dates'),
-
-re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', sample.get_sample_statuses_for_manifest,
-        name='get_sample_statuses_for_manifest'),
-
-re_path(r'sample/biosample_id/(?P<biosample_ids>[A-Z0-9, ]+)', sample.get_by_biosample_ids,
-        name='get_by_biosample_ids'),
-re_path(r'sample/copo_id/(?P<copo_ids>[A-Za-z0-9, ]+)', sample.get_by_copo_ids, name='get_by_biosample_ids'),
-re_path(r'sample/sample_field/(?P<dtol_field>[A-Za-z0-9-_]+)/(?P<value>[A-Za-z0-9-_ ,.@]+)', sample.get_by_field,
-        name='get_by_dtol_field'),
-re_path(r'sample/dtol/num_samples', sample.get_num_dtol_samples, name='get_num_dtol_samples'),
-re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', sample.get_project_samples, name='get_project_samples'),
-re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', sample.get_samples_from_study_accessions,
-        name='get_samples_from_study_accession'),
-re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', sample.get_study_from_sample_accession,
-        name='get_study_from_sample_accession'),
-        '''
 
 stats_api_patterns = [
     re_path(r'stats/number_of_users', stats.get_number_of_users,
