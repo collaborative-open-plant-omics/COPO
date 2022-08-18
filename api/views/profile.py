@@ -4,6 +4,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 class APICreateProfile(APIView):
-    def post(request):
+    def post(self, request):
         x = {"text": "abc"}
         return Response(x)
