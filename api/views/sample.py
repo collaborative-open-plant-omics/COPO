@@ -13,7 +13,7 @@ from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 def get(request, id):
@@ -138,23 +138,24 @@ def filter_for_API(sample_list, add_all_fields=False):
     return out
 
 
-class GetManifests(APIView):
-    def get(self, request):
-        permission_classes = (IsAuthenticated,)
-        # get all manifests of dtol samples
-        manifest_ids = Sample().get_manifests()
-        output = finish_request(manifest_ids)
-        return Response(output)
+def get_manifests(request):
+    permission_classes = [AllowAny, ]
+    # get all manifests of dtol samples
+    manifest_ids = Sample().get_manifests()
+    out = finish_request(manifest_ids)
+    return HttpResponse(out)
 
-def get_all_manifests_between_dates(request, d_from, d_to):
-    # get all manifests between d_from and d_to
-    # dates must be ISO 8601 formatted
-    d_from = parser.parse(d_from)
-    d_to = parser.parse(d_to)
-    if d_from > d_to:
-        return HttpResponse(status=400, content="'from' must be earlier than'to'")
-    manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
-    return finish_request(manifest_ids)
+
+class GetAllManifestsBetweenDates(APIView):
+    def get(request, d_from, d_to):
+        # get all manifests between d_from and d_to
+        # dates must be ISO 8601 formatted
+        d_from = parser.parse(d_from)
+        d_to = parser.parse(d_to)
+        if d_from > d_to:
+            return HttpResponse(status=400, content="'from' must be earlier than'to'")
+        manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
+        return finish_request(manifest_ids)
 
 def get_project_manifests_between_dates(request, project, d_from, d_to):
     # get $project manifests between d_from and d_to
@@ -166,11 +167,13 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date_and_project(project, d_from, d_to)
     return finish_request(manifest_ids)
 
-def get_for_manifest(request, manifest_id):
-    # get all samples tagged with the given manifest_id
-    sample_list = Sample().get_by_manifest_id(manifest_id)
-    out = filter_for_API(sample_list, add_all_fields=True)
-    return finish_request(out)
+
+class GetSamplesInManifest(APIView):
+    def get(request, manifest_id):
+        # get all samples tagged with the given manifest_id
+        sample_list = Sample().get_by_manifest_id(manifest_id)
+        out = filter_for_API(sample_list, add_all_fields=True)
+        return finish_request(out)
 
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)

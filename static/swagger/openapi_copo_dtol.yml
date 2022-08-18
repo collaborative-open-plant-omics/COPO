@@ -37,8 +37,8 @@ paths:
 
   /manifest:
     get:
-      security:
-        - app_id: [ ]
+      #security:
+      #  - app_id: [ ]
       tags:
         - Manifest
       summary:

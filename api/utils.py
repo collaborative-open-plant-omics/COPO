@@ -62,7 +62,7 @@ def finish_request(template=None, error=None, num_found=None):
         wrapper['data'] = None
     output = jsonb.dumps(wrapper)
     #print(output)
-    return wrapper
+    return output
 
 def map_to_dict(x, y):
     # method to make output dict using keys from array x and values from array y
