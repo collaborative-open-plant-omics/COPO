@@ -3,9 +3,8 @@ __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 from django.urls import path, re_path
 
 from .annotate_views import search_all, post_annotations, handle_upload
-from .views import person, general, stats
+from .views import person, general, stats, profile
 from .views import sample as s
-import api.views.sample as APIViews
 
 app_name = 'api'
 
@@ -47,6 +46,8 @@ dtol_api_patterns = [
             name='get_samples_from_study_accession'),
     re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_study_from_sample_accession,
             name='get_study_from_sample_accession'),
+    re_path(r'profile/make_profile/', profile.APICreateProfile.as_view(),
+            name='make_profile'),
 ]
 
 stats_api_patterns = [

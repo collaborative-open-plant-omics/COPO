@@ -330,4 +330,3 @@ def get_all(request):
 
     return finish_request(out_list)
 
-
