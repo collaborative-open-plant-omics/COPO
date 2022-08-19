@@ -20,7 +20,7 @@ generic_api_patterns = [
 
 dtol_api_patterns = [
     path('', general.forward_to_swagger),
-    path('api-token/', general.CustomAuthToken.as_view()),
+    path('apiKey/', general.CustomAuthToken.as_view()),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', s.get_samples_in_manifest, name='get_for_manifest'),
     re_path(r'manifest/', s.get_manifests, name='get_manifests'),

@@ -14,8 +14,11 @@ servers:
 
 
 paths:
-  /api-token/:
+
+  /apiKey/:
     post:
+      tags:
+        - API Key
       summary: Obtain API Token
       requestBody:
         content:
@@ -37,8 +40,7 @@ paths:
 
   /manifest:
     get:
-      #security:
-      #  - app_id: [ ]
+
       tags:
         - Manifest
       summary:
@@ -52,6 +54,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ManifestList'
+
 
   /manifest/{manifest_id}:
     get:
@@ -371,6 +374,48 @@ paths:
                 $ref: '#/components/schemas/StatsNumber'
 
 
+
+  /items:
+    get:
+      tags:
+        - Manifest
+      parameters:
+        - in: query
+          name: sort
+          description: Sort order
+          type: string
+          enum: [ asc, desc ]
+
+  /profile/make_profile/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+
+      summary:
+        Make a profile for authenticated user
+      parameters:
+        - name: title
+          in: header
+          enum: [ yes, no ]
+        - name: "gender"
+          in: "query"
+          type: "string"
+          enum: [ "male", "female", "other" ]
+          description: "Enter user gender here."
+          required: true
+
+      responses:
+        "200":
+          description: representation of the created profile
+
+          #content:
+          #  application/json:
+          #    schema:
+          #      $ref: '#/components/schemas/Profile'
+
+
 #securityDefinitions:
 
 #  ApiKeyAuth:
@@ -393,6 +438,17 @@ components:
       in: header
 
   schemas:
+
+    Profile:
+      type: object
+      properties:
+        profile_id:
+          type: string
+        title:
+          type: string
+        tol_type:
+          type: string
+
     StatsNumber:
       type: object
       properties:
