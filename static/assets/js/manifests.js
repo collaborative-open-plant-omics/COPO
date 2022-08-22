@@ -291,6 +291,33 @@ function removeTableRow(row) {
     }
 }
 
+function validateCommonValueInputValue() {
+    const table = document.getElementById("tableID");
+    const number_of_common_fields = table.rows.length;
+    let common_field_input_value;
+    for (let i = 0; i < number_of_common_fields; i++) {
+        let common_field = table.rows[i].cells[0].innerHTML;
+        if (table.rows[i].cells[1].innerHTML.includes('input')) {
+            common_field_input_value = table.rows[i].cells[1].querySelector('input').value;
+
+            $.ajax({
+                type: "GET",
+                url: "validate_input_common_value/",
+                dataType: "json",
+                data: {
+                    "common_field": common_field,
+                    "common_value_input_value": common_field_input_value
+                }
+            }).done(function (data) {
+            }).fail(function (error) {
+                console.log('Error:', error.message);
+
+            });
+
+        }
+    }
+}
+
 function generateManifestTemplate(event) {
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
@@ -309,6 +336,7 @@ function generateManifestTemplate(event) {
 
         // Get value from input tag or select tag
         let common_value = table.rows[i].cells[1].innerHTML.includes('input') ? table.rows[i].cells[1].querySelector('input').value : table.rows[i].cells[1].querySelector('select').value;
+
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);
