@@ -4,7 +4,7 @@ info:
   description: Swagger documentation of COPO/DTOL sample API.
   version: 1.1.8
 servers:
-  - url: http://localhost:8000/api
+  - url: http://127.0.0.1:8000/api
     description: Local Server
   - url: http://demo.copo-project.org/api
     description: Demo Server
@@ -22,7 +22,7 @@ paths:
       summary: Obtain API Token
       requestBody:
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema: # Request body contents
               type: object
               properties:
@@ -30,6 +30,7 @@ paths:
                   type: string
                 password:
                   type: string
+                  format: password
       responses:
         200:
           description: Username and Password
@@ -375,36 +376,37 @@ paths:
 
 
 
-  /items:
-    get:
-      tags:
-        - Manifest
-      parameters:
-        - in: query
-          name: sort
-          description: Sort order
-          type: string
-          enum: [ asc, desc ]
-
   /profile/make_profile/:
     post:
       tags:
-        - Manifest
+        - Profile
       security:
         - app_id: [ ]
-
+      consumes:
+        - application/x-www-form-urlencoded
       summary:
         Make a profile for authenticated user
-      parameters:
-        - name: title
-          in: header
-          enum: [ yes, no ]
-        - name: "gender"
-          in: "query"
-          type: "string"
-          enum: [ "male", "female", "other" ]
-          description: "Enter user gender here."
-          required: true
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - profile_type
+              properties:
+                title: # <!--- form field name
+                  type: string
+                  required: true
+                description:
+                  type: string
+                  required: true
+                profile_type:
+                  type: string
+                  enum: [ "Stand-alone", "Darwin Tree of Life (DTOL)", "Darwin Tree of Life Environmental Samples (DTOL_ENV)", "Aquatic Symbiosis Genomics (ASG)", "European Reference Genome Atlas (ERGA)" ]
+                  required: true
+
 
       responses:
         "200":
