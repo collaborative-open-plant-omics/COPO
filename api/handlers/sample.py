@@ -129,11 +129,14 @@ def filter_for_API(sample_list, add_all_fields=False):
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
         # iterate through fields to be exported and add them in blank if not present in the sample object
-        if add_all_fields and not embargoed:
-            for k in export:
-                if k not in s_out.keys():
-                    s_out[k] = ""
-            out.append(s_out)
+        if not embargoed:
+            if add_all_fields:
+                for k in export:
+                    if k not in s_out.keys():
+                        s_out[k] = ""
+                out.append(s_out)
+            else:
+                out.append(s_out)
     return out
 
 
@@ -150,7 +153,7 @@ def query_local_contexts_hub(project_id):
     return j_resp
 
 
-def get_all_manifest_between_dates(request, d_from, d_to):
+def get_all_manifests_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
     # dates must be ISO 8601 formatted
     d_from = parser.parse(d_from)
@@ -172,7 +175,7 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     return finish_request(manifest_ids)
 
 
-def get_samples_in_manifest(request, manifest_id):
+def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
     out = filter_for_API(sample_list, add_all_fields=True)
@@ -181,7 +184,7 @@ def get_samples_in_manifest(request, manifest_id):
 
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)
-    out = filter_for_API(sample_list)
+    out = filter_for_API(sample_list, add_all_fields=False)
     return finish_request(out)
 
 
