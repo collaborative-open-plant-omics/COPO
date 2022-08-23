@@ -48,6 +48,8 @@ dtol_api_patterns = [
             name='get_study_from_sample_accession'),
     re_path(r'profile/make_profile/', profile.APICreateProfile.as_view(),
             name='make_profile'),
+    re_path(r'profile/get_for_user/', profile.APIGetProfilesForUser.as_view(),
+            name='get_for_user'),
 ]
 
 stats_api_patterns = [
