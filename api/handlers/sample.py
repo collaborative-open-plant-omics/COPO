@@ -92,7 +92,7 @@ def filter_for_API(sample_list, add_all_fields=False):
         for k, v in s.items():
             # check if there is a traditional right embargo
             if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
-                if v in ["N", "n", False, ""]:
+                if v in ["N", "n"] or s.get("tol_project") not in ["ERGA", "erga"]:
                     # we need not do anything, since no rights apply
                     s_out[k] = v
                 else:
