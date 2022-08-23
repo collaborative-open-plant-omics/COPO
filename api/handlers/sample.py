@@ -70,10 +70,11 @@ def filter_for_API(sample_list, add_all_fields=False):
     rights_to_lookup = list()
     notices = dict()
     for s in sample_list:
-        # check for rights applicable
-        if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
-            # if applicable save project id
-            rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
+        if "ERGA" in s["tol_project"]:
+            # check for rights applicable
+            if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
+                # if applicable save project id
+                rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
     # now we have a list of project ids which pertain to a protected sample, so unique to get only one copy of each project
     rights_to_lookup = list(set(rights_to_lookup))
     for r in rights_to_lookup:
