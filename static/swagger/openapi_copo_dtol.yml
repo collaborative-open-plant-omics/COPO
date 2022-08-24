@@ -424,8 +424,12 @@ paths:
         "200":
           description: representation of the created profile
 
-
-
+  /manifest/validate/:
+    post:
+      tags:
+        manifest
+      security:
+        - app_id: [ ]
 
 
 components:
