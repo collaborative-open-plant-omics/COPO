@@ -5,6 +5,8 @@ from django.urls import path, re_path
 from .annotate_views import search_all, post_annotations, handle_upload
 from .views import person, general, stats, profile
 from .views import sample as s
+from .views.sample import APIValidateManifest
+from django.views.decorators.csrf import csrf_exempt
 
 app_name = 'api'
 
@@ -34,7 +36,7 @@ dtol_api_patterns = [
 
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', s.get_sample_statuses_for_manifest,
             name='get_sample_statuses_for_manifest'),
-
+    re_path(r'manifest/validate/', APIValidateManifest.as_view(), name='manifest/validate'),
     re_path(r'sample/biosample_id/(?P<biosample_ids>[A-Z0-9, ]+)', s.get_by_biosample_ids,
             name='get_by_biosample_ids'),
     re_path(r'sample/copo_id/(?P<copo_ids>[A-Za-z0-9, ]+)', s.get_by_copo_ids, name='get_by_biosample_ids'),
