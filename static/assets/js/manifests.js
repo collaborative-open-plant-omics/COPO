@@ -57,6 +57,29 @@ $(document).ready(function () {
     $(document).on("change", "#manifestType", get_common_fields_handler);
 
     wizard_handler();
+    //
+    // $(document).on("click", "#nextBtn", function (e) {
+    //     let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
+    //     console.log('step down', $('#manifest-wizard').wizard('selectedItem').stepDown)
+    //     if (currentStep === 3) {
+    //         console.log('Current step is', currentStep)
+    //         Array.from(document.getElementsByTagName('input')).forEach(input => {
+    //             if (input.value === '') {
+    //                 alert('Input fields cannot be empty')
+    //                 e.preventDefault();
+    //             } else {
+    //                 alert('Input fields have data')
+    //                 // validateCommonInputValue();
+    //                 $('#manifest-wizard').wizard('next');
+    //
+    //             }
+    //         });
+    //     }
+    //
+    //
+    // });
+
+
 });
 
 
@@ -64,21 +87,24 @@ function wizard_handler() {
     $("#manifest-wizard").on('change.fu.wizard', function () {
         console.log('change');
     }).on('changed.fu.wizard', function () {
+        // Remove icon from final step of the wizard
         let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
         if (currentStep === 3) {
             $('#rightIcon').hide();
         } else {
             $('#rightIcon').show();
         }
+
     }).on('finished.fu.wizard', function (e) {
         console.log('finished');
         $("#modal-placeholder").modal("hide");
         generateManifestTemplate(e);
     }).on('stepclick.fu.wizard', function (e, data) {
         console.log('Step' + data.step + ' clicked');
-    }).on('actionclicked.fu.wizard', function (e) {
-        // e.preventDefault();
+    }).on('actionclicked.fu.wizard', function (e, data) {
+        validateCommonInputValue(e, data);
     });
+
     // // Navigate wizard
     // $('.btn-prev').on('click', function () {
     //     $('#manifest-wizard').wizard('previous');
@@ -136,6 +162,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             const value_input = document.createElement('select');
             value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
+            value_input.setAttribute('required', '')
 
             let option = [];
             $(value_input).empty();
@@ -152,6 +179,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
             const value_input = document.createElement('input');
             // value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
+            value_input.setAttribute('required', '')
 
             if (date_fields.includes(common_field)) {
                 value_input.setAttribute('type', 'text');
@@ -159,6 +187,7 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('placeholder', "Select date");
                 $(value_input).addClass('datepicker');
+
                 // value_input_cell.setAttribute('class', 'datepicker');
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
                 // and does not use the one defined by fuelux
@@ -176,11 +205,13 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 value_input.setAttribute('type', 'time');
                 value_input.setAttribute('min', "0:00")
                 value_input.setAttribute('max', "24:00")
+
                 value_input_cell.appendChild(value_input);
             } else {
                 value_input.setAttribute('id', "commonvalueID");
                 value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
+
                 value_input_cell.appendChild(value_input);
             }
         }
@@ -291,30 +322,51 @@ function removeTableRow(row) {
     }
 }
 
-function validateCommonValueInputValue() {
-    const table = document.getElementById("tableID");
-    const number_of_common_fields = table.rows.length;
-    let common_field_input_value;
-    for (let i = 0; i < number_of_common_fields; i++) {
-        let common_field = table.rows[i].cells[0].innerHTML;
-        if (table.rows[i].cells[1].innerHTML.includes('input')) {
-            common_field_input_value = table.rows[i].cells[1].querySelector('input').value;
+function validateCommonInputValue(e, data) {
+    if (data.step === 2 && data.direction === 'next') {
+        console.log('I am on step 2')
+        e.preventDefault(); // Prevents proceeding to the next step
 
-            $.ajax({
-                type: "GET",
-                url: "validate_input_common_value/",
-                dataType: "json",
-                data: {
-                    "common_field": common_field,
-                    "common_value_input_value": common_field_input_value
-                }
-            }).done(function (data) {
-            }).fail(function (error) {
-                console.log('Error:', error.message);
+        let error_message = 'Error'
+        $("#tableID input").each(function (e) {
+            const table = document.getElementById("tableID");
+            let common_fieldClass = document.getElementsByClassName("cfID");
+            let common_field = common_fieldClass[e].innerHTML
+            let common_value = this.value
+            if (common_value === '') {
+                console.log("Common value cannot be empty ");
+                this.style.backgroundColor = "red";
 
-            });
+            } else {
+                this.style.backgroundColor = "";
+                console.log("Common field: ", common_field);
+                console.log('Common value: ', common_value);
+                $.ajax({
+                    type: "GET",
+                    url: "validate_common_input_value/",
+                    dataType: "json",
+                    data: {
+                        "common_field": common_field,
+                        "common_value_input_value": common_value
+                    }
+                }).done(function (data) {
+                    console.log('1. ', data)
+                    console.log('2. ', JSON.parse(data))
+                    // $('#manifest-wizard').wizard('next');
+                }).fail(function (error) {
+                    console.log('Error:', error.message);
 
-        }
+                });
+            }
+
+
+            // disable input if you want
+            //$("#"+id).prop('disabled', true);
+            //$('#manifest-wizard').wizard('next');
+            error_message = "valid"
+        });
+
+        console.log(error_message)
     }
 }
 

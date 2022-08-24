@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+    <!--suppress ALL -->
     <p style="  display: inline-block;vertical-align: middle;margin: 10px 0;">
         Current Tree of Life Manifests </p>
 
@@ -33,8 +34,8 @@
             <tbody>
             <tr>
                 <td>DTOL - (Darwin Tree of Life)</td>
-                <td>2.4</td>
-                <td><a href="{% static 'assets/manifests/DToL_SAMPLE_MANIFEST_v2.4.xlsx' %}">DTOL_MANIFEST_v2.4.xlsx</a>
+                <td>2.4.1</td>
+                <td><a href="{% static 'assets/manifests/DTOL_EXAMPLE_SAMPLE_MANIFEST_v2.4.1.xlsx' %}">DTOL_MANIFEST_v2.4.1.xlsx</a>
                 </td>
 
                 <td><i style="color: rgb(22, 171, 57)" class="fa fa-arrow-circle-o-down fa-2x"
@@ -45,13 +46,15 @@
             </tr>
             <tr>
                 <td>ASG - (Aquatic Symbiosis Genomics)</td>
-                <td>2.4</td>
-                <td></td>
-                <td></td>
-                {#<td><a href="{% static 'assets/manifests/ASG_MANIFEST_v2.4.xlsx' %}">ASG_MANIFEST_v2.4.xlsx</a></td>#}
-                {#                <td><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x" title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizard('asg')"#}
-                {#                       aria-hidden="true"></i></td>#}
-                {#                <td>#}
+                <td>2.4.1</td>
+
+                <td><a href="{% static 'assets/manifests/ASG_EXAMPLE_SAMPLE_MANIFEST_v2.4.1 .xlsx' %}">ASG_MANIFEST_v2.4.1.xlsx</a>
+                </td>
+
+                <td><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x"
+                       title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizard('asg')"
+                       aria-hidden="true"></i>
+                <td>
 
             </tr>
             <tr>
@@ -61,8 +64,7 @@
                 </td>
                 <td><i style="color: rgb(230, 26, 141)" class="fa fa-arrow-circle-o-down fa-2x"
                        title='Launch ERGA_MANIFEST_v2.4 wizard'
-                       onclick="showWizard('erga')"
-                ></i>
+                       onclick="showWizard('erga')"></i>
                 </td>
 
             </tr>
@@ -119,8 +121,7 @@
                                                     class="caret"></i>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                {# ASG manifest option is commented until v2.4 version is available #}
-                                                {#<li data-value="asg"><a href="#">ASG</a></li>#}
+                                                <li data-value="asg"><a href="#">ASG</a></li>
                                                 <li data-value="dtol"><a href="#">DTOL</a></li>
                                                 <li data-value="erga"><a href="#">ERGA</a></li>
                                                 <li data-value="env"><a href="#">ENV</a></li>

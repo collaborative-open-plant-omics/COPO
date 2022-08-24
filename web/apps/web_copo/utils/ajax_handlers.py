@@ -2031,18 +2031,32 @@ def get_common_field_dropdownlist(common_field, manifest_type):
     return common_value_dropdownlist
 
 
-def validate_input_common_value(request):
+def validate_common_input_value(request):
     # from web.apps.web_copo.lookup import dtol_lookups as lkup
     # import re
 
-    common_field = request.GET["common_field"]
-    common_value_input_value = request.GET["common_field_input_value"]
+    common_field = request.GET["common_field"]  # common_field = "SAMPLE_DERIVED_FROM"
+    common_value_input_value = request.GET["common_field_input_value"]  # common_value_input_value = 'sdjgzkgzd'
+    isInputValueValid = False
+    error_message = ''
+
     if common_field in lkup.DTOL_RULES:
-        field_regex = lkup.DTOL_RULES[common_field]["ena_regex"]
-        # lkup.DTOL_RULES[common_field]["optional_regex"]
-        # lkup.DTOL_RULES[common_field]["strict_regex"]
-        # lkup.DTOL_ENUMS.get(common_field, [])
+        if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
+            field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
+        elif "ena_regex" in lkup.DTOL_RULES[common_field]:
+            field_regex = lkup.DTOL_RULES[common_field]["ena_regex"]
+        elif "strict_regex" in lkup.DTOL_RULES[common_field]:
+            field_regex = lkup.DTOL_RULES[common_field]["strict_regex"]
+        else:
+            #  "optional_regex" in lkup.DTOL_RULES[common_field]
+            field_regex = lkup.DTOL_RULES[common_field]["optional_regex"]
+
         error_message = lkup.DTOL_RULES[common_field]["human_readable"]
-        
+
         pattern = re.compile('r' + field_regex)
         isInputValueValid = bool(pattern.match(common_value_input_value))
+
+    if isInputValueValid:
+        return HttpResponse(json.dumps({'response': 'Valid'}))
+    else:
+        return HttpResponseBadRequest(json.dumps({'response': error_message}))
