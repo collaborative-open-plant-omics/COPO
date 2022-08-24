@@ -2,14 +2,14 @@ __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 import datetime
 import sys
-
+import requests
 import dateutil.parser as parser
 from bson.errors import InvalidId
 from django.http import HttpResponse
-
+import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from dal.copo_da import Sample, Source, Submission
-from web.apps.web_copo.lookup import dtol_lookups as  lookup
+from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 
 
@@ -56,8 +56,9 @@ def format_date(input_date):
     return input_date.replace(tzinfo=datetime.timezone.utc).isoformat()
 
 
-def filter_for_STS(sample_list, add_all_fields=False):
-    # add field here which should be time formatted
+def filter_for_API(sample_list, add_all_fields=False):
+
+    # add field(s) here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
     if len(sample_list) > 0:
@@ -66,7 +67,22 @@ def filter_for_STS(sample_list, add_all_fields=False):
         profile_type = "dtol"
     export = lookup.DTOL_EXPORT_TO_STS_FIELDS[profile_type]
     out = list()
+    rights_to_lookup = list()
+    notices = dict()
     for s in sample_list:
+        # ERGA samples may be subject to traditional knowledge labels
+        if s.get("tol_project", "") in ["erga", "ERGA"]:
+            # check for rights applicable
+            if s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE") in ["Y", "y"]:
+                # if applicable save project id
+                rights_to_lookup.append(s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", ""))
+    # now we have a list of project ids which pertain to a protected sample, so unique to get only one copy of each project
+    rights_to_lookup = list(set(rights_to_lookup))
+    for r in rights_to_lookup:
+        notices[r] = query_local_contexts_hub(r)
+
+    for s in sample_list:
+        embargoed = False
         if isinstance(s, InvalidId):
             break
         species_list = s.pop("species_list", "")
@@ -74,6 +90,29 @@ def filter_for_STS(sample_list, add_all_fields=False):
             s = {**s, **species_list[0]}
         s_out = dict()
         for k, v in s.items():
+            # check if there is a traditional right embargo
+            if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
+                if v in ["N", "n"] or s.get("tol_project") not in ["ERGA", "erga"]:
+                    # we need not do anything, since no rights apply
+                    s_out[k] = v
+                else:
+                    # ToDo - check local context hub
+                    project_id = s.get("ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID", "")
+                    if not project_id:
+                        # rights are applicable, but no contexts id provided, therefore embargo
+                        s_out = {"status": "embargoed"}
+                        out.append(s_out)
+                        embargoed = True
+                        break
+                    else:
+                        q = notices[project_id]
+                        if q.get("project_privacy", "").lower() == "public":
+                            s_out[k] = v
+                        else:
+                            s_out = {"status": "embargoed"}
+                            out.append(s_out)
+                            embargoed = True
+                            break
             # always export copo id
             if k == "_id":
                 s_out["copo_id"] = str(v)
@@ -83,18 +122,21 @@ def filter_for_STS(sample_list, add_all_fields=False):
                 if k in time_fields:
                     s_out[k] = format_date(v)
                 elif k in ["created_by", "updated_by"]:
-                    s_out[k] = "*****@"+v.split("@")[1]
+                    s_out[k] = "*****@" + v.split("@")[1]
                 else:
                     s_out[k] = v
             if k == "changelog":
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
         # iterate through fields to be exported and add them in blank if not present in the sample object
-        if add_all_fields:
-            for k in export:
-                if k not in s_out.keys():
-                    s_out[k] = ""
-        out.append(s_out)
+        if not embargoed:
+            if add_all_fields:
+                for k in export:
+                    if k not in s_out.keys():
+                        s_out[k] = ""
+                out.append(s_out)
+            else:
+                out.append(s_out)
     return out
 
 
@@ -102,6 +144,13 @@ def get_dtol_manifests(request):
     # get all manifests of dtol samples
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
+
+def query_local_contexts_hub(project_id):
+    lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
+    resp = requests.get(lch_url)
+    j_resp = json.loads(resp.content)
+    print(j_resp)
+    return j_resp
 
 
 def get_all_manifests_between_dates(request, d_from, d_to):
@@ -114,6 +163,7 @@ def get_all_manifests_between_dates(request, d_from, d_to):
     manifest_ids = Sample().get_manifests_by_date(d_from, d_to)
     return finish_request(manifest_ids)
 
+
 def get_project_manifests_between_dates(request, project, d_from, d_to):
     # get $project manifests between d_from and d_to
     # dates must be ISO 8601 formatted
@@ -121,19 +171,20 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     d_to = parser.parse(d_to)
     if d_from > d_to:
         return HttpResponse(status=400, content="'from' must be earlier than'to'")
-    manifest_ids = Sample().get_manifests_by_date_and_project(project,d_from, d_to)
+    manifest_ids = Sample().get_manifests_by_date_and_project(project, d_from, d_to)
     return finish_request(manifest_ids)
+
 
 def get_for_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
-    out = filter_for_STS(sample_list, add_all_fields=True)
+    out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
 
 
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)
-    out = filter_for_STS(sample_list)
+    out = filter_for_API(sample_list, add_all_fields=False)
     return finish_request(out)
 
 
@@ -147,7 +198,7 @@ def get_by_biosample_ids(request, biosample_ids):
     sample = Sample().get_by_biosample_ids(ids)
     out = list()
     if sample:
-        out = filter_for_STS(sample)
+        out = filter_for_API(sample)
     return finish_request(out)
 
 
@@ -165,7 +216,7 @@ def get_project_samples(request, project):
     samples = Sample().get_project_samples(projectlist)
     out = list()
     if samples:
-        out = filter_for_STS(samples)
+        out = filter_for_API(samples)
     return finish_request(out)
 
 
@@ -180,7 +231,7 @@ def get_by_copo_ids(request, copo_ids):
     out = list()
     if samples:
         if not type(samples) == InvalidId:
-            out = filter_for_STS(samples, add_all_fields=True)
+            out = filter_for_API(samples, add_all_fields=True)
         else:
             return HttpResponse(status=400, content="InvalidId found in request")
     return finish_request(out)
@@ -196,7 +247,7 @@ def get_by_field(request, dtol_field, value):
     out = list()
     sample_list = Sample().get_by_field(dtol_field, vals)
     if sample_list:
-        out = filter_for_STS(sample_list, add_all_fields=True)
+        out = filter_for_API(sample_list, add_all_fields=True)
     return finish_request(out)
 
 

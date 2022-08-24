@@ -38,7 +38,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "IDENTIFIED_BY",
         "IDENTIFIER_AFFILIATION",
         "IDENTIFIED_HOW",
-        "SPECIMEN_ID_RISK",
+        "SPECIMEN_IDENTITY_RISK",
         "MIXED_SAMPLE_RISK",
         "PRESERVED_BY",
         "PRESERVER_AFFILIATION",
@@ -123,7 +123,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "IDENTIFIED_BY",
         "IDENTIFIER_AFFILIATION",
         "IDENTIFIED_HOW",
-        "SPECIMEN_ID_RISK",
+        "SPECIMEN_IDENTITY_RISK",
         "PRESERVED_BY",
         "PRESERVER_AFFILIATION",
         "PRESERVATION_APPROACH",
@@ -396,10 +396,6 @@ DTOL_ENUMS = {
         "Y",
         "N",
         "NOT_APPLICABLE"
-    ],
-    "SPECIMEN_ID_RISK": [
-        "Y",
-        "N"
     ],
     "MIXED_SAMPLE_RISK": [
         "Y",

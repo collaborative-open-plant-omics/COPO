@@ -35,7 +35,7 @@ def extract_to_template(object=None, template=None):
     return template
 
 
-def finish_request(template=None, error=None, num_found=None):
+def finish_request(template=None, error=None, num_found=None, return_http_response=True):
     """
     Method to tidy up data before returning API caller
     :param template: completed template of resource data
@@ -61,8 +61,10 @@ def finish_request(template=None, error=None, num_found=None):
         wrapper['number_found'] = None
         wrapper['data'] = None
     output = jsonb.dumps(wrapper)
-    #print(output)
-    return HttpResponse(output, content_type="application/json")
+    if return_http_response:
+        return HttpResponse(output, content_type="application/json")
+    else:
+        return HttpResponse(output, content_type="application/json")
 
 def map_to_dict(x, y):
     # method to make output dict using keys from array x and values from array y
