@@ -9,7 +9,7 @@ from django.http import HttpResponse
 import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from web.apps.web_copo.utils.ajax_handlers import sample_spreadsheet
-from dal.copo_da import Sample, Source, Submission
+from dal.copo_da import Sample, Source, Submission, APIValidationReport
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 from rest_framework.views import APIView
@@ -338,4 +338,7 @@ class APIValidateManifest(APIView):
 
     def post(self, request):
         sample_spreadsheet(request)
-        return Response()
+        id = APIValidationReport().get_collection_handle().insert({"profile_id": request.POST["profile_id"], "status": "pending", "content": "",
+                                                                   "submitted": datetime.datetime.utcnow()})
+        out = {"validation_report_id": str(id)}
+        return Response(out)

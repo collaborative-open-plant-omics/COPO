@@ -53,6 +53,7 @@ StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
+APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
@@ -72,7 +73,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    test=get_collection_ref(TestCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
-                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection)
+                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
+                   apiValidationReport=get_collection_ref(APIValidationReport)
                    )
 
 
@@ -2418,6 +2420,11 @@ class ENAFileTransferObject(DAComponent):
 
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
+
+
+class APIValidationReport(DAComponent):
+    def __init__(self, profile_id=None):
+        super(APIValidationReport, self).__init__(profile_id, "apiValidationReport")
 
 
 def is_number(s):
