@@ -324,35 +324,65 @@ function removeTableRow(row) {
 
 function validateCommonInputValue(e, data) {
     if (data.step === 2 && data.direction === 'next') {
+        let background_colour;
         console.log('I am on step 2')
         e.preventDefault(); // Prevents proceeding to the next step
 
-        let error_message = 'Error'
         $("#tableID input").each(function (e) {
             const table = document.getElementById("tableID");
             let common_fieldClass = document.getElementsByClassName("cfID");
             let common_field = common_fieldClass[e].innerHTML
             let common_value = this.value
+
             if (common_value === '') {
                 console.log("Common value cannot be empty ");
-                this.style.backgroundColor = "red";
+                this.style.border = "4px solid";
+                this.style.borderColor = "red"
+                this.setAttribute('title', 'Common value cannot be empty');
 
+                // Insert a row into a table
+                // $(this).closest('tr').css({"border-color": "red"});
+                // $(this).closest('tr').css({"border": "4px solid"});
+
+
+                // let validity_cell = row.insertCell();
+                // const invalidIcon = document.createElement('i');
+                // invalidIcon.setAttribute('title', "Common value cannot be empty ");
+                // invalidIcon.style.marginLeft = "10px"; // Create space between the icon and the delete icon cell
+                // $(validity_cell).css({'color': 'red'});
+                // validity_cell.appendChild(invalidIcon)
             } else {
-                this.style.backgroundColor = "";
+
                 console.log("Common field: ", common_field);
                 console.log('Common value: ', common_value);
+
+                // this.style.border = "";
+                // this.style.borderColor = "";
+
                 $.ajax({
                     type: "GET",
                     url: "validate_common_input_value/",
                     dataType: "json",
                     data: {
                         "common_field": common_field,
-                        "common_value_input_value": common_value
+                        "common_input_value": common_value
                     }
                 }).done(function (data) {
-                    console.log('1. ', data)
-                    console.log('2. ', JSON.parse(data))
-                    // $('#manifest-wizard').wizard('next');
+                    if (data['response']) {
+                        console.log('Success ', data['response'])
+                        $(this).style.border = ""; // "4px solid"
+                        $(this).style.borderColor = ""  // "green"
+                        // Navigate to the next step
+                        $('#manifest-wizard').wizard('next');
+
+                    } else {
+                        let error_message = data['error']
+                        console.log('Invalid: ', data['error'])
+                        $(this).style.border = "4px solid"; // "";
+                        $(this).style.borderColor = "green"; // "";
+                        $(this).setAttribute('title', `${error_message}`);
+                    }
+
                 }).fail(function (error) {
                     console.log('Error:', error.message);
 
@@ -363,10 +393,7 @@ function validateCommonInputValue(e, data) {
             // disable input if you want
             //$("#"+id).prop('disabled', true);
             //$('#manifest-wizard').wizard('next');
-            error_message = "valid"
         });
-
-        console.log(error_message)
     }
 }
 
