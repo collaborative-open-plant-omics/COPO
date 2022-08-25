@@ -8,6 +8,7 @@ from bson.errors import InvalidId
 from django.http import HttpResponse
 import json
 from api.utils import get_return_template, extract_to_template, finish_request
+from web.apps.web_copo.utils.ajax_handlers import sample_spreadsheet
 from dal.copo_da import Sample, Source, Submission
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
@@ -15,7 +16,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import authentication, permissions
-from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -335,9 +335,7 @@ def get_all(request):
 
 
 class APIValidateManifest(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = []
 
-    @csrf_exempt
     def post(self, request):
-        print(request)
+        sample_spreadsheet(request)
+        return Response()

@@ -1360,7 +1360,11 @@ def get_subsample_stages(request):
 def sample_spreadsheet(request):
     file = request.FILES["file"]
     name = file.name
-    dtol = DtolSpreadsheet(file=file, p_id=request.session["profile_id"])
+    if "profile_id" in request.POST:
+        p_id = request.POST["profile_id"]
+    else:
+        p_id = request.session["profile_id"]
+    dtol = DtolSpreadsheet(file=file, p_id=p_id)
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     elif name.endswith("csv"):
@@ -1372,7 +1376,10 @@ def sample_spreadsheet(request):
 
     if dtol.loadManifest(m_format=fmt):
         srlz_dtol = pickle.dumps(dtol.file)
-        p_id = request.session["profile_id"]
+        if "profile_id" in request.POST:
+            p_id = request.POST["profile_id"]
+        else:
+            p_id = request.session["profile_id"]
         r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
                       "taxon_validation_status": "pending", "err_msg": [],
                       "time_added": datetime.utcnow(),

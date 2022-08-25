@@ -434,16 +434,19 @@ paths:
         content:
           multipart/form-data:
             schema:
+              required:
+                - profile_id
+                - manifest
               type: object
               properties:
-                orderId:
-                  type: integer
-                userId:
-                  type: integer
-                fileName:
+                profile_id:
+                  type: string
+                file:
                   type: string
                   format: binary
-
+      responses:
+        "200":
+          description: id of queued validation report to be queried
 
 components:
 

@@ -18,6 +18,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 def forward_to_swagger(request):
     response = redirect('/static/swagger/apidocs_index.html')
@@ -151,6 +152,7 @@ def number_of_datafiles():
 
 class CustomAuthToken(ObtainAuthToken):
 
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
@@ -162,3 +164,9 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email
         })
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
