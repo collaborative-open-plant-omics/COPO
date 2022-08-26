@@ -1,20 +1,22 @@
 $(document).ready(function () {
-    $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is define
+    $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is defined
     $('#rightIcon').show();
     $('#loading').hide();
     // Trigger manifest wizard modal
     $(document).on("click", "#show_manifest_wzd_button", function (e) {
+        let manifestTypeID = document.getElementById("manifestType")
         $("#modal-placeholder").modal("show");
         $('#manifest-wizard').wizard();
         $('#rightIcon').show(); // Show "right icon" after it was removed from last step
         // Automatically go to step 1 when the modal is launched
         $('#manifest-wizard').wizard('selectedItem', {step: 1});
 
-        document.getElementById('numberOfSamples').value = '1'; // Preload with default number of samples
+        document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
         $("#tableID tbody tr").remove(); // Remove all existing rows from the table
-        $('#manifestType').combobox('selectByIndex', '0') // Preload with default manifest type
 
-        get_common_fields_handler();// Preload with the common fields dropdown menu
+        document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
+
+        get_common_fields_handler(); // Preload with the common fields dropdown menu
     });
 
     $(document).on("click", "#downloadBtn", generateManifestTemplate)
@@ -22,6 +24,7 @@ $(document).ready(function () {
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
         bootbox.dialog({
+            size: 'small',
             message: "To add another common value, select another field name from the dropdown menu",
             buttons: {
                 "success": {
@@ -57,31 +60,7 @@ $(document).ready(function () {
     $(document).on("change", "#manifestType", get_common_fields_handler);
 
     wizard_handler();
-    //
-    // $(document).on("click", "#nextBtn", function (e) {
-    //     let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-    //     console.log('step down', $('#manifest-wizard').wizard('selectedItem').stepDown)
-    //     if (currentStep === 3) {
-    //         console.log('Current step is', currentStep)
-    //         Array.from(document.getElementsByTagName('input')).forEach(input => {
-    //             if (input.value === '') {
-    //                 alert('Input fields cannot be empty')
-    //                 e.preventDefault();
-    //             } else {
-    //                 alert('Input fields have data')
-    //                 // validateCommonInputValue();
-    //                 $('#manifest-wizard').wizard('next');
-    //
-    //             }
-    //         });
-    //     }
-    //
-    //
-    // });
-
-
 });
-
 
 function wizard_handler() {
     $("#manifest-wizard").on('change.fu.wizard', function () {
@@ -117,7 +96,7 @@ function wizard_handler() {
 
 function get_common_fields_handler() {
     // Get fields from manifest schema based on the manifest type
-    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    const manifest_type = document.querySelector('#manifestType').value;
 
     $.ajax({
         type: "GET",
@@ -129,6 +108,7 @@ function get_common_fields_handler() {
     }).done(function (data) {
         let option = [];
         // Add a default value to the dropdown menu
+        console.log(manifest_type + ": " + data)
         $("#commonfields").empty();
         $('#commonfields').append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
         for (let i = 0; i < data.length; i++) {
@@ -145,7 +125,8 @@ function get_common_fields_handler() {
 
 function get_common_value_dropdown_list_handler(common_field_cell, common_field, value_input_cell) {
     // Get dropdown list fields from manifest schema based on the common field and/ manifest type
-    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    const manifest_type = document.querySelector('#manifestType').value;
+    ;
 
     $.ajax({
         type: "GET",
@@ -326,8 +307,13 @@ function validateCommonInputValue(e, data) {
     if (data.step === 2 && data.direction === 'next') {
         let background_colour;
         console.log('I am on step 2')
-        e.preventDefault(); // Prevents proceeding to the next step
-
+        // Prevents proceeding to the next step
+        // Show alert when clicking "Next" button without choosing a common field and inputting tis value
+        bootbox.alert({
+            message: "Choose a common field and enter or select its value before proceeding!",
+            className: "rubberBand animated"
+        });
+        e.preventDefault();
         $("#tableID input").each(function (e) {
             const table = document.getElementById("tableID");
             let common_fieldClass = document.getElementsByClassName("cfID");
@@ -401,7 +387,8 @@ function generateManifestTemplate(event) {
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
     const xhr = new XMLHttpRequest();
-    const manifest_type = $('#manifestType').combobox('selectedItem').value;
+    const manifest_type = document.querySelector('#manifestType').value;
+    ;
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
@@ -445,32 +432,33 @@ function generateManifestTemplate(event) {
     }));
 }
 
-function showWizard(manifest_type) {
+function showWizardBasedOnManifestType(manifest_type) {
+    let manifestTypeID = document.getElementById('manifestType')
     $("#modal-placeholder").modal("show");
     $('#manifest-wizard').wizard();
     // Automatically navigate to step 2 when the modal is launched
     // since step 1 is about selecting the manifest which has been done indirectly
     $('#manifest-wizard').wizard('selectedItem', {step: 2});
     $("#tableID tbody tr").remove(); // Remove all existing rows from the table
-    document.getElementById('numberOfSamples').value = '1'; // Preload with default number of samples
+    document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
     $('.btn-prev').hide();
+
     switch (manifest_type) {
         case "asg":
-            $('#manifestType').combobox('selectByIndex', '0'); // Preload with "ASG" manifest type
+            manifestTypeID.selectedIndex = 0; // Preload with "ASG" manifest type
             break;
         case "dtol":
-            $('#manifestType').combobox('selectByIndex', '1'); // Preload with "DTOL" manifest type
+            manifestTypeID.selectedIndex = 1; // Preload with "DTOL" manifest type
             break;
         case "erga":
-            $('#manifestType').combobox('selectByIndex', '2'); // Preload with "ERGA" manifest type
+            manifestTypeID.selectedIndex = 2; // Preload with "ERGA" manifest type
             break;
         case "env":
-            $('#manifestType').combobox('selectByIndex', '3'); // Preload with "ENV" manifest type
+            manifestTypeID.selectedIndex = 3; // Preload with "ENV" manifest type
             break;
 
         default:
-            $('#manifestType').combobox('selectByIndex', '0'); // Preload with "ASG" manifest type as default
-
+            manifestTypeID.selectedIndex = 0;// Preload with "ASG" manifest type as default
             break;
     }
 

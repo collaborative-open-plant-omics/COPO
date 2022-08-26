@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block content %}
-    <!--suppress ALL -->
     <p style="  display: inline-block;vertical-align: middle;margin: 10px 0;">
         Current Tree of Life Manifests </p>
 
@@ -40,7 +39,7 @@
 
                 <td><i style="color: rgb(22, 171, 57)" class="fa fa-arrow-circle-o-down fa-2x"
                        title='Launch DTOL_MANIFEST_v2.4 wizard'
-                       onclick="showWizard('dtol')"
+                       onclick="showWizardBasedOnManifestType('dtol')"
                        aria-hidden="true"></i>
                 </td>
             </tr>
@@ -52,7 +51,7 @@
                 </td>
 
                 <td><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x"
-                       title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizard('asg')"
+                       title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizardBasedOnManifestType('asg')"
                        aria-hidden="true"></i>
                 <td>
 
@@ -64,7 +63,7 @@
                 </td>
                 <td><i style="color: rgb(230, 26, 141)" class="fa fa-arrow-circle-o-down fa-2x"
                        title='Launch ERGA_MANIFEST_v2.4 wizard'
-                       onclick="showWizard('erga')"></i>
+                       onclick="showWizardBasedOnManifestType('erga')"></i>
                 </td>
 
             </tr>
@@ -79,7 +78,7 @@
             </tbody>
         </table>
     </div>
-
+    {#  Modal wizard starts #}
     <div class="modal fade fuelux" id="modal-placeholder" data-backdrop="static" data-keyboard="false" tabindex="-1"
          role="dialog"
          aria-labelledby="modalLabel">
@@ -115,18 +114,13 @@
                                 <div class="step-pane" data-step="1">
                                     <div class="well">
                                         <label>Choose the type of manifest that you would like to describe</label>
-                                        <div id="manifestType" class="input-append dropdown combobox">
-                                            <input class="span2" type="text"/>
-                                            <button type="button" class="btn" data-toggle="dropdown"><i
-                                                    class="caret"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li data-value="asg"><a href="#">ASG</a></li>
-                                                <li data-value="dtol"><a href="#">DTOL</a></li>
-                                                <li data-value="erga"><a href="#">ERGA</a></li>
-                                                <li data-value="env"><a href="#">ENV</a></li>
-                                            </ul>
-                                        </div>
+                                        <select id="manifestType" class="form-control">
+                                            <option value="asg">ASG</option>
+                                            <option value="dtol">DTOL</option>
+                                            <option value="erga">ERGA</option>
+                                            <option value="env">ENV</option>
+                                        </select>
+
                                     </div>
                                 </div>
                                 <div class="step-pane" data-step="2">
@@ -135,7 +129,12 @@
                                         <br>
                                         <input class="form-control" id="numberOfSamples"
                                                type="number" value="1" min="1"
-                                               max="10000"/>
+                                               max="10000" required
+                                               onkeypress="return event.keyCode === 8 || event.charCode > 48
+                                               && event.charCode <= 57"/>
+                                        {#                                               onkeypress="return event.keyCode === 8 || event.charCode >= 48#}
+                                        {#                                               && event.charCode <= 57"#}
+                                        {#                                               onchange="this.value = Math.floor(Math.max(this.value,1))"#}
                                     </div>
 
                                     <div class="well">
@@ -175,8 +174,8 @@
                             </button>
 
                             <button id='nextBtn' type="button" class="btn btn-sm btn-success btn-next"
-                                    data-last="Finish">
-                                Next&nbsp;<i id="rightIcon" class="fa fa-arrow-right"></i>
+                                    data-last="Finish ">
+                                Next<i id="rightIcon" class="fa fa-arrow-right" style="padding-left: 5px"></i>
                             </button>
 
                         </div>
@@ -188,7 +187,7 @@
             </div>
         </div>
     </div>
-
+    {#  Modal wizard ends #}
 {% endblock %}
 
 {% block headblock %}

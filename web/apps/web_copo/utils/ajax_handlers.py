@@ -2065,4 +2065,7 @@ def validate_common_input_value(request):
         return HttpResponse(json.dumps({'response': isInputValueValid}))
     else:
         print('4')
+        notify_frontend(data={"profile_id": profile_id}, msg="Error occured: " + error_message,
+                        action="info",
+                        html_id="sample_info")
         return HttpResponseBadRequest(json.dumps({'response': isInputValueValid, 'error': error_message}))
