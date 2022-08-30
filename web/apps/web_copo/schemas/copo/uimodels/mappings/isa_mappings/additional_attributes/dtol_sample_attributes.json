@@ -2152,7 +2152,7 @@
   },
   {
     "help_tip": "Proxy voucher ID",
-    "required": "true",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -2277,5 +2277,4 @@
     "show_in_table": true,
     "dwc": ""
   }
-
 ]
