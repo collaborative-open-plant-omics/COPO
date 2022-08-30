@@ -130,7 +130,7 @@ class ProcessValidationQueue:
                                     action="error",
                                     html_id="sample_info")
                     ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
-
+                    return False
                 else:
                     # set validation queue taxon flag to complete
                     ValidationQueue().set_taxon_validation_complete(qm["_id"])
