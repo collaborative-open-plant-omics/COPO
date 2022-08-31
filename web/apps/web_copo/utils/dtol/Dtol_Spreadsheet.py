@@ -133,7 +133,7 @@ class DtolSpreadsheet:
             self.type = "DTOL_ENV"
         else:
             self.type = "DTOL"
-
+        '''
         # create list of required validators
         required = dict(globals().items())["required_validators"]
         for element_name in dir(required):
@@ -152,7 +152,7 @@ class DtolSpreadsheet:
             element = getattr(optional, element_name)
             if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.taxon_field_validators.append(element)
-
+        '''
     def loadManifest(self, m_format):
 
         if self.profile_id is not None:
