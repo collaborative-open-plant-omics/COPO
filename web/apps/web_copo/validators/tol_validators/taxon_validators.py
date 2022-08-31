@@ -10,6 +10,18 @@ whole_used_specimens = set()
 regex_human_readable = ""
 
 
+# validations are run in alphabetic order of class name
+class ATaxonIdMustBeIntegerValidator(Validator):
+    def validate(self):
+        for index, row in self.data.iterrows():
+            try:
+                row.get("TAXON_ID", "")
+            except ValueError as e:
+                self.errors.append(msg["validation_msg_string_in_taxon_id"] % (str(index + 1)))
+                self.flag = False
+        return self.errors, self.warnings, self.flag
+
+
 class DtolEnumerationValidator(Validator):
 
     def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
@@ -31,16 +43,21 @@ class DtolEnumerationValidator(Validator):
         taxon_id_list = list(taxon_id_set)
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
-                notify_frontend(data={"profile_id": self.profile_id},
-                                msg="Checking Taxonomic ID: " + str(taxon),
-                                action="info",
-                                html_id="sample_info")
-                # check if taxon is submittable
-                ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
-                if ena_taxon_errors:
-                    self.errors += ena_taxon_errors
+                try:
+                    int(taxon)
+                    notify_frontend(data={"profile_id": self.profile_id},
+                                    msg="Checking Taxonomic ID: " + str(taxon),
+                                    action="info",
+                                    html_id="sample_info")
+                    # check if taxon is submittable
+                    ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
+                    if ena_taxon_errors:
+                        self.errors += ena_taxon_errors
+                        self.flag = False
+                except ValueError as e:
                     self.flag = False
-
+                    self.errors.append("Non integer value detected in TAXON_ID column")
+                    return self.errors, self.warnings, self.flag
         if any(id for id in taxon_id_list):
             i = 0
             while i < len(taxon_id_list):

@@ -98,7 +98,7 @@ def filter_for_API(sample_list, add_all_fields=False):
         for k, v in s.items():
             # check if there is a traditional right embargo
             if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
-                if v in ["N", "n", False, ""]:
+                if v in ["N", "n", False, ""] or s.get("tol_project") not in ["ERGA", "erga"]:
                     # we need not do anything, since no rights apply
                     s_out[k] = v
                 else:
@@ -135,11 +135,14 @@ def filter_for_API(sample_list, add_all_fields=False):
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
         # iterate through fields to be exported and add them in blank if not present in the sample object
-        if add_all_fields and not embargoed:
-            for k in export:
-                if k not in s_out.keys():
-                    s_out[k] = ""
-            out.append(s_out)
+        if not embargoed:
+            if add_all_fields:
+                for k in export:
+                    if k not in s_out.keys():
+                        s_out[k] = ""
+                out.append(s_out)
+            else:
+                out.append(s_out)
     return out
 
 
@@ -147,7 +150,6 @@ def get_manifests(request):
     # get all manifests of dtol samples
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
-
 
 def get_all_manifest_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
@@ -180,7 +182,7 @@ def get_samples_in_manifest(request, manifest_id):
 
 def get_sample_statuses_for_manifest(request, manifest_id):
     sample_list = Sample().get_statuses_by_manifest_id(manifest_id)
-    out = filter_for_API(sample_list)
+    out = filter_for_API(sample_list, add_all_fields=False)
     return finish_request(out)
 
 
