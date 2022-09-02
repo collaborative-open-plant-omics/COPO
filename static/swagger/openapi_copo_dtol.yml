@@ -448,6 +448,38 @@ paths:
         "200":
           description: id of queued validation report to be queried
 
+  /manifest/validate/report/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+      consumes:
+        - application/x-www-form-urlencoded
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - validation_report_id
+              properties:
+                validation_report_id:
+                  type: string
+      responses:
+        "200":
+          description: status and/or validation errors for given manifest validation
+
+  /manifest/validations/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+      responses:
+        "200":
+          description: validations for authorised user
+
 components:
 
   securitySchemes:

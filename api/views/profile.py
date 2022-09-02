@@ -27,5 +27,5 @@ class APIGetProfilesForUser(APIView):
         existing_profiles = Profile().get_collection_handle().find({"user_id": uid})
         out = list()
         for el in existing_profiles:
-            out.append({"title": el["title"], "_id": str(el["_id"])})
+            out.append({"title": el["title"], "type": el["type"], "_id": str(el["_id"])})
         return Response(out)

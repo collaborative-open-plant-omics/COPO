@@ -3,7 +3,7 @@ __author__ = 'felix.shaw@tgac.ac.uk - 22/10/15'
 import copy
 import os
 from datetime import datetime, timezone, date
-
+import re
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -2425,6 +2425,27 @@ class ENAFileTransferObject(DAComponent):
 class APIValidationReport(DAComponent):
     def __init__(self, profile_id=None):
         super(APIValidationReport, self).__init__(profile_id, "apiValidationReport")
+
+    def setComplete(self, report_id):
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "complete"}})
+
+    def setRunning(self, report_id):
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "running"}})
+
+    def setFailed(self, report_id, msg):
+        # make tuple list of text replacements for html elements
+        replacements = list()
+        replacements.append(("<h4>", "\r"))
+        replacements.append(("</h4>", ""))
+        replacements.append(("<ol>", ""))
+        replacements.append(("</ol>", ""))
+        replacements.append(("<li>", "\r"))
+        replacements.append(("</li>", ""))
+        replacements.append(("<strong>", ""))
+        replacements.append(("</strong>", ""))
+        for el in replacements:
+            msg = msg.replace(el[0], el[1])
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "failed", "content": msg}})
 
 
 def is_number(s):

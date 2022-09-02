@@ -9,7 +9,7 @@ from django.http import HttpResponse
 import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from web.apps.web_copo.utils.ajax_handlers import sample_spreadsheet
-from dal.copo_da import Sample, Source, Submission, APIValidationReport
+from dal.copo_da import Sample, Source, Submission, APIValidationReport, Profile
 from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 from rest_framework.views import APIView
@@ -63,7 +63,6 @@ def format_date(input_date):
 
 
 def filter_for_API(sample_list, add_all_fields=False):
-
     # add field(s) here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
@@ -151,6 +150,7 @@ def get_manifests(request):
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
 
+
 def get_all_manifest_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
     # dates must be ISO 8601 formatted
@@ -199,10 +199,12 @@ def get_by_biosample_ids(request, biosample_ids):
         out = filter_for_API(sample)
     return finish_request(out)
 
+
 def get_num_dtol_samples(request):
     samples = Sample().get_all_dtol_samples()
     number = len(samples)
     return HttpResponse(str(number))
+
 
 def get_project_samples(request, project):
     projectlist = project.split(",")
@@ -214,6 +216,7 @@ def get_project_samples(request, project):
     if samples:
         out = filter_for_API(samples)
     return finish_request(out)
+
 
 def get_by_copo_ids(request, copo_ids):
     # get sample by COPO id if known
@@ -230,6 +233,7 @@ def get_by_copo_ids(request, copo_ids):
         else:
             return HttpResponse(status=400, content="InvalidId found in request")
     return finish_request(out)
+
 
 def get_by_field(request, dtol_field, value):
     # generic method to return all samples where given "dtol_field" matches "value"
@@ -339,8 +343,29 @@ def get_all(request):
 class APIValidateManifest(APIView):
 
     def post(self, request):
-        sample_spreadsheet(request)
         id = APIValidationReport().get_collection_handle().insert({"profile_id": request.POST["profile_id"], "status": "pending", "content": "",
-                                                                   "submitted": datetime.datetime.utcnow()})
+                                                                   "submitted": datetime.datetime.utcnow(), "user_id": request.user.id})
+        sample_spreadsheet(request, report_id=id)
+
         out = {"validation_report_id": str(id)}
         return Response(out)
+
+
+class APIGetManifestValidationReport(APIView):
+    def post(self, request):
+        uid = request.user.id
+        validation_id = request.POST.get("validation_report_id")
+        v_record = APIValidationReport().get_record(validation_id)
+        profile_record = Profile().get_record(v_record["profile_id"])
+        if profile_record["user_id"] == uid:
+            out = {"status": v_record["status"], "content": v_record["content"], "submitted": v_record["submitted"]}
+        else:
+            out = {"content": "User not permitted to view resource"}
+        return Response(out)
+
+
+class APIGetUserValidations(APIView):
+    def post(self, request):
+        uid = request.user.id
+        v_records = APIValidationReport().get_collection_handle().find({"user_id": uid}, {"_id": 0})
+        return Response(list(v_records))

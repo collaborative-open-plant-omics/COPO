@@ -5,7 +5,7 @@ from django.urls import path, re_path
 from .annotate_views import search_all, post_annotations, handle_upload
 from .views import person, general, stats, profile
 from .views import sample as s
-from .views.sample import APIValidateManifest
+from .views.sample import APIValidateManifest, APIGetManifestValidationReport, APIGetUserValidations
 from django.views.decorators.csrf import csrf_exempt
 
 app_name = 'api'
@@ -24,6 +24,8 @@ dtol_api_patterns = [
     path('', general.forward_to_swagger),
     path('apiKey/', csrf_exempt(general.CustomAuthToken.as_view())),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
+    re_path(r'manifest/validations/', APIGetUserValidations.as_view(), name='/manifest/validate/report/'),
+    re_path(r'manifest/validate/report/', APIGetManifestValidationReport.as_view(), name='/manifest/validate/report/'),
     re_path(r'manifest/validate/', APIValidateManifest.as_view(), name='manifest/validate'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', s.get_samples_in_manifest, name='get_for_manifest'),
     re_path(r'manifest/', s.get_manifests, name='get_manifests'),

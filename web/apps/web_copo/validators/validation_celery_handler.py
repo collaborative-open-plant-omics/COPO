@@ -1,4 +1,4 @@
-from dal.copo_da import ValidationQueue, Profile, Sample
+from dal.copo_da import ValidationQueue, Profile, Sample, APIValidationReport
 from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, taxon_validators
 from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
@@ -61,6 +61,8 @@ class ProcessValidationQueue:
         queued_manifests = ValidationQueue().get_queued_manifests()
 
         for qm in queued_manifests:
+            if not qm["report_id"] == "":
+                APIValidationReport().setRunning(qm["report_id"])
             self.sample_data = pickle.loads(qm["manifest_data"])
             self.profile_id = qm["profile_id"]
             self.file_name = qm["file_name"]
@@ -130,6 +132,8 @@ class ProcessValidationQueue:
                                     action="error",
                                     html_id="sample_info")
                     ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
+                    if not qm["report_id"] == "":
+                        APIValidationReport().setFailed(qm["report_id"], msg=msg)
                     return False
                 else:
                     # set validation queue taxon flag to complete
@@ -152,6 +156,8 @@ class ProcessValidationQueue:
                                 action="error",
                                 html_id="sample_info")
                 ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
+                if not qm["report_id"] == "":
+                    APIValidationReport().setFailed(qm["report_id"], msg=msg)
                 return False
 
             """
@@ -205,6 +211,8 @@ class ProcessValidationQueue:
                                     action="error",
                                     html_id="sample_info")
                     ValidationQueue().set_schema_validation_error(qm["_id"], err=msg)
+                    if not qm["report_id"] == "":
+                        APIValidationReport().setFailed(qm["report_id"], msg=msg)
                     return False
 
             except Exception as e:
@@ -214,12 +222,15 @@ class ProcessValidationQueue:
                                 action="info",
                                 html_id="sample_info")
                 ValidationQueue().set_schema_validation_error(qm["_id"], err=msg)
+                if not qm["report_id"] == "":
+                    APIValidationReport().setFailed(qm["report_id"], msg=msg)
                 return False
 
             # if we get here we have a valid spreadsheet
             # so set validation queue taxon flag to complete
             ValidationQueue().set_schema_validation_complete(qm["_id"])
-
+            if not qm["report_id"] == "":
+                APIValidationReport().setComplete(qm["report_id"])
             if self.isupdate:
                 self.make_update_notifications(qm)
             else:
