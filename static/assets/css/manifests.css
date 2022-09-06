@@ -25,12 +25,26 @@
     background-color: #D6EEEE;
 }
 
+.autoModal.modal .modal-body {
+    max-height: 100%;
+}
+
+
 .truncateLongTexts {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 1px;
     width: 250px
+}
+
+/* Center the form div*/
+.centerFormDiv {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /*.hoverTable tr {*/

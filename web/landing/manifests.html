@@ -108,66 +108,70 @@
                             </ul>
                         </div>
 
-                        <form id="wizardForm" method="post" class="form-horizontal">
-                            {% csrf_token %}
-                            <div class="step-content">
-                                <div class="step-pane" data-step="1">
-                                    <div class="well">
-                                        <label>Choose the type of manifest that you would like to describe</label>
-                                        <select id="manifestType" class="form-control">
-                                            <option value="asg">ASG</option>
-                                            <option value="dtol">DTOL</option>
-                                            <option value="erga">ERGA</option>
-                                            <option value="env">ENV</option>
-                                        </select>
+                        {#                        <form id="wizardForm" method="post" class="form-horizontal">#}
+                        {#                            {% csrf_token %}#}
+                        <div class="step-content">
+                            <div class="step-pane" data-step="1">
+                                <div class="well">
+                                    <label>Choose the type of manifest that you would like to describe</label>
+                                    <select id="manifestType" class="form-control">
+                                        <option value="asg">ASG</option>
+                                        <option value="dtol">DTOL</option>
+                                        <option value="erga">ERGA</option>
+                                        <option value="env">ENV</option>
+                                    </select>
 
-                                    </div>
                                 </div>
-                                <div class="step-pane" data-step="2">
-                                    <div class="well">
-                                        <label>How many organisms would you like to describe?</label>
-                                        <br>
-                                        <input class="form-control" id="numberOfSamples"
-                                               type="number" value="1" min="1"
-                                               max="10000" required
-                                               onkeypress="return event.keyCode === 8 || event.charCode > 48
+                            </div>
+                            <div class="step-pane" data-step="2">
+                                <div class="well">
+                                    <label>How many organisms would you like to describe?</label>
+                                    <br>
+                                    <input class="form-control" id="numberOfSamples"
+                                           type="number" value="1" min="1"
+                                           max="10000" required
+                                           onkeypress="return event.keyCode === 8 || event.charCode > 48
                                                && event.charCode <= 57"/>
-                                        {#                                               onkeypress="return event.keyCode === 8 || event.charCode >= 48#}
-                                        {#                                               && event.charCode <= 57"#}
-                                        {#                                               onchange="this.value = Math.floor(Math.max(this.value,1))"#}
-                                    </div>
+                                    {#                                               onkeypress="return event.keyCode === 8 || event.charCode >= 48#}
+                                    {#                                               && event.charCode <= 57"#}
+                                    {#                                               onchange="this.value = Math.floor(Math.max(this.value,1))"#}
+                                </div>
 
-                                    <div class="well">
-                                        <label>Are there common values for these fields?&nbsp;
-                                            <i id="info" class="fa fa-info-circle" aria-hidden="true"></i>
+                                <div class="well">
+                                    <label>Are there common values for these fields?&nbsp;
+                                        <i id="info" class="fa fa-info-circle" aria-hidden="true"></i>
 
-                                        </label>
-                                        <br>
+                                    </label>
+                                    <br>
 
-                                        <select class="form-control" id="commonfields"
-                                                onchange="insertTableRow(this)"></select>
-
-                                    </div>
-
-                                    <div id="tableDiv">
-                                        <table id="tableID">
-                                        </table>
-                                    </div>
-
+                                    <select class="form-control" id="commonfields"
+                                            onchange="insertFormDiv(this)"></select>
 
                                 </div>
 
-                                <div class="step-pane" data-step="3">
-                                    <p style="text-align:center; font-size: medium">The manifest template is ready to be
-                                        downloaded. Click the finish button to download it.
-                                    </p>
+                                {#                                    <div id="tableDiv">#}
+                                {#                                        <table id="tableID">#}
+                                {#                                        </table>#}
+                                {#                                    </div>#}
 
+                                <div id="formDiv">
+                                    <form id="formID"></form>
                                 </div>
 
 
                             </div>
 
-                        </form>
+                            <div class="step-pane" data-step="3">
+                                <p style="text-align:center; font-size: medium">The manifest template is ready to be
+                                    downloaded. Click the finish button to download it.
+                                </p>
+
+                            </div>
+
+
+                        </div>
+
+                        {#                        </form>#}
                         <div class="actions">
                             <button type="button" class="btn btn-sm btn-primary btn-prev">
                                 <i class="fa fa-arrow-left"></i> Prev

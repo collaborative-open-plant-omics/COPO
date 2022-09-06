@@ -123,10 +123,9 @@ function get_common_fields_handler() {
 
 }
 
-function get_common_value_dropdown_list_handler(common_field_cell, common_field, value_input_cell) {
-    // Get dropdown list fields from manifest schema based on the common field and/ manifest type
+function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
+    // Get dropdown list fields from manifest schema based on the common field and/manifest type
     const manifest_type = document.querySelector('#manifestType').value;
-    ;
 
     $.ajax({
         type: "GET",
@@ -138,12 +137,12 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
         }
     }).done(function (data) {
         if (data !== [] && data.length !== 0) {
-            // common_field_cell.style.width = '150px'; // Add space between the value and field
-            value_input_cell.style.width = '200px';// Set width of the select tag field
             const value_input = document.createElement('select');
             value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
+            value_input.setAttribute('aria-describedby', "commonValueStatus");
             value_input.setAttribute('required', '')
+            value_input.style.width = '200px';// Set width of the select tag field
 
             let option = [];
             $(value_input).empty();
@@ -152,29 +151,28 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 option = data[i];
                 $(value_input).append('<option value="' + option + '">' + option + '</option>');
             }
-            value_input_cell.appendChild(value_input);
+            commonValueDiv.appendChild(value_input);
         } else {
-            // common_field_cell.style.width = '250px'; // Add space between the value and field
             let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
-            //Get Input value
+            // Create input tag
             const value_input = document.createElement('input');
-            // value_input.setAttribute('id', "commonvalueID");
             value_input.setAttribute('class', 'form-control');
-            value_input.setAttribute('required', '')
+            value_input.setAttribute('required', '');
+            value_input.setAttribute('aria-describedby', "commonValueStatus");
 
             if (date_fields.includes(common_field)) {
                 value_input.setAttribute('type', 'text');
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('placeholder', "Select date");
+                // Date is based on class instead of ID due to jQuery and FuelUX conflicts
                 $(value_input).addClass('datepicker');
 
-                // value_input_cell.setAttribute('class', 'datepicker');
+
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
-                // and does not use the one defined by fuelux
-                // $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is defined
+                // and does not use the one defined by FuelUX
                 $(".datepicker").datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
-                value_input_cell.appendChild(value_input);
+                commonValueDiv.appendChild(value_input);
                 // The "hasDatepicker" class triggers the datepicker function so it's removed
                 // from a previous date field so that it can be displayed on following date fields
                 $(".datepicker").filter('.datepicker').removeClass('hasDatepicker').datepicker({
@@ -187,13 +185,14 @@ function get_common_value_dropdown_list_handler(common_field_cell, common_field,
                 value_input.setAttribute('min', "0:00")
                 value_input.setAttribute('max', "24:00")
 
-                value_input_cell.appendChild(value_input);
+                commonValueDiv.appendChild(value_input);
             } else {
                 value_input.setAttribute('id', "commonvalueID");
                 value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
+                value_input.setAttribute('value', "");
 
-                value_input_cell.appendChild(value_input);
+                commonValueDiv.appendChild(value_input);
             }
         }
 
@@ -220,56 +219,166 @@ function removeOptionFromCommonFieldDropdownList(commonField) {
     }
 }
 
-function insertTableRow(common_field) {
-    const tableDiv = document.getElementById("tableDiv");
-    const table = document.getElementById("tableID");
+function insertFormDiv(common_field) {
+    const formDiv = document.getElementById("formDiv");
+    // $(formDiv).addClass('centerFormDiv');
 
-    table.style.margin = "auto"; // Centre the table
+    // Create a form tag
+    const form = document.getElementById("formID");
+    $(form).addClass('form-horizontal'); // form-horizontal form-inline
 
-    $(table).addClass('hoverTable');
 
-    // Insert a row into a table
-    const row = table.insertRow();
-    // Common field cell
-    let common_field_cell = row.insertCell();
-    common_field_cell.innerHTML = common_field.value;
-    common_field_cell.setAttribute('class', 'cfID');
+    // Create common field div
+    const commonFieldDiv = document.createElement('div');
+    commonFieldDiv.setAttribute('class', 'form-group has-feedback');
+    commonFieldDiv.setAttribute('id', `${common_field.value}_div`);
+
+    // Error message field cell
+    const error_message_field = document.createElement('textarea');
+    error_message_field.setAttribute('id', "errorMessageID");
+
+    error_message_field.setAttribute('readonly', "");
+    error_message_field.setAttribute('class', 'form-control');
+    error_message_field.setAttribute('rows', '2');
+    error_message_field.setAttribute('wrap', 'soft');
+    error_message_field.innerHTML = "";
+    error_message_field.style.overflow = 'hidden';
+    error_message_field.style.height = '48px';
+    error_message_field.style.width = '211px';
+    error_message_field.style.maxWidth = '270px';
+    error_message_field.style.marginLeft = '243px';
+    error_message_field.style.marginBottom = '10px';
+    error_message_field.style.resize = 'none';
+    error_message_field.style.display = 'none' // Hide textarea tag
+    commonFieldDiv.appendChild(error_message_field);
+
+    // Common field; Create common field label
+    const commonFieldLabel = document.createElement('label');
+    commonFieldLabel.innerHTML = common_field.value;
+    commonFieldLabel.setAttribute('class', 'cfID control-label col-sm-6');
+    commonFieldLabel.setAttribute('for', "commonValueID")
+    commonFieldLabel.style.paddingRight = '20px'; // Add space between the value field and field name
+    commonFieldLabel.style.marginLeft = '10px';
 
     // Truncate long field names
-    common_field_cell.style.whiteSpace = 'nowrap';
-    common_field_cell.style.textOverflow = 'ellipsis';
-    common_field_cell.style.overflow = 'hidden';
-    common_field_cell.style.maxWidth = '220px';
-    common_field_cell.style.paddingRight = '20px'; // Add space between the value field and field name
+    commonFieldLabel.style.whiteSpace = 'nowrap';
+    commonFieldLabel.style.textOverflow = 'ellipsis';
+    commonFieldLabel.style.overflow = 'hidden';
+    commonFieldLabel.style.maxWidth = '220px';
+    commonFieldDiv.appendChild(commonFieldLabel);
 
-    // Input value cell
-    let value_input_cell = row.insertCell();
+    // Create common value div
+    const commonValueDiv = document.createElement('div');
+    commonValueDiv.setAttribute('class', 'col-sm-5');
+    commonFieldDiv.appendChild(commonValueDiv);
 
-    get_common_value_dropdown_list_handler(common_field_cell, common_field.value, value_input_cell)
+    // Value input field
+    get_common_value_dropdown_list_handler(common_field.value, commonValueDiv)
 
-    // Delete icon cell
-    let delete_icon_cell = row.insertCell();
+    // Span tags
+    // const span_tag1 = document.createElement('span');
+    // span_tag1.setAttribute('class', 'glyphicon glyphicon-ok form-control-feedback');
+    // span_tag1.setAttribute('aria-hidden', 'true');
+    // commonValueDiv.appendChild(span_tag1);
+    //
+    // const span_tag2 = document.createElement('span');
+    // span_tag2.setAttribute('id', "commonValueStatus");
+    // span_tag2.setAttribute('class', "sr-only");
+    // commonValueDiv.appendChild(span_tag2);
+
+    // Delete icon tag
     const deleteIcon = document.createElement('i');
     deleteIcon.setAttribute('type', 'button');
-    deleteIcon.setAttribute('onclick', 'removeTableRow(this)');
+    deleteIcon.setAttribute('onclick', 'removeFormDiv(this)');
     deleteIcon.setAttribute('class', "fa fa-trash-o");
     deleteIcon.setAttribute('title', "Remove from manifest");
-    deleteIcon.style.marginLeft = "10px"; // Create space between the icon and the input value cell
-    $(delete_icon_cell).css({'color': 'red'});
-    delete_icon_cell.appendChild(deleteIcon);
+    deleteIcon.style.marginTop = "7px"; // Center icon
+    $(deleteIcon).css({'color': 'red'});
+    commonFieldDiv.appendChild(deleteIcon);
+
+    // Append the form to the div
+    $(form).append(commonFieldDiv);
+    formDiv.appendChild(form);
 
     // Remove selected common field from the dropdown menu
     removeOptionFromCommonFieldDropdownList(common_field.value);
 
-    let number_of_rows = table.rows.length
+    // Make the form scrollable once it contains at least 6 divs
+    let divs_in_form = document.querySelectorAll('#formID .form-group');
 
-    // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
-    // once it has at least 10 rows within it
-    if (number_of_rows >= 6) {
-        $(tableDiv).css({'overflow': 'scroll'});
-        $(tableDiv).css({'height': '200px'});
-        $(tableDiv).css({'margin-right': "20px"}); // Set distance between delete icon and scroll once table becomes scrollable
+    if (divs_in_form.length >= 6) {
+        $(formDiv).css({'overflow': 'scroll'});
+        $(formDiv).css({'height': '200px'});
+        $(formDiv).css({'margin-right': "20p.lengthx"}); // Set distance between delete icon and scroll once table becomes scrollable
     }
+
+    // const tableDiv = document.getElementById("tableDiv");
+    // const table = document.getElementById("tableID");
+
+
+    // table.style.margin = "auto"; // Centre the table
+    //
+    // $(table).addClass('hoverTable');
+    //
+    // // Error message row as a hidden value
+    // const row1 = table.insertRow();
+    // // Insert an empty cell so that the input field cell with the error message
+    // // can be float-right/pull-right in the table
+    // let empty_cell = row1.insertCell();
+    // empty_cell.style.maxWidth = '220px';
+    //
+    // // Error message field cell
+    // let error_message_cell = row1.insertCell();
+    // const error_message_input = document.createElement('input');
+    // error_message_input.setAttribute('type', 'hidden');
+    // error_message_input.setAttribute('id', "errorMessageID");
+    // error_message_input.setAttribute('value', "");
+    // error_message_input.setAttribute('class', 'form-control');
+    // error_message_cell.appendChild(error_message_input);
+    //
+    // // Common field and common value row
+    // // Insert a row into a table
+    // const row2 = table.insertRow();
+    // // Common field cell
+    // let common_field_cell = row2.insertCell();
+    // common_field_cell.innerHTML = common_field.value;
+    // common_field_cell.setAttribute('class', 'cfID');
+    //
+    // // Truncate long field names
+    // common_field_cell.style.whiteSpace = 'nowrap';
+    // common_field_cell.style.textOverflow = 'ellipsis';
+    // common_field_cell.style.overflow = 'hidden';
+    // common_field_cell.style.maxWidth = '220px';
+    // common_field_cell.style.paddingRight = '20px'; // Add space between the value field and field name
+    //
+    // // Input value cell
+    // let value_input_cell = row2.insertCell();
+    //
+    // get_common_value_dropdown_list_handler(common_field_cell, common_field.value, value_input_cell)
+    //
+    // // Delete icon cell
+    // let delete_icon_cell = row2.insertCell();
+    // const deleteIcon = document.createElement('i');
+    // deleteIcon.setAttribute('type', 'button');
+    // deleteIcon.setAttribute('onclick', 'removeFormDiv(this)');
+    // deleteIcon.setAttribute('class', "fa fa-trash-o");
+    // deleteIcon.setAttribute('title', "Remove from manifest");
+    // deleteIcon.style.marginLeft = "10px"; // Create space between the icon and the input value cell
+    // $(delete_icon_cell).css({'color': 'red'});
+    // delete_icon_cell.appendChild(deleteIcon);
+    //
+    // // Remove selected common field from the dropdown menu
+    // removeOptionFromCommonFieldDropdownList(common_field.value);
+    //
+    // let number_of_rows = table.rows.length
+    //
+    // // Add a scroll to the <div></div> tag containing the table so that the table can be scrollable
+    // // once it has at least 10 rows within it
+    // if (number_of_rows >= 6) {
+    //     $(tableDiv).css({'overflow': 'scroll'});
+    //     $(tableDiv).css({'height': '200px'});
+    //     $(tableDiv).css({'margin-right': "20px"}); // Set distance between delete icon and scroll once table becomes scrollable
+    // }
 }
 
 function sortOptionsList(selectTagIDName) {
@@ -283,24 +392,32 @@ function sortOptionsList(selectTagIDName) {
     selectTagID.val(selectedValue); // Set cached selected value
 }
 
-function removeTableRow(row) {
-    const tableDiv = document.getElementById("tableDiv");
-    const table = document.getElementById("tableID");
-    let number_of_rows = table.rows.length
-    // Find the cell value of the common field name
-    let common_field = $(row).closest('tr').find('.cfID').text();
-    // Append the common field name to the dropdown list now that it has be removed from the table
+function removeFormDiv(div) {
+    const formDiv = document.getElementById("formDiv");
+    let divs_in_form = document.querySelectorAll('#formID .form-group');
+
+    // Get the common field name from the div within the form
+    let common_field = $(div).closest('div .form-group').find('.cfID').text();
+
+    // Append the common field name to the dropdown list now that it has be removed from the form
     $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
-    $(row).closest('tr').remove(); // Remove row
-    sortOptionsList('#commonfields'); // Sort the options within the select tag
-    // Once the table is less than 6 rows, retain the initial height of the table/modal
-    // by removing the css that were added to make the table scrollable when more than or equal to 6 rows
-    // were present in the table
-    if (number_of_rows < 6) {
-        $(tableDiv).css({'overflow': ''});
-        $(tableDiv).css({'height': ''});
-        $(tableDiv).css({'margin-right': ""});
+    $(div).closest('div').remove(); // Remove div
+
+    // Sort the options within the common fields' dropdownlist/select tag
+    sortOptionsList('#commonfields');
+
+    // Once the form is less than 6 rows, retain the initial height of the form/modal
+    // by removing the css that were added to make the form tag div scrollable
+    // when more than or equal to 6 rows were present in the form
+    if (divs_in_form.length < 6) {
+        $(formDiv).css({'overflow': ''});
+        $(formDiv).css({'height': ''});
+        $(formDiv).css({'margin-right': ""});
     }
+}
+
+function isPlaceholderVisible(selector) {
+    return !!document.querySelector(selector + ':placeholder-shown');
 }
 
 function validateCommonInputValue(e, data) {
@@ -310,76 +427,162 @@ function validateCommonInputValue(e, data) {
         // Prevents proceeding to the next step
         // Show alert when clicking "Next" button without choosing a common field and inputting tis value
         bootbox.alert({
-            message: "Choose a common field and enter or select its value before proceeding!",
+            message: "Choose a common field then, enter or select its value before proceeding!",
             className: "rubberBand animated"
         });
         e.preventDefault();
-        $("#tableID input").each(function (e) {
-            const table = document.getElementById("tableID");
-            let common_fieldClass = document.getElementsByClassName("cfID");
-            let common_field = common_fieldClass[e].innerHTML
-            let common_value = this.value
 
-            if (common_value === '') {
-                console.log("Common value cannot be empty ");
-                this.style.border = "4px solid";
-                this.style.borderColor = "red"
-                this.setAttribute('title', 'Common value cannot be empty');
+        // Make the form scrollable once it contains at least 6 divs
+        $("#formID .form-group").each(function (e) {
+                console.log('Div ' + e + ': ', this.innerHTML)
+                console.log('Div ' + e + ': textarea value: ', this.innerHTML)
 
-                // Insert a row into a table
-                // $(this).closest('tr').css({"border-color": "red"});
-                // $(this).closest('tr').css({"border": "4px solid"});
+                let errorMessageID = document.getElementById("errorMessageID");
+
+                if (isPlaceholderVisible('#common_valueID')){
+                    ${commonFieldDiv}.addClass('has-warning');
+                    ${errorMessageID}.removeClass('display');
+                    errorMessageID.innerHTML = "Field cannot be empty!"
+
+                } else {
+
+                }
+
+                let error_message = errorMessageID.value
+
+                let common_fieldClass = document.getElementsByClassName("cfID");
+                let common_field = common_fieldClass.innerHTML
+                let common_valueID = document.getElementById("commonValueID");
+                // let common_value = common_valueID.value
+                let common_value = common_valueID.innerHTML.includes('input') ? common_valueID.querySelector('input').value : common_valueID.querySelector('select').value;
 
 
-                // let validity_cell = row.insertCell();
-                // const invalidIcon = document.createElement('i');
-                // invalidIcon.setAttribute('title', "Common value cannot be empty ");
-                // invalidIcon.style.marginLeft = "10px"; // Create space between the icon and the delete icon cell
-                // $(validity_cell).css({'color': 'red'});
-                // validity_cell.appendChild(invalidIcon)
-            } else {
-
-                console.log("Common field: ", common_field);
+                console.log('Common field: ', common_field);
                 console.log('Common value: ', common_value);
 
-                // this.style.border = "";
-                // this.style.borderColor = "";
+                console.log('Error message: ', error_message);
 
-                $.ajax({
-                    type: "GET",
-                    url: "validate_common_input_value/",
-                    dataType: "json",
-                    data: {
-                        "common_field": common_field,
-                        "common_input_value": common_value
-                    }
-                }).done(function (data) {
-                    if (data['response']) {
-                        console.log('Success ', data['response'])
-                        $(this).style.border = ""; // "4px solid"
-                        $(this).style.borderColor = ""  // "green"
-                        // Navigate to the next step
-                        $('#manifest-wizard').wizard('next');
-
-                    } else {
-                        let error_message = data['error']
-                        console.log('Invalid: ', data['error'])
-                        $(this).style.border = "4px solid"; // "";
-                        $(this).style.borderColor = "green"; // "";
-                        $(this).setAttribute('title', `${error_message}`);
-                    }
-
-                }).fail(function (error) {
-                    console.log('Error:', error.message);
-
-                });
             }
+        );
 
 
-            // disable input if you want
-            //$("#"+id).prop('disabled', true);
-            //$('#manifest-wizard').wizard('next');
-        });
+        // $("#commonvalueID").closest("tr td").find('#errorMessageID').css({"color": "green", "border": "2px solid red"});
+        // $("#commonvalueID").closest("tr td").find('.cfID').css({"color": "red", "border": "2px solid red"});
+
+        // let errorMessageID = document.getElementById("errorMessageID");
+        // let error_message_value = errorMessageID.value
+
+        // let common_fieldClass = document.getElementsByClassName("cfID");
+        // let common_field = common_fieldClass.innerHTML
+        // let common_valueID = document.getElementById("commonValueID");
+        // let common_value = common_valueID.value
+
+        // console.log('Common field: ', common_field);
+        // console.log('Common value: ', common_value);
+        // console.log('Error message: ', error_message_value);
+        // console.log('Error message: ', error_message);
+
+        // $("#tableID tr:nth-child(n2)").each(function (e) {
+        //     console.log('Row ' + e + ': ', this.innerHTML)
+        // console.log('Row ' + e + '; Error message: ', this.innerHTML.data)
+        // console.log('Row ' + e + '; Common field: ', table.rows[e + 1].cells[0].innerHTML)
+        // console.log('Row ' + e + '; Common value: ', table.rows[e + 1].cells[1].querySelector('input').value)
+        // console.log(this.attr('id'))
+        // let errorMessageID = document.getElementById("errorMessageID");
+        // let error_message_value = errorMessageID[e].innerHTML ?? ''
+
+        // let common_fieldClass = document.getElementsByClassName("cfID");
+        // let common_field = common_fieldClass[e].innerHTML
+        //
+        //
+        // let common_valueID = document.getElementById("commonValueID");
+        // let common_value = common_valueID[e].value ?? ''; //common_valueID[e].value;//this.value
+
+        // console.log(e);
+        // const table = document.getElementById("tableID");
+
+
+        // Common_value is empty
+        // if (common_value == null || common_value === "") {
+        //     $(this).closest('tr').find('#errorMessageID').setAttribute('type', 'text');
+        //     this.closest('tr').find('#errorMessageID').val('Field cannot be empty!');
+        //      this.style.border = "4px solid";
+        //     this.style.borderColor = "red"
+        //  }
+
+        // let error_message_fieldID = document.getElementById("errorMessageID");
+        // let error_message = error_message_fieldID[e].value;
+
+        // console.log('Common field: ', common_field);
+        // console.log('Common value: ', common_value);
+        // console.log('Error message: ', error_message_value);
+        // console.log('Error message: ', error_message);
+
+
+        //
+        // if (common_value === '') {
+        //     console.log("Common value cannot be empty ");
+        //     this.style.border = "4px solid";
+        //     this.style.borderColor = "red"
+        //     this.setAttribute('title', 'Common value cannot be empty');
+        //
+        //     // Insert a row into a table
+        //     // $(this).closest('tr').css({"border-color": "red"});
+        //     // $(this).closest('tr').css({"border": "4px solid"});
+        //
+        //
+        //     // let validity_cell = row.insertCell();
+        //     // const invalidIcon = document.createElement('i');
+        //     // invalidIcon.setAttribute('title', "Common value cannot be empty ");
+        //     // invalidIcon.style.marginLeft = "10px"; // Create space between the icon and the delete icon cell
+        //     // $(validity_cell).css({'color': 'red'});
+        //     // validity_cell.appendChild(invalidIcon)
+        // } else {
+        //
+        //     console.log("Common field: ", common_field);
+        //     console.log('Common value: ', common_value);
+        //
+        //     // this.style.border = "";
+        //     // this.style.borderColor = "";
+        //
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "validate_common_input_value/",
+        //         dataType: "json",
+        //         data: {
+        //             "common_field": common_field,
+        //             "common_input_value": common_value
+        //         }
+        //     }).done(function (data) {
+        //         if (data['response']) {
+        //             console.log('Success ', data['response'])
+        //             $(this).style.border = ""; // "4px solid"
+        //             $(this).style.borderColor = ""  // "green"
+        //             // Navigate to the next step
+        //             $('#manifest-wizard').wizard('next');
+        //
+        //         } else {
+        //             let error_message = data['error']
+        //             console.log('Invalid: ', data['error'])
+        //             $(this).style.border = "4px solid"; // "";
+        //             $(this).style.borderColor = "green"; // "";
+        //             $(this).setAttribute('title', `${error_message}`);
+        //         }
+        //
+        //     }).fail(function (error) {
+        //         console.log('Error:', error.message);
+        //
+        //     });
+
+        // }
+
+
+        // disable input if you want
+        //$("#"+id).prop('disabled', true);
+        //$('#manifest-wizard').wizard('next');
+        // });
+
+
     }
 }
 
@@ -388,7 +591,7 @@ function generateManifestTemplate(event) {
     event.preventDefault()
     const xhr = new XMLHttpRequest();
     const manifest_type = document.querySelector('#manifestType').value;
-    ;
+
     const table = document.getElementById("tableID");
     const number_of_samples = document.getElementById("numberOfSamples").value;
     const number_of_common_fields = table.rows.length;
