@@ -2031,18 +2031,17 @@ def get_common_field_dropdownlist(common_field, manifest_type):
     return common_value_dropdownlist
 
 
-def validate_common_input_value(request):
+def validate_common_value(request):
     # from web.apps.web_copo.lookup import dtol_lookups as lkup
     # import re
 
     common_field = request.GET["common_field"]  # common_field = "SAMPLE_DERIVED_FROM"
-    common_value_input_value = request.GET["common_input_value"]  # common_value_input_value = 'sdjgzkgzd'
+    common_value_input_value = request.GET["common_value"]  # common_value_input_value = 'sdjgzkgzd'
     isInputValueValid = False
     error_message = ''
 
     if common_field not in lkup.DTOL_RULES:  # common_field in lkup.DTOL_RULES:
         isInputValueValid = True
-        print('1')
     else:
         if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
@@ -2058,14 +2057,14 @@ def validate_common_input_value(request):
 
         pattern = re.compile('r' + field_regex)
         isInputValueValid = bool(pattern.match(common_value_input_value))
-        print('2')
 
     if isInputValueValid:
-        print('3')
+        print('Input is valid')
         return HttpResponse(json.dumps({'response': isInputValueValid}))
     else:
-        print('4')
-        notify_frontend(data={"profile_id": profile_id}, msg="Error occured: " + error_message,
-                        action="info",
-                        html_id="sample_info")
-        return HttpResponseBadRequest(json.dumps({'response': isInputValueValid, 'error': error_message}))
+        # notify_frontend(data={"profile_id": profile_id}, msg="Error occured: " + error_message,
+        #                 action="info",
+        #                 html_id="sample_info")
+        print('Input is invalid')
+        print('Invalid input error message: ' + error_message)
+        return HttpResponse(json.dumps({'response': isInputValueValid, 'error': error_message}))

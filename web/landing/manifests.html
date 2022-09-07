@@ -143,9 +143,13 @@
 
                                     </label>
                                     <br>
-
-                                    <select class="form-control" id="commonfields"
-                                            onchange="insertFormDiv(this)"></select>
+                                    <div id="commonfieldsDropdownlistDiv" class="form-group">
+                                        <span style="display:none;" id="commonFieldErrorMessageID"
+                                              class="help-block"></span>
+                                        <select class="form-control" id="commonfields"
+                                                onchange="insertFormDiv(this)"
+                                                aria-describedby="commonFieldErrorMessageID"></select>
+                                    </div>
 
                                 </div>
 

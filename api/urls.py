@@ -68,8 +68,8 @@ manifest_patterns = [
             name="get_common_value_dropdown_list"),
     re_path(r'generate_manifest_template', ajax_handlers.generate_manifest_template,
             name="generate_manifest_template"),
-    re_path(r'validate_common_input_value', ajax_handlers.validate_common_input_value,
-            name="validate_common_input_value"),
+    re_path(r'validate_common_value', ajax_handlers.validate_common_value,
+            name="validate_common_value"),
     re_path(r'index', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
 ]
 
