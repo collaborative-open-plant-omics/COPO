@@ -1,22 +1,21 @@
 $(document).ready(function () {
-    $.fn.datepicker.noConflict(); // Does not conflict with other scripts where datepicker is defined
-    $('#rightIcon').show();
-    $('#loading').hide();
+    $.fn.datepicker.noConflict(); // Does not conflict with other scripts that also have datepicker defined
+
     // Trigger manifest wizard modal
-    $(document).on("click", "#show_manifest_wzd_button", function (e) {
-        let manifestTypeID = document.getElementById("manifestType")
+    $(document).on("click", "#show_manifest_wzd_button", function () {
+        let manifest_wizard = $('#manifest-wizard')
         $("#modal-placeholder").modal("show");
-        $('#manifest-wizard').wizard();
+        manifest_wizard.wizard();
         $('#rightIcon').show(); // Show "right icon" after it was removed from last step
         // Automatically go to step 1 when the modal is launched
-        $('#manifest-wizard').wizard('selectedItem', {step: 1});
+        manifest_wizard.wizard('selectedItem', {step: 1});
 
         document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-        $("#formID .form-group").remove(); // Remove all existing divs from the form
+        $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
 
         document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
 
-        get_common_fields_handler(); // Preload with the common fields dropdown menu
+        get_common_fields_handler(); // Preload with the common fields dropdown list
     });
 
     $(document).on("click", "#downloadBtn", generateManifestTemplate)
@@ -25,7 +24,7 @@ $(document).ready(function () {
     $(document).on("click", "#info", function () {
         bootbox.dialog({
             size: 'small',
-            message: "To add another common value, select another field name from the dropdown menu",
+            message: "To add another common value, select another field name from the dropdown list",
             buttons: {
                 "success": {
                     "label": "OK",
@@ -64,38 +63,25 @@ $(document).ready(function () {
 
 function wizard_handler() {
     $("#manifest-wizard").on('change.fu.wizard', function () {
-        console.log('change');
+        // console.log('change');
     }).on('changed.fu.wizard', function () {
-        // Remove icon from final step of the wizard
         let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
-        if (currentStep === 3) {
-            $('#rightIcon').hide();
-        } else {
-            $('#rightIcon').show();
-        }
-
+        let rightIcon = $('#rightIcon')
+        // Reveal/show the next icon from the final step of the wizard
+        currentStep === 3 ? rightIcon.hide() : rightIcon.show();
     }).on('finished.fu.wizard', function (e) {
-        console.log('finished');
+        // console.log('finished');
         $("#modal-placeholder").modal("hide");
         generateManifestTemplate(e);
     }).on('stepclick.fu.wizard', function (e, data) {
-        console.log('Step' + data.step + ' clicked');
+        //  console.log('Step' + data.step + ' clicked');
     }).on('actionclicked.fu.wizard', function (e, data) {
         validateCommonValue(e, data);
     });
-
-    // // Navigate wizard
-    // $('.btn-prev').on('click', function () {
-    //     $('#manifest-wizard').wizard('previous');
-    // });
-    //
-    // $('.btn-next').on('click', function () {
-    //     $('#manifest-wizard').wizard('next');
-    // });
 }
 
 function get_common_fields_handler() {
-    // Get fields from manifest schema based on the manifest type
+    // Get fields from the manifest schema based on the manifest type
     const manifest_type = document.querySelector('#manifestType').value;
 
     $.ajax({
@@ -106,13 +92,14 @@ function get_common_fields_handler() {
             "manifest_type": manifest_type
         }
     }).done(function (data) {
+        let commonfieldsList = $("#commonfields")
         let option = [];
-        // Add a default value to the dropdown menu
-        $("#commonfields").empty();
-        $('#commonfields').append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
+        // Add a default value to the dropdown list
+        commonfieldsList.empty();
+        commonfieldsList.append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
         for (let i = 0; i < data.length; i++) {
             option = data[i];
-            $('#commonfields').append('<option value="' + option + '">' + option + '</option>')
+            commonfieldsList.append('<option value="' + option + '">' + option + '</option>')
         }
 
     }).fail(function (error) {
@@ -160,6 +147,7 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             value_input.setAttribute('aria-describedby', "commonValueStatus");
 
             if (date_fields.includes(common_field)) {
+                let datepicker = $(".datepicker")
                 value_input.setAttribute('type', 'text');
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
@@ -170,11 +158,11 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
 
                 // The datepicker function reverts to the "datepicker" defined by the jQueryUI
                 // and does not use the one defined by FuelUX
-                $(".datepicker").datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
+                datepicker.datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
                 commonValueDiv.appendChild(value_input);
                 // The "hasDatepicker" class triggers the datepicker function so it's removed
                 // from a previous date field so that it can be displayed on following date fields
-                $(".datepicker").filter('.datepicker').removeClass('hasDatepicker').datepicker({
+                datepicker.filter('.datepicker').removeClass('hasDatepicker').datepicker({
                     dateFormat: "yy-mm-dd",
                     maxDate: 0
                 });
@@ -272,7 +260,7 @@ function insertFormDiv(common_field) {
     commonValueDiv.setAttribute('class', 'col-sm-5 commonValueDiv');
     commonFieldDiv.appendChild(commonValueDiv);
 
-    // Value input field
+    // Value field
     get_common_value_dropdown_list_handler(common_field.value, commonValueDiv)
 
 
@@ -290,7 +278,7 @@ function insertFormDiv(common_field) {
     $(form).append(commonFieldDiv);
     formDiv.appendChild(form);
 
-    // Remove selected common field from the dropdown menu
+    // Remove selected common field from the dropdown list
     removeOptionFromCommonFieldDropdownList(common_field.value);
 
     // Make the form scrollable once it contains at least 6 divs
@@ -315,6 +303,7 @@ function sortOptionsList(selectTagIDName) {
     selectTagID.val(selectedValue); // Set cached selected value
 }
 
+// noinspection JSUnusedGlobalSymbols
 function removeFormDiv(div) {
     const formDiv = document.getElementById("formDiv");
     let divs_in_form = document.querySelectorAll('#formID .form-group');
@@ -339,11 +328,6 @@ function removeFormDiv(div) {
     }
 }
 
-function stopIt(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
 function validateCommonValue(e, data) {
     function validateFormDivData() {
         $("#formID .form-group").each(function () {
@@ -352,13 +336,15 @@ function validateCommonValue(e, data) {
                 let error_message_tag = element.find('#errorMessageID')
 
                 // Common value is either a text enclosed within an input tag or a date enclosed within a select tag
-                let common_value = element.find('.commonValueDiv input') !== null ? element.find('.commonValueDiv input').val() : element.find('.commonValueDiv select').val();
+                // let common_value = element.find('.commonValueDiv input') !== null ? element.find('.commonValueDiv input').val() : element.find('.commonValueDiv select').val();
+                let common_value = element.find('.commonValueDiv input').val() ?? element.find('.commonValueDiv select').val();
 
                 // Display an error message if the common value is undefined, null or empty
                 if (common_value == null || common_value === "") {
                     error_message_tag.css({'display': ''}) // Reveal hidden textarea tag to show the error message
                     element.addClass('has-error')
                     error_message_tag.val('Field cannot be empty!')
+                    console.log(`Common field: ${common_field}`);
                     console.log('Common value (null or empty): ', common_value)
                     console.log('Common value (null or empty) error message: ', element.find('#errorMessageID').val())
 
@@ -453,16 +439,16 @@ function validateCommonValue(e, data) {
 }
 
 function generateManifestTemplate(event) {
+    // User needs to be loggedin so that the CSRF cookie is set,
+    // "{% csrf_token %}" has to be included within a form tag in the manifests.html webpage
+    // so that X-CSRFToken is set and HTTPS 403 Forbidden does not occur
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
     const xhr = new XMLHttpRequest();
     const manifest_type = document.querySelector('#manifestType').value;
-
-    // let divs_in_form = document.querySelectorAll('#formID .form-group');
     const number_of_samples = document.getElementById("numberOfSamples").value;
-    // const number_of_common_fields = divs_in_form.length;
 
-    let csrftoken = $('[name="csrfmiddlewaretoken"]').attr('value');
+    let csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //.attr('value');
     let common_fields_list = []
     let common_values_list = []
 
@@ -504,15 +490,16 @@ function generateManifestTemplate(event) {
 }
 
 function showWizardBasedOnManifestType(manifest_type) {
+    let manifest_wizard = $('#manifest-wizard')
     let manifestTypeID = document.getElementById('manifestType')
     $("#modal-placeholder").modal("show");
-    $('#manifest-wizard').wizard();
+    manifest_wizard.wizard();
     // Automatically navigate to step 2 when the modal is launched
     // since step 1 is about selecting the manifest which has been done indirectly
-    $('#manifest-wizard').wizard('selectedItem', {step: 2});
-    $("#formID .form-group").remove(); // Remove all existing divs from the form
+    manifest_wizard.wizard('selectedItem', {step: 2});
+    $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-    $('.btn-prev').hide();
+    $('.btn-prev').hide(); // Hide previous button
 
     switch (manifest_type) {
         case "asg":
@@ -533,5 +520,5 @@ function showWizardBasedOnManifestType(manifest_type) {
             break;
     }
 
-    get_common_fields_handler();// Preload with the common fields dropdown menu
+    get_common_fields_handler();// Preload with the common fields dropdown list
 }

@@ -6,6 +6,7 @@ import os
 import re
 import time
 import urllib.parse
+import xlsxwriter
 from datetime import datetime, date, time
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
@@ -15,6 +16,7 @@ import jsonpickle
 import pandas as pd
 import requests
 from bson import json_util, ObjectId
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -1753,7 +1755,6 @@ def get_common_value_dropdown_list(request):
     manifest_type = request.GET["manifest_type"]
     common_field = request.GET["common_field"]
     common_value_dropdownlist = get_common_field_dropdownlist(common_field, manifest_type)
-
     return HttpResponse(json.dumps(common_value_dropdownlist))
 
 
@@ -1769,12 +1770,14 @@ def generate_manifest_template(request):
 
     # Set the path to the blank manifest template based on the manifest type
     if manifest_type == "asg":
-        filename = 'ASG_MANIFEST_v2.4.xlsx'  # ASG manifest v2.4 is not available as yet
+        filename = f'ASG_EXAMPLE_SAMPLE_MANIFEST_v{settings.CURRENT_ASG_VERSION}.xlsx'
     elif manifest_type == "dtol":
-        filename = 'DToL_SAMPLE_MANIFEST_v2.4.xlsx'
+        filename = f'DTOL_EXAMPLE_SAMPLE_MANIFEST_v{settings.CURRENT_DTOL_VERSION}.xlsx'
     elif manifest_type == "erga":
-        filename = 'ERGA_SAMPLE_MANIFEST_V2.4.xlsx'
+        filename = f'ERGA_SAMPLE_MANIFEST_V{settings.CURRENT_ERGA_VERSION}.xlsx'
     else:
+        # manifest_type == "env" or manifest_type == "dtolenv"
+        # filename = f'DTOLENV_EXAMPLE_SAMPLE_MANIFEST_v{CURRENT_DTOLENV_VERSION}.xlsx
         filename = ''
 
     manifest_template_path = os.path.join(manifests_dir, filename)
@@ -1787,21 +1790,24 @@ def generate_manifest_template(request):
 
     common_field_values_dataframe = pd.DataFrame(excel_data)
 
-    # Read all worksheets from the blank manifest
+    # Get all worksheets from the blank manifest
     blank_manifest_dataframe = pd.read_excel(manifest_template_path, sheet_name=None)
 
-    # Read Metadata Entry worksheet
+    # Get Metadata Entry worksheet
     metadataEntry_worksheet = blank_manifest_dataframe['Metadata Entry']
 
-    # Read Data Validation worksheet
+    # Get Data Validation worksheet
     dataValidation_worksheet = blank_manifest_dataframe['Data Validation']
 
-    # Read OrganismPartDefinitions worksheet
+    # Get OrganismPartDefinitions worksheet
     organismPartDefinitions_worksheet = blank_manifest_dataframe['OrganismPartDefinitions']
 
     # Get only the column names from the blank manifest
     # Convert the list of column names into a dataframe
     metadataEntry_worksheet_columns = pd.DataFrame(columns=metadataEntry_worksheet.columns)
+
+    # Get column names from the "Data Validation" worksheet from the blank manifest
+    dataValidation_worksheet_dataframe = pd.DataFrame(columns=dataValidation_worksheet.columns)
 
     # Get column names from the "OrganismPartDefinitions" worksheet from the blank manifest
     organismPartDefinitions_worksheet_columns = pd.DataFrame(columns=organismPartDefinitions_worksheet.columns)
@@ -1838,21 +1844,20 @@ def generate_manifest_template(request):
                                                sheet_name='OrganismPartDefinitions')
 
     # Adjust column width within each worksheet and add a dropdown list to the desired columns
-    adjustExcelWorksheetColumnWidth(metadataEntry_worksheet_concatenation, pandas_writer, 'Metadata Entry',
-                                    manifest_type)
-    adjustExcelWorksheetColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation',
-                                    manifest_type)
-    adjustExcelWorksheetColumnWidth(organismPartDefinitions_worksheet, pandas_writer,
-                                    'OrganismPartDefinitions', manifest_type)
+    autoAdjustExcelColumnWidth(metadataEntry_worksheet_concatenation, pandas_writer, 'Metadata Entry',
+                               manifest_type)
+    autoAdjustExcelColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation',
+                               manifest_type)
+    autoAdjustExcelColumnWidth(organismPartDefinitions_worksheet, pandas_writer,
+                               'OrganismPartDefinitions', manifest_type)
 
     addDropdownlist(metadataEntry_worksheet_concatenation, pandas_writer, 'Metadata Entry',
-                    organismPartDefinitions_worksheet_columns, manifest_type)
+                    organismPartDefinitions_worksheet_columns, manifest_type, dataValidation_worksheet_dataframe)
     pandas_writer.save()
 
     bytesIO.seek(0)
     excel_workbook = bytesIO.getvalue()
 
-    # 'application/ms-excel'
     response = HttpResponse(excel_workbook,
                             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename={filename}'
@@ -1860,7 +1865,7 @@ def generate_manifest_template(request):
     return response
 
 
-def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, manifest_type):
+def autoAdjustExcelColumnWidth(dataframe, pandas_writer, sheet_name, manifest_type):
     # Get current date then, extract what is between the brackets
     current_date = pd.to_datetime('today').date()
     # Get date from 100 years ago from current date
@@ -1874,65 +1879,18 @@ def adjustExcelWorksheetColumnWidth(dataframe, pandas_writer, sheet_name, manife
         'props': [
             ('background-color', '#93c47d')]
     }])
+
     for column in dataframe:
         column_length = max(dataframe[column].astype(str).map(len).max(), len(column))
         column_index = dataframe.columns.get_loc(column)
         pandas_writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
 
-        # # Check if sheet is 'Metadata Entry' and column name is present amongst the fields that require a dropdownlist
-        # if sheet_name == 'Metadata Entry' and column in lkup.DTOL_ENUMS:
-        #     # Get MS Excel official column header letter
-        #     # Indexing starts at 0 by default but in this case, it should start at 1 so increment by 1
-        #     excel_column_header_letter = get_column_letter(column_index + 1)
-        #
-        #     # Generate a dropdown list for 96 rows of the desired columns in the Excel spreadsheet
-        #     for row_count in range(2, 97):
-        #         # Excel and XlsxWriter has a 255 character limit on list/string validation
-        #         # therefore, not all items can be listed in a dropdownlist
-        #         # Workaround is to pull the list of items from another worksheet in the workbook
-        #         # NB: The list of items in the columns - "ORGANISM_PART" and "TISSUE_FOR_BARCODING"
-        #         # exceed the 255 character limit so pull the list from the "Data Validation" worksheet
-        #
-        #         common_value_dropdownlist = get_common_field_dropdownlist(column, manifest_type)
-        #         if "DATE" in column:
-        #             pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-        #                                                              {'validate': 'date',
-        #                                                               'criteria': 'between',
-        #                                                               'minimum': date(century_year, 1, 1),
-        #                                                               'maximum': current_date})
-        #         elif "TIME" in column:
-        #             pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-        #                                                              {'validate': 'list',
-        #                                                               'criteria': 'between',
-        #                                                               'minimum': time(0, 0),
-        #                                                               'maximum': time(24, 0)})
-        #         elif "ORGANISM_PART" in column:
-        #             # 'source': '=$"Data Validation".$C$3:$C$78'
-        #             pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-        #                                                              {
-        #                                                                  'validate': 'list',
-        #                                                                  'source': '=OFFSET("Data Validation"!$C$3,'
-        #                                                                            '0,0,COUNTA("Data '
-        #                                                                            'Validation"!$C:$C) - 0,1)',
-        #                                                              })
-        #         elif "TISSUE_FOR_BARCODING" in column:
-        #             pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-        #                                                              {'validate': 'list',
-        #                                                               'source': '=Data Validation!$I$3:$I$79'})
-        #
-        #         else:
-        #
-        #             pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-        #                                                              {'validate': 'list',
-        #                                                               'source': common_value_dropdownlist})
-        #
-        #         if "ORGANISM_PART" in column or "TISSUE_FOR_BARCODING" in column:
-        #             print('Field: ', column)
-        #             print('"' + column + '" field column: ', excel_column_header_letter + str(row_count))
-        #             print('"' + column + '" field dropdownlist: ', common_value_dropdownlist)
+    # dataframe.loc[:, ~dataframe.columns.str.match("Unnamed")]  # Removed "Unamed" columns
+    # dataframe.drop(dataframe.columns[dataframe.columns.str.contains('unnamed', case=False)], axis=1, inplace=True)
 
 
-def addDropdownlist(dataframe, pandas_writer, sheet_name, organismPartDefinitions_worksheet_columns, manifest_type):
+def addDropdownlist(dataframe, pandas_writer, sheet_name, organismPartDefinitions_worksheet_columns, manifest_type,
+                    dataValidation_worksheet_dataframe):
     # Get current date then, extract what is between the brackets
     current_date = pd.to_datetime('today').date()
     # Get date from 100 years ago from current date
@@ -1954,28 +1912,23 @@ def addDropdownlist(dataframe, pandas_writer, sheet_name, organismPartDefinition
 
             # Generate a dropdown list for 96 rows of the desired columns in the Excel spreadsheet
             for row_count in range(2, 97):
-                # Excel and XlsxWriter has a 255 character limit on list/string validation therefore, not all items
-                # can be listed in a dropdownlist
-                # Workaround is to pull the list of items from another worksheet in the workbook
+                # MS Excel and Pandas XlsxWriter have a 255 character limit on list/string validation
+                # therefore, not all items will be listed in a dropdown list
+                # The workaround is to pull the list of items from another worksheet in the workbook
                 # NB: The list of items in the columns - "ORGANISM_PART", "TISSUE_FOR_BARCODING" and
-                # "TISSUE_FOR_BIOBANKING" exceed the 255 character limit so pull the list from the "Data Validation"
-                # worksheet
+                # "TISSUE_FOR_BIOBANKING" exceed the 255 character limit so the dropdown list
+                # for each of these columns will be pulled from the rspective column in the
+                # in the "Data Validation" worksheet
 
                 common_value_dropdownlist = get_common_field_dropdownlist(column, manifest_type)
-                if "DATE" in column:
-                    pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-                                                                     {'validate': 'date',
-                                                                      'criteria': 'between',
-                                                                      'minimum': date(century_year, 1, 1),
-                                                                      'maximum': current_date})
-                elif "TIME" in column:
-                    pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
-                                                                     {'validate': 'list',
-                                                                      'criteria': 'between',
-                                                                      'minimum': time(0, 0),
-                                                                      'maximum': time(24, 0)})
-                elif "ORGANISM_PART" in column:
+                if "ORGANISM_PART" in column:
                     # 'source': '=$"Data Validation".$C$3:$C$78'
+                    organism_part_column_index = dataValidation_worksheet_dataframe.columns.get_loc(
+                        "ORGANISM_PART")  # df.columns.get_loc("ORGANISM_PART")
+                    organism_part_excel_column_header_letter = get_column_letter(organism_part_column_index + 1)
+
+                    print('Data Validation worksheet, "ORGANISM_PART" column letter is: ',
+                          organism_part_excel_column_header_letter)
 
                     pandas_writer.sheets[sheet_name].data_validation(excel_column_header_letter + str(row_count),
                                                                      {
@@ -2032,16 +1985,13 @@ def get_common_field_dropdownlist(common_field, manifest_type):
 
 
 def validate_common_value(request):
-    # from web.apps.web_copo.lookup import dtol_lookups as lkup
-    # import re
-
     common_field = request.GET["common_field"]  # common_field = "SAMPLE_DERIVED_FROM"
     common_value_input_value = request.GET["common_value"]  # common_value_input_value = 'sdjgzkgzd'
-    isInputValueValid = False
+    isCommonValueValid = False
     error_message = ''
 
     if common_field not in lkup.DTOL_RULES:  # common_field in lkup.DTOL_RULES:
-        isInputValueValid = True
+        isCommonValueValid = True
     else:
         if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
@@ -2056,15 +2006,9 @@ def validate_common_value(request):
         error_message = lkup.DTOL_RULES[common_field]["human_readable"]
 
         pattern = re.compile('r' + field_regex)
-        isInputValueValid = bool(pattern.match(common_value_input_value))
+        isCommonValueValid = bool(pattern.match(common_value_input_value))
 
-    if isInputValueValid:
-        print('Input is valid')
-        return HttpResponse(json.dumps({'response': isInputValueValid}))
+    if isCommonValueValid:
+        return HttpResponse(json.dumps({'response': isCommonValueValid}))
     else:
-        # notify_frontend(data={"profile_id": profile_id}, msg="Error occured: " + error_message,
-        #                 action="info",
-        #                 html_id="sample_info")
-        print('Input is invalid')
-        print('Invalid input error message: ' + error_message)
-        return HttpResponse(json.dumps({'response': isInputValueValid, 'error': error_message}))
+        return HttpResponse(json.dumps({'response': isCommonValueValid, 'error': error_message}))
