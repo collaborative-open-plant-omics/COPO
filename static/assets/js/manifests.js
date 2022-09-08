@@ -367,7 +367,7 @@ function validateCommonValue(e, data) {
                         dataType: "json",
                         data: {
                             "common_field": common_field,
-                            "common_value": common_value
+                            "common_value": common_value,
                         }
                     }).done(function (data) {
                         console.log('Inside Ajax.....ajax data: ', data)
@@ -471,7 +471,7 @@ function generateManifestTemplate(event) {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
             let link = document.createElement('a');
             let blob = new Blob([this.response], {});
-            link.download = "manifest_template.xlsx"
+            link.download = `${manifest_type.toUpperCase()}_MANIFEST_TEMPLATE.xlsx`
             link.href = URL.createObjectURL(blob);
             link.click();
             window.URL.revokeObjectURL(link.href);
