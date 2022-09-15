@@ -1877,29 +1877,25 @@ def applyDataValidationToColumn(column, row_count, dataValidation_worksheet_data
     dataValidation_worksheet_name = "Data Validation"
 
     if "ORGANISM_PART" in column:  # and manifest_type ==:
+        print('I am here 6')
         return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
                                                                 {
                                                                     'validate': 'list',
-                                                                    'source': "='" + dataValidation_worksheet_name + f"'!${column_letter}$2:${column_letter}:78 "
-                                                                    ,
+                                                                    'source': "='" + dataValidation_worksheet_name
+                                                                              + f"'!${column_letter}$2:${column_letter}:78 "
                                                                 })
     elif "TISSUE_FOR_BARCODING" in column:
+        print('I am here 7')
         return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
                                                                 {'validate': 'list',
                                                                  'source': "='" + dataValidation_worksheet_name
                                                                            + f"'!${column_letter}$2:${column_letter}$79"})
     elif "TISSUE_FOR_BIOBANKING" in column:
-        print('I am here')
+        print('I am here 8')
         return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
                                                                 {'validate': 'list',
                                                                  'source': '=' + dataValidation_worksheet_name
                                                                            + '!$I$2:$I$79'})
-    elif "COLLECTION_LOCATION" in column:
-
-        return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
-                                                                {'validate': 'list',
-                                                                 'source': "='" + dataValidation_worksheet_name
-                                                                           + f"'!${column_letter}$2:${column_letter}$279"})
 
 
 def applyDropdownlist(dataframe, pandas_writer, sheet_name,
@@ -1975,7 +1971,7 @@ def get_common_field_dropdownlist(common_field, manifest_type):
 
 def validate_common_value(request):
     common_field = request.GET["common_field"]
-    common_value_input_value = request.GET["common_value"]
+    common_value = request.GET["common_value"]
     isCommonValueValid = False
     error_message = ''
 
@@ -1995,7 +1991,17 @@ def validate_common_value(request):
         error_message = lkup.DTOL_RULES[common_field]["human_readable"]
 
         pattern = re.compile('r' + field_regex)
-        isCommonValueValid = bool(pattern.match(common_value_input_value))
+        isCommonValueValid = bool(pattern.match(common_value))
+
+        # Validate "COLLECTION_LOCATION" value
+        if common_field == "COLLECTION_LOCATION" or common_field == "ORIGINAL_FIELD_COLLECTION_LOCATION":
+            country_value = common_value.split('|')[0].strip()
+            location_2part = common_value.split('|')[1:]
+            if country_value.upper() not in lkup.DTOL_ENUMS[common_field] or not location_2part:
+                isCommonValueValid = False
+                error_message = f'Value has to be a specific location ranging from a least location to a most ' \
+                                f'specific location separated by | character. e.g. “United Kingdom | East Anglia | ' \
+                                f'Norfolk | Norwich | University of East Anglia | UEA Broad”. '
 
     if isCommonValueValid:
         return HttpResponse(json.dumps({'response': isCommonValueValid}))
