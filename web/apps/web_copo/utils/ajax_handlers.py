@@ -1808,7 +1808,7 @@ def generate_manifest_template(request):
 
     # Get only the column names from the blank manifest
     # Convert the list of column names into a dataframe
-    metadataEntry_worksheet_columns = pd.DataFrame(columns=metadataEntry_worksheet.columns)
+    metadataEntry_worksheet_dataframe = pd.DataFrame(columns=metadataEntry_worksheet.columns)
 
     # Get column names from the "Data Validation" worksheet from the blank manifest
     dataValidation_worksheet_dataframe = pd.DataFrame(columns=dataValidation_worksheet.columns)
@@ -1818,8 +1818,9 @@ def generate_manifest_template(request):
 
     # Concatenate the common field and its common values with the respective column names
     # from the blank manifest template
-    metadataEntry_worksheet_concatenation = pd.concat([metadataEntry_worksheet_columns, common_field_values_dataframe],
-                                                      ignore_index=True)
+    metadataEntry_worksheet_concatenation = pd.concat(
+        [metadataEntry_worksheet_dataframe, common_field_values_dataframe],
+        ignore_index=True)
 
     bytesIO = BytesIO()
     pandas_writer = pd.ExcelWriter(bytesIO, engine='xlsxwriter')
@@ -1846,7 +1847,7 @@ def generate_manifest_template(request):
 
     # Apply a dropdown list to the desired columns
     applyDropdownlist(metadataEntry_worksheet_concatenation, pandas_writer, 'Metadata Entry',
-                      dataValidation_worksheet_dataframe, manifest_type)
+                      metadataEntry_worksheet_dataframe, dataValidation_worksheet_dataframe, manifest_type)
 
     pandas_writer.save()
 
@@ -1866,40 +1867,44 @@ def autoAdjustExcelColumnWidth(dataframe, pandas_writer, sheet_name):
         column_index = dataframe.columns.get_loc(column)
         pandas_writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
 
-    # dataframe.loc[:, ~dataframe.columns.str.match("Unnamed")]  # Removed "Unamed" columns
-    # dataframe.drop(dataframe.columns[dataframe.columns.str.contains('unnamed', case=False)], axis=1, inplace=True)
 
-
-def applyDataValidationToColumn(column, row_count, dataValidation_worksheet_dataframe,
+def applyDataValidationToColumn(column, metadataEntry_worksheet_dataframe,
+                                dataValidation_worksheet_dataframe,
                                 pandas_writer, sheet_name):
-    column_index = dataValidation_worksheet_dataframe.columns.get_loc(column)
-    column_letter = get_column_letter(column_index + 1)
-    dataValidation_worksheet_name = "Data Validation"
+    # Metadata Entry worksheet
+    metadataEntry_worksheet_column_index = metadataEntry_worksheet_dataframe.columns.get_loc(column)
+    metadataEntry_worksheet_column_letter = get_column_letter(metadataEntry_worksheet_column_index + 1)
+
+    # Get first row to the last row in a column from the "Metadata Entry" worksheet
+    row_start_end = '%s2:%s1048576' % (
+        metadataEntry_worksheet_column_letter, metadataEntry_worksheet_column_letter)
+
+    # Data validation worksheet
+    dataValidation_worksheet_name = "'Data Validation'"
+    dataValidation_worksheet_column_index = dataValidation_worksheet_dataframe.columns.get_loc(column)
+    dataValidation_worksheet_column_letter = get_column_letter(dataValidation_worksheet_column_index + 1)
+
+    # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
+    data_validation_column = '=%s!$%s$2:$%s$79' % (
+        dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
+        dataValidation_worksheet_column_letter)
 
     if "ORGANISM_PART" in column:  # and manifest_type ==:
         print('I am here 6')
-        return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
-                                                                {
-                                                                    'validate': 'list',
-                                                                    'source': "='" + dataValidation_worksheet_name
-                                                                              + f"'!${column_letter}$2:${column_letter}:78 "
-                                                                })
+        return pandas_writer.sheets[sheet_name].data_validation(
+            row_start_end, {'validate': 'list', 'source': data_validation_column})
     elif "TISSUE_FOR_BARCODING" in column:
         print('I am here 7')
-        return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
-                                                                {'validate': 'list',
-                                                                 'source': "='" + dataValidation_worksheet_name
-                                                                           + f"'!${column_letter}$2:${column_letter}$79"})
+        return pandas_writer.sheets[sheet_name].data_validation(row_start_end,
+                                                                {'validate': 'list', 'source': data_validation_column})
     elif "TISSUE_FOR_BIOBANKING" in column:
         print('I am here 8')
-        return pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
-                                                                {'validate': 'list',
-                                                                 'source': '=' + dataValidation_worksheet_name
-                                                                           + '!$I$2:$I$79'})
+        return pandas_writer.sheets[sheet_name].data_validation(row_start_end,
+                                                                {'validate': 'list', 'source': data_validation_column})
 
 
 def applyDropdownlist(dataframe, pandas_writer, sheet_name,
-                      dataValidation_worksheet_dataframe, manifest_type):
+                      metadataEntry_worksheet_dataframe, dataValidation_worksheet_dataframe, manifest_type):
     for column_name in dataframe:
         column_length = max(dataframe[column_name].astype(str).map(len).max(), len(column_name))
         column_index = dataframe.columns.get_loc(column_name)
@@ -1908,33 +1913,39 @@ def applyDropdownlist(dataframe, pandas_writer, sheet_name,
         # Check if sheet is 'Metadata Entry' and column name is present amongst
         # the fields that require a dropdownlist
         if column_name in lkup.DTOL_ENUMS:
-
             # Get MS Excel official column header letter
             # Indexing starts at 0 by default but in this case, it should start at 1 so increment by 1
             column_letter = get_column_letter(column_index + 1)
 
-            # Generate a dropdown list for 96 rows of the desired columns in the Excel spreadsheet
-            for row_count in range(2, 97):
-                # MS Excel and Pandas XlsxWriter have a 255 character limit on list/string validation
-                # therefore, not all items will be listed in a dropdown list
-                # => columns like "ORGANISM_PART", "TISSUE_FOR_BARCODING", "COLLECTION_LOCATION" and
-                # "TISSUE_FOR_BIOBANKING" exceed the 255 character limit so the dropdown list
-                # for each of these columns will be pulled from the respective column in the
-                # in the "Data Validation" worksheet
+            '''MS Excel and Pandas XlsxWriter have a 255 character limit on list/string validation
+            therefore, not all items will be listed in a dropdown list
+            => columns like "ORGANISM_PART", "TISSUE_FOR_BARCODING" and "TISSUE_FOR_BIOBANKING"
+            exceed the 255 character limit so the dropdown list for each of these columns will 
+            be pulled from the respective column in the in the "Data Validation" worksheet'''
 
-                common_value_dropdownlist = get_common_field_dropdownlist(column_name, manifest_type)
+            common_value_dropdownlist = get_common_field_dropdownlist(column_name, manifest_type)
+            common_value_dropdownlist.sort()
 
-                number_of_characters = sum(len(i) for i in common_value_dropdownlist)
+            number_of_characters = sum(len(i) for i in common_value_dropdownlist)
 
-                if number_of_characters >= 255:
-                    applyDataValidationToColumn(column_name, row_count,
-                                                dataValidation_worksheet_dataframe,
-                                                pandas_writer, sheet_name)
-                else:
+            if number_of_characters >= 255:
+                applyDataValidationToColumn(column_name,
+                                            metadataEntry_worksheet_dataframe, dataValidation_worksheet_dataframe,
+                                            pandas_writer, sheet_name)
+            else:
+                # Get first row to the last row in a column
+                row_start_end = '%s2:%s1048576' % (column_letter, column_letter)
 
-                    pandas_writer.sheets[sheet_name].data_validation(column_letter + str(row_count),
-                                                                     {'validate': 'list',
-                                                                      'source': common_value_dropdownlist})
+                pandas_writer.sheets[sheet_name].data_validation(row_start_end,
+                                                                 {'validate': 'list',
+                                                                  'source': common_value_dropdownlist})
+
+            # dataValidation_worksheet_dataframe.loc[:,
+            # ~ddataValidation_worksheet_dataframe.loc[:,
+            # ~dataValidation_worksheet_dataframe.columns.str.match("Unnamed")]  # Removed "Unamed" columns
+            dataValidation_worksheet_dataframe.drop(dataValidation_worksheet_dataframe.columns[
+                                                        dataValidation_worksheet_dataframe.columns.str.contains(
+                                                            'unnamed', case=False)], axis=1, inplace=True)
 
 
 def get_common_field_dropdownlist(common_field, manifest_type):
@@ -1942,6 +1953,9 @@ def get_common_field_dropdownlist(common_field, manifest_type):
         if common_field in fieldsBasedOnManifestType:
             # Get dropdown list based on the manifest type
             dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
+        elif common_field == "COLLECTION_LOCATION":
+            # "COLLECTION_LOCATION" column does not require a dropdownlist
+            dropdownlist = []
         else:
             # Get dropdown list
             dropdownlist = lkup.DTOL_ENUMS.get(common_field, [])
@@ -1975,9 +1989,27 @@ def validate_common_value(request):
     isCommonValueValid = False
     error_message = ''
 
-    if common_field not in lkup.DTOL_RULES:
+    if common_field not in lkup.DTOL_RULES and common_field != "COLLECTION_LOCATION" \
+            and common_field != "ORIGINAL_FIELD_COLLECTION_LOCATION":
         isCommonValueValid = True
+
+    elif common_field == "COLLECTION_LOCATION" or common_field == "ORIGINAL_FIELD_COLLECTION_LOCATION":
+        # Validate "COLLECTION_LOCATION" or "ORIGINAL_FIELD_COLLECTION_LOCATION" value
+        country_value = common_value.split('|')[0].strip()
+        location_2part = common_value.split('|')[1:]
+        isCommonValueValid = True
+
+        if country_value.upper() not in lkup.DTOL_ENUMS[common_field] or not location_2part \
+                or country_value.upper() in lkup.DTOL_ENUMS[common_field] and not location_2part:
+            isCommonValueValid = False
+            error_message = f'a specific location ranging from a least location to a most ' \
+                            f'specific location separated by | character. e.g. “United Kingdom | East Anglia | ' \
+                            f'Norfolk | Norwich | University of East Anglia | UEA Broad”. ' \
+                            f'See a list of allowed Country entries at ' \
+                            f'https://www.ebi.ac.uk/ena/browser/view/ERC000053 '
+
     else:
+        print("Validation 3")
         if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
         elif "ena_regex" in lkup.DTOL_RULES[common_field]:
@@ -1990,18 +2022,8 @@ def validate_common_value(request):
 
         error_message = lkup.DTOL_RULES[common_field]["human_readable"]
 
-        pattern = re.compile('r' + field_regex)
+        pattern = re.compile(f'r{field_regex}')
         isCommonValueValid = bool(pattern.match(common_value))
-
-        # Validate "COLLECTION_LOCATION" value
-        if common_field == "COLLECTION_LOCATION" or common_field == "ORIGINAL_FIELD_COLLECTION_LOCATION":
-            country_value = common_value.split('|')[0].strip()
-            location_2part = common_value.split('|')[1:]
-            if country_value.upper() not in lkup.DTOL_ENUMS[common_field] or not location_2part:
-                isCommonValueValid = False
-                error_message = f'Value has to be a specific location ranging from a least location to a most ' \
-                                f'specific location separated by | character. e.g. “United Kingdom | East Anglia | ' \
-                                f'Norfolk | Norwich | University of East Anglia | UEA Broad”. '
 
     if isCommonValueValid:
         return HttpResponse(json.dumps({'response': isCommonValueValid}))

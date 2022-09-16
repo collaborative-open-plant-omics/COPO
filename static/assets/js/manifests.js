@@ -344,15 +344,7 @@ function validateCommonValue(e, data) {
                     error_message_tag.css({'display': ''}) // Reveal hidden textarea tag to show the error message
                     element.addClass('has-error')
                     error_message_tag.val('Field cannot be empty!')
-                    console.log(`Common field: ${common_field}`);
-                    console.log('Common value (null or empty): ', common_value)
-                    console.log('Common value (null or empty) error message: ', element.find('#errorMessageID').val())
-
                 } else {
-                    console.log(`Common field: ${common_field}`);
-                    console.log('Common value (has a value): ', common_value)
-                    console.log('Common value (has a value) error message: ', element.find('#errorMessageID').val())
-
                     // Remove error information if it is shown
                     if (element.hasClass('has-error')) {
                         element.removeClass('has-error')
@@ -370,20 +362,15 @@ function validateCommonValue(e, data) {
                             "common_value": common_value,
                         }
                     }).done(function (data) {
-                        console.log('Inside Ajax.....ajax data: ', data)
                         if (data['response']) {
-                            console.log('Success ', data['response'])
-
                             // Check if any of the common value has invalid data in any of the div within the form
                             // If errors exist, then, do nothing, remain on step 2 of the manifest wizard
                             // else, navigate to the next step which is step 3 of the manifest wizard
                             let divs_in_form_with_error_class = document.querySelectorAll('#formID .has-error')
                             let number_of_errors_in_form = divs_in_form_with_error_class.length
                             number_of_errors_in_form === 0 ? $('#manifest-wizard').wizard('selectedItem', {step: 3}) : e.preventDefault();
-                            console.log('Number of divs with errors: ', number_of_errors_in_form)
                         } else {
                             let validation_error_message = `Invalid value! Field must be ${data['error']}!`;
-                            console.log('Invalid: ', data['error'])
                             error_message_tag.css({'display': ''}) // Reveal hidden textarea tag to show the error message
                             element.addClass('has-error')
                             error_message_tag.css({'height': '41px'})
@@ -408,7 +395,6 @@ function validateCommonValue(e, data) {
     }
 
     if (data.step === 2 && data.direction === 'next') {
-        console.log('Manifest wizard Step 2')
         e.preventDefault(); // Prevent navigating to the next step of the manifest wizard
         let divs_in_form = document.querySelectorAll('#formID .form-group');
         let commonFieldErrorMessageID = document.getElementById("commonFieldErrorMessageID");
@@ -428,12 +414,9 @@ function validateCommonValue(e, data) {
                 commonFieldErrorMessageID.innerHTML = ""
                 commonFieldErrorMessageID.style.display = 'none';
             }
-            // else {
             // Each common field and inputted/selected common value is located within a div
-            //  and the div is located within a form
+            // and the div is located within a form
             validateFormDivData()
-
-            // }
         }
     }
 }
