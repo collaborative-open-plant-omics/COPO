@@ -14,12 +14,17 @@ from dal.copo_base_da import Collection_Head
 from dal.copo_da import Profile, Sample, DataFile
 from dal.ena_da import EnaCollection
 from web.apps.web_copo.schemas.utils.data_formats import DataFormats
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 def forward_to_swagger(request):
     response = redirect('/static/swagger/apidocs_index.html')
 
     return response
+
 
 def upload_to_figshare_profile(request):
     if request.method == 'POST':
@@ -143,3 +148,25 @@ def number_of_users():
 
 def number_of_datafiles():
     return DataFile().get_number()
+
+
+class CustomAuthToken(ObtainAuthToken):
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': "Token " + token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening

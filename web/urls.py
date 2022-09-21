@@ -12,6 +12,7 @@ urlpatterns = [
     path('copo/', include('web.apps.web_copo.urls', namespace='copo')),
 
     path('rest/', include('web.apps.web_copo.rest_urls', namespace='rest')),
+
     path('api/', include('api.urls', namespace='api')),
 
     path('accounts/', include('allauth.urls')),

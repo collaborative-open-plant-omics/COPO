@@ -4,16 +4,44 @@ info:
   description: Swagger documentation of COPO/DTOL sample API.
   version: 1.1.8
 servers:
-  - url: http://localhost:8000/api
+  - url: http://127.0.0.1:8000/api
     description: Local Server
   - url: http://demo.copo-project.org/api
     description: Demo Server
   - url: https://copo-project.org/api
     description: Live Server
 
+
+
 paths:
+
+  /apiKey/:
+    post:
+      tags:
+        - API Key
+      summary: Obtain API Token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema: # Request body contents
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: Username and Password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthBody'
+
   /manifest:
     get:
+
       tags:
         - Manifest
       summary:
@@ -27,6 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ManifestList'
+
 
   /manifest/{manifest_id}:
     get:
@@ -347,20 +376,151 @@ paths:
 
 
 
+  /profile/make_profile/:
+    post:
+      tags:
+        - Profile
+      security:
+        - app_id: [ ]
+      consumes:
+        - application/x-www-form-urlencoded
+      summary:
+        Make a profile for authenticated user
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - profile_type
+              properties:
+                title: # <!--- form field name
+                  type: string
+                  required: true
+                description:
+                  type: string
+                  required: true
+                profile_type:
+                  type: string
+                  enum: [ "Stand-alone", "Darwin Tree of Life (DTOL)", "Darwin Tree of Life Environmental Samples (DTOL_ENV)", "Aquatic Symbiosis Genomics (ASG)", "European Reference Genome Atlas (ERGA)" ]
+                  required: true
+      responses:
+        "200":
+          description: representation of the created profile
+
+  /profile/get_for_user/:
+    post:
+      tags:
+        - Profile
+      security:
+        - app_id: [ ]
+      consumes:
+        - application/x-www-form-urlencoded
+      summary:
+        Get profiles for authenticated user
+      responses:
+        "200":
+          description: representation of the created profile
+
+  /manifest/validate/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - profile_id
+                - manifest
+              type: object
+              properties:
+                profile_id:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: id of queued validation report to be queried
+
+  /manifest/validate/report/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+      consumes:
+        - application/x-www-form-urlencoded
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - validation_report_id
+              properties:
+                validation_report_id:
+                  type: string
+      responses:
+        "200":
+          description: status and/or validation errors for given manifest validation
+
+  /manifest/validations/:
+    post:
+      tags:
+        - Manifest
+      security:
+        - app_id: [ ]
+      responses:
+        "200":
+          description: validations for authorised user
+
 components:
+
+  securitySchemes:
+    app_id:
+      type: apiKey
+      description: API key to authorize requests.
+      name: "Authorization"
+      in: header
+
   schemas:
+
+    Profile:
+      type: object
+      properties:
+        profile_id:
+          type: string
+        title:
+          type: string
+        tol_type:
+          type: string
+
     StatsNumber:
       type: object
       properties:
         number_found:
           type: integer
 
+    AuthBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
     SampleStatus:
       type: object
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -372,7 +532,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -384,7 +544,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -397,7 +557,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -410,7 +570,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
@@ -423,7 +583,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["OK", "Error"]
+          enum: [ "OK", "Error" ]
         number_found:
           type: integer
         data:
