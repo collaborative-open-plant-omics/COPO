@@ -1,12 +1,10 @@
 $(document).ready(function () {
-
-
     $(document).on("click", ".card", function () {
         window.location = "/copo/stats#"
     })
 
-    $('.ui.dropdown').dropdown();
-    var image = getRandomInt(images.length)
+    // $('.ui.dropdown').dropdown();
+    const image = getRandomInt(images.length);
     $('body').css("background-image", "url(" + images[image] + ")")
 
     try {
@@ -16,17 +14,17 @@ $(document).ready(function () {
 
     }
 
-    $.getJSON("api/stats/numbers")
-        .done(function (data) {
-            $("#num_samples").html(data.samples)
-            $("#num_profiles").html(data.profiles)
-            $("#num_users").html(data.users)
-            $("#num_uploads").html(data.datafiles)
-        }).error(function (data) {
-        console.log(data)
-    })
+    // $.getJSON("api/stats/numbers")
+    //     .done(function (data) {
+    //         $("#num_samples").html(data.samples)
+    //         $("#num_profiles").html(data.profiles)
+    //         $("#num_users").html(data.users)
+    //         $("#num_uploads").html(data.datafiles)
+    //     }).error(function (data) {
+    //     console.log(data)
+    // })
 
-})
+});
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));

@@ -38,8 +38,8 @@
     },
     // typeahead calls this function when a object is selected, and
     // passes an object or string depending on what you processed, in this case a string
-    onselect: function (obj) {
-      alert('Selected '+obj)
+    onselect: function (self) {
+      alert('Selected '+self)
     }
 
   })
@@ -50,7 +50,7 @@
   $('.typeahead').typeahead({
     // note that "value" is the default setting for the property option
     source: [{value: 'Charlie'}, {value: 'Gudbergur'}, ...],
-    onselect: function(obj) { console.log(obj) }
+    onselect: function(self) { console.log(self) }
   })
 ```
 

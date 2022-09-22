@@ -795,22 +795,22 @@ label.fuelux .checkbox-inline {
 
 /*.fuelux .radio input[type="radio"]:not(.sr-only):checked ~ label:before,*/
 /*.fuelux .radio-inline input[type="radio"]:not(.sr-only):checked ~ label:before {*/
-    /*background: #39b3d7;*/
-    /*!* Old browsers *!*/
-    /*background: -moz-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
-    /*!* FF3.6+ *!*/
-    /*background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #ffffff), color-stop(40%, #ffffff), color-stop(41%, #39b3d7), color-stop(100%, #39b3d7));*/
-    /*!* Chrome,Safari4+ *!*/
-    /*background: -webkit-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
-    /*!* Chrome10+,Safari5.1+ *!*/
-    /*background: -o-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
-    /*!* Opera 12+ *!*/
-    /*background: -ms-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
-    /*!* IE10+ *!*/
-    /*background: radial-gradient(ellipse at center, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
-    /*!* W3C *!*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#39b3d7', GradientType=1);*/
-    /*!* IE6-9 fallback on horizontal gradient *!*/
+/*background: #39b3d7;*/
+/*!* Old browsers *!*/
+/*background: -moz-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
+/*!* FF3.6+ *!*/
+/*background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #ffffff), color-stop(40%, #ffffff), color-stop(41%, #39b3d7), color-stop(100%, #39b3d7));*/
+/*!* Chrome,Safari4+ *!*/
+/*background: -webkit-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
+/*!* Chrome10+,Safari5.1+ *!*/
+/*background: -o-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
+/*!* Opera 12+ *!*/
+/*background: -ms-radial-gradient(center, ellipse cover, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
+/*!* IE10+ *!*/
+/*background: radial-gradient(ellipse at center, #ffffff 0%, #ffffff 40%, #39b3d7 41%, #39b3d7 100%);*/
+/*!* W3C *!*/
+/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#39b3d7', GradientType=1);*/
+/*!* IE6-9 fallback on horizontal gradient *!*/
 /*}*/
 
 .fuelux .radio input[type="radio"]:not(.sr-only):hover ~ label:before,
@@ -3109,7 +3109,9 @@ label.fuelux .checkbox-inline {
 }
 
 .fuelux .wizard {
-    *zoom: 1;
+    /**zoom: 1;*/
+    transform: scale(1); /* Standard Property */
+    transform-origin: 0 0; /* Standard Property */
     border: 1px solid #d4d4d4;
     border-radius: 4px;
     background-color: #fafafa;

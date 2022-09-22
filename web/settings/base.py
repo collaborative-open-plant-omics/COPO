@@ -203,8 +203,8 @@ DATAVERSE = {
     "HARVARD_LIVE_TOKEN": "10731a84-b3d3-457e-999d-21f48fe8d812"
 }
 
-UNIT_TESTING = False
-TEST_USER_NAME = 'jonny'
+UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
+TEST_USER_NAME = 'aaliyah'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 500000000
 FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
@@ -218,3 +218,13 @@ CACHES = {
 }
 
 VIEWLOCK_TIMEOUT = timedelta(seconds=1800)
+
+# Enables django-html-validator that automatically checks if the served HTML pages are
+# valid for the W3C checkers.
+HTMLVALIDATOR_ENABLED = True
+HTMLVALIDATOR_VNU_JAR = './tests/utilities/vnu.jar'
+HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
+
+# Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+# Solution: Set 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

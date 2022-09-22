@@ -7,6 +7,28 @@
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
           xmlns="http://www.w3.org/1999/html">
+    {#    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">#}
+    {#    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>#}
+    {#    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>#}
+    {##}
+    {##}
+    {##}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {# <script src="https://code.jquery.com/jquery-3.6.0.js"></script>#}
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    {##}
+    {##}
+    {##}
+    {##}
+    {#  <link rel="stylesheet" href="/resources/demos/style.css">#}
+    {#  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>#}
+    {#  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>#}
+    <script>
+        $(function () {
+            $("#commonvalueID").datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
+        });
+    </script>
 {% endblock %}
 
 
@@ -15,6 +37,8 @@
 {% block tagline_block %}
     {% block content %}
         {{ latest_message }} : {{ created }}
+        <br>
+        <p>Date: <input type="text" id="commonvalueID" placeholder="Select date"></p>
     {% endblock %}
 
 {% endblock %}

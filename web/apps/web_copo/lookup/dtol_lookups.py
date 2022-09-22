@@ -286,7 +286,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "copo_profile_title",
         "tol_project"
     ],
-
+    "env": []
 }
 DTOL_ENUMS = {
 

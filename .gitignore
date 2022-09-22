@@ -2,7 +2,7 @@ COPO/.idea/workspace.xml
 **/.idea/
 celerybeat-schedule*
 .idea/*
-
+html_validators/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -92,7 +92,7 @@ copo_keys/*
 
 # virtualenv
 .venv/
-venv/
+venv_bak/
 ENV/
 
 # Spyder project settings

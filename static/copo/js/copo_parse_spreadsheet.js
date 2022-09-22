@@ -128,7 +128,7 @@ $(document).ready(function () {
                 },
                 {
                     label: "Confirm",
-                    cssClass: "tiny ui basic button",
+                    cssClass: "tiny ui basic button dialog_confirm",
                     action: function (dialogRef) {
                         $("#finish_button").hide()
 

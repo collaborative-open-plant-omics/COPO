@@ -1,4 +1,3 @@
-
 {% extends "secondary.html" %}
 {% load static %}
 
@@ -18,11 +17,13 @@
 
     <div style="margin-left: 40px">
         <li>
-            <a href="/manifests">Current manifests</a>
+            <a href="{% url 'manifests:manifests' %}">Current manifests</a>
         </li>
         <li>
-            <a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>Visual guide to DTOL/ASG and ERGA submissions</a>:
-            the guide is referring to DToL as an example, but you can follow the very same steps for ASG and ERGA, as long as you create a profile of the
+            <a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>Visual guide to DTOL/ASG and ERGA
+                submissions</a>:
+            the guide is referring to DToL as an example, but you can follow the very same steps for ASG and ERGA, as
+            long as you create a profile of the
             right type at the start.
 
 

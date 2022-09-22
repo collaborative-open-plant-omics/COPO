@@ -19,24 +19,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <![endif]-->
     <title>COPO - Collaborative Open Plant Omics</title>
-
+    <link href="/static/assets/css/base_styles.css" rel="stylesheet"/>
     <link rel="stylesheet" media="print" onload="this.media='all'"
           href="{% static 'copo/semantic_ui/semantic.min.css' %}">
     <link href="/static/assets/css/bootstrap.css" rel="stylesheet"/>
     <link href="/static/assets/css/font-awesome.min.css" rel="stylesheet"/>
-    <link href="/static/assets/css/base_styles.css" rel="stylesheet"/>
+
     <script src="{% static 'copo/js/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'copo/semantic_ui/semantic.min.js' %}"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="{% static "assets/js/landing.js" %}"></script>
-
+    {% block headblock %}
+    {% endblock %}
     <style>
         {% block css_block %}
         {% endblock %}
     </style>
 
+
     <script>
+        var image_pre = "/static/assets/img/"
+        var images = [image_pre + "fox_bw.jpg", image_pre + "flower_bw.jpg", image_pre +
+        "ladybug_bw.jpg",
+            image_pre + "blackbird_bw.jpg", image_pre + "ladybug1_bw.jpg", image_pre +
+            "lavender_bw.jpg",
+            image_pre + "lavender1_bw.jpg", image_pre + "mist_bw.jpg", image_pre + "otter_bw.jpg"
+        ]
+        var content_classes = ["gray-theme", "green-theme"]
         {% block javascript_block %}
         {% endblock %}
     </script>
@@ -46,6 +56,5 @@
 
 {% block baseblock %}
 {% endblock %}
-
 </body>
 </html>

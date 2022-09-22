@@ -64,6 +64,10 @@ def stats(request, view=""):
         return render(request, context={}, template_name="copo/stats/time_series_statistics.html")
 
 
+def test(request):
+    return render(request, template_name='copo/test.html')
+
+
 '''
 def test_submission(request):
     delegate_submission(request)

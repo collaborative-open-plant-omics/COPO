@@ -7,14 +7,15 @@ from django.views.static import serve
 import web.apps.web_copo.views as views
 from web.landing import views as landing_views
 
+admin.autodiscover()
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('copo/', include('web.apps.web_copo.urls', namespace='copo')),
-
     path('rest/', include('web.apps.web_copo.rest_urls', namespace='rest')),
 
     path('api/', include('api.urls', namespace='api')),
-
+    path('manifests/', include('api.urls', namespace='manifests')),
     path('accounts/', include('allauth.urls')),
     path('accounts/profile/', views.index),
     path('', landing_views.index, name='index'),
@@ -22,7 +23,6 @@ urlpatterns = [
     path('people/', TemplateView.as_view(template_name="people.html"), name='people'),
     path('dtol/', TemplateView.as_view(template_name="dtol.html"), name='dtol'),
     path('news/', TemplateView.as_view(template_name="news.html"), name='news'),
-    path('manifests/', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
     path('ebp/', TemplateView.as_view(template_name="ebp_resources.html"), name="ebp")
 ]
 
