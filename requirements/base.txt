@@ -196,5 +196,6 @@ widgetsnbextension==3.5.1
 wrapt==1.10.10
 xlrd==1.2.0
 xmljson==0.1.9
+XlsxWriter==3.0.3
 zipp==0.6.0
 zope.interface==4.6.0
