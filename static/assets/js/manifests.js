@@ -209,8 +209,6 @@ function removeOptionFromCommonFieldDropdownList(commonField) {
 
 function insertFormDiv(common_field) {
     const formDiv = document.getElementById("formDiv");
-    // $(formDiv).addClass('centerFormDiv');
-
     // Create a form tag
     const form = document.getElementById("formID");
     $(form).addClass('form-horizontal'); // form-horizontal form-inline
@@ -247,6 +245,7 @@ function insertFormDiv(common_field) {
     commonFieldLabel.setAttribute('for', "commonValueID")
     commonFieldLabel.style.paddingRight = '20px'; // Add space between the value field and field name
     commonFieldLabel.style.marginLeft = '10px';
+    commonFieldLabel.style.textAlign = "left"
 
     // Truncate long field names
     commonFieldLabel.style.whiteSpace = 'nowrap';

@@ -1,57 +1,11 @@
-﻿/*.fuelux .modal-body .wizard > .actions {*/
-/*    z-index: 1000;*/
-/*    position: initial !important;*/
-/*    right: 0px;*/
-/*    top: auto;*/
-/*    bottom: 0px !important;*/
-/*    line-height: 46px;*/
-/*    float: right;*/
-
-/*    padding-left: 15px;*/
-/*    padding-right: 15px;*/
-/*    padding-bottom: 15px;*/
-/*    vertical-align: middle;*/
-/*    background-color: transparent !important;*/
-/*    border: none !important;*/
-/*    !*border-top: 1px solid #e9ecef !important;*!*/
-/*    border-radius: 0px 4px 0px 0px;*/
-/*}*/
-.hoverTable {
-    border-collapse: separate;
-    border-spacing: 0 1em;
+label {
+    color: black !important;
 }
 
-.hoverTable tr:hover {
-    background-color: #D6EEEE;
+h4 {
+    color: black !important;
 }
 
-.autoModal.modal .modal-body {
-    max-height: 100%;
-}
-
-
-.truncateLongTexts {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 1px;
-    width: 250px
-}
-
-/* Center the form div*/
-.centerFormDiv {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    position: fixed;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/*.hoverTable tr {*/
-/*    margin-bottom: 50px;*/
-/*}*/
-
-/* Center contents within a table*/
-.table {
-    text-align: center;
+p {
+    color: black !important;
 }

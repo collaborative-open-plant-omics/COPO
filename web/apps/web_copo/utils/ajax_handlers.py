@@ -1779,6 +1779,7 @@ def generate_manifest_template(request):
         "common_fields_list"]
     common_values = json_util.loads(request.body)[
         "common_values_list"]
+    
     manifests_dir = os.path.join("static", "assets", "manifests")
 
     # Set the path to the blank manifest template based on the manifest type
@@ -1795,7 +1796,7 @@ def generate_manifest_template(request):
     common_field_values_dataframe = pd.DataFrame(excel_data)
 
     # Get all worksheets from the blank manifest
-    blank_manifest_dataframe = pd.read_excel(manifest_template_path, sheet_name=None)
+    blank_manifest_dataframe = pd.read_excel(manifest_template_path, sheet_name=None, index_col=0)
 
     # Get Metadata Entry worksheet
     metadataEntry_worksheet = blank_manifest_dataframe['Metadata Entry']
@@ -1810,11 +1811,15 @@ def generate_manifest_template(request):
     # Convert the list of column names into a dataframe
     metadataEntry_worksheet_dataframe = pd.DataFrame(columns=metadataEntry_worksheet.columns)
 
-    # Get column names from the "Data Validation" worksheet from the blank manifest
-    dataValidation_worksheet_dataframe = pd.DataFrame(columns=dataValidation_worksheet.columns)
+    # Remove Unnamed columns
+    metadataEntry_worksheet_dataframe = metadataEntry_worksheet_dataframe.loc[:,
+                                        ~metadataEntry_worksheet_dataframe.columns.str.startswith(
+                                            'Unnamed')]
+    # Remove NaNs columns
+    metadataEntry_worksheet_dataframe.dropna(axis=0, how='all', inplace=True)
 
-    # Get column names from the "OrganismPartDefinitions" worksheet from the blank manifest
-    organismPartDefinitions_worksheet_columns = pd.DataFrame(columns=organismPartDefinitions_worksheet.columns)
+    # Get column names from the "Data Validation" worksheet from the blank manifest
+    dataValidation_worksheet_dataframe = pd.DataFrame(columns=dataValidation_worksheet.columns, index=[0])
 
     # Concatenate the common field and its common values with the respective column names
     # from the blank manifest template
@@ -1829,6 +1834,13 @@ def generate_manifest_template(request):
     # worksheet using data from the blank manifest worksheet
     metadataEntry_worksheet_concatenation.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Metadata Entry')
 
+    # Remove Unnamed columns
+    dataValidation_worksheet_dataframe = dataValidation_worksheet_dataframe.loc[:,
+                                         ~dataValidation_worksheet_dataframe.columns.str.startswith(
+                                             'Unnamed')]
+    # Remove NaNs columns
+    dataValidation_worksheet_dataframe.dropna(axis=0, how='all', inplace=True)
+
     # Add Data Validation worksheet to the generated manifest
     # worksheet using data from the blank manifest worksheet
     dataValidation_worksheet.to_excel(pandas_writer, index=False, startrow=0, sheet_name='Data Validation')
@@ -1838,7 +1850,7 @@ def generate_manifest_template(request):
     organismPartDefinitions_worksheet.to_excel(pandas_writer, index=False, startrow=0,
                                                sheet_name='OrganismPartDefinitions')
 
-    # Auto-adjust width of eac column within the worksheet
+    # Auto-adjust width of each column within the worksheet
     autoAdjustExcelColumnWidth(metadataEntry_worksheet_concatenation, pandas_writer, 'Metadata Entry')
 
     autoAdjustExcelColumnWidth(dataValidation_worksheet, pandas_writer, 'Data Validation')
@@ -1883,22 +1895,33 @@ def applyDataValidationToColumn(column, metadataEntry_worksheet_dataframe,
     dataValidation_worksheet_name = "'Data Validation'"
     dataValidation_worksheet_column_index = dataValidation_worksheet_dataframe.columns.get_loc(column)
     dataValidation_worksheet_column_letter = get_column_letter(dataValidation_worksheet_column_index + 1)
-
-    # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
-    data_validation_column = '=%s!$%s$2:$%s$79' % (
-        dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
-        dataValidation_worksheet_column_letter)
+    organismPart_dataValidationColumn = '=%s!$%s$2:$%s$78'
+    tissueForBarcoding_dataValidationColumn = '=%s!$%s$2:$%s$79'
+    tissueForBiobanking_dataValidationColumn = '=%s!$%s$2:$%s$79'
 
     if "ORGANISM_PART" in column:  # and manifest_type ==:
-        print('I am here 6')
+        # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
+        data_validation_column = organismPart_dataValidationColumn % (
+            dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
+            dataValidation_worksheet_column_letter)
+
         return pandas_writer.sheets[sheet_name].data_validation(
             row_start_end, {'validate': 'list', 'source': data_validation_column})
     elif "TISSUE_FOR_BARCODING" in column:
-        print('I am here 7')
+        # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
+        data_validation_column = tissueForBarcoding_dataValidationColumn % (
+            dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
+            dataValidation_worksheet_column_letter)
+
         return pandas_writer.sheets[sheet_name].data_validation(row_start_end,
                                                                 {'validate': 'list', 'source': data_validation_column})
     elif "TISSUE_FOR_BIOBANKING" in column:
-        print('I am here 8')
+
+        # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
+        data_validation_column = tissueForBiobanking_dataValidationColumn % (
+            dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
+            dataValidation_worksheet_column_letter)
+
         return pandas_writer.sheets[sheet_name].data_validation(row_start_end,
                                                                 {'validate': 'list', 'source': data_validation_column})
 
@@ -1939,13 +1962,6 @@ def applyDropdownlist(dataframe, pandas_writer, sheet_name,
                 pandas_writer.sheets[sheet_name].data_validation(row_start_end,
                                                                  {'validate': 'list',
                                                                   'source': common_value_dropdownlist})
-
-            # dataValidation_worksheet_dataframe.loc[:,
-            # ~ddataValidation_worksheet_dataframe.loc[:,
-            # ~dataValidation_worksheet_dataframe.columns.str.match("Unnamed")]  # Removed "Unamed" columns
-            dataValidation_worksheet_dataframe.drop(dataValidation_worksheet_dataframe.columns[
-                                                        dataValidation_worksheet_dataframe.columns.str.contains(
-                                                            'unnamed', case=False)], axis=1, inplace=True)
 
 
 def get_common_field_dropdownlist(common_field, manifest_type):
@@ -2009,7 +2025,6 @@ def validate_common_value(request):
                             f'https://www.ebi.ac.uk/ena/browser/view/ERC000053 '
 
     else:
-        print("Validation 3")
         if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
         elif "ena_regex" in lkup.DTOL_RULES[common_field]:
