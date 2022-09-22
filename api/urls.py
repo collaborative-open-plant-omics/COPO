@@ -7,7 +7,6 @@ from .views import person, general, stats, profile
 from .views import sample as s
 from .views.sample import APIValidateManifest, APIGetManifestValidationReport, APIGetUserValidations
 from django.views.decorators.csrf import csrf_exempt
-from .handlers import sample, person, general, stats
 from django.views.generic import TemplateView
 
 app_name = 'api'
