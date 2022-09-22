@@ -107,9 +107,6 @@
                                 </li>
                             </ul>
                         </div>
-
-                        {#                        <form id="wizardForm" method="post" class="form-horizontal">#}
-                        {#                            {% csrf_token %}#}
                         <div class="step-content">
                             <div class="step-pane" data-step="1">
                                 <div class="well">
@@ -132,9 +129,6 @@
                                            max="10000" required
                                            onkeypress="return event.keyCode === 8 || event.charCode > 48
                                                && event.charCode <= 57"/>
-                                    {#                                               onkeypress="return event.keyCode === 8 || event.charCode >= 48#}
-                                    {#                                               && event.charCode <= 57"#}
-                                    {#                                               onchange="this.value = Math.floor(Math.max(this.value,1))"#}
                                 </div>
 
                                 <div class="well">
@@ -152,12 +146,6 @@
                                     </div>
 
                                 </div>
-
-                                {#                                    <div id="tableDiv">#}
-                                {#                                        <table id="tableID">#}
-                                {#                                        </table>#}
-                                {#                                    </div>#}
-
                                 <div id="formDiv">
                                     <form id="formID"></form>
                                     {% csrf_token %}
@@ -175,8 +163,6 @@
 
 
                         </div>
-
-                        {#                        </form>#}
                         <div class="actions">
                             <button type="button" class="btn btn-sm btn-primary btn-prev">
                                 <i class="fa fa-arrow-left"></i> Prev
