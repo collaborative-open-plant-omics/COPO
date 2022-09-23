@@ -90,6 +90,9 @@ def filter_for_API(sample_list, add_all_fields=False):
             s = {**s, **species_list[0]}
         s_out = dict()
         for k, v in s.items():
+            if k == "SPECIMEN_ID_RISK":
+                # this to account for old manifests before name change
+                k = "SPECIMEN_IDENTITY_RISK"
             # check if there is a traditional right embargo
             if k == "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE":
                 if v in ["N", "n"] or s.get("tol_project") not in ["ERGA", "erga"]:
