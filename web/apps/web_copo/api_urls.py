@@ -2,7 +2,7 @@ __author__ = 'felix.shaw@tgac.ac.uk - 14/05/15'
 
 from django.urls import path, re_path
 
-import api.handlers.general as api_views
+import api.views.general as api_views
 
 urlpatterns = [
     re_path(r'^submit_to_figshare/(?P<article_id>[a-z0-9]+)', api_views.submit_to_figshare,

@@ -64,7 +64,7 @@ def finish_request(template=None, error=None, num_found=None, return_http_respon
     if return_http_response:
         return HttpResponse(output, content_type="application/json")
     else:
-        return HttpResponse(output, content_type="application/json")
+        return output
 
 def map_to_dict(x, y):
     # method to make output dict using keys from array x and values from array y

@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from django_tools.middlewares.ThreadLocal import get_current_user
 from web.settings.base import VIEWLOCK_TIMEOUT
 from django.utils import timezone
-
+from rest_framework.authtoken.models import Token
 
 class UserDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -38,6 +38,13 @@ def create_user_profile(sender, instance, created, **kwargs):
     except:
         UserDetails.objects.create(user=instance)
 
+
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance, **kwargs):
+    try:
+        Token.objects.create(user=instance)
+    except:
+        pass
 
 @receiver(post_save, sender=User)
 def save_user_details(sender, instance, **kwargs):

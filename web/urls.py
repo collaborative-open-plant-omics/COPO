@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('copo/', include('web.apps.web_copo.urls', namespace='copo')),
     path('rest/', include('web.apps.web_copo.rest_urls', namespace='rest')),
+
     path('api/', include('api.urls', namespace='api')),
     path('manifests/', include('api.urls', namespace='manifests')),
     path('accounts/', include('allauth.urls')),

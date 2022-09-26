@@ -3,7 +3,7 @@ __author__ = 'felix.shaw@tgac.ac.uk - 22/10/15'
 import copy
 import os
 from datetime import datetime, timezone, date
-
+import re
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -53,6 +53,7 @@ StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
+APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
@@ -72,7 +73,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    test=get_collection_ref(TestCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
-                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection)
+                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
+                   apiValidationReport=get_collection_ref(APIValidationReport)
                    )
 
 
@@ -2418,6 +2420,32 @@ class ENAFileTransferObject(DAComponent):
 
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
+
+
+class APIValidationReport(DAComponent):
+    def __init__(self, profile_id=None):
+        super(APIValidationReport, self).__init__(profile_id, "apiValidationReport")
+
+    def setComplete(self, report_id):
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "complete"}})
+
+    def setRunning(self, report_id):
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "running"}})
+
+    def setFailed(self, report_id, msg):
+        # make tuple list of text replacements for html elements
+        replacements = list()
+        replacements.append(("<h4>", "\r"))
+        replacements.append(("</h4>", ""))
+        replacements.append(("<ol>", ""))
+        replacements.append(("</ol>", ""))
+        replacements.append(("<li>", "\r"))
+        replacements.append(("</li>", ""))
+        replacements.append(("<strong>", ""))
+        replacements.append(("</strong>", ""))
+        for el in replacements:
+            msg = msg.replace(el[0], el[1])
+        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "failed", "content": msg}})
 
 
 def is_number(s):

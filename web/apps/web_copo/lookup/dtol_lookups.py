@@ -1158,6 +1158,12 @@ DTOL_UNITS = {
     "DECIMAL_LONGITUDE": {
         "ena_unit": "DD"
     },
+    "ORIGINAL_DECIMAL_LATITUDE": {
+        "ena_unit": "DD"
+    },
+    "ORIGINAL_DECIMAL_LONGITUDE": {
+        "ena_unit": "DD"
+    },
     "DEPTH": {
         "ena_unit": "m"
     },

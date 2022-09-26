@@ -1,0 +1,15 @@
+<SUBMISSION xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" broker_name="COPO" center_name="EI"
+            submission_date="2022-08-15T15:47:55.145482+00:00"
+            xsi:noNamespaceSchemaLocation="ftp://ftp.sra.ebi.ac.uk/meta/xsd/sra_1_5/SRA.submission.xsd">
+    <CONTACTS>
+        <CONTACT name="COPO support" inform_on_error="support@copo.org" inform_on_status="support@copo.org"/>
+    </CONTACTS>
+    <ACTIONS>
+        <ACTION>
+            <ADD/>
+        </ACTION>
+        <ACTION>
+            <RELEASE/>
+        </ACTION>
+    </ACTIONS>
+</SUBMISSION>

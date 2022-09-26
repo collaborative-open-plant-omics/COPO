@@ -1362,10 +1362,14 @@ def get_subsample_stages(request):
     return HttpResponse(json.dumps(sections))
 
 
-def sample_spreadsheet(request):
+def sample_spreadsheet(request, report_id=""):
     file = request.FILES["file"]
     name = file.name
-    dtol = DtolSpreadsheet(file=file, p_id=request.session["profile_id"])
+    if "profile_id" in request.POST:
+        p_id = request.POST["profile_id"]
+    else:
+        p_id = request.session["profile_id"]
+    dtol = DtolSpreadsheet(file=file, p_id=p_id)
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
     elif name.endswith("csv"):
@@ -1377,12 +1381,16 @@ def sample_spreadsheet(request):
 
     if dtol.loadManifest(m_format=fmt):
         srlz_dtol = pickle.dumps(dtol.file)
-        p_id = request.session["profile_id"]
+        if "profile_id" in request.POST:
+            p_id = request.POST["profile_id"]
+        else:
+            p_id = request.session["profile_id"]
         r = {"$set": {"manifest_data": srlz_dtol, "profile_id": p_id, "schema_validation_status": "pending",
                       "taxon_validation_status": "pending", "err_msg": [],
                       "time_added": datetime.utcnow(),
                       "file_name": name,
-                      "isupdate": False
+                      "isupdate": False,
+                      "report_id": report_id
                       }}
         ValidationQueue().get_collection_handle().update_one({"profile_id": p_id}, r, upsert=True)
 
@@ -1601,27 +1609,15 @@ def handle_csv_column_update_spreadsheet(request):
                     updates.append(
                         {"_id": saved_sample["_id"], "updated_field": "label", "updated_value": updated_sample[
                             "label"].to_string(index=False)})
-                '''
-                if (label_source != updated_sample["label_source"]).bool():
-                    updates.append({"_id": saved_sample["_id"], "updated_field": "label_source", "updated_value":
-                        updated_sample["label_source"].to_string(index=False)})
-                '''
+
                 if (value != updated_sample["value"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "value", "updated_value":
                         updated_sample["value"].to_string(index=False)})
-                '''
-                if (value_source != updated_sample["value_source"]).bool():
-                    updates.append({"_id": saved_sample["_id"], "updated_field": "value_source", "updated_value":
-                        updated_sample["value_source"].to_string(index=False)})
-                '''
+
                 if (unit != updated_sample["unit"]).bool():
                     updates.append({"_id": saved_sample["_id"], "updated_field": "unit", "updated_value":
                         updated_sample["unit"].to_string(index=False)})
-                '''
-                if (unit_source != updated_sample["unit_source"]).bool():
-                    updates.append({"_id": saved_sample["_id"], "updated_field": "unit_source", "updated_value":
-                        updated_sample["unit_source"].to_string(index=False)})
-                '''
+
             return HttpResponse(json_util.dumps(updates))
 
 

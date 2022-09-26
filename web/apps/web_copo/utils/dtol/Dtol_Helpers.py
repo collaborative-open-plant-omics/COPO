@@ -64,14 +64,21 @@ def check_taxon_ena_submittable(taxon, by="id"):
     try:
         receipt = subprocess.check_output(curl_cmd, shell=True)
         print(receipt)
-
+        if receipt.decode("utf-8") == "":
+            errors.append(
+                "ENA returned no results for Scientific Name " + taxon + ". This could mean that the taxon id is incorrect, or ENA maybe down.")
+            return errors
         taxinfo = json.loads(receipt.decode("utf-8"))
         if by == "id":
             if taxinfo["submittable"] != 'true':
                 errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
+            if taxinfo["rank"] not in ["species", "subspecies"]:
+                errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
         elif by == "binomial":
             if taxinfo[0]["submittable"] != 'true':
                 errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
+            if taxinfo[0]["rank"] not in ["species", "subspecies"]:
+                errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
     except Exception as e:
         if receipt:
             if receipt.decode("utf-8") == "No results.":
