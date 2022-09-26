@@ -1,25 +1,30 @@
+from django.conf import settings
 from django.core.management import BaseCommand
-from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml,\
+from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
     build_bundle_sample_xml, update_bundle_sample_xml
 import xml.etree.ElementTree as ET
 import subprocess
 from tools import resolve_env
 import os
-from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
+# from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 
 import dal.copo_da as da
+import importlib
 
+schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path)
+DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
-    help="update pilot ERGA samples to rename *MANDATORY fields" \
-         "with *REQUIRED to comply with version 2.4 updates, keeping old fields too"
+    help = "update pilot ERGA samples to rename *MANDATORY fields" \
+           "with *REQUIRED to comply with version 2.4 updates, keeping old fields too"
 
     def __init__(self):
-        self.TO_UPDATE_FIELDS = {"ETHICS_PERMITS_MANDATORY" : "ETHICS_PERMITS_REQUIRED", "SAMPLING_PERMITS_MANDATORY" :
-                                "SAMPLING_PERMITS_REQUIRED",
-                               "NAGOYA_PERMITS_MANDATORY": "NAGOYA_PERMITS_REQUIRED"}
+        self.TO_UPDATE_FIELDS = {"ETHICS_PERMITS_MANDATORY": "ETHICS_PERMITS_REQUIRED", "SAMPLING_PERMITS_MANDATORY":
+            "SAMPLING_PERMITS_REQUIRED",
+                                 "NAGOYA_PERMITS_MANDATORY": "NAGOYA_PERMITS_REQUIRED"}
 
     # A command must define handle()
     def handle(self, *args, **options):

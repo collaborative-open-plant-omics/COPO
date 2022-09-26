@@ -1,33 +1,36 @@
+from django.conf import settings
 from django.core.management import BaseCommand
 from Bio import Entrez
-from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml,\
+from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
     build_bundle_sample_xml, update_bundle_sample_xml
 import xml.etree.ElementTree as ET
 import subprocess
 from tools import resolve_env
 import os
-from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
-
-
+# from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 
 import dal.copo_da as da
+import importlib
 
+schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path)
+DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
-    help="update metadata of samples - " \
-         "provide comma separated biosamples:field:new_value"
+    help = "update metadata of samples - " \
+           "provide comma separated biosamples:field:new_value"
     Entrez.email = "copo@earlham.ac.uk"
 
     def __init__(self):
         self.TAXONOMY_FIELDS = ["TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS",
-                               "SCIENTIFIC_NAME", "COMMON_NAME", "TAXON_REMARKS",
+                                "SCIENTIFIC_NAME", "COMMON_NAME", "TAXON_REMARKS",
                                 "INFRASPECIFIC_EPITHET"]
         self.rankdict = {
             "order": "ORDER_OR_GROUP",
-            "family" : "FAMILY",
-            "genus" :  "GENUS"
+            "family": "FAMILY",
+            "genus": "GENUS"
         }
         self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
         self.user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
@@ -44,7 +47,7 @@ class Command(BaseCommand):
         print(updates_to_make)
         d_updates = {}
         for update in updates_to_make:
-            assert len(update.split(":"))==3
+            assert len(update.split(":")) == 3
             sample = update.split(":")[0].strip()
             field = update.split(":")[1].strip()
             value = update.split(":")[2].strip()
@@ -70,7 +73,7 @@ class Command(BaseCommand):
                 da.Sample().record_manual_update(field, oldvalue, value, sample['_id'])
                 da.Sample().add_field(field, value, sample['_id'])
 
-            #if there's source update it
+            # if there's source update it
             if sample.get("sampleDerivedFrom", ""):
                 source_biosample = sample.get("sampleDerivedFrom")
             elif sample.get("sampleSameAs", ""):
@@ -79,10 +82,10 @@ class Command(BaseCommand):
                 source_biosample = ""
             if source_biosample:
                 sourceindb = da.Source().get_by_field("biosampleAccession", source_biosample)
-                assert len(sourceindb)==1
+                assert len(sourceindb) == 1
                 for field in d_updates[sample['biosampleAccession']]:
-                    #only update in source fields that are there -ENA submittable- and not organism part
-                    #unique handling of COLLECTION_LOCATION
+                    # only update in source fields that are there -ENA submittable- and not organism part
+                    # unique handling of COLLECTION_LOCATION
                     if field == "COLLECTION_LOCATION":
                         value = d_updates[sample['biosampleAccession']][field]
                         da.Source().record_manual_update(field, oldvalue, value, sourceindb[0]['_id'])
@@ -90,7 +93,7 @@ class Command(BaseCommand):
                         value = d_updates[sample['biosampleAccession']][field]
                         da.Source().record_manual_update(field, oldvalue, value, sourceindb[0]['_id'])
                     da.Source().add_field(field, value, sourceindb[0]['_id'])
-            #if fields are submitted to ENA update them
+            # if fields are submitted to ENA update them
             print(d_updates[sample['biosampleAccession']])
             print(list(d_updates[sample['biosampleAccession']].keys()))
             flag = False
@@ -103,22 +106,18 @@ class Command(BaseCommand):
                 if source_biosample:
                     self.update_source(sourceindb[0]['_id'])
 
-
-
-
-
     def update_sample(self, sample):
-        #update ENA record
+        # update ENA record
         updatedrecord = da.Sample().get_record(sample)
-        #retrieve submitted XML for sample
+        # retrieve submitted XML for sample
         curl_cmd = "curl -u " + self.user_token + \
                    ':' + self.pass_word + " " + self.ena_sample_retrieval \
                    + updatedrecord['biosampleAccession']
         registered_sample = subprocess.check_output(curl_cmd, shell=True)
 
-        #self.update_samplexml(registered_sample, updatedrecord['biosampleAccession'])
+        # self.update_samplexml(registered_sample, updatedrecord['biosampleAccession'])
         build_bundle_sample_xml(str(updatedrecord['_id']))
-        update_bundle_sample_xml([updatedrecord['_id']] , "bundle_" + str(updatedrecord['_id']) + ".xml")
+        update_bundle_sample_xml([updatedrecord['_id']], "bundle_" + str(updatedrecord['_id']) + ".xml")
         print(updatedrecord['_id'])
         self.modify_sample(updatedrecord['_id'])
 
@@ -131,12 +130,12 @@ class Command(BaseCommand):
                    + updatedrecord['biosampleAccession']
         registered_source = subprocess.check_output(curl_cmd, shell=True)
 
-        #self.update_samplexml(registered_source, updatedrecord['biosampleAccession'])
+        # self.update_samplexml(registered_source, updatedrecord['biosampleAccession'])
         build_specimen_sample_xml(updatedrecord)
         self.modify_sample(updatedrecord['_id'])
 
     def modify_sample(self, id):
-        fileis = "bundle_"+ str(id)+ ".xml"
+        fileis = "bundle_" + str(id) + ".xml"
         curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
                    + ' -F "SUBMISSION=@modifysubmission.xml' \
                    + '" -F "SAMPLE=@' \

@@ -4,6 +4,7 @@ import copy
 import os
 from datetime import datetime, timezone, date
 import re
+import importlib
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -21,7 +22,7 @@ from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
-from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
+# from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -30,6 +31,10 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
+schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path)
+TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
+SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 
 PubCollection = 'PublicationCollection'
 PersonCollection = 'PersonCollection'
@@ -331,32 +336,39 @@ class ValidationQueue(DAComponent):
         super(ValidationQueue, self).__init__(profile_id, "validationQueue")
 
     def get_queued_manifests(self):
-        m_list = self.get_collection_handle().find({"schema_validation_status": "pending", "taxon_validation_status": "pending"})
+        m_list = self.get_collection_handle().find(
+            {"schema_validation_status": "pending", "taxon_validation_status": "pending"})
         out = list(m_list)
         for el in out:
-            self.get_collection_handle().update_one({"_id": el["_id"]}, {"$set": {"schema_validation_status": "processing", "taxon_validation_status":
-                "processing"}})
+            self.get_collection_handle().update_one({"_id": el["_id"]}, {
+                "$set": {"schema_validation_status": "processing", "taxon_validation_status":
+                    "processing"}})
         return out
 
     def update_manifest_data(self, record_id, manifest_data):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"manifest_data": manifest_data}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"manifest_data": manifest_data}})
 
     def set_update_flag(self, record_id):
         self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"isupdate": True}})
 
     def set_taxon_validation_complete(self, record_id):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"taxon_validation_status": "complete"}})
 
     def set_taxon_validation_error(self, record_id, err):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
-                                                                                                                                           err}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                             err}})
 
     def set_schema_validation_complete(self, record_id):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "complete"}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"schema_validation_status": "complete"}})
 
     def set_schema_validation_error(self, record_id, err):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
-                                                                                                                                            err}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                              err}})
 
 
 class Publication(DAComponent):
@@ -625,8 +637,9 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
@@ -951,7 +964,8 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
+                {'profile_id': profile_id,
+                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -1023,8 +1037,9 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
@@ -1217,7 +1232,8 @@ class Submission(DAComponent):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
-                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083", level=Loglvl.ERROR, type=Logtype.FILE)
+                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
 
                 # no need to change status
             elif s.get("dtol_status", "") == "pending":
@@ -1726,8 +1742,9 @@ class Submission(DAComponent):
         return cursor_to_list(self.get_collection_handle().find({query: {"$exists": True}}, {projection: 1}))
 
     def set_manifest_submission_pending(self, s_id):
-        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$set": {"processing_status": "pending", "date_modified":
-            datetime.utcnow()}}):
+        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                   {"$set": {"processing_status": "pending", "date_modified":
+                                                       datetime.utcnow()}}):
             return True
         else:
             return False
@@ -1946,7 +1963,8 @@ class Profile(DAComponent):
 
     def get_dtolenv_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified", pymongo.DESCENDING)
+            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified",
+                                                                                              pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):
@@ -2413,10 +2431,12 @@ class ENAFileTransferObject(DAComponent):
 
     def set_processing(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
-                                                        {"$set": {"status": "processing", "last_checked": datetime.utcnow()}})
+                                                        {"$set": {"status": "processing",
+                                                                  "last_checked": datetime.utcnow()}})
 
     def set_pending(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending", "last_checked": datetime.utcnow()}})
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {
+            "$set": {"status": "pending", "last_checked": datetime.utcnow()}})
 
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
@@ -2445,7 +2465,8 @@ class APIValidationReport(DAComponent):
         replacements.append(("</strong>", ""))
         for el in replacements:
             msg = msg.replace(el[0], el[1])
-        self.get_collection_handle().update({"_id": ObjectId(report_id)}, {"$set": {"status": "failed", "content": msg}})
+        self.get_collection_handle().update({"_id": ObjectId(report_id)},
+                                            {"$set": {"status": "failed", "content": msg}})
 
 
 def is_number(s):

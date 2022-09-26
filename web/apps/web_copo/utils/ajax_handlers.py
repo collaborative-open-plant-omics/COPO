@@ -6,8 +6,8 @@ import os
 import re
 import time
 import urllib.parse
-import xlsxwriter
-from datetime import datetime, date, time
+import importlib
+from datetime import datetime, time
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
@@ -32,6 +32,7 @@ from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoG
     Repository, Person, ValidationQueue
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
+from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
 from submission.dataverseSubmission import DataverseSubmit as ds
 from submission.dspaceSubmission import DspaceSubmit as dspace
@@ -50,12 +51,15 @@ from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
-from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 
+# from web.apps.web_copo.lookup import dtol_lookups as lkup
+
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
+schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lkup = importlib.import_module(schema_version_path)
 
 
 def get_source_count(self):
@@ -1775,7 +1779,7 @@ def generate_manifest_template(request):
         "common_fields_list"]
     common_values = json_util.loads(request.body)[
         "common_values_list"]
-    
+
     manifests_dir = os.path.join("static", "assets", "manifests")
 
     # Set the path to the blank manifest template based on the manifest type

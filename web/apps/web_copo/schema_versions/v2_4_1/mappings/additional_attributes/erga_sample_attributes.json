@@ -1,0 +1,443 @@
+[
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "SAMPLE_COORDINATOR"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador)",
+    "id": "copo.sample.SAMPLE_COORDINATOR",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "SAMPLE_COORDINATOR_AFFILIATION"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador) Affiliation",
+    "id": "copo.sample.SAMPLE_COORDINATOR_AFFILIATION",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "SAMPLE_COORDINATOR_ORCID_ID"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador) ORCID ID",
+    "id": "copo.sample.SAMPLE_COORDINATOR_ORCID_ID",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "INDIGENOUS_RIGHTS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Indigenous Rights Def",
+    "id": "copo.sample.INDIGENOUS_RIGHTS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge Or Biocultural Righta Applicable",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge or Biocultural Project ID",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge Contact",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "ETHICS_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Ethics Permits Required",
+    "id": "copo.sample.ETHICS_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "ETHICS_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Ethics Permits Def",
+    "id": "copo.sample.ETHICS_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "SAMPLING_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sampling Permits Required",
+    "id": "copo.sample.SAMPLING_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "SAMPLING_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sampling Permits Def",
+    "id": "copo.sample.SAMPLING_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "NAGOYA_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Nagoya Permits Required",
+    "id": "copo.sample.NAGOYA_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "NAGOYA_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Nagoya Permits Def",
+    "id": "copo.sample.NAGOYA_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "TISSUE_REMOVED_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue Removed For Biobanking",
+    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "TISSUE_REMOVED_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue Removed For Biobanking",
+    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "TISSUE_VOUCHER_ID_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue Voucher ID For Biobanking",
+    "id": "copo.sample.TISSUE_VOUCHER_ID_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "TISSUE_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue For Biobanking",
+    "id": "copo.sample.TISSUE_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "DNA_REMOVED_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "DNA Removed For Biobanking",
+    "id": "copo.sample.DNA_REMOVED_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "versions": [
+      "DNA_VOUCHER_ID_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "DNA Voucher ID For Biobanking",
+    "id": "copo.sample.DNA_VOUCHER_ID_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string"
+  },
+  {
+    "help_tip": "Collector ORCID ID",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "versions": [
+      "COLLECTOR_ORCID_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.COLLECTOR_ORCID_ID",
+    "label": "Collector Orcid Identifier",
+    "show_in_table": true,
+    "dwc": ""
+  }
+]

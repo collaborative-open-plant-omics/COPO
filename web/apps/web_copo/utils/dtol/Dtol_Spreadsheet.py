@@ -1,6 +1,7 @@
 # Created by fshaw at 03/04/2020
 import inspect
 import math
+import importlib
 import os
 import uuid
 import pickle
@@ -20,7 +21,7 @@ from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
-from web.apps.web_copo.lookup import dtol_lookups as lookup
+# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
@@ -34,6 +35,8 @@ from dal import cursor_to_list
 from exceptions_and_logging import logger
 
 l = logger.Logger("exceptions_and_logging/logs")
+schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path)
 
 
 def make_target_sample(sample):
@@ -60,6 +63,7 @@ def make_target_sample(sample):
     sample["species_list"].append(out)
 
     return sample
+
 
 def make_species_list(sample):
     # need to pop taxon info, and add back into sample_list
@@ -153,6 +157,7 @@ class DtolSpreadsheet:
             if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
                 self.taxon_field_validators.append(element)
         '''
+
     def loadManifest(self, m_format):
 
         if self.profile_id is not None:
@@ -197,8 +202,10 @@ class DtolSpreadsheet:
 
             # validate for required fields
             for v in self.required_field_validators:
-                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag, isupdate=self.isupdate).validate()
+                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, fields=self.fields,
+                                                          data=self.data,
+                                                          errors=errors, warnings=warnings, flag=flag,
+                                                          isupdate=self.isupdate).validate()
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
@@ -207,7 +214,7 @@ class DtolSpreadsheet:
             # validate for optional dtol fields
             for v in self.optional_field_validators:
                 errors, warnings, flag = v(profile_id=self.profile_id, fields=self.fields, data=self.data,
-                                 errors=errors, warnings=warnings, flag=flag).validate()
+                                           errors=errors, warnings=warnings, flag=flag).validate()
 
             # send warnings
             if warnings:
@@ -365,7 +372,7 @@ class DtolSpreadsheet:
         self.these_permits.mkdir(parents=True)
 
         write_path = Path(self.these_permits)
-        #display_write_path = Path(self.display_images)
+        # display_write_path = Path(self.display_images)
         for f in files:
             file = files[f]
 
@@ -387,7 +394,7 @@ class DtolSpreadsheet:
             if sample[ethics_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id+"_ETHICS_PERMITS.pdf":
+                    if filename == specimen_id + "_ETHICS_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -401,7 +408,7 @@ class DtolSpreadsheet:
             if sample[sampling_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id+"_SAMPLING_PERMITS.pdf":
+                    if filename == specimen_id + "_SAMPLING_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -415,7 +422,7 @@ class DtolSpreadsheet:
             if sample[nagoya_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id+"_NAGOYA_PERMITS.pdf":
+                    if filename == specimen_id + "_NAGOYA_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -429,7 +436,8 @@ class DtolSpreadsheet:
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["permit_specimen_match"] = output
-        notify_frontend(data={"profile_id": self.profile_id, "fail_flag": fail_flag}, msg=output, action="make_permits_table",
+        notify_frontend(data={"profile_id": self.profile_id, "fail_flag": fail_flag}, msg=output,
+                        action="make_permits_table",
                         html_id="permits")
         return output
 
@@ -506,7 +514,7 @@ class DtolSpreadsheet:
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
             if "erga" in self.type.lower() and s["ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"]:
-                    s["status"] = "private"
+                s["status"] = "private"
             else:
                 s["status"] = "pending"
             s["rack_tube"] = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
@@ -526,7 +534,9 @@ class DtolSpreadsheet:
                         else:
                             for p in range(1, len(sample_data)):
                                 row = (map_to_dict(sample_data[0], sample_data[p]))
-                                if row.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") and row.get("TUBE_OR_WELL_ID", "") == s.get("TUBE_OR_WELL_ID", "") and row.get("SYMBIONT", "") == "TARGET":
+                                if row.get("RACK_OR_PLATE_ID", "") == s.get("RACK_OR_PLATE_ID", "") and row.get(
+                                        "TUBE_OR_WELL_ID", "") == s.get("TUBE_OR_WELL_ID", "") and row.get("SYMBIONT",
+                                                                                                           "") == "TARGET":
                                     s[field] = row.get(field, "")
                 # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
@@ -559,7 +569,8 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description, project=self.type.upper())
+        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper())
 
     def update_records(self):
         binary = pickle.loads(self.vr["manifest_data"])
@@ -580,7 +591,8 @@ class DtolSpreadsheet:
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             for field in s.keys():
-                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][0].get(field, ""):
+                if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
+                    0].get(field, ""):
                     if field in lookup.SPECIES_LIST_FIELDS:
                         # record change
                         Sample().record_user_update(field, recorded_sample["species_list"][0][field], s[field],
@@ -588,11 +600,10 @@ class DtolSpreadsheet:
                         # update sample
                         Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
                     else:
-                        #record change
+                        # record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
-                        #update sample
+                        # update sample
                         Sample().add_field(field, s[field], recorded_sample["_id"])
-
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
@@ -614,7 +625,7 @@ class DtolSpreadsheet:
         updates = {}
         for p in range(1, len(sample_data)):
             s = (map_to_dict(sample_data[0], sample_data[p]))
-            rack_tube = s.get("RACK_OR_PLATE_ID","") + "/" + s["TUBE_OR_WELL_ID"]
+            rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             if s["SYMBIONT"].upper() == "SYMBIONT":
                 # this requires different logic to discriminate between symbionts
                 return False
@@ -623,7 +634,8 @@ class DtolSpreadsheet:
             exsam = exsam[0]
             updates[rack_tube] = {}
             for field in s.keys():
-                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field, ""):
+                if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field,
+                                                                                                                 ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
                         updates[rack_tube][field] = {}
                         if field in lookup.SPECIES_LIST_FIELDS:
@@ -643,10 +655,10 @@ class DtolSpreadsheet:
                 msg += "<li>Updating sample <strong>" + sample + "</strong>: <ul>"
                 for field in updates[sample]:
                     msg += "<li><strong> " + field + "</strong> from " + updates[sample][field]["old_value"] + " " \
-                            "to <strong>" + \
+                                                                                                               "to <strong>" + \
                            updates[sample][field]["new_value"] + "</strong></li>"
                 msg += "</li></ul>"
-            msg+="</ul>"
+            msg += "</ul>"
             notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
                             html_id="warning_info3")
             notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_update",
