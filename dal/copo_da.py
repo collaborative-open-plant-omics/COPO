@@ -968,6 +968,12 @@ class Sample(DAComponent):
                     if bc["sample_id"] == str(s["_id"]):
                         samples[idx]["barcoding"] = bc
             cursor = samples
+        elif filter == "processing":
+            out = list()
+            cursor = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "processing"})
+            samples = list(cursor)
+            cursor = samples
         else:
             # else return samples who's status simply matches the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
