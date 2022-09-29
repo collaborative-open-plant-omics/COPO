@@ -26,8 +26,8 @@ from pymongo import ReturnDocument
 import web.apps.web_copo.utils.FileTransferUtils as tx
 
 l = logger.Logger("exceptions_and_logging/logs")
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path)
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 from django.conf import settings
 from os.path import join

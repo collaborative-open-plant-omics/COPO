@@ -1,8 +1,8 @@
 from django.conf import settings
 from dal.copo_da import ValidationQueue, Profile, Sample, APIValidationReport
-from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-    taxon_validators
-from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+# from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
+#     taxon_validators
+# from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
 import pandas
 import inspect
@@ -17,8 +17,17 @@ from web.apps.web_copo.lookup import lookup as lk
 import jsonpath_rw_ext as jp
 from api.utils import map_to_dict
 
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path)
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
+
+schema_version_path_optional_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.optional_field_dtol_validators'
+optional_validators = importlib.import_module(schema_version_path_optional_validators)
+
+schema_version_path_taxon_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.taxon_validators'
+taxon_validators = importlib.import_module(schema_version_path_taxon_validators)
+
+schema_version_path_required_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.required_field_dtol_validators'
+required_validators = importlib.import_module(schema_version_path_required_validators)
 
 
 class ProcessValidationQueue:

@@ -9,8 +9,8 @@ from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 import importlib
 import validators
 
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path)
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 class DtolEnumerationValidator(Validator):

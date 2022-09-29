@@ -31,8 +31,8 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path)
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
 SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 

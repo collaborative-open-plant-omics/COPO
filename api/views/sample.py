@@ -20,8 +20,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import authentication, permissions
 from django.views.decorators.csrf import csrf_exempt
 
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path)
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get(request, id):

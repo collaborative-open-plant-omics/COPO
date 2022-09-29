@@ -58,8 +58,9 @@ from submission.submissionDelegator import schedule_submission
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lkup = importlib.import_module(schema_version_path)
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lkup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get_source_count(self):

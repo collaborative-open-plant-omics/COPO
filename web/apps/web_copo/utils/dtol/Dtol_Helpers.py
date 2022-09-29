@@ -19,8 +19,9 @@ from web.apps.web_copo.lookup.copo_enums import *
 
 public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
 l = logger.Logger("exceptions_and_logging/logs")
-schema_version_path = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path)
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 API_KEY = dtol_lookups_data.API_KEY
 
 
