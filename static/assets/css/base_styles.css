@@ -4,11 +4,11 @@
 }
 
 body {
-    font-family: "Roboto", sans-serif;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
+    background-attachment: fixed !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    font-family: "Roboto", sans-serif !important;
     font-weight: bold;
 }
 

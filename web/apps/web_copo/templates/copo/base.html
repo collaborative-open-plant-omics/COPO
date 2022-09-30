@@ -362,6 +362,10 @@
         .selectize-control.general-onto.loading::before {
             opacity: 0.9;
         }
+
+        .navbar-header {
+            max-height: 55px;
+        }
     </style>
 
 </head>
@@ -404,19 +408,9 @@
         </div>
 
         <ul class="nav navbar-nav navbar-right collapse navbar-collapse">
-            <li>
-                <form id="global_search_form" class="navbar-form" role="search">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search COPO">
-                        <div class="input-group-btn">
-                            <button class="btn btn-custom" type="submit"><i class="fa fa-search fa-fw"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </li>
 
-            <li class="dropdown" title="Notifications">
+
+        <li class="dropdown" title="Notifications">
                 <a data-container="body" title="Current Tasks"
                    data-placement="bottom" id="bell_notification">
                     <i class="fa fa-bell" aria-hidden="true"></i></span>

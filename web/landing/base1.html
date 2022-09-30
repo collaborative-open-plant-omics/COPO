@@ -27,12 +27,31 @@
 
     <script src="{% static 'copo/js/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'copo/semantic_ui/semantic.min.js' %}"></script>
+    <script src="{% static 'copo/js/bootstrap.js' %}"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="{% static "assets/js/landing.js" %}"></script>
     {% block headblock %}
     {% endblock %}
     <style>
+        .dot-color {
+            color: #eaf0f0
+        }
+
+        .dropdown-menu {
+            padding: 25px;
+            min-width: 200px
+        }
+
+        .dropdown-item {
+            padding: 5px;
+            color: black
+        }
+
+        .wizard-link {
+            cursor: pointer;
+        }
+
         {% block css_block %}
         {% endblock %}
     </style>

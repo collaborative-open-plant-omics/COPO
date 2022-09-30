@@ -1,13 +1,12 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 from django.urls import path, re_path
-
+from web.apps.web_copo.utils import ajax_handlers
 from .annotate_views import search_all, post_annotations, handle_upload
 from .views import person, general, stats, profile
 from .views import sample as s
 from .views.sample import APIValidateManifest, APIGetManifestValidationReport, APIGetUserValidations
 from django.views.decorators.csrf import csrf_exempt
-from web.apps.web_copo.utils import ajax_handlers
 from django.views.generic import TemplateView
 
 app_name = 'api'

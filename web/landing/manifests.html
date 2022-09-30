@@ -12,12 +12,7 @@
     <p style="  display: inline-block;vertical-align: middle;margin: 10px 0;">
         Current Tree of Life Manifests </p>
 
-    <button style="display: inline-block;vertical-align: middle;margin: 10px 0;"
-            id="show_manifest_wzd_button"
-            type="button" class="big circular ui icon teal button copo-tooltip"
-            title="Launch manifest wizard">
-        <i class="fa fa-arrow-circle-o-down fa-2x"></i>
-    </button>
+
 
 
     <div style="margin-left: 40px">
@@ -27,20 +22,21 @@
                 <th>Manifest Type</th>
                 <th>Version</th>
                 <th>Blank Manifest</th>
-                <th>Generate Manifest</th>
+                <th>Prefilled Manifest</th>
             </tr>
             </thead>
             <tbody>
+
             <tr>
                 <td>DTOL - (Darwin Tree of Life)</td>
                 <td>2.4.1</td>
                 <td><a href="{% static 'assets/manifests/DTOL_EXAMPLE_SAMPLE_MANIFEST_v2.4.1.xlsx' %}">DTOL_MANIFEST_v2.4.1.xlsx</a>
                 </td>
 
-                <td><i style="color: rgb(22, 171, 57)" class="fa fa-arrow-circle-o-down fa-2x"
-                       title='Launch DTOL_MANIFEST_v2.4 wizard'
-                       onclick="showWizardBasedOnManifestType('dtol')"
-                       aria-hidden="true"></i>
+                <td class="wizard-link"><i style="color: rgb(22, 171, 57)" class="fa fa-arrow-circle-o-down fa-2x"
+                                           title='Launch DTOL_MANIFEST_v2.4 wizard'
+                                           onclick="showWizardBasedOnManifestType('dtol')"
+                                           aria-hidden="true"></i>
                 </td>
             </tr>
             <tr>
@@ -50,9 +46,10 @@
                 <td><a href="{% static 'assets/manifests/ASG_EXAMPLE_SAMPLE_MANIFEST_v2.4.1.xlsx' %}">ASG_MANIFEST_v2.4.1.xlsx</a>
                 </td>
 
-                <td><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x"
-                       title='Launch ASG_MANIFEST_v2.4 wizard' onclick="showWizardBasedOnManifestType('asg')"
-                       aria-hidden="true"></i>
+                <td class="wizard-link"><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x"
+                                           title='Launch ASG_MANIFEST_v2.4 wizard'
+                                           onclick="showWizardBasedOnManifestType('asg')"
+                                           aria-hidden="true"></i>
                 <td>
 
             </tr>
@@ -61,9 +58,9 @@
                 <td>2.4</td>
                 <td><a href="{% static 'assets/manifests/ERGA_SAMPLE_MANIFEST_V2.4.xlsx' %}">ERGA_MANIFEST_v2.4.xlsx</a>
                 </td>
-                <td><i style="color: rgb(230, 26, 141)" class="fa fa-arrow-circle-o-down fa-2x"
-                       title='Launch ERGA_MANIFEST_v2.4 wizard'
-                       onclick="showWizardBasedOnManifestType('erga')"></i>
+                <td class="wizard-link"><i style="color: rgb(230, 26, 141)" class="fa fa-arrow-circle-o-down fa-2x"
+                                           title='Launch ERGA_MANIFEST_v2.4 wizard'
+                                           onclick="showWizardBasedOnManifestType('erga')"></i>
                 </td>
 
             </tr>
@@ -100,17 +97,17 @@
                                     <span class="badge badge-info">1</span>Type<span class="chevron"></span>
                                 </li>
                                 <li data-step="2">
-                                    <span class="badge">2</span>Sample Quantity<span class="chevron"></span>
+                                    <span class="badge">2</span>Samples<span class="chevron"></span>
                                 </li>
                                 <li data-step="3">
-                                    <span class="badge">3</span>Manifest Template<span class="chevron"></span>
+                                    <span class="badge">3</span>Download<span class="chevron"></span>
                                 </li>
                             </ul>
                         </div>
                         <div class="step-content">
                             <div class="step-pane" data-step="1">
                                 <div class="well">
-                                    <label>Choose the type of manifest that you would like to describe</label>
+                                    <label>Which manifest do you want to create?</label>
                                     <select id="manifestType" class="form-control">
                                         <option value="asg">ASG</option>
                                         <option value="dtol">DTOL</option>
@@ -122,7 +119,7 @@
                             </div>
                             <div class="step-pane" data-step="2">
                                 <div class="well">
-                                    <label>How many organisms would you like to describe?</label>
+                                    <label>How many samples would you like to describe?</label>
                                     <br>
                                     <input class="form-control" id="numberOfSamples"
                                            type="number" value="1" min="1"

@@ -13,7 +13,9 @@
 }
 
 .container {
-    width: 100%;
+
+    margin-top: 15px;
+    min-width: 100% !important;
 }
 
 .full-height {
@@ -987,6 +989,7 @@ th {
 #copo-global-nav.navbar-default .navbar-brand {
     color: rgba(119, 119, 119, 1);
 }
+
 
 #copo-global-nav.navbar-default {
     border: none;
