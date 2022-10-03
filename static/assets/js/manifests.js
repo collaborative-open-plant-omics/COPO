@@ -20,6 +20,8 @@ $(document).ready(function () {
 
     $(document).on("click", "#downloadBtn", generateManifestTemplate)
 
+    $(document).on("click", "#resetBtn", resetManifestWizard)
+
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
         bootbox.dialog({
@@ -47,8 +49,12 @@ $(document).ready(function () {
                 }
             },
             callback: function (result) {
-                if (result)
+                if (result) {
+                    resetManifestWizard(); // Reset values in the wizard
                     $("#modal-placeholder").modal("hide");
+                }
+
+
             }
         });
     });
@@ -66,8 +72,14 @@ function wizard_handler() {
         // console.log('change');
     }).on('changed.fu.wizard', function () {
         let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
+        let prevButton = $('.btn-prev')
+        let resetButton = $('.btn-reset')
         let rightIcon = $('#rightIcon')
-        // Reveal/show the next icon from the final step of the wizard
+
+        // Reveal/show the next icon/previous button/reset button
+        // from the final step of the wizard
+        currentStep === 3 ? prevButton.show() : prevButton.hide();
+        currentStep === 3 ? resetButton.hide() : resetButton.show();
         currentStep === 3 ? rightIcon.hide() : rightIcon.show();
     }).on('finished.fu.wizard', function (e) {
         // console.log('finished');
@@ -78,6 +90,16 @@ function wizard_handler() {
     }).on('actionclicked.fu.wizard', function (e, data) {
         validateCommonValue(e, data);
     });
+}
+
+function resetManifestWizard() {
+    document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
+    // document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
+    console.log('Current manifest type: ', document.querySelector('#manifestType').value);
+    $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
+    $('.btn-prev').hide(); // Hide previous button
+
+    get_common_fields_handler(); // Preload with the common fields dropdown list
 }
 
 function get_common_fields_handler() {
@@ -147,25 +169,25 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             value_input.setAttribute('aria-describedby', "commonValueStatus");
 
             if (date_fields.includes(common_field)) {
-                let datepicker = $(".datepicker")
-                value_input.setAttribute('type', 'text');
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
+                value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Select date");
                 // Date is based on class instead of ID due to jQuery and FuelUX conflicts
+                // and multiple instances of the datepicker function cannot have the same ID
                 $(value_input).addClass('datepicker');
 
-
-                // The datepicker function reverts to the "datepicker" defined by the jQueryUI
-                // and does not use the one defined by FuelUX
-                datepicker.datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
                 commonValueDiv.appendChild(value_input);
-                // The "hasDatepicker" class triggers the datepicker function so it's removed
-                // from a previous date field so that it can be displayed on following date fields
-                datepicker.filter('.datepicker').removeClass('hasDatepicker').datepicker({
+
+                // The "hasDatepicker" class triggers the datepicker function so it has to be present
+                // in the input field that requires a date. The following line ensures
+                // that the "hasDatepicker" class is present in each date field after the date
+                // field is added to the commonValueDiv
+                $('input').filter('.datepicker').datepicker({
                     dateFormat: "yy-mm-dd",
                     maxDate: 0
                 });
+
             } else if (common_field === "TIME_OF_COLLECTION") {
                 value_input.setAttribute('id', "commonvalueID");
                 value_input.setAttribute('type', 'time');
@@ -479,9 +501,6 @@ function showWizardBasedOnManifestType(manifest_type) {
     // Automatically navigate to step 2 when the modal is launched
     // since step 1 is about selecting the manifest which has been done indirectly
     manifest_wizard.wizard('selectedItem', {step: 2});
-    $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
-    document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-    $('.btn-prev').hide(); // Hide previous button
 
     switch (manifest_type) {
         case "asg":
