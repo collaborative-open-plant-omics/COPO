@@ -104,7 +104,9 @@ def json_to_pytype(path_to_json, compatibility_mode=True):
         if compatibility_mode:
             data = json.loads(f)
         else:
-            data = jsonref.loads(f)
+            data = jsonref.loads(f,
+                                 base_uri="file:" + settings.SCHEMA_VERSIONS_DIR + "/" + settings.CURRENT_SCHEMA_VERSION
+                                          + "/", jsonschema=True)
         if "properties" in data and isinstance(data["properties"], list):
             cp = list(data["properties"])
             idxes = list()
@@ -363,6 +365,7 @@ def get_sample_type_options():
 def get_repository_options():
     from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
     return COPOLookup(data_source='repository_options').broker_data_source()
+
 
 def get_repository_types_list():
     from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
@@ -641,8 +644,10 @@ def get_args_from_parameter(parameter, param_value_dict):
 def san_check(val):
     return val if val is not None else ''
 
+
 def get_unqualified_id(qual):
     return qual.split(".")[-1]
+
 
 class DecoupleFormSubmission:
     def __init__(self, auto_fields, schema):
