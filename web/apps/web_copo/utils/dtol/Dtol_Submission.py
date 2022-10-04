@@ -6,7 +6,7 @@ import subprocess
 import uuid
 import xml.etree.ElementTree as ET
 from datetime import datetime, date
-from django.conf import settings
+from django.conf import settings as base_settings
 from urllib.parse import urljoin
 from exceptions_and_logging import logger
 import requests
@@ -41,7 +41,7 @@ user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 submission_id = ""
 profile_id = ""
 
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{base_settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
 dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
 DTOL_UNITS = dtol_lookups_data.DTOL_UNITS
