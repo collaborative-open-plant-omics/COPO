@@ -1011,6 +1011,34 @@ class Sample(DAComponent):
             out.append(sam)
         return out
 
+    def get_dtol_from_profile_id_and_project(self, profile_id, project):
+        cursor = self.get_collection_handle().find({'profile_id': profile_id, "tol_project": project})
+
+        # get schema
+        sc = self.get_component_schema()
+        out = list()
+        taxon = dict()
+        for i in list(cursor):
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
+            sam = dict()
+            for cell in i:
+                for field in sc:
+
+                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+                            if field.get("show_in_table", ""):
+                                sam[cell] = i[cell]
+            out.append(sam)
+        return out
+
     def mark_rejected(self, sample_id, reason="Sample rejected by curator."):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)},
                                                    {"$set": {"status": "rejected", "error": reason}})

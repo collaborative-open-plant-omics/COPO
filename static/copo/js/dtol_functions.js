@@ -7,7 +7,9 @@ $(document).ready(function () {
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
     // populate profiles panel on left
-    update_pending_samples_table()
+    let currentURL = window.location.href
+    console.log("Current URL: ", currentURL)
+    currentURL.includes("tol_inspect") ? tol_inspect_update_pending_samples_table() : update_pending_samples_table()
 
     $(document).on("click", ".select-all", function () {
         $(".form-check-input:not(:checked)").each(function (idx, element) {
@@ -401,6 +403,44 @@ function update_pending_samples_table() {
 }
 
 
+function tol_inspect_update_pending_samples_table() {
+    // get profiles with samples needing looked at and populate left hand column
+    const project = $("#sample_filter").find(".active").find("a").attr("href");
+
+    $.ajax({
+        url: "/copo/tol_inspect_update_pending_samples_table",
+        method: "GET",
+        dataType: "json",
+        data: {
+            "project": project
+        }
+    }).error(function (e) {
+        console.error(e)
+    }).done(function (data) {
+        $(data['profiles']).each(function (d) {
+            let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
+            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td>" + date + "</td><td>" + data['profile_samples_count'][d].length + "</td></tr>")
+
+        })
+        $($("#profile_titles tr")[1]).click()
+
+
+        if ($.fn.DataTable.isDataTable('#profile_titles')) {
+            $("#profile_titles").DataTable().clear().destroy();
+
+        }
+        $.fn.dataTable.moment('DD/MM/YYYY');
+        $("#profile_titles").DataTable({
+            responsive: true,
+            paging: false,
+            dom: '<"top"f>rt<"bottom"lp><"clear">',
+            "order": [[1, "desc"]],
+
+        })
+
+    })
+}
+
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
 
@@ -450,9 +490,8 @@ function handle_accept_reject(el) {
                 $("#profile_titles").find(".selected").click()
                 $("#spinner").fadeOut(fadeSpeed)
             })
-        }
-         else {
-             BootstrapDialog.show({
+        } else {
+            BootstrapDialog.show({
 
                 title: "ENA Submission",
                 message: "By accepting the samples, these will immediately be submitted to ENA. This action is" +
@@ -492,8 +531,9 @@ function handle_accept_reject(el) {
                     }
                 ]
 
-        })
+            })
 
-    }}
+        }
+    }
 
 }

@@ -32,8 +32,10 @@ from .lookup.lookup import HTML_TAGS
 from tools.resolve_env import get_env
 from web.apps.web_copo.s3.s3Connection import S3Connection
 from submission.helpers.generic_helper import notify_frontend
+
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
+
 
 @login_required
 def index(request):
@@ -81,6 +83,7 @@ def error_page(request):
 
 def test(request):
     return render(request, "copo/test.html")
+
 
 @login_required()
 def ena_read_manifest_validate(request, profile_id):
@@ -177,6 +180,18 @@ def copo_samples(request, profile_id):
 @login_required
 def copo_sample_accept_reject(request):
     return render(request, 'copo/copo_sample_accept_reject.html', {})
+
+
+@login_required
+def copo_tol_inspect(request):
+    # Determine if users are in the appropriate membership group to view the web page
+    member_groups = group_functions.get_group_membership_asString()
+    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
+
+    if any(item in member_groups for item in required_member_groups):
+        return render(request, 'copo/copo_tol_inspect.html', {})
+    else:
+        return goto_unauthorised_page()
 
 
 @login_required()
@@ -419,6 +434,15 @@ def goto_error(request, message="Something went wrong, but we're not sure what!"
     finally:
         context = {'message': message}
         return render(request, 'copo/error_page.html', context)
+
+
+@login_required
+def goto_unauthorised_page(request, message="Apologies, you do not have permission to view this web page"):
+    try:
+        LOGGER.log(message)
+    finally:
+        context = {'message': message}
+        return render(request, 'copo/unauthorised_page.html', context)
 
 
 def copo_logout(request):

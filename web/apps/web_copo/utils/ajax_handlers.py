@@ -1438,6 +1438,26 @@ def update_pending_samples_table(request):
     return HttpResponse(json_util.dumps(profiles))
 
 
+def tol_inspect_update_pending_samples_table(request):
+    project = request.GET["project"]
+    print('Project:', project)
+    member_groups = get_group_membership_asString()
+    print("Membership groups: ", member_groups)
+    profiles = []
+    if "dtol_sample_managers" in member_groups and project == "DTOL":
+        profiles = Profile().get_dtol_profiles()
+    if "erga_sample_managers" in member_groups and project == "ERGA":
+        profiles += Profile().get_erga_profiles()
+    if "dtolenv_sample_managers" in member_groups and project == "DTOLENV":
+        profiles += Profile().get_dtolenv_profiles()
+
+    # Get count of the number of samples based on profile ID and project type
+    profile_samples_count = [Sample().get_dtol_from_profile_id(profile["_id"], project) for profile in
+                             profiles]
+
+    return HttpResponse(json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
+
+
 def get_samples_for_profile(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
