@@ -70,16 +70,21 @@
     <div class="row" style="margin-bottom:70px;">
         <div class="col-sm-5 col-md-5 col-lg-5 copo-page-headers"></div>
         <div class="col-sm-7 col-md-7 col-lg-7 copo-page-icons">
-            <button id="inspect_tol_shortcut" style="display:none"
-                    class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
-                    title="Inspect TOL Samples">
-                <i class="fa fa-search" aria-hidden="true"></i>
-            </button>
-            <button id="accept_reject_shortcut" style="display:none"
-                    class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
-                    title="Accept/Reject TOL Samples">
-                <i class="icon tasks sign"></i>
-            </button>
+            <span style="display: inline;">&nbsp;
+                <button id="tol_inspect_shortcut" style="display:none"
+                        class="big circular ui icon yellow button pull-right tol_inspect copo-tooltip"
+                        title="Inspect TOL">
+                    <i class="icon clipboard list" style="font-size: 1.3em"></i>
+                </button>
+                <span style="display: inline;">&nbsp;</span>
+                    <span style="display: inline;">&nbsp;</span>
+                <button id="accept_reject_shortcut" style="display:none"
+                        class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
+                        title="Accept/Reject TOL Samples">
+                    <i class="icon tasks sign"></i>
+                </button>
+                <span style="display: inline;">&nbsp;</span>
+            </span>
         </div>
     </div>
 {% endblock page_tile %}

@@ -1984,6 +1984,20 @@ class Profile(DAComponent):
             pymongo.DESCENDING)
         return cursor_to_list(p)
 
+    def get_dtol_only_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_asg_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)

@@ -1439,23 +1439,28 @@ def update_pending_samples_table(request):
 
 
 def tol_inspect_update_pending_samples_table(request):
-    project = request.GET["project"]
-    print('Project:', project)
-    member_groups = get_group_membership_asString()
-    print("Membership groups: ", member_groups)
     profiles = []
-    if "dtol_sample_managers" in member_groups and project == "DTOL":
-        profiles = Profile().get_dtol_profiles()
-    if "erga_sample_managers" in member_groups and project == "ERGA":
+    project = request.GET["project"]
+
+    if project == "ERGA":
+        # if "erga_users" in member_groups or "erga_sample_managers" in member_groups:
         profiles += Profile().get_erga_profiles()
-    if "dtolenv_sample_managers" in member_groups and project == "DTOLENV":
+    elif project == "DTOL":
+        # if 'dtol_users' in member_groups or "dtol_sample_managers" in member_groups:
+        profiles = Profile().get_dtol_only_profiles()
+    elif project == "ASG":
+        # if 'dtol_users' in member_groups or "dtol_sample_managers" in member_groups:
+        profiles = Profile().get_asg_profiles()
+    else:
+        # "dtolenv_sample_managers" in member_groups:
         profiles += Profile().get_dtolenv_profiles()
 
-    # Get count of the number of samples based on profile ID and project type
-    profile_samples_count = [Sample().get_dtol_from_profile_id(profile["_id"], project) for profile in
-                             profiles]
+    # Get the number of samples in a profile based on the profile ID and project type
+    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
+               in profiles]
 
-    return HttpResponse(json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
+    return HttpResponse(
+        json_util.dumps({'profiles': profiles, 'samples': samples, 'profile_samples_count': len(samples[0])}))
 
 
 def get_samples_for_profile(request):
@@ -1466,6 +1471,18 @@ def get_samples_for_profile(request):
         samples = Sample().get_dtol_from_profile_id(profile_id, filter)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
+        return HttpResponse(json_util.dumps(samples))
+    else:
+        return HttpResponse(json_util.dumps({"locked": True}))
+
+
+def get_project_samples_for_tol_inspection(request):
+    url = request.build_absolute_uri()
+    if not ViewLock().isViewLockedCreate(url=url):
+        profile_id = request.GET["profile_id"]
+        project = request.GET["project"]
+        samples = Sample().get_dtol_from_profile_id_and_project(profile_id, project)
+
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))

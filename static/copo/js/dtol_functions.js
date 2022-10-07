@@ -6,9 +6,9 @@ $(document).ready(function () {
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
+    included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"] // for "tol_inspect" web page
     // populate profiles panel on left
     let currentURL = window.location.href
-    console.log("Current URL: ", currentURL)
     currentURL.includes("tol_inspect") ? tol_inspect_update_pending_samples_table() : update_pending_samples_table()
 
     $(document).on("click", ".select-all", function () {
@@ -24,8 +24,14 @@ $(document).ready(function () {
 
 
     $(document).on("click", "tr.sample_table_row", function (e) {
-        var cb = $($(e.target).siblings(".tickbox").find("input"))
-        cb.click()
+        let cb;
+        if (currentURL.includes("tol_inspect")) {
+            cb = $($(e.target).siblings(".tickbox").find("input"));
+            cb.click()
+        } else {
+            cb = $($(e.target).siblings(".tickbox").find("input"));
+            cb.click()
+        }
     })
 
 
@@ -89,10 +95,40 @@ $(document).ready(function () {
         })
     })
 
+    $(document).on("click", ".sample_table_row", function (el) {
+        $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
+            console.log(el)
+            $(el).toggleClass("selected_row")
+        })
+        csrftoken = $.cookie('csrftoken');
+        const component = "profile" //"profile_sample_details";
+        const copoFormsURL = "/copo/copo_forms/";
+        const errorMsg = "Couldn't build " + component + " form!";
+
+        $.ajax({
+            url: copoFormsURL,
+            type: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+                'task': 'form',
+                'component': component
+            },
+            success: function (data) {
+                json2HtmlForm(data);
+                componentData = data;
+
+            },
+            error: function () {
+                alert(errorMsg);
+            }
+        });
+    })
+
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
 
     // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
-    $(document).on("click", ".selectable_row, .hot_tab", row_select)
+    currentURL.includes("tol_inspect") ? $(document).on("click", ".selectable_row, .hot_tab", row_select_on_tol_inspect_web_page)
+        : $(document).on("click", ".selectable_row, .hot_tab", row_select)
 
     $(document).on("change", "#dtol_type_select", function (e) {
         $.ajax({
@@ -362,6 +398,169 @@ function row_select(ev) {
     )
 }
 
+
+function row_select_on_tol_inspect_web_page(ev) {
+    // Get samples for the profile clicked in the left-hand panel and
+    // populate the table in the right-hand panel
+    let row;
+    if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
+        // we have clicked a profile on the left hand list
+        $(document).data("selected_row", $(ev.currentTarget))
+        row = $(document).data("selected_row")
+        $(".selected").removeClass("selected")
+        $(row).addClass("selected")
+    } else {
+        row = $(document).data("selected_row")
+    }
+
+    var project = $("#sample_filter").find(".active").find("a").attr("href")
+
+    var d = {"profile_id": $(row).find("td").data("profile_id"), "project": project}
+    $("#profile_id").val(d.profile_id)
+
+
+    $("#spinner").show()
+
+    $.ajax({
+        url: "/copo/get_project_samples_for_tol_inspection",
+        data: d,
+        method: "GET",
+        dataType: "json"
+    }).error(function (data) {
+        console.error("ERROR: " + data)
+    }).done(function (data) {
+            let sample_panel = $("#sample_panel")
+            if ($.fn.DataTable.isDataTable('#profile_samples')) {
+                $("#profile_samples").DataTable().clear().destroy();
+
+            }
+            sample_panel.find("thead").empty()
+            sample_panel.find("tbody").empty()
+
+            if (data.length) {
+                const header = $("<h4/>", {
+                    html: "Samples"
+                });
+                $("#sample_panel").find(".labelling").empty().append(header)
+
+                const rows = [];
+                $(data).each(function (idx, row) {
+                    let td;
+                    const th_row = document.createElement("tr");
+                    const td_row = document.createElement("tr");
+                    td_row.className = "sample_table_row"
+
+                    if (idx === 0) {
+                        // do header and row
+                        const empty_th = document.createElement("th");
+                        th_row.appendChild(empty_th)
+                        td = document.createElement("td");
+                        td.className = "tickbox"
+                        td.style.textAlign = "center"
+                        td.innerHTML = idx + 1 // Increment by 1 because default numbering system starts at 0
+                        td_row.appendChild(td)
+
+                        for (let el in row) {
+                            if (el === "_id") {
+                                //$(td_row).data("id", row._id.$oid)
+                                td_row.setAttribute("id", row._id.$oid)
+                                $(td_row).attr("sample_id", row._id.$oid)
+                            } else if (included_fields.includes(el)) {
+                                // Change "public_name" table header name to "tolid" table header name
+                                // because tolid" is recognised/known by users
+                                el === "public_name" ? el = "tolid" : el
+                                // make header
+                                const th = $("<th/>", {
+                                    html: el
+                                });
+                                $(th).css({"text-align": "center"})
+                                $(th).css({"width": "360px"})
+                                $(th_row).append(
+                                    th
+                                )
+                                // and row
+                                td = $("<td/>", {
+                                    html: row[el]
+                                })
+                                $(td).css({"text-align": "center"})
+                                $(td).css({"width": "360px"})
+                                if (row[el] === 'NA') {
+                                    $(td).addClass("na_color")
+                                } else if (row[el] === "") {
+                                    $(td).addClass("empty_color")
+                                }
+                                $(td_row).append(
+                                    td
+                                )
+                            }
+                        }
+                        document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
+                        document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
+
+                    } else {
+                        // if not first element
+                        td = document.createElement("td")
+                        td.className = "tickbox"
+                        td.style.textAlign = "center"
+                        td.innerHTML = idx + 1  // Increment by 1 because default numbering system starts at 0
+                        td_row.appendChild(td)
+
+                        for (let el in row) {
+                            if (el === "_id") {
+                                td_row.setAttribute("id", row._id.$oid)
+                                td_row.setAttribute("sample_id", row._id.$oid)
+                            } else if (included_fields.includes(el)) {
+                                // just do row
+                                td = $("<td/>", {
+                                    html: row[el]
+                                })
+                                td = document.createElement("td")
+                                td.innerHTML = row[el]
+                                if (row[el] === 'NA') {
+                                    td.className = "na_color"
+                                } else if (row[el] === "") {
+                                    td.className = "empty_color"
+                                }
+                                td_row.appendChild(td)
+
+                            }
+
+                        }
+                        $(td_row).css({"text-align": "center"})
+                        $(td_row).css({"width": "360px"})
+                        rows.push(td_row)
+                    }
+                })
+                fastdom.mutate(() => {
+                    //$("#profile_samples tbody").append(rows)
+                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
+                    rows.forEach(el => {
+                        tbody.appendChild(el)
+                    })
+                    $("#profile_samples").DataTable(dt_options);
+                })
+            } else {
+                let content
+                if (data.hasOwnProperty("locked")) {
+                    content = $("<h4/>", {
+                        html: "View is locked by another User. Try again later."
+                    })
+                } else {
+                    content = $("<h4/>", {
+                        html: "No Samples Found"
+                    })
+                }
+                $("#sample_panel").find(".labelling").empty().html(
+                    content
+                )
+            }
+
+            $("#spinner").fadeOut("fast")
+
+        }
+    )
+}
+
 function delay(fn, ms) {
     let timer = 0
     return function (...args) {
@@ -419,9 +618,10 @@ function tol_inspect_update_pending_samples_table() {
     }).done(function (data) {
         $(data['profiles']).each(function (d) {
             let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
-            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td>" + date + "</td><td>" + data['profile_samples_count'][d].length + "</td></tr>")
+            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'] + "</td></tr>")
 
         })
+        // $($("#profile_titles tr")[1]).css({})
         $($("#profile_titles tr")[1]).click()
 
 
