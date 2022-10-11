@@ -89,6 +89,8 @@ def filter_for_API(sample_list, add_all_fields=False):
         if species_list:
             s = {**s, **species_list[0]}
         s_out = dict()
+
+        # handle corner cases
         for k, v in s.items():
             if k == "SPECIMEN_ID_RISK":
                 # this to account for old manifests before name change
@@ -126,6 +128,7 @@ def filter_for_API(sample_list, add_all_fields=False):
                     s_out[k] = format_date(v)
                 elif k in ["created_by", "updated_by"]:
                     s_out[k] = "*****@" + v.split("@")[1]
+
                 else:
                     s_out[k] = v
             if k == "changelog":
@@ -136,7 +139,10 @@ def filter_for_API(sample_list, add_all_fields=False):
             if add_all_fields:
                 for k in export:
                     if k not in s_out.keys():
-                        s_out[k] = ""
+                        if k == "MIXED_SAMPLE_RISK":
+                            s_out["MIXED_SAMPLE_RISK"] = "N"
+                        else:
+                            s_out[k] = ""
                 out.append(s_out)
             else:
                 out.append(s_out)
