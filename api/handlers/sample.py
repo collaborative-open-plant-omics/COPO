@@ -140,7 +140,7 @@ def filter_for_API(sample_list, add_all_fields=False):
                 for k in export:
                     if k not in s_out.keys():
                         if k == "MIXED_SAMPLE_RISK":
-                            s_out["MIXED_SAMPLE_RISK"] = "N"
+                            s_out["MIXED_SAMPLE_RISK"] = "NOT_PROVIDED"
                         else:
                             s_out[k] = ""
                 out.append(s_out)
