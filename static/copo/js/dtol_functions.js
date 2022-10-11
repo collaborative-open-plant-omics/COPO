@@ -96,27 +96,55 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".sample_table_row", function (el) {
+        let columns = []
+        let row_values = []
+        let sample_details_table_columns_count = document.getElementById("profile_samples").getElementsByTagName("thead")[0].rows[0].cells.length - 1
+        console.log('Number of columns in the table: ', sample_details_table_columns_count)
+
+
+        console.log("Current target: ", $(el.currentTarget))
+
+        let specimen_ID = $(el.currentTarget).find("td").eq(1).html()
+        console.log("Selected row SPECIMEN_ID: ", specimen_ID)
+
+        // Retrieve the column names and row values from the sample details table starting from column 1
+        let range = [...Array(sample_details_table_columns_count).keys()].map(i => i + 1);
+        columns = range.map(i => $(el.currentTarget).parent().siblings().find("th>div").eq(i).html())
+        console.log("Column values: ", columns)
+
+        row_values = range.map(i => $(el.currentTarget).find("td").eq(i).html())
+        console.log("Row values: ", row_values)
+
+        let sample_id = el.currentTarget.id
+        console.log("Sample ID: ", sample_id)
+
+
         $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
-            console.log(el)
             $(el).toggleClass("selected_row")
         })
         csrftoken = $.cookie('csrftoken');
-        const component = "profile" //"profile_sample_details";
+        const component = "profile_sample_details" //"profile_sample_details";
         const copoFormsURL = "/copo/copo_forms/";
-        const errorMsg = "Couldn't build " + component + " form!";
+        const errorMsg = "Couldn't build Sample Details' form!";
 
+
+        // console.log(document.getElementById("profile_samples").getElementsByTagName("th")[0].innerText)
+        //
+        //
+        // console.log(document.getElementById("profile_samples").getElementsByTagName("td")[1].innerText)
+
+        // json2HtmlForm_SampleDetails(specimen_ID, columns, row_values);
         $.ajax({
-            url: copoFormsURL,
-            type: "POST",
+            url: "/copo/get_sample_details/",
+            method: "POST",
             headers: {'X-CSRFToken': csrftoken},
+            dataType: "json",
             data: {
-                'task': 'form',
-                'component': component
+                'sample_id': sample_id,
+                'specimen_id': specimen_ID
             },
             success: function (data) {
-                json2HtmlForm(data);
-                componentData = data;
-
+                json2HtmlForm_SampleDetails(data);
             },
             error: function () {
                 alert(errorMsg);

@@ -207,9 +207,9 @@ function json2HtmlForm(data) {
 
 
             if (!groups.includes("dtol_users")) {
-            $('select option[value *= "(DTOL)"]').hide();
-            $('select option[value *= "(ASG)"]').hide();
-                }
+                $('select option[value *= "(DTOL)"]').hide();
+                $('select option[value *= "(ASG)"]').hide();
+            }
             if (!groups.includes("erga_users")) {
                 $('select option[value *= "(ERGA)"]').hide();
             }
@@ -244,6 +244,69 @@ function json2HtmlForm(data) {
     var form_message_div = get_form_message(data);
 
     var form_body_div = set_up_form_body_div(data);
+
+    $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
+    dialog.realize();
+    dialog.setMessage($dialogContent);
+    dialog.open();
+
+
+} //end of json2HTMLForm
+
+function json2HtmlForm_SampleDetails(data) {
+    const form = document.createElement('form');
+    form.setAttribute('class', 'form-horizontal');
+
+    //tidy up before closing the modal
+    const doTidyClose = {
+        closeIt: function (dialogRef) {
+            refresh_tool_tips();
+            dialogRef.close();
+        }
+    };
+
+    const dialog = new BootstrapDialog({
+        message: "The following are information regarding the selected sample.",
+        type: BootstrapDialog.TYPE_PRIMARY,
+        size: BootstrapDialog.SIZE_WIDE,
+        title: function () {
+            return $('<span>' + 'Sample Details for ' + data["SPECIMEN_ID"] + '</span>').css("text-align", "center");
+        },
+        closable: true,
+        closeIcon: '&#215;',
+        animate: true,
+        draggable: true,
+        onhide: function (dialogRef) {
+            refresh_tool_tips();
+        },
+        onshown: function (dialogRef) {
+
+            //prevent enter keypress from submitting form automatically
+            $("form").keypress(function (e) {
+                //Enter key
+                if (e.which === 13) {
+                    return false;
+                }
+            });
+
+            //custom validators
+            custom_validate(htmlForm.find("form"));
+
+            refresh_form_aux_controls();
+
+            var event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            $('body').trigger(event);
+
+
+        },
+    });
+
+    const $dialogContent = $('<div/>');
+
+    const form_help_div = set_up_form_show_all_fields_checkbox_div(data);
+    const form_message_div = get_form_message(data);
+
+    const form_body_div = set_up_form_body_div_sample_details(data, form);
 
     $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
     dialog.realize();
@@ -302,6 +365,57 @@ function build_form_body(data) {
     }
 
     return htmlForm.append(formCtrl);
+
+}
+
+function build_form_body_sample_Details(data, form) {
+    const formDiv = document.getElementsByClassName("formDiv");
+    // for (let key in data) {
+    // Iterate through dictionary
+    Object.entries(data).forEach(([field, value]) => {
+        console.log('field: ', field)
+        console.log('value: ', value)
+        // Create field div
+        const fieldDiv = document.createElement('div');
+        fieldDiv.setAttribute('class', 'form-group');
+        fieldDiv.setAttribute('id', `${field}_div`);
+
+        // Field; Create field label
+        const fieldLabel = document.createElement('label');
+        fieldLabel.innerHTML = field;
+        fieldLabel.setAttribute('class', 'fieldID control-label col-sm-6');
+        fieldLabel.style.paddingRight = '20px'; // Add space between the value field and field name
+        fieldLabel.style.marginLeft = '15px';
+        fieldLabel.style.textAlign = "left"
+
+        // Truncate long field names
+        fieldLabel.style.whiteSpace = 'nowrap';
+        fieldLabel.style.textOverflow = 'ellipsis';
+        fieldLabel.style.overflow = 'hidden';
+        fieldLabel.style.maxWidth = '220px';
+        fieldLabel.setAttribute('title', field)
+        fieldDiv.appendChild(fieldLabel);
+
+        // Field value div
+        const fieldValueDiv = document.createElement('div');
+        fieldValueDiv.setAttribute('class', 'col-sm-6 field_valueDiv');
+        fieldDiv.appendChild(fieldValueDiv);
+
+        // Field value
+        const field_value = document.createElement('input');
+        field_value.setAttribute('id', "field_valueID");
+        field_value.setAttribute('readonly', "");
+        field_value.setAttribute('type', 'text');
+        field_value.setAttribute('class', 'form-control');
+        field_value.setAttribute('value', value.toString());
+
+        fieldValueDiv.appendChild(field_value);
+        form.appendChild(fieldDiv)
+        $(formDiv).append(form)
+
+
+    })
+    // }
 
 }
 
@@ -445,6 +559,50 @@ function set_up_form_help_div(data) {
     return ctrlDiv.append(cloneCol);
 }
 
+function showFormFields() {
+    // Get the checkbox
+    var checkBox = document.getElementById("showFormFieldsID");
+    // Get the output text
+    var text = document.getElementById("text");
+
+    // If the checkbox is checked, display the output text
+    if (checkBox.checked === true) {
+        alert("Text box is checked")
+        text.style.display = "block";
+    } else {
+        text.style.display = "none";
+    }
+}
+
+function set_up_form_show_all_fields_checkbox_div(data) {
+    const ctrlDiv = $('<div/>',
+        {
+            class: "row helpDivRow",
+            style: "margin-bottom:20px;"
+        });
+    // class: "col-sm-7 col-md-7 col-lg-7",
+    // Show all form fields:
+    const cloneCol = $('<input/>',
+        {
+            id: "showFormFieldsID",
+            type: "checkbox",
+            onclick: "showFormFields()",
+            class: "pull-right",
+            style: "padding-right:40px;"
+        });
+
+    const helpCtrl = $('<div/>',
+        {
+            class: "col-sm-5 col-md-5 col-lg-5"
+        }).append(get_help_ctrl());
+
+    return ctrlDiv.append(cloneCol);
+
+//     Checkbox: <input type="checkbox" id="myCheck" onclick="showFormFields()">
+//
+// <p id="text" style="display:none">Checkbox is CHECKED!</p>
+}
+
 function set_up_form_body_div(data) {
     var formBodyDiv = $('<div/>',
         {
@@ -456,6 +614,22 @@ function set_up_form_body_div(data) {
 
     //build main form
     build_form_body(data);
+
+    return formBodyDiv;
+}
+
+function set_up_form_body_div_sample_details(data, form) {
+    const formBodyDiv = $('<div/>',
+        {
+            class: "row formDivRow"
+        }).append($('<div/>',
+        {
+            class: "formDiv col-sm-12 col-md-12 col-lg-12",
+            css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
+        }).append(form));
+
+    //build main form
+    build_form_body_sample_Details(data, form);
 
     return formBodyDiv;
 }
@@ -1285,7 +1459,7 @@ var dispatchFormControl = {
 
         var lookupMessage = "<div class='text-primary' style='margin-top: 10px;'>Enter one or more characters to search for a term.</div>";
 
-        if(!formElem.hasOwnProperty("help_tip")) {
+        if (!formElem.hasOwnProperty("help_tip")) {
             formElem["help_tip"] = '';
         }
 

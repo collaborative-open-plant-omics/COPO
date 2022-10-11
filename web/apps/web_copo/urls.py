@@ -185,6 +185,8 @@ urlpatterns = [
          name="update_pending_samples_table"),
     path('tol_inspect_update_pending_samples_table/', ajax_handlers.tol_inspect_update_pending_samples_table,
          name="tol_inspect_update_pending_samples_table"),
+    path('get_sample_details/', ajax_handlers.get_sample_details,
+         name="get_sample_details"),
     path('get_samples_for_profile/', ajax_handlers.get_samples_for_profile,
          name="get_samples_for_profile"),
     path('get_project_samples_for_tol_inspection/', ajax_handlers.get_project_samples_for_tol_inspection,

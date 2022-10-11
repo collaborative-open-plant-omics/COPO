@@ -7,7 +7,7 @@ import re
 import time
 import urllib.parse
 import importlib
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
@@ -1461,6 +1461,41 @@ def tol_inspect_update_pending_samples_table(request):
 
     return HttpResponse(
         json_util.dumps({'profiles': profiles, 'samples': samples, 'profile_samples_count': len(samples[0])}))
+
+
+def get_sample_details(request):
+    sample_id = ObjectId(request.POST["sample_id"])
+    sample_data = Sample().get_sample_by_id(sample_id)
+    print("Sample details: ", sample_data)
+    print("SPECIMEN_ID: ", sample_data[0]["SPECIMEN_ID"])
+    # Filter dictionary field keys with dict comprehension
+    excluded_fields = ["profile_id", "biosample_id", "_id"]
+    sample_data = {field: value for (field, value) in sample_data[0].items() if field not in excluded_fields}
+    print("sample_data: ", sample_data)
+    # Convert field values that are in datetime milliseconds object to timestamp
+    datetime_fields = ["date_modified", "time_created"]
+
+    # for field, value in sample_data:
+    #     if field in datetime_fields:
+    #         print(dict({field: value}))
+
+    #     (field, value) in sample_data[0].items() if field in datetime_fields
+    # sample_data = {field: (datetime.fromtimestamp(value / 1000.0, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')) for
+    #                (field, value) in sample_data[0].items() if field in datetime_fields}
+
+    # Change "public_name" field name to "tolid" field name
+    sample_data["tolid"] = sample_data.pop("public_name")
+
+    # Do not show empty values
+    print(sample_data["DATE_OF_COLLECTION"])
+    print(sample_data.items())
+    sample_data_with_no_blank_values = {field: value for (field, value) in sample_data.items() if sample_data[field]}
+    print("No blanks: ", sample_data_with_no_blank_values)
+    # areAllfieldsShown = false
+
+    sorted_sample_data = dict(sorted(sample_data.items()))
+
+    return HttpResponse(json_util.dumps(sorted_sample_data))
 
 
 def get_samples_for_profile(request):

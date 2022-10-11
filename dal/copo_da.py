@@ -742,6 +742,35 @@ class Sample(DAComponent):
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
 
+    def get_sample_by_id(self, sample_id):
+        cursor = self.get_collection_handle().find({"_id": sample_id})
+
+        # get schema
+        sc = self.get_component_schema()
+        out = list()
+        taxon = dict()
+        for i in list(cursor):
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
+            sam = dict()
+            for cell in i:
+                for field in sc:
+
+                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+                            if field.get("show_in_table", ""):
+                                sam[cell] = i[cell]
+            out.append(sam)
+
+        return out
+
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
         # specimens must not have already been submitted to ENA so should have status of pending
         return self.get_collection_handle().count(
