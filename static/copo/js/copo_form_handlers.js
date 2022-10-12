@@ -584,9 +584,9 @@ function set_up_form_show_all_fields_checkbox_div(data) {
     // Show all form fields:
     const cloneCol = $('<input/>',
         {
-            id: "showFormFieldsID",
+            id: "showFieldsID",
             type: "checkbox",
-            onclick: "showFormFields()",
+            onclick: "showFields()",
             class: "pull-right",
             style: "padding-right:40px;"
         });

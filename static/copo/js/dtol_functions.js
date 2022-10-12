@@ -158,6 +158,8 @@ $(document).ready(function () {
     currentURL.includes("tol_inspect") ? $(document).on("click", ".selectable_row, .hot_tab", row_select_on_tol_inspect_web_page)
         : $(document).on("click", ".selectable_row, .hot_tab", row_select)
 
+    // $(document).on("click", "#showFieldsID", row_select_on_tol_inspect_web_page)
+
     $(document).on("change", "#dtol_type_select", function (e) {
         $.ajax({
             url: "/copo/get_subsample_stages",
@@ -426,6 +428,50 @@ function row_select(ev) {
     )
 }
 
+function get_profile_samples_table_block_of_code(el, td, row, th_row, td_row) {
+
+    // Change "public_name" table header name to "tolid" table header name
+    // because tolid" is recognised/known by users
+    el === "public_name" ? el = "tolid" : el
+    // make header
+    const th = $("<th/>", {
+        html: el
+    });
+    $(th).css({"text-align": "center"})
+    $(th).css({"width": "360px"})
+    $(th_row).append(
+        th
+    )
+    // and row
+    td = $("<td/>", {
+        html: row[el]
+    })
+    $(td).css({"text-align": "center"})
+    $(td).css({"width": "360px"})
+    if (row[el] === 'NA') {
+        $(td).addClass("na_color")
+    } else if (row[el] === "") {
+        $(td).addClass("empty_color")
+    }
+    $(td_row).append(
+        td
+    )
+}
+
+function get_profile_samples_table_not_first_element_block_of_code(el, row, td_row) {
+    // just do row
+    // td = $("<td/>", {
+    //     html: row[el]
+    // })
+    let td = document.createElement("td")
+    td.innerHTML = row[el]
+    if (row[el] === 'NA') {
+        td.className = "na_color"
+    } else if (row[el] === "") {
+        td.className = "empty_color"
+    }
+    td_row.appendChild(td)
+}
 
 function row_select_on_tol_inspect_web_page(ev) {
     // Get samples for the profile clicked in the left-hand panel and
@@ -457,6 +503,12 @@ function row_select_on_tol_inspect_web_page(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
+            // Get value of the checkbox to show all fields in the profile samples table
+            let checkBox = document.getElementById("showFieldsID");
+            let areAllTableFieldsShown = checkBox == null ? false : checkBox.checked;  // set false as default value
+            let areAllTableFieldsShown1 = localStorage.getItem("areAllTableFieldsShown") === 'true';
+            console.log("areAllTableFieldsShown1", areAllTableFieldsShown1)
+            console.log("areAllTableFieldsShown2", areAllTableFieldsShown)
             let sample_panel = $("#sample_panel")
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
@@ -490,36 +542,18 @@ function row_select_on_tol_inspect_web_page(ev) {
 
                         for (let el in row) {
                             if (el === "_id") {
-                                //$(td_row).data("id", row._id.$oid)
                                 td_row.setAttribute("id", row._id.$oid)
                                 $(td_row).attr("sample_id", row._id.$oid)
-                            } else if (included_fields.includes(el)) {
-                                // Change "public_name" table header name to "tolid" table header name
-                                // because tolid" is recognised/known by users
-                                el === "public_name" ? el = "tolid" : el
-                                // make header
-                                const th = $("<th/>", {
-                                    html: el
-                                });
-                                $(th).css({"text-align": "center"})
-                                $(th).css({"width": "360px"})
-                                $(th_row).append(
-                                    th
-                                )
-                                // and row
-                                td = $("<td/>", {
-                                    html: row[el]
-                                })
-                                $(td).css({"text-align": "center"})
-                                $(td).css({"width": "360px"})
-                                if (row[el] === 'NA') {
-                                    $(td).addClass("na_color")
-                                } else if (row[el] === "") {
-                                    $(td).addClass("empty_color")
-                                }
-                                $(td_row).append(
-                                    td
-                                )
+                            } else if (!areAllTableFieldsShown && included_fields.includes(el)) {
+                                console.log("Are all fields shown: ", areAllTableFieldsShown)
+                                get_profile_samples_table_block_of_code(el, td, row, th_row, td_row)
+                                localStorage.setItem("areAllTableFieldsShown", "false");
+                                $("#showFieldsID").prop('checked', false);
+                            } else if (areAllTableFieldsShown && !excluded_fields.includes(el)) {
+                                console.log("Are all fields shown: ", areAllTableFieldsShown)
+                                get_profile_samples_table_block_of_code(el, td, row, th_row, td_row)
+                                localStorage.setItem("areAllTableFieldsShown", "true");
+                                $("#showFieldsID").prop('checked', true);
                             }
                         }
                         document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
@@ -537,20 +571,18 @@ function row_select_on_tol_inspect_web_page(ev) {
                             if (el === "_id") {
                                 td_row.setAttribute("id", row._id.$oid)
                                 td_row.setAttribute("sample_id", row._id.$oid)
-                            } else if (included_fields.includes(el)) {
-                                // just do row
-                                td = $("<td/>", {
-                                    html: row[el]
-                                })
-                                td = document.createElement("td")
-                                td.innerHTML = row[el]
-                                if (row[el] === 'NA') {
-                                    td.className = "na_color"
-                                } else if (row[el] === "") {
-                                    td.className = "empty_color"
-                                }
-                                td_row.appendChild(td)
-
+                            } else if (!areAllTableFieldsShown && included_fields.includes(el)) {
+                                get_profile_samples_table_not_first_element_block_of_code(el, row, td_row)
+                                // Set/store show all table fields checkbox value in local storage
+                                // because value is reset once page is reloaded
+                                localStorage.setItem("areAllTableFieldsShown", "false");
+                                $("#showFieldsID").prop('checked', false);
+                            } else if (areAllTableFieldsShown && !excluded_fields.includes(el)) {
+                                get_profile_samples_table_not_first_element_block_of_code(el, row, td_row)
+                                // Set/store show all table fields checkbox value in local storage
+                                // because value is reset once page is reloaded
+                                localStorage.setItem("areAllTableFieldsShown", "true");
+                                $("#showFieldsID").prop('checked', true);
                             }
 
                         }
@@ -558,14 +590,20 @@ function row_select_on_tol_inspect_web_page(ev) {
                         $(td_row).css({"width": "360px"})
                         rows.push(td_row)
                     }
+
                 })
+
                 fastdom.mutate(() => {
                     //$("#profile_samples tbody").append(rows)
-                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
+                    const tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0];
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
                     $("#profile_samples").DataTable(dt_options);
+
+                    // Add checkbox to show all fields within the table beside the search box
+                    // within the profile samples data table
+                    $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="row_select_on_tol_inspect_web_page(this)"></label>');
                 })
             } else {
                 let content
