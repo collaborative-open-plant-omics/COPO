@@ -146,6 +146,7 @@ def filter_for_API(sample_list, add_all_fields=False):
                 out.append(s_out)
             else:
                 out.append(s_out)
+
     return out
 
 
