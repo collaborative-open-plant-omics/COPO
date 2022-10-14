@@ -3,15 +3,23 @@ $(document).ready(function () {
     // functionality
     $(document).data("accepted_warning", false)
     $(document).data("isDtolSamplePage", true)
+    $(document).data("areAllSampleModalFieldsShown", false)
+    // Set and store "false" as the default value for the showAllTableFields checkbox
+    $("div#checkbox_valueID").data("checkbox", false);
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
     included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
 
-    // Set and store "false" as the default value for the showAllTableFields checkbox
-    $("div#checkbox_valueID").data("checkbox", false);
     let currentURL = window.location.href
-    currentURL.includes("tol_inspect") ? update_pending_samples_table_on_tol_inspect_web_pag() : update_pending_samples_table()
+    const project = $("#sample_filter").find(".active").find("a").attr("href");
+    // Get active manifest type tab on tab change
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        let project = $(e.target).attr("href")
+        update_pending_samples_table_for_tol_inspection(project)
+    });
+
+    currentURL.includes("tol_inspect") ? update_pending_samples_table_for_tol_inspection(project) : update_pending_samples_table()
 
     $(document).on("click", ".select-all", function () {
         $(".form-check-input:not(:checked)").each(function (idx, element) {
@@ -34,7 +42,6 @@ $(document).ready(function () {
             cb.click()
         }
     })
-
 
     $(document).on("click", ".delete-selected", function (e) {
 
@@ -83,7 +90,6 @@ $(document).ready(function () {
 
     })
 
-
     $(document).on("click", ".form-check-input", function (el) {
 
         if ($(".form-check-input:checked").length) {
@@ -97,44 +103,14 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".sample_table_row", function (el) {
-        let columns = []
-        let row_values = []
-        let sample_details_table_columns_count = document.getElementById("profile_samples").getElementsByTagName("thead")[0].rows[0].cells.length - 1
-        console.log('Number of columns in the table: ', sample_details_table_columns_count)
-
-
-        console.log("Current target: ", $(el.currentTarget))
-
-        let specimen_ID = $(el.currentTarget).find("td").eq(1).html()
-        console.log("Selected row SPECIMEN_ID: ", specimen_ID)
-
-        // Retrieve the column names and row values from the sample details table starting from column 1
-        let range = [...Array(sample_details_table_columns_count).keys()].map(i => i + 1);
-        columns = range.map(i => $(el.currentTarget).parent().siblings().find("th>div").eq(i).html())
-        console.log("Column values: ", columns)
-
-        row_values = range.map(i => $(el.currentTarget).find("td").eq(i).html())
-        console.log("Row values: ", row_values)
-
         let sample_id = el.currentTarget.id
-        console.log("Sample ID: ", sample_id)
-
+        const errorMsg = "Couldn't build Sample Details' form!";
+        csrftoken = $.cookie('csrftoken');
 
         $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
             $(el).toggleClass("selected_row")
         })
-        csrftoken = $.cookie('csrftoken');
-        const component = "profile_sample_details" //"profile_sample_details";
-        const copoFormsURL = "/copo/copo_forms/";
-        const errorMsg = "Couldn't build Sample Details' form!";
 
-
-        // console.log(document.getElementById("profile_samples").getElementsByTagName("th")[0].innerText)
-        //
-        //
-        // console.log(document.getElementById("profile_samples").getElementsByTagName("td")[1].innerText)
-
-        // json2HtmlForm_SampleDetails(specimen_ID, columns, row_values);
         $.ajax({
             url: "/copo/get_sample_details/",
             method: "POST",
@@ -142,16 +118,18 @@ $(document).ready(function () {
             dataType: "json",
             data: {
                 'sample_id': sample_id,
-                'specimen_id': specimen_ID
             },
             success: function (data) {
-                json2HtmlForm_SampleDetails(data);
+                json2HtmlForm_SampleDetails(data["sample_data_with_blanks"], data["sample_data_with_no_blanks"]);
+                $(document).data("sample_data_with_blanks", data["sample_data_with_blanks"])
+                $(document).data("sample_data_with_no_blanks", data["sample_data_with_no_blanks"])
             },
             error: function () {
                 alert(errorMsg);
             }
         });
     })
+
 
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
 
@@ -543,20 +521,12 @@ function row_select_on_tol_inspect_web_page(ev) {
 
                     $("#showFieldsID").prop('checked', showAllTableFieldsCheckBoxValueDiv.data("checkbox"));
                     let isCheckBoxSelected = $("#showFieldsID:checked").is(":checked");
-                    console.log("Is checkbox selected: ", isCheckBoxSelected);
+
                     document.querySelector("#showFieldsID").onchange = (e) => {
                         let checked = e.target.checked;
                         showAllTableFieldsCheckBoxValueDiv.data("checkbox", checked);
-                        console.log("Value of check box within on change: ", showAllTableFieldsCheckBoxValueDiv.data("checkbox"))
-                        // let areAllTableFieldsShown2 = localStorage.getItem("areAllTableFieldsShown") === 'true';
-                        // console.log("Are all tables shown2: ", areAllTableFieldsShown2)
-                        // $("#showFieldsID").prop('checked', areAllTableFieldsShown2);
                     }
                     $("#showFieldsID").prop('checked', showAllTableFieldsCheckBoxValueDiv.data("checkbox"));
-                    console.log("Value of check box outside on change: ", showAllTableFieldsCheckBoxValueDiv.data("checkbox"))
-                    //
-                    //     // localStorage.setItem("areAllTableFieldsShown", checbox_value.toString())
-                    //
                 })
             } else {
                 let content
@@ -573,32 +543,9 @@ function row_select_on_tol_inspect_web_page(ev) {
                     content
                 )
             }
-            console.log("Value of check box outside if statement: ", showAllTableFieldsCheckBoxValueDiv.data("checkbox"))
-            // let checkBox = document.getElementById("showFieldsID");
-            // console.log("Checkbox value: ", checkBox.checked)
-            // localStorage.setItem("areAllTableFieldsShown", checkBox.checked.toString());
             $("#spinner").fadeOut("fast")
-            // $("#showFieldsID").filter(':visible').attr('checked', true);
-            // console.log("Check box value: ", localStorage.getItem("areAllTableFieldsShown"))
-            // document.querySelector("#showFieldsID").onchange = (e) => {
-            //     let checked = e.target.checked;
-            //     if (checked) {
-            //         console.log("checked !");
-            //         $("#showFieldsID").prop('checked', true);
-            //         localStorage.setItem("areAllTableFieldsShown", "true");
-            //     } else {
-            //         console.log("unchecked...");
-            //         $("#showFieldsID").prop('checked', false);
-            //         localStorage.setItem("areAllTableFieldsShown", "false");
-            //     }
-            //     let areAllTableFieldsShown2 = localStorage.getItem("areAllTableFieldsShown") === 'true';
-            //     console.log("Are all tables shown2: ", areAllTableFieldsShown2)
-            //     $("#showFieldsID").prop('checked', areAllTableFieldsShown2);
-            // }
-
         }
     )
-    console.log("Value of check box after ajax: ", showAllTableFieldsCheckBoxValueDiv.data("checkbox"))
 }
 
 function get_profile_samples_table_first_element_block_of_code(el, td, row, th_row, td_row) {
@@ -681,12 +628,10 @@ function update_pending_samples_table() {
     })
 }
 
-function update_pending_samples_table_on_tol_inspect_web_pag() {
+function update_pending_samples_table_for_tol_inspection(project) {
     // get profiles with samples needing looked at and populate left hand column
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
-
     $.ajax({
-        url: "/copo/update_pending_samples_table_on_tol_inspect_web_pag",
+        url: "/copo/update_pending_samples_table_for_tol_inspection",
         method: "GET",
         dataType: "json",
         data: {
@@ -695,19 +640,18 @@ function update_pending_samples_table_on_tol_inspect_web_pag() {
     }).error(function (e) {
         console.error(e)
     }).done(function (data) {
+        // Clear existing data in the profile titles' table
+        if ($.fn.DataTable.isDataTable('#profile_titles')) {
+            $("#profile_titles").DataTable().clear().destroy();
+        }
         $(data['profiles']).each(function (d) {
             let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
             $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'] + "</td></tr>")
 
         })
-        // $($("#profile_titles tr")[1]).css({})
         $($("#profile_titles tr")[1]).click()
 
 
-        if ($.fn.DataTable.isDataTable('#profile_titles')) {
-            $("#profile_titles").DataTable().clear().destroy();
-
-        }
         $.fn.dataTable.moment('DD/MM/YYYY');
         $("#profile_titles").DataTable({
             responsive: true,

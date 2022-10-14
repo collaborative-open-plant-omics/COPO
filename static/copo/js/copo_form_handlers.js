@@ -253,7 +253,7 @@ function json2HtmlForm(data) {
 
 } //end of json2HTMLForm
 
-function json2HtmlForm_SampleDetails(data) {
+function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
     const form = document.createElement('form');
     form.setAttribute('class', 'form-horizontal');
 
@@ -264,9 +264,11 @@ function json2HtmlForm_SampleDetails(data) {
             dialogRef.close();
         }
     };
+    console.log("Value of document data: ", $(document).data("areAllSampleModalFieldsShown"))
+    let data = $(document).data("areAllSampleModalFieldsShown") ? data_with_blanks : data_with_no_blanks
 
     const dialog = new BootstrapDialog({
-        message: "The following are information regarding the selected sample.",
+        message: "The following information relates to the selected sample.",
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
         title: function () {
@@ -294,26 +296,44 @@ function json2HtmlForm_SampleDetails(data) {
 
             refresh_form_aux_controls();
 
-            var event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
+
+            document.querySelector("#sampleModalFieldsID").onchange = (e) => {
+                let checked = e.target.checked;
+                //showAllTableFieldsCheckBoxValueDiv.data("checkbox", checked);
+                $(document).data("areAllSampleModalFieldsShown", checked)
+                console.log("Is checkbox checked?: ", checked)
+                console.log("Value of document data: ", $(document).data("areAllSampleModalFieldsShown"))
+                // console.log("Data with blanks: ", $(document).data("sample_data_with_blanks"))
+                // console.log("Data with no blanks: ", $(document).data("sample_data_with_no_blanks"))
+                const form_body_div1 = set_up_form_body_div_sample_details(data, form);
+                if (checked) {
+                    // $("div.formDivRow").replaceWith("<h2>Hi</h2>");
+                    console.log("Data with blanks: ", $(document).data("sample_data_with_blanks"))
+                    $("div.formDivRow").replaceWith(set_up_form_body_div_sample_details($(document).data("sample_data_with_blanks"), form))
+
+                } else {
+                    console.log("Data with no blanks: ", $(document).data("sample_data_with_no_blanks"))
+                    $("div.formDivRow").replaceWith(set_up_form_body_div_sample_details($(document).data("sample_data_with_no_blanks"), form));
+                }
+
+
+            }
 
         },
     });
 
     const $dialogContent = $('<div/>');
-
     const form_help_div = set_up_form_show_all_fields_checkbox_div(data);
     const form_message_div = get_form_message(data);
-
     const form_body_div = set_up_form_body_div_sample_details(data, form);
 
     $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
     dialog.realize();
     dialog.setMessage($dialogContent);
     dialog.open();
-
-
 } //end of json2HTMLForm
 
 function build_form_body(data) {
@@ -370,11 +390,9 @@ function build_form_body(data) {
 
 function build_form_body_sample_Details(data, form) {
     const formDiv = document.getElementsByClassName("formDiv");
-    // for (let key in data) {
+
     // Iterate through dictionary
     Object.entries(data).forEach(([field, value]) => {
-        console.log('field: ', field)
-        console.log('value: ', value)
         // Create field div
         const fieldDiv = document.createElement('div');
         fieldDiv.setAttribute('class', 'form-group');
@@ -415,7 +433,7 @@ function build_form_body_sample_Details(data, form) {
 
 
     })
-    // }
+
 
 }
 
@@ -559,48 +577,30 @@ function set_up_form_help_div(data) {
     return ctrlDiv.append(cloneCol);
 }
 
-function showFormFields() {
-    // Get the checkbox
-    var checkBox = document.getElementById("showFormFieldsID");
-    // Get the output text
-    var text = document.getElementById("text");
-
-    // If the checkbox is checked, display the output text
-    if (checkBox.checked === true) {
-        alert("Text box is checked")
-        text.style.display = "block";
-    } else {
-        text.style.display = "none";
-    }
-}
-
 function set_up_form_show_all_fields_checkbox_div(data) {
-    const ctrlDiv = $('<div/>',
+    const rowDiv = $('<div/>',
         {
             class: "row helpDivRow",
             style: "margin-bottom:20px;"
         });
-    // class: "col-sm-7 col-md-7 col-lg-7",
-    // Show all form fields:
-    const cloneCol = $('<input/>',
+
+    const checkBoxLabel = $('<label/>',
         {
-            id: "showFieldsID",
-            type: "checkbox",
-            onclick: "showFields()",
             class: "pull-right",
-            style: "padding-right:40px;"
+            style: "padding-right:60px;"
         });
 
-    const helpCtrl = $('<div/>',
+    const checkBox = $('<input/>',
         {
-            class: "col-sm-5 col-md-5 col-lg-5"
-        }).append(get_help_ctrl());
+            id: "sampleModalFieldsID",
+            type: "checkbox",
+            style: "margin-left:10px;",
 
-    return ctrlDiv.append(cloneCol);
+        });
 
-//     Checkbox: <input type="checkbox" id="myCheck" onclick="showFormFields()">
-//
-// <p id="text" style="display:none">Checkbox is CHECKED!</p>
+    checkBoxLabel.text('Show all fields: ')
+    checkBoxLabel.append(checkBox)
+    return rowDiv.append(checkBoxLabel);
 }
 
 function set_up_form_body_div(data) {

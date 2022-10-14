@@ -1438,40 +1438,32 @@ def update_pending_samples_table(request):
     return HttpResponse(json_util.dumps(profiles))
 
 
-def tol_inspect_update_pending_samples_table(request):
-    profiles = []
+def update_pending_samples_table_for_tol_inspection(request):
     project = request.GET["project"]
 
     if project == "ERGA":
-        # if "erga_users" in member_groups or "erga_sample_managers" in member_groups:
-        profiles += Profile().get_erga_profiles()
+        profiles = Profile().get_erga_profiles()
     elif project == "DTOL":
-        # if 'dtol_users' in member_groups or "dtol_sample_managers" in member_groups:
         profiles = Profile().get_dtol_only_profiles()
     elif project == "ASG":
-        # if 'dtol_users' in member_groups or "dtol_sample_managers" in member_groups:
         profiles = Profile().get_asg_profiles()
     else:
-        # "dtolenv_sample_managers" in member_groups:
-        profiles += Profile().get_dtolenv_profiles()
+        profiles = Profile().get_dtolenv_profiles()
 
-    # Get the number of samples in a profile based on the profile ID and project type
     samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
                in profiles]
 
     return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'samples': samples, 'profile_samples_count': len(samples[0])}))
+        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
 
 
 def get_sample_details(request):
     sample_id = ObjectId(request.POST["sample_id"])
     sample_data = Sample().get_sample_by_id(sample_id)
-    print("Sample details: ", sample_data)
-    print("SPECIMEN_ID: ", sample_data[0]["SPECIMEN_ID"])
-    # Filter dictionary field keys with dict comprehension
-    excluded_fields = ["profile_id", "biosample_id", "_id"]
-    sample_data = {field: value for (field, value) in sample_data[0].items() if field not in excluded_fields}
-    print("sample_data: ", sample_data)
+    excluded_fields = ["profile_id", "biosample_id", "_id"]  # Filter dictionary field keys with dict comprehension
+    sample_data_with_blank_field_values = {field: value for (field, value) in sample_data[0].items() if
+                                           field not in excluded_fields}
+
     # Convert field values that are in datetime milliseconds object to timestamp
     datetime_fields = ["date_modified", "time_created"]
 
@@ -1484,18 +1476,21 @@ def get_sample_details(request):
     #                (field, value) in sample_data[0].items() if field in datetime_fields}
 
     # Change "public_name" field name to "tolid" field name
-    sample_data["tolid"] = sample_data.pop("public_name")
+    sample_data_with_blank_field_values["tolid"] = sample_data_with_blank_field_values.pop("public_name")
 
     # Do not show empty values
-    print(sample_data["DATE_OF_COLLECTION"])
-    print(sample_data.items())
-    sample_data_with_no_blank_values = {field: value for (field, value) in sample_data.items() if sample_data[field]}
-    print("No blanks: ", sample_data_with_no_blank_values)
-    # areAllfieldsShown = false
+    print(sample_data_with_blank_field_values["DATE_OF_COLLECTION"])
+    print(sample_data_with_blank_field_values.items())
+    sample_data_with_no_blank_field_values = {field: value for (field, value) in
+                                              sample_data_with_blank_field_values.items() if
+                                              sample_data_with_blank_field_values[field]}
+    print("No blanks: ", sample_data_with_no_blank_field_values)
 
-    sorted_sample_data = dict(sorted(sample_data.items()))
+    sorted_sample_data_with_blank_field_values = dict(sorted(sample_data_with_blank_field_values.items()))
+    sorted_sample_data_with_no_blank_field_values = dict(sorted(sample_data_with_no_blank_field_values.items()))
 
-    return HttpResponse(json_util.dumps(sorted_sample_data))
+    return HttpResponse(json_util.dumps({"sample_data_with_blanks": sorted_sample_data_with_blank_field_values,
+                                         "sample_data_with_no_blanks": sorted_sample_data_with_no_blank_field_values}))
 
 
 def get_samples_for_profile(request):
