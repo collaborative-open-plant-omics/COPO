@@ -120,9 +120,13 @@ $(document).ready(function () {
                 'sample_id': sample_id,
             },
             success: function (data) {
-                json2HtmlForm_SampleDetails(data["sample_data_with_blanks"], data["sample_data_with_no_blanks"]);
                 $(document).data("sample_data_with_blanks", data["sample_data_with_blanks"])
                 $(document).data("sample_data_with_no_blanks", data["sample_data_with_no_blanks"])
+                $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
+
+                // json2HtmlForm_SampleDetails(data["sample_data_with_blanks"], data["sample_data_with_no_blanks"]);
+                json2HtmlForm_SampleDetails()
+
             },
             error: function () {
                 alert(errorMsg);
@@ -223,6 +227,24 @@ $(document).ready(function () {
                 message: $('<div></div>').load("/static/copo/snippets/ncbitaxon_species_search.html")
             })
         }
+    })
+
+    $(document).on("click", ".fieldID", function (e) {
+
+        $("#tolInspectNavBar").find(".active").removeClass("active")
+        console.log(this.innerHTML)
+        const navMenu = $("<li/>", {});
+
+        const navItem = $("<a/>", {
+            href: "#"
+        });
+
+        navItem.text(">" + this.innerHTML)
+        navMenu.addClass('active')
+        navMenu.append(navItem)
+
+        $("#tolInspectNavBar").find(".nav").append(navMenu)
+        $('.modal').modal('hide') // Close the boostrap dialog
     })
 })
 var fadeSpeed = 'fast'
@@ -447,6 +469,21 @@ function row_select_on_tol_inspect_web_page(ev) {
                 });
                 $("#sample_panel").find(".labelling").empty().append(header)
 
+                // Create page top navigation
+                const navMenu = $("<li/>", {
+                    class: "active"
+                });
+
+                const navItem = $("<a/>", {
+                    class: "active",
+                    href: "#"
+                });
+
+                navItem.text("Samples")
+                navMenu.append(navItem)
+
+                $("#tolInspectNavBar").find(".nav").empty().append(navMenu)
+
                 const rows = [];
 
                 // Get the value of the showAllTableFields checkbox
@@ -542,6 +579,7 @@ function row_select_on_tol_inspect_web_page(ev) {
                 $("#sample_panel").find(".labelling").empty().html(
                     content
                 )
+                $("#tolInspectNavBar").find(".nav").empty().html("")
             }
             $("#spinner").fadeOut("fast")
         }

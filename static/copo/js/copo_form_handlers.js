@@ -257,17 +257,11 @@ function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
     const form = document.createElement('form');
     form.setAttribute('class', 'form-horizontal');
 
-    //tidy up before closing the modal
-    const doTidyClose = {
-        closeIt: function (dialogRef) {
-            refresh_tool_tips();
-            dialogRef.close();
-        }
-    };
-    console.log("Value of document data: ", $(document).data("areAllSampleModalFieldsShown"))
-    let data = $(document).data("areAllSampleModalFieldsShown") ? data_with_blanks : data_with_no_blanks
+    // let data = $(document).data("areAllSampleModalFieldsShown") ? data_with_blanks : data_with_no_blanks
+    let data = $(document).data("sample_data")
 
     const dialog = new BootstrapDialog({
+        description: "The following information relates to the selected sample.",
         message: "The following information relates to the selected sample.",
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
@@ -302,22 +296,54 @@ function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
 
             document.querySelector("#sampleModalFieldsID").onchange = (e) => {
                 let checked = e.target.checked;
-                //showAllTableFieldsCheckBoxValueDiv.data("checkbox", checked);
-                $(document).data("areAllSampleModalFieldsShown", checked)
-                console.log("Is checkbox checked?: ", checked)
-                console.log("Value of document data: ", $(document).data("areAllSampleModalFieldsShown"))
-                // console.log("Data with blanks: ", $(document).data("sample_data_with_blanks"))
-                // console.log("Data with no blanks: ", $(document).data("sample_data_with_no_blanks"))
-                const form_body_div1 = set_up_form_body_div_sample_details(data, form);
-                if (checked) {
-                    // $("div.formDivRow").replaceWith("<h2>Hi</h2>");
-                    console.log("Data with blanks: ", $(document).data("sample_data_with_blanks"))
-                    $("div.formDivRow").replaceWith(set_up_form_body_div_sample_details($(document).data("sample_data_with_blanks"), form))
+                // $(document).data("areAllSampleModalFieldsShown", checked)
+                // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
+                // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
 
-                } else {
-                    console.log("Data with no blanks: ", $(document).data("sample_data_with_no_blanks"))
-                    $("div.formDivRow").replaceWith(set_up_form_body_div_sample_details($(document).data("sample_data_with_no_blanks"), form));
-                }
+                let data = $(document).data("sample_data")
+                const form = document.createElement('form');
+                form.setAttribute('class', 'form-horizontal');
+                const form_body_div = set_up_form_body_div_sample_details(data, form)
+                build_form_body_sample_Details(data, form);
+
+                $("div.formDivRow").replaceWith(form_body_div);
+
+                // if (checked) {
+                //
+                //     //
+                //     // $("div.formDivRow").html().prepend(form_body_div);
+                //     // build_form_body_sample_Details(data, form);
+                //     // const form = document.createElement('form');
+                //     // form.setAttribute('class', 'form-horizontal');
+                //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
+                //     // // const form_body = build_form_body_sample_Details(data, form);
+                //     // // $(form_body).replaceWith(form_body_div)
+                //     // // $("div.formDivRow").replaceWith(form_body_div);
+                //     // build_form_body_sample_Details(data, form);
+                //     // const formBodyDiv = $('<div/>',
+                //     //     {
+                //     //         class: "row formDivRow"
+                //     //     }).append($('<div/>',
+                //     //     {
+                //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
+                //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
+                //     //     }).append(form));
+                //
+                //     //build main form
+                //
+                //
+                //     // $("div.formDivRow").replaceWith(formBodyDiv);/
+                // } else {
+                //     // const form = document.createElement('form');
+                //     // form.setAttribute('class', 'form-horizontal');
+                //     //
+                //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
+                //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
+                //     // $("div.formDivRow").replaceWith(form_body_div);
+                //     // build_form_body_sample_Details(data, form);
+                //
+                //
+                // }
 
 
             }
@@ -389,6 +415,8 @@ function build_form_body(data) {
 }
 
 function build_form_body_sample_Details(data, form) {
+    data = $(document).data("sample_data")
+    console.log("Data: ", data)
     const formDiv = document.getElementsByClassName("formDiv");
 
     // Iterate through dictionary
