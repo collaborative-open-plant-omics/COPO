@@ -57,7 +57,6 @@ def format_date(input_date):
 
 
 def filter_for_API(sample_list, add_all_fields=False):
-
     # add field(s) here which should be time formatted
     time_fields = ["time_created", "time_updated"]
     profile_type = None
@@ -134,13 +133,18 @@ def filter_for_API(sample_list, add_all_fields=False):
             if k == "changelog":
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
+        # create list of fields and defaults for fields which are not present in earlier versions of the manifest
+        defaults_list = {
+            "MIXED_SAMPLE_RISK": "NOT_PROVIDED",
+            "BARCODING_STATUS": "DNA_BARCODE_EXEMPT"
+        }
         # iterate through fields to be exported and add them in blank if not present in the sample object
         if not embargoed:
             if add_all_fields:
                 for k in export:
                     if k not in s_out.keys():
-                        if k == "MIXED_SAMPLE_RISK":
-                            s_out["MIXED_SAMPLE_RISK"] = "NOT_PROVIDED"
+                        if k in defaults_list.keys():
+                            s_out[k] = defaults_list[k]
                         else:
                             s_out[k] = ""
                 out.append(s_out)
@@ -154,6 +158,7 @@ def get_dtol_manifests(request):
     # get all manifests of dtol samples
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
+
 
 def query_local_contexts_hub(project_id):
     lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
