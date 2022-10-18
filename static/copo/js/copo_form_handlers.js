@@ -53,8 +53,121 @@ $(document).ready(function () {
         }
     });
 
+    // document.querySelector("#sampleModalFieldsID").onchange = (e) => {
+    //     let checked = e.target.checked;
+    //     // $(document).data("areAllSampleModalFieldsShown", checked)
+    //     // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
+    //     // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
+    //
+    //     let data = $(document).data("sample_data")
+    //     const form = document.createElement('form');
+    //     form.setAttribute('class', 'form-horizontal');
+    //     const form_body_div = set_up_form_body_div_sample_details(data, form)
+    //     build_form_body_sample_Details(data, form);
+    //
+    //     $("div.formDivRow").replaceWith(form_body_div);
+    //
+    //     // if (checked) {
+    //     //
+    //     //     //
+    //     //     // $("div.formDivRow").html().prepend(form_body_div);
+    //     //     // build_form_body_sample_Details(data, form);
+    //     //     // const form = document.createElement('form');
+    //     //     // form.setAttribute('class', 'form-horizontal');
+    //     //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
+    //     //     // // const form_body = build_form_body_sample_Details(data, form);
+    //     //     // // $(form_body).replaceWith(form_body_div)
+    //     //     // // $("div.formDivRow").replaceWith(form_body_div);
+    //     //     // build_form_body_sample_Details(data, form);
+    //     //     // const formBodyDiv = $('<div/>',
+    //     //     //     {
+    //     //     //         class: "row formDivRow"
+    //     //     //     }).append($('<div/>',
+    //     //     //     {
+    //     //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
+    //     //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
+    //     //     //     }).append(form));
+    //     //
+    //     //     //build main form
+    //     //
+    //     //
+    //     //     // $("div.formDivRow").replaceWith(formBodyDiv);/
+    //     // } else {
+    //     //     // const form = document.createElement('form');
+    //     //     // form.setAttribute('class', 'form-horizontal');
+    //     //     //
+    //     //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
+    //     //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
+    //     //     // $("div.formDivRow").replaceWith(form_body_div);
+    //     //     // build_form_body_sample_Details(data, form);
+    //     //
+    //     //
+    //     // }
+    //
+    //
+    // }
 
+    // "change"
+    $(document).on("click", "#sampleModalFieldsID", function (e) {
+        let checked = e.target.checked;
+        // $(document).data("areAllSampleModalFieldsShown", checked)
+        // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
+        // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
+
+        // let data = $(document).data("sample_data")
+        // const form = document.createElement('form');
+        // form.setAttribute('class', 'form-horizontal');
+        // const form_body_div = set_up_form_body_div_sample_details(data, form)
+
+        if (checked) {
+            // $("div.formDivRow").replaceWith(form_body_div);
+            // build_form_body_sample_Details(data, form);
+            // $('.modal').modal().realize();
+            // ('.modal').modal().setMessage($dialogContent);
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            const modal = $('.modal').modal()
+            modal.find('.bootstrap-dialog-title').text('New message for title')
+            modal.find('.formDiv').prepend('<p>Hi</p>')
+        }
+        // if (checked) {
+        //
+        //     //
+        //     // $("div.formDivRow").html().prepend(form_body_div);
+        //     // build_form_body_sample_Details(data, form);
+        //     // const form = document.createElement('form');
+        //     // form.setAttribute('class', 'form-horizontal');
+        //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
+        //     // // const form_body = build_form_body_sample_Details(data, form);
+        //     // // $(form_body).replaceWith(form_body_div)
+        //     // // $("div.formDivRow").replaceWith(form_body_div);
+        //     // build_form_body_sample_Details(data, form);
+        //     // const formBodyDiv = $('<div/>',
+        //     //     {
+        //     //         class: "row formDivRow"
+        //     //     }).append($('<div/>',
+        //     //     {
+        //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
+        //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
+        //     //     }).append(form));
+        //
+        //     //build main form
+        //
+        //
+        //     // $("div.formDivRow").replaceWith(formBodyDiv);/
+        // } else {
+        //     // const form = document.createElement('form');
+        //     // form.setAttribute('class', 'form-horizontal');
+        //     //
+        //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
+        //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
+        //     // $("div.formDivRow").replaceWith(form_body_div);
+        //     // build_form_body_sample_Details(data, form);
+        //
+        //
+        // }
+    })
 }); //end of document ready
+
 
 //map controls to rendering functions
 var controlsMapping = {
@@ -293,60 +406,60 @@ function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
             const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
-
-            document.querySelector("#sampleModalFieldsID").onchange = (e) => {
-                let checked = e.target.checked;
-                // $(document).data("areAllSampleModalFieldsShown", checked)
-                // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
-                // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
-
-                let data = $(document).data("sample_data")
-                const form = document.createElement('form');
-                form.setAttribute('class', 'form-horizontal');
-                const form_body_div = set_up_form_body_div_sample_details(data, form)
-                build_form_body_sample_Details(data, form);
-
-                $("div.formDivRow").replaceWith(form_body_div);
-
-                // if (checked) {
-                //
-                //     //
-                //     // $("div.formDivRow").html().prepend(form_body_div);
-                //     // build_form_body_sample_Details(data, form);
-                //     // const form = document.createElement('form');
-                //     // form.setAttribute('class', 'form-horizontal');
-                //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
-                //     // // const form_body = build_form_body_sample_Details(data, form);
-                //     // // $(form_body).replaceWith(form_body_div)
-                //     // // $("div.formDivRow").replaceWith(form_body_div);
-                //     // build_form_body_sample_Details(data, form);
-                //     // const formBodyDiv = $('<div/>',
-                //     //     {
-                //     //         class: "row formDivRow"
-                //     //     }).append($('<div/>',
-                //     //     {
-                //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
-                //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
-                //     //     }).append(form));
-                //
-                //     //build main form
-                //
-                //
-                //     // $("div.formDivRow").replaceWith(formBodyDiv);/
-                // } else {
-                //     // const form = document.createElement('form');
-                //     // form.setAttribute('class', 'form-horizontal');
-                //     //
-                //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
-                //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
-                //     // $("div.formDivRow").replaceWith(form_body_div);
-                //     // build_form_body_sample_Details(data, form);
-                //
-                //
-                // }
-
-
-            }
+            //
+            // document.querySelector("#sampleModalFieldsID").onchange = (e) => {
+            //     let checked = e.target.checked;
+            //     // $(document).data("areAllSampleModalFieldsShown", checked)
+            //     // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
+            //     // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
+            //
+            //     let data = $(document).data("sample_data")
+            //     const form = document.createElement('form');
+            //     form.setAttribute('class', 'form-horizontal');
+            //     const form_body_div = set_up_form_body_div_sample_details(data, form)
+            //     build_form_body_sample_Details(data, form);
+            //
+            //     $("div.formDivRow").replaceWith(form_body_div);
+            //
+            //     // if (checked) {
+            //     //
+            //     //     //
+            //     //     // $("div.formDivRow").html().prepend(form_body_div);
+            //     //     // build_form_body_sample_Details(data, form);
+            //     //     // const form = document.createElement('form');
+            //     //     // form.setAttribute('class', 'form-horizontal');
+            //     //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
+            //     //     // // const form_body = build_form_body_sample_Details(data, form);
+            //     //     // // $(form_body).replaceWith(form_body_div)
+            //     //     // // $("div.formDivRow").replaceWith(form_body_div);
+            //     //     // build_form_body_sample_Details(data, form);
+            //     //     // const formBodyDiv = $('<div/>',
+            //     //     //     {
+            //     //     //         class: "row formDivRow"
+            //     //     //     }).append($('<div/>',
+            //     //     //     {
+            //     //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
+            //     //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
+            //     //     //     }).append(form));
+            //     //
+            //     //     //build main form
+            //     //
+            //     //
+            //     //     // $("div.formDivRow").replaceWith(formBodyDiv);/
+            //     // } else {
+            //     //     // const form = document.createElement('form');
+            //     //     // form.setAttribute('class', 'form-horizontal');
+            //     //     //
+            //     //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
+            //     //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
+            //     //     // $("div.formDivRow").replaceWith(form_body_div);
+            //     //     // build_form_body_sample_Details(data, form);
+            //     //
+            //     //
+            //     // }
+            //
+            //
+            // }
 
         },
     });

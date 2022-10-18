@@ -5,7 +5,7 @@ $(document).ready(function () {
     $(document).data("isDtolSamplePage", true)
     $(document).data("areAllSampleModalFieldsShown", false)
     // Set and store "false" as the default value for the showAllTableFields checkbox
-    $("div#checkbox_valueID").data("checkbox", false);
+    $(document).data("checkbox", false);
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
@@ -230,8 +230,8 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".fieldID", function (e) {
-
-        $("#tolInspectNavBar").find(".active").removeClass("active")
+        let tolInspectNavBar = $("#tolInspectNavBar")
+        tolInspectNavBar.find(".active").removeClass("active")
         console.log(this.innerHTML)
         const navMenu = $("<li/>", {});
 
@@ -243,7 +243,7 @@ $(document).ready(function () {
         navMenu.addClass('active')
         navMenu.append(navItem)
 
-        $("#tolInspectNavBar").find(".nav").append(navMenu)
+        tolInspectNavBar.find(".nav").append(navMenu)
         $('.modal').modal('hide') // Close the boostrap dialog
     })
 })
@@ -440,7 +440,6 @@ function row_select_on_tol_inspect_web_page(ev) {
     } else {
         row = $(document).data("selected_row")
     }
-    let showAllTableFieldsCheckBoxValueDiv = $("div#checkbox_valueID")
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
     const d = {"profile_id": $(row).find("td").data("profile_id"), "project": project};
@@ -487,8 +486,7 @@ function row_select_on_tol_inspect_web_page(ev) {
                 const rows = [];
 
                 // Get the value of the showAllTableFields checkbox
-                // which is stored in the "#checkbox_valueID" div
-                let areAllTableFieldsShown = showAllTableFieldsCheckBoxValueDiv.data("checkbox")
+                let areAllTableFieldsShown = $(document).data("checkbox");
 
                 $(data).each(function (idx, row) {
                     let td;
@@ -556,14 +554,13 @@ function row_select_on_tol_inspect_web_page(ev) {
                     // within the profile samples data table
                     $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="row_select_on_tol_inspect_web_page(this)"></label>');
 
-                    $("#showFieldsID").prop('checked', showAllTableFieldsCheckBoxValueDiv.data("checkbox"));
-                    let isCheckBoxSelected = $("#showFieldsID:checked").is(":checked");
+                    $("#showFieldsID").prop('checked', $(document).data("checkbox"));
 
                     document.querySelector("#showFieldsID").onchange = (e) => {
                         let checked = e.target.checked;
-                        showAllTableFieldsCheckBoxValueDiv.data("checkbox", checked);
+                        $(document).data("checkbox", checked);
                     }
-                    $("#showFieldsID").prop('checked', showAllTableFieldsCheckBoxValueDiv.data("checkbox"));
+                    $("#showFieldsID").prop('checked', $(document).data("checkbox"));
                 })
             } else {
                 let content

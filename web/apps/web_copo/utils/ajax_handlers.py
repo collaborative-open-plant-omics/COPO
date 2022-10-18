@@ -1479,12 +1479,9 @@ def get_sample_details(request):
     sample_data_with_blank_field_values["tolid"] = sample_data_with_blank_field_values.pop("public_name")
 
     # Do not show empty values
-    print(sample_data_with_blank_field_values["DATE_OF_COLLECTION"])
-    print(sample_data_with_blank_field_values.items())
     sample_data_with_no_blank_field_values = {field: value for (field, value) in
                                               sample_data_with_blank_field_values.items() if
                                               sample_data_with_blank_field_values[field]}
-    print("No blanks: ", sample_data_with_no_blank_field_values)
 
     sorted_sample_data_with_blank_field_values = dict(sorted(sample_data_with_blank_field_values.items()))
     sorted_sample_data_with_no_blank_field_values = dict(sorted(sample_data_with_no_blank_field_values.items()))
