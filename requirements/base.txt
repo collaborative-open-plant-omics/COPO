@@ -113,7 +113,7 @@ netaddr==0.8.0
 networkx==2.0
 notebook==6.0.1
 numexpr==2.8.1
-numpy==1.20.0
+numpy==1.22.2
 oauthlib==2.0.6
 openpyxl==3.0.6
 ordered-set==3.1.1
