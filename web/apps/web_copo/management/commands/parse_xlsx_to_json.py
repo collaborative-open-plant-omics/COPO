@@ -1,6 +1,7 @@
 from bson import json_util
 from dal import cursor_to_list
-from dal.copo_da import Sample, DAComponent
+from dal.copo_da import Sample
+from datetime import datetime, timezone
 from django.conf import settings as settings
 from django.core.management import BaseCommand
 from xlrd import open_workbook, XLRDError
@@ -36,6 +37,90 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("xlsx", type=str)
+
+    def parse_db_data_to_json(self, data_in_db, json_filename):
+        datetime_fields = ["date_modified", "time_created"]
+        new_fields = []
+        data = json.loads(json_util.dumps(data_in_db))
+        # print("List of data found in COPO db: ", data[0])
+
+        for sample in data[0]:
+            print("\n\nSample 1: ", sample)
+            ''' 
+                Remove nested dicitonaries from the sample dictionary by retrieving
+                the value of the nested dictionary and assigning it to the key of the outer dictionary
+                if a dictionary is present within the list of values
+            '''
+
+            for key, value in sample.items():
+                if type(value) is dict and key == "_id":
+                    field_value = value.get('$oid')
+                    sample[key] = field_value
+
+                if type(value) is dict and key in datetime_fields:
+                    field_value = value.get('$date')
+
+                    # Convert datetime in milliseconds to timestamp
+                    field_value = datetime.fromtimestamp(field_value / 1000.0, tz=timezone.utc).strftime(
+                        '%Y-%m-%d %H:%M:%S.%f')
+                    sample[key] = field_value
+
+            sample_fields1 = list(sample.keys())
+            sample_values1 = list(sample.values())
+            print("Sample 2: ", sample)
+            print("Sample items: ", sample.items())
+            print("Sample fields count 1: ", len(sample_fields1))
+            print("Sample field values count 1: ", len(sample_values1))
+            print("Sample fields 1: ", sample_fields1)
+            print("Sample field values 1: ", sample_values1)
+
+            # Get the ENA field name that corresponds to COPO field name based on the 'ena' key
+            # in the "DTOL_ENA_MAPPINGS" dictionary
+
+            print("field now: ", sample_fields1[sample_fields1.index('_id')])
+            # new_sample_fields = [value['ena'] if key in list(sample.keys()) else sample_fields[sample_fields.index(key)]
+            #                      for key, value in DTOL_ENA_MAPPINGS.items()]
+
+            for key, value in DTOL_ENA_MAPPINGS.items():
+                if key in list(sample.keys()):
+                    sample_df = pd.DataFrame([sample])
+                    sample_df.rename(columns={key: value['ena']}, inplace=True)
+                    sample = sample_df.to_dict('records')[0]
+                    sample.update(sample_df.to_dict('records')[0])
+
+            print("Sample 3: ", sample)
+
+            # sample_fields = list(sample.keys())
+            # sample_values = list(sample.values())
+            print("Sample fields count 2: ", len(list(sample.keys())))
+            print("Sample field values count 2: ", len(list(sample.values())))
+            print("Sample fields 2: ", list(sample.keys()))
+            print("Sample field values 2: ", list(sample.values()))
+            print("Missing fields from current sample dictionary: ",
+                  [field for field in list(sample.keys()) if field not in sample_fields1])
+
+            # new_fields = [value['ena'] if field in fields else fields[fields.index(field)] for field, value in
+            #               DTOL_ENA_MAPPINGS.items()]
+
+            # for field, value in DTOL_ENA_MAPPINGS.items():
+            #     if field in fields:
+            #         new_fields.append(value['ena'])
+            #         # index = fields.index(field)
+            #         # fields[index] = value['ena']  # Update field name with ENA mapping field name
+            #     else:
+            #         #     fields[index] = element
+            #         new_fields.append(field)
+
+            # # list(map(lambda x: a if condition1 else b, filter(lambda x, y: condition2, DTOL_ENA_MAPPINGS.items())))
+            # field_values = list(sample.values())  # Contains dictionary in the list of values
+            # print("\n\nKeys (ENA field names and COPO field names): ", new_fields)
+
+            # Remove dictionary in the list of values by retrieving the value of a dictionary
+            # if a dictionary is present within the list of values
+            # new_field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
+            # print("\n\nValues: ", new_field_values)
+            # samples_only_df = pd.DataFrame(data=[new_field_values], columns=new_fields)
+            # samples_only_df.to_json(json_filename)
 
     # A command must define handle()
     def handle(self, *args, **options):
@@ -85,68 +170,75 @@ class Command(BaseCommand):
                 elif sample_in_db == [] and source_in_db != []:
                     sources_only_in_db.append(source_in_db)
                 else:
-                    # sample_in_db != [] and source_in_db != []
+                    # if sample_in_db and source_in_db
                     samples_and_sources_in_db.append(sample_in_db)
                     samples_and_sources_in_db.append(source_in_db)
 
-            print("List of specimens not found in db: ", specimen_ids_not_in_db)
-            print("List of samples found in db: ", samples_only_in_db)
-            print("List of sources found in db: ", sources_only_in_db)
-            print("List of samples and sources found in db: ", samples_and_sources_in_db)
+            # Convert list of "SPECIMEN_ID" not present in COPO to json format
+            if specimen_ids_not_in_db:
+                print("List of specimens not found in COPO db: ", specimen_ids_not_in_db)
+                specimen_ids_df = pd.DataFrame(data=[specimen_ids_not_in_db], columns=["SPECIMEN_ID"])
+                specimen_ids_df.to_json('specimen_ids_not_present_in_copo.json')
 
-            # Get the database field name based on the 'ena' key in the "DTOL_ENA_MAPPINGS" dictionary
-            #             fields = [field for field, field_value in DTOL_ENA_MAPPINGS.items() if
-            #                       field_value['ena'] == field.text]
-            #             field_values.append(value.text)
-
-            # Convert list of "SPECIMEN_ID" not present in COPO to json
-            samples_only_df = pd.DataFrame(data=[specimen_ids_not_in_db], columns=["SPECIMEN_ID"])
-            samples_only_df.to_json('specimen_ids_not_present_in_copo.json')
-
-            # Convert data in db to json
+            # Convert db list of dictionary data to json
             # Samples only
-            if samples_only_in_db != [] and sources_only_in_db == []:
-                samples_only_in_db = json.loads(json_util.dumps(samples_only_in_db))
-                fields = list(samples_only_in_db[0][0].keys())
-                field_values = list(samples_only_in_db[0][0].values())
-                print("Keys: ", fields)
-                print("\n\n")
-                print("Values: ", field_values)
+            if samples_only_in_db and not sources_only_in_db:
+                # Samples only
+                self.parse_db_data_to_json(samples_only_in_db, 'copo_samples_only.json')
 
-                field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
-                print("Values 2: ", field_values)
-                samples_only_df = pd.DataFrame(data=[field_values], columns=fields)
-                samples_only_df.to_json('copo_samples_only.json')
-            elif sources_only_in_db != [] and samples_only_in_db == []:
+                # print("List of samples found in COPO db: ", samples_only_in_db)
+                # samples_only_in_db = json.loads(json_util.dumps(samples_only_in_db))
+                # fields = list(samples_only_in_db[0][0].keys())
+                #
+                # # Get the ENA field name that corresponds to COPO field name based on the 'ena' key
+                # # in the "DTOL_ENA_MAPPINGS" dictionary
+                # new_fields = [value['ena'] for field, value in DTOL_ENA_MAPPINGS.items() for item in fields if
+                #               field == item]
+                # field_values = list(samples_only_in_db[0][0].values())
+                # print("Keys: ", new_fields)
+                # print("\n\n")
+                # print("Values: ", field_values)
+                # # Get value of a dictionary if a dictionary is present within the list
+                # field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
+                # print("Values 2: ", field_values)
+                # samples_only_df = pd.DataFrame(data=[field_values], columns=new_fields)
+                # samples_only_df.to_json('copo_samples_only.json')
+            elif sources_only_in_db and not samples_only_in_db:
                 # Sources only
-                sources_only_in_db = json.loads(json_util.dumps(sources_only_in_db))
-                fields = list(sources_only_in_db[0][0].keys())
-                field_values = list(sources_only_in_db[0][0].values())
-                print("Keys: ", fields)
-                print("\n\n")
-                print("Values: ", field_values)
+                self.parse_db_data_to_json(sources_only_in_db, 'copo_sources_only.json')
 
-                field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
-                print("Values 2: ", field_values)
-                sources_only_df = pd.DataFrame(data=[field_values], columns=fields)
-                sources_only_df.to_json('copo_sources_only.json')
+                # print("List of sources found in COPO db: ", sources_only_in_db)
+                # sources_only_in_db = json.loads(json_util.dumps(sources_only_in_db))
+                # fields = list(sources_only_in_db[0][0].keys())
+                # # Get the ENA field name that corresponds to COPO field name based on the 'ena' key
+                # # in the "DTOL_ENA_MAPPINGS" dictionary
+                # new_fields = [value['ena'] for field, value in DTOL_ENA_MAPPINGS.items() for item in fields if
+                #               field == item]
+                # field_values = list(sources_only_in_db[0][0].values())
+                # print("Keys: ", fields)
+                # print("\n\n")
+                # print("Values: ", field_values)
+                # # Get value of a dictionary if a dictionary is present within the list
+                # field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
+                # print("Values 2: ", field_values)
+                # sources_only_df = pd.DataFrame(data=[field_values], columns=new_fields)
+                # sources_only_df.to_json('copo_sources_only.json')
             else:
-                # Samples and sources
-                # sample_in_db != [] and source_in_db != []
-                samples_and_sources_in_db = json.loads(json_util.dumps(samples_and_sources_in_db))
-                fields = list(samples_and_sources_in_db[0][0].keys())
-                field_values = list(samples_and_sources_in_db[0][0].values())
-                print("Keys: ", fields)
-                # print("\n\n")
-                print("Values: ", field_values)
-                print(field_values[0])
-                # print("\n\n")
-                # print([element for index, element in enumerate(field_values) if "$oid" in field_values])
-                # columns = [sample. for sample in samples_only_in_db[0]]
-                field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
-                print("Values 2: ", field_values)
-                samples_and_sources_only_df = pd.DataFrame(data=[field_values], columns=fields)
-                samples_and_sources_only_df.to_json('copo_samples_and_sources.json')
+                # Samples and sources....if sample_in_db and source_in_db
+                self.parse_db_data_to_json(samples_and_sources_in_db, 'copo_samples_and_sources.json')
+
+                # print("List of samples and sources found in COPO db: ", samples_and_sources_in_db)
+                # samples_and_sources_in_db = json.loads(json_util.dumps(samples_and_sources_in_db))
+                # fields = list(samples_and_sources_in_db[0][0].keys())
+                # # Get the ENA field name that corresponds to COPO field name based on the 'ena' key
+                # # in the "DTOL_ENA_MAPPINGS" dictionary
+                # new_fields = [value['ena'] for field, value in DTOL_ENA_MAPPINGS.items() for item in fields if
+                #               field == item]
+                # field_values = list(samples_and_sources_in_db[0][0].values())
+                # # Get value of a dictionary if a dictionary is present within the list
+                # field_values = [list(item.values())[0] if type(item) is dict else item for item in field_values]
+                # samples_and_sources_only_df = pd.DataFrame(data=[field_values], columns=new_fields)
+                # samples_and_sources_only_df.to_json('copo_samples_and_sources.json')
 
         except XLRDError as error:
             # File format is unsupported or file is corrupt
