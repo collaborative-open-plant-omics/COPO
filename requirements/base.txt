@@ -41,7 +41,7 @@ defusedxml==0.6.0
 Deprecated==1.2.13
 dict-toolbox==2.2.0
 dict.sorted==1.0.0
-Django==3.1
+Django==3.2.15
 django-allauth==0.46.0
 django-allow-cidr==0.3.1
 django-appconf==1.0.3
@@ -140,7 +140,7 @@ pycodestyle==2.5.0
 pycparser==2.19
 Pygments==2.2.0
 PyHamcrest==1.9.0
-PyJWT==1.7.1
+PyJWT==2.4.0
 pylint==1.7.2
 pymongo==3.9.0
 pyOpenSSL==19.0.0
