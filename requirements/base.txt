@@ -16,7 +16,7 @@ beautifulsoup4==4.7.1
 billiard==3.6.1.0
 biopy-isatab==0.1.1
 biopython==1.73
-bleach==3.1.0
+bleach==3.3.0
 botocore==1.12.178
 bs4==0.0.1
 celery==4.3.0
@@ -35,7 +35,7 @@ decorator==4.4.0
 deepdiff==4.0.7
 defusedxml==0.6.0
 dict.sorted==1.0.0
-Django==2.1.4
+Django==3.2.15
 django-brotli==0.2.0
 django-allauth
 django-appconf==1.0.3
@@ -67,7 +67,7 @@ imagesize==0.7.1
 importlib-metadata==0.23
 incremental==17.5.0
 ipykernel==5.1.2
-ipython==7.8.0
+ipython==7.16.3
 ipython-genutils==0.2.0
 ipywidgets==7.5.1
 isatools==0.9.5
@@ -76,7 +76,7 @@ isodate==0.6.0
 isort==4.2.15
 jdcal==1.3
 jedi==0.15.1
-Jinja2==2.10
+Jinja2==2.11.3
 jmespath==0.9.0
 jsonpickle==1.2
 jsonschema==2.6.0
@@ -90,15 +90,15 @@ lxml==4.6.5
 MarkupSafe
 mccabe==0.6.1
 meld3==2.0.0
-mistune==0.8.4
+mistune==2.0.3
 mock==3.0.5
 more-itertools==7.2.0
 msgpack==0.6.2
 mzml2isa==0.5.1
-nbconvert==5.6.0
+nbconvert==6.3.0b0
 nbformat==4.4.0
 networkx==2.0
-notebook==6.0.1
+notebook==6.4.12
 numexpr
 numpy
 oauthlib==2.0.6
@@ -122,7 +122,7 @@ pyasn1
 pyasn1-modules==0.2.6
 pycodestyle==2.5.0
 pycparser==2.19
-Pygments==2.2.0
+Pygments==2.7.4
 PyHamcrest==1.9.0
 pylint==1.7.2
 pymongo==3.6.1
