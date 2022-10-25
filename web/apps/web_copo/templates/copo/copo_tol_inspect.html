@@ -19,6 +19,7 @@
     </noscript>
     <link rel="stylesheet" href="{% static 'copo/css/copo/copo_wizard.css' %}">
     <link rel="stylesheet" href="{% static 'copo/css/copo/sample.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/copo_tol_inspect.css' %}">
     <link rel="stylesheet" href="{% static 'copo/bootstrap-treeview-1.2.0/dist/bootstrap-treeview.min.css' %}">
 
     <style>
@@ -122,8 +123,16 @@
         </div>
     </span>
 
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4">
+            <h3 class="h3">TOL Inspection</h3>
+        </div>
+        <div id="tolInspectNavBar" class="col-lg-4 col-md-4 col-sm-4">
+            <ol class="breadcrumb">
+            </ol>
 
-    <h3 class="h3">TOL Inspection</h3>
+        </div>
+    </div>
     <hr/>
 
     <div class="row" style="padding-top:10px">
@@ -155,10 +164,6 @@
 
         </div>
         <div id="checkbox_valueID"></div>
-        <div id="tolInspectNavBar" class="container-fluid">
-            <ul class="nav navbar-nav">
-            </ul>
-        </div>
         <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel">
             <!--<div class="table_viewport">-->
             <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
@@ -188,6 +193,7 @@
     <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>
     <script>socket = undefined</script>
 
 {% endblock %}

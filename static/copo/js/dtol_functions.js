@@ -10,7 +10,7 @@ $(document).ready(function () {
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
     included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
-
+    let navMenuItems = []
     let currentURL = window.location.href
     const project = $("#sample_filter").find(".active").find("a").attr("href");
     // Get active manifest type tab on tab change
@@ -230,21 +230,88 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".fieldID", function (e) {
-        let tolInspectNavBar = $("#tolInspectNavBar")
-        tolInspectNavBar.find(".active").removeClass("active")
-        console.log(this.innerHTML)
-        const navMenu = $("<li/>", {});
 
-        const navItem = $("<a/>", {
-            href: "#"
-        });
+        let preNavItem = $("#tolInspectNavBar li.active")
+        let breadcrumb = $(".breadcrumb")
+        preNavItem.removeClass("active")
+        const listItem = $("<li/>", {});
+        listItem.addClass("active")
+        listItem.text(this.innerHTML)
+        breadcrumb.append(listItem)
 
-        navItem.text(">" + this.innerHTML)
-        navMenu.addClass('active')
-        navMenu.append(navItem)
+        $("li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
 
-        tolInspectNavBar.find(".nav").append(navMenu)
-        $('.modal').modal('hide') // Close the boostrap dialog
+        //  Ensure that duplicate fields are not included in the top navigation menu
+        //  console.log(breadcrumb.text().indexOf(this.innerHTML) > -1);
+        if (!(breadcrumb.text().indexOf(this.innerHTML) < -1 && !navMenuItems.includes(this.innerHTML))) {
+            navMenuItems.push([preNavItem.text(), this.innerHTML]);
+            $('.modal').modal('hide'); // Close the boostrap dialog
+        } else {
+
+            // $('.modal').modal('toggle');
+            // bootbox.alert({
+            //     size: 'small',
+            //     message: "Common field clicked is already included in the navigation menu",
+            //     callback: function () {
+            //         console.log('This was logged in the callback!');
+            //     }
+            // });
+            BootstrapDialog.alert('Pleased choose another field. The field, ' + this.innerHTML + ',  is already included in the navigation menu!')
+            // $('.modal').modal('toggle');
+            // $('.modal').css({}));
+            // $('.modal-background').css({})
+            // Displays the Bootstrap dialog over the sample details modal
+            $('.modal bootstrap-dialog').css({"z-index": "9999"})
+        }
+        // $('.modal').modal('hide');
+
+
+        // $("#tolInspectNavBar li.active").addClass('prevNavItem')
+        // $("#tolInspectNavBar li.active").removeClass("active")
+        // const previousNavItemTextAnchor = $("<a/>", {
+        //     href: "#"
+        // });
+        // previousNavItemTextAnchor.text($("li .preNavItem").text())
+        // $("li.preNavItem").append(previousNavItemTextAnchor)
+        //
+        // // nextNavItem
+        // const navMenu = $("<li/>", {});
+        //
+        // $(".breadcrumb").append('<li/>').text(this.innerHTML)
+        // let activeNavMenu = $("#tolInspectNavBar li.active")
+        // let previousNavItemText = activeNavMenu.text()
+
+        // previousNavItemTextAnchor.text(previousNavItemText)
+        // activeNavMenu.append(previousNavItemTextAnchor)
+
+        // next navmenu item
+
+
+        // let tolInspectNavBar = $("#tolInspectNavBar")
+
+        // console.log(this.innerHTML)
+        // const navMenu = $("<li/>", {});
+        //
+        // const navItem = $("<a/>", {
+        //     href: "#"
+        // });
+        // let navMenuText = tolInspectNavBar.find("li.active").innerText
+        // console.log($("#tolInspectNavBar li.active").text())
+        // let activeNavMenuText = $("#tolInspectNavBar li.active").text()
+        // navItem.text(activeNavMenuText)
+        // $("#tolInspectNavBar li.active").append(navItem)
+        // $("#tolInspectNavBar li.active").text('')
+
+        // tolInspectNavBar.find(".active").closest('li').append(navItem)
+        // tolInspectNavBar.find(".active").removeClass("active")
+        // navItem.text(this.innerHTML)
+        // navMenu.addClass('active')
+        // navMenu.append(navItem)
+
+        // New nav item
+
+        // tolInspectNavBar.find(".breadcrumb").append(navMenu)
+        $
     })
 })
 var fadeSpeed = 'fast'
@@ -473,15 +540,9 @@ function row_select_on_tol_inspect_web_page(ev) {
                     class: "active"
                 });
 
-                const navItem = $("<a/>", {
-                    class: "active",
-                    href: "#"
-                });
+                navMenu.text("Samples")
 
-                navItem.text("Samples")
-                navMenu.append(navItem)
-
-                $("#tolInspectNavBar").find(".nav").empty().append(navMenu)
+                $("#tolInspectNavBar").find(".breadcrumb").empty().append(navMenu)
 
                 const rows = [];
 
@@ -576,7 +637,7 @@ function row_select_on_tol_inspect_web_page(ev) {
                 $("#sample_panel").find(".labelling").empty().html(
                     content
                 )
-                $("#tolInspectNavBar").find(".nav").empty().html("")
+                $("#tolInspectNavBar").find(".breadcrumb").empty().html("")
             }
             $("#spinner").fadeOut("fast")
         }
