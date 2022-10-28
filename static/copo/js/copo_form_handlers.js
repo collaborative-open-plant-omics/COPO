@@ -52,120 +52,6 @@ $(document).ready(function () {
             initiate_form_call(component);
         }
     });
-
-    // document.querySelector("#sampleModalFieldsID").onchange = (e) => {
-    //     let checked = e.target.checked;
-    //     // $(document).data("areAllSampleModalFieldsShown", checked)
-    //     // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
-    //     // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
-    //
-    //     let data = $(document).data("sample_data")
-    //     const form = document.createElement('form');
-    //     form.setAttribute('class', 'form-horizontal');
-    //     const form_body_div = set_up_form_body_div_sample_details(data, form)
-    //     build_form_body_sample_Details(data, form);
-    //
-    //     $("div.formDivRow").replaceWith(form_body_div);
-    //
-    //     // if (checked) {
-    //     //
-    //     //     //
-    //     //     // $("div.formDivRow").html().prepend(form_body_div);
-    //     //     // build_form_body_sample_Details(data, form);
-    //     //     // const form = document.createElement('form');
-    //     //     // form.setAttribute('class', 'form-horizontal');
-    //     //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
-    //     //     // // const form_body = build_form_body_sample_Details(data, form);
-    //     //     // // $(form_body).replaceWith(form_body_div)
-    //     //     // // $("div.formDivRow").replaceWith(form_body_div);
-    //     //     // build_form_body_sample_Details(data, form);
-    //     //     // const formBodyDiv = $('<div/>',
-    //     //     //     {
-    //     //     //         class: "row formDivRow"
-    //     //     //     }).append($('<div/>',
-    //     //     //     {
-    //     //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
-    //     //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
-    //     //     //     }).append(form));
-    //     //
-    //     //     //build main form
-    //     //
-    //     //
-    //     //     // $("div.formDivRow").replaceWith(formBodyDiv);/
-    //     // } else {
-    //     //     // const form = document.createElement('form');
-    //     //     // form.setAttribute('class', 'form-horizontal');
-    //     //     //
-    //     //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
-    //     //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
-    //     //     // $("div.formDivRow").replaceWith(form_body_div);
-    //     //     // build_form_body_sample_Details(data, form);
-    //     //
-    //     //
-    //     // }
-    //
-    //
-    // }
-
-    // "change"
-    $(document).on("click", "#sampleModalFieldsID", function (e) {
-        let checked = e.target.checked;
-        // $(document).data("areAllSampleModalFieldsShown", checked)
-        // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
-        // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
-
-        // let data = $(document).data("sample_data")
-        // const form = document.createElement('form');
-        // form.setAttribute('class', 'form-horizontal');
-        // const form_body_div = set_up_form_body_div_sample_details(data, form)
-
-        if (checked) {
-            // $("div.formDivRow").replaceWith(form_body_div);
-            // build_form_body_sample_Details(data, form);
-            // $('.modal').modal().realize();
-            // ('.modal').modal().setMessage($dialogContent);
-            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-            const modal = $('.modal').modal()
-            modal.find('.bootstrap-dialog-title').text('New message for title')
-            modal.find('.formDiv').prepend('<p>Hi</p>')
-        }
-        // if (checked) {
-        //
-        //     //
-        //     // $("div.formDivRow").html().prepend(form_body_div);
-        //     // build_form_body_sample_Details(data, form);
-        //     // const form = document.createElement('form');
-        //     // form.setAttribute('class', 'form-horizontal');
-        //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
-        //     // // const form_body = build_form_body_sample_Details(data, form);
-        //     // // $(form_body).replaceWith(form_body_div)
-        //     // // $("div.formDivRow").replaceWith(form_body_div);
-        //     // build_form_body_sample_Details(data, form);
-        //     // const formBodyDiv = $('<div/>',
-        //     //     {
-        //     //         class: "row formDivRow"
-        //     //     }).append($('<div/>',
-        //     //     {
-        //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
-        //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
-        //     //     }).append(form));
-        //
-        //     //build main form
-        //
-        //
-        //     // $("div.formDivRow").replaceWith(formBodyDiv);/
-        // } else {
-        //     // const form = document.createElement('form');
-        //     // form.setAttribute('class', 'form-horizontal');
-        //     //
-        //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
-        //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
-        //     // $("div.formDivRow").replaceWith(form_body_div);
-        //     // build_form_body_sample_Details(data, form);
-        //
-        //
-        // }
-    })
 }); //end of document ready
 
 
@@ -366,12 +252,12 @@ function json2HtmlForm(data) {
 
 } //end of json2HTMLForm
 
-function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
+function json2HtmlForm_SampleDetails(data) {
     const form = document.createElement('form');
     form.setAttribute('class', 'form-horizontal');
 
     // let data = $(document).data("areAllSampleModalFieldsShown") ? data_with_blanks : data_with_no_blanks
-    let data = $(document).data("sample_data")
+    // let data = $(document).data("sample_data")
 
     const dialog = new BootstrapDialog({
         description: "The following information relates to the selected sample.",
@@ -406,61 +292,25 @@ function json2HtmlForm_SampleDetails(data_with_blanks, data_with_no_blanks) {
             const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
-            //
-            // document.querySelector("#sampleModalFieldsID").onchange = (e) => {
-            //     let checked = e.target.checked;
-            //     // $(document).data("areAllSampleModalFieldsShown", checked)
-            //     // // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_blanks") : $(document).data("sample_data_with_no_blanks")
-            //     // $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
-            //
-            //     let data = $(document).data("sample_data")
-            //     const form = document.createElement('form');
-            //     form.setAttribute('class', 'form-horizontal');
-            //     const form_body_div = set_up_form_body_div_sample_details(data, form)
-            //     build_form_body_sample_Details(data, form);
-            //
-            //     $("div.formDivRow").replaceWith(form_body_div);
-            //
-            //     // if (checked) {
-            //     //
-            //     //     //
-            //     //     // $("div.formDivRow").html().prepend(form_body_div);
-            //     //     // build_form_body_sample_Details(data, form);
-            //     //     // const form = document.createElement('form');
-            //     //     // form.setAttribute('class', 'form-horizontal');
-            //     //     // // const form_body_div = set_up_form_body_div_sample_details(data, form)
-            //     //     // // const form_body = build_form_body_sample_Details(data, form);
-            //     //     // // $(form_body).replaceWith(form_body_div)
-            //     //     // // $("div.formDivRow").replaceWith(form_body_div);
-            //     //     // build_form_body_sample_Details(data, form);
-            //     //     // const formBodyDiv = $('<div/>',
-            //     //     //     {
-            //     //     //         class: "row formDivRow"
-            //     //     //     }).append($('<div/>',
-            //     //     //     {
-            //     //     //         class: "formDiv col-sm-12 col-md-12 col-lg-12",
-            //     //     //         css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
-            //     //     //     }).append(form));
-            //     //
-            //     //     //build main form
-            //     //
-            //     //
-            //     //     // $("div.formDivRow").replaceWith(formBodyDiv);/
-            //     // } else {
-            //     //     // const form = document.createElement('form');
-            //     //     // form.setAttribute('class', 'form-horizontal');
-            //     //     //
-            //     //     // let data = $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data_with_no_blanks") : $(document).data("sample_data_with_no_blanks")
-            //     //     // const form_body_div = set_up_form_body_div_sample_details(data, form)
-            //     //     // $("div.formDivRow").replaceWith(form_body_div);
-            //     //     // build_form_body_sample_Details(data, form);
-            //     //
-            //     //
-            //     // }
-            //
-            //
-            // }
+            document.querySelector("#sampleModalFieldsID").onchange = (e) => {
+                let fieldDiv1 = document.getElementsByClassName('divhidden');
+                let fieldDiv = $('.fieldDiv.divhidden')
+                let checked = e.target.checked;
 
+                if (checked) {
+                    fieldDiv.removeAttr("hidden")
+                    $(fieldDiv1).css({"display": ""})
+                } else {
+                    fieldDiv.attr("hidden")
+                    $(fieldDiv1).css({"display": "None"})
+
+                }
+            }
+
+            document.querySelector("#sampleModalQueryTypeID").onchange = (e) => {
+                let checked = e.target.checked;
+                $(document).data("isSampleModalSearchQueryChecked", checked)
+            }
         },
     });
 
@@ -528,15 +378,15 @@ function build_form_body(data) {
 }
 
 function build_form_body_sample_Details(data, form) {
-    data = $(document).data("sample_data")
-    console.log("Data: ", data)
+    //data = $(document).data("sample_data")
+    //console.log("Data: ", data)
     const formDiv = document.getElementsByClassName("formDiv");
 
     // Iterate through dictionary
     Object.entries(data).forEach(([field, value]) => {
         // Create field div
         const fieldDiv = document.createElement('div');
-        fieldDiv.setAttribute('class', 'form-group');
+        fieldDiv.setAttribute('class', 'form-group fieldDiv');
         fieldDiv.setAttribute('id', `${field}_div`);
 
         // Field; Create field label
@@ -552,12 +402,17 @@ function build_form_body_sample_Details(data, form) {
         fieldLabel.style.textOverflow = 'ellipsis';
         fieldLabel.style.overflow = 'hidden';
         fieldLabel.style.maxWidth = '220px';
-        fieldLabel.setAttribute('title', field)
+        fieldLabel.setAttribute('title', 'Query similar samples by the field, ' + field)
         fieldDiv.appendChild(fieldLabel);
 
         // Field value div
         const fieldValueDiv = document.createElement('div');
         fieldValueDiv.setAttribute('class', 'col-sm-6 field_valueDiv');
+        // Hide field and field value if field value is null or empty
+        if (value.toString() === "") {
+            fieldDiv.classList.add('divhidden')
+            fieldDiv.setAttribute('hidden', 'hidden')
+        }
         fieldDiv.appendChild(fieldValueDiv);
 
         // Field value
@@ -719,19 +574,27 @@ function set_up_form_help_div(data) {
 }
 
 function set_up_form_show_all_fields_checkbox_div(data) {
+    const project = $("#sample_filter").find(".active").find("a").attr("href");
+
     const rowDiv = $('<div/>',
         {
             class: "row helpDivRow",
             style: "margin-bottom:20px;"
         });
 
-    const checkBoxLabel = $('<label/>',
+    const showAllFieldsCheckBoxLabel = $('<label/>',
         {
-            class: "pull-right",
+            class: "pull-right showFieldsLabel",
             style: "padding-right:60px;"
         });
 
-    const checkBox = $('<input/>',
+    const querySamplesCheckBoxLabel = $('<label/>',
+        {
+            class: "pull-left showSamplesQueryLabel",
+            style: "padding-left:25px;"
+        });
+
+    const showAllFieldsCheckBox = $('<input/>',
         {
             id: "sampleModalFieldsID",
             type: "checkbox",
@@ -739,9 +602,21 @@ function set_up_form_show_all_fields_checkbox_div(data) {
 
         });
 
-    checkBoxLabel.text('Show all fields: ')
-    checkBoxLabel.append(checkBox)
-    return rowDiv.append(checkBoxLabel);
+    const showQuerySamplesCheckBox = $('<input/>',
+        {
+            id: "sampleModalQueryTypeID",
+            type: "checkbox",
+            style: "margin-left:10px;",
+
+        });
+
+    showQuerySamplesCheckBox.attr('checked', 'checked')
+    querySamplesCheckBoxLabel.text('Query within ' + project + ' project samples: ')
+    querySamplesCheckBoxLabel.append(showQuerySamplesCheckBox)
+
+    showAllFieldsCheckBoxLabel.text('Show all fields: ')
+    showAllFieldsCheckBoxLabel.append(showAllFieldsCheckBox)
+    return rowDiv.append(querySamplesCheckBoxLabel).append(showAllFieldsCheckBoxLabel);
 }
 
 function set_up_form_body_div(data) {

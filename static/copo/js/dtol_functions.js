@@ -5,12 +5,14 @@ $(document).ready(function () {
     $(document).data("isDtolSamplePage", true)
     $(document).data("areAllSampleModalFieldsShown", false)
     // Set and store "false" as the default value for the showAllTableFields checkbox
-    $(document).data("checkbox", false);
+    $(document).data("showAllTableFieldsCheckbox", false);
+    $(document).data("isSampleModalSearchQueryChecked", true);
+    $(document).data("navBarItems", [])
+    $(document).data("navBarItemsTableBodyView", {})
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
     included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
-    let navMenuItems = []
     let currentURL = window.location.href
     const project = $("#sample_filter").find(".active").find("a").attr("href");
     // Get active manifest type tab on tab change
@@ -120,13 +122,7 @@ $(document).ready(function () {
                 'sample_id': sample_id,
             },
             success: function (data) {
-                $(document).data("sample_data_with_blanks", data["sample_data_with_blanks"])
-                $(document).data("sample_data_with_no_blanks", data["sample_data_with_no_blanks"])
-                $(document).data("areAllSampleModalFieldsShown") ? $(document).data("sample_data", data["sample_data_with_blanks"]) : $(document).data("sample_data", data["sample_data_with_no_blanks"])
-
-                // json2HtmlForm_SampleDetails(data["sample_data_with_blanks"], data["sample_data_with_no_blanks"]);
-                json2HtmlForm_SampleDetails()
-
+                json2HtmlForm_SampleDetails(data)
             },
             error: function () {
                 alert(errorMsg);
@@ -230,90 +226,47 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".fieldID", function (e) {
-
         let preNavItem = $("#tolInspectNavBar li.active")
         let breadcrumb = $(".breadcrumb")
-        preNavItem.removeClass("active")
-        const listItem = $("<li/>", {});
-        listItem.addClass("active")
-        listItem.text(this.innerHTML)
-        breadcrumb.append(listItem)
-
-        $("li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
+        let navBarItems = $(document).data("navBarItems")
 
         //  Ensure that duplicate fields are not included in the top navigation menu
-        //  console.log(breadcrumb.text().indexOf(this.innerHTML) > -1);
-        if (!(breadcrumb.text().indexOf(this.innerHTML) < -1 && !navMenuItems.includes(this.innerHTML))) {
-            navMenuItems.push([preNavItem.text(), this.innerHTML]);
-            $('.modal').modal('hide'); // Close the boostrap dialog
-        } else {
+        if (!navBarItems.includes(this.innerHTML)) {
+            // Clone "tol_inspect" web page table body so that it can be referenced when the
+            // different nav items are clicked
+            let isSampleModalSearchQueryChecked = $(document).data("isSampleModalSearchQueryChecked");
+            let navItem = preNavItem.text()
+            let navItemView = $("#sample_panel").clone()
+            let navItemViewDict = $(document).data("navBarItemsTableBodyView")
 
-            // $('.modal').modal('toggle');
-            // bootbox.alert({
-            //     size: 'small',
-            //     message: "Common field clicked is already included in the navigation menu",
-            //     callback: function () {
-            //         console.log('This was logged in the callback!');
-            //     }
-            // });
-            BootstrapDialog.alert('Pleased choose another field. The field, ' + this.innerHTML + ',  is already included in the navigation menu!')
-            // $('.modal').modal('toggle');
-            // $('.modal').css({}));
-            // $('.modal-background').css({})
+            if (isSampleModalSearchQueryChecked) {
+                navItemViewDict[navItem] = navItemView;
+                console.log(navItemViewDict)
+            } else {
+
+            }
+
+            preNavItem.removeClass("active")
+            // new/current nav item
+            const listItem = $("<li/>", {});
+            listItem.addClass("active")
+            listItem.text(this.innerHTML)
+            breadcrumb.append(listItem)
+
+            $("li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
+            navBarItems.push(this.innerHTML)
+
+
+            $('.modal').modal('hide'); // Close the Bootstrap dialog
+        } else {
+            BootstrapDialog.alert('Please choose another field. The field, ' + '<b>' + this.innerHTML + '</b>' + ',  is already included in the navigation menu!')
+
             // Displays the Bootstrap dialog over the sample details modal
             $('.modal bootstrap-dialog').css({"z-index": "9999"})
         }
-        // $('.modal').modal('hide');
-
-
-        // $("#tolInspectNavBar li.active").addClass('prevNavItem')
-        // $("#tolInspectNavBar li.active").removeClass("active")
-        // const previousNavItemTextAnchor = $("<a/>", {
-        //     href: "#"
-        // });
-        // previousNavItemTextAnchor.text($("li .preNavItem").text())
-        // $("li.preNavItem").append(previousNavItemTextAnchor)
-        //
-        // // nextNavItem
-        // const navMenu = $("<li/>", {});
-        //
-        // $(".breadcrumb").append('<li/>').text(this.innerHTML)
-        // let activeNavMenu = $("#tolInspectNavBar li.active")
-        // let previousNavItemText = activeNavMenu.text()
-
-        // previousNavItemTextAnchor.text(previousNavItemText)
-        // activeNavMenu.append(previousNavItemTextAnchor)
-
-        // next navmenu item
-
-
-        // let tolInspectNavBar = $("#tolInspectNavBar")
-
-        // console.log(this.innerHTML)
-        // const navMenu = $("<li/>", {});
-        //
-        // const navItem = $("<a/>", {
-        //     href: "#"
-        // });
-        // let navMenuText = tolInspectNavBar.find("li.active").innerText
-        // console.log($("#tolInspectNavBar li.active").text())
-        // let activeNavMenuText = $("#tolInspectNavBar li.active").text()
-        // navItem.text(activeNavMenuText)
-        // $("#tolInspectNavBar li.active").append(navItem)
-        // $("#tolInspectNavBar li.active").text('')
-
-        // tolInspectNavBar.find(".active").closest('li').append(navItem)
-        // tolInspectNavBar.find(".active").removeClass("active")
-        // navItem.text(this.innerHTML)
-        // navMenu.addClass('active')
-        // navMenu.append(navItem)
-
-        // New nav item
-
-        // tolInspectNavBar.find(".breadcrumb").append(navMenu)
-        $
     })
 })
+
 var fadeSpeed = 'fast'
 var dt_options = {
     "scrollY": 400,
@@ -540,14 +493,18 @@ function row_select_on_tol_inspect_web_page(ev) {
                     class: "active"
                 });
 
-                navMenu.text("Samples")
+                navMenu.text("SAMPLES")
+
+                // Add 'SAMPLES' to the global navBarItems list
+                $(document).data("navBarItems", [])
+                $(document).data("navBarItems").push('SAMPLES')
 
                 $("#tolInspectNavBar").find(".breadcrumb").empty().append(navMenu)
 
                 const rows = [];
 
                 // Get the value of the showAllTableFields checkbox
-                let areAllTableFieldsShown = $(document).data("checkbox");
+                let areAllTableFieldsShown = $(document).data("showAllTableFieldsCheckbox");
 
                 $(data).each(function (idx, row) {
                     let td;
@@ -615,13 +572,13 @@ function row_select_on_tol_inspect_web_page(ev) {
                     // within the profile samples data table
                     $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="row_select_on_tol_inspect_web_page(this)"></label>');
 
-                    $("#showFieldsID").prop('checked', $(document).data("checkbox"));
+                    $("#showFieldsID").prop('checked', $(document).data("showAllTableFieldsCheckbox"));
 
                     document.querySelector("#showFieldsID").onchange = (e) => {
                         let checked = e.target.checked;
-                        $(document).data("checkbox", checked);
+                        $(document).data("showAllTableFieldsCheckbox", checked);
                     }
-                    $("#showFieldsID").prop('checked', $(document).data("checkbox"));
+                    $("#showFieldsID").prop('checked', $(document).data("showAllTableFieldsCheckbox"));
                 })
             } else {
                 let content
@@ -638,6 +595,7 @@ function row_select_on_tol_inspect_web_page(ev) {
                     content
                 )
                 $("#tolInspectNavBar").find(".breadcrumb").empty().html("")
+                $(document).data("navBarItems", [])
             }
             $("#spinner").fadeOut("fast")
         }

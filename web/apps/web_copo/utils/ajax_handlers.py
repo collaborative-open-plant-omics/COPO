@@ -1471,9 +1471,9 @@ def get_sample_details(request):
     #     if field in datetime_fields:
     #         print(dict({field: value}))
 
-    #     (field, value) in sample_data[0].items() if field in datetime_fields
-    # sample_data = {field: (datetime.fromtimestamp(value / 1000.0, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')) for
-    #                (field, value) in sample_data[0].items() if field in datetime_fields}
+    # (field, value) in sample_data[0].items() if field in datetime_fields sample_data = {field: (
+    # datetime.fromtimestamp(value / 1000.0, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')) for (field,
+    # value) in sample_data[0].items() if field in datetime_fields}
 
     # Change "public_name" field name to "tolid" field name
     sample_data_with_blank_field_values["tolid"] = sample_data_with_blank_field_values.pop("public_name")
@@ -1484,10 +1484,12 @@ def get_sample_details(request):
                                               sample_data_with_blank_field_values[field]}
 
     sorted_sample_data_with_blank_field_values = dict(sorted(sample_data_with_blank_field_values.items()))
-    sorted_sample_data_with_no_blank_field_values = dict(sorted(sample_data_with_no_blank_field_values.items()))
+    # sorted_sample_data_with_no_blank_field_values = dict(sorted(sample_data_with_no_blank_field_values.items()))
 
-    return HttpResponse(json_util.dumps({"sample_data_with_blanks": sorted_sample_data_with_blank_field_values,
-                                         "sample_data_with_no_blanks": sorted_sample_data_with_no_blank_field_values}))
+    # return HttpResponse(json_util.dumps({"sample_data_with_blanks": sorted_sample_data_with_blank_field_values,
+    # "sample_data_with_no_blanks": sorted_sample_data_with_no_blank_field_values}))
+
+    return HttpResponse(json_util.dumps(sorted_sample_data_with_blank_field_values))
 
 
 def get_samples_for_profile(request):

@@ -12,7 +12,9 @@ import json
 import pandas as pd
 import re
 
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+# schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{
+# settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+schema_version_path_dtol_lookups = 'web.apps.web_copo.schema_versions.lookup.dtol_lookups'
 dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
 TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
@@ -30,7 +32,7 @@ class Command(BaseCommand):
         parser.add_argument("xlsx", type=str)
 
     def parse_db_data_to_json(self, data_in_db, json_filename):
-        datetime_fields = ["date_modified", "time_created"]
+        datetime_fields = ["date_modified", "time_created", "time_updated"]
         df_list = []
         data = json.loads(json_util.dumps(data_in_db))
 
@@ -64,8 +66,8 @@ class Command(BaseCommand):
             for key, value in list(sample.items()):
                 sample[copo_and_ena_field_names_dict.get(key, key)] = sample.pop(key)
 
-            length_of_data_list = 35 if "biospecimens" in json_filename else 128  # ternary operator
-            assert length_of_data_list == len(list(sample.keys()))
+            # length_of_data_list = 35 if "biospecimens" in json_filename else 128  # ternary operator
+            # assert length_of_data_list == len(list(sample.keys()))
             df = pd.DataFrame(data=[list(sample.values())], columns=list(sample.keys()))
             df_list.append(df)
 
@@ -86,6 +88,9 @@ class Command(BaseCommand):
 
             # Iterate through each row in the spreadsheet to retrieve the "SPECIMEN_ID"
             specimen_id_list = []
+
+            print("Commence parsing SPECIMEN_ID from spreadsheet...")
+
             for row in rows_list:
                 search_query_without_prefix = re.search(pattern_without_prefix, str(row))
                 search_query_with_prefix = re.search(pattern_with_prefix, str(row))
@@ -101,15 +106,19 @@ class Command(BaseCommand):
                     specimen_id = "".join(specimen_id.split(pattern_with_Emu_only))
                     specimen_id_list.append(specimen_id)
 
+            print("Finish parsing SPECIMEN_ID from spreadsheet...")
+
             assert len(specimen_id_list) == 2138
 
             specimen_ids_not_in_db = []
             samples_only_in_db = []
             sources_only_in_db = []
             samples_and_sources_in_db = []
-            specimen_id_list = ["MBA-190930-001A", "MBA-190930-001B", "MBA-190930-099Q", "EDTOLQ0405"]
+            # specimen_id_list = ["MBA-190930-001A", "MBA-190930-001B", "MBA-190930-099Q", "EDTOLQ0405"]
 
             for specimen in specimen_id_list:
+                print("Iterating through specimen: ..")
+
                 sample_in_db = cursor_to_list(Sample().get_sample_by_specimen_id(specimen))
                 source_in_db = da.Source().get_by_specimen(specimen)
 
@@ -126,21 +135,24 @@ class Command(BaseCommand):
 
             # Convert list of "SPECIMEN_ID" not present in COPO to json format
             if specimen_ids_not_in_db:
-                specimen_ids_df = pd.DataFrame(data=[specimen_ids_not_in_db], columns=["SPECIMEN_ID"])
+                print("Processing specimen_ids that are not found in the database...")
+                specimen_ids_df = pd.DataFrame(data=[[specimen_ids_not_in_db]], columns=["SPECIMEN_ID"])
                 specimen_ids_df.to_json('specimen_ids_not_present_in_copo_from_nhmdump_excel.json')
 
             # Parse db list of dictionary data to json
             if samples_only_in_db:
                 # Samples only
+                print("Processing samples only...")
                 self.parse_db_data_to_json(samples_only_in_db, 'copo_biosamples_from_spreadsheet_excel.json')
 
             if sources_only_in_db:
                 # Sources only
+                print("Processing sources only...")
                 self.parse_db_data_to_json(sources_only_in_db, 'copo_biospecimens_from_spreadsheet_excel.json')
 
             if samples_and_sources_in_db:
                 # Samples and sources....if sample_in_db and source_in_db
-                print(samples_and_sources_in_db)
+                print("Processing samples and sources...")
                 self.parse_db_data_to_json(samples_and_sources_in_db,
                                            'copo_biosamples_and_biosources_from_nhmdump_spreadsheet.json')
 
@@ -148,6 +160,18 @@ class Command(BaseCommand):
                 print("*********************************")
                 print("Error: Data in the .xlsx file do not correspond to any data in the database!")
                 print("*********************************")
+
+            print("SPECIMEN_IDS not in db: ", specimen_ids_not_in_db)
+            print("\n******************************************************\n")
+
+            print("Samples in db: ", samples_only_in_db)
+            print("\n***************************************\n")
+
+            print("Sources in db: ", specimen_ids_not_in_db)
+            print("\n****************************************************\n")
+
+            print("Samples and surces in db: ", samples_and_sources_in_db)
+            print("\n****************************************")
 
         except XLRDError as error:
             print("Error: ", error)
