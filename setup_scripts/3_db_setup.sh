@@ -2,7 +2,7 @@
 
 # create postgres database, user and permissions
 POSTGRES_USER=copo_user
-POSRGRES_DB=copo
+POSTGRES_DB=copo
 POSTGRES_PASSWORD=password
 sudo -u postgres createuser -s $POSTGRES_USER
 sudo -u postgres createdb $POSRGRES_DB
