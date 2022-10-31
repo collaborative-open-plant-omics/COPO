@@ -174,7 +174,7 @@ urlpatterns = [
     path('sample_images/', ajax_handlers.sample_images,
          name="sample_images"),
     path(
-        'https://code-with-me.global.jetbrains.com/p5Tx6g-qitYtH3meHrwomg#p=PY&fp=84D424337202EAA09B68E9C7A9A414A761E4563899053D13CA08F05A5BC82EDF/',
+        'sample_permits/',
         ajax_handlers.sample_permits,
         name="sample_permits"),
     path('create_spreadsheet_samples/', ajax_handlers.create_spreadsheet_samples,
