@@ -257,8 +257,7 @@ $(document).ready(function () {
                 }
                 if (d.action === "close") {
                     $("#" + d.html_id).fadeOut("50")
-                }
-                if (d.action === "make_valid") {
+                } else if (d.action === "make_valid") {
                     $("#" + d.html_id).html("Validated").removeClass("alert-info, alert-danger").addClass("alert-success")
                 } else if (d.action === "info") {
                     // show something on the info div
