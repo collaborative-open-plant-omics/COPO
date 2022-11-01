@@ -657,6 +657,10 @@ class Source(DAComponent):
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
 
+    def get_by_specimen_id_regex(self, value):
+        # Get sources from Mongo database similar to SQL's '%' operator or 'LIKE'
+        return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": {"$regex": value, "$options": 'i'}}))
+
     def get_by_field(self, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: value}))
 
@@ -741,6 +745,10 @@ class Sample(DAComponent):
 
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
+
+    def get_sample_by_specimen_id_regex(self, specimen_id):
+        # Get samples from Mongo database similar to SQL's '%' operator or 'LIKE'
+        return self.get_collection_handle().find({"SPECIMEN_ID": {"$regex": specimen_id, "$options": 'i'}})
 
     def get_sample_by_id(self, sample_id):
         cursor = self.get_collection_handle().find({"_id": sample_id})
