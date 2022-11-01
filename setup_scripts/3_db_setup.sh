@@ -5,7 +5,7 @@ POSTGRES_USER=copo_user
 POSTGRES_DB=copo
 POSTGRES_PASSWORD=password
 sudo -u postgres createuser -s $POSTGRES_USER
-sudo -u postgres createdb $POSRGRES_DB
+sudo -u postgres createdb $POSTGRES_DB
 psql postgres -c "alter user $POSTGRES_USER with encrypted password '$POSTGRES_PASSWORD';"
 psql postgres -c "grant all privileges on database $POSTGRES_DB to $POSTGRES_USER ;"
 psql postgres -c "ALTER USER $POSTGRES_USER CREATEDB;"
