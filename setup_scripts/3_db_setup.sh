@@ -1,23 +1,28 @@
 #!/bin/bash
 
+#run this from COPO folder, not setup_scripts
+
 # create postgres database, user and permissions
 POSTGRES_USER=copo_user
-POSRGRES_DB=copo
+POSTGRES_DB=copo
 POSTGRES_PASSWORD=password
 sudo -u postgres createuser -s $POSTGRES_USER
-sudo -u postgres createdb $POSRGRES_DB
-psql postgres -c "alter user $POSTGRES_USER with encrypted password '$POSTGRES_PASSWORD';"
-psql postgres -c "grant all privileges on database $POSTGRES_DB to $POSTGRES_USER ;"
-psql postgres -c "ALTER USER $POSTGRES_USER CREATEDB;"
+sudo -u postgres createdb $POSTGRES_DB
+#psql postgres -c "alter user $POSTGRES_USER with encrypted password '$POSTGRES_PASSWORD';"
+sudo -u postgres psql postgres -c "alter user $POSTGRES_USER with encrypted password '$POSTGRES_PASSWORD';"
+#psql postgres -c "grant all privileges on database $POSTGRES_DB to $POSTGRES_USER ;"
+sudo -u postgres psql postgres -c "grant all privileges on database $POSTGRES_DB to $POSTGRES_USER ;"
+#psql postgres -c "ALTER USER $POSTGRES_USER CREATEDB;"
+sudo -u postgres psql postgres -c "ALTER USER $POSTGRES_USER CREATEDB;"
 
 # run django/copo setup functions
-python ../manage.py makemigrations
-python ../manage.py makemigrations chunked_upload
-python ../manage.py makemigrations allauth
-python ../manage.py migrate
-python ../manage.py setup_groups
-python ../manage.py setup_schemas
-python ../manage.py createcachetable
+python manage.py makemigrations
+python manage.py makemigrations chunked_upload
+python manage.py makemigrations allauth
+python manage.py migrate
+python manage.py setup_groups
+python manage.py setup_schemas
+python manage.py createcachetable
 
 # setup allauth social accounts....N.B. you should have environmental variables set for $ORCID_CLIENT_ID and $ORCID_SECRET
 export PGPASSWORD=$POSTGRES_PASSWORD; psql -h 'localhost' -U 'copo_user' -d 'copo' -c 'DELETE FROM socialaccount_socialapp_sites'
