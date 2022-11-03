@@ -14,7 +14,7 @@ import pandas as pd
 import re
 
 # schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-schema_version_path_dtol_lookups = 'web.apps.web_copo.schema_versions.lookup.dtol_lookups'
+schema_version_path_dtol_lookups = 'web.apps.web_copo.lookup.dtol_lookups'
 dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
 TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES

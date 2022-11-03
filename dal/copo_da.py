@@ -329,32 +329,39 @@ class ValidationQueue(DAComponent):
         super(ValidationQueue, self).__init__(profile_id, "validationQueue")
 
     def get_queued_manifests(self):
-        m_list = self.get_collection_handle().find({"schema_validation_status": "pending", "taxon_validation_status": "pending"})
+        m_list = self.get_collection_handle().find(
+            {"schema_validation_status": "pending", "taxon_validation_status": "pending"})
         out = list(m_list)
         for el in out:
-            self.get_collection_handle().update_one({"_id": el["_id"]}, {"$set": {"schema_validation_status": "processing", "taxon_validation_status":
-                "processing"}})
+            self.get_collection_handle().update_one({"_id": el["_id"]}, {
+                "$set": {"schema_validation_status": "processing", "taxon_validation_status":
+                    "processing"}})
         return out
 
     def update_manifest_data(self, record_id, manifest_data):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"manifest_data": manifest_data}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"manifest_data": manifest_data}})
 
     def set_update_flag(self, record_id):
         self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"isupdate": True}})
 
     def set_taxon_validation_complete(self, record_id):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "complete"}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"taxon_validation_status": "complete"}})
 
     def set_taxon_validation_error(self, record_id, err):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
-                                                                                                                                           err}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"taxon_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                             err}})
 
     def set_schema_validation_complete(self, record_id):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "complete"}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"schema_validation_status": "complete"}})
 
     def set_schema_validation_error(self, record_id, err):
-        self.get_collection_handle().update_one({"_id": ObjectId(record_id)}, {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
-                                                                                                                                            err}})
+        self.get_collection_handle().update_one({"_id": ObjectId(record_id)},
+                                                {"$set": {"schema_validation_status": "error"}, "$push": {"err_msg":
+                                                                                                              err}})
 
 
 class Publication(DAComponent):
@@ -623,8 +630,9 @@ class Source(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def add_accession(self, biosample_accession, sra_accession, submission_accession, oid):
         return self.get_collection_handle().update(
@@ -641,6 +649,11 @@ class Source(DAComponent):
 
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
+
+    def get_by_specimen_id_regex(self, value):
+        # Get sources from Mongo database similar to SQL's '%' operator or 'LIKE'
+        return cursor_to_list(
+            self.get_collection_handle().find({"SPECIMEN_ID": {'$regex': value, '$options': 'i'}}))
 
     def get_by_field(self, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: value}))
@@ -726,6 +739,10 @@ class Sample(DAComponent):
 
     def get_sample_by_specimen_id(self, specimen_id):
         return self.get_collection_handle().find({"SPECIMEN_ID": specimen_id})
+
+    def get_sample_by_specimen_id_regex(self, specimen_id):
+        # Get samples from Mongo database similar to SQL's '%' operator or 'LIKE'
+        return self.get_collection_handle().find({"SPECIMEN_ID": {'$regex': specimen_id, '$options': 'i'}})
 
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
         # specimens must not have already been submitted to ENA so should have status of pending
@@ -949,7 +966,8 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
+                {'profile_id': profile_id,
+                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -1027,8 +1045,9 @@ class Sample(DAComponent):
 
     def get_specimen_biosample(self, value):
         return cursor_to_list(
-            self.get_collection_handle().find({"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
-                                               "SPECIMEN_ID": value}))
+            self.get_collection_handle().find(
+                {"sample_type": {"$in": ["dtol_specimen", "asg_specimen", "erga_specimen"]},
+                 "SPECIMEN_ID": value}))
 
     def get_target_by_specimen_id(self, specimenid):
         return cursor_to_list(self.get_collection_handle().find({"sample_type": {"$in": TOL_PROFILE_TYPES},
@@ -1221,7 +1240,8 @@ class Submission(DAComponent):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
-                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083", level=Loglvl.ERROR, type=Logtype.FILE)
+                lg.log("ADDING STALLED SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
 
                 # no need to change status
             elif s.get("dtol_status", "") == "pending":
@@ -1730,8 +1750,9 @@ class Submission(DAComponent):
         return cursor_to_list(self.get_collection_handle().find({query: {"$exists": True}}, {projection: 1}))
 
     def set_manifest_submission_pending(self, s_id):
-        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$set": {"processing_status": "pending", "date_modified":
-            datetime.utcnow()}}):
+        if self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                   {"$set": {"processing_status": "pending", "date_modified":
+                                                       datetime.utcnow()}}):
             return True
         else:
             return False
@@ -1950,7 +1971,8 @@ class Profile(DAComponent):
 
     def get_dtolenv_profiles(self):
         p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified", pymongo.DESCENDING)
+            {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified",
+                                                                                              pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):
@@ -2417,10 +2439,12 @@ class ENAFileTransferObject(DAComponent):
 
     def set_processing(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
-                                                        {"$set": {"status": "processing", "last_checked": datetime.utcnow()}})
+                                                        {"$set": {"status": "processing",
+                                                                  "last_checked": datetime.utcnow()}})
 
     def set_pending(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "pending", "last_checked": datetime.utcnow()}})
+        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {
+            "$set": {"status": "pending", "last_checked": datetime.utcnow()}})
 
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
