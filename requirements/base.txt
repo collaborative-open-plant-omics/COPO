@@ -8,7 +8,7 @@ asn1crypto==0.24.0
 astroid==2.2.5
 async-timeout==4.0.2
 attrs==19.2.0
-autobahn==19.10.1
+autobahn==20.12.3
 Automat==0.7.0
 autopep8==1.4.4
 Babel==2.7.0
@@ -32,7 +32,7 @@ colorama==0.4.1
 colored==1.4.3
 configparser==3.7.4
 constantly==15.1.0
-cryptography==2.7
+cryptography==3.2
 daphne==2.3.0
 -e git+https://github.com/IQSS/dataverse-client-python.git@5f95a11e2f32bcfabe28e6ad43b2f7edac60d983#egg=dataverse
 decorator==4.4.0
@@ -41,7 +41,7 @@ defusedxml==0.6.0
 Deprecated==1.2.13
 dict-toolbox==2.2.0
 dict.sorted==1.0.0
-Django==3.1
+Django==3.2.15
 django-allauth==0.46.0
 django-allow-cidr==0.3.1
 django-appconf==1.0.3
@@ -183,7 +183,7 @@ testpath==0.4.2
 toml==0.10.2
 tornado==6.0.3
 traitlets==4.3.3
-Twisted==19.7.0
+Twisted==22.10.0rc1
 txaio==18.8.1
 typed-ast==1.4.0
 typing==3.6.2
