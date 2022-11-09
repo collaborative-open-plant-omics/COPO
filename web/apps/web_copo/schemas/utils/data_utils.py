@@ -104,7 +104,7 @@ def json_to_pytype(path_to_json, compatibility_mode=True):
         if compatibility_mode:
             data = json.loads(f)
         else:
-            data = jsonref.loads(f)
+            data = jsonref.loads(f, base_uri="file:" + settings.BASE_DIR + "/", jsonschema=True)
         if "properties" in data and isinstance(data["properties"], list):
             cp = list(data["properties"])
             idxes = list()
