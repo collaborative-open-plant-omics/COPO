@@ -9,6 +9,7 @@ $(document).ready(function () {
     $(document).data("isSampleModalSearchQueryChecked", true);
     $(document).data("navBarItems", [])
     $(document).data("navBarItemsTableBodyView", {})
+    $(document).data("searchQuery", {})
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id"]
@@ -238,12 +239,21 @@ $(document).ready(function () {
             let navItem = preNavItem.text()
             let navItemView = $("#sample_panel").clone()
             let navItemViewDict = $(document).data("navBarItemsTableBodyView")
+            let searchQueryDict = $(document).data("searchQuery")
+            let field_value = $(this).next('.field_valueDiv').find('#field_valueID').val()
 
             if (isSampleModalSearchQueryChecked) {
+                // Get samples by field, field value and project
                 navItemViewDict[navItem] = navItemView;
-                console.log(navItemViewDict)
-            } else {
+                console.log('Nav menu items: ', navItemViewDict)
 
+
+            } else {
+                // Get samples by field and field value
+                searchQueryDict["field"] = this.innerHTML;
+                searchQueryDict["field_value"] = field_value;
+
+                row_select_on_tol_inspect_web_page(this)
             }
 
             preNavItem.removeClass("active")
@@ -253,7 +263,7 @@ $(document).ready(function () {
             listItem.text(this.innerHTML)
             breadcrumb.append(listItem)
 
-            $("li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
+            $("#tolInspectNavBar li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
             navBarItems.push(this.innerHTML)
 
 
@@ -450,7 +460,11 @@ function row_select(ev) {
 function row_select_on_tol_inspect_web_page(ev) {
     // Get samples for the profile clicked in the left-hand panel and
     // populate the table in the right-hand panel
+    jQuery.support.cors = true;
+    let isSampleModalSearchQueryChecked = $(document).data("isSampleModalSearchQueryChecked");
+    let searchQueryDict = $(document).data("searchQuery")
     let row;
+
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
         $(document).data("selected_row", $(ev.currentTarget))
@@ -463,15 +477,34 @@ function row_select_on_tol_inspect_web_page(ev) {
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
     const d = {"profile_id": $(row).find("td").data("profile_id"), "project": project};
-    $("#profile_id").val(d.profile_id)
-    $("#spinner").show()
 
-    $.ajax({
+    const get_samples_by_project_s = {
         url: "/copo/get_project_samples_for_tol_inspection",
         data: d,
         method: "GET",
         dataType: "json"
-    }).error(function (data) {
+    }
+// JSON.parse(JSON.stringify(searchQueryDict)).field
+    const get_samples_by_field_and_value_s = {
+        url: `sample/sample_field/${searchQueryDict.field}/${searchQueryDict.field_value}`,
+        data: {},
+        method: "GET",
+        headers: {'Access-Control-Allow-Origin': '*'},
+        dataType: 'jsonp',
+    }
+    let s = $.isEmptyObject(searchQueryDict) && isSampleModalSearchQueryChecked ? get_samples_by_project_s : get_samples_by_field_and_value_s
+
+    $("#profile_id").val(d.profile_id)
+    $("#spinner").show()
+
+    console.log("Ajax 's': ", s)
+    console.log("Is search query dictionary empty: ", $.isEmptyObject(searchQueryDict))
+    console.log("Search query: ", searchQueryDict)
+    console.log(`Field: ${searchQueryDict.field}, Value:${searchQueryDict.field}`)
+
+    console.log("In row select on tol inspect web page..is sample modal search query checked: ", isSampleModalSearchQueryChecked)
+
+    $.ajax(s).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
             let sample_panel = $("#sample_panel")
@@ -486,7 +519,7 @@ function row_select_on_tol_inspect_web_page(ev) {
                 const header = $("<h4/>", {
                     html: "Samples"
                 });
-                $("#sample_panel").find(".labelling").empty().append(header)
+                sample_panel.find(".labelling").empty().append(header)
 
                 // Create page top navigation
                 const navMenu = $("<li/>", {

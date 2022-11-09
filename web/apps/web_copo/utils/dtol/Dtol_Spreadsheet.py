@@ -79,7 +79,7 @@ def make_species_list(sample):
     if not "species_list" in sample:
         sample["species_list"] = list()
     out = dict()
-    symbiont = sample.pop("SYMBIONT")
+    symbiont = sample.get("SYMBIONT")
     if symbiont.upper() not in ["SYMBIONT", "TARGET"]:
         if symbiont:
             out["SYMBIONT_SOP2dot2"] = symbiont

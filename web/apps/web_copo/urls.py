@@ -1,3 +1,4 @@
+from api.views import sample as s
 from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
@@ -49,6 +50,8 @@ urlpatterns = [
     re_path(r'^ajax_search_copo_local/(?P<data_source>[a-zA-Z0-9,_]+)/$',
             ajax_handlers.search_copo_components, name='ajax_search_copo_local'),
     re_path(r'^view_templates/(?P<profile_id>[a-z0-9]+)/view', views.view_templates, name='view_templates'),
+    re_path(r'sample/sample_field/(?P<dtol_field>[A-Za-z0-9-_]+)/(?P<value>[A-Za-z0-9-_ ,.@]+)', s.get_by_field,
+            name='get_by_dtol_field'),
     path('author_template/<template_id>/view', views.author_template, name='author_template'),
     path('copo_forms/', views.copo_forms, name="copo_forms"),
     path('delete_profile/', views.delete_profile, name="delete_profile"),
