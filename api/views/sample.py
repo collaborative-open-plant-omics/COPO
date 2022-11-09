@@ -94,6 +94,8 @@ def filter_for_API(sample_list, add_all_fields=False):
         if species_list:
             s = {**s, **species_list[0]}
         s_out = dict()
+
+        # handle corner cases
         for k, v in s.items():
             if k == "SPECIMEN_ID_RISK":
                 # this to account for old manifests before name change
@@ -131,20 +133,30 @@ def filter_for_API(sample_list, add_all_fields=False):
                     s_out[k] = format_date(v)
                 elif k in ["created_by", "updated_by"]:
                     s_out[k] = "*****@" + v.split("@")[1]
+
                 else:
                     s_out[k] = v
             if k == "changelog":
                 s_out["latest_update"] = format_date(v[-1].get("date"))
 
+        # create list of fields and defaults for fields which are not present in earlier versions of the manifest
+        defaults_list = {
+            "MIXED_SAMPLE_RISK": "NOT_PROVIDED",
+            "BARCODING_STATUS": "DNA_BARCODE_EXEMPT"
+        }
         # iterate through fields to be exported and add them in blank if not present in the sample object
         if not embargoed:
             if add_all_fields:
                 for k in export:
                     if k not in s_out.keys():
-                        s_out[k] = ""
+                        if k in defaults_list.keys():
+                            s_out[k] = defaults_list[k]
+                        else:
+                            s_out[k] = ""
                 out.append(s_out)
             else:
                 out.append(s_out)
+
     return out
 
 
@@ -153,6 +165,12 @@ def get_manifests(request):
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
 
+def query_local_contexts_hub(project_id):
+    lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
+    resp = requests.get(lch_url)
+    j_resp = json.loads(resp.content)
+    print(j_resp)
+    return j_resp
 
 def get_all_manifest_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to

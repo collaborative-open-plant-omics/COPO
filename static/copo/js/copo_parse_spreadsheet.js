@@ -38,7 +38,7 @@ function upload_permit_files(file) {
         form.append(count.toString(), file[f])
         count++
     }
-    form.append("validation_record_id",validation_record_id)
+    form.append("validation_record_id", validation_record_id)
     jQuery.ajax({
         url: '/copo/sample_permits/',
         data: form,
@@ -334,7 +334,10 @@ $(document).ready(function () {
                     for (r in d.message) {
                         row = d.message[r]
                         if (row.file_name === "None") {
-                            var img_tag = "Permits must be named using the same Specimen ID as the manifest"
+                            let permit_type = row.specimen_id.substring(row.specimen_id.indexOf("No "), row.specimen_id.indexOf(" found"))
+                            let specimen_id = row.specimen_id.substring(row.specimen_id.indexOf("<strong>"), row.specimen_id.indexOf("</strong>"))
+                            var img_tag = "Filename of permit must be named " + specimen_id + "_" + permit_type.slice(3, -1).toUpperCase() + "S.pdf"
+
                         } else {
                             var img_tag = ""
                         }
