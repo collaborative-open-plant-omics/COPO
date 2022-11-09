@@ -72,9 +72,6 @@ class StatusMessage(models.Model):
         get_latest_by = 'created'
 
 
-class test_model(models.Model):
-    url = models.URLField()
-    c = models.CharField(max_length=10, default="a")
 
 
 class banner_view(models.Model):
