@@ -17,7 +17,7 @@ and submission accessions, but somehow the biosample accession
 is duplicated.  The script takes as input a comma separated list of biosample
 accessions to check. The list of sources can be found as:
 db.SourceCollection.aggregate([{"$group":{"_id": "$biosampleAccession", "count" : {"$sum":1}}}, 
-{"$match": {"$count": {"$gt":1}}}]).toArray()'''
+{"$match": {"count": {"$gt":1}}}]).toArray()'''
 
 
 # The class must be named Command, and subclass BaseCommand
