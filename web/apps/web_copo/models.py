@@ -25,6 +25,7 @@ class UserDetails(models.Model):
         null=True,
     )
     active_task = models.BooleanField(default=False)
+    nextcloud_token = models.TextField(max_length=40, blank=True)
     # class Meta:
     # app_label = 'django.contrib.auth'
 

@@ -460,6 +460,17 @@ def view_user_info(request):
 
     return render(request, 'copo/user_info.html', data_dict)
 
+@login_required
+def save_erga_token(request):
+    if request.method == 'POST':
+        token = request.POST.get("erga_token", "")
+        UserDetails.objects.filter(id = request.user.userdetails.id).update( nextcloud_token = token)
+    else:
+        pass
+
+    return render(request, 'user_info.html', )
+
+
 
 def register_to_irods(request):
     status = register_to_irods()

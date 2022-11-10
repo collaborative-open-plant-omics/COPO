@@ -28,11 +28,19 @@
             </a>
 
     </div>
+    <form action="save_erga_token/" method="post" >
+     {% csrf_token %}
+    <div class="ui action input">
+    <input type="text" placeholder="Nextcloud Token" maxlength="40" name="erga_token">
+        <button type="submit" class="ui teal button" id="add-nextcloud-token" >Add</button>
+    </div>
+    </form>
     <div class="repositories-div">
         {% for r in repos %}
             {{ r.name }}
         {% endfor %}
     </div>
+
 
 {% endblock %}
 

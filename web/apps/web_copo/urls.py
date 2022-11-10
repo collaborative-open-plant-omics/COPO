@@ -206,4 +206,6 @@ urlpatterns = [
          name="init_manifest_submission"),
     path('process_urls', ajax_handlers.process_urls,
          name="process_urls"),
+    path('view_user_info/save_erga_token/', views.save_erga_token,
+         name='save_erga_token')
 ]
