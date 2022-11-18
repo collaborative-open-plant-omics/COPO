@@ -14,6 +14,7 @@ $(document).ready(function () {
 
     }
 
+
     $.getJSON("api/stats/numbers")
         .done(function (data) {
             $("#num_samples").html(data.samples)
