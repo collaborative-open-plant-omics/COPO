@@ -95,14 +95,25 @@ class BrokerDA:
         existingprofile = []
         if isinstance(self.da_object, Profile):
             existingprofile = self.da_object.get_by_title(self.auto_fields["copo.profile.title"])
+
         if not existingprofile:
-            # save/edit record
-            record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
+            #check users are not changing the type of an existing profile
+            if action_type == "edit":
+                targetprofiletype = self.da_object.get_record(kwargs["target_id"]).get("type", "")
+                if targetprofiletype != self.auto_fields["copo.profile.type"]:
+                    record_object = {}
+                    status = "forbidden action"
+                else:
+                    # edit record
+                    record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
+            else:
+                # save record
+                record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
         else:
             record_object = {}
             status = "duplicated"
 
-        if not record_object and status!="duplicated":
+        if not record_object and status not in ["duplicated", "forbidden action"]:
             status = "danger"
 
 
@@ -117,6 +128,9 @@ class BrokerDA:
             report_metadata["message"] = "Record updated!"
         elif action_type == "edit" and status == "duplicated":
             report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+            status="error"
+        elif action_type == "edit" and status == "forbidden action":
+            report_metadata["message"] = "Forbidden action, it is not possible to modify the profile type"
             status="error"
         elif action_type == "edit" and status != "success":
             report_metadata["message"] = "There was a problem updating the " + self.component + " record!"
