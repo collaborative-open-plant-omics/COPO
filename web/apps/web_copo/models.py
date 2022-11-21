@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+from django.db import transaction
 import pytz
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -42,7 +42,8 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance, **kwargs):
     try:
-        Token.objects.create(user=instance)
+        with transaction.atomic():
+            Token.objects.create(user=instance)
     except:
         pass
 
