@@ -1139,16 +1139,16 @@ DTOL_RULES = {
         "human_readable": "integer"
     },
     "ORIGINAL_DECIMAL_LATITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
-        "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)",
+        "human_readable": "numeric"
     },
     "ORIGINAL_DECIMAL_LONGITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
-        "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)",
+        "human_readable": "numeric"
     },
     "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID": {
         "strict_regex": "^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$",
-        "human_readable": "[ID provided by the local conatext hub]"
+        "human_readable": "[ID provided by the local context hub]"
     }
 }
 DTOL_UNITS = {
@@ -1523,7 +1523,7 @@ BLANK_VALS = ['NOT_COLLECTED', 'NOT_PROVIDED', 'NOT_APPLICABLE']
 SYMBIONT_VALS = ["TARGET", "SYMBIONT"]
 NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A',
            'NULL', 'NaN', 'n/a', 'nan']
-DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"]
+DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 SPECIES_LIST_FIELDS = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
                        "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
 SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_NAME", "TAXON_REMARKS",
