@@ -34,7 +34,7 @@
                 </td>
 
                 <td class="wizard-link"><i style="color: rgb(22, 171, 57)" class="fa fa-arrow-circle-o-down fa-2x"
-                                           title='Launch DTOL_MANIFEST_v2.4 wizard'
+                                           title='Launch DTOL_MANIFEST_v2.4.1 wizard'
                                            onclick="showWizardBasedOnManifestType('dtol')"
                                            aria-hidden="true"></i>
                 </td>
@@ -47,7 +47,7 @@
                 </td>
 
                 <td class="wizard-link"><i style="color: rgb(88, 41, 187)" class="fa fa-arrow-circle-o-down fa-2x"
-                                           title='Launch ASG_MANIFEST_v2.4 wizard'
+                                           title='Launch ASG_MANIFEST_v2.4.1 wizard'
                                            onclick="showWizardBasedOnManifestType('asg')"
                                            aria-hidden="true"></i>
                 <td>
@@ -93,30 +93,31 @@
                     <div class="wizard" id="manifest-wizard">
                         <div class="steps-container">
                             <ul class="steps">
-                                <li data-step="1" class="active">
-                                    <span class="badge badge-info">1</span>Type<span class="chevron"></span>
-                                </li>
-                                <li data-step="2">
-                                    <span class="badge">2</span>Samples<span class="chevron"></span>
+                                {#                                <li data-step="1" class="active">#}
+                                {#                                    <span class="badge badge-info">1</span>Type<span class="chevron"></span>#}
+                                {#                                </li>#}
+                                <li data-step="2" class="active">
+                                    <span class="badge">1</span>Samples<span class="chevron"></span>
                                 </li>
                                 <li data-step="3">
-                                    <span class="badge">3</span>Download<span class="chevron"></span>
+                                    <span class="badge">2</span>Download<span class="chevron"></span>
                                 </li>
                             </ul>
                         </div>
+                        
                         <div class="step-content">
-                            <div class="step-pane" data-step="1">
-                                <div class="well">
-                                    <label>Which manifest do you want to create?</label>
-                                    <select id="manifestType" class="form-control">
-                                        <option value="asg">ASG</option>
-                                        <option value="dtol">DTOL</option>
-                                        <option value="erga">ERGA</option>
-                                        <option value="env">ENV</option>
-                                    </select>
-
-                                </div>
-                            </div>
+                            {#                            <div class="step-pane" data-step="1">#}
+                            {#                                <div class="well">#}
+                            {#                                    <label>Which manifest do you want to create?</label>#}
+                            {#                                    <select id="manifestType" class="form-control">#}
+                            {#                                        <option value="asg">ASG</option>#}
+                            {#                                        <option value="dtol">DTOL</option>#}
+                            {#                                        <option value="erga">ERGA</option>#}
+                            {#                                        <option value="env">ENV</option>#}
+                            {#                                    </select>#}
+                            {##}
+                            {#                                </div>#}
+                            {#                            </div>#}
                             <div class="step-pane" data-step="2">
                                 <div class="well">
                                     <label>How many samples would you like to describe?</label>
@@ -143,6 +144,8 @@
                                     </div>
 
                                 </div>
+
+
                                 <div id="formDiv">
                                     <form id="formID"></form>
                                     {% csrf_token %}
@@ -160,10 +163,12 @@
 
 
                         </div>
+
                         <div class="actions">
                             <button type="button" class="btn btn-sm btn-primary btn-prev">
                                 <i class="fa fa-arrow-left"></i> Prev
                             </button>
+
                             <button id='resetBtn' type="button" class="btn btn-sm btn-primary btn-reset">
                                 <i class="fa fa-refresh"></i> Reset
                             </button>

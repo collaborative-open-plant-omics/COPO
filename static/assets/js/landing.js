@@ -14,15 +14,16 @@ $(document).ready(function () {
 
     }
 
-    // $.getJSON("api/stats/numbers")
-    //     .done(function (data) {
-    //         $("#num_samples").html(data.samples)
-    //         $("#num_profiles").html(data.profiles)
-    //         $("#num_users").html(data.users)
-    //         $("#num_uploads").html(data.datafiles)
-    //     }).error(function (data) {
-    //     console.log(data)
-    // })
+
+    $.getJSON("api/stats/numbers")
+        .done(function (data) {
+            $("#num_samples").html(data.samples)
+            $("#num_profiles").html(data.profiles)
+            $("#num_users").html(data.users)
+            $("#num_uploads").html(data.datafiles)
+        }).error(function (data) {
+        console.log(data)
+    })
 
 });
 

@@ -337,6 +337,7 @@ $(document).ready(function () {
                             let permit_type = row.specimen_id.substring(row.specimen_id.indexOf("No "), row.specimen_id.indexOf(" found"))
                             let specimen_id = row.specimen_id.substring(row.specimen_id.indexOf("<strong>"), row.specimen_id.indexOf("</strong>"))
                             var img_tag = "Filename of permit must be named " + specimen_id + "_" + permit_type.slice(3, -1).toUpperCase() + "S.pdf"
+
                         } else {
                             var img_tag = ""
                         }
