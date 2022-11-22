@@ -183,6 +183,18 @@ def copo_sample_accept_reject(request):
 
 
 @login_required
+def copo_tol_dashboard(request):
+    # Determine if users are in the appropriate membership group to view the web page
+    member_groups = group_functions.get_group_membership_asString()
+    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
+
+    if any(item in member_groups for item in required_member_groups):
+        return render(request, 'copo/copo_tol_dashboard.html', {})
+    else:
+        return goto_unauthorised_page()
+
+
+@login_required
 def copo_tol_inspect(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
@@ -190,6 +202,18 @@ def copo_tol_inspect(request):
 
     if any(item in member_groups for item in required_member_groups):
         return render(request, 'copo/copo_tol_inspect.html', {})
+    else:
+        return goto_unauthorised_page()
+
+
+@login_required
+def copo_tol_inspect_institutions(request):
+    # Determine if users are in the appropriate membership group to view the web page
+    member_groups = group_functions.get_group_membership_asString()
+    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
+
+    if any(item in member_groups for item in required_member_groups):
+        return render(request, 'copo/copo_tol_inspect_institutions.html', {})
     else:
         return goto_unauthorised_page()
 

@@ -226,6 +226,11 @@ $(document).ready(function () {
         }
     })
 
+    $('.tol_inspect_institutions ').click(function () {
+        window.location.href = '/copo/tol_inspect/institutions';
+        return false;
+    });
+
     $(document).on("click", ".fieldID", function (e) {
         let preNavItem = $("#tolInspectNavBar li.active")
         let breadcrumb = $(".breadcrumb")
