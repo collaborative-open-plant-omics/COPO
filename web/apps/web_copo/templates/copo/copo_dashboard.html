@@ -1,0 +1,430 @@
+{% extends 'copo/base_1col.html' %}
+
+{% load static %}
+{% load web_tags %}
+{% load html_tags %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheet_block %}
+    <link rel="stylesheet" type="text/css"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700"/>
+    <!-- Nucleo Icons -->
+    <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-svg.css' %}">
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- CSS Files -->
+    <link id="pagestyle" rel="stylesheet" href="{% static 'copo/css/copo/material-dashboard.css' %}">
+
+    <style>
+        .section_title:hover {
+            color: #4183c4;
+            text-decoration: underline;
+        }
+    </style>
+{% endblock stylesheet_block %}
+
+{% block title_block %} Dashboard {% endblock %}
+
+{% block tagline_block %}{% endblock %}
+
+{% block browse_header_block %}{% endblock browse_header_block %}
+{% block page_tile %}{% endblock page_tile %}
+
+{% block content %}
+
+    <div class="container-fluid py-4">
+        {# Statistics #}
+        <div id="stats_bar">
+            <div class="ui cards centered raised link">
+                <div class="card link">
+                    <div class="ui statistic">
+                        <div class="value">
+                            <i class="dna icon teal"></i> <span id="num_samples">62</span>
+                        </div>
+                        <div class="label">
+                            Samples
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic">
+                        <div class="value">
+                            <i class="folder open icon violet"></i><span id="num_profiles">5</span>
+                        </div>
+                        <div class="label">
+                            Profiles
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic">
+                        <div class="value">
+                            <i class="user icon orange"></i><span id="num_users">2</span>
+                        </div>
+                        <div class="label">
+                            Users
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic">
+                        <div class="value">
+                            <i class="upload icon green"></i><span id="num_uploads">0</span>
+                        </div>
+                        <div class="label">
+                            File Uploads
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# Dashboard sections #}
+        <div class="row mt-4">
+            <div class="col-lg-4 col-md-6 mt-4 mb-4 ui cards raised link">
+                <div class="card z-index-2 ">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                        <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
+                            <div class="chart">
+                                <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body statistics_card">
+                        <h6 class="mb-0 section_title statistics_card_title">Sample Statistics</h6>
+                        <p class="text-sm ">View the statistics of COPO objects over time and of Tree of Life by
+                            variables</p>
+                        <hr class="dark horizontal">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mt-4 mb-4">
+                <div class="card z-index-2  ">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                        {#                        <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">#}
+                        {#                            <div class="chart">#}
+                        {#                                <canvas id="chart-line" class="chart-canvas" height="170"></canvas>#}
+                        {#                            </div>#}
+                        {#                        </div>#}
+                        <div class="card-body d-flex">
+                            <div class="align-self-center w-100">
+                                <div class="py-3">
+                                    <div class="chart chart-xs">
+                                        <div class="chartjs-size-monitor">
+                                            <div class="chartjs-size-monitor-expand">
+                                                <div class=""></div>
+                                            </div>
+                                            <div class="chartjs-size-monitor-shrink">
+                                                <div class=""></div>
+                                            </div>
+                                        </div>
+                                        <canvas id="chartjs-dashboard-pie"
+                                                style="display: block; height: 200px; width: 398px;"
+                                                class="chartjs-render-monitor" width="796" height="400"></canvas>
+                                    </div>
+                                </div>
+
+                                <table class="table mb-0">
+                                    <tbody>
+                                    <tr>
+                                        <td><i class="fa fa-circle text-primary font-10 mr-2"></i>File uploads</td>
+                                        <td class="text-end">4306</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Profiles</td>
+                                        <td class="text-end">3801</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Samples</td>
+                                        <td class="text-end">1689</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Users</td>
+                                        <td class="text-end">1689</td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-0 "> TOL Institutions Inspection </h6>
+                        <p class="text-sm "> (<span class="font-weight-bolder">+15%</span>) increase in today sales.
+                        </p>
+                        <hr class="dark horizontal">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mt-4 mb-3">
+                <div class="card z-index-2 ">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                        {#                        <div class="border-radius-lg py-3 pe-1">#}
+                        <div id="world_map" class="chart card-body px-4" style="height: 170px; width: 567px;"></div>
+                        {#                        </div>#}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-0 ">Worldwide view of TOL Institutions</h6>
+                        <p class="text-sm ">Last Campaign Performance</p>
+                        <hr class="dark horizontal">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+                <div class="card">
+                    <div class="card-header pb-0">
+                        <div class="row">
+                            <div class="col-lg-6 col-7">
+                                <h6>TOL Sample Inspection</h6>
+                                <p class="text-sm mb-0">
+                                    <i class="fa fa-check text-info" aria-hidden="true"></i>
+                                    In <span class="font-weight-bold ms-1">COPO</span> record
+                                </p>
+                            </div>
+                            <div class="col-lg-6 col-5 my-auto text-end">
+                                <div class="dropdown float-lg-end pe-4">
+                                    <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        <i class="fa fa-ellipsis-h text-secondary"></i>
+                                    </a>
+                                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5" aria-labelledby="dropdownTable">
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a>
+                                        </li>
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Another
+                                            action</a></li>
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Something else
+                                            here</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body px-0 pb-2">
+                        <div class="table-responsive">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Companies
+                                    </th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                        Members
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Budget
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Completion
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                                <img src="{{ ASSETS_ROOT }}/img/small-logos/logo-xd.svg"
+                                                     class="avatar avatar-sm me-3" alt="xd">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">Material XD Version</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group mt-2">
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Tompson">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-1.jpg" alt="team1">
+                                            </a>
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-2.jpg" alt="team2">
+                                            </a>
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                               title="Alexander Smith">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-3.jpg" alt="team3">
+                                            </a>
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-4.jpg" alt="team4">
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-xs font-weight-bold"> $14,000 </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress-wrapper w-75 mx-auto">
+                                            <div class="progress-info">
+                                                <div class="progress-percentage">
+                                                    <span class="text-xs font-weight-bold">60%</span>
+                                                </div>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-gradient-info w-60" role="progressbar"
+                                                     aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                                <img src="{{ ASSETS_ROOT }}/img/small-logos/logo-atlassian.svg"
+                                                     class="avatar avatar-sm me-3" alt="atlassian">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">Add Progress Track</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-group mt-2">
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Romina Hadid">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-2.jpg" alt="team5">
+                                            </a>
+                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle"
+                                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Jessica Doe">
+                                                <img src="{{ ASSETS_ROOT }}/img/team-4.jpg" alt="team6">
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-xs font-weight-bold"> $3,000 </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="progress-wrapper w-75 mx-auto">
+                                            <div class="progress-info">
+                                                <div class="progress-percentage">
+                                                    <span class="text-xs font-weight-bold">10%</span>
+                                                </div>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-gradient-info w-10" role="progressbar"
+                                                     aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100">
+                    <div class="card-header pb-0">
+                        <h6>Manifest submission overview</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="timeline timeline-one-side">
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-success text-gradient">check_circle_outline</i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">View Accessions</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Biosample, SRA and
+                                        submission accessions of approved samples can be viewed</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+
+                      <i class="material-icons" style="color: #21ba45">table_view</i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Preview samples created</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Sample metadata can be
+                                        previewed</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="icon tasks sign" style="color:#00b5ad; font-size: 1.32em"></i>
+
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Approval or rejection of
+                                        samples</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Samples are inspected
+                                        by sample managers</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                       <i class="material-icons" style="color: #b5cc18">filter_alt</i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Creation of samples</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Samples are created</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-warning text-gradient">fact_check</i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Manifest validation</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Taxonomy information
+                                        and manifest SOP specification format are validated</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="icon table sign" style=" font-size: 1.32em"></i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Complete and upload
+                                        manifest</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Fill in spreasheet</p>
+                                </div>
+                            </div>
+                            <div class="timeline-block">
+                  <span class="timeline-step">
+                    <i class="material-icons" style="color: #2185d0">add_circle</i>
+                  </span>
+                                <div class="timeline-content">
+                                    <h6 class="text-dark text-sm font-weight-bold mb-0">Create profile record</h6>
+                                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">An ASG, ERGA, DTOL or
+                                        DTOLENV manifest record is created</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block help_section %}{% endblock %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block js_block %}
+    <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
+    <script src="{% static 'copo/js/popper.min.js' %}"></script>
+    <script src="{% static 'copo/js/perfect-scrollbar.min.js' %}"></script>
+    <script src="{% static 'copo/js/smooth-scrollbar.min.js' %}"></script>
+    <script src="{% static 'copo/js/chartjs.min.js' %}"></script>
+    {#    <script src="{% static 'copo/js/chart.js' %}"></script>#}
+    {#    <script src="{% static 'copo/js/vector-maps.js' %}" type='module'></script>#}
+
+    <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
+    <script src="{% static 'copo/js/jsvectormap.min.js' %}"></script>
+    <script src="{% static 'copo/js/world.js' %}"></script>
+    {#    <script type='module' src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.0.1/chart.min.js"></script>#}
+{% endblock js_block %}
