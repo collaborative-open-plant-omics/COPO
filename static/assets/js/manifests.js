@@ -1,24 +1,27 @@
 $(document).ready(function () {
+    $(document).data("manifest_type", "")
     $.fn.datepicker.noConflict(); // Does not conflict with other scripts that also have datepicker defined
 
     // Trigger manifest wizard modal
-    $(document).on("click", "#show_manifest_wzd_button", function () {
-        let manifest_wizard = $('#manifest-wizard')
-        $("#modal-placeholder").modal("show");
-        manifest_wizard.wizard();
-        $('#rightIcon').show(); // Show "right icon" after it was removed from last step
-        // Automatically go to step 1 when the modal is launched
-        manifest_wizard.wizard('selectedItem', {step: 1});
-
-        document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-        $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
-
-        document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
-
-        get_common_fields_handler(); // Preload with the common fields dropdown list
-    });
+    // $(document).on("click", "#show_manifest_wzd_button", function () {
+    //     let manifest_wizard = $('#manifest-wizard')
+    //     $("#modal-placeholder").modal("show");
+    //     manifest_wizard.wizard();
+    //     $('#rightIcon').show(); // Show "right icon" after it was removed from last step
+    //     // Automatically go to step 1 when the modal is launched
+    //     manifest_wizard.wizard('selectedItem', {step: 1});
+    //
+    //     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
+    //     $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
+    //
+    //     document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
+    //
+    //     get_common_fields_handler(); // Preload with the common fields dropdown list
+    // });
 
     $(document).on("click", "#downloadBtn", generateManifestTemplate)
+
+    $(document).on("click", "#resetBtn", resetManifestWizard)
 
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
@@ -47,16 +50,15 @@ $(document).ready(function () {
                 }
             },
             callback: function (result) {
-                if (result)
+                if (result) {
+                    resetManifestWizard(); // Reset values in the wizard
                     $("#modal-placeholder").modal("hide");
+                }
             }
         });
     });
 
-    $(document).on("hidden.bs.modal", "#manifest-wizard", function (e, info) {
-    });
-
-    $(document).on("change", "#manifestType", get_common_fields_handler);
+    //$(document).on("change", "#manifestType", get_common_fields_handler);
 
     wizard_handler();
 });
@@ -66,9 +68,15 @@ function wizard_handler() {
         // console.log('change');
     }).on('changed.fu.wizard', function () {
         let currentStep = $('#manifest-wizard').wizard('selectedItem').step;
+        let prevButton = $('.btn-prev')
+        let resetButton = $('.btn-reset')
         let rightIcon = $('#rightIcon')
-        // Reveal/show the next icon from the final step of the wizard
-        currentStep === 3 ? rightIcon.hide() : rightIcon.show();
+
+        // Reveal/show the next icon/previous button/reset button
+        // from the final step of the wizard
+        currentStep === 2 ? prevButton.show() : prevButton.hide();
+        currentStep === 2 ? resetButton.hide() : resetButton.show();
+        currentStep === 2 ? rightIcon.hide() : rightIcon.show();
     }).on('finished.fu.wizard', function (e) {
         // console.log('finished');
         $("#modal-placeholder").modal("hide");
@@ -80,9 +88,28 @@ function wizard_handler() {
     });
 }
 
+function resetManifestWizard() {
+    let commonfieldsDropdownlistDivID = document.querySelector("#commonfieldsDropdownlistDiv");
+    let commonFieldErrorMessageID = document.getElementById("commonFieldErrorMessageID");
+    document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
+
+    $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
+    $('.btn-prev').hide(); // Hide previous button
+
+    // Remove error information if it is shown
+    if (commonfieldsDropdownlistDivID.classList.contains('has-error')) {
+        commonfieldsDropdownlistDivID.classList.remove('has-error')
+        commonFieldErrorMessageID.innerHTML = ""
+        commonFieldErrorMessageID.style.display = 'none';
+    }
+
+    get_common_fields_handler(); // Preload with the common fields dropdown list
+}
+
 function get_common_fields_handler() {
     // Get fields from the manifest schema based on the manifest type
-    const manifest_type = document.querySelector('#manifestType').value;
+    // const manifest_type = document.querySelector('#manifestType').value;
+    let manifest_type = $(document).data("manifest_type")
 
     $.ajax({
         type: "GET",
@@ -94,9 +121,11 @@ function get_common_fields_handler() {
     }).done(function (data) {
         let commonfieldsList = $("#commonfields")
         let option = [];
+
         // Add a default value to the dropdown list
         commonfieldsList.empty();
         commonfieldsList.append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
+
         for (let i = 0; i < data.length; i++) {
             option = data[i];
             commonfieldsList.append('<option value="' + option + '">' + option + '</option>')
@@ -111,7 +140,8 @@ function get_common_fields_handler() {
 
 function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
     // Get dropdown list fields from manifest schema based on the common field and/manifest type
-    const manifest_type = document.querySelector('#manifestType').value;
+    // const manifest_type = document.querySelector('#manifestType').value;
+    let manifest_type = $(document).data("manifest_type")
 
     $.ajax({
         type: "GET",
@@ -131,8 +161,10 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             value_input.style.width = '200px';// Set width of the select tag field
 
             let option = [];
+
             $(value_input).empty();
             $(value_input).append('<option selected disabled hidden value=""' + '>' + 'Choose common value' + '</option>')
+
             for (let i = 0; i < data.length; i++) {
                 option = data[i];
                 $(value_input).append('<option value="' + option + '">' + option + '</option>');
@@ -147,22 +179,21 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             value_input.setAttribute('aria-describedby', "commonValueStatus");
 
             if (date_fields.includes(common_field)) {
-                let datepicker = $(".datepicker")
-                value_input.setAttribute('type', 'text');
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
+                value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Select date");
                 // Date is based on class instead of ID due to jQuery and FuelUX conflicts
+                // and multiple instances of the datepicker function cannot have the same ID
                 $(value_input).addClass('datepicker');
 
-
-                // The datepicker function reverts to the "datepicker" defined by the jQueryUI
-                // and does not use the one defined by FuelUX
-                datepicker.datepicker({dateFormat: "yy-mm-dd", maxDate: 0});
                 commonValueDiv.appendChild(value_input);
-                // The "hasDatepicker" class triggers the datepicker function so it's removed
-                // from a previous date field so that it can be displayed on following date fields
-                datepicker.filter('.datepicker').removeClass('hasDatepicker').datepicker({
+
+                // The "hasDatepicker" class triggers the datepicker function so it has to be present
+                // in the input field that requires a date. The following line ensures
+                // that the "hasDatepicker" class is present in each date field after the date
+                // field is added to the commonValueDiv
+                $('input').filter('.datepicker').datepicker({
                     dateFormat: "yy-mm-dd",
                     maxDate: 0
                 });
@@ -367,7 +398,7 @@ function validateCommonValue(e, data) {
                             // else, navigate to the next step which is step 3 of the manifest wizard
                             let divs_in_form_with_error_class = document.querySelectorAll('#formID .has-error')
                             let number_of_errors_in_form = divs_in_form_with_error_class.length
-                            number_of_errors_in_form === 0 ? $('#manifest-wizard').wizard('selectedItem', {step: 3}) : e.preventDefault();
+                            number_of_errors_in_form === 0 ? $('#manifest-wizard').wizard('selectedItem', {step: 2}) : e.preventDefault();
                         } else {
                             let validation_error_message = `Invalid value! Field must be ${data['error']}!`;
                             error_message_tag.css({'display': ''}) // Reveal hidden textarea tag to show the error message
@@ -393,7 +424,7 @@ function validateCommonValue(e, data) {
         );
     }
 
-    if (data.step === 2 && data.direction === 'next') {
+    if (data.step === 1 && data.direction === 'next') {
         e.preventDefault(); // Prevent navigating to the next step of the manifest wizard
         let divs_in_form = document.querySelectorAll('#formID .form-group');
         let commonFieldErrorMessageID = document.getElementById("commonFieldErrorMessageID");
@@ -427,7 +458,8 @@ function generateManifestTemplate(event) {
     // XMLHttpRequest() has to be used instead of Ajax when downloading files with JavaScript
     event.preventDefault()
     const xhr = new XMLHttpRequest();
-    const manifest_type = document.querySelector('#manifestType').value;
+    // const manifest_type = document.querySelector('#manifestType').value;
+    let manifest_type = $(document).data("manifest_type")
     const number_of_samples = document.getElementById("numberOfSamples").value;
 
     let csrftoken = $('[name="csrfmiddlewaretoken"]').val(); //.attr('value');
@@ -471,36 +503,38 @@ function generateManifestTemplate(event) {
     }));
 }
 
+// Trigger manifest wizard modal with desired manifest type
 function showWizardBasedOnManifestType(manifest_type) {
+    $(document).data("manifest_type", manifest_type)
     let manifest_wizard = $('#manifest-wizard')
-    let manifestTypeID = document.getElementById('manifestType')
+    // let manifestTypeID = document.getElementById('manifestType')
     $("#modal-placeholder").modal("show");
     manifest_wizard.wizard();
-    // Automatically navigate to step 2 when the modal is launched
-    // since step 1 is about selecting the manifest which has been done indirectly
-    manifest_wizard.wizard('selectedItem', {step: 2});
+    // Automatically navigate to step 1 when the modal is launched
+    // since step 0 is about selecting the manifest which has been done indirectly
+    manifest_wizard.wizard('selectedItem', {step: 1});
     $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-    $('.btn-prev').hide(); // Hide previous button
+    // $('.btn-prev').hide(); // Hide previous button
 
-    switch (manifest_type) {
-        case "asg":
-            manifestTypeID.selectedIndex = 0; // Preload with "ASG" manifest type
-            break;
-        case "dtol":
-            manifestTypeID.selectedIndex = 1; // Preload with "DTOL" manifest type
-            break;
-        case "erga":
-            manifestTypeID.selectedIndex = 2; // Preload with "ERGA" manifest type
-            break;
-        case "env":
-            manifestTypeID.selectedIndex = 3; // Preload with "ENV" manifest type
-            break;
-
-        default:
-            manifestTypeID.selectedIndex = 0;// Preload with "ASG" manifest type as default
-            break;
-    }
+    // switch (manifest_type) {
+    //     case "asg":
+    //         manifestTypeID.selectedIndex = 0; // Preload with "ASG" manifest type
+    //         break;
+    //     case "dtol":
+    //         manifestTypeID.selectedIndex = 1; // Preload with "DTOL" manifest type
+    //         break;
+    //     case "erga":
+    //         manifestTypeID.selectedIndex = 2; // Preload with "ERGA" manifest type
+    //         break;
+    //     case "env":
+    //         manifestTypeID.selectedIndex = 3; // Preload with "ENV" manifest type
+    //         break;
+    //
+    //     default:
+    //         manifestTypeID.selectedIndex = 0;// Preload with "ASG" manifest type as default
+    //         break;
+    // }
 
     get_common_fields_handler();// Preload with the common fields dropdown list
 }
