@@ -44,6 +44,8 @@ class DtolEnumerationValidator(Validator):
         if any(x for x in taxon_id_list):
             for taxon in taxon_id_list:
                 try:
+                    # if taxon == "":
+                    #    pass
                     int(taxon)
                     notify_frontend(data={"profile_id": self.profile_id},
                                     msg="Checking Taxonomic ID: " + str(taxon),
@@ -110,8 +112,9 @@ class DtolEnumerationValidator(Validator):
                 if not records['IdList']:
                     self.errors.append(
                         "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
-                        "<strong>%s</strong>" % (
-                            scientific_name, str(index + 2)))
+                        "<strong>%s</strong>. " % (
+                            scientific_name, str(index + 2)) + ". If you know there is a matching record in NCBI, please make sure to add the " \
+                                                               "TAXON_ID in the manifest")
                     self.flag = False
                     continue
                 self.warnings.append(msg["validation_warning_field"] % (
