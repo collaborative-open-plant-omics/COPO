@@ -31,6 +31,8 @@ $(document).ready(function () {
                 url = "/copo/copo_samples/" + id + "/view"
             } else if (action_type == "reads") {
                 url = "/copo/ena_read_manifest_validate/" + id
+            } else if (action_type == "assembly") {
+                url = "/copo/ena_assembly/" + id
             }
             document.location = url
         }
@@ -426,9 +428,11 @@ $(document).ready(function () {
             var t = $(el).attr("profile_type")
             if (t.includes("ERGA")) {
                 $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='assembly']").hide()
                 $(el).find("a[anchor_type='dtol_option']").hide()
             } else if (t.includes("DTOL") || t.includes("ASG")) {
                 $(el).find("a[anchor_type='reads']").hide()
+                $(el).find("a[anchor_type='assembly']").hide()
                 $(el).find("a[anchor_type='erga_option']").hide()
             } else if (t.includes("Stand-alone")) {
                 $(el).find("a[anchor_type='dtol_option']").hide()

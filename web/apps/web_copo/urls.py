@@ -195,6 +195,8 @@ urlpatterns = [
          name="handle_csv_column_update_samples"),
     path('ena_read_manifest_validate/<profile_id>', views.ena_read_manifest_validate,
          name="ena_read_manifest_validate"),
+    path('ena_assembly/<profile_id>', views.ena_assembly,
+         name="ena_assembly"),
     path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
          name="parse_ena_spreadsheet"),
     path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,

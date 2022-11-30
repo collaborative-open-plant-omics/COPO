@@ -88,6 +88,12 @@ def ena_read_manifest_validate(request, profile_id):
     return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
 
+@login_required()
+def ena_assembly(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id})
+
+
 @login_required
 def copo_repository(request, profile_id):
     profile = Profile().get_record(profile_id)
