@@ -1,5 +1,7 @@
 function upload_image_files(file) {
     var csrftoken = $.cookie('csrftoken');
+    var validation_record_id = $(document).data("validation_record_id")
+
 
     form = new FormData()
     var count = 0
@@ -7,6 +9,7 @@ function upload_image_files(file) {
         form.append(count.toString(), file[f])
         count++
     }
+    form.append("validation_record_id", validation_record_id)
     jQuery.ajax({
         url: '/copo/sample_images/',
         data: form,
@@ -60,6 +63,7 @@ function upload_permit_files(file) {
 
     })
 }
+
 
 function upload_spreadsheet(upload_type = upload_type, file = file) {
     if (upload_type === "ena_seq_reads") {
@@ -310,7 +314,7 @@ $(document).ready(function () {
                     var table_row
                     for (r in d.message) {
                         row = d.message[r]
-                        if (row.file_name === "None") {
+                        if (row.specimen_id === "") {
                             var img_tag = "Sample images must be named using the same Specimen ID as the manifest"
                         } else {
                             var img_tag = "<img src=" + row.file_name + "/>"
@@ -320,7 +324,7 @@ $(document).ready(function () {
                     }
                     $("#image_table").DataTable()
                     $("#image_table_nav_tab").click()
-                    $("#finish_button").fadeIn()
+                    //$("#finish_button").fadeIn()
                 } else if (d.action === "make_permits_table") {
                     // make table of permits matched to
                     // specimen_ids
@@ -395,6 +399,8 @@ $(document).ready(function () {
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#files_label").removeClass("disabled")
+                    $("#images_label").removeClass("disabled")
+                    $("#images_label").removeAttr("disabled")
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
@@ -443,6 +449,9 @@ $(document).ready(function () {
                     $("#sample_parse_table").DataTable().draw()
                     $("#files_label, #barcode_label").removeAttr("disabled")
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
+                    $("#images_label").removeAttr("disabled")
+                    $("#images_label").removeClass("disabled")
+                    $("#images_label, #barcode_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#confirm_button").fadeIn()

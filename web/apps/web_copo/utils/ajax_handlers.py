@@ -1483,9 +1483,17 @@ def add_sample_to_dtol_submission(request):
             notify_frontend(action="delete_row", html_id=sample_id, data={})
             if not sample_id in sub["dtol_samples"]:
                 sub["dtol_samples"].append(sample_id)
+                Sample().get_all_records_columns()
+
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
-        if Submission().save_record(dict(), **sub):
+
+        sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids}});
+        for speciment_id in sepciment_ids:
+            if not speciment_id in sub["dtol_speciment"]:
+                sub["dtol_speciment"].append(speciment_id)
+
+            if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=500)
@@ -1502,7 +1510,7 @@ def delete_dtol_samples(request):
 
 def sample_images(request):
     files = request.FILES
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=request.POST["validation_record_id"])
     matchings = dtol.check_image_names(files)
 
     return HttpResponse(json.dumps(matchings))

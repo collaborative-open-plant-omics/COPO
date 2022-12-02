@@ -108,7 +108,7 @@ class DtolSpreadsheet:
 
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
         sample_permits = Path(settings.MEDIA_ROOT) / "sample_permits"
-        display_images = Path(settings.MEDIA_ROOT) / "img" / "sample_images"
+        display_images = Path(settings.MEDIA_URL) / "sample_images"
         self.these_images = sample_images / self.profile_id
         self.these_permits = sample_permits / self.profile_id
         self.display_images = display_images / self.profile_id
@@ -298,50 +298,48 @@ class DtolSpreadsheet:
         # compare list of sample names with specimen ids already uploaded
         samples = self.sample_data
         # get list of specimen_ids in sample
-        specimen_id_column_index = 0
+        #specimen_id_column_index = 0
         output = list()
-        for num, col_name in enumerate(samples[0]):
-            if col_name == "SPECIMEN_ID":
-                specimen_id_column_index = num
-                break
-        if os.path.isdir(self.these_images):
-            rmtree(self.these_images)
-        self.these_images.mkdir(parents=True)
+        #for num, col_name in enumerate(samples.columns):
+        #    if col_name == "SPECIMEN_ID":
+        #        specimen_id_column_index = num
+        #        break
+        #if os.path.isdir(self.these_images):
+        #    rmtree(self.these_images)
 
-        write_path = Path(self.these_images)
-        display_write_path = Path(self.display_images)
+        #find distinct specimenId
+        specimentIds = samples["SPECIMEN_ID"].drop_duplicates().dropna()
+
+        self.these_images.mkdir(parents=True, exist_ok=True)
+
+        image_path = Path(self.these_images)
+        display_path = Path(self.display_images)
+        #image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
         for f in files:
             file = files[f]
 
-            file_path = write_path / file.name
+            #file_path = image_path / file.name
             # write full sized image to large storage
-            file_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id / file.name
-            with default_storage.open(file_path, 'wb+') as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
+            file_path = image_path / file.name
+            display_path = display_path / file.name
+            #with default_storage.open(file_path, 'wb+') as destination:
+            #    for chunk in file.chunks():
+            #        destination.write(chunk)
 
             filename = os.path.splitext(file.name)[0].upper()
             # now iterate through samples data to see if there is a match between specimen_id and image name
-        image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
-        for num, sample in enumerate(samples):
             found = False
-            if num != 0:
-                specimen_id = sample[specimen_id_column_index].upper()
-
-                file_list = [f for f in os.listdir(image_path) if isfile(join(image_path, f))]
-                for filename in file_list:
-                    if specimen_id in filename.upper():
-                        # we have a match
-                        p = Path(settings.MEDIA_URL) / "sample_images" / self.profile_id / filename
-
-                        output.append({"file_name": str(p), "specimen_id": sample[specimen_id_column_index]})
-                        found = True
-                        break
-                if not found:
-                    output.append({
-                        "file_name": "None", "specimen_id": "No Image found for <strong>" + sample[
-                            specimen_id_column_index] + "</strong>"
-                    })
+            for specimentId in specimentIds:
+                if filename.startswith(specimentId+"-"):
+                    # we have a match
+                    output.append({"file_name": str(display_path), "specimen_id": specimentId })
+                    found = True
+                    with default_storage.open(file_path, 'wb+') as destination:
+                        for chunk in file.chunks():
+                            destination.write(chunk)
+                    break
+            if not found:
+                output.append({ "file_name": str(display_path), "specimen_id": ""})
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["image_specimen_match"] = output

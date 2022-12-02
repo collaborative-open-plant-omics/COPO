@@ -66,7 +66,7 @@ PROJECT_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 # sass, social accounts...
-sass_exe = '/usr/local/bin/sass'
+sass_exe = '/usr/bin/sass'
 COMPRESS_PRECOMPILERS = (
     ('text/scss', sass_exe + ' --scss  {infile} {outfile}'),
 )

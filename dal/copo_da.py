@@ -28,9 +28,10 @@ from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSc
 from web.apps.web_copo.schemas.utils.data_utils import DecoupleFormSubmission
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
+from pathlib import Path
+from exceptions_and_logging.logger import Logger
 
 lg = settings.LOGGER
-
 PubCollection = 'PublicationCollection'
 PersonCollection = 'PersonCollection'
 DataCollection = 'DataCollection'
@@ -55,6 +56,7 @@ ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
+
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -1209,10 +1211,35 @@ class Submission(DAComponent):
         sub_handle = self.get_collection_handle()
         for sam_id in sam_ids:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"dtol_samples": sam_id}})
-        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1, "last_submit_image_dt" : 1 , "profile_id" : 1})
 
         if len(sub["dtol_samples"]) < 1:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "complete"}})
+            #submit images
+            now = data_utils.get_datetime()
+            lastSubImageDt = None
+            speciment_ids = sub["dtol_speciment"]
+            if "last_submit_image_dt" in sub:
+                lastSubImageDt = datetime.timestamp(sub["last_submit_image_dt"])
+            imagPath = Path(settings.MEDIA_ROOT) / "sample_images" / sub["profile_id"]
+            with os.scandir(imagPath) as ls:
+                for imageFile in ls:
+                    if lastSubImageDt == None or os.path.getmtime(imageFile) > lastSubImageDt:
+                        found = False
+                        for specimentId in specimentIds:
+                            if filename.startswith(specimentId + "-"):
+                                # we have a match
+                                output.append({"file_name": str(display_path), "specimen_id": specimentId})
+                                found = True
+
+                         print(imageFile.name)
+                         Logger().log("Upload image to ENA:" + imageFile)
+
+            sub_handle.update(
+                {"_id": ObjectId(sub_id)}, {"$set": {"last_submit_image_dt": now}}
+            )
+
+
 
     def get_dtol_samples_in_biostudy(self, study_ids):
         sub = self.get_collection_handle().find(
