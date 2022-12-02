@@ -112,6 +112,26 @@
             "default_value": "",
             "control_meta": {},
             "versions": [
+                "dtol_specimen"
+            ],
+            "description": "A list of specimen of the samples which should be submitted to ENA",
+            "deprecated": false,
+            "hidden": "false",
+            "id": "copo.submission.dtol_specimen",
+            "label": "DTOL Specimen",
+            "show_in_form": false,
+            "ref": "",
+            "type": "array",
+            "show_in_table": false,
+            "control": "text"
+        },
+	
+        {
+            "help_tip": "",
+            "required": "true",
+            "default_value": "",
+            "control_meta": {},
+            "versions": [
                 "type"
             ],
             "description": "Can be used to specify a particular submission type, e.g. DTOL.",

@@ -1211,34 +1211,33 @@ class Submission(DAComponent):
         sub_handle = self.get_collection_handle()
         for sam_id in sam_ids:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"dtol_samples": sam_id}})
-        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1, "last_submit_image_dt" : 1 , "profile_id" : 1})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1, "dtol_specimen" :1, "last_submit_image_dt" : 1 , "profile_id" : 1})
 
         if len(sub["dtol_samples"]) < 1:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "complete"}})
             #submit images
             now = data_utils.get_datetime()
-            lastSubImageDt = None
-            speciment_ids = sub["dtol_speciment"]
-            if "last_submit_image_dt" in sub:
-                lastSubImageDt = datetime.timestamp(sub["last_submit_image_dt"])
-            imagPath = Path(settings.MEDIA_ROOT) / "sample_images" / sub["profile_id"]
-            with os.scandir(imagPath) as ls:
-                for imageFile in ls:
-                    if lastSubImageDt == None or os.path.getmtime(imageFile) > lastSubImageDt:
-                        found = False
-                        for specimentId in specimentIds:
-                            if filename.startswith(specimentId + "-"):
-                                # we have a match
-                                output.append({"file_name": str(display_path), "specimen_id": specimentId})
-                                found = True
+            lastSubImageDt = {}
 
-                         print(imageFile.name)
-                         Logger().log("Upload image to ENA:" + imageFile)
+            speciment_ids = sub["dtol_specimen"]
+
+            if "last_submit_image_dt" in sub:
+                lastSubImageDt = sub["last_submit_image_dt"]
+                #lastSubImageDt = datetime.timestamp(sub["last_submit_image_dt"])
+            imagPath = Path(settings.MEDIA_ROOT) / "sample_images" / sub["profile_id"]
+            for specimentId in speciment_ids:
+                with os.scandir(imagPath) as ls:
+                    for imageFile in ls:
+                        if imageFile.name.upper().startswith(specimentId + "-"):
+                            # we have a match
+                            if specimentId not in lastSubImageDt or os.path.getmtime(imageFile) > datetime.timestamp(lastSubImageDt[specimentId]):
+                                print(imageFile.name)
+
+                lastSubImageDt[specimentId] = now
 
             sub_handle.update(
-                {"_id": ObjectId(sub_id)}, {"$set": {"last_submit_image_dt": now}}
+                {"_id": ObjectId(sub_id)}, {"$set": {"last_submit_image_dt": lastSubImageDt, "dtol_specimen": []}}
             )
-
 
 
     def get_dtol_samples_in_biostudy(self, study_ids):
