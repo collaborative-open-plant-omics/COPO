@@ -451,7 +451,7 @@ $(document).ready(function () {
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
                     $("#images_label").removeAttr("disabled")
                     $("#images_label").removeClass("disabled")
-                    $("#images_label, #barcode_label").find("input").removeAttr("disabled")
+                    $("#images_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#confirm_button").fadeIn()
