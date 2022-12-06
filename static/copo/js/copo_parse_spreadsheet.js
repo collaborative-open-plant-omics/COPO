@@ -335,8 +335,9 @@ $(document).ready(function () {
                         row = d.message[r]
                         if (row.file_name === "None") {
                             let permit_type = row.specimen_id.substring(row.specimen_id.indexOf("No "), row.specimen_id.indexOf(" found"))
+                            permit_type = permit_type.slice(3, -1).toUpperCase().replace(/ /g, "_") // replace whitespace with underscore
                             let specimen_id = row.specimen_id.substring(row.specimen_id.indexOf("<strong>"), row.specimen_id.indexOf("</strong>"))
-                            var img_tag = "Filename of permit must be named " + specimen_id + "_" + permit_type.slice(3, -1).toUpperCase() + "S.pdf"
+                            var img_tag = "Filename of permit must be named " + specimen_id + "_" + permit_type + "S.pdf"
 
                         } else {
                             var img_tag = ""
