@@ -35,6 +35,9 @@ from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.static import serve
+
 @login_required
 def index(request):
     print(get_env("MEDIA_ROOT"))
@@ -590,3 +593,8 @@ def handler404(request, exception):
 
 def handler500(request):
     return error_page(request)
+
+
+@xframe_options_sameorigin
+def serveMedia(request, path, document_root=None, show_indexes=False):
+    return serve(request, path, document_root, show_indexes)

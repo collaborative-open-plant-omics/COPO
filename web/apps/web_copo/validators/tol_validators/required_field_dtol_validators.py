@@ -3,6 +3,7 @@ from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from collections import Counter
+import requests
 
 blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE"]
 
@@ -128,3 +129,23 @@ class RackPlateUniquenessValidator(Validator):
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
         return self.errors, self.warnings,self.flag, self.kwargs.get("isupdate")
+
+
+
+class PermitForRestrictedSampleValidator(Validator):
+    def validate(self):
+        scientific_names = self.data["SCIENTIFIC_NAME"].drop_duplicates().dropna()
+        permit_needed = {}
+        for sci_name in scientific_names:
+            ##check iucn and eu habitat for restrict sample
+            # headers = {"Accept": "application/hal+json", "Authorization": "Bearer " + token}
+            # r2 = requests.get(submission_api_root, headers=headers)
+            # teams_endpoint = r2.json()['_links']['userTeams']['href']
+            permit_needed[sci_name] = True
+
+        for index, row in self.data.iterrows():
+            if row["SAMPLING_PERMITS_REQUIRED"] != "Y" and permit_needed[row["SCIENTIFIC_NAME"]]:
+                self.flag = False
+                self.errors.append(msg["validation_msg_permit_needed"] % (
+                        str(row.get("RACK_OR_PLATE_ID", "") + "/" + row["TUBE_OR_WELL_ID"])))
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

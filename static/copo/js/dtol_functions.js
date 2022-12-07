@@ -285,6 +285,20 @@ function row_select(ev) {
                                 } else if (row[el] == "") {
                                     $(td).addClass("empty_color")
                                 }
+                                if (filter === "pending" || filter === "rejected") {
+                                    if (el == "SAMPLING_PERMITS_REQUIRED" && row[el]=="Y") {
+                                         $(td_row).addClass("require_read_permit")
+                                         $(td_row).find("input").each(function() {
+                                            this.disabled = true
+                                          })
+                                          var link = document.createElement("a")
+                                          var linkText = document.createTextNode("Permit")
+                                          link.appendChild(linkText)
+                                          link.title = "Permit"
+                                          link.href = "javascript:openNav('" + row["SPECIMEN_ID"]+ "','" + row._id.$oid + "')"
+                                          $(td_row).find("input").closest("td").append(link)
+                                    }
+                                }
                                 $(td_row).append(
                                     td
                                 )
@@ -320,8 +334,21 @@ function row_select(ev) {
                                 } else if (row[el] == "") {
                                     td.className = "empty_color"
                                 }
+                                if (filter === "pending" || filter === "rejected") {
+                                    if (el == "SAMPLING_PERMITS_REQUIRED" && row[el]=="Y") {
+                                         $(td_row).addClass("require_read_permit")
+                                         $(td_row).find("input").each(function() {
+                                            this.disabled = true
+                                          })
+                                          var link = document.createElement("a")
+                                          var linkText = document.createTextNode("Permit")
+                                          link.appendChild(linkText)
+                                          link.title = "Permit"
+                                          link.href = "javascript:openNav('" + row["SPECIMEN_ID"]+ "','" + row._id.$oid + "')"
+                                          $(td_row).find("input").closest("td").append(link)
+                                    }
+                                }
                                 td_row.appendChild(td)
-
                             }
 
                         }
@@ -496,4 +523,21 @@ function handle_accept_reject(el) {
 
     }}
 
+}
+
+
+function openNav(specimenId, sampleId) {
+  var profile_id = $("#profile_id").val()
+  $("#permitContent").attr("data", "/media/sample_permits/" + profile_id + "/" + specimenId + "_SAMPLING_PERMITS.pdf")
+  $("#permitContent").attr("sampleId", sampleId)
+  document.getElementById("myNav").style.width = "100%";
+}
+
+function closeNav() {
+  var sampleId = $("#permitContent").attr("sampleId")
+  $("#"+ sampleId).removeClass("require_read_permit")
+  $("#"+ sampleId).find('input').first().prop("disabled", false)
+  $("#permitContent").attr("sampleId", "")
+  $("#permitContent").attr("data", "")
+  document.getElementById("myNav").style.width = "0%";
 }
