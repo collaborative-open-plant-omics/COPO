@@ -173,6 +173,8 @@ urlpatterns = [
          name="sample_images"),
     path('sample_permits/', ajax_handlers.sample_permits,
          name="sample_permits"),
+    path('assembly_files/', ajax_handlers.assembly_files,
+         name="assembly_files"),
     path('create_spreadsheet_samples/', ajax_handlers.create_spreadsheet_samples,
          name="create_spreadsheet_samples"),
     path('update_spreadsheet_samples/', ajax_handlers.update_spreadsheet_samples,

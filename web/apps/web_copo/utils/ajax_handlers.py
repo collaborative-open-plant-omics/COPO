@@ -53,6 +53,7 @@ from exceptions_and_logging import logger
 from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
+import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -1514,6 +1515,12 @@ def sample_permits(request):
     matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
+
+def assembly_files(request):
+    files = request.FILES
+    EnaAssembly.upload_assembly_files(files)
+
+    return HttpResponse(json.dumps({}))
 
 
 def process_column_name(column):
