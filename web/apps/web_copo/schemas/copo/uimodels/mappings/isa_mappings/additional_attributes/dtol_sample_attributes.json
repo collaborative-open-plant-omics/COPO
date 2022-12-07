@@ -2256,7 +2256,7 @@
   },
   {
     "help_tip": "Sample format",
-    "required": "false",
+    "required": "true",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -2266,7 +2266,8 @@
     ],
     "ref": "",
     "specifications": [
-      "dtol"
+      "dtol",
+      "asg"
     ],
     "deprecated": false,
     "hidden": "false",
