@@ -108,9 +108,9 @@
                     <input id="assembly_file" name="assembly_files" type="file" multiple style="display:none"
                            onchange="upload_assembly_files(this.files)">Upload Assembly File(s)
                 </label>
-                <button class="ui blue button" for="file" id="metadata_form" style="width:200px">
+                <!--<button class="ui blue button" for="file" id="metadata_form" style="width:200px">
                     Fill in Metadata
-                </button>
+                </button>-->
                 <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
 
             </div>
@@ -126,10 +126,11 @@
 
     </div>
 
-    <form action="/ena_assembly/{{ profile_id }}" method="post">
+    <form action="/ena_assembly/{{ profile_id }}" method="post" class="ui form">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="Submit">
+        <br/>
+        <div><input type="submit" value="Submit Assembly" class="ui blue button"></div>
     </form>
 
     <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
