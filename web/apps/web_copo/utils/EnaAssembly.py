@@ -40,5 +40,17 @@ def upload_assembly_files(files):
                     html_id="assemblies")
     return output
 
+def validate_assembly(form):
+    #todo iterate over dict, key to be upper case to match ENA
+    #build xml for submission -may need to create a new template
+    #todo verify files have been uploaded in relevant folder --> if not stop and pop up an error
+    if form:
+        pass
+    #todo verify submission
+    #if successfull call submit_assembly()
+    return
+
+def submit_assembly():
+    pass
 
 

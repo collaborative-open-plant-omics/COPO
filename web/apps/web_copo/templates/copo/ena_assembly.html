@@ -126,10 +126,10 @@
 
     </div>
 
-    <form action="/ena_assembly/{{ profile_id }}" method="post" class="ui form">
+    <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form">
         {% csrf_token %}
         {{ form }}
-        <br/>
+        <div style="margin-bottom: 20px"></div>
         <div><input type="submit" value="Submit Assembly" class="ui blue button"></div>
     </form>
 

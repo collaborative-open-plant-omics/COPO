@@ -36,6 +36,7 @@ LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
 from web.forms import AssemblyForm
 from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
+from web.apps.web_copo.utils import EnaAssembly
 
 
 
@@ -99,8 +100,14 @@ def ena_assembly(request, profile_id):
     if request.method == 'POST':
         form = AssemblyForm(request.POST)
         if form.is_valid():
-            #do something
-            return HttpResponseRedirect('/thanks/')
+            #this is a dict
+            formdata = form.cleaned_data
+
+            EnaAssembly.validate_assembly(formdata)
+
+            #return HttpResponseRedirect('/thanks/')
+            #todo call function that checks if files have been uploaded -check number of files too
+            #validate assemby submission to ENA and submit if successfull
 
     else:
         form = AssemblyForm()
