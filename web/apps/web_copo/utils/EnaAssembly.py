@@ -41,10 +41,18 @@ def upload_assembly_files(files):
     return output
 
 def validate_assembly(form):
+    request = ThreadLocal.get_current_request()
+    profile_id = request.session["profile_id"] #todo find a way to use this to pre-populate samle and project id
     #todo iterate over dict, key to be upper case to match ENA
-    #build xml for submission -may need to create a new template
+    #build text file for submission -may need to create a new template
     #todo verify files have been uploaded in relevant folder --> if not stop and pop up an error
-    if form:
+    manifest_content =""
+    for key, value in form.items():
+        #skip optional fields that have not been filled
+        if value:
+            manifest_content += key.upper() + "\t" + value + "\n"
+    print(manifest_content)
+    with open("", "wb+") as destination: #todo fill in path, same as assembly files + manifest.txt
         pass
     #todo verify submission
     #if successfull call submit_assembly()
@@ -53,4 +61,11 @@ def validate_assembly(form):
 def submit_assembly():
     pass
 
-
+#todo deciding if it makes more sense to have the file upload as part of the form
+'''
+    FASTA: sequences in fasta format
+    FLATFILE: sequences in EMBL-Bank flat file format
+    AGP: sequences in AGP format
+    CHROMOSOME_LIST: list of chromosomes
+    UNLOCALISED_LIST: list of unlocalised sequences
+'''
