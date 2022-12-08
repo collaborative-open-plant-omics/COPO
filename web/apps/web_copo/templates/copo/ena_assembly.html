@@ -126,6 +126,12 @@
 
     </div>
 
+    <form action="/ena_assembly/{{ profile_id }}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+    </form>
+
     <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">

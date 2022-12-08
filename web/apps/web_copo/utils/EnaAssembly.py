@@ -1,6 +1,7 @@
 import os
 from shutil import rmtree
 from pathlib import Path
+from django.shortcuts import render
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -38,3 +39,6 @@ def upload_assembly_files(files):
                     action="",
                     html_id="assemblies")
     return output
+
+
+

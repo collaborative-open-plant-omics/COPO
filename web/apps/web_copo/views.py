@@ -34,6 +34,10 @@ from web.apps.web_copo.s3.s3Connection import S3Connection
 from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
+from web.forms import AssemblyForm
+from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
+
+
 
 @login_required
 def index(request):
@@ -91,7 +95,17 @@ def ena_read_manifest_validate(request, profile_id):
 @login_required()
 def ena_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
-    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id})
+
+    if request.method == 'POST':
+        form = AssemblyForm(request.POST)
+        if form.is_valid():
+            #do something
+            return HttpResponseRedirect('/thanks/')
+
+    else:
+        form = AssemblyForm()
+
+    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form})
 
 
 @login_required
