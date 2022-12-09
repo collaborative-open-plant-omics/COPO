@@ -126,7 +126,7 @@
 
     </div>
 
-    <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form">
+    <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form }}
         <div style="margin-bottom: 20px"></div>

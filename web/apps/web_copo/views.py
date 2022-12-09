@@ -98,11 +98,17 @@ def ena_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
 
     if request.method == 'POST':
-        form = AssemblyForm(request.POST)
+        form = AssemblyForm(request.POST, request.FILES)
         if form.is_valid():
             #this is a dict
             formdata = form.cleaned_data
-
+            files = request.FILES
+            if not files:
+                #todo return error to the user that at least one files is required and stop submission
+                pass
+            else:
+                #uploading files to folder in COPO
+                EnaAssembly.upload_assembly_files(files)
             EnaAssembly.validate_assembly(formdata)
 
             #return HttpResponseRedirect('/thanks/')
