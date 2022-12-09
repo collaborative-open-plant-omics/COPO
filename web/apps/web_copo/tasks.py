@@ -1,4 +1,6 @@
 import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
+import web.apps.web_copo.utils.dtol.Dtol_Bioimage_Submission as dtol_bioimage
+
 from dal.copo_da import Sample, Stats
 from web.apps.web_copo.models import ViewLock
 from submission import enareadSubmission
@@ -33,6 +35,11 @@ def process_dtol_sample_submission(self):
     dtol.process_pending_dtol_samples()
     return True
 
+@app.task(bind=True)
+def process_bioimage_submission(self):
+    Logger().log("Running process_bioimage_submission")
+    dtol_bioimage.process_bioimage_pending_submission()
+    return True
 @app.task(bind=True)
 def find_incorrectly_rejected_samples(self):
     Logger().log("Running find_incorrectly_rejected_samples")

@@ -109,9 +109,9 @@ class DtolSpreadsheet:
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"
         sample_permits = Path(settings.MEDIA_ROOT) / "sample_permits"
         display_images = Path(settings.MEDIA_URL) / "sample_images"
-        self.these_images = sample_images / self.profile_id
+        self.these_images = sample_images
         self.these_permits = sample_permits / self.profile_id
-        self.display_images = display_images / self.profile_id
+        self.display_images = display_images
         self.data = None
         self.required_field_validators = list()
         self.optional_field_validators = list()
@@ -321,7 +321,7 @@ class DtolSpreadsheet:
             #file_path = image_path / file.name
             # write full sized image to large storage
             file_path = image_path / file.name
-            display_path = display_path / file.name
+            file_display_path = display_path / file.name
             #with default_storage.open(file_path, 'wb+') as destination:
             #    for chunk in file.chunks():
             #        destination.write(chunk)
@@ -332,14 +332,14 @@ class DtolSpreadsheet:
             for specimentId in specimentIds:
                 if filename.startswith(specimentId+"-"):
                     # we have a match
-                    output.append({"file_name": str(display_path), "specimen_id": specimentId })
+                    output.append({"file_name": str(file_display_path), "specimen_id": specimentId })
                     found = True
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
                     break
             if not found:
-                output.append({ "file_name": str(display_path), "specimen_id": ""})
+                output.append({ "file_name": str(file_display_path), "specimen_id": ""})
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["image_specimen_match"] = output

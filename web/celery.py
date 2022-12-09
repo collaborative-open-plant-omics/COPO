@@ -29,6 +29,10 @@ app.conf.beat_schedule = {
         'task': 'web.apps.web_copo.tasks.process_dtol_sample_submission',
         'schedule': timedelta(seconds=10)
     },
+    'process_bioimage_submission': {
+        'task': 'web.apps.web_copo.tasks.process_bioimage_submission',
+        'schedule': timedelta(seconds=30)
+    },
     'process_tol_validations': {
         'task': 'web.apps.web_copo.tasks.process_tol_validations',
         'schedule': timedelta(seconds=3)

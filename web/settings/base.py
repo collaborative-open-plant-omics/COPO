@@ -228,3 +228,7 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+BIOIMAGE_SERVER = "bsaspera_w@hx-fasp-1.ebi.ac.uk"
+BIOIMAGE_PATH = "/.beta/91/31c15a-f0a0-4847-ab09-4135cefc03bd-a31912"
+BIOIMAGE_ASPERA_CMD = "ascp -P33001 --move-after-transfer=" + MEDIA_ROOT + "sample_images/archive -i /home/osboxes/.aspera/cli/etc/asperaweb_id_dsa.openssh" + " -d " + MEDIA_ROOT + "sample_images/sent " + BIOIMAGE_SERVER + ":" + BIOIMAGE_PATH

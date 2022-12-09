@@ -317,7 +317,7 @@ $(document).ready(function () {
                         if (row.specimen_id === "") {
                             var img_tag = "Sample images must be named using the same Specimen ID as the manifest"
                         } else {
-                            var img_tag = "<img src=" + row.file_name + "/>"
+                            var img_tag = "<img src='" + row.file_name + "' />"
                         }
                         table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
                         $("#image_table").append(table_row)

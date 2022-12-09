@@ -324,7 +324,43 @@
       "show_in_table": false,
       "control": "text",
       "default_value": ""
-    }
+    },
+   {
+      "help_tip": "",
+      "required": "false",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "bioimage_archive_seq_no"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Bioimage Archive Seq No",
+      "show_in_form": false,
+      "id": "copo.source.bioimage_archive_seq_no",
+      "type": "number",
+      "show_in_table": false,
+      "control": "number"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "last_bioimage_submitted"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Last Bioimage Archive Submitted",
+      "show_in_form": false,
+      "id": "copo.source.last_bioimage_submitted",
+      "type": "string",
+      "show_in_table": false,
+      "control": "datetime"
+    },
   ],
   "description": "Mappings of attribute in the Source schema to a UI configuration source.",
   "title": "Source schema mappings"

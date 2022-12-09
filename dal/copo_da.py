@@ -28,8 +28,6 @@ from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSc
 from web.apps.web_copo.schemas.utils.data_utils import DecoupleFormSubmission
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
-from pathlib import Path
-from exceptions_and_logging.logger import Logger
 
 lg = settings.LOGGER
 PubCollection = 'PublicationCollection'
@@ -654,6 +652,13 @@ class Source(DAComponent):
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
 
+    def get_sourcemap_by_specimens(self, value):
+        sources = cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": {"$in": value}}))
+        source_map = {}
+        for source in sources:
+            source_map[source["SPECIMEN_ID"]] =source
+        return source_map
+
     def get_by_specimen_id_regex(self, value):
         # Get sources from Mongo database similar to SQL's '%' operator or 'LIKE'
         return cursor_to_list(
@@ -1214,30 +1219,58 @@ class Submission(DAComponent):
         sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1, "dtol_specimen" :1, "last_submit_image_dt" : 1 , "profile_id" : 1})
 
         if len(sub["dtol_samples"]) < 1:
-            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "complete"}})
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "bioimage_pending", "date_modified": datetime.now()}})
+    """
             #submit images
             now = data_utils.get_datetime()
             lastSubImageDt = {}
 
-            speciment_ids = sub["dtol_specimen"]
+            specimen_ids = sub["dtol_specimen"]
+            sources = Source().get_sourcemap_by_specimens(specimen_ids)
+            imagPath = Path(settings.MEDIA_ROOT) / "sample_images"
+            sentPath = Path(settings.MEDIA_ROOT) / "sample_images/sent"
+            sentPath.mkdir(parents=True, exist_ok=True)
 
-            if "last_submit_image_dt" in sub:
-                lastSubImageDt = sub["last_submit_image_dt"]
-                #lastSubImageDt = datetime.timestamp(sub["last_submit_image_dt"])
-            imagPath = Path(settings.MEDIA_ROOT) / "sample_images" / sub["profile_id"]
-            for specimentId in speciment_ids:
+            is_upload_needed = False
+            for specimenId in specimen_ids:
+                source = sources[specimenId]
+                seqno = 0
+                if "last_bioimage_submitted" in source and source["last_bioimage_submitted"]:
+                    lastSubImageDt[specimenId] = source["last_bioimage_submitted"]
+                if "bioimage_archive_seq_no" in source and source["bioimage_archive_seq_no"]:
+                    seqno = source["bioimage_archive_seq_no"]
                 with os.scandir(imagPath) as ls:
                     for imageFile in ls:
-                        if imageFile.name.upper().startswith(specimentId + "-"):
+                        if imageFile.name.upper().startswith(specimenId + "-"):
                             # we have a match
-                            if specimentId not in lastSubImageDt or os.path.getmtime(imageFile) > datetime.timestamp(lastSubImageDt[specimentId]):
-                                print(imageFile.name)
-
-                lastSubImageDt[specimentId] = now
+                            if specimenId not in lastSubImageDt or os.path.getctime(imageFile) > datetime.timestamp(lastSubImageDt[specimenId]):
+                                seqno = seqno + 1
+                                newname = source["biosampleAccession"] + "_" + str(seqno) + os.path.splitext(imageFile)[1]
+                                os.rename(imageFile.path, str(sentPath)+"/"+newname)
+                                if not is_upload_needed:
+                                   is_upload_needed = True
+                                print(imageFile.name + " " + newname)
+                source["bioimage_archive_seq_no"] = seqno
+                #Source().add_fields({"last_bioimage_submitted": now, "bioimage_archive_seq_no": seqno}, source["_id"])
+            curl_cmd = settings.BIOIMAGE_ASPERA_CMD
+            Logger().log(curl_cmd)
+            try:
+               if is_upload_needed:
+                   output = subprocess.check_output(curl_cmd, shell=True)
+                   Logger().log(output)
+                   #lg.log(output, level=Loglvl.INFO, type=Logtype.FILE)
+                   for specimenId in specimen_ids:
+                      Source().add_fields({"last_bioimage_submitted": now, "bioimage_archive_seq_no": sources[specimenId]["bioimage_archive_seq_no"]}, sources[specimenId]["_id"])
+            except subprocess.CalledProcessError as e:
+               Logger().log(e.output, level=Loglvl.ERROR)
+               #lg.log(e.output, level=Loglvl.ERROR, type=Logtype.FILE)
+               print("error code", e.returncode, e.output)
 
             sub_handle.update(
-                {"_id": ObjectId(sub_id)}, {"$set": {"last_submit_image_dt": lastSubImageDt, "dtol_specimen": []}}
+                {"_id": ObjectId(sub_id)}, {"$set": {"dtol_specimen": []}}
             )
+    """
+
 
 
     def get_dtol_samples_in_biostudy(self, study_ids):
@@ -1246,6 +1279,37 @@ class Submission(DAComponent):
             {"accessions": 1, "_id": 0}
         )
         return cursor_to_list(sub)
+
+    def get_bioimage_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        sub = self.get_collection_handle().find(
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["bioimage_sending", "bioimage_pending"]}},
+            {"dtol_specimen": 1, "dtol_status": 1, "profile_id": 1,
+             "date_modified": 1, "type": 1})
+        sub = cursor_to_list(sub)
+        out = list()
+
+        for s in sub:
+            # calculate whether a submission is an old one
+            recorded_time = s.get("date_modified", datetime.now())
+            current_time = datetime.now()
+            time_difference = current_time - recorded_time
+            if s.get("dtol_status", "") == "bioimage_sending" and time_difference.seconds > (REFRESH_THRESHOLD):
+                # submission retry time has elapsed so re-add to list
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                lg.log("ADDING STALLED BIOIMAGE SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
+
+                # no need to change status
+            elif s.get("dtol_status", "") == "bioimage_pending":
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])}, {"$set": {"dtol_status": "bioimage_sending"}})
+        return out
 
     def get_pending_dtol_samples(self):
         REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
