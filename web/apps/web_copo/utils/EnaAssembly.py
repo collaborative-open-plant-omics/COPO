@@ -8,7 +8,10 @@ from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal
 
 from submission.helpers.generic_helper import notify_frontend
+from tools import resolve_env
 
+pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
+user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 
 def upload_assembly_files(files):
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
@@ -42,19 +45,25 @@ def upload_assembly_files(files):
 
 def validate_assembly(form):
     request = ThreadLocal.get_current_request()
-    profile_id = request.session["profile_id"] #todo find a way to use this to pre-populate samle and project id
-    #todo iterate over dict, key to be upper case to match ENA
-    #build text file for submission -may need to create a new template
-    #todo verify files have been uploaded in relevant folder --> if not stop and pop up an error
+    profile_id = request.session["profile_id"]
+    assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
+    these_assemblies = assembly_path / profile_id
+    #todo find a way to use this to pre-populate samle and project id
     manifest_content =""
     for key, value in form.items():
         #skip optional fields that have not been filled
         if value:
-            manifest_content += key.upper() + "\t" + value + "\n"
+            manifest_content += key.upper() + "\t" + str(value) + "\n"
     print(manifest_content)
-    with open("", "wb+") as destination: #todo fill in path, same as assembly files + manifest.txt
-        pass
-    #todo verify submission
+    manifest_path = file_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files" / profile_id / "manifest.txt"
+    with open(manifest_path, "w") as destination:
+        destination.write(manifest_content)
+    #verify submission
+    #java -jar webin-cli-<version>.jar -username Webin-XXXXX -password YYYYYYY -context genome -manifest manifest.txt -validate
+    #todo get webin cli version from dockerfile or environment
+    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -validate"
+    print(webin_cmd)
+    #DO NOT run the command until we know how to run it against ENA dev
     #if successfull call submit_assembly()
     return
 
