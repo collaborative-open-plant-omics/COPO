@@ -2,7 +2,20 @@ from django import forms
 
 
 class AssemblyForm(forms.Form):
+
+    def __init__(self, *args, sample_accession=None, study_accession=None, **kwargs):
+        super(AssemblyForm, self).__init__(*args, **kwargs)
+        #todo check for multiple sample
+        if study_accession is not None:
+            self.fields['study'].initial = study_accession
+            self.fields['study'].widget.attrs['readonly'] = True
+        if sample_accession is not None:
+            self.fields['sample'].initial = sample_accession
+            self.fields['sample'].widget.attrs['readonly'] = True
+
     # fields from ENA assembly documentation
+    '''if instance and instance.pk:
+        self.fields['sku'].widget.attrs['readonly'] = True'''
     study = forms.CharField(label="STUDY", widget=forms.TextInput(attrs={'placeholder': 'Study accession'}))
     sample = forms.CharField(label="SAMPLE", widget=forms.TextInput(attrs={'placeholder': 'Sample accession'}))
     assemblyname = forms.CharField(label="ASSEMBLYNAME", widget=forms.TextInput(attrs={'placeholder': 'Unique '

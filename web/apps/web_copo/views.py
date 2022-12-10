@@ -37,6 +37,7 @@ from web.apps.web_copo.models import UserDetails, StatusMessage
 from web.forms import AssemblyForm
 from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
 from web.apps.web_copo.utils import EnaAssembly
+from submission.helpers.generic_helper import notify_frontend
 
 
 
@@ -105,19 +106,21 @@ def ena_assembly(request, profile_id):
             files = request.FILES
             if not files:
                 #todo return error to the user that at least one files is required and stop submission
-                pass
+                #i think maybe i cannot get this to show up becuase it's "mid request"?
+                notify_frontend(data={"profile_id": profile_id}, msg="At least one assembly file is required", action="error",
+                                html_id="assembly_info")
+                return
             else:
                 #uploading files to folder in COPO
                 EnaAssembly.upload_assembly_files(files)
             EnaAssembly.validate_assembly(formdata)
-
-            #return HttpResponseRedirect('/thanks/')
-            #todo call function that checks if files have been uploaded -check number of files too
-            #validate assemby submission to ENA and submit if successfull
+            #todo return some kind of success/error message
 
     else:
-        form = AssemblyForm()
-
+        #todo if submission collection for this profile exist and there are accessions for study and samples
+        #pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
+        #set authomatically and cannot be changed by the user
+        form = AssemblyForm(study_accession = "ciao")
     return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form})
 
 

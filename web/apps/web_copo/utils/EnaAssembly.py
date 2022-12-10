@@ -54,27 +54,20 @@ def validate_assembly(form):
         #skip optional fields that have not been filled
         if value:
             manifest_content += key.upper() + "\t" + str(value) + "\n"
-    print(manifest_content)
     manifest_path = file_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files" / profile_id / "manifest.txt"
     with open(manifest_path, "w") as destination:
         destination.write(manifest_content)
     #verify submission
-    #java -jar webin-cli-<version>.jar -username Webin-XXXXX -password YYYYYYY -context genome -manifest manifest.txt -validate
-    #todo get webin cli version from dockerfile or environment
-    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -validate"
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -validate"
     print(webin_cmd)
     #DO NOT run the command until we know how to run it against ENA dev
     #if successfull call submit_assembly()
     return
 
 def submit_assembly():
-    pass
+    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -submit"
+    print(webin_cmd)
+    #todo delete files after successfull submission
+    #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
+    return
 
-#todo deciding if it makes more sense to have the file upload as part of the form
-'''
-    FASTA: sequences in fasta format
-    FLATFILE: sequences in EMBL-Bank flat file format
-    AGP: sequences in AGP format
-    CHROMOSOME_LIST: list of chromosomes
-    UNLOCALISED_LIST: list of unlocalised sequences
-'''
