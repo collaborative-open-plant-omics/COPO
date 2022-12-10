@@ -1297,7 +1297,7 @@ class Submission(DAComponent):
             recorded_time = s.get("date_modified", datetime.now())
             current_time = datetime.now()
             time_difference = current_time - recorded_time
-            if s.get("dtol_status", "") == "bioimage_sending" and time_difference.seconds > (REFRESH_THRESHOLD):
+            if s.get("dtol_status", "") == "bioimage_sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
@@ -1328,7 +1328,7 @@ class Submission(DAComponent):
             recorded_time = s.get("date_modified", datetime.now())
             current_time = datetime.now()
             time_difference = current_time - recorded_time
-            if s.get("dtol_status", "") == "sending" and time_difference.seconds > (REFRESH_THRESHOLD):
+            if s.get("dtol_status", "") == "sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
