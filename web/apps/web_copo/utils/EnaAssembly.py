@@ -2,6 +2,7 @@ import os
 from shutil import rmtree
 from pathlib import Path
 from django.shortcuts import render
+import subprocess
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -12,6 +13,7 @@ from tools import resolve_env
 
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
+ena_service = resolve_env.get_env('ENA_SERVICE')
 
 def upload_assembly_files(files):
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
@@ -58,14 +60,25 @@ def validate_assembly(form):
     with open(manifest_path, "w") as destination:
         destination.write(manifest_content)
     #verify submission
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -validate"
+    test = ""
+    if "dev" in ena_service:
+        test = " -test "
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test +" -context genome -manifest " + str(file_path) + " -validate"
     print(webin_cmd)
-    #DO NOT run the command until we know how to run it against ENA dev
+    try:
+        output = subprocess.check_output(webin_cmd, shell=True)
+    except subprocess.CalledProcessError as cpe:
+        print("error is", cpe.stderr)
+        output = cpe.stdout
+    print(output.decode("ascii"))
     #if successfull call submit_assembly()
     return
 
 def submit_assembly():
-    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + " -context genome -manifest manifest.txt -submit"
+    test = ""
+    if "dev" in ena_service:
+        test = " -test "
+    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest manifest.txt -submit"
     print(webin_cmd)
     #todo delete files after successfull submission
     #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
