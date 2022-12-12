@@ -68,18 +68,21 @@ def validate_assembly(form):
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
-        print("error is", cpe.stderr)
         output = cpe.stdout
-    print(output.decode("ascii"))
-    #if successfull call submit_assembly()
+        output = output.decode("ascii")
+    print(output)
+    #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
+    if not "ERROR" in output:
+        submit_assembly(str(file_path))
     return
 
-def submit_assembly():
+def submit_assembly(file_path):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest manifest.txt -submit"
+    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + file_path + " -submit"
     print(webin_cmd)
+    output = subprocess.check_output(webin_cmd, shell=True)
     #todo delete files after successfull submission
     #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
     return
