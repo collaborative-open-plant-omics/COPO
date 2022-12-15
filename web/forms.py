@@ -10,22 +10,20 @@ class AssemblyForm(forms.Form):
             self.fields['study'].initial = study_accession
             self.fields['study'].widget.attrs['readonly'] = True
         if sample_accession:
-            #self.fields['sample'].widget = forms.ChoiceField()
             tuplelist = []
             for x in sample_accession:
-                tuplelist.append((x,x))
+                tuplelist.append((x, x))
             self.fields['sample'].choices = tuplelist
-            #self.fields['sample'].widget.attrs['readonly'] = True
-            #self.fields['sample_text'].widget = forms.HiddenInput()
-        #else:
-           # self.fields['sample'].widget = forms.HiddenInput()
+            self.fields['sample_text'].widget.attrs['hidden'] = ''
+            self.fields['sample_text'].label = ''
+        else:
+            self.fields['sample'].widget.attrs['hidden'] = ''
+            self.fields['sample'].label = ''
 
     # fields from ENA assembly documentation
-    '''if instance and instance.pk:
-        self.fields['sku'].widget.attrs['readonly'] = True'''
     study = forms.CharField(label="STUDY", widget=forms.TextInput(attrs={'placeholder': 'Study accession'}))
-    #sample = forms.ChoiceField(label="SAMPLE") #,
-    sample = forms.CharField(label="SAMPLE") #, widget=forms.TextInput(attrs={'placeholder': 'Sample accession'})
+    sample = forms.ChoiceField(label="SAMPLE")
+    sample_text = forms.CharField(label="SAMPLE", widget=forms.TextInput(attrs={'placeholder': 'Sample accession'}))
     assemblyname = forms.CharField(label="ASSEMBLYNAME", widget=forms.TextInput(attrs={'placeholder': 'Unique '
                                                                                                       'assembly name,'
                                                                                                       ' user-provided'}))

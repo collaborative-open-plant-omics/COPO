@@ -55,7 +55,10 @@ def validate_assembly(form):
     for key, value in form.items():
         #skip optional fields that have not been filled
         if value:
-            manifest_content += key.upper() + "\t" + str(value) + "\n"
+            if key == "sample_text":
+                manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
+            else:
+                manifest_content += key.upper() + "\t" + str(value) + "\n"
     manifest_path = file_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files" / profile_id / "manifest.txt"
     with open(manifest_path, "w") as destination:
         destination.write(manifest_content)
