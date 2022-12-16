@@ -18,6 +18,7 @@ x-shared: &shared-settings
     - copo_webin_user_password
     - copo-project.crt
     - copo-project.key
+    - copo_bioimage_path
   environment:
     ENVIRONMENT_TYPE: prod
     SECRET_KEY_FILE: /run/secrets/copo_web_secret_key
@@ -41,6 +42,8 @@ x-shared: &shared-settings
     POSTGRES_USER: copo_user
     POSTGRES_PORT: 5432
     POSTGRES_SERVICE: copo-postgres
+    BIOIMAGE_SERVER: bsaspera_w@hx-fasp-1.ebi.ac.uk
+    BIOIMAGE_PATH_FILE: /run/secrets/copo_bioimage_path #/.beta/91/31c15a-f0a0-4847-ab09-4135cefc03bd-a31912
     POSTGRES_PASSWORD_FILE: /run/secrets/copo_postgres_user_password
     ORCID_SECRET_FILE: /run/secrets/copo_orcid_secret_key
     FIGSHARE_CONSUMER_SECRET_FILE: /run/secrets/copo_figshare_consumer_secret_key
