@@ -2392,7 +2392,7 @@ function get_profile_components() {
     var componentProperties = [
         {
             component: 'profile',
-            title: 'Work Profiles',
+            title: 'Work Profiles - DEMO',
             buttons: ["quick-tour-template", "new-component-template"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             tableID: 'copo_profiles_table',
