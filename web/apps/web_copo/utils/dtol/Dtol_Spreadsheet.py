@@ -32,6 +32,9 @@ from web.apps.web_copo.validators.tol_validators import required_field_dtol_vali
 from web.apps.web_copo.validators.validator import Validator
 from dal import cursor_to_list
 from exceptions_and_logging import logger
+import os
+import sys
+from PIL import Image
 
 l = logger.Logger("exceptions_and_logging/logs")
 
@@ -310,7 +313,8 @@ class DtolSpreadsheet:
         #find distinct specimenId
         specimentIds = samples["SPECIMEN_ID"].drop_duplicates().dropna()
 
-        self.these_images.mkdir(parents=True, exist_ok=True)
+        thumbnail_folder = self.these_images / "thumbnail"
+        thumbnail_folder.mkdir(parents=True, exist_ok=True)
 
         image_path = Path(self.these_images)
         display_path = Path(self.display_images)
@@ -321,6 +325,8 @@ class DtolSpreadsheet:
             #file_path = image_path / file.name
             # write full sized image to large storage
             file_path = image_path / file.name
+            thumbnail_path = thumbnail_folder / file.name
+            thumbnail_display_path = display_path / "thumbnail" / file.name
             file_display_path = display_path / file.name
             #with default_storage.open(file_path, 'wb+') as destination:
             #    for chunk in file.chunks():
@@ -329,17 +335,28 @@ class DtolSpreadsheet:
             filename = os.path.splitext(file.name)[0].upper()
             # now iterate through samples data to see if there is a match between specimen_id and image name
             found = False
-            for specimentId in specimentIds:
-                if filename.startswith(specimentId+"-"):
-                    # we have a match
-                    output.append({"file_name": str(file_display_path), "specimen_id": specimentId })
+            size = 128,128
+            for specimenId in specimentIds:
+                existing_images = DataFile().get_datafile_names_by_name_regx(specimenId)
+                if filename.startswith(specimenId+"-"):
                     found = True
+                    if file.name in existing_images:
+                        output.append(
+                            {"file_name": str(file_display_path), "thumbnail": "", "specimen_id": "Duplicated", "name": ""})
+                        break
+                    # we have a match
+                    output.append({"file_name": str(file_display_path), "thumbnail": str(thumbnail_display_path), "specimen_id": specimenId, "name": file.name})
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
+
+                    im=Image.open(file_path)
+                    im.thumbnail(size)
+                    im.save(thumbnail_path)
+
                     break
             if not found:
-                output.append({ "file_name": str(file_display_path), "specimen_id": ""})
+                output.append({ "file_name": str(file_display_path), "specimen_id": "", "name": ""})
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["image_specimen_match"] = output
@@ -486,10 +503,21 @@ class DtolSpreadsheet:
         manifest_id = str(uuid.uuid4())
         request = ThreadLocal.get_current_request()
         image_data = request.session.get("image_specimen_match", [])
+
+        for im in image_data:
+            # create matching DataFile object for image is provided
+            if im["name"]:
+                df = DataFile().get_records_by_fields({"name": im["name"]})
+                if (len(df) == 0):
+                    fields = {"file_location": im["file_name"], "name": im["name"]}
+                    DataFile().save_record({}, **fields)
+
         public_name_list = list()
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
             '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
+
+        sample_data["_id"] = ""
         for index, p in sample_data.iterrows():
             s = dict(p)
             # store manifest version for posterity. If unknown store as 0
@@ -544,13 +572,17 @@ class DtolSpreadsheet:
                     {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
                      "sample_id": str(sampl["_id"])})
 
-            for im in image_data:
-                # create matching DataFile object for image is provided
-                if s["SPECIMEN_ID"] in im["specimen_id"]:
-                    fields = {"file_location": im["file_name"]}
-                    df = DataFile().save_record({}, **fields)
-                    DataFile().insert_sample_id(df["_id"], sampl["_id"])
-                    break
+            p["_id"] = sampl["_id"]
+
+            #for im in image_data:
+            #    # create matching DataFile object for image is provided
+            #    if s["SPECIMEN_ID"] in im["specimen_id"]:
+            #        DataFile().insert_sample_id(im["name"], sampl["_id"])
+
+        for im in image_data:
+            # create matching DataFile object for image is provided
+            samplelist = sample_data.loc[sample_data["SPECIMEN_ID"] == im["specimen_id"]]["_id"].tolist()
+            DataFile().insert_sample_ids(im["name"], samplelist)
 
         uri = request.build_absolute_uri('/')
         # query public service service a first time now to trigger request for public names that don't exist
@@ -577,6 +609,7 @@ class DtolSpreadsheet:
 
         request = ThreadLocal.get_current_request()
         public_name_list = list()
+        sample_data["_id"] = ""
         for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
@@ -585,6 +618,7 @@ class DtolSpreadsheet:
                             html_id="sample_info")
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
+            sample_data.at[p, '_id'] = recorded_sample["_id"]
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
                     0].get(field, ""):
@@ -612,6 +646,20 @@ class DtolSpreadsheet:
             profile = Profile().get_record(profile_id)
             title = profile["title"]
             description = profile["description"]
+
+        image_data = request.session.get("image_specimen_match", [])
+        for im in image_data:
+            if im["name"]:
+                samplelist = sample_data.loc[sample_data["SPECIMEN_ID"] == im["specimen_id"]]["_id"].tolist()
+                df = DataFile().get_records_by_fields({"name": im["name"]})
+                if (len(df) == 0):
+                    fields = {"file_location": im["file_name"], "name": im["name"]}
+                    df = DataFile().save_record({}, **fields)
+                    DataFile().insert_sample_ids(im["name"], samplelist)
+                else:
+                    orginallist = df[0]["description"]["attributes"]["attach_samples"]["study_samples"]
+                    resultlist = [sam for sam in samplelist if sam not in orginallist]
+                    DataFile().insert_sample_ids(im["name"], resultlist)
 
     def detect_updates(self):
         sample_data = self.sample_data

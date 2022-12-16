@@ -1220,57 +1220,6 @@ class Submission(DAComponent):
 
         if len(sub["dtol_samples"]) < 1:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "bioimage_pending", "date_modified": datetime.now()}})
-    """
-            #submit images
-            now = data_utils.get_datetime()
-            lastSubImageDt = {}
-
-            specimen_ids = sub["dtol_specimen"]
-            sources = Source().get_sourcemap_by_specimens(specimen_ids)
-            imagPath = Path(settings.MEDIA_ROOT) / "sample_images"
-            sentPath = Path(settings.MEDIA_ROOT) / "sample_images/sent"
-            sentPath.mkdir(parents=True, exist_ok=True)
-
-            is_upload_needed = False
-            for specimenId in specimen_ids:
-                source = sources[specimenId]
-                seqno = 0
-                if "last_bioimage_submitted" in source and source["last_bioimage_submitted"]:
-                    lastSubImageDt[specimenId] = source["last_bioimage_submitted"]
-                if "bioimage_archive_seq_no" in source and source["bioimage_archive_seq_no"]:
-                    seqno = source["bioimage_archive_seq_no"]
-                with os.scandir(imagPath) as ls:
-                    for imageFile in ls:
-                        if imageFile.name.upper().startswith(specimenId + "-"):
-                            # we have a match
-                            if specimenId not in lastSubImageDt or os.path.getctime(imageFile) > datetime.timestamp(lastSubImageDt[specimenId]):
-                                seqno = seqno + 1
-                                newname = source["biosampleAccession"] + "_" + str(seqno) + os.path.splitext(imageFile)[1]
-                                os.rename(imageFile.path, str(sentPath)+"/"+newname)
-                                if not is_upload_needed:
-                                   is_upload_needed = True
-                                print(imageFile.name + " " + newname)
-                source["bioimage_archive_seq_no"] = seqno
-                #Source().add_fields({"last_bioimage_submitted": now, "bioimage_archive_seq_no": seqno}, source["_id"])
-            curl_cmd = settings.BIOIMAGE_ASPERA_CMD
-            Logger().log(curl_cmd)
-            try:
-               if is_upload_needed:
-                   output = subprocess.check_output(curl_cmd, shell=True)
-                   Logger().log(output)
-                   #lg.log(output, level=Loglvl.INFO, type=Logtype.FILE)
-                   for specimenId in specimen_ids:
-                      Source().add_fields({"last_bioimage_submitted": now, "bioimage_archive_seq_no": sources[specimenId]["bioimage_archive_seq_no"]}, sources[specimenId]["_id"])
-            except subprocess.CalledProcessError as e:
-               Logger().log(e.output, level=Loglvl.ERROR)
-               #lg.log(e.output, level=Loglvl.ERROR, type=Logtype.FILE)
-               print("error code", e.returncode, e.output)
-
-            sub_handle.update(
-                {"_id": ObjectId(sub_id)}, {"$set": {"dtol_specimen": []}}
-            )
-    """
-
 
 
     def get_dtol_samples_in_biostudy(self, study_ids):
@@ -1930,9 +1879,13 @@ class DataFile(DAComponent):
         self.get_collection_handle().update({"_id": ObjectId(file_id)}, {"$push": {"file_level_annotation": data}})
         return self.get_file_level_metadata_for_sheet(file_id, data["sheet_name"])
 
-    def insert_sample_id(self, file_id, sample_id):
-        self.get_collection_handle().update({"_id": ObjectId(file_id)}, {
-            "$push": {"description.attributes.attach_samples.study_samples": sample_id}})
+    def insert_sample_ids(self, file_name, sample_ids):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$push": {"description.attributes.attach_samples.study_samples": {"$each": sample_ids}}})
+
+    def update_bioimage_name(self, file_name, bioimage_name, bioimage_path):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$set": {"bioimage_name": bioimage_name, "file_location": bioimage_path}})
 
     def get_file_level_metadata_for_sheet(self, file_id, sheetname):
 
@@ -1961,6 +1914,17 @@ class DataFile(DAComponent):
         })
         return cursor_to_list(sub)
 
+    def get_records_by_fields(self, fields):
+        sub = self.get_collection_handle().find(fields)
+        return cursor_to_list(sub)
+
+    def get_datafile_names_by_name_regx(self, name):
+        sub = self.get_collection_handle().find({
+            "name": {"$regex": "^" + name}, "bioimage_name":{"$ne": ""}, "deleted": data_utils.get_not_deleted_flag()
+        }, {"name": 1, "_id": 0})
+        datafiles = cursor_to_list(sub)
+        result = [i["name"] for i in datafiles if i['name']]
+        return set(result)
 
 class Profile(DAComponent):
     def __init__(self, profile=None):

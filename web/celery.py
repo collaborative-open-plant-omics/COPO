@@ -60,7 +60,12 @@ app.conf.beat_schedule = {
     'check_for_stuck_transfers': {
         'task': 'web.apps.web_copo.tasks.check_for_stuck_transfers',
         'schedule': timedelta(seconds=20)
+    },
+    'process_housekeeping': {
+        'task': 'web.apps.web_copo.tasks.process_housekeeping',
+        'schedule': timedelta(seconds=3600)
     }
+
 }
 
 

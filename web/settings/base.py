@@ -94,6 +94,7 @@ MIDDLEWARE = [
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     'django_brotli.middleware.BrotliMiddleware',
     'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware',
+    'web.apps.web_copo.middleware.LogUncaughtExceptions.LogUncaughtExceptions',
     'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
@@ -206,7 +207,7 @@ DATAVERSE = {
 UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
 TEST_USER_NAME = 'aaliyah'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 500000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
 
 CACHES = {
@@ -228,7 +229,3 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-BIOIMAGE_SERVER = "bsaspera_w@hx-fasp-1.ebi.ac.uk"
-BIOIMAGE_PATH = "/.beta/91/31c15a-f0a0-4847-ab09-4135cefc03bd-a31912"
-BIOIMAGE_ASPERA_CMD = "ascp -P33001 --move-after-transfer=" + MEDIA_ROOT + "sample_images/archive -i /home/osboxes/.aspera/cli/etc/asperaweb_id_dsa.openssh" + " -d " + MEDIA_ROOT + "sample_images/sent " + BIOIMAGE_SERVER + ":" + BIOIMAGE_PATH

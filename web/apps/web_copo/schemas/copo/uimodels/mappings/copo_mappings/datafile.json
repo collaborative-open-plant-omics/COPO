@@ -26,6 +26,28 @@
       "show_as_attribute": true
     },
     {
+      "help_tip" : "",
+      "required" : "false",
+      "default_value" : "",
+      "control_meta" : {
+
+      },
+      "versions" : [
+          "bioimage_name"
+      ],
+      "ref" : "",
+      "deprecated" : false,
+      "readonly" : true,
+      "hidden" : "false",
+      "label" : "Bioimage Name",
+      "show_in_form" : true,
+      "id" : "copo.datafile.bioimage_name",
+      "type" : "string",
+      "show_in_table" : true,
+      "control" : "text",
+      "show_as_attribute" : true
+    },
+    {
       "help_tip": "You can update this field to provide a more accurate representation of the file type",
       "required": "false",
       "default_value": "",
