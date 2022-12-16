@@ -5,7 +5,6 @@ class AssemblyForm(forms.Form):
 
     def __init__(self, *args, sample_accession=None, study_accession=None, **kwargs):
         super(AssemblyForm, self).__init__(*args, **kwargs)
-        # todo check for multiple sample
         if study_accession:
             self.fields['study'].initial = study_accession
             self.fields['study'].widget.attrs['readonly'] = True
@@ -17,13 +16,16 @@ class AssemblyForm(forms.Form):
             self.fields['sample_text'].widget.attrs['hidden'] = ''
             self.fields['sample_text'].label = ''
         else:
-            self.fields['sample'].widget.attrs['hidden'] = ''
-            self.fields['sample'].label = ''
+            pass
+            #self.fields['sample'].hidden = True
+            #self.fields['sample'].label = ''
+            #self.fields['sample'].required = False
 
     # fields from ENA assembly documentation
-    study = forms.CharField(label="STUDY", widget=forms.TextInput(attrs={'placeholder': 'Study accession'}))
+    study = forms.CharField(label="STUDY",
+                                           widget=forms.TextInput(attrs={'placeholder': 'Study accession'}))
     sample = forms.ChoiceField(label="SAMPLE")
-    sample_text = forms.CharField(label="SAMPLE", widget=forms.TextInput(attrs={'placeholder': 'Sample accession'}))
+    sample_text = forms.CharField(label="SAMPLE", widget=forms.TextInput(attrs={'placeholder': 'Sample accession'}), required=False)
     assemblyname = forms.CharField(label="ASSEMBLYNAME", widget=forms.TextInput(attrs={'placeholder': 'Unique '
                                                                                                       'assembly name,'
                                                                                                       ' user-provided'}))

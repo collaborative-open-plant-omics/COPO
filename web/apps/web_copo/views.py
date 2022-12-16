@@ -97,9 +97,17 @@ def ena_read_manifest_validate(request, profile_id):
 @login_required()
 def ena_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
+    existing_accessions = Submission().get_records_by_field("profile_id", profile_id)[0].get("accessions", "")
+    sample_accession = []
+    if existing_accessions:
+        study_accession = existing_accessions.get("project", "").get("accession", "")
+        samples = existing_accessions.get("sample", "")
+        for sample in samples:
+            if sample.get("sample_accession", ""):
+                sample_accession.append(sample.get("sample_accession", ""))
 
     if request.method == 'POST':
-        form = AssemblyForm(request.POST, request.FILES)
+        form = AssemblyForm(request.POST, request.FILES, sample_accession = sample_accession)
         if form.is_valid():
             #this is a dict
             formdata = form.cleaned_data
@@ -120,14 +128,6 @@ def ena_assembly(request, profile_id):
         #todo if submission collection for this profile exist and there are accessions for study and samples
         #pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         #set authomatically and cannot be changed by the user
-        existing_accessions = Submission().get_records_by_field("profile_id",profile_id)[0].get("accessions","")
-        if existing_accessions:
-            study_accession = existing_accessions.get("project", "").get("accession", "")
-            samples = existing_accessions.get("sample", "")
-            sample_accession = []
-            for sample in samples:
-                if sample.get("sample_accession", ""):
-                    sample_accession.append(sample.get("sample_accession", ""))
         form = AssemblyForm(study_accession = study_accession, sample_accession = sample_accession)
     return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form})
 
