@@ -360,7 +360,7 @@
       "type": "string",
       "show_in_table": false,
       "control": "datetime"
-    },
+    }
   ],
   "description": "Mappings of attribute in the Source schema to a UI configuration source.",
   "title": "Source schema mappings"
