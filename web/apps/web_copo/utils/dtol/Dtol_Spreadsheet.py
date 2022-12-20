@@ -35,9 +35,10 @@ from exceptions_and_logging import logger
 import os
 import sys
 from PIL import Image
+import logging
 
 l = logger.Logger("exceptions_and_logging/logs")
-
+logging = logging.getLogger(__name__)
 
 def make_target_sample(sample):
     # need to pop taxon info, and add back into sample_list
@@ -346,9 +347,12 @@ class DtolSpreadsheet:
                         break
                     # we have a match
                     output.append({"file_name": str(file_display_path), "thumbnail": str(thumbnail_display_path), "specimen_id": specimenId, "name": file.name})
+
+                    logging.info("writing " + str(file_path))
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
+                    logging.info("written " + str(file_path))
 
                     im=Image.open(file_path)
                     im.thumbnail(size)
