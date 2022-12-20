@@ -11,6 +11,8 @@ from django_tools.middlewares import ThreadLocal
 from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 
+from dal.copo_da import Assembly
+
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 ena_service = resolve_env.get_env('ENA_SERVICE')
@@ -50,42 +52,46 @@ def validate_assembly(form):
     profile_id = request.session["profile_id"]
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
     these_assemblies = assembly_path / profile_id
-    #todo find a way to use this to pre-populate samle and project id
     manifest_content =""
     for key, value in form.items():
         #skip optional fields that have not been filled
         if value:
             if key == "sample_text":
                 manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
+            elif key == "fasta":
+                manifest_content += key.upper() + "\t" + str(these_assemblies)+"/"+str(value) +"\n"
             else:
                 manifest_content += key.upper() + "\t" + str(value) + "\n"
-    manifest_path = file_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files" / profile_id / "manifest.txt"
+    manifest_path = these_assemblies / "manifest.txt"
     with open(manifest_path, "w") as destination:
         destination.write(manifest_content)
     #verify submission
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test +" -context genome -manifest " + str(file_path) + " -validate"
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test +" -context genome -manifest " + str(manifest_path) + " -validate"
     print(webin_cmd)
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
+        output = output.decode("ascii")
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
         output = output.decode("ascii")
     print(output)
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
     if not "ERROR" in output:
-        submit_assembly(str(file_path))
+        submit_assembly(str(manifest_path))
+        Assembly().save_record()
     return
 
 def submit_assembly(file_path):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli-5.2.0.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + file_path + " -submit"
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(file_path) + " -submit"
     print(webin_cmd)
     output = subprocess.check_output(webin_cmd, shell=True)
+
     #todo delete files after successfull submission
     #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
     return

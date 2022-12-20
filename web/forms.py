@@ -41,7 +41,7 @@ class AssemblyForm(forms.Form):
                                       widget=forms.TextInput(
                                           attrs={'placeholder': 'Minimum length of consecutive Ns to '
                                                                 'be considered a gap'}))
-    molecoletype = forms.ChoiceField(label="MOLECULETYPE", required=False,
+    moleculetype = forms.ChoiceField(label="MOLECULETYPE", required=False,
                                      choices=[('', ''), ('genomic DNA', 'genomic DNA'), ('genomic RNA', 'genomic RNA'),
                                               ("viral cRNA", "viral cRNA")])
     description = forms.CharField(required=False,
