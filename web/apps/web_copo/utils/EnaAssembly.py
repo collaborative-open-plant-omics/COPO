@@ -58,7 +58,7 @@ def validate_assembly(form):
         if value:
             if key == "sample_text":
                 manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
-            elif key == "fasta":
+            elif key in ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]:
                 manifest_content += key.upper() + "\t" + str(these_assemblies)+"/"+str(value) +"\n"
             else:
                 manifest_content += key.upper() + "\t" + str(value) + "\n"
