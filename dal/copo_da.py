@@ -2483,11 +2483,6 @@ class Assembly(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "assembly")
 
-    def save_record(self):
-
-
-
-        schema_fields = self.get_component_schema()
 
 def is_number(s):
     try:

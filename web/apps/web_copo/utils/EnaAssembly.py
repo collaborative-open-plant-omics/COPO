@@ -81,7 +81,10 @@ def validate_assembly(form):
     if not "ERROR" in output:
         submit_assembly(str(manifest_path))
         #todo handle possibility submission is not successfull
-        Assembly().save_record(auto_fields = form)
+        for f in form:
+            if f in ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]:
+                form[f] = str(form[f])
+        Assembly(profile_id = profile_id).save_record(auto_fields={},**form)
         #todo save accession to submission collection (accession in output, return it from submit_assembly)
     else:
         #todo return error to frontend
