@@ -320,6 +320,8 @@ class DtolSpreadsheet:
         image_path = Path(self.these_images)
         display_path = Path(self.display_images)
         #image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
+        existing_images = DataFile().get_datafile_names_by_name_regx(specimentIds)
+
         for f in files:
             file = files[f]
 
@@ -329,16 +331,13 @@ class DtolSpreadsheet:
             thumbnail_path = thumbnail_folder / file.name
             thumbnail_display_path = display_path / "thumbnail" / file.name
             file_display_path = display_path / file.name
-            #with default_storage.open(file_path, 'wb+') as destination:
-            #    for chunk in file.chunks():
-            #        destination.write(chunk)
+
 
             filename = os.path.splitext(file.name)[0].upper()
             # now iterate through samples data to see if there is a match between specimen_id and image name
             found = False
             size = 128,128
             for specimenId in specimentIds:
-                existing_images = DataFile().get_datafile_names_by_name_regx(specimenId)
                 if filename.startswith(specimenId+"-"):
                     found = True
                     if file.name in existing_images:
@@ -352,12 +351,11 @@ class DtolSpreadsheet:
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
-                    logging.info("written " + str(file_path))
 
                     im=Image.open(file_path)
                     im.thumbnail(size)
                     im.save(thumbnail_path)
-
+                    logging.info("written " + str(file_path))
                     break
             if not found:
                 output.append({ "file_name": str(file_display_path), "specimen_id": "", "name": ""})

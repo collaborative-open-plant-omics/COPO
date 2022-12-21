@@ -28,6 +28,7 @@ from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSc
 from web.apps.web_copo.schemas.utils.data_utils import DecoupleFormSubmission
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
+import re
 
 lg = settings.LOGGER
 PubCollection = 'PublicationCollection'
@@ -1918,9 +1919,10 @@ class DataFile(DAComponent):
         sub = self.get_collection_handle().find(fields)
         return cursor_to_list(sub)
 
-    def get_datafile_names_by_name_regx(self, name):
+    def get_datafile_names_by_name_regx(self, names):
+        regex_names = [re.compile(f"^{name}") for name in names]
         sub = self.get_collection_handle().find({
-            "name": {"$regex": "^" + name}, "bioimage_name":{"$ne": ""}, "deleted": data_utils.get_not_deleted_flag()
+            "name": {"$in": regex_names}, "bioimage_name" : {"$ne": ""}, "deleted": data_utils.get_not_deleted_flag()
         }, {"name": 1, "_id": 0})
         datafiles = cursor_to_list(sub)
         result = [i["name"] for i in datafiles if i['name']]
