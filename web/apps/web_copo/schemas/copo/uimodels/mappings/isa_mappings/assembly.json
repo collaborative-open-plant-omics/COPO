@@ -1,0 +1,345 @@
+{
+  "configuration": {
+    "type": "json",
+    "provider": "isa",
+    "ref": "assembly_schema"
+  },
+  "properties": [
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "study"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.study",
+      "label": "STUDY",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "sample"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.sample",
+      "label": "SAMPLE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "assemblyname"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.assemblyname",
+      "label": "ASSEMBLYNAME",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "assembly_type"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.assembly_type",
+      "label": "ASSEMBLY_TYPE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "coverage"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.coverage",
+      "label": "COVERAGE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "program"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.program",
+      "label": "PROGRAM",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "platform"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.platform",
+      "label": "PLATFORM",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "mingaplength"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.mingaplength",
+      "label": "MINGAPLENGTH",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "moleculetype"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.moleculetype",
+      "label": "MOLECULETYPE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "description"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.description",
+      "label": "DESCRIPTION",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "run_ref"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.run_ref",
+      "label": "RUN_REF",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "fasta"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.fasta",
+      "label": "FASTA",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "flatfile"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.flatfile",
+      "label": "FLATFILE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "agp"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.agp",
+      "label": "AGP",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "chromosome_list"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.chromosome_list",
+      "label": "CHROMOSOME_LIST",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "unlocalised_list"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.unlocalised_list",
+      "label": "UNLOCALISED_LIST",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    }
+  ]
+}

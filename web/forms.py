@@ -44,7 +44,7 @@ class AssemblyForm(forms.Form):
     moleculetype = forms.ChoiceField(label="MOLECULETYPE", required=False,
                                      choices=[('', ''), ('genomic DNA', 'genomic DNA'), ('genomic RNA', 'genomic RNA'),
                                               ("viral cRNA", "viral cRNA")])
-    description = forms.CharField(required=False,
+    description = forms.CharField(label="DESCRIPTION", required=False,
                                   widget=forms.Textarea(attrs={'placeholder': 'Free text description of the genome '
                                                                               'assembly'}))
     run_ref = forms.CharField(label="RUN_REF", required=False, widget=forms.TextInput(

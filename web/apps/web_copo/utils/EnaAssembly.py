@@ -73,15 +73,19 @@ def validate_assembly(form):
     print(webin_cmd)
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
-        output = output.decode("ascii")
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
-        output = output.decode("ascii")
+    output = output.decode("ascii")
     print(output)
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
     if not "ERROR" in output:
         submit_assembly(str(manifest_path))
-        Assembly().save_record()
+        #todo handle possibility submission is not successfull
+        Assembly().save_record(auto_fields = form)
+        #todo save accession to submission collection (accession in output, return it from submit_assembly)
+    else:
+        #todo return error to frontend
+        pass
     return
 
 def submit_assembly(file_path):
@@ -90,7 +94,13 @@ def submit_assembly(file_path):
         test = " -test "
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(file_path) + " -submit"
     print(webin_cmd)
-    output = subprocess.check_output(webin_cmd, shell=True)
+    #try/except as it turns out this can fail even if validate is successfull
+    try:
+        output = subprocess.check_output(webin_cmd, shell=True)
+    except subprocess.CalledProcessError as cpe:
+        output = cpe.stdout
+    output = output.decode("ascii")
+    print(output)
 
     #todo delete files after successfull submission
     #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
