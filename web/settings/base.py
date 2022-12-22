@@ -229,3 +229,9 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
+    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
