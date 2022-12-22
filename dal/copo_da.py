@@ -1761,6 +1761,14 @@ class Submission(DAComponent):
         else:
             return False
 
+    def add_assembly_accession(self, s_id, accession, alias):
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": { "accessions.assembly": {}}})
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": { "accessions.assembly.accession" : accession,
+                                                           "accessions.assembly.alias": alias}})
+        return
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):

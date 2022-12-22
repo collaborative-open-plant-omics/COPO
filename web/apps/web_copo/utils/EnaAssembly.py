@@ -3,6 +3,7 @@ from shutil import rmtree
 from pathlib import Path
 from django.shortcuts import render
 import subprocess
+import re
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -11,7 +12,7 @@ from django_tools.middlewares import ThreadLocal
 from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 
-from dal.copo_da import Assembly
+from dal.copo_da import Assembly, Submission
 
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
@@ -79,13 +80,18 @@ def validate_assembly(form):
     print(output)
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
     if not "ERROR" in output:
-        submit_assembly(str(manifest_path))
+        output = submit_assembly(str(manifest_path))
         #todo handle possibility submission is not successfull
         for f in form:
             if f in ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]:
                 form[f] = str(form[f])
         Assembly(profile_id = profile_id).save_record(auto_fields={},**form)
-        #todo save accession to submission collection (accession in output, return it from submit_assembly)
+        accession = re.search( "ERZ\d*\w" , output).group(0).strip()
+        existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+        existing_sub_id = existing_sub[0].get("_id", "")
+        if existing_sub:
+            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
+        #todo create new submission collection object if no submission exists in db
     else:
         #todo return error to frontend
         pass
@@ -106,6 +112,6 @@ def submit_assembly(file_path):
     print(output)
 
     #todo delete files after successfull submission
-    #todo store metadata in database (submission collection and ????), decide if keeping manifest.txt
-    return
+    #todo decide if keeping manifest.txt and store accession in assembly objec too
+    return output
 
