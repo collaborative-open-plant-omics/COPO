@@ -91,6 +91,9 @@ def validate_assembly(form):
         existing_sub_id = existing_sub[0].get("_id", "")
         if existing_sub:
             Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
+        else:
+            Submission().save_record(autofields={}, **{"profile_id": profile_id, "accessions" :
+                { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}})
         #todo create new submission collection object if no submission exists in db
     else:
         #todo return error to frontend

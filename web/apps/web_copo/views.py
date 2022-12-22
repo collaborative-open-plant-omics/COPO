@@ -97,7 +97,14 @@ def ena_read_manifest_validate(request, profile_id):
 @login_required()
 def ena_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
-    existing_accessions = Submission().get_records_by_field("profile_id", profile_id)[0].get("accessions", "")
+    existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+    if existing_sub:
+        existing_accessions = existing_sub[0].get("accessions", "")
+    else:
+        #initializing empty variables to create form
+        existing_accessions = False
+        study_accession = ""
+        sample_accession = ""
     sample_accession = []
     if existing_accessions:
         study_accession = existing_accessions.get("project", "").get("accession", "")
