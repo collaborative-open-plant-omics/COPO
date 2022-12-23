@@ -95,7 +95,6 @@ def validate_assembly(form):
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions" :
                 { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}}
             Submission().save_record(autofields={}, **fieldsdict)
-        #todo create new submission collection object if no submission exists in db
     else:
         #todo return error to frontend
         pass

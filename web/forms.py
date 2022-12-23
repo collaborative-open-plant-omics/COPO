@@ -17,6 +17,7 @@ class AssemblyForm(forms.Form):
             self.fields['sample_text'].label = ''
         else:
             self.fields['sample'].required = False
+            self.fields['sample'].hidden = True
             pass
             #self.fields['sample'].hidden = True
             #self.fields['sample'].label = ''

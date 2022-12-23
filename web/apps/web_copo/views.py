@@ -107,11 +107,16 @@ def ena_assembly(request, profile_id):
         sample_accession = ""
     sample_accession = []
     if existing_accessions:
-        study_accession = existing_accessions.get("project", "").get("accession", "")
+        study = existing_accessions.get("project", "")
+        if study:
+            study_accession = study.get("accession", "")
+        else:
+            study_accession = ""
         samples = existing_accessions.get("sample", "")
-        for sample in samples:
-            if sample.get("sample_accession", ""):
-                sample_accession.append(sample.get("sample_accession", ""))
+        if samples:
+            for sample in samples:
+                if sample.get("sample_accession", ""):
+                    sample_accession.append(sample.get("sample_accession", ""))
 
     if request.method == 'POST':
         form = AssemblyForm(request.POST, request.FILES, sample_accession = sample_accession)
