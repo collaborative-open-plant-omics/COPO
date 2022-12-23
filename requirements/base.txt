@@ -178,3 +178,4 @@ zipp==0.6.0
 zope.interface==4.6.0
 jsonpath-rw==1.4.0
 jsonpath-rw-ext==1.2.2
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
