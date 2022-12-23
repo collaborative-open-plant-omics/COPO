@@ -16,6 +16,7 @@ class AssemblyForm(forms.Form):
             self.fields['sample_text'].widget.attrs['hidden'] = ''
             self.fields['sample_text'].label = ''
         else:
+            self.fields['sample'].required = False
             pass
             #self.fields['sample'].hidden = True
             #self.fields['sample'].label = ''

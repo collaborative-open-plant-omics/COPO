@@ -88,12 +88,13 @@ def validate_assembly(form):
         Assembly(profile_id = profile_id).save_record(auto_fields={},**form)
         accession = re.search( "ERZ\d*\w" , output).group(0).strip()
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
-        existing_sub_id = existing_sub[0].get("_id", "")
         if existing_sub:
+            existing_sub_id = existing_sub[0].get("_id", "")
             Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
         else:
-            Submission().save_record(autofields={}, **{"profile_id": profile_id, "accessions" :
-                { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}})
+            fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions" :
+                { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}}
+            Submission().save_record(autofields={}, **fieldsdict)
         #todo create new submission collection object if no submission exists in db
     else:
         #todo return error to frontend
