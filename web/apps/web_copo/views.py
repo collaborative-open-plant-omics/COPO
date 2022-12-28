@@ -136,9 +136,12 @@ def ena_assembly(request, profile_id):
             else:
                 #uploading files to folder in COPO
                 EnaAssembly.upload_assembly_files(files)
-                EnaAssembly.validate_assembly(formdata)
+                sub_result = EnaAssembly.validate_assembly(formdata)
                 #todo this needs to account for diferet possible errors returned by ENA
-                messages.success(request, "Assembly submitted")
+                if sub_result.get("error", ""):
+                    messages.error(request, sub_result["error"])
+                else:
+                    messages.success(request, "Assembly submitted with accession " + sub_result.get("accession", ""))
                 form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
                 return render(request, 'copo/ena_assembly.html', {"profile_id": profile_id,
                                                                   'form': AssemblyForm(request.GET)})

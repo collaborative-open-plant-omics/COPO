@@ -14,6 +14,20 @@ from tools import resolve_env
 
 from dal.copo_da import Assembly, Submission
 
+
+# other types of assemblies (not individualss or cultured isolates):
+# Metagenome Assembly - Primary Metagenome Assemblies: the diff is the types of samples, an additional virtual sample
+# needs to be registered, the rest of the submission is the same. Assembly type is  ‘primary metagenome’
+# Metagenome Assembly - Binned Metagenome Assemblies: as above, Assembly type is ‘binned metagenome’
+# Metagenome Assembly - A Metagenome-Assembled Genome (MAG): as above, Assembly type is ‘Metagenome-Assembled Genome
+# (MAG)’
+# Environmental Single-Cell Amplified Genomes: as above, Assembly type is  ‘Environmental Single-Cell Amplified Genome
+# (SAG)’
+# Transcriptome Assemblies: here the webin-cli command is different as -context transcriptome (instead of genome),
+# assembly type is ‘isolate’, there are no fields [covergae, mingaplength, moleculetype] in the manifest, and the only
+# file types allowed are FASTA and flatfile
+# Metatranscriptome Assemblies: as transcriptome assembly
+
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 ena_service = resolve_env.get_env('ENA_SERVICE')
@@ -97,8 +111,8 @@ def validate_assembly(form):
             Submission().save_record(autofields={}, **fieldsdict)
     else:
         #todo return error to frontend
-        pass
-    return
+        return {"error": output}
+    return {"accession" : accession}
 
 def submit_assembly(file_path):
     test = ""
