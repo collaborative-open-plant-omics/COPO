@@ -37,7 +37,8 @@ from web.apps.web_copo.models import UserDetails, StatusMessage
 from web.forms import AssemblyForm
 from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
 from web.apps.web_copo.utils import EnaAssembly
-from submission.helpers.generic_helper import notify_frontend
+from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
+from django.contrib import messages
 
 
 
@@ -126,14 +127,21 @@ def ena_assembly(request, profile_id):
             files = request.FILES
             if not files:
                 #todo return error to the user that at least one files is required and stop submission
+                #notify_assembly_status does not work
                 #i think maybe i cannot get this to show up becuase it's "mid request"?
-                notify_frontend(data={"profile_id": profile_id}, msg="At least one assembly file is required", action="error",
+                notify_assembly_status(data={"profile_id": profile_id}, msg="At least one assembly file is required", action="error",
                                 html_id="assembly_info")
-                return
+                messages.error(request, 'At least one assembly file is required')
+                messages.error(request, form.errors)
             else:
                 #uploading files to folder in COPO
                 EnaAssembly.upload_assembly_files(files)
-            EnaAssembly.validate_assembly(formdata)
+                EnaAssembly.validate_assembly(formdata)
+                #todo this needs to account for diferet possible errors returned by ENA
+                messages.success(request, "Assembly submitted")
+                form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
+                return render(request, 'copo/ena_assembly.html', {"profile_id": profile_id,
+                                                                  'form': AssemblyForm(request.GET)})
             #todo return some kind of success/error message
 
     else:

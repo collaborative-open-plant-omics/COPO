@@ -118,6 +118,14 @@
 
     </div>
 
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert {{ m.tags }} alert-success" role="alert">
+                {{ m }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form }}
