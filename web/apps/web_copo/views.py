@@ -126,18 +126,12 @@ def ena_assembly(request, profile_id):
             formdata = form.cleaned_data
             files = request.FILES
             if not files:
-                #todo return error to the user that at least one files is required and stop submission
-                #notify_assembly_status does not work
-                #i think maybe i cannot get this to show up becuase it's "mid request"?
-                notify_assembly_status(data={"profile_id": profile_id}, msg="At least one assembly file is required", action="error",
-                                html_id="assembly_info")
                 messages.error(request, 'At least one assembly file is required')
                 messages.error(request, form.errors)
             else:
                 #uploading files to folder in COPO
                 EnaAssembly.upload_assembly_files(files)
                 sub_result = EnaAssembly.validate_assembly(formdata)
-                #todo this needs to account for diferet possible errors returned by ENA
                 if sub_result.get("error", ""):
                     messages.error(request, sub_result["error"])
                 else:
@@ -145,10 +139,13 @@ def ena_assembly(request, profile_id):
                 form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
                 return render(request, 'copo/ena_assembly.html', {"profile_id": profile_id,
                                                                   'form': AssemblyForm(request.GET)})
-            #todo return some kind of success/error message
 
     else:
-        #todo if submission collection for this profile exist and there are accessions for study and samples
+        #todo I'm probably out of time to do this, but we need to account -maybe?- for a situation in which we have
+        #multiple assemblies submitted as part of the same profile, probably the structure in the database need to
+        #change slightly so that it is possible for us to link accession and relative sample
+        #eg. accessions: {assembly: {accession:,alias:, SAMPLE}} in copo_da add_assembly_accession
+        #
         #pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         #set authomatically and cannot be changed by the user
         form = AssemblyForm(study_accession = study_accession, sample_accession = sample_accession)

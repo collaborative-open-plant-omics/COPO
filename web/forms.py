@@ -19,6 +19,8 @@ class AssemblyForm(forms.Form):
             self.fields['sample'].required = False
             self.fields['sample'].hidden = True
             pass
+            #todo this bit does not really work, a drop down menu shows up no matter what (altough empty and optional)
+            #so it works but it's an aesthetic problem
             #self.fields['sample'].hidden = True
             #self.fields['sample'].label = ''
             #self.fields['sample'].required = False

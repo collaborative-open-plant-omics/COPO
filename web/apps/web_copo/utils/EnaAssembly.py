@@ -24,7 +24,7 @@ from dal.copo_da import Assembly, Submission
 # Environmental Single-Cell Amplified Genomes: as above, Assembly type is  ‘Environmental Single-Cell Amplified Genome
 # (SAG)’
 # Transcriptome Assemblies: here the webin-cli command is different as -context transcriptome (instead of genome),
-# assembly type is ‘isolate’, there are no fields [covergae, mingaplength, moleculetype] in the manifest, and the only
+# assembly type is ‘isolate’, there are no fields [coverage, mingaplength, moleculetype] in the manifest, and the only
 # file types allowed are FASTA and flatfile
 # Metatranscriptome Assemblies: as transcriptome assembly
 
@@ -38,6 +38,7 @@ def upload_assembly_files(files):
     profile_id = request.session["profile_id"]
     these_assemblies = assembly_path / profile_id
     if os.path.isdir(these_assemblies):
+        #todo maybe remove this depending on the decision if keeping the reports and about multiple assemblies per project
         rmtree(these_assemblies)
     these_assemblies.mkdir(parents=True)
 
@@ -54,12 +55,8 @@ def upload_assembly_files(files):
         filename = os.path.splitext(file.name)[0].upper()
 
     # save to session
-    fail_flag= False
     request = ThreadLocal.get_current_request()
     output = "done"
-    notify_frontend(data={"profile_id": profile_id, "fail_flag": fail_flag}, msg=output,
-                    action="",
-                    html_id="assemblies")
     return output
 
 def validate_assembly(form):
@@ -68,12 +65,13 @@ def validate_assembly(form):
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
     these_assemblies = assembly_path / profile_id
     manifest_content =""
+    file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
     for key, value in form.items():
         #skip optional fields that have not been filled
         if value:
             if key == "sample_text":
                 manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
-            elif key in ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]:
+            elif key in file_fields:
                 manifest_content += key.upper() + "\t" + str(these_assemblies)+"/"+str(value) +"\n"
             else:
                 manifest_content += key.upper() + "\t" + str(value) + "\n"
@@ -85,32 +83,37 @@ def validate_assembly(form):
     if "dev" in ena_service:
         test = " -test "
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test +" -context genome -manifest " + str(manifest_path) + " -validate"
-    print(webin_cmd)
+    #print(webin_cmd)
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
     output = output.decode("ascii")
-    print(output)
+    #print(output)
+    #todo decide if keeping or deleting these files
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
     if not "ERROR" in output:
         output = submit_assembly(str(manifest_path))
-        #todo handle possibility submission is not successfull
+        if "ERROR" in output:
+            #handle possibility submission is not successfull
+            #this may happen for instance if the same assembly has already been submitted, which would not get caught
+            #by the validation step
+            return {"error" : output}
         for f in form:
-            if f in ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]:
+            if f in file_fields:
                 form[f] = str(form[f])
         Assembly(profile_id = profile_id).save_record(auto_fields={},**form)
         accession = re.search( "ERZ\d*\w" , output).group(0).strip()
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
+            #ENA alias costructed as webin-genome-assemblyname (may be different for transriptome?)
             Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
         else:
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions" :
                 { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}}
             Submission().save_record(autofields={}, **fieldsdict)
     else:
-        #todo return error to frontend
         return {"error": output}
     return {"accession" : accession}
 
@@ -119,14 +122,14 @@ def submit_assembly(file_path):
     if "dev" in ena_service:
         test = " -test "
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(file_path) + " -submit"
-    print(webin_cmd)
+    #print(webin_cmd)
     #try/except as it turns out this can fail even if validate is successfull
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
     output = output.decode("ascii")
-    print(output)
+    #print(output)
 
     #todo delete files after successfull submission
     #todo decide if keeping manifest.txt and store accession in assembly objec too

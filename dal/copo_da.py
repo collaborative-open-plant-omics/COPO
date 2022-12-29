@@ -1762,6 +1762,8 @@ class Submission(DAComponent):
             return False
 
     def add_assembly_accession(self, s_id, accession, alias):
+        #todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
+        #reference assembly and sample
         self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
                                                 {"$set": { "accessions.assembly": {}}})
         self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
