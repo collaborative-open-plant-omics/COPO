@@ -347,7 +347,7 @@ class DtolSpreadsheet:
                     # we have a match
                     output.append({"file_name": str(file_display_path), "thumbnail": str(thumbnail_display_path), "specimen_id": specimenId, "name": file.name})
 
-                    logging.info("writing " + str(file_path))
+                    #logging.info("writing " + str(file_path))
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
@@ -355,7 +355,7 @@ class DtolSpreadsheet:
                     im=Image.open(file_path)
                     im.thumbnail(size)
                     im.save(thumbnail_path)
-                    logging.info("written " + str(file_path))
+                    #logging.info("written " + str(file_path))
                     break
             if not found:
                 output.append({ "file_name": str(file_display_path), "specimen_id": "", "name": ""})

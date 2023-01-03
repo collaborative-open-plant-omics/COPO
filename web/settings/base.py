@@ -230,8 +230,8 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-FILE_UPLOAD_HANDLERS = (
-    "django.core.files.uploadhandler.MemoryFileUploadHandler",
-    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
-    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
-)
+#FILE_UPLOAD_HANDLERS = (
+#    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+#    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
+#    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+#)

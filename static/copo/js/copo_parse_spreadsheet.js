@@ -25,6 +25,7 @@ function upload_image_files(file) {
         count++
     }
     form.append("validation_record_id", validation_record_id)
+    var percent = $(".percent")
     jQuery.ajax({
         url: '/copo/sample_images/',
         data: form,
@@ -34,6 +35,19 @@ function upload_image_files(file) {
 
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
 
     }).error(function (data) {
         $("#upload_controls").fadeIn()
@@ -57,6 +71,7 @@ function upload_permit_files(file) {
         count++
     }
     form.append("validation_record_id", validation_record_id)
+    var percent = $(".percent")
     jQuery.ajax({
         url: '/copo/sample_permits/',
         data: form,
@@ -67,6 +82,19 @@ function upload_permit_files(file) {
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
 
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
     }).error(function (data) {
         $("#upload_controls").fadeIn()
         console.error(data)
@@ -93,6 +121,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
     form.append("file", file)
+    var percent = $(".percent")
     jQuery.ajax({
         url: url,
         data: form,
@@ -102,7 +131,19 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
         method: 'POST',
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
-
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
     }).error(function (data) {
         $("#upload_controls").fadeIn()
         console.error(data)
