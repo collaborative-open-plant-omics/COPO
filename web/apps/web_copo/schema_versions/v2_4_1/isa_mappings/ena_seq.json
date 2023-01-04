@@ -1,0 +1,273 @@
+{
+  "configuration": {
+    "type": "json",
+    "provider": "isa",
+    "ref": "sample_schema"
+  },
+  "properties": [
+    {
+      "help_tip": "A sample represents major outputs resulting from a protocol application other than the special case outputs of Extract or a Labeled Extract.",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "sample_name"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Name",
+      "show_in_form": true,
+      "id": "sample_name",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "Name",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "organism"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Name",
+      "show_in_form": true,
+      "id": "organism",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "Organism",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "library_layout"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Name",
+      "show_in_form": true,
+      "id": "library_layout",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "library_layout",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "library_strategy"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Library Strategy",
+      "show_in_form": true,
+      "id": "library_strategy",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "library_strategy",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "library_source"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Library Source",
+      "show_in_form": true,
+      "id": "library_source",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "library_source",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "library_selection"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Library Selection",
+      "show_in_form": true,
+      "id": "library_selection",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "library_selection",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "library_description"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Library Description",
+      "show_in_form": true,
+      "id": "library_description",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "library_description",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "sequencing_instrument"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Sequencing Instrument",
+      "show_in_form": true,
+      "id": "sequencing_instrument",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "sequencing_instrument",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "md5"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "MD5",
+      "show_in_form": true,
+      "id": "md5",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "md5",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "release_date"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Release Date",
+      "show_in_form": true,
+      "id": "release_date",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "release_date",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "ena_seq"
+      ],
+      "versions": [
+        "file_name"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "File Name",
+      "show_in_form": true,
+      "id": "file_name",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "file_name",
+      "control": "text",
+      "show_as_attribute": true
+    }
+  ]
+}

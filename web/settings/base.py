@@ -1,12 +1,14 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from tools import resolve_env
-
+from django.conf import settings
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 SCHEMA_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schemas')
+
+SCHEMA_VERSIONS_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schema_versions')
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 

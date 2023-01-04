@@ -11,19 +11,23 @@ from exceptions_and_logging import logger
 from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Source, Submission, Description
 from submission.helpers.generic_helper import notify_frontend
-from web.apps.web_copo.lookup import dtol_lookups as lookup
+# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from django.http import HttpResponse
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
 import datetime
+import importlib
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from dal.broker_da import BrokerDA
 from pymongo import ReturnDocument
 import web.apps.web_copo.utils.FileTransferUtils as tx
 
 l = logger.Logger("exceptions_and_logging/logs")
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
+
 from django.conf import settings
 from os.path import join
 from pathlib import Path
@@ -61,8 +65,9 @@ def parse_ena_spreadsheet(request):
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
                 s3obj.make_s3_bucket(bucket_name=bucket_name)
-                notify_frontend(data={"profile_id": profile_id}, msg='Files not found, please click "Upload Data into COPO" and follow the '
-                                                                     'instructions.', action="info",
+                notify_frontend(data={"profile_id": profile_id},
+                                msg='Files not found, please click "Upload Data into COPO" and follow the '
+                                    'instructions.', action="info",
                                 html_id="sample_info", group_name=channels_group_name)
                 return HttpResponse()
 
@@ -70,9 +75,6 @@ def parse_ena_spreadsheet(request):
             ena.collect()
 
     return HttpResponse()
-
-
-
 
 
 def save_ena_records(request):
@@ -114,8 +116,10 @@ def save_ena_records(request):
             source["profile_id"] = profile_id
             source["deleted"] = "0"
             source_id = str(
-                Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession}, {"$set": source},
-                                                                     upsert=True, return_document=ReturnDocument.AFTER)["_id"])
+                Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession},
+                                                                     {"$set": source},
+                                                                     upsert=True, return_document=ReturnDocument.AFTER)[
+                    "_id"])
 
             # create associated sample
             sample = dict()
@@ -127,7 +131,8 @@ def save_ena_records(request):
             sample["name"] = s["sample_name"]
             sample["deleted"] = "0"
             sample_id = str(
-                Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample}, upsert=True,
+                Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample},
+                                                                     upsert=True,
                                                                      return_document=ReturnDocument.AFTER)[
                     "_id"])
         else:
@@ -175,11 +180,13 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].strip()
-            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
+                                                                              {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
             bundle.append(str(inserted["_id"]))
-            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name), "upload_status": False}
+            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name),
+                      "upload_status": False}
             bundle_meta.append(f_meta)
         else:
             # create record for left
@@ -193,7 +200,8 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[0].strip()
-            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
+                                                                              {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
             bundle.append(str(inserted["_id"]))
@@ -211,7 +219,8 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[1].strip()
-            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location}, {"$set": df}, upsert=True,
+            inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
+                                                                              {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
             bundle.append(str(inserted["_id"]))
@@ -234,7 +243,8 @@ def save_ena_records(request):
     submission["manifest_submission"] = 1
 
     # make description records and submissions record
-    dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile', name=profile_name)
+    dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile',
+                                          name=profile_name)
     submission["description_token"] = dr["_id"]
     subs = Submission().get_collection_handle().find({"profile_id": profile_id})
     duplicates = list()
@@ -366,6 +376,7 @@ class ENASpreadsheet:
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
                             html_id="sample_info")
+
             return False
 
         # if we get here we have a valid spreadsheet

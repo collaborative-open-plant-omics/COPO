@@ -4,6 +4,7 @@ import math
 import os
 import uuid
 import pickle
+import importlib
 from os.path import join, isfile
 from pathlib import Path
 from shutil import rmtree
@@ -20,20 +21,31 @@ from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
-from web.apps.web_copo.lookup import dtol_lookups as lookup
+# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
-from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-    taxon_validators
-from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+# from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
+#    taxon_validators
+# from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
 from dal import cursor_to_list
 from exceptions_and_logging import logger
 
 l = logger.Logger("exceptions_and_logging/logs")
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
+
+schema_version_path_optional_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.optional_field_dtol_validators'
+optional_validators = importlib.import_module(schema_version_path_optional_validators)
+
+schema_version_path_taxon_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.taxon_validators'
+taxon_validators = importlib.import_module(schema_version_path_taxon_validators)
+
+schema_version_path_required_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.required_field_dtol_validators'
+required_validators = importlib.import_module(schema_version_path_required_validators)
 
 
 def make_target_sample(sample):
@@ -237,6 +249,7 @@ class DtolSpreadsheet:
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
                             html_id="sample_info")
+            raise
             return False
 
         # if we get here we have a valid spreadsheet

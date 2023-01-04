@@ -1,5 +1,6 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 01/12/2015'
 
+import itertools
 # this python file is for small utility functions which will be called from Javascript
 import json
 import operator
@@ -13,11 +14,13 @@ from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
 from Bio import Entrez
+import importlib
 import jsonpath_rw_ext as jp
 import jsonpickle
 import pandas as pd
 import requests
 from bson import json_util, ObjectId
+from collections import defaultdict
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
@@ -54,12 +57,15 @@ from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
-from web.apps.web_copo.lookup import dtol_lookups as lkup
+# from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lkup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get_source_count(self):

@@ -1,22 +1,27 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 import datetime
+import importlib
 import sys
 import requests
 import dateutil.parser as parser
 from bson.errors import InvalidId
+from django.conf import settings
 from django.http import HttpResponse
 import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from web.apps.web_copo.utils.ajax_handlers import sample_spreadsheet
 from dal.copo_da import Sample, Source, Submission, APIValidationReport, Profile
-from web.apps.web_copo.lookup import dtol_lookups as lookup
+# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import authentication, permissions
 from django.views.decorators.csrf import csrf_exempt
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get(request, id):
@@ -165,12 +170,14 @@ def get_manifests(request):
     manifest_ids = Sample().get_manifests()
     return finish_request(manifest_ids)
 
+
 def query_local_contexts_hub(project_id):
     lch_url = "https://localcontextshub.org/api/v1/projects/" + project_id
     resp = requests.get(lch_url)
     j_resp = json.loads(resp.content)
     print(j_resp)
     return j_resp
+
 
 def get_all_manifest_between_dates(request, d_from, d_to):
     # get all manifests between d_from and d_to
@@ -364,8 +371,9 @@ def get_all(request):
 class APIValidateManifest(APIView):
 
     def post(self, request):
-        id = APIValidationReport().get_collection_handle().insert({"profile_id": request.POST["profile_id"], "status": "pending", "content": "",
-                                                                   "submitted": datetime.datetime.utcnow(), "user_id": request.user.id})
+        id = APIValidationReport().get_collection_handle().insert(
+            {"profile_id": request.POST["profile_id"], "status": "pending", "content": "",
+             "submitted": datetime.datetime.utcnow(), "user_id": request.user.id})
         sample_spreadsheet(request, report_id=id)
 
         out = {"validation_report_id": str(id)}

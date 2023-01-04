@@ -1,0 +1,133 @@
+{
+  "configuration": {
+    "type": "json",
+    "provider": "isa",
+    "ref": "sample_schema"
+  },
+  "properties": [
+    {
+      "$ref": "isa_mappings/additional_attributes/dtol_sample_attributes.json"
+    },
+    {
+      "$ref": "isa_mappings/additional_attributes/erga_sample_attributes.json"
+    },
+    {
+      "$ref": "isa_mappings/additional_attributes/dtolenv_sample_attributes.json"
+    },
+    {
+      "help_tip": "A sample represents major outputs resulting from a protocol application other than the special case outputs of Extract or a Labeled Extract.",
+      "unique": true,
+      "default_value": "",
+      "control_meta": {},
+      "required": "true",
+      "specifications": [
+        "isasample",
+        "biosample"
+      ],
+      "versions": [
+        "name"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Name",
+      "show_in_form": true,
+      "id": "copo.sample.name",
+      "type": "string",
+      "show_in_table": true,
+      "ref": "Name",
+      "control": "text",
+      "show_as_attribute": true
+    },
+    {
+      "help_tip": "A taxonomic information associated to the Source Biological material (e.g., species, genus, strain).",
+      "required": "false",
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "control": "ontology term",
+      "versions": [
+        "organism"
+      ],
+      "ref": "",
+      "specifications": [
+        "biosample"
+      ],
+      "deprecated": false,
+      "hidden": "false",
+      "type": "string",
+      "show_in_form": true,
+      "id": "copo.sample.organism",
+      "label": "Organism",
+      "show_in_table": false,
+      "ontology_names": [
+        "ncbitaxon"
+      ]
+    },
+    {
+      "help_tip": "Source from which this sample is derived",
+      "required": "true",
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "derivesFrom"
+      ],
+      "specifications": [
+        "isasample"
+      ],
+      "deprecated": false,
+      "id": "copo.sample.derivesFrom",
+      "label": "Source",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "show_in_table": false,
+      "hidden": "false",
+      "control": "copo-lookup2",
+      "create_new_item": true,
+      "option_component": "source",
+      "data_maxItems": 1,
+      "data_source": "sample_source_lookup",
+      "option_values": []
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "deleted"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Delete",
+      "show_in_form": false,
+      "id": "copo.sample.deleted",
+      "type": "string",
+      "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "date_modified"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Date Modified",
+      "show_in_form": false,
+      "id": "copo.sample.date_modified",
+      "type": "string",
+      "show_in_table": true,
+      "control": "date-picker"
+    }
+  ],
+  "description": "Mappings of attribute in the Sample schema to a UI configuration source.",
+  "title": "Sample schema mappings"
+}
