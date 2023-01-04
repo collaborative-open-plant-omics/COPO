@@ -1,5 +1,5 @@
 [
-    {
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -20,9 +20,16 @@
     "id": "copo.sample.SEQUENCING_CENTRE",
     "label": "Sequencing Centre",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-{
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -43,9 +50,16 @@
     "id": "copo.sample.WATER_BODY_TYPE",
     "label": "Water body type",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -66,9 +80,16 @@
     "id": "copo.sample.SAMPLING_WATER_BODY_DEPTH",
     "label": "Sampling water body depth",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -89,9 +110,16 @@
     "id": "copo.sample.WATER_SPEED",
     "label": "Water speed",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -112,9 +140,16 @@
     "id": "copo.sample.WATER_TYPE",
     "label": "Water type",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -135,9 +170,16 @@
     "id": "copo.sample.CHLOROPHYL_A",
     "label": "Chloropyl A",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -158,9 +200,16 @@
     "id": "copo.sample.SALINITY",
     "label": "Salinity",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -181,9 +230,16 @@
     "id": "copo.sample.NUTRIENTS",
     "label": "Nutrients",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -204,9 +260,16 @@
     "id": "copo.sample.DISSOLVED_OXYGEN",
     "label": "Dissolved oxygen",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -227,9 +290,16 @@
     "id": "copo.sample.SORTED_BY",
     "label": "Sorted by",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -250,9 +320,16 @@
     "id": "copo.sample.SORTER_AFFILIATION",
     "label": "Sorter affiliation",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -273,9 +350,16 @@
     "id": "copo.sample.SORTING_APPROACH",
     "label": "Sorting approach",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "false",
     "default_value": "",
@@ -296,9 +380,16 @@
     "id": "copo.sample.SORT_STAIN",
     "label": "Sort stain",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-    {
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -319,9 +410,16 @@
     "id": "copo.sample.CELL_NUMBER",
     "label": "Cell number",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
-   {
+  {
     "help_tip": "The original description of the depth below the local surface.",
     "required": "true",
     "default_value": "",
@@ -342,7 +440,14 @@
     "id": "copo.sample.DEPTH",
     "label": "Depth (in meters)",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth"
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
   {
     "help_tip": "The original description of the elevation (altitude, usually above sea level) of the Location.",
@@ -365,7 +470,14 @@
     "id": "copo.sample.ELEVATION",
     "label": "Elevation (in meters)",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation"
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
   {
     "help_tip": "Time of Collection",
@@ -388,6 +500,13 @@
     "id": "copo.sample.TIME_OF_COLLECTION",
     "label": "Time of Collection",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime"
+    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   }
 ]

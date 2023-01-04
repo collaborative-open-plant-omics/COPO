@@ -2,6 +2,7 @@ __author__ = 'felix.shaw@tgac.ac.uk - 01/12/2015'
 
 # this python file is for small utility functions which will be called from Javascript
 import json
+import operator
 import os
 import re
 import time
@@ -12,6 +13,7 @@ from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
 from Bio import Entrez
+import jsonpath_rw_ext as jp
 import jsonpickle
 import pandas as pd
 import requests
@@ -40,10 +42,12 @@ from submission.helpers import generic_helper as ghlper
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.lookup.copo_enums import Logtype
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
+from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import WIZARD_FILES as wf
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 
 # from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
@@ -1740,18 +1744,73 @@ def is_number(s):
 
 def get_manifest_fields(request):
     manifest_type = request.GET["manifest_type"]
-    all_sample_fields = lkup.DTOL_EXPORT_TO_STS_FIELDS[manifest_type]
-    # Get field names that begin with an uppercase letter
-    sample_fields = list(filter(lambda x: x[0].isupper() == True, all_sample_fields))
-    sample_fields.sort()  # Sort the list in ascending order
+
+    # Get sample fields
+    s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
+
+    field_lst = jp.match(
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].versions[''0]', s)
+
+    # Get sample fields' order number
+    order_num_lst = jp.match(
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index.["' + manifest_type + '"].order', s)
+
+    # Get sample fields' MS Excel column letter
+    excel_col_lst = jp.match(
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index["' + manifest_type + '"].excel_col',
+        s)
+
+    # Get sample fields' colour
+    colour_lst = jp.match(
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '" )].index["' + manifest_type + '"].colour',
+        s)
+
+    # Combine the information in a tuple
+    sample_fields_tuple = tuple(zip(order_num_lst, excel_col_lst, colour_lst, field_lst))
+
+    # Filter the list of tuples
+    # Get a list of tuples with field names that only begin with an uppercase letter
+    field_lst_filtered_tup = list(filter(lambda x: x[3].isupper() == True, sample_fields_tuple))
+    field_lst_filtered_tup = list(set(field_lst_filtered_tup))  # Remove duplicates
+
+    # Get a list of tuples that have blank/no value for order number, Excel column letter and colour
+    sample_fields_with_no_values = list(
+        filter(lambda x: x[0] is None and x[1] in (None, '') and x[2] in (None, ''), field_lst_filtered_tup))
+
+    # Get a list of tuples that have inputted values for order number (integer),
+    # Excel column letter (string) and colour (string)
+    sample_fields_with_values = list(
+        filter(lambda x: x[0] is not None and isinstance(x[0], int) and x[1] not in (None, '') and isinstance(x[1],
+                                                                                                              str) and
+                         x[2] not in (None, '') and isinstance(x[2], str), field_lst_filtered_tup))
+
+    # Sort the list of tuples that have values by order number
+    sample_fields_with_values.sort(key=operator.itemgetter(0))  # NB: itemgetter is faster than lambda to sort
+
+    # Append the list of tuples with no values to the list of sorted tuples that have inputted values
+    for x in sample_fields_with_no_values:
+        sample_fields_with_values.append(x)
+
+    sample_fields = sample_fields_with_values  # Reassign for clarity now that everything is done
+
     return HttpResponse(json.dumps(sample_fields))
 
 
 def get_common_value_dropdown_list(request):
+    date_fields = [field for field in lkup.DTOL_RULES if "DATE" in field]
+    integer_fields = [field for field in lkup.DTOL_RULES if
+                      lkup.DTOL_RULES.get(field, "").get("human_readable", "") == "integer" or lkup.DTOL_RULES.get(
+                          field, "").get(
+                          "human_readable", "") == "numeric" or "digit number" in lkup.DTOL_RULES.get(field, "").get(
+                          "human_readable", "")]
+
     manifest_type = request.GET["manifest_type"]
     common_field = request.GET["common_field"]
     common_value_dropdownlist = get_common_field_dropdownlist(common_field, manifest_type)
-    return HttpResponse(json.dumps(common_value_dropdownlist))
+
+    return HttpResponse(
+        json.dumps(
+            {'dropdownlist': common_value_dropdownlist, 'date_fields': date_fields, 'integer_fields': integer_fields}))
 
 
 def get_filename(manifest_type):
@@ -1775,7 +1834,7 @@ def generate_manifest_template(request):
         "common_fields_list"]
     common_values = json_util.loads(request.body)[
         "common_values_list"]
-    
+
     manifests_dir = os.path.join("static", "assets", "manifests")
 
     # Set the path to the blank manifest template based on the manifest type
@@ -1895,7 +1954,7 @@ def applyDataValidationToColumn(column, metadataEntry_worksheet_dataframe,
     tissueForBarcoding_dataValidationColumn = '=%s!$%s$2:$%s$79'
     tissueForBiobanking_dataValidationColumn = '=%s!$%s$2:$%s$79'
 
-    if "ORGANISM_PART" in column:  # and manifest_type ==:
+    if "ORGANISM_PART" in column:
         # Get dropdownlist from the first to last row of the column from the "Data Validation" worksheet
         data_validation_column = organismPart_dataValidationColumn % (
             dataValidation_worksheet_name, dataValidation_worksheet_column_letter,
@@ -1962,7 +2021,7 @@ def applyDropdownlist(dataframe, pandas_writer, sheet_name,
 
 def get_common_field_dropdownlist(common_field, manifest_type):
     def get_dropdown_items():
-        if common_field in fieldsBasedOnManifestType:
+        if fieldsBasedOnManifestType and common_field in fieldsBasedOnManifestType:
             # Get dropdown list based on the manifest type
             dropdownlist = lkup.DTOL_ENUMS[common_field][manifest_type.upper()]
         elif common_field == "COLLECTION_LOCATION":
@@ -1975,7 +2034,10 @@ def get_common_field_dropdownlist(common_field, manifest_type):
         dropdownlist.sort()  # Sort the list in ascending order
         return dropdownlist
 
-    fieldsBasedOnManifestType = ["GAL", "HAZARD_GROUP", "PURPOSE_OF_SPECIMEN"]
+    fieldsBasedOnManifestType = [field for field in lkup.DTOL_ENUMS if
+                                 not isinstance(lkup.DTOL_ENUMS.get(field, ""), list)
+                                 and lkup.DTOL_ENUMS.get(field, "").get(manifest_type.upper(), "")]
+
     common_value_dropdownlist = []
 
     # The "common field" parameter can be a list or not because the function,
@@ -2021,17 +2083,19 @@ def validate_common_value(request):
                             f'https://www.ebi.ac.uk/ena/browser/view/ERC000053 '
 
     else:
+        field_regex = ""
         if "strict_regex" in lkup.DTOL_RULES[common_field] and "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field].get("strict_regex", "ena_regex")
         elif "ena_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field]["ena_regex"]
         elif "strict_regex" in lkup.DTOL_RULES[common_field]:
             field_regex = lkup.DTOL_RULES[common_field]["strict_regex"]
-        else:
+        elif "optional_regex" in lkup.DTOL_RULES[common_field]:
             #  "optional_regex" in lkup.DTOL_RULES[common_field]
             field_regex = lkup.DTOL_RULES[common_field]["optional_regex"]
 
-        error_message = lkup.DTOL_RULES[common_field]["human_readable"]
+        if "human_readable" in lkup.DTOL_RULES[common_field]:
+            error_message = lkup.DTOL_RULES[common_field]["human_readable"]
 
         pattern = re.compile(f'r{field_regex}')
         isCommonValueValid = bool(pattern.match(common_value))

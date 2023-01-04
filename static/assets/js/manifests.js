@@ -1,23 +1,9 @@
 $(document).ready(function () {
-    $(document).data("manifest_type", "")
+    $('#spinner_div').hide(); // Hide "Manifest is generating" spinner
+    $(".dropdown-toggle").dropdown(); // Facilitate the display of the manifest template dropdown menu options
     $.fn.datepicker.noConflict(); // Does not conflict with other scripts that also have datepicker defined
 
-    // Trigger manifest wizard modal
-    // $(document).on("click", "#show_manifest_wzd_button", function () {
-    //     let manifest_wizard = $('#manifest-wizard')
-    //     $("#modal-placeholder").modal("show");
-    //     manifest_wizard.wizard();
-    //     $('#rightIcon').show(); // Show "right icon" after it was removed from last step
-    //     // Automatically go to step 1 when the modal is launched
-    //     manifest_wizard.wizard('selectedItem', {step: 1});
-    //
-    //     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-    //     $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
-    //
-    //     document.getElementById('manifestType').selectedIndex = 0; // Preload with default manifest type
-    //
-    //     get_common_fields_handler(); // Preload with the common fields dropdown list
-    // });
+    $(document).data("manifest_type", "")
 
     $(document).on("click", "#downloadBtn", generateManifestTemplate)
 
@@ -25,9 +11,18 @@ $(document).ready(function () {
 
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
+        let manifest_type = $(document).data("manifest_type")
+        const asg_and_dtol_sop_link = "https://github.com/darwintreeoflife/metadata"
+        const erga_sop_link = "https://github.com/ERGA-consortium/ERGA-sample-manifest"
+        const dtolenv_sop_link = ""
+        const sop_link = manifest_type === "asg" || manifest_type === "dtol" ? asg_and_dtol_sop_link :
+            manifest_type === "erga" ? erga_sop_link : manifest_type === "dtolenv" ? dtolenv_sop_link : ""
+
+        let info_message = "<ul  style = " + "'padding-top: 15px; padding-left: 10px;padding-right: 10px;" + "'> <li>To input a common value, select a field name from the dropdown list</li> <li style = " + "'margin-top: 10px;" + "'>Inputted values <b>must</b> conform to the <a href=" + sop_link + ">Standard Operating Procedure (SOP)</a></li></ul>";
+
         bootbox.dialog({
             size: 'small',
-            message: "To add another common value, select another field name from the dropdown list",
+            message: info_message,
             buttons: {
                 "success": {
                     "label": "OK",
@@ -80,6 +75,7 @@ function wizard_handler() {
     }).on('finished.fu.wizard', function (e) {
         // console.log('finished');
         $("#modal-placeholder").modal("hide");
+        $('#spinner_div').show();
         generateManifestTemplate(e);
     }).on('stepclick.fu.wizard', function (e, data) {
         //  console.log('Step' + data.step + ' clicked');
@@ -121,16 +117,56 @@ function get_common_fields_handler() {
     }).done(function (data) {
         let commonfieldsList = $("#commonfields")
         let option = [];
+        let colour_lst = []
 
         // Add a default value to the dropdown list
         commonfieldsList.empty();
         commonfieldsList.append('<option selected disabled hidden value=""' + '>' + 'Choose a common field' + '</option>')
 
-        for (let i = 0; i < data.length; i++) {
-            option = data[i];
-            commonfieldsList.append('<option value="' + option + '">' + option + '</option>')
-        }
 
+        for (let i = 0; i < data.length; i++) {
+            let [order_num, excel_column_letter, current_colour, fieldname] = data[i]
+            option = fieldname;
+
+
+            let field_option = $('<option/>', {
+                style: "background-color: " + current_colour + "  !important;padding: 10px 5px",
+                value: option
+            });
+
+
+            // Add a divider/separator between the groups of colours
+            let [prev_order_num, prev_excel_column_letter, prev_colour, prev_fieldname] = data[i - 1] || ""
+
+            if (prev_colour != null && current_colour != null) {
+                if (prev_colour !== "" && current_colour !== "") {
+                    if (prev_colour !== current_colour) {
+                        commonfieldsList.append('<option disabled>────────────────────────────────────</option>')
+                    }
+                }
+                // Place a divider before the group of fields that have no assigned colour
+                if (prev_colour !== "" && !current_colour.includes('#') && option !== "") {
+                    commonfieldsList.append('<option disabled>────────────────────────────────────</option>')
+                }
+
+
+            }
+
+            // Populate the dropdown menu
+            field_option.text(excel_column_letter + "\xa0\xa0\xa0\xa0\xa0\xa0" + option)
+            if (option === "RACK_OR_PLATE_ID" || option === "TUBE_OR_WELL_ID") {
+                // Value for the fields - "RACK_OR_PLATE_ID" || option == "TUBE_OR_WELL_ID"
+                // should be scanned in using their barcodes not manually entered
+                field_option.attr("disabled", "disabled")
+                field_option.attr("title", "Value should be scanned in not manually entered")
+
+                commonfieldsList.append(field_option)
+            } else {
+                commonfieldsList.append(field_option)
+            }
+
+
+        }
     }).fail(function (error) {
         console.log('Error:', error.message);
 
@@ -152,9 +188,9 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             "common_field": common_field
         }
     }).done(function (data) {
-        if (data !== [] && data.length !== 0) {
+        if (data['dropdownlist'] !== [] && data['dropdownlist'].length !== 0) {
             const value_input = document.createElement('select');
-            value_input.setAttribute('id', "commonvalueID");
+            value_input.setAttribute('id', "commonValueID");
             value_input.setAttribute('class', 'form-control');
             value_input.setAttribute('aria-describedby', "commonValueStatus");
             value_input.setAttribute('required', '')
@@ -165,20 +201,20 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
             $(value_input).empty();
             $(value_input).append('<option selected disabled hidden value=""' + '>' + 'Choose common value' + '</option>')
 
-            for (let i = 0; i < data.length; i++) {
-                option = data[i];
+            for (let i = 0; i < data['dropdownlist'].length; i++) {
+                option = data['dropdownlist'][i];
                 $(value_input).append('<option value="' + option + '">' + option + '</option>');
             }
             commonValueDiv.appendChild(value_input);
         } else {
-            let date_fields = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION", "ORIGINAL_COLLECTION_DATE"];
             // Create input tag
             const value_input = document.createElement('input');
             value_input.setAttribute('class', 'form-control');
             value_input.setAttribute('required', '');
             value_input.setAttribute('aria-describedby', "commonValueStatus");
 
-            if (date_fields.includes(common_field)) {
+            // Create date field
+            if (data['date_fields'].includes(common_field)) {
                 // Get date picker for common field that requires a date as its value
                 // Date selected has to be before the current date i.e. a past date
                 value_input.setAttribute('type', 'text');
@@ -198,15 +234,27 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
                     maxDate: 0
                 });
             } else if (common_field === "TIME_OF_COLLECTION") {
-                value_input.setAttribute('id', "commonvalueID");
+                // Create time field
+                value_input.setAttribute('id', "commonValueID");
                 value_input.setAttribute('type', 'time');
                 value_input.setAttribute('min', "0:00")
                 value_input.setAttribute('max', "24:00")
                 value_input.setAttribute('placeholder', "Choose time");
 
                 commonValueDiv.appendChild(value_input);
+            } else if (data['integer_fields'].includes(common_field)) {
+                // Create integer field
+                value_input.setAttribute('id', "commonValueID");
+                value_input.setAttribute('type', 'number');
+                value_input.setAttribute('placeholder', "Enter integer");
+                value_input.setAttribute('onkeypress', "return event.keyCode === 8 || event.charCode > 48 && event.charCode <= 57")
+                value_input.setAttribute('min', '1')
+                value_input.setAttribute('max', "10000")
+
+                commonValueDiv.appendChild(value_input);
+
             } else {
-                value_input.setAttribute('id', "commonvalueID");
+                value_input.setAttribute('id', "commonValueID");
                 value_input.setAttribute('type', 'text');
                 value_input.setAttribute('placeholder', "Enter common value");
                 value_input.setAttribute('value', "");
@@ -223,19 +271,11 @@ function get_common_value_dropdown_list_handler(common_field, commonValueDiv) {
 
 }
 
-function removeOptionFromCommonFieldDropdownList(commonField) {
-    const select = document.getElementById("commonfields");
-    const options = document.getElementById("commonfields").options;
-    for (let i = 0; i < options.length; i++) {
-        if (options[i].value === commonField) {
-            options.remove(i);
-            i--; // Decrease options by 1 since options now have one less element
-            select.selectedIndex = 0; // Reverts to default option after selected option has been
-                                      // removed from the dropdown list
-
-
-        }
-    }
+function disableSelectedOption(commonField) {
+    // Disable the selected option in dropdownlist
+    $("#commonfields option:contains(" + commonField + ")").attr("disabled", "disabled");
+    // Revert to the default option after selected option has been disabled in the dropdown list
+    $("select").prop("selectedIndex", 0)
 }
 
 function insertFormDiv(common_field) {
@@ -266,7 +306,7 @@ function insertFormDiv(common_field) {
     error_message_field.style.marginLeft = '243px';
     error_message_field.style.marginBottom = '10px';
     error_message_field.style.resize = 'none';
-    error_message_field.style.display = 'none' // Hide textarea tag
+    error_message_field.style.display = 'none' // Hide error message textarea tag
     commonFieldDiv.appendChild(error_message_field);
 
     // Common field; Create common field label
@@ -308,8 +348,8 @@ function insertFormDiv(common_field) {
     $(form).append(commonFieldDiv);
     formDiv.appendChild(form);
 
-    // Remove selected common field from the dropdown list
-    removeOptionFromCommonFieldDropdownList(common_field.value);
+    // Disable selected common field in the dropdown list
+    disableSelectedOption(common_field.value);
 
     // Make the form scrollable once it contains at least 6 divs
     let divs_in_form = document.querySelectorAll('#formID .form-group');
@@ -322,17 +362,6 @@ function insertFormDiv(common_field) {
     }
 }
 
-function sortOptionsList(selectTagIDName) {
-    let selectTagID = $(selectTagIDName);
-    let selectedValue = selectTagID.val(); // Cache selected value, before sorting the list
-    let options_list = selectTagID.find('option');
-    options_list.sort(function (a, b) {
-        return $(a).val() > $(b).val() ? 1 : -1;
-    });
-    selectTagID.html('').append(options_list);
-    selectTagID.val(selectedValue); // Set cached selected value
-}
-
 // noinspection JSUnusedGlobalSymbols
 function removeFormDiv(div) {
     const formDiv = document.getElementById("formDiv");
@@ -341,12 +370,9 @@ function removeFormDiv(div) {
     // Get the common field name from the div within the form
     let common_field = $(div).closest('div .form-group').find('.cfID').text();
 
-    // Append the common field name to the dropdown list now that it has be removed from the form
-    $('#commonfields').append('<option value="' + common_field + '">' + common_field + '</option>');
-    $(div).closest('div').remove(); // Remove div
-
-    // Sort the options within the common fields' dropdownlist/select tag
-    sortOptionsList('#commonfields');
+    // Enable the common field name that is disabled in the dropdown list by removing the disable attribute
+    $("#commonfields option:contains(" + common_field + ")").removeAttr("disabled");
+    $(div).closest('div').remove(); // Remove the div from the form
 
     // Once the form is less than 6 rows, retain the initial height of the form/modal
     // by removing the css that were added to make the form tag div scrollable
@@ -366,7 +392,6 @@ function validateCommonValue(e, data) {
                 let error_message_tag = element.find('#errorMessageID')
 
                 // Common value is either a text enclosed within an input tag or a date enclosed within a select tag
-                // let common_value = element.find('.commonValueDiv input') !== null ? element.find('.commonValueDiv input').val() : element.find('.commonValueDiv select').val();
                 let common_value = element.find('.commonValueDiv input').val() ?? element.find('.commonValueDiv select').val();
 
                 // Display an error message if the common value is undefined, null or empty
@@ -468,11 +493,19 @@ function generateManifestTemplate(event) {
 
 
     $("#formID .form-group").each(function () {
+        let common_value;
         let element = $(this)
         let common_field = element.find('.cfID').text();
 
         // Get value from input tag or select tag
-        let common_value = element.find('.commonValueDiv input') !== null ? element.find('.commonValueDiv input').val() : element.find('.commonValueDiv select').val();
+        // If the input tag is "undefined" or "null" then, the value originates from a select tag and vice versa
+
+        if (typeof element.find('.commonValueDiv input').val() === 'undefined' || element.find('.commonValueDiv input').val() === null) {
+            common_value = element.find('.commonValueDiv select').val();
+        } else {
+            // typeof element.find('.commonValueDiv select').val() === 'undefined' || element.find('.commonValueDiv select').val() === null)
+            common_value = element.find('.commonValueDiv input').val();
+        }
 
         //.append() cannot be used to add an item to a list/array in JavaScript so .push() is used instead
         common_fields_list.push(common_field);
@@ -489,9 +522,11 @@ function generateManifestTemplate(event) {
             link.href = URL.createObjectURL(blob);
             link.click();
             window.URL.revokeObjectURL(link.href);
+            $('#spinner_div').hide();
         } else if (xhr.status !== 200) {
             console.log(`Error ${xhr.status}: ${xhr.statusText}`);
         }
+
     }
     xhr.setRequestHeader('X-CSRFToken', csrftoken)
     xhr.responseType = 'blob';
@@ -516,25 +551,5 @@ function showWizardBasedOnManifestType(manifest_type) {
     $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
     // $('.btn-prev').hide(); // Hide previous button
-
-    // switch (manifest_type) {
-    //     case "asg":
-    //         manifestTypeID.selectedIndex = 0; // Preload with "ASG" manifest type
-    //         break;
-    //     case "dtol":
-    //         manifestTypeID.selectedIndex = 1; // Preload with "DTOL" manifest type
-    //         break;
-    //     case "erga":
-    //         manifestTypeID.selectedIndex = 2; // Preload with "ERGA" manifest type
-    //         break;
-    //     case "env":
-    //         manifestTypeID.selectedIndex = 3; // Preload with "ENV" manifest type
-    //         break;
-    //
-    //     default:
-    //         manifestTypeID.selectedIndex = 0;// Preload with "ASG" manifest type as default
-    //         break;
-    // }
-
     get_common_fields_handler();// Preload with the common fields dropdown list
 }

@@ -19,7 +19,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "D",
+        "order": 4
+      }
+    }
   },
   {
     "help_tip": "",
@@ -41,7 +48,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "E",
+        "order": 5
+      }
+    }
   },
   {
     "help_tip": "",
@@ -63,7 +77,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "F",
+        "order": 6
+      }
+    }
   },
   {
     "help_tip": "",
@@ -85,7 +106,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BS",
+        "order": 71
+      }
+    }
   },
   {
     "help_tip": "",
@@ -107,7 +135,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BR",
+        "order": 70
+      }
+    }
   },
   {
     "help_tip": "",
@@ -129,7 +164,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BT",
+        "order": 72
+      }
+    }
   },
   {
     "help_tip": "",
@@ -151,7 +193,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BU",
+        "order": 73
+      }
+    }
   },
   {
     "help_tip": "",
@@ -173,7 +222,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BV",
+        "order": 74
+      }
+    }
   },
   {
     "help_tip": "",
@@ -195,7 +251,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BW",
+        "order": 75
+      }
+    }
   },
   {
     "help_tip": "",
@@ -217,7 +280,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BX",
+        "order": 76
+      }
+    }
   },
   {
     "help_tip": "",
@@ -239,7 +309,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BY",
+        "order": 77
+      }
+    }
   },
   {
     "help_tip": "",
@@ -261,7 +338,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BZ",
+        "order": 78
+      }
+    }
   },
   {
     "help_tip": "",
@@ -283,7 +367,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "CA",
+        "order": 79
+      }
+    }
   },
   {
     "help_tip": "",
@@ -305,29 +396,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "versions": [
-      "TISSUE_REMOVED_FOR_BIOBANKING"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "specifications": [
-      "erga"
-    ],
-    "show_in_form": true,
-    "label": "Tissue Removed For Biobanking",
-    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BG",
+        "order": 59
+      }
+    }
   },
   {
     "help_tip": "",
@@ -349,7 +425,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BH",
+        "order": 60
+      }
+    }
   },
   {
     "help_tip": "",
@@ -371,7 +454,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BI",
+        "order": 61
+      }
+    }
   },
   {
     "help_tip": "",
@@ -393,7 +483,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BJ",
+        "order": 62
+      }
+    }
   },
   {
     "help_tip": "",
@@ -415,7 +512,14 @@
     "control": "text",
     "default_value": "",
     "dwc": "",
-    "type": "string"
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BK",
+        "order": 63
+      }
+    }
   },
   {
     "help_tip": "Collector ORCID ID",
@@ -438,6 +542,13 @@
     "id": "copo.sample.COLLECTOR_ORCID_ID",
     "label": "Collector Orcid Identifier",
     "show_in_table": true,
-    "dwc": ""
+    "dwc": "",
+    "index": {
+      "erga": {
+        "colour": "#d0e3f3",
+        "excel_col": "Z",
+        "order": 26
+      }
+    }
   }
 ]
