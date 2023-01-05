@@ -50,74 +50,77 @@ def validate(self):
     if any(x for x in taxon_id_list):
         for taxon in taxon_id_list:
             try:
-
-                    int(taxon)
-                    notify_frontend(data={"profile_id": self.profile_id},
-                                    msg="Checking Taxonomic ID: " + str(taxon),
-                                    action="info",
-                                    html_id="sample_info")
-                    # check if taxon is submittable
-                    ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
-                    if ena_taxon_errors:
-                        self.errors += ena_taxon_errors
-                        self.flag = False
-                except ValueError as e:
+                # if taxon == "":
+                #    pass
+                int(taxon)
+                notify_frontend(data={"profile_id": self.profile_id},
+                                msg="Checking Taxonomic ID: " + str(taxon),
+                                action="info",
+                                html_id="sample_info")
+                # check if taxon is submittable
+                ena_taxon_errors = check_taxon_ena_submittable(taxon, by="id")
+                if ena_taxon_errors:
+                    self.errors += ena_taxon_errors
                     self.flag = False
-                    self.errors.append("Non integer value detected in TAXON_ID column")
-                    return self.errors, self.warnings, self.flag
-        if any(id for id in taxon_id_list):
-            i = 0
-            while i < len(taxon_id_list):
-                window_list = taxon_id_list[i: i + 200]
-                i += 200
-                handle = Entrez.efetch(db="Taxonomy", id=window_list, retmode="xml")
-                records = Entrez.read(handle)
-                for element in records:
-                    self.taxonomy_dict[element['TaxId']] = element
+            except ValueError as e:
+                self.flag = False
+                self.errors.append("Non integer value detected in TAXON_ID column")
+                return self.errors, self.warnings, self.flag
+    if any(id for id in taxon_id_list):
+        i = 0
+        while i < len(taxon_id_list):
+            window_list = taxon_id_list[i: i + 200]
+            i += 200
+            handle = Entrez.efetch(db="Taxonomy", id=window_list, retmode="xml")
+            records = Entrez.read(handle)
+            for element in records:
+                self.taxonomy_dict[element['TaxId']] = element
 
-        # if DTOL_ENV we only check the rank is species
-        if p_type == "DTOL_ENV":
-            for index, row in self.data[['TAXON_ID']].iterrows():
-                taxon_id = row['TAXON_ID'].strip()
-                if not taxon_id:
-                    self.errors.append(msg["validation_msg_missing_data"] % ("TAXON_ID", str(index + 2), "[]"))
-                    self.flag = False
-                    continue
-                if self.taxonomy_dict[taxon_id]['Rank'] != 'species':
-                    if not "SYMBIONT" in self.data.at[index, "SYMBIONT"]:
-                        self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
-                        self.flag = False
-            return self.errors, self.warnings, self.flag
-
-        for index, row in self.data[
-            ['ORDER_OR_GROUP', 'FAMILY', 'GENUS', 'TAXON_ID', 'SCIENTIFIC_NAME']].iterrows():
-            if all(row[header].strip() == "" for header in ['TAXON_ID', 'SCIENTIFIC_NAME']):
-                self.errors.append(
-                    "Missing data: both TAXON_ID and SCIENTIFIC_NAME missing from row <strong>%s</strong>. "
-                    "Provide at least one" % (
-                        str(index + 2)))
+    # if DTOL_ENV we only check the rank is species
+    if p_type == "DTOL_ENV":
+        for index, row in self.data[['TAXON_ID']].iterrows():
+            taxon_id = row['TAXON_ID'].strip()
+            if not taxon_id:
+                self.errors.append(msg["validation_msg_missing_data"] % ("TAXON_ID", str(index + 2), "[]"))
                 self.flag = False
                 continue
-            notify_frontend(data={"profile_id": self.profile_id},
-                            msg="Checking taxonomy information at row <strong>%s</strong> - "
-                                "<strong>%s</strong>" % (
-                                    str(index + 2), row['SCIENTIFIC_NAME']),
-                            action="info",
-                            html_id="sample_info")
-            scientific_name = row['SCIENTIFIC_NAME'].strip()
-            taxon_id = row['TAXON_ID'].strip()
+            if self.taxonomy_dict[taxon_id]['Rank'] != 'species':
+                if not "SYMBIONT" in self.data.at[index, "SYMBIONT"]:
+                    self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
+                    self.flag = False
+        return self.errors, self.warnings, self.flag
 
-            # suggest TAXON_ID if not provided
-            if not taxon_id:
-                handle = Entrez.esearch(db="Taxonomy", term=scientific_name)
-                records = Entrez.read(handle)
-                # errors.append(self.validation_msg_missing_taxon % (str(index+2), scientific_name,
-                # records['IdList'][0]))
-                if not records['IdList']:
-                    self.errors.append(
-                        "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
-                        "<strong>%s</strong>" % (
-                            scientific_name, str(index + 2)))
+    for index, row in self.data[
+        ['ORDER_OR_GROUP', 'FAMILY', 'GENUS', 'TAXON_ID', 'SCIENTIFIC_NAME']].iterrows():
+        if all(row[header].strip() == "" for header in ['TAXON_ID', 'SCIENTIFIC_NAME']):
+            self.errors.append(
+                "Missing data: both TAXON_ID and SCIENTIFIC_NAME missing from row <strong>%s</strong>. "
+                "Provide at least one" % (
+                    str(index + 2)))
+            self.flag = False
+            continue
+        notify_frontend(data={"profile_id": self.profile_id},
+                        msg="Checking taxonomy information at row <strong>%s</strong> - "
+                            "<strong>%s</strong>" % (
+                                str(index + 2), row['SCIENTIFIC_NAME']),
+                        action="info",
+                        html_id="sample_info")
+        scientific_name = row['SCIENTIFIC_NAME'].strip()
+        taxon_id = row['TAXON_ID'].strip()
+
+        # suggest TAXON_ID if not provided
+        if not taxon_id:
+            handle = Entrez.esearch(db="Taxonomy", term=scientific_name)
+            records = Entrez.read(handle)
+            # errors.append(self.validation_msg_missing_taxon % (str(index+2), scientific_name,
+            # records['IdList'][0]))
+            if not records['IdList']:
+                self.errors.append(
+                    "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
+                    "<strong>%s</strong>. " % (
+                        scientific_name,
+                        str(index + 2)) + ". If you know there is a matching record in NCBI, please make sure to add the " \
+                                          "TAXON_ID in the manifest")
                 self.flag = False
                 continue
             self.warnings.append(msg["validation_warning_field"] % (
