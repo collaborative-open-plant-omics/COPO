@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone, date
 import importlib
 import re
+import importlib
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -31,6 +32,10 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
+TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
+SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 
 schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
 dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
@@ -752,6 +757,35 @@ class Sample(DAComponent):
         # Get samples from Mongo database similar to SQL's '%' operator or 'LIKE'
         return self.get_collection_handle().find({"SPECIMEN_ID": {'$regex': specimen_id, '$options': 'i'}})
 
+    def get_sample_by_id(self, sample_id):
+        cursor = self.get_collection_handle().find({"_id": sample_id})
+
+        # get schema
+        sc = self.get_component_schema()
+        out = list()
+        taxon = dict()
+        for i in list(cursor):
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
+            sam = dict()
+            for cell in i:
+                for field in sc:
+
+                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+                            if field.get("show_in_table", ""):
+                                sam[cell] = i[cell]
+            out.append(sam)
+
+        return out
+
     def count_samples_by_specimen_id_for_barcoding(self, specimen_id):
         # specimens must not have already been submitted to ENA so should have status of pending
         return self.get_collection_handle().count(
@@ -992,15 +1026,37 @@ class Sample(DAComponent):
                     if bc["sample_id"] == str(s["_id"]):
                         samples[idx]["barcoding"] = bc
             cursor = samples
-        elif filter == "processing":
-            out = list()
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "processing"})
-            samples = list(cursor)
-            cursor = samples
         else:
             # else return samples who's status simply matches the filter
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
+
+        # get schema
+        sc = self.get_component_schema()
+        out = list()
+        taxon = dict()
+        for i in list(cursor):
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
+            sam = dict()
+            for cell in i:
+                for field in sc:
+
+                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+                            if field.get("show_in_table", ""):
+                                sam[cell] = i[cell]
+            out.append(sam)
+        return out
+
+    def get_dtol_from_profile_id_and_project(self, profile_id, project):
+        cursor = self.get_collection_handle().find({'profile_id': profile_id, "tol_project": project})
 
         # get schema
         sc = self.get_component_schema()
@@ -1968,6 +2024,20 @@ class Profile(DAComponent):
     def get_dtol_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Darwin Tree of Life (DTOL)", "Aquatic Symbiosis Genomics (ASG)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtol_only_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_asg_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
             "date_created",
             pymongo.DESCENDING)
         return cursor_to_list(p)

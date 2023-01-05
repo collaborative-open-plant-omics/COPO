@@ -1,4 +1,5 @@
 import datetime
+import importlib
 import json
 import subprocess
 from urllib.parse import urljoin
@@ -7,18 +8,23 @@ import requests
 import jsonpath_rw_ext as jp
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
-
+from django.conf import settings
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.validators import validation_messages as msg
 from tools import resolve_env
 from exceptions_and_logging import logger
-from web.apps.web_copo.lookup.dtol_lookups import API_KEY
+# from web.apps.web_copo.lookup.dtol_lookups import API_KEY
 from web.apps.web_copo.lookup.copo_enums import *
-
 
 public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
 l = logger.Logger("exceptions_and_logging/logs")
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
+API_KEY = dtol_lookups_data.API_KEY
+
+
 def make_tax_from_sample(s):
     out = dict()
     out["SYMBIONT"] = "symbiont"
@@ -49,7 +55,6 @@ def validate_date(date_text):
         assert todayis > enteredtime
     except AssertionError:
         raise AssertionError("Incorrect date entered: date is in the future")
-
 
 
 def check_taxon_ena_submittable(taxon, by="id"):
@@ -132,6 +137,7 @@ def create_barcoding_spreadsheet():
             sheet.column_dimensions[get_column_letter(idx + 1)].width = len(cell.value) + 5
 
     return wb
+
 
 def query_public_name_service(sample_list):
     headers = {"api-key": API_KEY}

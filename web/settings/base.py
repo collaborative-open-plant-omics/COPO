@@ -3,6 +3,7 @@ import os
 from tools import resolve_env
 from django.conf import settings
 from datetime import timedelta
+from django.conf import settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -11,6 +12,7 @@ SCHEMA_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schemas')
 SCHEMA_VERSIONS_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schema_versions')
 
 SCHEMA_VERSIONS_FILE_LIST = ["sample.json", "ena_seq.json"]  # files based on schema versions
+
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 

@@ -1,13 +1,19 @@
 from Bio import Entrez
 from dal.copo_da import Profile
+from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
-from web.apps.web_copo.lookup import dtol_lookups as lookup
+# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
+import importlib
+
 whole_used_specimens = set()
 regex_human_readable = ""
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 # validations are run in alphabetic order of class name
@@ -70,7 +76,7 @@ class DtolEnumerationValidator(Validator):
                 for element in records:
                     self.taxonomy_dict[element['TaxId']] = element
 
-        #if DTOL_ENV we only check the rank is species
+        # if DTOL_ENV we only check the rank is species
         if p_type == "DTOL_ENV":
             for index, row in self.data[['TAXON_ID']].iterrows():
                 taxon_id = row['TAXON_ID'].strip()
@@ -83,7 +89,6 @@ class DtolEnumerationValidator(Validator):
                         self.errors.append(msg["validation_msg_invalid_rank"] % (str(index + 2)))
                         self.flag = False
             return self.errors, self.warnings, self.flag
-
 
         for index, row in self.data[
             ['ORDER_OR_GROUP', 'FAMILY', 'GENUS', 'TAXON_ID', 'SCIENTIFIC_NAME']].iterrows():
@@ -208,7 +213,7 @@ class DtolEnumerationValidator(Validator):
                                 row['ORDER_OR_GROUP'], "ORDER_OR_GROUP", str(index + 2),
                                 element.get('ScientificName').upper()))
                             self.flag = False
-                #edge case, TAXON doesn't have GENUS or FAMILY
+                # edge case, TAXON doesn't have GENUS or FAMILY
                 ranks_available = [x.get('Rank') for x in self.taxonomy_dict[taxon_id]['LineageEx']]
                 if 'genus' not in ranks_available:
                     if row['GENUS'].strip():
@@ -216,12 +221,13 @@ class DtolEnumerationValidator(Validator):
                             row['GENUS'], "GENUS", str(index + 2), "*missing value in NCBI*"))
                         self.flag = False
                 if 'family' not in ranks_available:
-                    #if empty fill in with NOT_APPLICABLE
+                    # if empty fill in with NOT_APPLICABLE
                     if not row['FAMILY'].strip():
                         self.data.at[index, "FAMILY"] = "NOT_APPLICABLE"
                     elif row['FAMILY'].strip() != "NOT_APPLICABLE":
                         self.errors.append(msg["validation_msg_invalid_taxonomy"] % (
-                            row['FAMILY'], "FAMILY", str(index + 2), "*missing value in NCBI*, please default to NOT_APPLICABLE"))
+                            row['FAMILY'], "FAMILY", str(index + 2),
+                            "*missing value in NCBI*, please default to NOT_APPLICABLE"))
                         self.flag = False
             else:
                 self.errors.append(

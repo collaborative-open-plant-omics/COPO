@@ -1,5 +1,6 @@
-
+from django.conf import settings
 from django.core.management import BaseCommand
+import importlib
 import os
 import subprocess
 import xml.etree.ElementTree as ET
@@ -9,23 +10,32 @@ import datetime
 from dal.copo_da import Source, Sample
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
 from tools import resolve_env
-from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS, \
-    API_KEY
+
+# from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS, \
+#     API_KEY
+
+schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
+dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
+DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
+DTOL_UNITS = dtol_lookups_data.DTOL_UNITS
+API_KEY = dtol_lookups_data.API_KEY
 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
     # Show this when the user types help
     help = "change the cutoff date"
+
     def __init__(self):
         self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
         self.user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
-        self.ena_service = resolve_env.get_env('ENA_SERVICE') #'https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/'
-        self.ena_sample_retrieval = self.ena_service[:-len('submit/')]+"samples/" #https://devwww.ebi.ac.uk/ena/submit/drop-box/samples/" \
+        self.ena_service = resolve_env.get_env('ENA_SERVICE')  # 'https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/'
+        self.ena_sample_retrieval = self.ena_service[:-len(
+            'submit/')] + "samples/"  # https://devwww.ebi.ac.uk/ena/submit/drop-box/samples/" \
 
     # A command must define handle()
     def handle(self, *args, **options):
-        cutoff_date = datetime.datetime(2020, 12, 24) #TODO change date
+        cutoff_date = datetime.datetime(2020, 12, 24)  # TODO change date
         list_to_update = self.identify_specimen_samples(cutoff_date)
 
         for accession in list_to_update:
@@ -74,8 +84,7 @@ class Command(BaseCommand):
                 # submit modified xml to ENA
                 self.modify_sample(sample["biosampleAccession"])
 
-
-    def identify_specimen_samples(self,cutoff_date):
+    def identify_specimen_samples(self, cutoff_date):
         '''list_to_update = db.getCollection('SourceCollection').find({  "date_created": {
             "$lt": 'ISODate("'+cutoff_date+'")'
         },
@@ -125,70 +134,69 @@ class Command(BaseCommand):
             tags_block = attribute.find('TAG')
             existing_tags.append(tags_block.text)
         for item in object.items():
-                if item[1]:
-                    #check attribute name
-                    try:
-                        if item[0] == 'COLLECTION_LOCATION':
-                            attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_1']['ena']
-                        elif item[0] in ["DATE_OF_COLLECTION", "DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
-                            attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
-                        # handling annoying edge case below
-                        else:
-                            attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
-                        if attribute_name in existing_tags:
-                            pass #because there should not be any change
-                        else:
-                            # add new attribute to xml
-                            try:
-                                # exceptional handling of COLLECTION_LOCATION
-                                if item[0] == 'COLLECTION_LOCATION':
-                                    attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_1']['ena']
-                                    sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
-                                    tag = ET.SubElement(sample_attribute, 'TAG')
-                                    tag.text = attribute_name
-                                    value = ET.SubElement(sample_attribute, 'VALUE')
-                                    value.text = str(item[1]).split('|')[0]
-                                    attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_2']['ena']
-                                    sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
-                                    tag = ET.SubElement(sample_attribute, 'TAG')
-                                    tag.text = attribute_name
-                                    value = ET.SubElement(sample_attribute, 'VALUE')
-                                    value.text = '|'.join(str(item[1]).split('|')[1:])
-                                elif item[0] in ["DATE_OF_COLLECTION", "DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
-                                    attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
-                                    sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
-                                    tag = ET.SubElement(sample_attribute, 'TAG')
-                                    tag.text = attribute_name
-                                    value = ET.SubElement(sample_attribute, 'VALUE')
-                                    value.text = str(item[1]).lower().replace("_", " ")
-                                # handling annoying edge case below
-                                elif item[0] == "LIFESTAGE" and item[1] == "SPORE_BEARING_STRUCTURE":
-                                    attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
-                                    sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
-                                    tag = ET.SubElement(sample_attribute, 'TAG')
-                                    tag.text = attribute_name
-                                    value = ET.SubElement(sample_attribute, 'VALUE')
-                                    value.text = "spore-bearing structure"
-                                else:
-                                    attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
-                                    sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
-                                    tag = ET.SubElement(sample_attribute, 'TAG')
-                                    tag.text = attribute_name
-                                    value = ET.SubElement(sample_attribute, 'VALUE')
-                                    value.text = str(item[1]).replace("_", " ")
-                                # add ena units where necessary
-                                if DTOL_UNITS.get(item[0], ""):
-                                    if DTOL_UNITS[item[0]].get('ena_unit', ""):
-                                        unit = ET.SubElement(sample_attribute, 'UNITS')
-                                        unit.text = DTOL_UNITS[item[0]]['ena_unit']
-                            except KeyError:
-                                # pass, item is not supposed to be submitted to ENA
-                                pass
+            if item[1]:
+                # check attribute name
+                try:
+                    if item[0] == 'COLLECTION_LOCATION':
+                        attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_1']['ena']
+                    elif item[0] in ["DATE_OF_COLLECTION", "DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
+                        attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+                    # handling annoying edge case below
+                    else:
+                        attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+                    if attribute_name in existing_tags:
+                        pass  # because there should not be any change
+                    else:
+                        # add new attribute to xml
+                        try:
+                            # exceptional handling of COLLECTION_LOCATION
+                            if item[0] == 'COLLECTION_LOCATION':
+                                attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_1']['ena']
+                                sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
+                                tag = ET.SubElement(sample_attribute, 'TAG')
+                                tag.text = attribute_name
+                                value = ET.SubElement(sample_attribute, 'VALUE')
+                                value.text = str(item[1]).split('|')[0]
+                                attribute_name = DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_2']['ena']
+                                sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
+                                tag = ET.SubElement(sample_attribute, 'TAG')
+                                tag.text = attribute_name
+                                value = ET.SubElement(sample_attribute, 'VALUE')
+                                value.text = '|'.join(str(item[1]).split('|')[1:])
+                            elif item[0] in ["DATE_OF_COLLECTION", "DECIMAL_LATITUDE", "DECIMAL_LONGITUDE"]:
+                                attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+                                sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
+                                tag = ET.SubElement(sample_attribute, 'TAG')
+                                tag.text = attribute_name
+                                value = ET.SubElement(sample_attribute, 'VALUE')
+                                value.text = str(item[1]).lower().replace("_", " ")
+                            # handling annoying edge case below
+                            elif item[0] == "LIFESTAGE" and item[1] == "SPORE_BEARING_STRUCTURE":
+                                attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+                                sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
+                                tag = ET.SubElement(sample_attribute, 'TAG')
+                                tag.text = attribute_name
+                                value = ET.SubElement(sample_attribute, 'VALUE')
+                                value.text = "spore-bearing structure"
+                            else:
+                                attribute_name = DTOL_ENA_MAPPINGS[item[0]]['ena']
+                                sample_attribute = ET.SubElement(attributes_block, 'SAMPLE_ATTRIBUTE')
+                                tag = ET.SubElement(sample_attribute, 'TAG')
+                                tag.text = attribute_name
+                                value = ET.SubElement(sample_attribute, 'VALUE')
+                                value.text = str(item[1]).replace("_", " ")
+                            # add ena units where necessary
+                            if DTOL_UNITS.get(item[0], ""):
+                                if DTOL_UNITS[item[0]].get('ena_unit', ""):
+                                    unit = ET.SubElement(sample_attribute, 'UNITS')
+                                    unit.text = DTOL_UNITS[item[0]]['ena_unit']
+                        except KeyError:
+                            # pass, item is not supposed to be submitted to ENA
+                            pass
 
-                    except KeyError:
-                        # pass, item is not supposed to be submitted to ENA
-                        pass
-
+                except KeyError:
+                    # pass, item is not supposed to be submitted to ENA
+                    pass
 
         # adding project DTOL
         sample_attributes = tree.find('SAMPLE').find('SAMPLE_ATTRIBUTES')
@@ -231,7 +239,7 @@ class Command(BaseCommand):
         attributes_block = tree.find('SAMPLE').find('SAMPLE_ATTRIBUTES')
 
         # modifying relationship
-        flag=False
+        flag = False
         for attribute in attributes_block:
             if attribute.find('TAG').text == "sample same as":
                 flag = True
@@ -243,11 +251,10 @@ class Command(BaseCommand):
             value = ET.SubElement(sample_attribute, 'VALUE')
             value.text = object["sampleSameAs"]
 
-        #remove old relationship
+        # remove old relationship
         for child in attributes_block:
             if child.text == 'sample derived from':
                 attributes_block.remove(child)
 
         ET.dump(tree)
         tree.write(open(object['biosampleAccession'] + ".xml", 'w'), encoding='unicode')
-

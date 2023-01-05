@@ -10,6 +10,7 @@ from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
 from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Source, Submission, Description
+from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
 # from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk

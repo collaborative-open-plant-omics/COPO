@@ -1,0 +1,48 @@
+{% extends 'copo/base_simple.html' %}
+
+{% load static %}
+{% load web_tags %}
+
+{% block stylesheet_block %}
+    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
+    <style>
+        body {
+            background-image: none !important;
+
+        }
+    </style>
+{% endblock %}
+
+
+{% block title_block %} Unauthorisation :( {% endblock %}
+
+
+
+{% block content %}
+
+
+    <div class="wrapper">
+        <div class="text-center">
+            <span class="lead">Unauthorised Access</span>
+            <br/>{{ message }}
+        </div>
+
+        <div class="row text-center">
+            <img class="text-center" src="{% static 'copo/img/headcrab.gif' %}" height='50px'
+                 style="margin:80px -30px 40px 0"
+                 alt="Gordon Freeman and His Crowbar"/>
+            <img class="text-center" src="{% static 'copo/img/freeman.gif' %}" height='100px'
+                 style="margin:40px 0 40px 0"
+                 alt="Gordon Freeman and His Crowbar"/>
+
+            <br/>
+            <a class="btn btn-default" style="width:200px" href="{% url 'copo:index' %}">Return Home</a>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+
+{% block js_block %}
+{% endblock %}

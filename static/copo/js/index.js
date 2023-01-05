@@ -9,12 +9,16 @@ $(document).ready(function () {
     var copoFormsURL = "/copo/copo_forms/";
     var copoVisualsURL = "/copo/copo_visualize/";
     var copoDeleteProfile = "/copo/delete_profile/"
+    var copoTolDashboardURL = "/copo/dashboard/"
     csrftoken = $.cookie('csrftoken');
 
     var componentMeta = get_component_meta(component);
 
     $(document).on("click", "#accept_reject_shortcut", function (evt) {
         document.location = "/copo/accept_reject_sample"
+    })
+    $(document).on("click", "#tol_dashboard_shortcut", function (evt) {
+        document.location = copoTolDashboardURL
     })
     $(document).on("click", ".expanding_menu > div", function (e) {
         var el = $(e.currentTarget)
@@ -570,9 +574,18 @@ $(document).ready(function () {
         // }
     }
 
+    // Show "accept_reject_samples" button
     for (g in groups) {
         if (groups[g].includes("sample_managers")) {
             $("#accept_reject_shortcut").show()
+            break;
+        }
+    }
+
+    // Show "tol_dashboard" button
+    for (let g in groups) {
+        if (groups[g].includes("sample_managers") || groups[g].includes("_users")) {
+            $("#tol_dashboard_shortcut").show()
             break;
         }
     }

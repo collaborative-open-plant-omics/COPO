@@ -102,7 +102,7 @@ $(document).ready(function () {
 
         $("#help_add_button").removeClass("primary").addClass("green")
         $("#help_add_button").children("i").removeClass("add").addClass("table")
-        }
+    }
 
     if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
         $(".new-samples-spreadsheet-template-erga").show()
@@ -112,12 +112,20 @@ $(document).ready(function () {
         $("#help_add_button").removeClass("primary").addClass("green")
         $("#help_add_button").children("i").removeClass("add").addClass("table")
     }
-    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers"))  {
+    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
         $(".accept_reject_samples").show()
+    }
+
+    if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
+        $(".tol_inspect").show()
     }
 
     $(document).on("click", ".accept_reject_samples", function (evt) {
         document.location = "/copo/accept_reject_sample"
+    })
+
+    $(document).on("click", ".tol_inspect", function (evt) {
+        document.location = "/copo/tol_inspect"
     })
 
     $(document).on("change", "#number_of_samples", function (evt) {
@@ -1760,7 +1768,6 @@ $(document).ready(function () {
     }
 
 
-
     function batch_update_records(table) {
         //function uses value from focused cell to update selected records
         var cells = table.cells('.focus');
@@ -2114,7 +2121,6 @@ $(document).ready(function () {
     if (!profile_type.includes("Stand-alone")) {
         $("#edit_button").hide()
     }
-
 
 
 }); //end document ready

@@ -8,8 +8,8 @@ import os
 import re
 import time
 import urllib.parse
-import xlsxwriter
-from datetime import datetime, date, time
+import importlib
+from datetime import datetime, time, timezone
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
@@ -37,6 +37,7 @@ from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoG
     Repository, Person, ValidationQueue
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
+from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
 from submission.dataverseSubmission import DataverseSubmit as ds
 from submission.dspaceSubmission import DspaceSubmit as dspace
@@ -60,6 +61,8 @@ from exceptions_and_logging import logger
 # from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
+
+# from web.apps.web_copo.lookup import dtol_lookups as lkup
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -1443,6 +1446,60 @@ def update_pending_samples_table(request):
     return HttpResponse(json_util.dumps(profiles))
 
 
+def update_pending_samples_table_for_tol_inspection(request):
+    project = request.GET["project"]
+
+    if project == "ERGA":
+        profiles = Profile().get_erga_profiles()
+    elif project == "DTOL":
+        profiles = Profile().get_dtol_only_profiles()
+    elif project == "ASG":
+        profiles = Profile().get_asg_profiles()
+    else:
+        profiles = Profile().get_dtolenv_profiles()
+
+    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
+               in profiles]
+
+    return HttpResponse(
+        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
+
+
+def get_sample_details(request):
+    sample_id = ObjectId(request.POST["sample_id"])
+    sample_data = Sample().get_sample_by_id(sample_id)
+    excluded_fields = ["profile_id", "biosample_id", "_id"]  # Filter dictionary field keys with dict comprehension
+    sample_data_with_blank_field_values = {field: value for (field, value) in sample_data[0].items() if
+                                           field not in excluded_fields}
+
+    # Convert field values that are in datetime milliseconds object to timestamp
+    datetime_fields = ["date_modified", "time_created"]
+
+    # for field, value in sample_data:
+    #     if field in datetime_fields:
+    #         print(dict({field: value}))
+
+    # (field, value) in sample_data[0].items() if field in datetime_fields sample_data = {field: (
+    # datetime.fromtimestamp(value / 1000.0, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')) for (field,
+    # value) in sample_data[0].items() if field in datetime_fields}
+
+    # Change "public_name" field name to "tolid" field name
+    sample_data_with_blank_field_values["tolid"] = sample_data_with_blank_field_values.pop("public_name")
+
+    # Do not show empty values
+    sample_data_with_no_blank_field_values = {field: value for (field, value) in
+                                              sample_data_with_blank_field_values.items() if
+                                              sample_data_with_blank_field_values[field]}
+
+    sorted_sample_data_with_blank_field_values = dict(sorted(sample_data_with_blank_field_values.items()))
+    # sorted_sample_data_with_no_blank_field_values = dict(sorted(sample_data_with_no_blank_field_values.items()))
+
+    # return HttpResponse(json_util.dumps({"sample_data_with_blanks": sorted_sample_data_with_blank_field_values,
+    # "sample_data_with_no_blanks": sorted_sample_data_with_no_blank_field_values}))
+
+    return HttpResponse(json_util.dumps(sorted_sample_data_with_blank_field_values))
+
+
 def get_samples_for_profile(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
@@ -1451,6 +1508,18 @@ def get_samples_for_profile(request):
         samples = Sample().get_dtol_from_profile_id(profile_id, filter)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
+        return HttpResponse(json_util.dumps(samples))
+    else:
+        return HttpResponse(json_util.dumps({"locked": True}))
+
+
+def get_project_samples_for_tol_inspection(request):
+    url = request.build_absolute_uri()
+    if not ViewLock().isViewLockedCreate(url=url):
+        profile_id = request.GET["profile_id"]
+        project = request.GET["project"]
+        samples = Sample().get_dtol_from_profile_id_and_project(profile_id, project)
+
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))

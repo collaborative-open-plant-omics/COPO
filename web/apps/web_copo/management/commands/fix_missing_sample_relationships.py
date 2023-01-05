@@ -7,6 +7,7 @@ from dal.copo_da import Sample
 from django.core.management import BaseCommand
 from web.apps.web_copo.management.commands import update_samplefield
 
+
 # To run this file in the PyCharm terminal: $ python manage.py fix_missing_sample_relationships
 
 # The class must be named Command, and subclass BaseCommand
@@ -34,7 +35,7 @@ class Command(BaseCommand):
         # Retrieve the accession also known as biosample accession from the ENA webin submission portal
         # Look at the xml format in the DTOLSubmission class to see how to retrieve a value of a tag for the accession
         # Use the links sent to determine how to search for the biosample from the ENA website
-        sraAccession="ERS12158254"
+        # sraAccession="ERS12158254"
         ena_api_search_service = "https://wwwdev.ebi.ac.uk/ena/portal/api/search"
         curl_cmd = r"""curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'result=sample&query=secondary_sample_accession={}&fields=accession&format=json' {}""".format(
             sraAccession, ena_api_search_service)

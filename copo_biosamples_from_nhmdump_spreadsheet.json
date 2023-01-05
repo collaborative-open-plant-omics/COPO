@@ -1,0 +1,822 @@
+{
+    "_id": {
+        "0": "6361151b6154ae482b755a2b",
+        "1": "6361148b6154ae482b755a28",
+        "2": "6361148b6154ae482b755a29",
+        "3": "6361151b6154ae482b755a2d"
+    },
+    "collected_by": {
+        "0": "CHERRY STARLING",
+        "1": "VENGAMANAIDU MODEPALLI",
+        "2": "VENGAMANAIDU MODEPALLI",
+        "3": "URMAS SAARMA"
+    },
+    "collection date": {
+        "0": "2020-08-22",
+        "1": "2019-09-08",
+        "2": "2019-09-08",
+        "3": "2020-08-22"
+    },
+    "sex": {
+        "0": "NOT_COLLECTED",
+        "1": "NOT_COLLECTED",
+        "2": "NOT_COLLECTED",
+        "3": "NOT_PROVIDED"
+    },
+    "lifestage": {
+        "0": "ADULT",
+        "1": "ADULT",
+        "2": "ADULT",
+        "3": "ADULT"
+    },
+    "identified_by": {
+        "0": "RUBY PEACOCK",
+        "1": "VENGAMANAIDU MODEPALLI",
+        "2": "VENGAMANAIDU MODEPALLI",
+        "3": "URMAS SAARMA"
+    },
+    "identifier_affiliation": {
+        "0": "SANGER INSTITUTE",
+        "1": "MARINE BIOLOGICAL ASSOCIATION",
+        "2": "MARINE BIOLOGICAL ASSOCIATION",
+        "3": "UNIVERSITY OF TARTU"
+    },
+    "specimen_id": {
+        "0": "ERGA_FOS_4557_001_014421571",
+        "1": "MBA-190930-002S_014536813",
+        "2": "MBA-190930-002T_014561337",
+        "3": "ERGA_FP_8329_002"
+    },
+    "ORDER_OR_GROUP": {
+        "0": "Capitellida",
+        "1": "Coleoptera",
+        "2": "Lepidoptera",
+        "3": "Rodentia"
+    },
+    "FAMILY": {
+        "0": "Arenicolidae",
+        "1": "Silphidae",
+        "2": "EREBIDAE",
+        "3": "Sciuridae"
+    },
+    "GENUS": {
+        "0": "Arenicola",
+        "1": "Nicrophorus",
+        "2": "Lymantria",
+        "3": "Pteromys"
+    },
+    "TAXON_ID": {
+        "0": "6344",
+        "1": "414950",
+        "2": "78897",
+        "3": "55152"
+    },
+    "SCIENTIFIC_NAME": {
+        "0": "Arenicola marina",
+        "1": "Nicrophorus investigator",
+        "2": "Lymantria monacha",
+        "3": "Pteromys volans"
+    },
+    "TAXON_REMARKS": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "INFRASPECIFIC_EPITHET": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "culture_or_strain_id": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "COMMON_NAME": {
+        "0": "lugworm",
+        "1": "",
+        "2": "",
+        "3": "Siberian flying squirrel"
+    },
+    "collecting institution": {
+        "0": "SANGER INSTITUTE",
+        "1": "Marine Biological Association",
+        "2": "Marine Biological Association",
+        "3": "UNIVERSITY OF TARTU"
+    },
+    "HAZARD_GROUP": {
+        "0": "1",
+        "1": "HG1",
+        "2": "HG1",
+        "3": "1"
+    },
+    "REGULATORY_COMPLIANCE": {
+        "0": "Y",
+        "1": "Y",
+        "2": "Y",
+        "3": "Y"
+    },
+    "COLLECTION_LOCATION": {
+        "0": "United Kingdom | Scotland | North Ayrshire | Great Cumbrae | White Bay",
+        "1": "United Kingdom | Devon | Plymouth | Hoe Foreshore East of Lido",
+        "2": "United Kingdom | Devon | Plymouth | Hoe Foreshore East of Lido",
+        "3": "Estonia |Tallin zoo biobank"
+    },
+    "geographic location (latitude)": {
+        "0": "55.790409",
+        "1": "50.3636389",
+        "2": "50.3636389",
+        "3": "59096218.0"
+    },
+    "geographic location (longitude)": {
+        "0": "-4.908826",
+        "1": "-4.1406111",
+        "2": "-4.1406111",
+        "3": "27161638.0"
+    },
+    "GRID_REFERENCE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "habitat": {
+        "0": "loamy soil",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": "old forest with aspen prevalence"
+    },
+    "geographic location (depth)": {
+        "0": "",
+        "1": "0",
+        "2": "0",
+        "3": ""
+    },
+    "geographic location (elevation)": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "sample collection device or method": {
+        "0": "caught by hand",
+        "1": "By hand",
+        "2": "By hand",
+        "3": "necropsy"
+    },
+    "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE": {
+        "0": "NOT_APPLICABLE",
+        "1": "NOT_APPLICABLE",
+        "2": "NOT_APPLICABLE",
+        "3": "NOT_APPLICABLE"
+    },
+    "DATE_OF_PRESERVATION": {
+        "0": "2020-08-22",
+        "1": "2019-09-08",
+        "2": "2019-09-08",
+        "3": "2022-01-05"
+    },
+    "TIME_OF_COLLECTION": {
+        "0": "16:00:00",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION": {
+        "0": "2.0",
+        "1": "1",
+        "2": "1",
+        "3": "2.0"
+    },
+    "PRESERVATION_APPROACH": {
+        "0": "on dry ice",
+        "1": "Liquid nitrogen",
+        "2": "Liquid nitrogen",
+        "3": "IN -80"
+    },
+    "PRESERVATIVE_SOLUTION": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": "TRIZOL"
+    },
+    "RACK_OR_PLATE_ID": {
+        "0": "",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": ""
+    },
+    "TUBE_OR_WELL_ID": {
+        "0": "FF06763793",
+        "1": "FF03454478",
+        "2": "FF03454479",
+        "3": "FF06763795"
+    },
+    "GAL": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "GAL_sample_id": {
+        "0": "SAN0000999",
+        "1": "MBA_Actequ5",
+        "2": "MBA_Actequ6",
+        "3": "NSC_mPteVol1_01"
+    },
+    "COLLECTOR_SAMPLE_ID": {
+        "0": "SAN0000999",
+        "1": "MBA_Actequ5",
+        "2": "MBA_Actequ6",
+        "3": "mPteVol1"
+    },
+    "PRESERVED_BY": {
+        "0": "CHERRY STARLING",
+        "1": "VENGAMANAIDU MODEPALLI",
+        "2": "VENGAMANAIDU MODEPALLI",
+        "3": "URMAS SAARMA"
+    },
+    "PRESERVER_AFFILIATION": {
+        "0": "SANGER INSTITUTE",
+        "1": "MARINE BIOLOGICAL ASSOCIATION",
+        "2": "MARINE BIOLOGICAL ASSOCIATION",
+        "3": "UNIVERSITY OF TARTU"
+    },
+    "organism part": {
+        "0": "ANTERIOR_BODY",
+        "1": "TENTACLE | MID_BODY",
+        "2": "TENTACLE | MID_BODY",
+        "3": "MUSCLE"
+    },
+    "SYMBIONT": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "species_list": {
+        "0": [
+            {
+                "SYMBIONT": "TARGET",
+                "TAXON_ID": "6344",
+                "ORDER_OR_GROUP": "Capitellida",
+                "FAMILY": "Arenicolidae",
+                "GENUS": "Arenicola",
+                "SCIENTIFIC_NAME": "Arenicola marina",
+                "INFRASPECIFIC_EPITHET": "",
+                "CULTURE_OR_STRAIN_ID": "",
+                "COMMON_NAME": "lugworm",
+                "TAXON_REMARKS": ""
+            }
+        ],
+        "1": [
+            {
+                "SYMBIONT": "TARGET",
+                "TAXON_ID": "414950",
+                "ORDER_OR_GROUP": "Coleoptera",
+                "FAMILY": "Silphidae",
+                "GENUS": "Nicrophorus",
+                "SCIENTIFIC_NAME": "Nicrophorus investigator",
+                "INFRASPECIFIC_EPITHET": "",
+                "CULTURE_OR_STRAIN_ID": "",
+                "COMMON_NAME": "",
+                "TAXON_REMARKS": ""
+            }
+        ],
+        "2": [
+            {
+                "SYMBIONT": "TARGET",
+                "TAXON_ID": "78897",
+                "ORDER_OR_GROUP": "Lepidoptera",
+                "FAMILY": "EREBIDAE",
+                "GENUS": "Lymantria",
+                "SCIENTIFIC_NAME": "Lymantria monacha",
+                "INFRASPECIFIC_EPITHET": "",
+                "CULTURE_OR_STRAIN_ID": "",
+                "COMMON_NAME": "",
+                "TAXON_REMARKS": ""
+            }
+        ],
+        "3": [
+            {
+                "SYMBIONT": "TARGET",
+                "TAXON_ID": "55152",
+                "ORDER_OR_GROUP": "Rodentia",
+                "FAMILY": "Sciuridae",
+                "GENUS": "Pteromys",
+                "SCIENTIFIC_NAME": "Pteromys volans",
+                "INFRASPECIFIC_EPITHET": "",
+                "CULTURE_OR_STRAIN_ID": "",
+                "COMMON_NAME": "Siberian flying squirrel",
+                "TAXON_REMARKS": ""
+            }
+        ]
+    },
+    "relationship": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "IDENTIFIED_HOW": {
+        "0": "Dichotomous key in Hayward and Ryland 3rd edition",
+        "1": "morphology",
+        "2": "morphology",
+        "3": "TAKEN FROM SPECIES"
+    },
+    "SPECIMEN_ID_RISK": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "TEMPERATURE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SALINITY": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "PH": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "CHLA": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "LIGHT_INTENSITY": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "DISOLVED_OXYGEN": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "OTHER_INFORMATION": {
+        "0": "",
+        "1": "c. 5 x 2 x 2 mm. In ORGANISM_PART 'BODY_COLUMN\" was changed to 'MID_BODY' by NS on 27th Oct to pass V2.2 COPO data validation.",
+        "2": "c. 5 x 2 x 2 mm. In ORGANISM_PART 'BODY_COLUMN\" was changed to 'MID_BODY' by NS on 27th Oct to pass V2.2 COPO data validation.",
+        "3": "collected from dead animal from the Tallin zoo biobank"
+    },
+    "rack_tube": {
+        "0": "\/FF06763793",
+        "1": "NOT_PROVIDED\/FF03454478",
+        "2": "NOT_PROVIDED\/FF03454479",
+        "3": "\/FF06763795"
+    },
+    "SPECIES_RARITY": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "GENOME_SIZE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SIZE_OF_TISSUE_IN_TUBE": {
+        "0": "L",
+        "1": "S",
+        "2": "S",
+        "3": "L"
+    },
+    "TISSUE_REMOVED_FOR_BARCODING": {
+        "0": "Y",
+        "1": "Y",
+        "2": "Y",
+        "3": "N"
+    },
+    "PLATE_ID_FOR_BARCODING": {
+        "0": "",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": ""
+    },
+    "TUBE_OR_WELL_ID_FOR_BARCODING": {
+        "0": "A1",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": "NOT_APPLICABLE"
+    },
+    "SERIES": {
+        "0": "",
+        "1": "45",
+        "2": "46",
+        "3": ""
+    },
+    "TISSUE_FOR_BARCODING": {
+        "0": "NOT_COLLECTED",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": "NOT_APPLICABLE"
+    },
+    "BARCODE_PLATE_PRESERVATIVE": {
+        "0": "80% Ethanol",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": "NOT_APPLICABLE"
+    },
+    "PURPOSE_OF_SPECIMEN": {
+        "0": "REFERENCE_GENOME",
+        "1": "REFERENCE_GENOME",
+        "2": "REFERENCE_GENOME",
+        "3": "REFERENCE_GENOME"
+    },
+    "specimen_voucher": {
+        "0": "NOT_PROVIDED",
+        "1": "NOT_COLLECTED",
+        "2": "NOT_COLLECTED",
+        "3": "NOT_PROVIDED"
+    },
+    "characteristics": {
+        "0": [],
+        "1": [],
+        "2": [],
+        "3": []
+    },
+    "factorValues": {
+        "0": [],
+        "1": [],
+        "2": [],
+        "3": []
+    },
+    "sample_type": {
+        "0": "erga",
+        "1": "dtol",
+        "2": "dtol",
+        "3": "erga"
+    },
+    "profile_id": {
+        "0": "634d2e869c403399930ef68e",
+        "1": "634d2ed39c403399930ef690",
+        "2": "634d2ed39c403399930ef690",
+        "3": "634d2e869c403399930ef68e"
+    },
+    "manifest_id": {
+        "0": "92bcd134-cbc5-4702-959c-afbf9ffe4f96",
+        "1": "fda331ab-3103-4082-8773-d42a1e1561c1",
+        "2": "fda331ab-3103-4082-8773-d42a1e1561c1",
+        "3": "92bcd134-cbc5-4702-959c-afbf9ffe4f96"
+    },
+    "biosampleAccession": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "sraAccession": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "submissionAccession": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "status": {
+        "0": "pending",
+        "1": "pending",
+        "2": "pending",
+        "3": "pending"
+    },
+    "tol_project": {
+        "0": "ERGA",
+        "1": "DTOL",
+        "2": "DTOL",
+        "3": "ERGA"
+    },
+    "manifest_version": {
+        "0": "2.4",
+        "1": "2.4.1",
+        "2": "2.4.1",
+        "3": "2.4"
+    },
+    "tolid": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "original collection location": {
+        "0": "United Kingdom | Scotland | North Ayrshire | Great Cumbrae | White Bay",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "original collection date": {
+        "0": "2020-08-22",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "barcoding center": {
+        "0": "",
+        "1": "NOT_PROVIDED",
+        "2": "NOT_PROVIDED",
+        "3": ""
+    },
+    "original geographic location (latitude)": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "original geographic location (longitude)": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "MIXED_SAMPLE_RISK": {
+        "0": "N",
+        "1": "N",
+        "2": "N",
+        "3": "N"
+    },
+    "BARCODING_STATUS": {
+        "0": "DNA_BARCODING_COMPLETED",
+        "1": "DNA_BARCODING_COMPLETED",
+        "2": "DNA_BARCODING_COMPLETED",
+        "3": "DNA_BARCODING_COMPLETED"
+    },
+    "proxy voucher": {
+        "0": "NOT_PROVIDED",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "specimen voucher url": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "proxy voucher url": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "voucher institution url": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SAMPLE_FORMAT": {
+        "0": "",
+        "1": "live biological sample from infectious organism",
+        "2": "live biological sample from infectious organism",
+        "3": ""
+    },
+    "sample coordinator": {
+        "0": "FELIX SHAW",
+        "1": "",
+        "2": "",
+        "3": "URMAS SAARMA"
+    },
+    "sample coordinator affiliation": {
+        "0": "EARLHAM_INSTITUTE",
+        "1": "",
+        "2": "",
+        "3": "UNIVERSITY OF TARTU"
+    },
+    "sample coordinator ORCID ID": {
+        "0": "0000-0001-9649-5906",
+        "1": "",
+        "2": "",
+        "3": "0000-0002-3222-571X"
+    },
+    "INDIGENOUS_RIGHTS_DEF": {
+        "0": "NOT_APPLICABLE",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE": {
+        "0": "N",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT": {
+        "0": "NOT_APPLICABLE",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "ETHICS_PERMITS_REQUIRED": {
+        "0": "N",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "ETHICS_PERMITS_DEF": {
+        "0": "NOT_APPLICABLE",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "SAMPLING_PERMITS_REQUIRED": {
+        "0": "N",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "SAMPLING_PERMITS_DEF": {
+        "0": "NOT_APPLICABLE",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "NAGOYA_PERMITS_REQUIRED": {
+        "0": "N",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "NAGOYA_PERMITS_DEF": {
+        "0": "NOT_APPLICABLE",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "TISSUE_REMOVED_FOR_BIOBANKING": {
+        "0": "Y",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "bio_material": {
+        "0": "ATC:123456",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "TISSUE_FOR_BIOBANKING": {
+        "0": "BRAIN",
+        "1": "",
+        "2": "",
+        "3": "NOT_APPLICABLE"
+    },
+    "DNA_REMOVED_FOR_BIOBANKING": {
+        "0": "Y",
+        "1": "",
+        "2": "",
+        "3": "N"
+    },
+    "collector ORCID ID": {
+        "0": "0000-0001-9649-8954",
+        "1": "",
+        "2": "",
+        "3": "0000-0002-3222-571X"
+    },
+    "SEQUENCING_CENTRE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "WATER_BODY_TYPE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SAMPLING_WATER_BODY_DEPTH": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "WATER_SPEED": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "WATER_TYPE": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "CHLOROPHYL_A": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "NUTRIENTS": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "DISSOLVED_OXYGEN": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SORTED_BY": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SORTER_AFFILIATION": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SORTING_APPROACH": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "SORT_STAIN": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "CELL_NUMBER": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "name": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "organism": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "derivesFrom": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "deleted": {
+        "0": "0",
+        "1": "0",
+        "2": "0",
+        "3": "0"
+    },
+    "date_modified": {
+        "0": "2022-11-01 12:46:19.268000",
+        "1": "2022-11-01 12:43:55.083000",
+        "2": "2022-11-01 12:43:55.108000",
+        "3": "2022-11-01 12:46:19.288000"
+    },
+    "created_by": {
+        "0": "aaliyah.providence@earlham.ac.uk",
+        "1": "aaliyah.providence@earlham.ac.uk",
+        "2": "aaliyah.providence@earlham.ac.uk",
+        "3": "aaliyah.providence@earlham.ac.uk"
+    },
+    "time_created": {
+        "0": "2022-11-01 12:46:19.000000",
+        "1": "2022-11-01 12:43:55.000000",
+        "2": "2022-11-01 12:43:55.000000",
+        "3": "2022-11-01 12:46:19.000000"
+    }
+}
