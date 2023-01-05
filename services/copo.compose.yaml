@@ -49,6 +49,9 @@ services:
       - ASPERA_PATH=/root/.aspera/cli
       - BIOIMAGE_PATH_FILE=/run/secrets/copo_bioimage_path
       - BIOIMAGE_SERVER=bsaspera_w@hx-fasp-1.ebi.ac.uk
+      - ECS_SECRET_KEY_FILE=/run/secrets/ecs_secret_key
+      - ECS_ACCESS_KEY_ID=copo@nbi.ac.uk
+      - ECS_ENDPOINT=http://ei-copo.obj-data.nbi.ac.uk
     depends_on:
       - redis
       - postgres 
@@ -91,6 +94,7 @@ services:
       - copo_public_name_service_api_key
       - copo_mail_password
       - copo_bioimage_path
+      - ecs_secret_key  
   nginx:
     image: debbyku/copo-nginx:1.23.3.10
     networks:
@@ -303,6 +307,8 @@ secrets:
     external: true
   copo_bioimage_path:
     external: true  
+  ecs_secret_key:
+    external: true
 volumes:
   web-data:
     external: true
