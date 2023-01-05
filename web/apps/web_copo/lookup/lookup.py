@@ -54,6 +54,9 @@ API_ERRORS = {
 # path to UI mapping schemas:
 UI_CONFIG_MAPPINGS = os.path.join(RESOLVER['uimodels_copo'], 'mappings')
 
+# path to mapping based on schema version:
+UI_CONFIG_MAPPINGS_BASED_ON_SCHEMA_VERSION = os.path.join(RESOLVER['isa_mappings'])
+
 # •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••#
 # X_FILES dictionary holds paths other (non-categorised) schemas
 X_FILES = {

@@ -6,6 +6,7 @@ import re
 
 import web.apps.web_copo.lookup.lookup as lkup
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
+from django.conf import settings
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
 
 
@@ -17,6 +18,7 @@ class DataFormats:
         self.schema = schema.upper()
 
         self.path_to_mappings = lkup.UI_CONFIG_MAPPINGS
+        self.path_to_mappings_based_on_schema_version = lkup.UI_CONFIG_MAPPINGS_BASED_ON_SCHEMA_VERSION
 
         '''
         NB: lkup.UI_CONFIG_MAPPINGS is the path to user interface (UI) schemas.
@@ -274,10 +276,17 @@ class DataFormats:
         json_files = list()
 
         exclude = set(['additional_attributes'])
+
         for root, dirs, files in os.walk(self.path_to_mappings):
             dirs[:] = [d for d in dirs if d not in exclude]
             for name in files:
-                if name.endswith(".json"):
+                # Get .json file based on schema version
+                if name in settings.SCHEMA_VERSIONS_FILE_LIST:
+                    json_files.append(
+                        os.path.join(self.path_to_mappings_based_on_schema_version, name))
+
+                # Get other .json files not based on schema version
+                if name.endswith(".json") and name not in settings.SCHEMA_VERSIONS_FILE_LIST:
                     json_files.append(os.path.join(root, name))
 
         return json_files
