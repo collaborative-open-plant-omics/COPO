@@ -1448,7 +1448,7 @@ def update_pending_samples_table(request):
 
 def update_pending_samples_table_for_tol_inspection(request):
     project = request.GET["project"]
-
+    print("Project", project)
     if project == "ERGA":
         profiles = Profile().get_erga_profiles()
     elif project == "DTOL":

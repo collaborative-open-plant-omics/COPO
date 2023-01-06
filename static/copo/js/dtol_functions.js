@@ -1,34 +1,30 @@
 $(document).ready(function () {
     // functions defined here are called from copo_sample_accept_reject, copo_samples and copo_tol_inspect, all provide DTOL
     // functionality
+    let currentURL = window.location.href
+    const project = $("#sample_filter").find(".active").find("a").attr("href");
+
+    // add field names here which you don't want to appear in the supervisors table
+    excluded_fields = ["profile_id", "biosample_id"]
+    // add field names here which you want to appear in the 'tol_inspect' samples' table
+    included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
+
     $(document).data("accepted_warning", false)
     $(document).data("isDtolSamplePage", true)
     $(document).data("areAllSampleModalFieldsShown", false)
-    // Set and store "false" as the default value for the showAllTableFields checkbox
     $(document).data("showAllTableFieldsCheckbox", false);
     $(document).data("isSampleModalSearchQueryChecked", true);
     $(document).data("navBarItems", [])
     $(document).data("navBarItemsTableBodyView", {})
     $(document).data("searchQuery", {})
-    $("#accept_reject_button").find("button").prop("disabled", true)
-    // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
-    included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
-    let currentURL = window.location.href
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
-    // Get active manifest type tab on tab change
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        let project = $(e.target).attr("href")
-        update_pending_samples_table_for_tol_inspection(project)
-    });
 
-    currentURL.includes("tol_inspect") ? update_pending_samples_table_for_tol_inspection(project) : update_pending_samples_table()
 
     $(document).on("click", ".select-all", function () {
         $(".form-check-input:not(:checked)").each(function (idx, element) {
             $(element).click()
         })
     })
+
     $(document).on("click", ".select-none", function () {
         $(".form-check-input:checked").each(function (idx, element) {
             $(element).click()
@@ -105,38 +101,7 @@ $(document).ready(function () {
         })
     })
 
-    $(document).on("click", ".sample_table_row", function (el) {
-        let sample_id = el.currentTarget.id
-        const errorMsg = "Couldn't build Sample Details' form!";
-        csrftoken = $.cookie('csrftoken');
-
-        $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
-            $(el).toggleClass("selected_row")
-        })
-
-        $.ajax({
-            url: "/copo/get_sample_details/",
-            method: "POST",
-            headers: {'X-CSRFToken': csrftoken},
-            dataType: "json",
-            data: {
-                'sample_id': sample_id,
-            },
-            success: function (data) {
-                json2HtmlForm_SampleDetails(data)
-            },
-            error: function () {
-                alert(errorMsg);
-            }
-        });
-    })
-
-
     $(document).on("click", "#accept_reject_button button", handle_accept_reject)
-
-    // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
-    currentURL.includes("tol_inspect") ? $(document).on("click", ".selectable_row, .hot_tab", row_select_on_tol_inspect_web_page)
-        : $(document).on("click", ".selectable_row, .hot_tab", row_select)
 
     $(document).on("change", "#dtol_type_select", function (e) {
         $.ajax({
@@ -226,10 +191,32 @@ $(document).ready(function () {
         }
     })
 
-    $('.tol_inspect_institutions ').click(function () {
-        window.location.href = '/copo/tol_inspect/institutions';
-        return false;
-    });
+    // re: tol_inspect web page
+    $(document).on("click", ".sample_table_row", function (el) {
+        let sample_id = el.currentTarget.id
+        const errorMsg = "Couldn't build Sample Details' form!";
+        csrftoken = $.cookie('csrftoken');
+
+        $(el.currentTarget).parent().siblings().addBack().each(function (idx, el) {
+            $(el).toggleClass("selected_row")
+        })
+
+        $.ajax({
+            url: "/copo/get_sample_details/",
+            method: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            dataType: "json",
+            data: {
+                'sample_id': sample_id,
+            },
+            success: function (data) {
+                json2HtmlForm_SampleDetails(data)
+            },
+            error: function () {
+                alert(errorMsg);
+            }
+        });
+    })
 
     $(document).on("click", ".fieldID", function (e) {
         let preNavItem = $("#tolInspectNavBar li.active")
@@ -280,6 +267,25 @@ $(document).ready(function () {
             $('.modal bootstrap-dialog').css({"z-index": "9999"})
         }
     })
+
+    // re: accept/reject web page
+    $("#accept_reject_button").find("button").prop("disabled", true)
+
+    // re: tol_inspect web page
+
+    // Get active manifest type tab on tab change
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        let project = $(e.target).attr("href")
+        update_pending_samples_table_for_tol_inspection(project)
+    });
+
+    currentURL.includes("tol_inspect") ? update_pending_samples_table_for_tol_inspection(project) : update_pending_samples_table()
+
+    // re: tol_inspect web page & accept/reject web page
+    // handle clicks on both profiles (.selectable_row), and filter (.hot_tab)
+    currentURL.includes("tol_inspect") ? $(document).on("click", ".selectable_row, .hot_tab", row_select_on_tol_inspect_web_page)
+        : $(document).on("click", ".selectable_row, .hot_tab", row_select)
+
 })
 
 var fadeSpeed = 'fast'

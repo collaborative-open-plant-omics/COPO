@@ -1,13 +1,18 @@
 $(document).ready(function () {
-    // card body
+    // Card body
     const copoStatisticsURL = "/copo/stats";
+    const copoGALInspectionURL = "/copo/tol_inspect/institutions";
 
-    $(document).on("click", ".statistics_card .statistics_card_title", function (evt) {
+    $(document).on("click", ".statistics_card .statistics_card_title", function () {
         document.location = copoStatisticsURL
     })
+
+    $(document).on("click", ".gal_inspection_card .gal_inspection_card_title", function () {
+        document.location = copoGALInspectionURL;
+    })
+
     // Charts
     const ctx = document.getElementById('chart-bars').getContext("2d");
-
 
     new Chart(ctx, {
         type: "line",
@@ -342,16 +347,16 @@ $(document).ready(function () {
             $("#num_profiles").html(data.profiles)
             $("#num_users").html(data.users)
             $("#num_uploads").html(data.datafiles)
-        }).error(function (data) {
-        console.log(data)
+        }).error(function (error) {
+        console.log(`Error: ${error}`)
     })
 
     // World map
-
-    const markers = [{
-        coords: [31.230391, 121.473701],
-        name: "Shanghai"
-    },
+    const markers = [
+        {
+            coords: [31.230391, 121.473701],
+            name: "Shanghai"
+        },
         {
             coords: [28.704060, 77.102493],
             name: "Delhi"
