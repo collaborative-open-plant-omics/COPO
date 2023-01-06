@@ -199,3 +199,4 @@ xmljson==0.1.9
 XlsxWriter==3.0.3
 zipp==0.6.0
 zope.interface==4.6.0
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
