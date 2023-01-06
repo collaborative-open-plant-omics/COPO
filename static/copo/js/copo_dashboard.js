@@ -95,6 +95,30 @@ $(document).ready(function () {
         },
     });
 
+    // Pie chart
+    new Chart(document.getElementById("chartjs-dashboard-pie"), {
+        type: "pie",
+        data: {
+            labels: ["Chrome", "Firefox", "IE"],
+            datasets: [{
+                data: [4306, 3801, 1689],
+                backgroundColor: [
+                    '#3b7ddd',
+                    '#fcb92c',
+                    '#dc3545'
+                ],
+                borderWidth: 5
+            }]
+        },
+        options: {
+            responsive: !window.MSInputMethodContext,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            },
+            cutoutPercentage: 75
+        }
+    });
     //
     // new Chart(ctx, {
     //     type: "bar",
@@ -397,7 +421,13 @@ $(document).ready(function () {
     const map = new jsVectorMap({
         map: "world",
         selector: "#world_map",
+        draggable: true,
         zoomButtons: true,
+        zoomOnScroll: true,
+        zoomAnimate: true,
+        zoomOnScrollSpeed: 3,
+        zoomMax: 12,
+        zoomMin: 1,
         markers: markers,
         markerStyle: {
             initial: {
@@ -411,10 +441,11 @@ $(document).ready(function () {
                 stroke: '#6f42c1'
             }
         },
-        zoomOnScroll: false
+
     });
     window.addEventListener("resize", () => {
         map.updateSize();
+        map.set.re
     });
 
 });
