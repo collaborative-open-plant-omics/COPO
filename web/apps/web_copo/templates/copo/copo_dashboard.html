@@ -12,11 +12,15 @@
     <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-icons.css' %}">
     <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-svg.css' %}">
     <!-- Font Awesome Icons -->
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <!-- CSS Files -->
     <link id="pagestyle" rel="stylesheet" href="{% static 'copo/css/copo/material-dashboard.css' %}">
+
+    <link rel="stylesheet" href="{% static 'copo/css/copo/jsvectormap.css' %}"/>
+
+    <link rel="stylesheet" href="{% static 'copo/css/copo/copo_dashboard.css' %}"/>
 
     <style>
         .section_title:hover {
@@ -35,12 +39,12 @@
 
 {% block content %}
 
-    <div class="container-fluid py-4">
+    <div class="container-fluid">
         {# Statistics #}
-        <div id="stats_bar">
+        <div id="stats_bar" style="padding-bottom: 2rem">
             <div class="ui cards centered raised link">
                 <div class="card link">
-                    <div class="ui statistic">
+                    <div class="ui statistic" style="padding-top: 10px">
                         <div class="value">
                             <i class="dna icon teal"></i> <span id="num_samples">62</span>
                         </div>
@@ -50,7 +54,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="ui statistic">
+                    <div class="ui statistic" style="padding-top: 10px">
                         <div class="value">
                             <i class="folder open icon violet"></i><span id="num_profiles">5</span>
                         </div>
@@ -60,7 +64,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="ui statistic">
+                    <div class="ui statistic" style="padding-top: 10px">
                         <div class="value">
                             <i class="user icon orange"></i><span id="num_users">2</span>
                         </div>
@@ -70,7 +74,7 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="ui statistic">
+                    <div class="ui statistic" style="padding-top: 10px">
                         <div class="value">
                             <i class="upload icon green"></i><span id="num_uploads">0</span>
                         </div>
@@ -83,12 +87,12 @@
         </div>
         {# Dashboard sections #}
         <div class="row mt-4">
-            <div class="col-lg-4 col-md-6 mt-4 mb-4 ui cards raised link">
-                <div class="card z-index-2 ">
+            <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
+                <div class="card z-index-2 " style="width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
                             <div class="chart">
-                                <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
+                                <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
                             </div>
                         </div>
                     </div>
@@ -100,8 +104,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 mt-4 mb-4">
-                <div class="card z-index-2  ">
+            <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
+                <div class="card z-index-2" style="width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         {#                        <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">#}
                         {#                            <div class="chart">#}
@@ -126,41 +130,27 @@
                                     </div>
                                 </div>
 
-                                <table class="table mb-0">
-                                    <tbody>
-                                    <tr>
-                                        <td><i class="fa fa-circle text-primary font-10 mr-2"></i>File uploads</td>
-                                        <td class="text-end">4306</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Profiles</td>
-                                        <td class="text-end">3801</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Samples</td>
-                                        <td class="text-end">1689</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fas fa-circle text-primary font-10 mr-2"></i>Users</td>
-                                        <td class="text-end">1689</td>
-                                    </tr>
-
-                                    </tbody>
-                                </table>
-
+                                <div class="form-group">
+                                    <input class="form-control" style="text-align:center" value="ORDER OR GROUP"
+                                           readonly/>
+                                    <input class="form-control" style="text-align:center" value="FAMILY" readonly/>
+                                    <input class="form-control" style="text-align:center" value="GENUS" readonly/>
+                                    <input class="form-control" style="text-align:center" value="SCIENTIFIC NAME"
+                                           readonly/>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h6 class="mb-0 "> TOL Institutions Inspection </h6>
-                        <p class="text-sm "> (<span class="font-weight-bolder">+15%</span>) increase in today sales.
-                        </p>
+                    <div class="card-body gal_inspection_card">
+                        <h6 class="mb-0 section_title gal_inspection_card_title"> Genome Acquisition Lab (GAL)
+                            Inspection </h6>
+                        <p class="text-sm "> View the metadata of GAL according to its taxonomy </p>
                         <hr class="dark horizontal">
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 mt-4 mb-3">
-                <div class="card z-index-2 ">
+            <div class="col-lg-4 mt-4 mb-3 ui link cards">
+                <div class="card z-index-2" style="width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         {#                        <div class="border-radius-lg py-3 pe-1">#}
                         <div id="world_map" class="chart card-body px-4" style="height: 170px; width: 567px;"></div>
@@ -175,12 +165,12 @@
             </div>
         </div>
         <div class="row mb-4">
-            <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
-                <div class="card">
+            <div class="col-lg-8 col-md-6 mb-md-0 mb-4 ui link cards">
+                <div class="card" style="width:1040px">
                     <div class="card-header pb-0">
                         <div class="row">
                             <div class="col-lg-6 col-7">
-                                <h6>TOL Sample Inspection</h6>
+                                <h6>Sample Inspection</h6>
                                 <p class="text-sm mb-0">
                                     <i class="fa fa-check text-info" aria-hidden="true"></i>
                                     In <span class="font-weight-bold ms-1">COPO</span> record
@@ -415,6 +405,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block js_block %}
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
     <script src="{% static 'copo/js/popper.min.js' %}"></script>
     <script src="{% static 'copo/js/perfect-scrollbar.min.js' %}"></script>
