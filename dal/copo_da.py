@@ -61,6 +61,7 @@ ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
+AssemblyCollection = 'AssemblyCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -80,7 +81,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
                    enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
-                   apiValidationReport=get_collection_ref(APIValidationReport)
+                   apiValidationReport=get_collection_ref(APIValidationReport),
+                   assembly=get_collection_ref(AssemblyCollection)
                    )
 
 
@@ -1765,6 +1767,16 @@ class Submission(DAComponent):
         else:
             return False
 
+    def add_assembly_accession(self, s_id, accession, alias):
+        #todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
+        #reference assembly and sample
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": { "accessions.assembly": {}}})
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": { "accessions.assembly.accession" : accession,
+                                                           "accessions.assembly.alias": alias}})
+        return
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2436,7 +2448,6 @@ class ENAFileTransferObject(DAComponent):
         super(ENAFileTransferObject, self).__init__(profile_id, "ENAFileTransferObject")
         self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
         self.profile_id = profile_id
-        self.profile_id = profile_id
         self.component = str()
 
     def get_pending_transfers(self):
@@ -2483,6 +2494,11 @@ class APIValidationReport(DAComponent):
             msg = msg.replace(el[0], el[1])
         self.get_collection_handle().update({"_id": ObjectId(report_id)},
                                             {"$set": {"status": "failed", "content": msg}})
+
+
+class Assembly(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Assembly, self).__init__(profile_id, "assembly")
 
 
 def is_number(s):

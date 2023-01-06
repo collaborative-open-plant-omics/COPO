@@ -2,6 +2,8 @@
 import os
 from tools import resolve_env
 from django.conf import settings
+from django.contrib.messages import constants as messages
+
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -232,3 +234,11 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+        messages.DEBUG: 'alert-secondary',
+        messages.INFO: 'alert-info',
+        messages.SUCCESS: 'alert-success',
+        messages.WARNING: 'alert-warning',
+        messages.ERROR: 'alert-danger',
+}
