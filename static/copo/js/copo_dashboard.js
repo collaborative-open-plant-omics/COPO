@@ -12,9 +12,9 @@ $(document).ready(function () {
     })
 
     // Charts
-    const ctx = document.getElementById('chart-bars').getContext("2d");
+    const barChartCtx = document.getElementById('chart-bars').getContext("2d");
 
-    new Chart(ctx, {
+    new Chart(barChartCtx, {
         type: "line",
         data: {
             labels: ["2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01", "2022-09-01", "2022-10-01", "2022-11-0", "2022-12-01"],
@@ -96,12 +96,15 @@ $(document).ready(function () {
     });
 
     // Pie chart
-    new Chart(document.getElementById("chartjs-dashboard-pie"), {
+    const pieChartCtx = document.getElementById("chartjs-dashboard-pie").getContext('2d');
+    // new Chart(document.getElementById("chartjs-dashboard-pie"), {
+    new Chart(pieChartCtx, {
         type: "pie",
         data: {
             labels: ["Chrome", "Firefox", "IE"],
             datasets: [{
                 data: [4306, 3801, 1689],
+                index: 0,
                 backgroundColor: [
                     '#3b7ddd',
                     '#fcb92c',
@@ -114,7 +117,7 @@ $(document).ready(function () {
             responsive: !window.MSInputMethodContext,
             maintainAspectRatio: false,
             legend: {
-                display: false
+                position: 'right'
             },
             cutoutPercentage: 75
         }
@@ -249,7 +252,7 @@ $(document).ready(function () {
     //                     color: '#f8f9fa',
     //                     padding: 10,
     //                     font: {
-    //                         size: 14,
+    //                         size: 14,IE
     //                         weight: 300,
     //                         family: "Roboto",
     //                         style: 'normal',
@@ -441,11 +444,13 @@ $(document).ready(function () {
                 stroke: '#6f42c1'
             }
         },
+        onLoad: function (event, map) {
+            $('#world_map').jsVectorMap('zoomIn');
+        }
 
     });
     window.addEventListener("resize", () => {
         map.updateSize();
-        map.set.re
     });
 
 });
