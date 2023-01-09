@@ -52,6 +52,12 @@
             margin-right: 25px
         }
 
+        .errorlist {
+            color: red;
+            font-weight: bolder;
+            font-size: larger;
+        }
+
     </style>
 {% endblock %}
 
@@ -125,14 +131,15 @@
             </div>
         {% endfor %}
     {% endif %}
-
-    <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form }}
-        <div style="margin-bottom: 20px"></div>
-        <div><input type="submit" value="Submit Assembly" class="ui blue button"></div>
-    </form>
-
+    <div style="width:40%">
+        <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <div style="margin-bottom: 20px"></div>
+            <div><input type="submit" value="Submit Assembly" class="ui blue button"></div>
+        </form>
+    </div>
+    <!--
     <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -162,10 +169,10 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" id="process_urls_button" class="btn btn-primary">Process</button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
+            </div>
+        </div>
+    </div>
+    -->
 {% endblock %}
 
 

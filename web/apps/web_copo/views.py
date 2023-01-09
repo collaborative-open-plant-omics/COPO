@@ -110,7 +110,10 @@ def ena_assembly(request, profile_id):
     if existing_accessions:
         study = existing_accessions.get("project", "")
         if study:
-            study_accession = study.get("accession", "")
+            if isinstance(study, dict):
+                study_accession = study.get("accession", "")
+            elif isinstance(study, list):
+                study_accession = study[0].get("accession", "")
         else:
             study_accession = ""
         samples = existing_accessions.get("sample", "")

@@ -82,7 +82,9 @@ def validate_assembly(form):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test +" -context genome -manifest " + str(manifest_path) + " -validate"
+    cli_path = "tools/reposit/ena_cli/webin-cli.jar"
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
+        manifest_path) + " -validate"
     #print(webin_cmd)
     try:
         output = subprocess.check_output(webin_cmd, shell=True)
@@ -107,7 +109,7 @@ def validate_assembly(form):
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
-            #ENA alias costructed as webin-genome-assemblyname (may be different for transriptome?)
+            # ENA alias costructed as webin-genome-assemblyname (maybe different for transriptome?)
             Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
         else:
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions" :
