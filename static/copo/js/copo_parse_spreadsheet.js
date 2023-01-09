@@ -1,12 +1,31 @@
+var finishBtnStatus
+var confirmBtnStatus
+var permitBtnStatus
 function upload_image_files(file) {
     var csrftoken = $.cookie('csrftoken');
-
+    var validation_record_id = $(document).data("validation_record_id")
+    $("#images_label").addClass("disabled")
+    $("#images_label").attr("disabled", "true")
+    $("#images_label").find("input").attr("disabled", "true")
+    $("#ss_upload_spinner").fadeIn("fast")
+    finishBtnStatus = $("#finish_button").is(":hidden")
+    confirmBtnStatus = $("#confirm_button").is(":hidden")
+    permitBtnStatus = $("#files_label").hasClass('disabled')
+    if (!permitBtnStatus) {
+        $("#files_label").addClass("disabled")
+        $("#files_label").attr("disabled", "true")
+        $("#files_label").find("input").attr("disabled", "true")
+    }
+    $("#finish_button").hide()
+    $("#confirm_button").hide()
     form = new FormData()
     var count = 0
     for (f in file) {
         form.append(count.toString(), file[f])
         count++
     }
+    form.append("validation_record_id", validation_record_id)
+    var percent = $(".percent")
     jQuery.ajax({
         url: '/copo/sample_images/',
         data: form,
@@ -16,6 +35,19 @@ function upload_image_files(file) {
 
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
 
     }).error(function (data) {
         $("#upload_controls").fadeIn()
@@ -39,6 +71,7 @@ function upload_permit_files(file) {
         count++
     }
     form.append("validation_record_id", validation_record_id)
+    var percent = $(".percent")
     jQuery.ajax({
         url: '/copo/sample_permits/',
         data: form,
@@ -49,6 +82,19 @@ function upload_permit_files(file) {
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
 
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
     }).error(function (data) {
         $("#upload_controls").fadeIn()
         console.error(data)
@@ -60,6 +106,7 @@ function upload_permit_files(file) {
 
     })
 }
+
 
 function upload_spreadsheet(upload_type = upload_type, file = file) {
     if (upload_type === "ena_seq_reads") {
@@ -74,6 +121,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
     form.append("file", file)
+    var percent = $(".percent")
     jQuery.ajax({
         url: url,
         data: form,
@@ -83,7 +131,19 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
         method: 'POST',
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
-
+        xhr: function() {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function(evt) {
+               var percentVal = Math.round(evt.loaded / evt.total*100)
+               percent.html("<b>" + percentVal + "%</b>")
+               console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function() {
+              percent.html("")
+              console.log('DONE!')
+            };
+            return xhr;
+        }
     }).error(function (data) {
         $("#upload_controls").fadeIn()
         console.error(data)
@@ -102,7 +162,6 @@ $(document).ready(function () {
 
     $(document).on("click", "#finish_button", function (el) {
         el.preventDefault()
-
         if ($(el.currentTarget).hasOwnProperty("disabled")) {
             return false
         }
@@ -131,7 +190,7 @@ $(document).ready(function () {
                     cssClass: "tiny ui basic button dialog_confirm",
                     action: function (dialogRef) {
                         $("#finish_button").hide()
-
+                        $("#ss_upload_spinner").fadeIn("fast")
                         $.ajax({
                             url: "/copo/create_spreadsheet_samples",
                             data: {"validation_record_id": $(document).data("validation_record_id")}
@@ -175,7 +234,7 @@ $(document).ready(function () {
                     cssClass: "tiny ui basic button",
                     action: function (dialogRef) {
                         $("#confirm_button").hide()
-
+                        $("#ss_upload_spinner").fadeIn("fast")
                         $.ajax({
                             url: "/copo/update_spreadsheet_samples",
                             data: {
@@ -304,23 +363,40 @@ $(document).ready(function () {
                 } else if (d.action === "make_images_table") {
                     // make table of images matched to
                     // headers
+                    $("#images_label").removeClass("disabled")
+                    $("#images_label").removeAttr("disabled")
+                    $("#images_label").find("input").removeAttr("disabled")
+                    $("#ss_upload_spinner").fadeOut("fast")
+                    if (!finishBtnStatus) {
+                       $("#finish_button").show()
+                    }
+                    if (!confirmBtnStatus) {
+                       $("#confirm_button").show()
+                    }
+                    if (!permitBtnStatus) {
+                        $("#files_label").removeClass("disabled")
+                        $("#files_label").removeAttr("disabled")
+                        $("#files_label").find("input").removeAttr("disabled")
+                    }
+
                     var headers = $("<tr><th>Specimen ID</th><th>Image File</th></th><th>Image</th></tr>")
                     $("#image_table").find("thead").empty().append(headers)
                     $("#image_table").find("tbody").empty()
                     var table_row
                     for (r in d.message) {
                         row = d.message[r]
-                        if (row.file_name === "None") {
-                            var img_tag = "Sample images must be named using the same Specimen ID as the manifest"
-                        } else {
-                            var img_tag = "<img src=" + row.file_name + "/>"
+                        img_tag = ""
+                        if (row.specimen_id === "") {
+                            img_tag = "Sample images must be named using the same Specimen ID as the manifest"
+                        } else if (row.thumbnail != "") {
+                            img_tag = "<a target='_blank' href='" + row.file_name + "'> <img src='" + row.thumbnail + "' /></a>"
                         }
                         table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
                         $("#image_table").append(table_row)
                     }
                     $("#image_table").DataTable()
                     $("#image_table_nav_tab").click()
-                    $("#finish_button").fadeIn()
+                    //$("#finish_button").fadeIn()
                 } else if (d.action === "make_permits_table") {
                     // make table of permits matched to
                     // specimen_ids
@@ -396,6 +472,9 @@ $(document).ready(function () {
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#files_label").removeClass("disabled")
+                    $("#images_label").removeClass("disabled")
+                    $("#images_label").removeAttr("disabled")
+                    $("#images_label").find("input").removeAttr("disabled")
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
 
                     } else {
@@ -444,6 +523,9 @@ $(document).ready(function () {
                     $("#sample_parse_table").DataTable().draw()
                     $("#files_label, #barcode_label").removeAttr("disabled")
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
+                    $("#images_label").removeAttr("disabled")
+                    $("#images_label").removeClass("disabled")
+                    $("#images_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#confirm_button").fadeIn()

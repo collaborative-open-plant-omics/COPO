@@ -658,6 +658,13 @@ class Source(DAComponent):
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
 
+    def get_sourcemap_by_specimens(self, value):
+        sources = cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": {"$in": value}}))
+        source_map = {}
+        for source in sources:
+            source_map[source["SPECIMEN_ID"]] =source
+        return source_map
+
     def get_by_specimen_id_regex(self, value):
         # Get sources from Mongo database similar to SQL's '%' operator or 'LIKE'
         return cursor_to_list(
@@ -1215,10 +1222,11 @@ class Submission(DAComponent):
         sub_handle = self.get_collection_handle()
         for sam_id in sam_ids:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"dtol_samples": sam_id}})
-        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1, "dtol_specimen" :1, "last_submit_image_dt" : 1 , "profile_id" : 1})
 
         if len(sub["dtol_samples"]) < 1:
-            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "complete"}})
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "bioimage_pending", "date_modified": datetime.now()}})
+
 
     def get_dtol_samples_in_biostudy(self, study_ids):
         sub = self.get_collection_handle().find(
@@ -1226,6 +1234,37 @@ class Submission(DAComponent):
             {"accessions": 1, "_id": 0}
         )
         return cursor_to_list(sub)
+
+    def get_bioimage_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        sub = self.get_collection_handle().find(
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["bioimage_sending", "bioimage_pending"]}},
+            {"dtol_specimen": 1, "dtol_status": 1, "profile_id": 1,
+             "date_modified": 1, "type": 1})
+        sub = cursor_to_list(sub)
+        out = list()
+
+        for s in sub:
+            # calculate whether a submission is an old one
+            recorded_time = s.get("date_modified", datetime.now())
+            current_time = datetime.now()
+            time_difference = current_time - recorded_time
+            if s.get("dtol_status", "") == "bioimage_sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                # submission retry time has elapsed so re-add to list
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                lg.log("ADDING STALLED BIOIMAGE SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
+
+                # no need to change status
+            elif s.get("dtol_status", "") == "bioimage_pending":
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])}, {"$set": {"dtol_status": "bioimage_sending"}})
+        return out
 
     def get_pending_dtol_samples(self):
         REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
@@ -1244,7 +1283,7 @@ class Submission(DAComponent):
             recorded_time = s.get("date_modified", datetime.now())
             current_time = datetime.now()
             time_difference = current_time - recorded_time
-            if s.get("dtol_status", "") == "sending" and time_difference.seconds > (REFRESH_THRESHOLD):
+            if s.get("dtol_status", "") == "sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
@@ -1846,9 +1885,13 @@ class DataFile(DAComponent):
         self.get_collection_handle().update({"_id": ObjectId(file_id)}, {"$push": {"file_level_annotation": data}})
         return self.get_file_level_metadata_for_sheet(file_id, data["sheet_name"])
 
-    def insert_sample_id(self, file_id, sample_id):
-        self.get_collection_handle().update({"_id": ObjectId(file_id)}, {
-            "$push": {"description.attributes.attach_samples.study_samples": sample_id}})
+    def insert_sample_ids(self, file_name, sample_ids):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$push": {"description.attributes.attach_samples.study_samples": {"$each": sample_ids}}})
+
+    def update_bioimage_name(self, file_name, bioimage_name, bioimage_path):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$set": {"bioimage_name": bioimage_name, "file_location": bioimage_path}})
 
     def get_file_level_metadata_for_sheet(self, file_id, sheetname):
 
@@ -1877,6 +1920,18 @@ class DataFile(DAComponent):
         })
         return cursor_to_list(sub)
 
+    def get_records_by_fields(self, fields):
+        sub = self.get_collection_handle().find(fields)
+        return cursor_to_list(sub)
+
+    def get_datafile_names_by_name_regx(self, names):
+        regex_names = [re.compile(f"^{name}") for name in names]
+        sub = self.get_collection_handle().find({
+            "name": {"$in": regex_names}, "bioimage_name" : {"$ne": ""}, "deleted": data_utils.get_not_deleted_flag()
+        }, {"name": 1, "_id": 0})
+        datafiles = cursor_to_list(sub)
+        result = [i["name"] for i in datafiles if i['name']]
+        return set(result)
 
 class Profile(DAComponent):
     def __init__(self, profile=None):

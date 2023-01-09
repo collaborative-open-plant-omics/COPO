@@ -314,7 +314,7 @@ def process_pending_dtol_samples():
                             html_id="dtol_sample_info")
         Submission().dtol_sample_processed(sub_id=submission["_id"], sam_ids=s_ids)
 
-    notify_frontend(data={"profile_id": profile_id}, msg="", action="hide_sub_spinner",
+        notify_frontend(data={"profile_id": profile_id}, msg="", action="hide_sub_spinner",
                     html_id="dtol_sample_info")
 
 def query_awaiting_tolids():

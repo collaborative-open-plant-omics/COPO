@@ -8,7 +8,7 @@ from enum import Enum
 from exceptions_and_logging.CopoRuntimeError import CopoRuntimeError
 from web.apps.web_copo.lookup.copo_enums import *
 from django.conf import settings
-
+from datetime import datetime, timedelta
 
 class Logger():
 
@@ -33,10 +33,21 @@ class Logger():
 
     def _log_to_file(self, msg, lvl=Loglvl.WARNING):
         msg = str(msg)
-        with open(os.path.join(settings.BASE_DIR, self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
-            time = datetime.now()
-            # time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
-            file.write("INFO - [" + str(time) + "]: " + msg + "\n")
+        if settings.DEBUG or lvl != Loglvl.DEBUG:
+            with open(os.path.join(settings.BASE_DIR, self.logfile_path, str(datetime.now().date()) + '.log'), 'a+', encoding='utf-8') as file:
+                time = datetime.now()
+                # time = str(time.hour) + "-" + str(time.minute) + "-" + str(time.second)
+                file.write(lvl.name + " - [" + str(time) + "]: " + msg + "\n")
+
+    def housekeeping_logfile(self):
+        housekeep_timestamp = datetime.timestamp(datetime.now() + timedelta(days=-7))
+        with os.scandir(self.logfile_path) as ls:
+            for logFile in ls:
+                if os.path.getctime(logFile) < housekeep_timestamp:
+                    os.remove(logFile)
+
+
+
 
     '''
     def get_copo_exception(key):

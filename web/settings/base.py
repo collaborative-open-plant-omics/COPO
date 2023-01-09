@@ -98,6 +98,7 @@ MIDDLEWARE = [
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     'django_brotli.middleware.BrotliMiddleware',
     'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware',
+    'web.apps.web_copo.middleware.LogUncaughtExceptions.LogUncaughtExceptions',
     'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
@@ -210,7 +211,7 @@ DATAVERSE = {
 UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
 TEST_USER_NAME = 'aaliyah'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 500000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
 
 CACHES = {
@@ -232,3 +233,9 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#FILE_UPLOAD_HANDLERS = (
+#    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+#    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
+#    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+#)

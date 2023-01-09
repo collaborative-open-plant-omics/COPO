@@ -30,7 +30,8 @@ LOGGING = {
         # django's default formatter
         'django.server': {
             '()': 'django.utils.log.ServerFormatter',
-            'format': '[%(server_time)s] %(message)s',
+            #'format': '[%(server_time)s] %(message)s',
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
         }
     },
     'handlers': {
