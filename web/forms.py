@@ -2,8 +2,6 @@ from django import forms
 
 
 class AssemblyForm(forms.Form):
-    error_css_class = 'copo_form_error'
-    required_css_class = 'copo_form_required'
 
     def __init__(self, *args, sample_accession=None, study_accession=None, **kwargs):
         super(AssemblyForm, self).__init__(*args, **kwargs)
