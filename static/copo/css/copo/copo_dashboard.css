@@ -3,54 +3,26 @@
     text-decoration: underline;
 }
 
-.center_div {
-    display: table;
-    margin-right: auto;
-    margin-left: auto;
-}
-
+/*Overide datatables CSS*/
 .dataTables_wrapper
 .dataTables_paginate
 .paginate_button {
     padding: 5px 5px 0px 0px !important; /*top | right | bottom | left*/
 }
 
-.gal_inspection_card {
-    padding: 5px 1rem 0px 1rem !important;
+/* Override CSS for .card and .card-body CSS*/
+.statistics_card {
+    padding: 95px 2rem 0px 2rem !important;
 }
 
-/*.jvm-zoom-btn.jvm-zoomin {*/
-/*    top: 10px;*/
-/*}*/
+.gal_inspection_card {
+    padding: 5px 2rem 0px 2rem !important;
+}
 
-/*.jvm-zoom-btn {*/
-/*    background-color: #292929;*/
-/*    box-sizing: border-box;*/
-/*    cursor: pointer;*/
-/*    height: 15px;*/
-/*    left: 10px;*/
-/*    line-height: 10px;*/
-/*    padding: 3px;*/
-/*    width: 15px;*/
-/*}*/
+.tol_inspect_card {
+    padding: 31px 2rem 0px 2rem !important;
+}
 
-/*.jvm-tooltip, .jvm-zoom-btn {*/
-/*    border-radius: 3px;*/
-/*    color: #fff;*/
-/*    !*position: absolute;*!*/
-/*}*/
-
-/*.jvm-zoomin, .jvm-zoomout, image, text {*/
-/*    -webkit-user-select: none;*/
-/*    -moz-user-select: none;*/
-/*    user-select: none;*/
-/*}*/
-
-/*.jvm-container {*/
-/*    height: 100%;*/
-/*    overflow: hidden;*/
-/*    position: relative;*/
-/*    touch-action: none;*/
-/*    width: 100%;*/
-/*}*/
-
+.gal_worldwide_view_card {
+    padding: 0px 2rem 0px 2rem !important;
+}
