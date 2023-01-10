@@ -977,12 +977,13 @@ class Sample(DAComponent):
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
 
-    def get_dtol_from_profile_id(self, profile_id, filter):
+    def get_dtol_from_profile_id(self, profile_id, filter): #, start, length, order, dir):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id,
                  "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
+
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
@@ -1010,10 +1011,11 @@ class Sample(DAComponent):
             cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
 
         # get schema
+        samples = list(cursor);
         sc = self.get_component_schema()
         out = list()
         taxon = dict()
-        for i in list(cursor):
+        for i in samples:
             if "species_list" in i:
                 sp_lst = i["species_list"]
                 for sp in sp_lst:
@@ -1024,15 +1026,22 @@ class Sample(DAComponent):
                     else:
                         pass
             sam = dict()
-            for cell in i:
-                for field in sc:
-
-                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
-                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
-                            if field.get("show_in_table", ""):
-                                sam[cell] = i[cell]
+            sam["_id"] = i["_id"]
+            for field in sc:
+                if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
+                    name = field.get("id", "").split(".")[-1]
+                    sam[name] = i[name]
             out.append(sam)
         return out
+
+    def get_sample_display_column_names(self):
+        sc = self.get_component_schema()
+        columns = [];
+        columns.append("_id")
+        for field in sc:
+            if field.get("show_in_table", ""):
+                columns.append(field.get("id", "").split(".")[-1])
+        return columns;
 
     def mark_rejected(self, sample_id, reason="Sample rejected by curator."):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)},

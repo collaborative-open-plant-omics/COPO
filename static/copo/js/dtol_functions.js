@@ -5,7 +5,7 @@ $(document).ready(function () {
     $(document).data("isDtolSamplePage", true)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
+    excluded_fields = ["profile_id", "biosample_id", "_id"]
     // populate profiles panel on left
     update_pending_samples_table()
 
@@ -179,6 +179,47 @@ $(document).ready(function () {
             })
         }
     })
+
+    var profile_samples = document.getElementById("profile_samples")
+    if (profile_samples && profile_samples.getElementsByTagName("thead")[0].children.length == 0  ) {
+    $.ajax({
+        url: "/copo/get_sample_column_names",
+        method: "GET",
+        dataType: "json"
+    }).error(function (data) {
+        console.error("ERROR: " + data)
+    }).done(function (data) {
+        if (data.length) {
+            var header = $("<h4/>", {
+                html: "Samples"
+            })
+            $("#sample_panel").find(".labelling").empty().append(header)
+
+            var rows = []
+            //$(data).each(function (idx, row) {
+                var th_row = document.createElement("tr")
+                var empty_th = document.createElement("th")
+                th_row.appendChild(empty_th)
+
+                let i = 0;
+                while (i < data.length) {
+                     if (!excluded_fields.includes(data[i])) {
+                            // make header
+                            var th = $("<th/>", {
+                                html: data[i]
+                            })
+                            $(th_row).append(
+                                th
+                            )
+                        }
+                    i++;
+                }
+                profile_samples.getElementsByTagName("thead")[0].appendChild(th_row)
+                $("#profile_samples").DataTable(dt_options);
+        }
+    })
+    }
+
 })
 var fadeSpeed = 'fast'
 var dt_options = {
@@ -190,6 +231,11 @@ var dt_options = {
         style: 'os',
         selector: 'td:first-child'
     },
+    //destroy: true,
+    paging: true,
+    //processing: true,
+    //serverSide: true,
+    //ajax: '/copo/get_samples_for_profile'
 }
 
 function row_select(ev) {
@@ -210,9 +256,9 @@ function row_select(ev) {
 
     var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
     $("#profile_id").val(d.profile_id)
-
-
     $("#spinner").show()
+
+
 
     $.ajax({
         url: "/copo/get_samples_for_profile",
@@ -222,11 +268,14 @@ function row_select(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
+            $("#profile_samples").DataTable().draw();
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                $("#profile_samples").DataTable().clear().destroy();
-
+                //$("#profile_samples").DataTable().clear().draw();
             }
-            $("#sample_panel").find("thead").empty()
+            //$("#sample_panel").find("thead").empty()
+            //$("#profile_samples").DataTable().row('.sample_table_row').remove().draw(false);
+            //$("#profile_samples").DataTable().row('.dataTables_empty').remove().draw(false);
+
             $("#sample_panel").find("tbody").empty()
 
             if (data.length) {
@@ -237,16 +286,16 @@ function row_select(ev) {
 
                 var rows = []
                 $(data).each(function (idx, row) {
-                    var th_row = document.createElement("tr")
+                   // var th_row = document.createElement("tr")
                     var td_row = document.createElement("tr")
                     td_row.className = "sample_table_row"
-
+/*
                     if (idx == 0) {
                         // do header and row
                         if (filter === "pending" || filter === "rejected") {
 
-                            var empty_th = document.createElement("th")
-                            th_row.appendChild(empty_th)
+                           // var empty_th = document.createElement("th")
+                           // th_row.appendChild(empty_th)
                             var td = document.createElement("td")
                             td.className = "tickbox"
 
@@ -290,10 +339,11 @@ function row_select(ev) {
                                 )
                             }
                         }
-                        document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
+                        //document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
                         document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
 
                     } else { // if not first element
+*/
                         if (filter === "pending" || filter === "rejected") {
 
                             var td = document.createElement("td")
@@ -326,7 +376,7 @@ function row_select(ev) {
 
                         }
                         rows.push(td_row)
-                    }
+                   // }
                 })
                 fastdom.mutate(() => {
                     //$("#profile_samples tbody").append(rows)
@@ -334,7 +384,7 @@ function row_select(ev) {
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
-                    $("#profile_samples").DataTable(dt_options);
+                    //$("#profile_samples").DataTable().draw();
                 })
             } else {
                 var content
@@ -403,7 +453,7 @@ function update_pending_samples_table() {
 
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
-
+    $("#accept_reject_button").find("button").prop("disabled", true)
 
     var checked = $(".form-check-input:checked").closest("tr")
 
