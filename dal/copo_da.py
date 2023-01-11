@@ -1026,7 +1026,7 @@ class Sample(DAComponent):
                     else:
                         pass
             sam = dict()
-            sam["_id"] = i["_id"]
+            sam["_id"] = str(i["_id"])
             for field in sc:
                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
                     name = field.get("id", "").split(".")[-1]
@@ -1039,7 +1039,7 @@ class Sample(DAComponent):
         columns = [];
         columns.append("_id")
         for field in sc:
-            if field.get("show_in_table", ""):
+            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
                 columns.append(field.get("id", "").split(".")[-1])
         return columns;
 
