@@ -58,6 +58,12 @@
             font-size: larger;
         }
 
+        form {
+            padding-bottom: 20px !important;
+            border: 1px solid #ececec;
+            padding: 10px 10px 45px 10px !important;
+            border-radius: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -132,53 +138,46 @@
         {% endfor %}
     {% endif %}
     <div style="width:40%">
-        <form action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form }}
-            <div style="margin-bottom: 20px"></div>
-            <div><input type="submit" value="Submit Assembly" class="ui blue button"></div>
-        </form>
+        {% if hide_form == False %}
+            <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form }}
+                <div style="margin-bottom: 20px"></div>
+                <div style="float: right; margin-bottom: 30px">
+                <span id="loading_span" style="display:none">
+                    <strong><small>Processing - this can take some time</small></strong>
+                    <img id="loader" style="height:24px; margin-right:10px"
+                         src="{% static "copo/img/loading.gif" %}"/>
+                    </span>
+                    <input id="submit_assembly_button" type="submit" value="Submit Assembly" class="ui blue button">
+
+                </div>
+            </form>
+        {% endif %}
     </div>
-    <!--
-    <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Move Data</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="url_upload_controls">
-                        <ol>
-                            <li>Navigate to your files (Your files must all be in the same directory with no nesting)
-                            </li>
-                            <li>Run <kbd>ls -F1</kbd></li>
-                            <li>Paste the result into the box below, and click Process</li>
-                        </ol>
-                        <form>
-                            <textarea id="url_text_area" class="form-control" rows="10"></textarea>
-                        </form>
-                    </div>
-                    <div id="command_panel">
-                        Navigate to where the files you with to move are and run the following commands.
-                        <div id="command_area" style="overflow-x: scroll; padding:20px  "></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" id="process_urls_button" class="btn btn-primary">Process</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    -->
+
 {% endblock %}
 
 
 
 
 {% block js_block %}
+    <script>
+        $(document).ready(function () {
+
+            $(document).on("click", "#submit_assembly_button", function () {
+                $("#submit_assembly_button").attr('disabled', 'disabled')
+                $("input").attr("disabled", "disabled")
+                $("select").attr("disabled", "disabled")
+                $("textarea").attr("disabled", "disabled")
+                $("#loading_span").fadeIn()
+                $("#assembly_form").submit()
+            }).done(function () {
+
+            })
+        })
+    </script>
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>

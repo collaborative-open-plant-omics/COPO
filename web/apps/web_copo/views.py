@@ -141,7 +141,7 @@ def ena_assembly(request, profile_id):
                     messages.success(request, "Assembly submitted with accession " + sub_result.get("accession", ""))
                 form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
                 return render(request, 'copo/ena_assembly.html', {"profile_id": profile_id,
-                                                                  'form': AssemblyForm(request.GET)})
+                                                                  'form': form, "hide_form": True})
 
     else:
         #todo I'm probably out of time to do this, but we need to account -maybe?- for a situation in which we have
@@ -152,7 +152,7 @@ def ena_assembly(request, profile_id):
         #pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         #set authomatically and cannot be changed by the user
         form = AssemblyForm(study_accession = study_accession, sample_accession = sample_accession)
-    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form})
+    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
 
 
 @login_required

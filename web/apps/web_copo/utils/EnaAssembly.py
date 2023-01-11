@@ -87,6 +87,7 @@ def validate_assembly(form):
         manifest_path) + " -validate"
     #print(webin_cmd)
     try:
+        print('validating assembly submission')
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
@@ -127,6 +128,7 @@ def submit_assembly(file_path):
     #print(webin_cmd)
     #try/except as it turns out this can fail even if validate is successfull
     try:
+        print("submitting assembly")
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
