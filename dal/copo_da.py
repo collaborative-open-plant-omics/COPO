@@ -977,21 +977,45 @@ class Sample(DAComponent):
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
 
-    def get_dtol_from_profile_id(self, profile_id, filter): #, start, length, order, dir):
+    def get_dtol_from_profile_id(self, profile_id, filter, draw, start, length, sort_by, dir):
+
+        sc = self.get_component_schema()
+        if sort_by == "0":
+            sort_by_column = "_id"
+        else:
+            i = 0
+            sort_by_column = ""
+            for field in sc:
+                if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",""):
+                    i = i + 1
+                    if i == int(sort_by):
+                        sort_by_column = field.get("id", "").split(".")[-1]
+                        break;
+        total_count = 0;
+
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id,
-                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
+                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+
+            total_count = self.get_collection_handle().find(
+                {'profile_id': profile_id,
+                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}}).count()
 
         elif filter == "pending_barcode":
             cursor = self.get_collection_handle().find(
                 {'profile_id': profile_id, "status": "pending_barcode"}
-            )
+            ).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            total_count = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "pending_barcode"}
+            ).count()
         elif filter == "conflicting_barcode":
             out = list()
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "conflicting"})
+                {'profile_id': profile_id, "status": "conflicting"}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            total_count = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "conflicting"}).count()
             samples = list(cursor)
             id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
@@ -1003,16 +1027,18 @@ class Sample(DAComponent):
         elif filter == "processing":
             out = list()
             cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "processing"})
+                {'profile_id': profile_id, "status": "processing"}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            total_count = self.get_collection_handle().find(
+                {'profile_id': profile_id, "status": "processing"}).count()
             samples = list(cursor)
             cursor = samples
         else:
             # else return samples who's status simply matches the filter
-            cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
-
+            cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            total_count = self.get_collection_handle().find({'profile_id': profile_id, "status": filter}).count()
         # get schema
         samples = list(cursor);
-        sc = self.get_component_schema()
+        #sc = self.get_component_schema()
         out = list()
         taxon = dict()
         for i in samples:
@@ -1032,7 +1058,13 @@ class Sample(DAComponent):
                     name = field.get("id", "").split(".")[-1]
                     sam[name] = i[name]
             out.append(sam)
-        return out
+
+        result = dict()
+        result["recordsTotal"] = total_count
+        result["recordsFiltered"] = total_count
+        result["draw"] = draw
+        result["data"] = out
+        return result
 
     def get_sample_display_column_names(self):
         sc = self.get_component_schema()

@@ -1448,15 +1448,19 @@ def get_samples_for_profile(request):
     if not ViewLock().isViewLockedCreate(url=url):
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
-        #start = request.GET["start"]
-        #length = request.GET["length"]
-        #draw = request.GET["draw"]
-        #order = request.GET["order"][0]["column"]
-        #dir = request.GET["order"][0]["dir"]
-        #samples = Sample().get_dtol_from_profile_id(profile_id, filter, start, length, order, dir)
+        start = request.GET.get("start", "0")
+        length = request.GET.get("length", "10")
+        draw = request.GET.get("draw", "1")
+        sort_by = request.GET.get("order[0][column]", "")
+        direction = request.GET.get("order[0][dir]", "")
+        dir = 1
+        if direction == "desc":
+            dir = -1
+
+        samples = Sample().get_dtol_from_profile_id(profile_id, filter, draw, start, length, sort_by, dir)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
-        samples = Sample().get_dtol_from_profile_id(profile_id, filter)
+
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))

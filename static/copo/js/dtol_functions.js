@@ -34,6 +34,25 @@
                 targets: 0,
             },
         ],
+        //processing: true,
+        serverSide: true,
+        // Reload DataTable on input change.
+
+          ajax: {
+            url: '/copo/get_samples_for_profile',
+            data: function (d) {
+              return {
+                profile_id : $("#profile_id").val(),
+                filter : $("#sample_filter").find(".active").find("a").attr("href"),
+                draw : d.draw,
+                order : d.order,
+                length : d.length,
+                start : d.start,
+              }
+            },
+            dataSrc: 'data',
+          },
+
     }
     var sample_table;
 
@@ -262,11 +281,11 @@ $(document).ready(function () {
 
 
 
-
+    var row;
 function row_select(ev) {
     $("#accept_reject_button").find("button").prop("disabled", true)
     // get samples for profile clicked in the left hand panel and populate table on the right
-    var row;
+
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
         $(document).data("selected_row", $(ev.currentTarget))
@@ -278,11 +297,12 @@ function row_select(ev) {
     }
 
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
-
-    var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
-    $("#profile_id").val(d.profile_id)
+    var profile_id = $(row).find("td").data("profile_id")
+    $("#profile_id").val(profile_id)
     $("#spinner").show()
-
+    sample_table.ajax.reload()
+    $("#spinner").fadeOut("fast")
+/*
     $.ajax({
         url: "/copo/get_samples_for_profile",
         data: d,
@@ -323,6 +343,7 @@ function row_select(ev) {
 
         }
     )
+    */
 }
 
 function delay(fn, ms) {
