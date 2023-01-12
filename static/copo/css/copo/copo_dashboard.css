@@ -26,3 +26,38 @@
 .gal_worldwide_view_card {
     padding: 0px 2rem 0px 2rem !important;
 }
+
+/* World map*/
+.jvectormap-legend-inner {
+    margin-bottom: 5px !important;
+}
+
+.jvectormap-legend {
+    margin: 0px 10px 30px 0px !important; /*top | right | bottom | left*/
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick {
+    width: auto !important;
+    margin-right: 10px !important;
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick-text {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    line-height: 13px !important;
+}
+
+.jvectormap-legend-tick-text {
+    margin-left: 5px;
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick-sample {
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.jvectormap-legend-tick-sample {
+    margin-left: 5px;
+}

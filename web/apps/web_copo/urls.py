@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
+    path('dashboard/gal_and_partners/', general.gal_and_partners, name='copo_gal_and_partners'),
     # path('test_submission/', views.test_submission, name='test_submission'),
     path('test/', views.test, name='test'),
     path('dashboard/', views.copo_dashboard, name="copo_dashboard"),

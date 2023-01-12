@@ -1,6 +1,5 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 01/12/2015'
 
-import itertools
 # this python file is for small utility functions which will be called from Javascript
 import json
 import operator
@@ -8,10 +7,8 @@ import os
 import re
 import time
 import urllib.parse
-import importlib
 from datetime import datetime, time, timezone
 from dateutil.relativedelta import relativedelta
-from geopy.geocoders import Nominatim
 from io import BytesIO
 from openpyxl.utils.cell import get_column_letter
 from Bio import Entrez
@@ -37,7 +34,7 @@ from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
     Repository, Person, ValidationQueue
 from dal.figshare_da import Figshare
-from dal.orcid_da import Orcid
+
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
 from submission.dataverseSubmission import DataverseSubmit as ds
@@ -62,8 +59,6 @@ from exceptions_and_logging import logger
 # from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
-
-# from web.apps.web_copo.lookup import dtol_lookups as lkup
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -1449,7 +1444,7 @@ def update_pending_samples_table(request):
 
 def update_pending_samples_table_for_tol_inspection(request):
     project = request.GET["project"]
-    print("Project", project)
+
     if project == "ERGA":
         profiles = Profile().get_erga_profiles()
     elif project == "DTOL":
@@ -2180,65 +2175,3 @@ def validate_common_value(request):
         return HttpResponse(json.dumps({'response': isCommonValueValid}))
     else:
         return HttpResponse(json.dumps({'response': isCommonValueValid, 'error': error_message}))
-
-    # tol_inspect web page || copo dashboard web page
-
-
-def get_gal_and_copo_partners(request):
-    def convert_string_to_titlecase(txt):
-        txt = txt.upper()  # Convert string word to uppercase
-
-        # Convert titlecase prepositions to lowercase
-        word_exceptions = ["OF", "AND", "FOR", "THE"]  # Prepositions/conjuctions should be lowercase
-        temp1 = ' '.join(
-            word.title() if index == 0 or not word.upper() in word_exceptions else word.lower()
-            for index, word in
-            enumerate(txt.split(' ')))
-
-        # Convert sentencecase words to uppercase
-        words_to_be_uppercase_lst = ['Dna', 'Ngs']
-        temp2 = ' '.join(
-            temp1.replace(item, item.upper()) if item in temp1 else temp1 for item in
-            words_to_be_uppercase_lst if item in temp1)
-
-        titlecase_word = ''.join(temp2 if any(x in temp1 for x in words_to_be_uppercase_lst) else temp1)
-
-        # Get (one occurence of) string within regular brackets if it exists
-        # (given that there should be no nested parenthesis)
-        is_parenthesis_in_word = re.search(r'\((.*?)\)', titlecase_word)
-        word_within_parenthesis = is_parenthesis_in_word.group(1) if is_parenthesis_in_word else ""
-        result = titlecase_word.replace(word_within_parenthesis, word_within_parenthesis.upper())
-
-        return result if word_within_parenthesis else titlecase_word
-
-    def get_location(latitude, longitude):
-        latitude = "52.078851760344094"
-        longitude = "0.1833635227184019"
-        geolocator = Nominatim(user_agent="geoapiExercises")
-        location = geolocator.reverse(latitude + "," + longitude)
-        address = location.raw['address']
-        city = address.get('city', '')
-        state = address.get('state', '')
-        country = address.get('country', '')
-
-    # Field name: "PARTNER"
-    partner_lst = [convert_string_to_titlecase(item) for item in lkup.DTOL_ENUMS["PARTNER"]]
-    partner_locations_lst = [{convert_string_to_titlecase(key): lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")} for
-                             key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if
-                             key in lkup.DTOL_ENUMS["PARTNER"]]
-
-    # Field name: "GAL"
-    # Get list of GAL names based on manifest type and once GAL name begins with an uppercase letter
-    gal_lst = [(convert_string_to_titlecase(item), manifest_type) for manifest_type, gal in
-               lkup.DTOL_ENUMS["GAL"].items() for item in gal if item[0].isupper()]
-
-    gal_lst_sorted = sorted(gal_lst, key=operator.itemgetter(0))  # Sort before grouping list
-    gal_lst_grouped = itertools.groupby(gal_lst_sorted, key=operator.itemgetter(0))  # Group list by GAL name
-    gal_lst = {k: list(map(operator.itemgetter(1), v)) for k, v in gal_lst_grouped}
-
-    gal_lst_uppercase = [x.upper() for x in list(gal_lst.keys())]  # Convert GAL names to uppercase
-    gal_locations_lst = [{convert_string_to_titlecase(key): lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")} for
-                         key, value in lkup.GAL_MAP_LOCATION_COORDINATES.items() if
-                         key.upper() in gal_lst_uppercase]
-
-    return gal_locations_lst  # HttpResponse(json.dumps({'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst, 'partner_locations_lst': partner_locations_lst}))

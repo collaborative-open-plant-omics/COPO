@@ -22,6 +22,8 @@
 
     <link rel="stylesheet" href="{% static 'copo/css/copo/copo_dashboard.css' %}"/>
 
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
     <style>
         .section_title:hover {
             color: #4183c4;
@@ -314,7 +316,7 @@
                                     <div class="row" style="font-size:12px">
                                         <div class="col-sm-7">
                                             <div class="dataTables_info" id="profile_samples_info" role="status"
-                                                 aria-live="polite">Showing 1 to 10 of 15 entries
+                                                 aria-live="polite">Showing 1 to 10 of 4 entries
                                             </div>
                                         </div>
                                         <div class="col-sm-5">
@@ -371,7 +373,7 @@
                 <div class="col-lg-8 col-md-6 mb-md-0 mb-4 mt-0">
                     <div class="card flex-fill w-100" style="height:590px; !important;">
                         <div class="card-header "> {#  px-7 py-5 position-relative mt-n4 mx-3 bg-transparent#}
-                            <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Lab (GAL) and
+                            <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Labs (GAL) and
                                 Partners</h5>
                         </div>
                         <div class="card-body">
@@ -403,8 +405,9 @@
                                         <i class="material-icons text-success text-gradient">check_circle_outline</i>
                                     </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">View Accessions</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Biosample, SRA and
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">View Accessions</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Biosample, SRA
+                                            and
                                             submission accessions of approved samples can be viewed</p>
                                     </div>
                                 </div>
@@ -414,9 +417,10 @@
                                     <i class="material-icons" style="color: #21ba45">table_view</i>
                                 </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Preview samples
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Preview samples
                                             created</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Sample metadata can
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Sample metadata
+                                            can
                                             be previewed</p>
                                     </div>
                                 </div>
@@ -426,9 +430,9 @@
 
                                 </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Approval or rejection of
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Approval or rejection of
                                             samples</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Samples are
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
                                             inspected by sample managers</p>
                                     </div>
                                 </div>
@@ -437,8 +441,8 @@
                                        <i class="material-icons" style="color: #b5cc18">filter_alt</i>
                                   </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Creation of samples</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Samples are
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Creation of samples</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
                                             created</p>
                                     </div>
                                 </div>
@@ -447,8 +451,8 @@
                                     <i class="material-icons text-warning text-gradient">fact_check</i>
                                   </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Manifest validation</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Taxonomy
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Manifest validation</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Taxonomy
                                             information
                                             and manifest SOP specification format are validated</p>
                                     </div>
@@ -458,9 +462,9 @@
                                     <i class="icon table sign" style=" font-size: 1.32em"></i>
                                   </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Complete and upload
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Complete and upload
                                             manifest</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Fill in
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Fill in
                                             spreasheet</p>
                                     </div>
                                 </div>
@@ -469,11 +473,10 @@
                                     <i class="material-icons" style="color: #2185d0">add_circle</i>
                                   </span>
                                     <div class="timeline-content">
-                                        <h6 class="text-dark text-medium font-weight-bold mb-0">Create profile
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Create profile
                                             record</h6>
-                                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">An ASG, ERGA, DTOL
-                                            or
-                                            DTOLENV manifest record is created</p>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">An ASG, ERGA,
+                                            DTOL or DTOLENV manifest record is created</p>
                                     </div>
                                 </div>
                             </div>
@@ -499,4 +502,5 @@
     <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-2.05.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-world-mill.js' %}"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 {% endblock js_block %}

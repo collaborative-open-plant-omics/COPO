@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $(document).data("map_markers", [])
+
     // Card body
     const copoStatisticsURL = "/copo/stats";
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
@@ -26,11 +28,9 @@ $(document).ready(function () {
             datasets: [{
                 label: "Number of Samples",
                 tension: 0,
-                borderWidth: 0,
                 pointRadius: 5,
                 pointBackgroundColor: "rgba(255, 255, 255, .8)",
                 pointBorderColor: "transparent",
-                borderColor: "rgba(255, 255, 255, .8)",
                 borderColor: "rgba(255, 255, 255, .8)",
                 borderWidth: 4,
                 backgroundColor: "transparent",
@@ -119,7 +119,6 @@ $(document).ready(function () {
             }]
         },
         options: {
-            responsive: !window.MSInputMethodContext,
             maintainAspectRatio: false,
             legend: {
                 position: 'right'
@@ -140,183 +139,110 @@ $(document).ready(function () {
     })
 
     // World map
+    $.getJSON("gal_and_partners")
+        .done(function (data) {
+            console.log("GAL list: ", data.gal_lst)
+            console.log("GAL locations list: ", data.gal_locations_lst)
+            console.log("PARTNER list: ", data.partner_lst)
+            console.log("PARTNER locations list: ", data.partner_locations_lst)
 
-    const markers = [
-        {
-            latLng: [31.230391, 121.473701],
-            name: "Shanghai"
-        },
-        {
-            latLng: [28.704060, 77.102493],
-            name: "Delhi"
-        },
-        {
-            latLng: [6.524379, 3.379206],
-            name: "Lagos"
-        },
-        {
-            latLng: [35.689487, 139.691711],
-            name: "Tokyo"
-        },
-        {
-            latLng: [23.129110, 113.264381],
-            name: "Guangzhou"
-        },
-        {
-            latLng: [40.7127837, -74.0059413],
-            name: "New York"
-        },
-        {
-            latLng: [34.052235, -118.243683],
-            name: "Los Angeles"
-        },
-        {
-            latLng: [41.878113, -87.629799],
-            name: "Chicago"
-        },
-        {
-            latLng: [51.507351, -0.127758],
-            name: "London"
-        },
-        {
-            latLng: [40.416775, -3.703790],
-            name: "Madrid "
-        }
-    ];
+            let map_locations = data.partner_locations_lst.concat(data.gal_locations_lst)
+            let map_markers = []
+            map_locations.map(x => map_markers.push({
+                name: x.name, latLng: [x.latitude, x.longitude], style: {r: x.style.r, fill: x.style.fill}
+            }));
 
-    // const map = new vectorMap({
-    //     map: "world",
-    //     selector: "#world_map",
-    //     draggable: true,
-    //     zoomButtons: true,
-    //     zoomOnScroll: true,
-    //     zoomAnimate: true,
-    //     zoomOnScrollSpeed: 3,
-    //     zoomMax: 12,
-    //     zoomMin: 1,
-    //     markers: markers1,
-    //     markerStyle: {
-    //         initial: {
-    //             r: 9,
-    //             strokeWidth: 7,
-    //             stokeOpacity: .4,
-    //             fill: '#3B7DDD'
-    //         },
-    //         hover: {
-    //             fill: '#6f42c1',
-    //             stroke: '#6f42c1'
-    //         }
-    //     },
-    //     onLoad: function (event, map) {
-    //         $('#world_map').vectorMap('zoomIn');
-    //     }
-    //
-    // });
+            console.log("Map markers", map_markers)
 
+            // Create and populate world map with map markers
+            $('#world_map').vectorMap({
+                map: 'world_mill',
+                backgroundColor: 'none', // 'aliceblue',
+                draggable: true,
+                markersSelectable: false,
+                regionsSelectable: false,
+                zoomAnimate: true,
+                zoomOnScroll: true,
+                zoomOnScrollSpeed: 3,
+                hoverColor: false,
+                hoverOpacity: 0.7,
+                normalizeFunction: 'polynomial',
+                scaleColors: ['#C8EEFF', '#0071A4'],
+                markers: map_markers, //get_map_marker_popup_details(),
+                onMarkerClick: function (e, index) {
+                    get_map_marker_popup_details(map_markers[index])
+                },
+                markerStyle: {
+                    initial: {
+                        // r: 5,
+                        // fill: '#3B7DDD',
+                        stroke: '#383f47',
+                        strokeWidth: 2,
+                        stokeOpacity: .2,
+                    },
+                    hover: {
+                        fill: '#383f47',
+                        stroke: '#383f47'
+                    }
+                },
+                regionStyle: {
+                    initial: {
+                        fill: 'lightgrey', //'#dee2e8',
+                        stroke: 'none',
+                        "stroke-width": 0,
+                    },
+                },
+                regionLabelStyle: {
+                    initial: {
+                        fill: '#B90E32'
+                    },
+                    hover: {
+                        cursor: 'pointer',
+                        fill: 'black'
+                    }
+                },
+                series: {
+                    markers: [{
+                        attribute: 'fill',
+                        scale: {
+                            'yellow': '#F8E23B',
+                            'blue': '#3B7DDD',
 
-    $('#world_map').vectorMap({
-        map: 'world_mill',
-        backgroundColor: 'none', // 'aliceblue',
-        draggable: true,
-        markersSelectable: false,
-        regionsSelectable: false,
-        zoomAnimate: true,
-        zoomOnScroll: true,
-        zoomOnScrollSpeed: 3,
-        hoverColor: false,
-        hoverOpacity: 0.7,
-        normalizeFunction: 'polynomial',
-        scaleColors: ['#C8EEFF', '#0071A4'],
-        markers: get_map_location_markers(),
-        markerStyle: {
-            initial: {
-                r: 5,
-                fill: '#3B7DDD',
-                stroke: '#383f47',
-                strokeWidth: 2,
-                stokeOpacity: .2,
-            },
-            hover: {
-                fill: '#383f47',
-                stroke: '#383f47'
-            }
-        },
-        regionStyle: {
-            initial: {
-                fill: 'lightgrey', //'#dee2e8',
-                stroke: 'none',
-                "stroke-width": 0,
-            },
-        },
-        regionLabelStyle: {
-            initial: {
-                fill: '#B90E32'
-            },
-            hover: {
-                cursor: 'pointer',
-                fill: 'black'
-            }
-        },
-    });
+                        },
+                        legend: {
+                            horizontal: true,
+                            title: 'Key',
+                            labelRender: function (v) {
+                                return {
+                                    yellow: 'PARTNER',
+                                    blue: 'GAL',
+
+                                }[v];
+                            }
+                        }
+                    }]
+                }
+            });
+
+        }).error(function (error) {
+        console.log(`Error: ${error.message}`)
+    })
 
 });
 
-function get_map_location_markers() {
-//     map = $('#worldmap').vectorMap('get', 'mapObject');
-// $.getJSON('http://127.0.0.1/bantools/ip/ip.txt', function(data){
-// $.each(data.relays, function(idx, relay)
-//     {
-//         map.addMarker(relay.or_addresses[0], {'latLng' : [relay.latitude, relay.longitude], "name" : relay.or_addresses[0]});
-//     });
-// });
-// });
-    const markers = [
-        {
-            name: 'Centro Nacional De Análisis Genómico (CNAG), xxxxx',
-            latLng: [41.29322842500072, 2.112447951213345], //location
-        },
-        {
-            name: 'DNA Sequencing and Genomics Laboratory, Helsinki Genomics Core Facility (HGCF), xxxxxx',
-            latLng: [52.604080415603875, 1.322325116120334], //location
-        },
-        {
-            name: 'Dresden-Concept (DRC), xxxx',
-            latLng: [50.953555072066706, 13.765873443664715], //location
-        },
-        {
-            name: 'Earlham Institute (EI), Norwich, England',
-            latLng: [52.62318280716785, 1.2555952213587074], //location
-        },
-        {
-            name: 'Industry Partner (IP), xxxx',
-            latLng: [53.415313884089315, 14.621839848348806], //location
-        },
-        {
-            name: 'Sanger Institute (SAN), England',
-            latLng: [52.078851760344094, 0.1833635227184019], //location
-        },
-        {
-            name: 'Scilifelab (SCI), xxxx',
-            latLng: [59.35025588644969, 18.02342940480995], //location
-        },
-        {
-            name: 'Svardal Lab, Antwerp (SVL), xxxx',
-            latLng: [51.204388155984645, 4.383337520422855], //location
-        },
-        {
-            name: 'University of Bari  (UBA), xxxx',
-            latLng: [41.09506928572348, 16.88037847340563], //location
-        },
-        {
-            name: 'University Of Florence (FL), xxxx',
-            latLng: [43.7443574368754, 11.222120017904818], //location
-        },
-        {
-            name: 'West German Genome Centre (WGGC), xxxx',
-            latLng: [51.51577076977291, -0.058774328461889375], //location
-        }
 
-    ]
+function get_map_marker_popup_details(item) {
+    // NUmber of samples produced
+    // Country:
+    //     State:
+    console.log('Clicked: ', item);
+    let dialogDiv = $('<div id="map_marker_detailsID">\
+            <p><b>Name:</b> ' + item.name + '  </p>\
+            <p><b>City:</b> ' + item.city + '  </p>\
+            <p><b>State:</b> ' + item.state + '  </p>\
+            <p><b>Country:</b> ' + item.country + '  </p>\
+            <p><b>Number of samples produced:</b> ' + item.samples_count + '  </p> </div>');
 
-    return markers
+    dialogDiv.dialog({modal: true, title: "Details", show: 'clip', hide: 'clip'});
+
 }
