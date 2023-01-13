@@ -160,8 +160,16 @@ def gal_and_partners(request):
     # Field name: "PARTNER"
     partner_map_marker_colour = "#F8E23B"
     partner_lst = [convert_string_to_titlecase(item) for item in lkup.DTOL_ENUMS["PARTNER"]]
+    # partner_location_information = [get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
+    #                                                      lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")[
+    #                                                          "longitude"]) for
+    #                                 key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if
+    #                                key in lkup.DTOL_ENUMS["PARTNER"]]
     partner_locations_lst = [
         {**{"name": convert_string_to_titlecase(key)}, **lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, ""),
+         **get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
+                                lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
+         **{"samples_count": get_number_of_samples_produced("PARTNER", key)},
          **{"style": {"r": 5, "fill": partner_map_marker_colour}}} for
         key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if key in lkup.DTOL_ENUMS["PARTNER"]]
 
@@ -178,13 +186,17 @@ def gal_and_partners(request):
     gal_lst_uppercase = [x.upper() for x in list(gal_lst.keys())]  # Convert GAL names to uppercase
     gal_locations_lst = [
         {**{"name": convert_string_to_titlecase(key)}, **lkup.GAL_MAP_LOCATION_COORDINATES.get(key, ""),
+         **get_location_details(lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
+                                lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
+         **{"samples_count": get_number_of_samples_produced("GAL", key)},
          **{"style": {"r": 5, "fill": gal_map_marker_colour}}} for
         key, value in lkup.GAL_MAP_LOCATION_COORDINATES.items() if
         key.upper() in gal_lst_uppercase]
 
     out = {'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst,
            'partner_locations_lst': partner_locations_lst}
-    return HttpResponse(json.dumps(out))  # gal_locations_lst
+
+    return HttpResponse(json.dumps(out))  # partner_locations_lst  # HttpResponse(json.dumps(out))
 
 
 def convert_string_to_titlecase(txt):
@@ -214,15 +226,16 @@ def convert_string_to_titlecase(txt):
     return result if word_within_parenthesis else titlecase_word
 
 
-def get_location(latitude, longitude):
-    latitude = "52.078851760344094"
-    longitude = "0.1833635227184019"
+def get_location_details(latitude, longitude):
     geolocator = Nominatim(user_agent="geoapiExercises")
-    location = geolocator.reverse(latitude + "," + longitude)
+    location = geolocator.reverse(str(latitude) + "," + str(longitude))
     address = location.raw['address']
-    city = address.get('city', '')
-    state = address.get('state', '')
-    country = address.get('country', '')
+    out = {"city": address.get("city", ""), "state": address.get("state", ""), "country": address.get("country", "")}
+    return out
+
+
+def get_number_of_samples_produced(field_name, field_value):
+    return Sample().get_collection_handle().count({field_name: field_value})
 
 
 class CustomAuthToken(ObtainAuthToken):

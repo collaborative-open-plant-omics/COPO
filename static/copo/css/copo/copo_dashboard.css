@@ -61,3 +61,8 @@
 .jvectormap-legend-tick-sample {
     margin-left: 5px;
 }
+
+.alert-info {
+    background-image: none !important;
+    background-color: #cce5ff !important; /* transparent !important;*/
+}

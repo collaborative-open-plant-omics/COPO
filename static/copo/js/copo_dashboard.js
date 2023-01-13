@@ -139,17 +139,15 @@ $(document).ready(function () {
     })
 
     // World map
+    // Show/Hide "World map is loading" spinner
+    $('svg').length > 0 ? $("#spinner_div").hide() : $("#spinner_div").show();
     $.getJSON("gal_and_partners")
         .done(function (data) {
-            console.log("GAL list: ", data.gal_lst)
-            console.log("GAL locations list: ", data.gal_locations_lst)
-            console.log("PARTNER list: ", data.partner_lst)
-            console.log("PARTNER locations list: ", data.partner_locations_lst)
-
             let map_locations = data.partner_locations_lst.concat(data.gal_locations_lst)
             let map_markers = []
             map_locations.map(x => map_markers.push({
-                name: x.name, latLng: [x.latitude, x.longitude], style: {r: x.style.r, fill: x.style.fill}
+                name: x.name, latLng: [x.latitude, x.longitude], style: {r: x.style.r, fill: x.style.fill},
+                city: x.city, state: x.state, country: x.country, samples_count: x.samples_count
             }));
 
             console.log("Map markers", map_markers)
@@ -168,7 +166,7 @@ $(document).ready(function () {
                 hoverOpacity: 0.7,
                 normalizeFunction: 'polynomial',
                 scaleColors: ['#C8EEFF', '#0071A4'],
-                markers: map_markers, //get_map_marker_popup_details(),
+                markers: map_markers,
                 onMarkerClick: function (e, index) {
                     get_map_marker_popup_details(map_markers[index])
                 },
@@ -223,7 +221,7 @@ $(document).ready(function () {
                     }]
                 }
             });
-
+            $("#spinner_div").hide();
         }).error(function (error) {
         console.log(`Error: ${error.message}`)
     })
@@ -232,10 +230,6 @@ $(document).ready(function () {
 
 
 function get_map_marker_popup_details(item) {
-    // NUmber of samples produced
-    // Country:
-    //     State:
-    console.log('Clicked: ', item);
     let dialogDiv = $('<div id="map_marker_detailsID">\
             <p><b>Name:</b> ' + item.name + '  </p>\
             <p><b>City:</b> ' + item.city + '  </p>\

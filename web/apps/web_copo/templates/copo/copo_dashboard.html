@@ -372,24 +372,30 @@
             <div class="row mb-4">
                 <div class="col-lg-8 col-md-6 mb-md-0 mb-4 mt-0">
                     <div class="card flex-fill w-100" style="height:590px; !important;">
-                        <div class="card-header "> {#  px-7 py-5 position-relative mt-n4 mx-3 bg-transparent#}
+                        <div class="card-header ">
                             <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Labs (GAL) and
                                 Partners</h5>
                         </div>
                         <div class="card-body">
                             <div id="world_map" style="height: 500px" class="jvectormap jvectormap-merc"
                                  data-projection="merc" data-name="world_merc">
+                                    <span id="spinner_div" class="pull-right"
+                                          style="font-size:12px; font-weight:normal">
+                                            <h4 class="h4" style="font-weight:bold">Status</h4>
+                                            <div class="alert alert-info" style="min-width: 400px; min-height: 55px;"
+                                                 role="alert">
+                                                <span id="spinner" style="margin-top:10px"
+                                                      class="pull-right ui tiny active inline loader"></span>
+                                                <div id="sub_spinner" style="margin-top:10px"
+                                                     class="pull-right ui tiny indeterminate inline loader"></div>
+                                                <p id="" style="color:#3a87ad !important; font-size:20px !important;">
+                                                    World map is loading...</p>
+                                            </div>
+                                    </span>
                             </div>
+
                         </div>
                     </div>
-                    {#                        <div class="card-body gal_worldwide_view_card">#}
-                    {#                            <h6 class="mb-0 gal_worldwide_view_card_title">Worldwide view of Genome#}
-                    {#                                Acquisition Lab (GAL)</h6>#}
-                    {#                            <p class="text-sm ">Locations of where various partners or companies performing the actual#}
-                    {#                                genome sequencing are found. The map marker is in proportion to the number of samples#}
-                    {#                                performed by the GAL. </p>#}
-                    {#                            <hr class="dark horizontal">#}
-                    {#                        </div>#}
 
                 </div>
 
