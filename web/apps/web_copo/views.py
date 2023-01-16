@@ -34,6 +34,13 @@ from web.apps.web_copo.s3.s3Connection import S3Connection
 from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
+from web.forms import AssemblyForm
+from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
+from web.apps.web_copo.utils import EnaAssembly
+from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
+from django.contrib import messages
+
+
 
 @login_required
 def index(request):
@@ -86,6 +93,66 @@ def test(request):
 def ena_read_manifest_validate(request, profile_id):
     request.session["profile_id"] = profile_id
     return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
+
+
+@login_required()
+def ena_assembly(request, profile_id):
+    request.session["profile_id"] = profile_id
+    existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+    if existing_sub:
+        existing_accessions = existing_sub[0].get("accessions", "")
+    else:
+        #initializing empty variables to create form
+        existing_accessions = False
+        study_accession = ""
+        sample_accession = ""
+    sample_accession = []
+    if existing_accessions:
+        study = existing_accessions.get("project", "")
+        if study:
+            if isinstance(study, dict):
+                study_accession = study.get("accession", "")
+            elif isinstance(study, list):
+                study_accession = study[0].get("accession", "")
+        else:
+            study_accession = ""
+        samples = existing_accessions.get("sample", "")
+        if samples:
+            for sample in samples:
+                if sample.get("sample_accession", ""):
+                    sample_accession.append(sample.get("sample_accession", ""))
+
+    if request.method == 'POST':
+        form = AssemblyForm(request.POST, request.FILES, sample_accession = sample_accession)
+        if form.is_valid():
+            #this is a dict
+            formdata = form.cleaned_data
+            files = request.FILES
+            if not files:
+                messages.error(request, 'At least one assembly file is required')
+                messages.error(request, form.errors)
+            else:
+                #uploading files to folder in COPO
+                EnaAssembly.upload_assembly_files(files)
+                sub_result = EnaAssembly.validate_assembly(formdata)
+                if sub_result.get("error", ""):
+                    messages.error(request, sub_result["error"])
+                else:
+                    messages.success(request, "Assembly submitted with accession " + sub_result.get("accession", ""))
+                form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
+                return render(request, 'copo/ena_assembly.html', {"profile_id": profile_id,
+                                                                  'form': form, "hide_form": True})
+
+    else:
+        #todo I'm probably out of time to do this, but we need to account -maybe?- for a situation in which we have
+        #multiple assemblies submitted as part of the same profile, probably the structure in the database need to
+        #change slightly so that it is possible for us to link accession and relative sample
+        #eg. accessions: {assembly: {accession:,alias:, SAMPLE}} in copo_da add_assembly_accession
+        #
+        #pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
+        #set authomatically and cannot be changed by the user
+        form = AssemblyForm(study_accession = study_accession, sample_accession = sample_accession)
+    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
 
 
 @login_required

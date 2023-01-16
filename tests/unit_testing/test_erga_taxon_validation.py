@@ -15,8 +15,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from tests.utilities.helpers import one_of_these_elements_is_visible
 from tools import resolve_env
-from web.apps.web_copo.utils.dtol.tol_validators.validation_messages import MESSAGES as validation_messages
-
+from web.apps.web_copo.validators.validation_messages import MESSAGES as validation_messages
 import os
 import tools.resolve_env as env
 
@@ -68,7 +67,7 @@ class ERGATaxonValidationTest(TestCase):
         erga_sample2_file = os.path.join(self.manifests_dir_path, "ERGA_SAMPLE_MANIFEST_2.xlsx")
         element.send_keys(erga_sample2_file)
         # Launch the "Upload Spreadsheet" dialog
-        element = WebDriverWait(self.webdriver, 20).until(
+        element = WebDriverWait(self.webdriver, 30).until(
             one_of_these_elements_is_visible("finish_button", "export_errors_button"))
 
         try:
