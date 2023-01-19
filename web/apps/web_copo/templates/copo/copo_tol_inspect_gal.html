@@ -5,114 +5,19 @@
 {% load html_tags %}
 
 {% block stylesheet_block %}
-    <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
-    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-    <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-ui.css' %}">
-    <!-- CSS adjustments for browsers with JavaScript disabled -->
-    <noscript>
-        <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-noscript.css' %}">
-    </noscript>
-    <noscript>
-        <link rel="stylesheet"
-              href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-ui-noscript.css' %}">
-    </noscript>
-    <link rel="stylesheet" href="{% static 'copo/css/copo/copo_wizard.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/sample.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/bootstrap-treeview-1.2.0/dist/bootstrap-treeview.min.css' %}">
-
-    <style>
-        th {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            z-index: 9;
-            background-color: rgba(255, 255, 255, 1);
-
-        }
-
-        td {
-            z-index: 1;
-        }
-
-        .confirm {
-            border: 1px solid rgba(221, 221, 221, 0.95);
-            border-radius: 11px;
-            padding: 10px;
-            width: 400px;
-            margin-bottom: 20px;
-        }
-
-        .selected {
-            background-color: #e1e1e1 !important;
-        }
-
-        .na_color {
-            background-color: #eee;
-        }
-
-        .empty_color {
-            background-color: #f7eded;
-        }
-
-        .selectable_row {
-            cursor: pointer;
-        }
-
-        .table_viewport {
-            max-height: 600px;
-            overflow: scroll;
-        }
-
-        .tickbox {
-            vertical-align: middle !important;
-        }
-
-        .processing_row {
-            background-color: rgba(0, 52, 255, 0.16);
-        }
-
-        .table_viewport {
-            padding-left: 20px
-        }
-
-        .selected_row {
-            background-color: #fff3ce !important;
-        }
-
-        .filter_margin {
-            margin-top: 46px
-        }
-
-        .fieldID:hover {
-            color: #4183c4;
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'copo/css/copo/tol_inspect_gal.css' %}"/>
+    <style></style>
 {% endblock %}
 
 
 
 {% block title_block %} Index {% endblock %}
 
-{% block tagline_block %}
+{% block tagline_block %}{% endblock %}
 
-{% endblock %}
+{% block browse_header_block %}{% csrf_token %}{% endblock browse_header_block %}
 
-{% block browse_header_block %}
-    {% csrf_token %}
-    <div hidden id="hidden_attrs">
-        <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="sample"/>
-        <input type="hidden" id="profile_id" value="None"/>
-        <input type="hidden" id="profile_title" value="None"/>
-
-    </div>
-{% endblock browse_header_block %}
-
-{% block page_tile %}
-
-{% endblock page_tile %}
+{% block page_tile %}{% endblock page_tile %}
 
 
 {% block content %}
@@ -127,59 +32,61 @@
 
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 display: inline;">
-            <h3 class="h3">TOL Inspection
-                <button title="Inspect TOL by GAL"
-                        class="big circular ui icon green button tol_inspect_gal copo-tooltip ">
-                    <i class="icon building" style="font-size: 1.3em"></i>
+            <h3 class="h3">Genome Acquisition Labs (GAL) Inspection
+                <button title="Inspect TOL"
+                        class="big circular ui icon yellow button tol_inspect1 copo-tooltip ">
+                    <i class="icon clipboard list" style="font-size: 1.3em"></i>
                 </button>
             </h3>
-        </div>
-
-        <div id="tolInspectNavBar" class="col-lg-4 col-md-4 col-sm-4">
-            <ol class="breadcrumb">
-            </ol>
-
         </div>
     </div>
     <hr/>
 
     <div class="row" style="padding-top:10px">
-
         <div class="col-lg-4 col-md-4 col-sm-4">
-            <ul class="nav nav-tabs" id="sample_filter">
-                <li class="hot_tab in active">
-                    <a data-toggle="tab" href="ASG">ASG</a>
-                </li>
-                <li class="hot_tab in">
-                    <a data-toggle="tab" href="DTOL">DTOL</a>
-                </li>
-                <li class="hot_tab in">
-                    <a data-toggle="tab" href="ERGA">ERGA</a>
-                </li>
-            </ul>
-            <br>
-            <table id="profile_titles" class="table table-hover table-condensed">
-
+            <table id="gal_names" class="table table-hover table-condensed">
                 <thead>
                 <tr>
-                    <th style="width: 261px">Profile Title</th>
-                    <th style="text-align: center; width: 140px">Date Created</th>
-                    <th style="text-align: center; width: 140px">Number of Samples</th>
+                    <th style="text-align: center">GAL</th>
                 </tr>
                 </thead>
                 <tbody></tbody>
             </table>
-
         </div>
-        <div id="checkbox_valueID"></div>
         <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel">
-            <!--<div class="table_viewport">-->
-            <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
+            <h4 class="h4"><small class="labelling">Click a GAL on the left to see its samples' taxonomy.</small></h4>
+            <div class="tab">
+                <button id="defaultTab" class="tablinks" onclick="showTab(event, 'taxonomyPieChartTabID')">Taxonomy
+                    Representation
+                </button>
+                <button class="tablinks" onclick="showTab(event, 'galSampleGoalStatisticsTabID')">GAL Sample Goal
+                    Statistics
+                </button>
+            </div>
 
-            <table id="profile_samples" class="table table-hover table-bordered display compact">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
+            <div>
+                <div id="taxonomyPieChartTabID" class="py-3 center-div tabcontent">
+                    <div class="chart chart-lg">
+                        <canvas id="chartjs-dashboard-pie" style="display: block; height:900px; width:900px"
+                                class="chartjs-render-monitor">
+                        </canvas>
+                    </div>
+                </div>
+                <div id="galSampleGoalStatisticsTabID" class="tabcontent">
+                    <div class="chart chart-sml">
+                        <canvas id="barGraphID" style="display: block; height:400px; width:400px"
+                                class="chartjs-render-monitor">
+                        </canvas>
+                    </div>
+                </div>
+                <div id="taxonomyLevelsDivID" class="form-group center-div" style="padding-top: 20px;">
+                    <input class="form-control taxonomyLevel_fieldName active_taxonomy_level" value="ORDER_OR_GROUP"
+                           readonly/>
+                    <input class="form-control taxonomyLevel_fieldName" value="FAMILY" readonly/>
+                    <input class="form-control taxonomyLevel_fieldName" value="GENUS" readonly/>
+                    <input class="form-control taxonomyLevel_fieldName" value="SCIENTIFIC_NAME" readonly/>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -189,19 +96,9 @@
 
 {% endblock %}
 
-{% block help_section %}
-
-{% endblock %}
+{% block help_section %}{% endblock %}
 
 {% block js_block %}
-    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
-    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/dtol_functions.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>
-    <script>socket = undefined</script>
-
+    <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
 {% endblock %}

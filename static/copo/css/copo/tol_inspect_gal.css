@@ -1,0 +1,80 @@
+th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    background-color: rgba(255, 255, 255, 1);
+
+}
+
+td {
+    z-index: 1;
+}
+
+.selected {
+    background-color: #e1e1e1 !important;
+}
+
+.selectable_row {
+    cursor: pointer;
+}
+
+.selected_row {
+    background-color: #fff3ce !important;
+}
+
+
+.form-control:hover {
+    color: #4183c4;
+    text-decoration: underline;
+    background-color: white;
+    cursor: pointer;
+}
+
+#taxonomyLevelsDivID .form-control {
+    text-align: center;
+    width: 30%;
+}
+
+.center-div {
+    display: grid;
+    place-items: center;
+}
+
+/*tab syles*/
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}

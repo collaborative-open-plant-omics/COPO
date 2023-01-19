@@ -1,6 +1,4 @@
 $(document).ready(function () {
-    $(document).data("map_markers", [])
-
     // Card body
     const copoStatisticsURL = "/copo/stats";
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
@@ -106,14 +104,15 @@ $(document).ready(function () {
     new Chart(pieChartCtx, {
         type: "pie",
         data: {
-            labels: ["Chrome", "Firefox", "IE"],
+            labels: ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"],
             datasets: [{
-                data: [4306, 3801, 1689],
+                data: [4306, 3801, 1689, 1089],
                 index: 0,
                 backgroundColor: [
                     '#3b7ddd',
                     '#fcb92c',
-                    '#dc3545'
+                    '#dc3545',
+                    '#49cc90'
                 ],
                 borderWidth: 5
             }]
@@ -168,7 +167,7 @@ $(document).ready(function () {
                 scaleColors: ['#C8EEFF', '#0071A4'],
                 markers: map_markers,
                 onMarkerClick: function (e, index) {
-                    get_map_marker_popup_details(map_markers[index])
+                    show_map_marker_popup_details(map_markers[index])
                 },
                 markerStyle: {
                     initial: {
@@ -229,14 +228,16 @@ $(document).ready(function () {
 });
 
 
-function get_map_marker_popup_details(item) {
-    let dialogDiv = $('<div id="map_marker_detailsID">\
-            <p><b>Name:</b> ' + item.name + '  </p>\
-            <p><b>City:</b> ' + item.city + '  </p>\
-            <p><b>State:</b> ' + item.state + '  </p>\
-            <p><b>Country:</b> ' + item.country + '  </p>\
-            <p><b>Number of samples produced:</b> ' + item.samples_count + '  </p> </div>');
+function show_map_marker_popup_details(item) {
+    let dialogDiv = $('<div id="map_marker_detailsID"/>')
+
+    // Only include item details if they are not empty
+    if (item.name !== "") $('<p><b>Name:</b> ' + item.name + ' </p>').appendTo(dialogDiv)
+    if (item.city !== "") $('<p><b>City:</b> ' + item.city + ' </p>').appendTo(dialogDiv)
+    if (item.state !== "") $('<p><b>State:</b> ' + item.state + ' </p>').appendTo(dialogDiv)
+    if (item.country !== "") $('<p><b>Country:</b> ' + item.country + ' </p>').appendTo(dialogDiv)
+
+    $('<p><b>Number of samples produced:</b> ' + item.samples_count + ' </p>').appendTo(dialogDiv)
 
     dialogDiv.dialog({modal: true, title: "Details", show: 'clip', hide: 'clip'});
-
 }

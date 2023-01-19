@@ -194,6 +194,7 @@ urlpatterns = [
     path('update_pending_samples_table_for_tol_inspection/',
          ajax_handlers.update_pending_samples_table_for_tol_inspection,
          name="update_pending_samples_table_for_tol_inspection"),
+    path('get_gal_names/', ajax_handlers.get_gal_names, name="get_gal_names"),
     path('get_sample_details/', ajax_handlers.get_sample_details,
          name="get_sample_details"),
     path('get_samples_for_profile/', ajax_handlers.get_samples_for_profile,

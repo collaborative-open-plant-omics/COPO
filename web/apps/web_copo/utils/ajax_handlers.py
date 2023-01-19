@@ -1461,6 +1461,15 @@ def update_pending_samples_table_for_tol_inspection(request):
         json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
 
 
+def get_gal_names(request):
+    projects = lkup.TOL_PROFILE_TYPES
+    samples = Sample().get_gal_names(projects)
+    # Get 'GAL' field name, if it is not empty
+    gal_names = [sample.get('GAL') for sample in samples if sample.get('GAL')]
+    gal_names = set(gal_names)  # Get unique values for the 'GAL' field name
+    return HttpResponse(json_util.dumps(gal_names))
+
+
 def get_sample_details(request):
     sample_id = ObjectId(request.POST["sample_id"])
     sample_data = Sample().get_sample_by_id(sample_id)

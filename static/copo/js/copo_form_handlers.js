@@ -52,8 +52,9 @@ $(document).ready(function () {
             initiate_form_call(component);
         }
     });
-}); //end of document ready
 
+
+}); //end of document ready
 
 //map controls to rendering functions
 var controlsMapping = {
@@ -252,79 +253,6 @@ function json2HtmlForm(data) {
 
 } //end of json2HTMLForm
 
-function json2HtmlForm_SampleDetails(data) {
-    const form = document.createElement('form');
-    form.setAttribute('class', 'form-horizontal');
-
-    // let data = $(document).data("areAllSampleModalFieldsShown") ? data_with_blanks : data_with_no_blanks
-    // let data = $(document).data("sample_data")
-
-    const dialog = new BootstrapDialog({
-        description: "The following information relates to the selected sample.",
-        message: "The following information relates to the selected sample.",
-        type: BootstrapDialog.TYPE_PRIMARY,
-        size: BootstrapDialog.SIZE_WIDE,
-        title: function () {
-            return $('<span>' + 'Sample Details for ' + data["SPECIMEN_ID"] + '</span>').css("text-align", "center");
-        },
-        closable: true,
-        closeIcon: '&#215;',
-        animate: true,
-        draggable: true,
-        onhide: function (dialogRef) {
-            refresh_tool_tips();
-        },
-        onshown: function (dialogRef) {
-
-            //prevent enter keypress from submitting form automatically
-            $("form").keypress(function (e) {
-                //Enter key
-                if (e.which === 13) {
-                    return false;
-                }
-            });
-
-            //custom validators
-            custom_validate(htmlForm.find("form"));
-
-            refresh_form_aux_controls();
-
-            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
-            $('body').trigger(event);
-
-            document.querySelector("#sampleModalFieldsID").onchange = (e) => {
-                let fieldDiv1 = document.getElementsByClassName('divhidden');
-                let fieldDiv = $('.fieldDiv.divhidden')
-                let checked = e.target.checked;
-
-                if (checked) {
-                    fieldDiv.removeAttr("hidden")
-                    $(fieldDiv1).css({"display": ""})
-                } else {
-                    fieldDiv.attr("hidden")
-                    $(fieldDiv1).css({"display": "None"})
-
-                }
-            }
-
-            document.querySelector("#sampleModalQueryTypeID").onchange = (e) => {
-                let checked = e.target.checked;
-                $(document).data("isSampleModalSearchQueryChecked", checked)
-            }
-        },
-    });
-
-    const $dialogContent = $('<div/>');
-    const form_help_div = set_up_form_show_all_fields_checkbox_div(data);
-    const form_message_div = get_form_message(data);
-    const form_body_div = set_up_form_body_div_sample_details(data, form);
-
-    $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
-    dialog.realize();
-    dialog.setMessage($dialogContent);
-    dialog.open();
-} //end of json2HTMLForm
-
 function build_form_body(data) {
     var formJSON = data.form;
     var formValue = formJSON.form_value;
@@ -374,62 +302,6 @@ function build_form_body(data) {
     }
 
     return htmlForm.append(formCtrl);
-
-}
-
-function build_form_body_sample_Details(data, form) {
-    //data = $(document).data("sample_data")
-    //console.log("Data: ", data)
-    const formDiv = document.getElementsByClassName("formDiv");
-
-    // Iterate through dictionary
-    Object.entries(data).forEach(([field, value]) => {
-        // Create field div
-        const fieldDiv = document.createElement('div');
-        fieldDiv.setAttribute('class', 'form-group fieldDiv');
-        fieldDiv.setAttribute('id', `${field}_div`);
-
-        // Field; Create field label
-        const fieldLabel = document.createElement('label');
-        fieldLabel.innerHTML = field;
-        fieldLabel.setAttribute('class', 'fieldID control-label col-sm-6');
-        fieldLabel.style.paddingRight = '20px'; // Add space between the value field and field name
-        fieldLabel.style.marginLeft = '15px';
-        fieldLabel.style.textAlign = "left"
-
-        // Truncate long field names
-        fieldLabel.style.whiteSpace = 'nowrap';
-        fieldLabel.style.textOverflow = 'ellipsis';
-        fieldLabel.style.overflow = 'hidden';
-        fieldLabel.style.maxWidth = '220px';
-        fieldLabel.setAttribute('title', 'Query similar samples by the field, ' + field)
-        fieldDiv.appendChild(fieldLabel);
-
-        // Field value div
-        const fieldValueDiv = document.createElement('div');
-        fieldValueDiv.setAttribute('class', 'col-sm-6 field_valueDiv');
-        // Hide field and field value if field value is null or empty
-        if (value.toString() === "") {
-            fieldDiv.classList.add('divhidden')
-            fieldDiv.setAttribute('hidden', 'hidden')
-        }
-        fieldDiv.appendChild(fieldValueDiv);
-
-        // Field value
-        const field_value = document.createElement('input');
-        field_value.setAttribute('id', "field_valueID");
-        field_value.setAttribute('readonly', "");
-        field_value.setAttribute('type', 'text');
-        field_value.setAttribute('class', 'form-control');
-        field_value.setAttribute('value', value.toString());
-
-        fieldValueDiv.appendChild(field_value);
-        form.appendChild(fieldDiv)
-        $(formDiv).append(form)
-
-
-    })
-
 
 }
 
@@ -573,52 +445,6 @@ function set_up_form_help_div(data) {
     return ctrlDiv.append(cloneCol);
 }
 
-function set_up_form_show_all_fields_checkbox_div(data) {
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
-
-    const rowDiv = $('<div/>',
-        {
-            class: "row helpDivRow",
-            style: "margin-bottom:20px;"
-        });
-
-    const showAllFieldsCheckBoxLabel = $('<label/>',
-        {
-            class: "pull-right showFieldsLabel",
-            style: "padding-right:60px;"
-        });
-
-    const querySamplesCheckBoxLabel = $('<label/>',
-        {
-            class: "pull-left showSamplesQueryLabel",
-            style: "padding-left:25px;"
-        });
-
-    const showAllFieldsCheckBox = $('<input/>',
-        {
-            id: "sampleModalFieldsID",
-            type: "checkbox",
-            style: "margin-left:10px;",
-
-        });
-
-    const showQuerySamplesCheckBox = $('<input/>',
-        {
-            id: "sampleModalQueryTypeID",
-            type: "checkbox",
-            style: "margin-left:10px;",
-
-        });
-
-    showQuerySamplesCheckBox.attr('checked', 'checked')
-    querySamplesCheckBoxLabel.text('Query within ' + project + ' project samples: ')
-    querySamplesCheckBoxLabel.append(showQuerySamplesCheckBox)
-
-    showAllFieldsCheckBoxLabel.text('Show all fields: ')
-    showAllFieldsCheckBoxLabel.append(showAllFieldsCheckBox)
-    return rowDiv.append(querySamplesCheckBoxLabel).append(showAllFieldsCheckBoxLabel);
-}
-
 function set_up_form_body_div(data) {
     var formBodyDiv = $('<div/>',
         {
@@ -630,22 +456,6 @@ function set_up_form_body_div(data) {
 
     //build main form
     build_form_body(data);
-
-    return formBodyDiv;
-}
-
-function set_up_form_body_div_sample_details(data, form) {
-    const formBodyDiv = $('<div/>',
-        {
-            class: "row formDivRow"
-        }).append($('<div/>',
-        {
-            class: "formDiv col-sm-12 col-md-12 col-lg-12",
-            css: {'overflow': 'scroll', 'height': '530px', 'margin-right': "20px"},
-        }).append(form));
-
-    //build main form
-    build_form_body_sample_Details(data, form);
 
     return formBodyDiv;
 }

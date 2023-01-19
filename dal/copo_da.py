@@ -37,11 +37,6 @@ dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
 TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
 SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
-SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
-
 PubCollection = 'PublicationCollection'
 PersonCollection = 'PersonCollection'
 DataCollection = 'DataCollection'
@@ -894,6 +889,12 @@ class Sample(DAComponent):
         return cursor_to_list(self.get_collection_handle().find(
             {"sample_type": {"$in": projects}},
             {"_id": 1}
+        ))
+
+    def get_gal_names(self, projects):
+        return cursor_to_list(self.get_collection_handle().find(
+            {"sample_type": {"$in": projects}},
+            {"GAL": 1}
         ))
 
     def get_all_tol_samples(self):
