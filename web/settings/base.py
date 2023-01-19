@@ -182,6 +182,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+CSRF_TRUSTED_ORIGINS = ['http://*.copo-project.org', 'https://*.copo-project.org', '127.0.0.1']
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
