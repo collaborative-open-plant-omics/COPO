@@ -1510,13 +1510,14 @@ def add_sample_to_dtol_submission(request):
 
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
-        sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
-        sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
-        if "dtol_specimen" not in sub:
-            sub["dtol_specimen"] = []
-        for speciment_id in sepciment_ids:
-            if speciment_id not in sub["dtol_specimen"]:
-                sub["dtol_specimen"].append(speciment_id)
+
+        #sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        #sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
+        #if "dtol_specimen" not in sub:
+        #    sub["dtol_specimen"] = []
+        #for speciment_id in sepciment_ids:
+        #    if speciment_id not in sub["dtol_specimen"]:
+        #        sub["dtol_specimen"].append(speciment_id)
 
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)

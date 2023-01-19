@@ -13,19 +13,13 @@
         "createdRow": function( row, data, dataIndex ) {
              $(row).addClass( 'sample_table_row' )
         },
-        "createdCell": function (td, cellData, rowData, row, col) {
-             if ( cellData === 'NA')  {
-               $(td).className = "na_color"
-             } else if ( cellData === "" ) {
-               $(td).className = "empty_color"
-             }
-         } ,
+
         "columnDefs": [
             {
                 className: "tickbox",
                 render: function (data, type, row) {
                     var filter = $("#sample_filter").find(".active").find("a").attr("href")
-                    if (filter == "pending" || filter == "reject") {
+                    if (filter == "pending" || filter == "rejected") {
                         return "<input type='checkbox' class='form-check-input checkbox'/>"
                     } else {
                         return ""
@@ -33,10 +27,23 @@
                 },
                 targets: 0,
             },
+            {                
+                "createdCell": function (td, cellData, rowData, row, col) {
+                    if ( cellData === 'NA')  {
+                    $(td).addClass("na_color")
+                    } else if ( cellData === "" ) {
+                    $(td).addClass("empty_color")
+                    }
+                } ,
+                targets: [1, -1],                
+            },
         ],
         //processing: true,
         serverSide: true,
         // Reload DataTable on input change.
+        search: {
+            "return": true,
+        },
 
           ajax: {
             url: '/copo/get_samples_for_profile',
@@ -65,6 +72,7 @@ $(document).ready(function () {
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
     excluded_fields = ["profile_id", "biosample_id", "_id"]
+    searchable_fields = [""]
     // populate profiles panel on left
 
     $(document).on("click", ".select-all", function () {
