@@ -4,32 +4,14 @@
 {% load web_tags %}
 {% load html_tags %}
 
-<!-- Specific Page CSS goes HERE  -->
 {% block stylesheet_block %}
-    <link rel="stylesheet" type="text/css"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700"/>
-    <!-- Nucleo Icons -->
-    <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-icons.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/nucleo-svg.css' %}">
-    <!-- Font Awesome Icons -->
-
-    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <!-- CSS Files -->
     <link id="pagestyle" rel="stylesheet" href="{% static 'copo/css/copo/material-dashboard.css' %}">
-
     <link rel="stylesheet" href="{% static 'copo/css/copo/jquery-jvectormap-2.0.5.css' %}"/>
-
     <link rel="stylesheet" href="{% static 'copo/css/copo/copo_dashboard.css' %}"/>
-
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
-    <style>
-        .section_title:hover {
-            color: #4183c4;
-            text-decoration: underline;
-        }
-    </style>
+    <style></style>
 {% endblock stylesheet_block %}
 
 {% block title_block %} Dashboard {% endblock %}
@@ -42,7 +24,7 @@
 {% block content %}
 
     <div class="container-fluid">
-        {# Statistics #}
+        {# Status bar #}
         <div id="stats_bar" style="padding-bottom: 2rem">
             <div class="ui cards centered raised link">
                 <div class="card link">
@@ -88,8 +70,9 @@
                 </div>
             </div>
         </div>
-        {# Dashboard sections #}
+
         <div class="row mt-4">
+            {# Satistics card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
                 <div class="card z-index-2 " style="height:468px; width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
@@ -107,37 +90,38 @@
                     </div>
                 </div>
             </div>
+            {# GAL inspection card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
                 <div class="card z-index-2" style="height:468px; width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
-                        <div class="card-body d-flex">
-                            <div class="align-self-center w-100">
-                                <div class="py-3">
-                                    <div class="chart chart-xs">
-                                        <div class="chartjs-size-monitor">
-                                            <div class="chartjs-size-monitor-expand">
-                                                <div class=""></div>
-                                            </div>
-                                            <div class="chartjs-size-monitor-shrink">
-                                                <div class=""></div>
-                                            </div>
-                                        </div>
-                                        <canvas id="chartjs-dashboard-pie"
-                                                style="display: block; height: 200px; width: 398px;"
-                                                class="chartjs-render-monitor" width="796" height="400"></canvas>
+                        <div class="card-body center-div">
+                            <div class="chart chart-xs">
+                                <div class="chartjs-size-monitor">
+                                    <div class="chartjs-size-monitor-expand">
+                                        <div class=""></div>
+                                    </div>
+                                    <div class="chartjs-size-monitor-shrink">
+                                        <div class=""></div>
                                     </div>
                                 </div>
-
-                                <div class="form-group taxonnomy_levelsDiv">
-                                    <input class="form-control" style="text-align:center; color: #4183c4;
-                                           text-decoration: underline; background-color: white" value="ORDER_OR_GROUP"
-                                           readonly/>
-                                    <input class="form-control" style="text-align:center" value="FAMILY" readonly/>
-                                    <input class="form-control" style="text-align:center" value="GENUS" readonly/>
-                                    <input class="form-control" style="text-align:center" value="SCIENTIFIC_NAME"
-                                           readonly/>
-                                </div>
+                                {#                                        <canvas id="pieChartID"#}
+                                {#                                                style="display: block; height: 200px; width: 398px;"#}
+                                {#                                                class="chartjs-render-monitor" width="796" height="400"></canvas>#}
+                                <canvas id="pieChartID" class="chartjs-render-monitor" width="796" height="400"
+                                        style="display: block; height: 200px; width: 398px;"
+                                        aria-label="taxonomy representation" role="figure">
+                                </canvas>
                             </div>
+                            <div id="taxonomyLevelsDivID" class="form-group" style="padding-top: 20px;">
+                                <input class="form-control taxonomyLevel_fieldName active_taxonomy_level"
+                                       value="ORDER_OR_GROUP"
+                                       readonly/>
+                                <input class="form-control taxonomyLevel_fieldName" value="FAMILY" readonly/>
+                                <input class="form-control taxonomyLevel_fieldName" value="GENUS" readonly/>
+                                <input class="form-control taxonomyLevel_fieldName" value="SCIENTIFIC_NAME"
+                                       readonly/>
+                            </div>
+
                         </div>
                     </div>
                     <div class="card-body gal_inspection_card">
@@ -148,6 +132,7 @@
                     </div>
                 </div>
             </div>
+            {# TOL inspection card #}
             <div class="col-lg-4 mt-4 mb-3 ui link cards">
                 <div class="card" style="height:468px; width:1040px">
 
@@ -369,9 +354,10 @@
 
                 </div>
             </div>
+            {# World map card #}
             <div class="row mb-4">
                 <div class="col-lg-8 col-md-6 mb-md-0 mb-4 mt-0">
-                    <div class="card flex-fill w-100" style="height:590px; !important;">
+                    <div class="card flex-fill w-100" style="height:620px; !important;">
                         <div class="card-header ">
                             <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Labs (GAL) and
                                 Partners</h5>
@@ -400,7 +386,7 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="card" style="height:590px;">
+                    <div class="card" style="height:620px;">
                         <div class="card-header pb-2">
                             <h5 class="card-title mb-0">Manifest submission overview</h5>
                         </div>
@@ -497,16 +483,19 @@
 
 {% block help_section %}{% endblock %}
 
-<!-- Specific Page JS goes HERE  -->
 {% block js_block %}
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
     <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
-    <script src="{% static 'copo/js/popper.min.js' %}"></script>
-    <script src="{% static 'copo/js/perfect-scrollbar.min.js' %}"></script>
-    <script src="{% static 'copo/js/smooth-scrollbar.min.js' %}"></script>
-    <script src="{% static 'copo/js/chartjs.min.js' %}"></script>
     <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-2.05.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-world-mill.js' %}"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+    {#    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>#}
+    {#    <script src="{% static 'copo/js/popper.min.js' %}"></script>#}
+    {#    <script src="{% static 'copo/js/perfect-scrollbar.min.js' %}"></script>#}
+    {#    <script src="{% static 'copo/js/smooth-scrollbar.min.js' %}"></script>#}
+    {#    <script src="{% static 'copo/js/chartjs.min.js' %}"></script>#}
+
 {% endblock js_block %}

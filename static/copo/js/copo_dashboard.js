@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    // Card body
     const copoStatisticsURL = "/copo/stats";
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
     const copoTOLInspectionURL = "/copo/tol_inspect";
@@ -99,32 +98,36 @@ $(document).ready(function () {
     });
 
     // GAL Inspection pie chart
-    const pieChartCtx = document.getElementById("chartjs-dashboard-pie").getContext('2d');
+    // const pieChartCtx = document.getElementById("pieChartID").getContext('2d');
+    //
+    // new Chart(pieChartCtx, {
+    //     type: "pie",
+    //     data: {
+    //         labels: ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"],
+    //         datasets: [{
+    //             data: [4306, 3801, 1689, 1089],
+    //             index: 0,
+    //             backgroundColor: [
+    //                 '#3b7ddd',
+    //                 '#fcb92c',
+    //                 '#dc3545',
+    //                 '#49cc90'
+    //             ],
+    //             borderWidth: 5
+    //         }]
+    //     },
+    //     options: {
+    //         maintainAspectRatio: false,
+    //         legend: {
+    //             position: 'right'
+    //         },
+    //         cutoutPercentage: 75
+    //     }
+    // });
 
-    new Chart(pieChartCtx, {
-        type: "pie",
-        data: {
-            labels: ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"],
-            datasets: [{
-                data: [4306, 3801, 1689, 1089],
-                index: 0,
-                backgroundColor: [
-                    '#3b7ddd',
-                    '#fcb92c',
-                    '#dc3545',
-                    '#49cc90'
-                ],
-                borderWidth: 5
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            legend: {
-                position: 'right'
-            },
-            cutoutPercentage: 75
-        }
-    });
+    let active_taxonomy_level = $('#taxonomyLevelsDivID > input.active_taxonomy_level')
+    active_taxonomy_level.ta
+    populate_pie_chart(active_taxonomy_level); // Call function from 'tol_inspect_gal_funtions' js file
 
     // Statistics
     $.getJSON("copo/stats/numbers")

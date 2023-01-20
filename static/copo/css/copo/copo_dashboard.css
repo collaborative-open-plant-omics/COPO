@@ -3,6 +3,11 @@
     text-decoration: underline;
 }
 
+.center-div {
+    display: grid;
+    place-items: center;
+}
+
 /*Overide datatables CSS*/
 .dataTables_wrapper
 .dataTables_paginate
@@ -11,18 +16,31 @@
 }
 
 /* Override CSS for .card and .card-body CSS*/
+/*COPO statistics card*/
 .statistics_card {
     padding: 95px 2rem 0px 2rem !important;
 }
 
+/*GAL inspection card*/
 .gal_inspection_card {
     padding: 5px 2rem 0px 2rem !important;
 }
 
+#taxonomyLevelsDivID .form-control {
+    text-align: center;
+    width: 380px;
+}
+
+#taxonomyLevelsDivID > input.active_taxonomy_level {
+    background-color: #fff3ce;
+}
+
+/*TOL inspection card*/
 .tol_inspect_card {
     padding: 31px 2rem 0px 2rem !important;
 }
 
+/*Map card*/
 .gal_worldwide_view_card {
     padding: 0px 2rem 0px 2rem !important;
 }

@@ -56,28 +56,24 @@
         <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel">
             <h4 class="h4"><small class="labelling">Click a GAL on the left to see its samples' taxonomy.</small></h4>
             <div class="tab">
-                <button id="defaultTab" class="tablinks" onclick="showTab(event, 'taxonomyPieChartTabID')">Taxonomy
-                    Representation
+                <button class="tablinks active" onclick="showTab('taxonomyPieChartTabID')">Taxonomy
+                    Visual Analysis
                 </button>
-                <button class="tablinks" onclick="showTab(event, 'galSampleGoalStatisticsTabID')">GAL Sample Goal
-                    Statistics
+                <button class="tablinks" onclick="showTab('galSampleGoalStatisticsTabID')">GAL Genome Sample Sequencing
+                    Goal Statistics
                 </button>
             </div>
 
             <div>
-                <div id="taxonomyPieChartTabID" class="py-3 center-div tabcontent">
-                    <div class="chart chart-lg">
-                        <canvas id="chartjs-dashboard-pie" style="display: block; height:900px; width:900px"
-                                class="chartjs-render-monitor">
-                        </canvas>
-                    </div>
+                <div id="taxonomyPieChartTabID" class="tabcontent center-div">
+                    <canvas id="pieChartID" class="chartjs-render-monitor" width="1616" height="1616"
+                            aria-label="taxonomy representation" role="figure">
+                    </canvas>
                 </div>
                 <div id="galSampleGoalStatisticsTabID" class="tabcontent">
-                    <div class="chart chart-sml">
-                        <canvas id="barGraphID" style="display: block; height:400px; width:400px"
-                                class="chartjs-render-monitor">
-                        </canvas>
-                    </div>
+                    <canvas id="barGraphID" class="chartjs-render-monitor" width="400" height="100"
+                            aria-label="GAL sample goal percentage representation" role="figure">
+                    </canvas>
                 </div>
                 <div id="taxonomyLevelsDivID" class="form-group center-div" style="padding-top: 20px;">
                     <input class="form-control taxonomyLevel_fieldName active_taxonomy_level" value="ORDER_OR_GROUP"

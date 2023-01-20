@@ -17,11 +17,13 @@ $(document).ready(function () {
 
     $(document).on("click", ".selectable_row, .hot_tab", get_selected_gal_name_in_row)
 
-    // Get the element with id="defaultOpen" and click on it
-    document.getElementById("defaultTab").click();
-
     $(document).data("gal_names_lst", [])
+
     $(".taxonnomy_levelsDiv").hide()// hide on load
+
+    $(".tablinks").click(function () {
+        this.className += " active";
+    });
 
     get_gal_names()
 
@@ -56,7 +58,7 @@ function populate_pie_chart(el) {
                 let pie_chart_background_colours = [];
                 let pie_chart_labels_distinct;
 
-                const header = $("<h4/>", {html: "Taxonomy"});
+                const header = $("<h4/>", {html: "Details"});
 
                 sample_panel.find(".labelling").empty().append(header)
 
@@ -82,9 +84,9 @@ function populate_pie_chart(el) {
 
                 // Build pie chart
                 // Check if there is an existing instance of piechart, if there is, destroy it
-                if (Chart.getChart("chartjs-dashboard-pie") !== undefined) Chart.getChart("chartjs-dashboard-pie").destroy()
+                if (Chart.getChart("pieChartID") !== undefined) Chart.getChart("pieChartID").destroy()
 
-                const pieChartCtx = document.getElementById("chartjs-dashboard-pie").getContext('2d');
+                const pieChartCtx = document.getElementById("pieChartID").getContext('2d');
 
                 new Chart(pieChartCtx, {
                     type: "pie",
@@ -107,16 +109,16 @@ function populate_pie_chart(el) {
                                     label: ({
                                                 label,
                                                 formattedValue
-                                            }) => `\xa0${taxonomy_field_name} name: ${label}; Number of sample associations: ${formattedValue}`
-                                }
+                                            }) => [`\xa0\xa0Name of ${taxonomy_field_name}: ${label}`, `\xa0\xa0Number of sample associations: ${formattedValue}`]
+                                },
                             },
                         },
                     }
                 });
 
-                $(".taxonnomy_levelsDiv").show()
-
                 populate_bar_graph() // Populate the bar graph showing the goal statistics for the selected GAL
+
+                $(".taxonnomy_levelsDiv").show()
 
             } else {
                 let content
@@ -126,7 +128,7 @@ function populate_pie_chart(el) {
                     })
                 } else {
                     content = $("<h4/>", {
-                        html: "Taxonomy Unavailable"
+                        html: "Details Unavailable"
                     })
                 }
                 sample_panel.find(".labelling").empty().html(content)
@@ -134,7 +136,7 @@ function populate_pie_chart(el) {
             $("#spinner").fadeOut("fast")
 
         }).error(function (error) {
-        console.error(`ERROR: ${error.message}`)
+        console.error(`Error: ${error.message}`)
     });
 }
 
@@ -143,17 +145,21 @@ function populate_bar_graph() {
     let gal_names_lst = $(document).data("gal_names_lst")
     let bar_graph_background_colours = []
     let bar_graph_border_colours = []
+    let gal_sample_goal_percentage_lst = []
     let roundValue = Math.round, rndmValue = Math.random, maxNum = 255;
 
-    bar_graph_background_colours = Array.apply(null, Array(gal_names_lst.length)).map(function () {
-        return 'rgba(' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + 0.2 + ')';
+    // Get rgb colours for border colours
+    bar_graph_border_colours = Array.apply(null, Array(5)).map(function () {
+        return 'rgb(' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ')';
     })
 
-    bar_graph_border_colours = Array.apply(null, Array(gal_names_lst.length)).map(function () {
-        return 'rgba(' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ')';
+    // Add alpha channel i.e. 'a' to each rgb colour in the list of border colours
+    bar_graph_background_colours = bar_graph_border_colours.map(colour => colour.replace(')', ', 0.2)').replace('rgb', 'rgba'));
+
+    // Generate a random number between 1 and 100
+    gal_sample_goal_percentage_lst = Array.apply(null, Array(gal_names_lst.length)).map(function () {
+        return Math.floor((Math.random() * 100) + 1);
     })
-
-
     // Check if there is an existing instance of bar graph, if there is, destroy it
     if (Chart.getChart("barGraphID") !== undefined) Chart.getChart("barGraphID").destroy()
 
@@ -164,42 +170,26 @@ function populate_bar_graph() {
             labels: gal_names_lst,
             datasets: [{
                 axis: 'y',
-                label: 'My First Dataset',
-                data: [65, 59, 80, 81, 56, 55, 40],
+                data: gal_sample_goal_percentage_lst,
                 fill: false,
                 backgroundColor: bar_graph_background_colours,
-                //     [
-                //     'rgba(255, 99, 132, 0.2)',
-                //     'rgba(255, 159, 64, 0.2)',
-                //     'rgba(255, 205, 86, 0.2)',
-                //     'rgba(75, 192, 192, 0.2)',
-                //     'rgba(54, 162, 235, 0.2)',
-                //     'rgba(153, 102, 255, 0.2)',
-                //     'rgba(201, 203, 207, 0.2)'
-                // ],
                 borderColor: bar_graph_border_colours,
-                //     [
-                //     'rgb(255, 99, 132)',
-                //     'rgb(255, 159, 64)',
-                //     'rgb(255, 205, 86)',
-                //     'rgb(75, 192, 192)',
-                //     'rgb(54, 162, 235)',
-                //     'rgb(153, 102, 255)',
-                //     'rgb(201, 203, 207)'
-                // ],
                 borderWidth: 1
             }]
         },
         options: {
             indexAxis: 'y',
             plugins: {
+                legend: {
+                    display: false
+                },
                 tooltip: {
                     callbacks: {
                         label: ({
                                     label,
                                     formattedValue
                                 }) => `\xa0GAL name: ${label}; Goal percentage: ${formattedValue}%`
-                    }
+                    },
                 },
             },
         }
@@ -223,8 +213,11 @@ function get_selected_gal_name_in_row(ev) {
         $(".selected").removeClass("selected")
         $(row).addClass("selected")
 
+        // We have clicked the first taxonomy level
         first_taxonomy_level = $('#taxonomyLevelsDivID').find('input').first().click()
         first_taxonomy_level.click()
+
+        $("#taxonomyPieChartTabID").show() // Show pie chart
     }
 }
 
@@ -261,7 +254,7 @@ function get_gal_names() {
     })
 }
 
-function showTab(evt, tabName) {
+function showTab(tabName) {
     let i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -272,11 +265,6 @@ function showTab(evt, tabName) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
     document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
 }
 
 
-function randomRGB_backgroundColour() {
-    var roundValue = Math.round, rndmValue = Math.random, maxNum = 255;
-    return 'rgba(' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ',' + roundValue(rndmValue() * maxNum) + ')';
-}
