@@ -1304,13 +1304,11 @@ class Submission(DAComponent):
         #for sam_id in sam_ids:
         if submission_id:
             sub_handle.update({"_id": ObjectId(sub_id)}, { "$pull": { "submission" : {"id" : submission_id }}})
-            sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"submission": 1})
-            if len(sub["submission"]) < 1:
-                sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": next_status, "date_modified": datetime.now()}})
-
         if sam_ids:
             sub_handle.update({"_id": ObjectId(sub_id)}, { "$pull" : {"dtol_samples" : {"$in": sam_ids} }})
-
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"submission": 1, "dtol_samples": 1})
+        if len(sub["submission"]) < 1 and len(sub["dtol_samples"]) < 1 :
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": next_status, "date_modified": datetime.now()}})
 
     def update_dtol_specimen_for_bioimage_tosend(self, sub_id, sepcimen_ids):
         sub_handle = self.get_collection_handle()

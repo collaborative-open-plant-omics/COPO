@@ -72,7 +72,7 @@ def process_pending_dtol_samples():
                 sam = Sample().get_record(s_id)
             except:
                 l.log("Dtol submission : 71 - no sample found for id " + str(s_id), type=Logtype.FILE)
-                return False
+                break
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
                 targetsam = Sample().get_target_by_specimen_id(sam["SPECIMEN_ID"])
@@ -80,11 +80,13 @@ def process_pending_dtol_samples():
                     assert targetsam
                 except AssertionError:
                     l.log("Dtol Submission : 78 - Assertion error, no target found", type=Logtype.FILE)
+                    break
                 #ASSERT ALL TAXON ID ARE THE SAME, they can only be associated to one specimen
                 try:
                     assert all(x["species_list"][0]["TAXON_ID"] == targetsam[0]["species_list"][0]["TAXON_ID"] for x in targetsam)
                 except AssertionError:
                     l.log("Dtol submission : 83 - Assertion error", type=Logtype.FILE)
+                    break
                 targetsam = targetsam[0]
             else:
                 #this is to speed up source public id call
@@ -106,7 +108,7 @@ def process_pending_dtol_samples():
                     notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
                                     html_id="dtol_sample_info")
                     l.log("Dtol_submission : 105 - invalid taxon ID", type=Logtype.FILE)
-                    return False
+                    break
 
             s_ids.append(s_id)
 
@@ -116,7 +118,7 @@ def process_pending_dtol_samples():
                 assert len(specimen_sample) <= 1
             except AssertionError:
                 l.log("Multiple sources for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
-                return False
+                break
             specimen_accession = ""
             if specimen_sample:
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
@@ -161,6 +163,7 @@ def process_pending_dtol_samples():
                     assert len(sour) == 1, "more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"]
                 except AssertionError:
                     l.log("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                    break
                 sour = sour[0]
                 if not sour['public_name']:
                     #retrieve public name
@@ -171,7 +174,7 @@ def process_pending_dtol_samples():
                         assert len(spec_tolid) == 1
                     except AssertionError:
                         l.log("AssertionError: line 170 dtol submission", type=Logtype.FILE)
-                        return False
+                        break
                     if not spec_tolid[0].get("tolId", ""):
                         # hadle failure to get public names and halt submission
                         if spec_tolid[0].get("status", "")=="Rejected":
@@ -182,11 +185,11 @@ def process_pending_dtol_samples():
                             Source().add_field("error", toliderror, sour["_id"])
                             Sample().add_rejected_status(status, s_id)
                             s_ids.remove(s_id)
-                            Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id])
+                            Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id],submission_id=[])
                             msg = "A public name request was rejected, some submissions were halted -" +toliderror
                             notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                                             html_id="dtol_sample_info")
-                            continue
+                            break
                         # change dtol_status to "awaiting_tolids"
                         msg = "We couldn't retrieve one or more public names, a request for a new tolId has been " \
                               "sent, COPO will try again in 24 hours"
@@ -212,9 +215,15 @@ def process_pending_dtol_samples():
                         msg = "Submission Rejected: specimen level " + sam["SPECIMEN_ID"] + "<p>" + accessions[
                             "msg"] + "</p>"
                         notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                        html_id="dtol_sample_info")
-                        Submission().make_dtol_status_pending(submission['_id'])
-                        return False
+                                        html_id="dtol_sample_info")   
+                        status = {}
+                        status["msg"] =msg                                                             
+                        Sample().add_rejected_status(status, s_id)
+                        s_ids.remove(s_id)
+                        Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id], submission_id=[])
+                        Source().get_collection_handle().remove({"_id": sour['_id']})
+                        #Submission().make_dtol_status_pending(submission['_id'])
+                        continue
                 specimen_accession = Source().get_specimen_biosample(sam["SPECIMEN_ID"])[0].get("biosampleAccession",
                                                                                                 "")
 
@@ -246,86 +255,90 @@ def process_pending_dtol_samples():
             except AssertionError:
                 l.log("Missing relationship to parent sample for sample " + sam["_id"], type=Logtype.FILE)
                 Submission().make_dtol_status_pending(submission['_id'])
-                return False
+                break
 
             notify_frontend(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
                             action="info",
                             html_id="dtol_sample_info")
 
-        # query for public names and update
-        notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
-                        html_id="dtol_sample_info")
-        l.log("querying public name service for line 251", type=Logtype.FILE)
-        public_names = query_public_name_service(public_name_list)
-        if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
-            # hadle failure to get public names and halt submission
-            if all(public_names[x].get("status","")=="Rejected" for x in range(len(public_names))):
-                l.log("all missing tolid request were rejected", type=Logtype.FILE)
-                Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]] )
-            else:
-                # change dtol_status to "awaiting_tolids"
-                l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
-                msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
-                      "COPO will try again in 24 hours"
+        else: 
+
+            # query for public names and update
+            notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
+                            html_id="dtol_sample_info")
+            l.log("querying public name service for line 251", type=Logtype.FILE)
+            public_names = query_public_name_service(public_name_list)
+            tolidflag = True
+            if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
+                # hadle failure to get public names and halt submission
+                if all(public_names[x].get("status","")=="Rejected" for x in range(len(public_names))):
+                    l.log("all missing tolid request were rejected", type=Logtype.FILE)
+                    Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]], submission_id=[] )   
+                    tolidflag = False
+                else:
+                    # change dtol_status to "awaiting_tolids"
+                    l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
+                    msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
+                        "COPO will try again in 24 hours"
+                    notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                                    html_id="dtol_sample_info")
+                    Submission().make_dtol_status_awaiting_tolids(submission['_id'])
+                    tolidflag = False
+
+            for name in public_names:
+                l.log("adding public names to samples", type=Logtype.FILE)
+                if name.get("tolId", ""):
+                    Sample().update_public_name(name)
+                if name.get("status", "") == "Rejected":
+                    Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
+                    processed = Sample().get_by_profile_and_field(submission["profile_id"],"SPECIMEN_ID", [name['specimen']["specimenId"]])
+                    processedids = [str(x) for x in processed]
+                    #for sampleid in processedids:
+                    Submission().dtol_sample_rejected(submission['_id'], sam_ids=processedids, submission_id=[])
+
+            #if tolid missing for specimen skip
+            if not tolidflag:
+                l.log("missing tolid, removing draft xml", type=Logtype.FILE)
+                os.remove("bundle_" + file_subfix + ".xml")
+                continue
+
+            l.log("updating bundle xml", type=Logtype.FILE)
+            if len(s_ids)==0:
+                #if all samples were moved to rejected
+                continue
+            update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
+            build_submission_xml(file_subfix, release=True)
+
+            # store accessions, remove sample id from bundle and on last removal, set status of submission
+            l.log("submitting bundle xml to ENA", type=Logtype.FILE)
+            accessions = submit_biosample_v2(file_subfix, Sample(), submission['_id'],s_ids, async_send=True)
+            """
+            # print(accessions)
+            if not accessions:
+                notify_frontend(data={"profile_id": profile_id}, msg="Error creating sample - no accessions found",
+                                action="info",
+                                html_id="dtol_sample_info")
+                continue
+            elif accessions["status"] == "ok":
+                msg = "Last Sample Submitted: " + sam["SPECIMEN_ID"] + " - ENA Submission ID: " + accessions[
+                    "submission_accession"]  # + " - Biosample ID: " + accessions["biosample_accession"]
                 notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                                 html_id="dtol_sample_info")
-                Submission().make_dtol_status_awaiting_tolids(submission['_id'])
-                tolidflag = False
+                sample_ids_bson = list(map(lambda id: ObjectId(id), s_ids))
+                specimen_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}})
+                specimens = [id for id in specimen_ids if not submission["dtol_specimen"] or id not in submission["dtol_specimen"]]
+                Submission().update_dtol_specimen_for_bioimage_tosend(submission['_id'], specimens)
+                Submission().dtol_sample_processed(sub_id=submission["_id"], sam_ids=s_ids)
 
-        for name in public_names:
-            l.log("adding public names to samples", type=Logtype.FILE)
-            if name.get("tolId", ""):
-                Sample().update_public_name(name)
-            if name.get("status", "") == "Rejected":
-                Sample().add_rejected_status_for_tolid(name['specimen']["specimenId"])
-                processed = Sample().get_by_profile_and_field(submission["profile_id"],"SPECIMEN_ID", [name['specimen']["specimenId"]])
-                processedids = [str(x) for x in processed]
-                #for sampleid in processedids:
-                Submission().dtol_sample_rejected(submission['_id'], sam_ids=processedids)
-
-        #if tolid missing for specimen skip
-        if not tolidflag:
-            l.log("missing tolid, removing draft xml", type=Logtype.FILE)
-            os.remove("bundle_" + file_subfix + ".xml")
-            break
-
-        l.log("updating bundle xml", type=Logtype.FILE)
-        if len(s_ids)==0:
-            #if all samples were moved to rejected
-            break
-        update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
-        build_submission_xml(file_subfix, release=True)
-
-        # store accessions, remove sample id from bundle and on last removal, set status of submission
-        l.log("submitting bundle xml to ENA", type=Logtype.FILE)
-        accessions = submit_biosample_v2(file_subfix, Sample(), submission['_id'],s_ids, async_send=True)
-        """
-        # print(accessions)
-        if not accessions:
-            notify_frontend(data={"profile_id": profile_id}, msg="Error creating sample - no accessions found",
-                            action="info",
-                            html_id="dtol_sample_info")
-            continue
-        elif accessions["status"] == "ok":
-            msg = "Last Sample Submitted: " + sam["SPECIMEN_ID"] + " - ENA Submission ID: " + accessions[
-                "submission_accession"]  # + " - Biosample ID: " + accessions["biosample_accession"]
-            notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                            html_id="dtol_sample_info")
-            sample_ids_bson = list(map(lambda id: ObjectId(id), s_ids))
-            specimen_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}})
-            specimens = [id for id in specimen_ids if not submission["dtol_specimen"] or id not in submission["dtol_specimen"]]
-            Submission().update_dtol_specimen_for_bioimage_tosend(submission['_id'], specimens)
-            Submission().dtol_sample_processed(sub_id=submission["_id"], sam_ids=s_ids)
-
-        else:
-            msg = "Submission Rejected: " + sam["SPECIMEN_ID"] + "<p>" + accessions["msg"] + "</p>"
-            notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                            html_id="dtol_sample_info")
-            Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=s_ids)
-                            
-        notify_frontend(data={"profile_id": profile_id}, msg="", action="hide_sub_spinner",
-                    html_id="dtol_sample_info")
-        """
+            else:
+                msg = "Submission Rejected: " + sam["SPECIMEN_ID"] + "<p>" + accessions["msg"] + "</p>"
+                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                                html_id="dtol_sample_info")
+                Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=s_ids)
+                                
+            notify_frontend(data={"profile_id": profile_id}, msg="", action="hide_sub_spinner",
+                        html_id="dtol_sample_info")
+            """
 
 def query_awaiting_tolids():
     #get all submission awaiting for tolids
@@ -376,7 +389,7 @@ def query_awaiting_tolids():
                         Sample().add_rejected_status(status, rejsam["_id"])
                         #remove samples from submissionlist
                         print(str(rejsam["_id"]))
-                        Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(rejsam["_id"])])
+                        Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(rejsam["_id"])], submission_id=[])
                 else:
                     l.log("Still no tolId identified for " + str(name), type=Logtype.FILE)
                     return
