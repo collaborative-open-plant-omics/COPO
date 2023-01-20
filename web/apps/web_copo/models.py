@@ -82,7 +82,7 @@ class banner_view(models.Model):
 
 
 class ViewLock(models.Model):
-    url = models.URLField()
+    url = models.URLField(max_length=250)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     timeLocked = models.DateTimeField()
     timeout = timedelta(seconds=300)

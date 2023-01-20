@@ -38,7 +38,7 @@
                 targets: [1, -1],                
             },
         ],
-        //processing: true,
+        processing: true,
         serverSide: true,
         // Reload DataTable on input change.
         search: {
@@ -55,6 +55,7 @@
                 order : d.order,
                 length : d.length,
                 start : d.start,
+                search : d.search.value,
               }
             },
             dataSrc: 'data',

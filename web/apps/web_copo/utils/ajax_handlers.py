@@ -1453,11 +1453,12 @@ def get_samples_for_profile(request):
         draw = request.GET.get("draw", "1")
         sort_by = request.GET.get("order[0][column]", "")
         direction = request.GET.get("order[0][dir]", "")
+        search = request.GET.get("search", "")
         dir = 1
         if direction == "desc":
             dir = -1
 
-        samples = Sample().get_dtol_from_profile_id(profile_id, filter, draw, start, length, sort_by, dir)
+        samples = Sample().get_dtol_from_profile_id(profile_id, filter, draw, start, length, sort_by, dir, search)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
 

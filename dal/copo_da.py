@@ -977,7 +977,7 @@ class Sample(DAComponent):
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
 
-    def get_dtol_from_profile_id(self, profile_id, filter, draw, start, length, sort_by, dir):
+    def get_dtol_from_profile_id(self, profile_id, filter, draw, start, length, sort_by, dir, search):
 
         sc = self.get_component_schema()
         if sort_by == "0":
@@ -993,51 +993,85 @@ class Sample(DAComponent):
                         break;
         total_count = 0;
 
+        find_condition = dict()
+        if search:
+            find_condition["$text"]={"$search": search}
+        find_condition["profile_id"]=profile_id
+        sort_clause = [[sort_by_column, dir]]
+        handler=self.get_collection_handle()
+
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id,
-                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            find_condition["status"]= {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}
 
-            total_count = self.get_collection_handle().find(
-                {'profile_id': profile_id,
-                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}}).count()
+            #cursor = self.get_collection_handle().find(
+            #    { 'profile_id': profile_id,
+            #      "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}, '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
 
-        elif filter == "pending_barcode":
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "pending_barcode"}
-            ).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
-            total_count = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "pending_barcode"}
-            ).count()
+            #total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id,
+            #     "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}, '$text': {'$search': search }}).count()
+
+        #elif filter == "pending_barcode":
+        #    cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        #    find_condition["status"]=  "pending_barcode"
+        #    total_count = handler.find(find_condition).count()
+
+            #cursor = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "pending_barcode", '$text': {'$search': search }}
+            #).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            #total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "pending_barcode", '$text': {'$search': search }}
+            #).count()
         elif filter == "conflicting_barcode":
-            out = list()
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "conflicting"}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
-            total_count = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "conflicting"}).count()
-            samples = list(cursor)
+            find_condition["status"]=  "conflicting"
+            #out = list()
+            #cursor = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "conflicting", '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            #total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "conflicting", '$text': {'$search': search }}).count()
+            #samples = list(cursor)
+            #barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
+            ##id_query = [x["_id"] for x in samples]
+            #for bc in barcodes:
+            #    for idx, s in enumerate(samples):
+            #        if bc["sample_id"] == str(s["_id"]):
+            #            samples[idx]["barcoding"] = bc
+            #cursor = samples
+        #elif filter == "processing":
+        #    find_condition["status"]=  "processing"
+        #    cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        #    total_count = handler.find(find_condition).count()            
+            #out = list()
+            #cursor = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "processing",'$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            #total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "processing", '$text': {'$search': search }}).count()
+            #samples = list(cursor)
+            #cursor = samples
+        else:
+            find_condition["status"]=  filter
+            #cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+            #total_count = handler.find(find_condition).count()    
+            # else return samples who's status simply matches the filter
+            #cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter, '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            #total_count = self.get_collection_handle().find({'profile_id': profile_id, "status": filter, '$text': {'$search': search }}).count()
+
+
+        cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        total_count = handler.find(find_condition).count()  
+        samples = list(cursor);
+
+        if filter == "conflicting_barcode":
             id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
             for bc in barcodes:
                 for idx, s in enumerate(samples):
                     if bc["sample_id"] == str(s["_id"]):
                         samples[idx]["barcoding"] = bc
-            cursor = samples
-        elif filter == "processing":
-            out = list()
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "processing"}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
-            total_count = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "processing"}).count()
-            samples = list(cursor)
-            cursor = samples
-        else:
-            # else return samples who's status simply matches the filter
-            cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
-            total_count = self.get_collection_handle().find({'profile_id': profile_id, "status": filter}).count()
+
         # get schema
-        samples = list(cursor);
+        #samples = list(cursor);
         #sc = self.get_component_schema()
         out = list()
         taxon = dict()
