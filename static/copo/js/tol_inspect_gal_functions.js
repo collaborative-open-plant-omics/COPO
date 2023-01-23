@@ -15,7 +15,7 @@ $(document).ready(function () {
 
     $(document).on("click", ".taxonomyLevel_fieldName", populate_pie_chart)
 
-    $(document).on("click", ".selectable_row, .hot_tab", get_selected_gal_name_in_row)
+    $(document).on("click", ".gal_name_selectable_row, .hot_tab", get_selected_gal_name_in_row)
 
     $(document).data("gal_names_lst", [])
 
@@ -27,13 +27,30 @@ $(document).ready(function () {
 
     get_gal_names()
 
+    console.log()
+
 });
 
+
+// function get_gal_name_after_timer() {
+//
+//     return $($(document).data("selected_row")).find("td").text()
+// }
+
 function populate_pie_chart(el) {
+    // if (document.readyState === 'complete') {
+    //     return false
+    // }
     const gal_field_name = "GAL"
+    // Get GAL name after a few seconds since an empty string is displayed before its data is retrieved
     let gal_name_row = $(document).data("selected_row")
     let gal_field_value = $(gal_name_row).find("td").text()
-    let taxonomy_field_name = el.target.value
+    // let gal_field_value = setTimeout(function () {
+    //     get_gal_name_after_timer();
+    // }, 1000);
+    let taxonomy_field_name = el.target === undefined || el.target === null ? $("#taxonomyLevelsDivID > input.active_taxonomy_level").val() : el.target.value
+
+    console.log('GAL field value: ', gal_field_value)
     let sample_panel = $("#sample_panel")
 
     // Remove previous active taxonomy level
@@ -86,35 +103,34 @@ function populate_pie_chart(el) {
                 // Check if there is an existing instance of piechart, if there is, destroy it
                 if (Chart.getChart("pieChartID") !== undefined) Chart.getChart("pieChartID").destroy()
 
-                const pieChartCtx = document.getElementById("pieChartID").getContext('2d');
+                let pieChartID = document.getElementById("pieChartID")
 
-                new Chart(pieChartCtx, {
-                    type: "pie",
-                    data: {
-                        labels: pie_chart_labels_distinct,
-                        datasets: [{
-                            data: pie_chart_labels_values,
-                            backgroundColor: pie_chart_background_colours,
-                            borderWidth: 5
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'right',
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: ({
-                                                label,
-                                                formattedValue
-                                            }) => [`\xa0\xa0Name of ${taxonomy_field_name}: ${label}`, `\xa0\xa0Number of sample associations: ${formattedValue}`]
+                if (typeof pieChartID !== 'undefined' && pieChartID !== null) {
+                    const pieChartCtx = pieChartID.getContext('2d');
+
+                    new Chart(pieChartCtx, {
+                        type: "pie", data: {
+                            labels: pie_chart_labels_distinct, datasets: [{
+                                data: pie_chart_labels_values,
+                                backgroundColor: pie_chart_background_colours,
+                                borderWidth: 5
+                            }]
+                        }, options: {
+                            plugins: {
+                                legend: {
+                                    display: true, position: 'right',
+                                }, tooltip: {
+                                    callbacks: {
+                                        label: ({
+                                                    label, formattedValue
+                                                }) => [`\xa0\xa0Name of ${taxonomy_field_name}: ${label}`, `\xa0\xa0Number of sample associations: ${formattedValue}`]
+                                    },
                                 },
                             },
-                        },
-                    }
-                });
+                        }
+                    });
+
+                }
 
                 populate_bar_graph() // Populate the bar graph showing the goal statistics for the selected GAL
 
@@ -163,37 +179,35 @@ function populate_bar_graph() {
     // Check if there is an existing instance of bar graph, if there is, destroy it
     if (Chart.getChart("barGraphID") !== undefined) Chart.getChart("barGraphID").destroy()
 
-    const barGraphCtx = document.getElementById("barGraphID").getContext('2d');
-    new Chart(barGraphCtx, {
-        type: "bar",
-        data: {
-            labels: gal_names_lst,
-            datasets: [{
-                axis: 'y',
-                data: gal_sample_goal_percentage_lst,
-                fill: false,
-                backgroundColor: bar_graph_background_colours,
-                borderColor: bar_graph_border_colours,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: ({
-                                    label,
-                                    formattedValue
-                                }) => `\xa0GAL name: ${label}; Goal percentage: ${formattedValue}%`
+    let barGraphID = document.getElementById("barGraphID")
+    if (typeof barGraphID !== 'undefined' && barGraphID !== null) {
+        const barGraphCtx = barGraphID.getContext('2d');
+        new Chart(barGraphCtx, {
+            type: "bar", data: {
+                labels: gal_names_lst, datasets: [{
+                    axis: 'y',
+                    data: gal_sample_goal_percentage_lst,
+                    fill: false,
+                    backgroundColor: bar_graph_background_colours,
+                    borderColor: bar_graph_border_colours,
+                    borderWidth: 1
+                }]
+            }, options: {
+                indexAxis: 'y', plugins: {
+                    legend: {
+                        display: false
+                    }, tooltip: {
+                        callbacks: {
+                            label: ({
+                                        label, formattedValue
+                                    }) => `\xa0GAL name: ${label}; Goal percentage: ${formattedValue}%`
+                        },
                     },
                 },
-            },
-        }
-    });
+            }
+        });
+    }
+
 
 }
 
@@ -214,21 +228,22 @@ function get_selected_gal_name_in_row(ev) {
         $(row).addClass("selected")
 
         // We have clicked the first taxonomy level
-        first_taxonomy_level = $('#taxonomyLevelsDivID').find('input').first().click()
+        first_taxonomy_level = $('#taxonomyLevelsDivID').find('input').first()
         first_taxonomy_level.click()
 
         $("#taxonomyPieChartTabID").show() // Show pie chart
     }
+    // else {
+    //     $(document).data("selected_row")
+    // }
+
 }
 
 function get_gal_names() {
     // get gals and populate left hand column
     let gal_names = $("#gal_names")
     $.ajax({
-        url: "/copo/get_gal_names",
-        method: "GET",
-        dataType: "json",
-        data: {}
+        url: "/copo/get_gal_names", method: "GET", dataType: "json", data: {}
     }).done(function (data) {
         // Clear existing data in the gal names' table
         if ($.fn.DataTable.isDataTable('#gal_names')) {
@@ -236,9 +251,10 @@ function get_gal_names() {
         }
         $(document).data("gal_names_lst", data)
         $(data).each(function (d) {
-            gal_names.find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px; text-align: center'>" + data[d] + "</td></tr>")
+            gal_names.find("tbody").append("<tr class='gal_name_selectable_row'><td style='max-width: 10px; text-align: center'>" + data[d] + "</td></tr>")
 
         })
+
         $($("#gal_names tr")[1]).click() // Click first gal name displayed
 
         // gal_names.DataTable({

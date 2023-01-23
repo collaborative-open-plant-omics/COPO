@@ -74,7 +74,7 @@
         <div class="row mt-4">
             {# Satistics card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
-                <div class="card z-index-2 " style="height:468px; width:600px">
+                <div class="card z-index-2 " style="height:730px; width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
                             <div class="chart">
@@ -92,9 +92,20 @@
             </div>
             {# GAL inspection card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
-                <div class="card z-index-2" style="height:468px; width:600px">
+                <div class="card z-index-2" style="height:730px; width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         <div class="card-body center-div">
+                            {#GAL names table is needed for pie chart to be shown#}
+                            <div hidden class="col-lg-2 col-md-2 col-sm-2">
+                                <table id="gal_names" class="table table-hover table-condensed">
+                                    <thead>
+                                    <tr>
+                                        <th style="text-align: center">GAL</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                             <div class="chart chart-xs">
                                 <div class="chartjs-size-monitor">
                                     <div class="chartjs-size-monitor-expand">
@@ -104,9 +115,6 @@
                                         <div class=""></div>
                                     </div>
                                 </div>
-                                {#                                        <canvas id="pieChartID"#}
-                                {#                                                style="display: block; height: 200px; width: 398px;"#}
-                                {#                                                class="chartjs-render-monitor" width="796" height="400"></canvas>#}
                                 <canvas id="pieChartID" class="chartjs-render-monitor" width="796" height="400"
                                         style="display: block; height: 200px; width: 398px;"
                                         aria-label="taxonomy representation" role="figure">
@@ -134,206 +142,45 @@
             </div>
             {# TOL inspection card #}
             <div class="col-lg-4 mt-4 mb-3 ui link cards">
-                <div class="card" style="height:468px; width:1040px">
+                <div class="card" style="height:730px; width:1040px">
 
                     <div class="card-body px-4 pb-2">
                         <div class="row" style="">
+                            {# Profile titles table is needed for pie chart to be shown#}
+                            <div hidden class="col-lg-2 col-md-2 col-sm-2">
+                                <ul class="nav nav-tabs" id="sample_filter">
+                                    <li class="hot_tab in active">
+                                        <a data-toggle="tab" href="ASG">ASG</a>
+                                    </li>
+                                    <li class="hot_tab in">
+                                        <a data-toggle="tab" href="DTOL">DTOL</a>
+                                    </li>
+                                    <li class="hot_tab in">
+                                        <a data-toggle="tab" href="ERGA">ERGA</a>
+                                    </li>
+                                </ul>
+                                <br>
+                                <table id="profile_titles" class="table table-hover table-condensed">
+
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 261px">Profile Title</th>
+                                        <th style="text-align: center; width: 140px">Date Created</th>
+                                        <th style="text-align: center; width: 140px">Number of Samples</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+
+                            </div>
                             <div id="checkbox_valueID"></div>
                             <div id="sample_panel" style="padding-left:10px" class="col-lg-12 col-md-12 col-sm-12">
-                                <!--<div class="table_viewport">-->
                                 <h4 class="h4"><small class="labelling"><h4>Samples</h4></small></h4>
-
-                                <div id="profile_samples_wrapper"
-                                     class="dataTables_wrapper form-inline dt-bootstrap no-footer">
-                                    <div class="row">
-                                        <div class="col-sm-4">
-                                            <div class="dataTables_length" id="profile_samples_length"><label>Show
-                                                <select aria-controls="profile_samples" class="form-control input-sm"
-                                                        name="profile_samples_length"
-                                                        style="line-height:80%; width:25%; height:5%">
-                                                    <option value="10">10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="75">75</option>
-                                                    <option value="100">100</option>
-                                                    <option value="500">500</option>
-                                                    <option value="1000">1,000</option>
-                                                    <option value="2000">2,000</option>
-                                                </select> entries</label></div>
-                                        </div>
-                                        <div class="col-sm-8">
-                                            <div id="profile_samples_filter" class="dataTables_filter"><label
-                                                    style="padding-right: 40px"> Show all fields: <input
-                                                    id="showFieldsID" style="padding-right:20px" type="checkbox"
-                                                    onclick="row_select_on_tol_inspect_web_page(this)"></label><label>Search:<input
-                                                    type="search" class="form-control input-sm" placeholder=""
-                                                    aria-controls="profile_samples"></label></div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12" style="height:200px">
-                                            <div class="dataTables_scroll">
-                                                <div class="dataTables_scrollHead"
-                                                     style="overflow: hidden; position: relative; border: 0px none; width: 100%;">
-                                                    <div class="dataTables_scrollHeadInner"
-                                                         style="box-sizing: content-box; width: 100%; padding-right: 0px;">
-                                                        <table class="table table-hover table-bordered display compact no-footer dataTable"
-                                                               role="grid" aria-describedby="profile_samples_info"
-                                                               style="">
-                                                            <thead>
-                                                            <tr role="row">
-                                                                <th class="sorting_asc" tabindex="0"
-                                                                    aria-controls="profile_samples" rowspan="1"
-                                                                    colspan="1" aria-sort="ascending"
-                                                                    aria-label=": activate to sort column descending"
-                                                                    style="width:0px;padding-right:19px"></th>
-                                                                <th class="sorting" tabindex="0"
-                                                                    aria-controls="profile_samples" rowspan="1"
-                                                                    colspan="1"
-                                                                    aria-label="SPECIMEN_ID: activate to sort column ascending"
-                                                                    style="text-align: center; width: 0px; padding-right:26px">
-                                                                    SPECIMEN_ID
-                                                                </th>
-                                                                <th class="sorting" tabindex="0"
-                                                                    aria-controls="profile_samples" rowspan="1"
-                                                                    colspan="1"
-                                                                    aria-label="SCIENTIFIC_NAME: activate to sort column ascending"
-                                                                    style="text-align: center; width: 0px; padding-left:15px; padding-right:5px">
-                                                                    SCIENTIFIC_NAME
-                                                                </th>
-                                                                <th class="sorting" tabindex="0"
-                                                                    aria-controls="profile_samples" rowspan="1"
-                                                                    colspan="1"
-                                                                    aria-label="tolid: activate to sort column ascending"
-                                                                    style="text-align: center; width: 0px;padding-left:28px">
-                                                                    tolid
-                                                                </th>
-                                                            </tr>
-                                                            </thead>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                                <div class="dataTables_scrollBody"
-                                                     style="position: relative; overflow: auto; max-height: 400px; height: 400px;">
-                                                    <table id="profile_samples"
-                                                           class="table table-hover table-bordered display compact no-footer dataTable"
-                                                           role="grid" aria-describedby="profile_samples_info"
-                                                           style="width: 100%;">
-                                                        <thead>
-                                                        <tr role="row" style="height: 0px;">
-                                                            <th class="sorting_asc" aria-controls="profile_samples"
-                                                                rowspan="1" colspan="1"
-                                                                style="width: 0px; padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; height: 0px;"
-                                                                aria-sort="ascending"
-                                                                aria-label=": activate to sort column descending">
-                                                                <div class="dataTables_sizing"
-                                                                     style="height: 0px; overflow: hidden;"></div>
-                                                            </th>
-                                                            <th style="text-align: center; width: 360px; padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; height: 0px;"
-                                                                class="sorting" aria-controls="profile_samples"
-                                                                rowspan="1" colspan="1"
-                                                                aria-label="SPECIMEN_ID: activate to sort column ascending">
-                                                                <div class="dataTables_sizing"
-                                                                     style="height: 0px; overflow: hidden;">SPECIMEN_ID
-                                                                </div>
-                                                            </th>
-                                                            <th style="text-align: center; width: 360px; padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; height: 0px;"
-                                                                class="sorting" aria-controls="profile_samples"
-                                                                rowspan="1" colspan="1"
-                                                                aria-label="SCIENTIFIC_NAME: activate to sort column ascending">
-                                                                <div class="dataTables_sizing"
-                                                                     style="height: 0px; overflow: hidden;">
-                                                                    SCIENTIFIC_NAME
-                                                                </div>
-                                                            </th>
-                                                            <th style="text-align: center; width: 360px; padding-top: 0px; padding-bottom: 0px; border-top-width: 0px; border-bottom-width: 0px; height: 0px;"
-                                                                class="sorting" aria-controls="profile_samples"
-                                                                rowspan="1" colspan="1"
-                                                                aria-label="tolid: activate to sort column ascending">
-                                                                <div class="dataTables_sizing"
-                                                                     style="height: 0px; overflow: hidden;">tolid
-                                                                </div>
-                                                            </th>
-                                                        </tr>
-                                                        </thead>
-
-                                                        <tbody class="selected_row">
-                                                        <tr class="sample_table_row odd" id="636b897c6ad87829d3c79958"
-                                                            sample_id="636b897c6ad87829d3c79958" role="row">
-                                                            <td class="tickbox" style="text-align: center;">1</td>
-                                                            <td style="text-align: center; width: 360px;">UOBC0000020
-                                                            </td>
-                                                            <td style="text-align: center; width: 360px;">Maristentor
-                                                                dinoferus
-                                                            </td>
-                                                            <td style="text-align: center; width: 360px;"></td>
-                                                        </tr>
-                                                        <tr class="sample_table_row even" id="636b89f66ad87829d3c79959"
-                                                            sample_id="636b89f66ad87829d3c79959"
-                                                            style="text-align: center; width: 360px;" role="row">
-                                                            <td class="tickbox" style="text-align: center;">2</td>
-                                                            <td>UOBC0000020</td>
-                                                            <td>Maristentor dinoferus</td>
-                                                            <td class="empty_color"></td>
-                                                        </tr>
-                                                        <tr class="sample_table_row odd" id="636b8a1c6ad87829d3c7995a"
-                                                            sample_id="636b8a1c6ad87829d3c7995a"
-                                                            style="text-align: center; width: 360px;" role="row">
-                                                            <td class="tickbox" style="text-align: center;">3</td>
-                                                            <td>UOBC0000020</td>
-                                                            <td>Maristentor dinoferus</td>
-                                                            <td class="empty_color"></td>
-                                                        </tr>
-                                                        <tr class="sample_table_row even" id="636b8a636ad87829d3c7995b"
-                                                            sample_id="636b8a636ad87829d3c7995b"
-                                                            style="text-align: center; width: 360px;" role="row">
-                                                            <td class="tickbox" style="text-align: center;">4</td>
-                                                            <td>UOBC0000020</td>
-                                                            <td>Maristentor dinoferus</td>
-                                                            <td class="empty_color"></td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" style="font-size:12px">
-                                        <div class="col-sm-7">
-                                            <div class="dataTables_info" id="profile_samples_info" role="status"
-                                                 aria-live="polite">Showing 1 to 10 of 4 entries
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            <div class="dataTables_paginate paging_simple_numbers"
-                                                 id="profile_samples_paginate">
-                                                <ul class="pagination">
-                                                    <li class="paginate_button previous disabled"
-                                                        id="profile_samples_previous" style="padding-top: 5px !important;
-    padding-right: 5px !important;"><a href="#"
-                                       aria-controls="profile_samples"
-                                       data-dt-idx="0" tabindex="0">Previous</a>
-                                                    </li>
-                                                    <li class="paginate_button active" style="padding-top: 5px !important;
-    padding-right: 5px !important;"><a href="#"
-                                       aria-controls="profile_samples"
-                                       data-dt-idx="1"
-                                       tabindex="0">1</a></li>
-                                                    <li class="paginate_button " style="padding-top: 5px !important;
-    padding-right: 5px !important;"><a href="#"
-                                       aria-controls="profile_samples"
-                                       data-dt-idx="2" tabindex="0">2</a>
-                                                    </li>
-                                                    <li class="paginate_button next" id="profile_samples_next" style="padding-top: 5px !important;
-    padding-right: 5px !important;"><a
-                                                            href="#" aria-controls="profile_samples" data-dt-idx="3"
-                                                            tabindex="0">Next</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
+                                <table id="profile_samples" class="table table-hover table-bordered display compact"
+                                       style="width:540px ! important">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -344,7 +191,7 @@
 
                         <div class="col-lg-3 mt-3 mb-3">
                             <label class="text-sm mb-0 pull-right"> <input id="filterByCOPODatabaseID" type="checkbox"
-                                                                           onclick="row_select_on_tol_inspect_web_page(this)"
+                                                                           onclick="populate_samples_table_based_on_profile_title(this)"
                                                                            style="margin-right:8px"> In <span
                                     class="font-weight-bold ms-1">COPO</span> record</label>
                         </div>
@@ -384,7 +231,7 @@
                     </div>
 
                 </div>
-
+                {# Manifest submission overview #}
                 <div class="col-lg-4 col-md-6">
                     <div class="card" style="height:620px;">
                         <div class="card-header pb-2">
@@ -487,15 +334,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
+    <script src="{% static 'copo/js/tol_inspect_functions.js' %}"></script>
     <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
     <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-2.05.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-world-mill.js' %}"></script>
-
-    {#    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>#}
-    {#    <script src="{% static 'copo/js/popper.min.js' %}"></script>#}
-    {#    <script src="{% static 'copo/js/perfect-scrollbar.min.js' %}"></script>#}
-    {#    <script src="{% static 'copo/js/smooth-scrollbar.min.js' %}"></script>#}
-    {#    <script src="{% static 'copo/js/chartjs.min.js' %}"></script>#}
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
 {% endblock js_block %}

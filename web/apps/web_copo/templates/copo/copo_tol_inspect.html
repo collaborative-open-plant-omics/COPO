@@ -5,22 +5,6 @@
 {% load html_tags %}
 
 {% block stylesheet_block %}
-    <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
-    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-    <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-ui.css' %}">
-    <!-- CSS adjustments for browsers with JavaScript disabled -->
-    <noscript>
-        <link rel="stylesheet" href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-noscript.css' %}">
-    </noscript>
-    <noscript>
-        <link rel="stylesheet"
-              href="{% static 'copo/jQuery-File-Upload-master/css/jquery.fileupload-ui-noscript.css' %}">
-    </noscript>
-    <link rel="stylesheet" href="{% static 'copo/css/copo/copo_wizard.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/sample.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/bootstrap-treeview-1.2.0/dist/bootstrap-treeview.min.css' %}">
-
     <style>
         th {
             position: -webkit-sticky;
@@ -173,7 +157,7 @@
 
         </div>
         <div id="checkbox_valueID"></div>
-        <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel">
+        <div id="sample_panel" style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8">
             <!--<div class="table_viewport">-->
             <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
 
@@ -195,12 +179,7 @@
 {% endblock %}
 
 {% block js_block %}
-    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
-    {#    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>#}
-    {#    <script src="{% static 'copo/js/dtol_functions.js' %}"></script>#}
     <script src="{% static 'copo/js/tol_inspect_functions.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>

@@ -1,8 +1,6 @@
 /** Created by AProvidence on 16012023
  * Functions defined are called from 'copo_tol_inspect' web page
  */
-
-const fadeSpeed = 'fast';
 const dt_options = {
     "scrollY": 400,
     "scrollX": true,
@@ -27,7 +25,7 @@ $(document).ready(function () {
     // Get active manifest type tab on tab change
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         let project = $(e.target).attr("href")
-        update_pending_samples_table_for_tol_inspection(project)
+        get_profile_titles(project)
     });
 
     $(document).data("areAllSampleModalFieldsShown", false)
@@ -67,7 +65,7 @@ $(document).ready(function () {
         });
     })
 
-    $(document).on("click", ".fieldID", function (e) {
+    $(document).on("click", ".fieldID", function () {
         let preNavItem = $("#tolInspectNavBar li.active")
         let breadcrumb = $(".breadcrumb")
         let navBarItems = $(document).data("navBarItems")
@@ -94,7 +92,7 @@ $(document).ready(function () {
                 searchQueryDict["field"] = this.innerHTML;
                 searchQueryDict["field_value"] = field_value;
 
-                row_select_on_tol_inspect_web_page(this)
+                populate_samples_table_based_on_profile_title(this)
             }
 
             preNavItem.removeClass("active")
@@ -124,9 +122,9 @@ $(document).ready(function () {
 
     })
 
-    $(document).on("click", ".selectable_row, .hot_tab", row_select_on_tol_inspect_web_page)
+    $(document).on("click", ".profile_title_selectable_row, .hot_tab", populate_samples_table_based_on_profile_title)
 
-    update_pending_samples_table_for_tol_inspection(project)
+    get_profile_titles(project)
 });
 
 
@@ -187,20 +185,20 @@ function build_form_body_sample_Details(data, form) {
 }
 
 function get_form_message(data) {
-    var messageRowDiv = $('<div/>',
+    const messageRowDiv = $('<div/>',
         {
             class: "row"
         });
 
-    var messageColDiv = $('<div/>',
+    const messageColDiv = $('<div/>',
         {
             class: "col-sm-12 col-md-12 col-lg-12 formMessageDiv"
         });
 
     messageRowDiv.append(messageColDiv);
 
-    var message_text = null;
-    var message_type = null;
+    let message_text = null;
+    let message_type = null;
 
 
     try {
@@ -265,7 +263,7 @@ function get_profile_samples_table_not_first_element_block_of_code(el, row, td_r
     td_row.appendChild(td)
 }
 
-function set_up_form_show_all_fields_checkbox_div(data) {
+function set_up_form_show_all_fields_checkbox_div() {
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
     const rowDiv = $('<div/>',
@@ -347,10 +345,9 @@ function json2HtmlForm_SampleDetails(data) {
         closeIcon: '&#215;',
         animate: true,
         draggable: true,
-        onhide: function (dialogRef) {
-            refresh_tool_tips();
+        onhide: function () {
         },
-        onshown: function (dialogRef) {
+        onshown: function () {
 
             //prevent enter keypress from submitting form automatically
             $("form").keypress(function (e) {
@@ -397,7 +394,7 @@ function json2HtmlForm_SampleDetails(data) {
 } //end of json2HTMLForm
 
 
-function row_select_on_tol_inspect_web_page(ev) {
+function populate_samples_table_based_on_profile_title(ev) {
     // Get samples for the profile clicked in the left-hand panel and
     // populate the table in the right-hand panel
     jQuery.support.cors = true;
@@ -437,12 +434,6 @@ function row_select_on_tol_inspect_web_page(ev) {
     $("#profile_id").val(d.profile_id)
     $("#spinner").show()
 
-    console.log("Ajax 's': ", s)
-    console.log("Is search query dictionary empty: ", $.isEmptyObject(searchQueryDict))
-    console.log("Search query: ", searchQueryDict)
-    console.log(`Field: ${searchQueryDict.field}, Value:${searchQueryDict.field}`)
-
-    console.log("In row select on tol inspect web page..is sample modal search query checked: ", isSampleModalSearchQueryChecked)
 
     $.ajax(s).error(function (data) {
         console.error("ERROR: " + data)
@@ -543,7 +534,7 @@ function row_select_on_tol_inspect_web_page(ev) {
 
                     // Add checkbox to show all fields within the table beside the search box
                     // within the profile samples data table
-                    $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="row_select_on_tol_inspect_web_page(this)"></label>');
+                    $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>');
 
                     $("#showFieldsID").prop('checked', $(document).data("showAllTableFieldsCheckbox"));
 
@@ -575,7 +566,7 @@ function row_select_on_tol_inspect_web_page(ev) {
     )
 }
 
-function update_pending_samples_table_for_tol_inspection(project) {
+function get_profile_titles(project) {
     // get profiles with samples needing looked at and populate left hand column
     $.ajax({
         url: "/copo/update_pending_samples_table_for_tol_inspection",
@@ -587,20 +578,21 @@ function update_pending_samples_table_for_tol_inspection(project) {
     }).error(function (e) {
         console.error(e)
     }).done(function (data) {
+        let profile_titlesID = $("#profile_titles")
         // Clear existing data in the profile titles' table
         if ($.fn.DataTable.isDataTable('#profile_titles')) {
-            $("#profile_titles").DataTable().clear().destroy();
+            profile_titlesID.DataTable().clear().destroy();
         }
         $(data['profiles']).each(function (d) {
             let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
-            $("#profile_titles").find("tbody").append("<tr class='selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'] + "</td></tr>")
+            profile_titlesID.find("tbody").append("<tr class='profile_title_selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'] + "</td></tr>")
 
         })
         $($("#profile_titles tr")[1]).click()
 
 
         $.fn.dataTable.moment('DD/MM/YYYY');
-        $("#profile_titles").DataTable({
+        profile_titlesID.DataTable({
             responsive: true,
             paging: false,
             dom: '<"top"f>rt<"bottom"lp><"clear">',

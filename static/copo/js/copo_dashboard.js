@@ -15,7 +15,18 @@ $(document).ready(function () {
         document.location = copoTOLInspectionURL;
     })
 
-    // Statistics bar chart
+    // Status bar
+    $.getJSON("copo/stats/numbers")
+        .done(function (data) {
+            $("#num_samples").html(data.samples)
+            $("#num_profiles").html(data.profiles)
+            $("#num_users").html(data.users)
+            $("#num_uploads").html(data.datafiles)
+        }).error(function (error) {
+        console.log(`Error: ${error}`)
+    })
+
+    // Statistics card [bar chart]
     const barChartCtx = document.getElementById('chart-bars').getContext("2d");
 
     new Chart(barChartCtx, {
@@ -97,48 +108,20 @@ $(document).ready(function () {
         },
     });
 
-    // GAL Inspection pie chart
-    // const pieChartCtx = document.getElementById("pieChartID").getContext('2d');
-    //
-    // new Chart(pieChartCtx, {
-    //     type: "pie",
-    //     data: {
-    //         labels: ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"],
-    //         datasets: [{
-    //             data: [4306, 3801, 1689, 1089],
-    //             index: 0,
-    //             backgroundColor: [
-    //                 '#3b7ddd',
-    //                 '#fcb92c',
-    //                 '#dc3545',
-    //                 '#49cc90'
-    //             ],
-    //             borderWidth: 5
-    //         }]
-    //     },
-    //     options: {
-    //         maintainAspectRatio: false,
-    //         legend: {
-    //             position: 'right'
-    //         },
-    //         cutoutPercentage: 75
-    //     }
-    // });
 
+    // GAL Inspection card [pie chart]
+    // get_gal_names() // Get GAL names and populate gal_names table
+    // $(document).data("selected_row", $($("#gal_names tr")[1])) // Set selected GAL name to first element in table
+    // console.log('GAL field value1: ', $($(document).data("selected_row", $($("#gal_names tr")[1]))).find("td").text())
     let active_taxonomy_level = $('#taxonomyLevelsDivID > input.active_taxonomy_level')
-    active_taxonomy_level.ta
     populate_pie_chart(active_taxonomy_level); // Call function from 'tol_inspect_gal_funtions' js file
 
-    // Statistics
-    $.getJSON("copo/stats/numbers")
-        .done(function (data) {
-            $("#num_samples").html(data.samples)
-            $("#num_profiles").html(data.profiles)
-            $("#num_users").html(data.users)
-            $("#num_uploads").html(data.datafiles)
-        }).error(function (error) {
-        console.log(`Error: ${error}`)
-    })
+    // TOL Inspection card
+    const project = $("#sample_filter").find(".active").find("a").attr("href");
+    get_profile_titles(project)
+    let first_profile_row = $($("#profile_titles tr")[1])
+    populate_samples_table_based_on_profile_title(first_profile_row) // Call function from 'tol_inspect_funtions' js file
+    $('#profile_samples_wrapper .dataTables_scroll > div.dataTables_scrollHead').css({"width": "540px"}) // Set width for samples table
 
     // World map
     // Show/Hide "World map is loading" spinner
