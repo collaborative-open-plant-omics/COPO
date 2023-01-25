@@ -25,26 +25,25 @@
                         return ""
                     }
                 },
-                targets: 0,
-            },
-            {                
-                "createdCell": function (td, cellData, rowData, row, col) {
-                    if ( cellData === 'NA')  {
-                    $(td).addClass("na_color")
-                    } else if ( cellData === "" ) {
-                    $(td).addClass("empty_color")
-                    }
-                } ,
-                targets: [1, -1],                
+                targets: 0,                
             },
         ],
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            $(nRow).children().each(function (index, td) {
+                if (index > 0) {
+                    if ( td.innerText === 'NA')  {
+                    $(td).addClass("na_color")
+                    } else if ( td.innerText === "" ) {
+                    $(td).addClass("empty_color")
+                    }               
+                }     
+            })},
         processing: true,
         serverSide: true,
         // Reload DataTable on input change.
         search: {
             "return": true,
         },
-
           ajax: {
             url: '/copo/get_samples_for_profile',
             data: function (d) {

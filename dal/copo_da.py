@@ -972,7 +972,7 @@ class Sample(DAComponent):
         )
 
     def get_by_profile_and_field(self, profile_id, field, value):
-        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}))
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}), {"_id": 1})
 
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
@@ -1091,6 +1091,8 @@ class Sample(DAComponent):
                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
                     name = field.get("id", "").split(".")[-1]
                     sam[name] = i[name]
+
+            sam["error"] = i.get("error","")        
             out.append(sam)
 
         result = dict()
@@ -1107,6 +1109,8 @@ class Sample(DAComponent):
         for field in sc:
             if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
                 columns.append(field.get("id", "").split(".")[-1])
+
+        columns.append("error")
         return columns;
 
     def mark_rejected(self, sample_id, reason="Sample rejected by curator."):

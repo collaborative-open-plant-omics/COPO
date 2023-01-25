@@ -304,6 +304,8 @@ def process_pending_dtol_samples():
 
             l.log("updating bundle xml", type=Logtype.FILE)
             if len(s_ids)==0:
+                notify_frontend(data={"profile_id": profile_id}, msg="Nothing more to submit", action="info",
+                                    html_id="dtol_sample_info")                
                 #if all samples were moved to rejected
                 continue
             update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
@@ -312,33 +314,7 @@ def process_pending_dtol_samples():
             # store accessions, remove sample id from bundle and on last removal, set status of submission
             l.log("submitting bundle xml to ENA", type=Logtype.FILE)
             accessions = submit_biosample_v2(file_subfix, Sample(), submission['_id'],s_ids, async_send=True)
-            """
-            # print(accessions)
-            if not accessions:
-                notify_frontend(data={"profile_id": profile_id}, msg="Error creating sample - no accessions found",
-                                action="info",
-                                html_id="dtol_sample_info")
-                continue
-            elif accessions["status"] == "ok":
-                msg = "Last Sample Submitted: " + sam["SPECIMEN_ID"] + " - ENA Submission ID: " + accessions[
-                    "submission_accession"]  # + " - Biosample ID: " + accessions["biosample_accession"]
-                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="dtol_sample_info")
-                sample_ids_bson = list(map(lambda id: ObjectId(id), s_ids))
-                specimen_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}})
-                specimens = [id for id in specimen_ids if not submission["dtol_specimen"] or id not in submission["dtol_specimen"]]
-                Submission().update_dtol_specimen_for_bioimage_tosend(submission['_id'], specimens)
-                Submission().dtol_sample_processed(sub_id=submission["_id"], sam_ids=s_ids)
 
-            else:
-                msg = "Submission Rejected: " + sam["SPECIMEN_ID"] + "<p>" + accessions["msg"] + "</p>"
-                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="dtol_sample_info")
-                Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=s_ids)
-                                
-            notify_frontend(data={"profile_id": profile_id}, msg="", action="hide_sub_spinner",
-                        html_id="dtol_sample_info")
-            """
 
 def query_awaiting_tolids():
     #get all submission awaiting for tolids
