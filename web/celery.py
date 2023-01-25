@@ -64,8 +64,11 @@ app.conf.beat_schedule = {
     'process_housekeeping': {
         'task': 'web.apps.web_copo.tasks.process_housekeeping',
         'schedule': timedelta(seconds=3600)
+    },
+    'poll_asyn_ena_submission': {
+        'task': 'web.apps.web_copo.tasks.poll_asyn_ena_submission',
+        'schedule': timedelta(seconds=10)
     }
-
 }
 
 

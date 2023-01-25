@@ -102,6 +102,11 @@ def check_for_stuck_transfers(self):
     tx.check_for_stuck_transfers()
     return True
 
+@app.task(bind=True, base=CopoBaseClassForTask)
+def poll_asyn_ena_submission(self):
+    Logger().log("Running poll_asyn_ena_submission")
+    dtol.poll_asyn_ena_submission()
+    return True    
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 def process_housekeeping(self):
