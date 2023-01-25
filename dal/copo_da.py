@@ -922,6 +922,7 @@ class Sample(DAComponent):
             },
             {"$set":
                 {
+                    'error': "",
                     'biosampleAccession': biosample_accession,
                     'sraAccession': sra_accession,
                     'submissionAccession': submission_accession,
