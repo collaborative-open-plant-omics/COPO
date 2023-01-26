@@ -1,13 +1,79 @@
+
+   var dt_options = {
+        "scrollY": 400,
+        "scrollX": true,
+        "bSortClasses": false,
+        "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
+        select: {
+            style: 'os',
+            selector: 'td:first-child'
+        },
+        "rowId":"_id",
+        "paging": true,
+        "createdRow": function( row, data, dataIndex ) {
+             $(row).addClass( 'sample_table_row' )
+        },
+
+        "columnDefs": [
+            {
+                className: "tickbox",
+                render: function (data, type, row) {
+                    var filter = $("#sample_filter").find(".active").find("a").attr("href")
+                    if (filter == "pending" || filter == "rejected") {
+                        return "<input type='checkbox' class='form-check-input checkbox'/>"
+                    } else {
+                        return ""
+                    }
+                },
+                targets: 0,                
+            },
+        ],
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            $(nRow).children().each(function (index, td) {
+                if (index > 0) {
+                    if ( td.innerText === 'NA')  {
+                    $(td).addClass("na_color")
+                    } else if ( td.innerText === "" ) {
+                    $(td).addClass("empty_color")
+                    }               
+                }     
+            })},
+        processing: true,
+        serverSide: true,
+        // Reload DataTable on input change.
+        search: {
+            "return": true,
+        },
+          ajax: {
+            url: '/copo/get_samples_for_profile',
+            data: function (d) {
+              return {
+                profile_id : $("#profile_id").val(),
+                filter : $("#sample_filter").find(".active").find("a").attr("href"),
+                draw : d.draw,
+                order : d.order,
+                length : d.length,
+                start : d.start,
+                search : d.search.value,
+              }
+            },
+            dataSrc: 'data',
+          },
+
+    }
+    var sample_table;
+
 $(document).ready(function () {
+
     // functions defined here are called from both copo_sample_accept_reject and copo_samples, all provide DTOL
     // functionality
     $(document).data("accepted_warning", false)
     $(document).data("isDtolSamplePage", true)
     $("#accept_reject_button").find("button").prop("disabled", true)
     // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
+    excluded_fields = ["profile_id", "biosample_id", "_id"]
+    searchable_fields = [""]
     // populate profiles panel on left
-    update_pending_samples_table()
 
     $(document).on("click", ".select-all", function () {
         $(".form-check-input:not(:checked)").each(function (idx, element) {
@@ -179,23 +245,55 @@ $(document).ready(function () {
             })
         }
     })
-})
-var fadeSpeed = 'fast'
-var dt_options = {
-    "scrollY": 400,
-    "scrollX": true,
-    "bSortClasses": false,
-    "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
-    select: {
-        style: 'os',
-        selector: 'td:first-child'
-    },
-}
 
+    var profile_samples = document.getElementById("profile_samples")
+    if (profile_samples && profile_samples.getElementsByTagName("thead")[0].children.length == 0  ) {
+    $.ajax({
+        url: "/copo/get_sample_column_names",
+        method: "GET",
+        dataType: "json"
+    }).error(function (data) {
+        console.error("ERROR: " + data)
+    }).done(function (data) {
+        if (data.length) {
+            var header = $("<h4/>", {
+                html: "Samples"
+            })
+            $("#sample_panel").find(".labelling").empty().append(header)
+
+            var rows = []
+            rows.push({"title": ""})
+
+                let i = 0;
+                while (i < data.length) {
+                     if (!excluded_fields.includes(data[i])) {
+                            rows.push({"title": data[i], "data": data[i]})
+                        }
+                    i++;
+                }
+                if (profile_samples) {
+                    if ($.fn.DataTable.isDataTable('#profile_samples')) {
+                        sample_table.clear().destroy();
+                    }
+                    dt_options["columns"] = rows
+                    sample_table = $("#profile_samples").DataTable(dt_options);
+                }
+        }
+    })
+    }
+    if (profile_samples) {
+       update_pending_samples_table()
+    }
+})
+   var fadeSpeed = 'fast'
+
+
+
+    var row;
 function row_select(ev) {
     $("#accept_reject_button").find("button").prop("disabled", true)
     // get samples for profile clicked in the left hand panel and populate table on the right
-    var row;
+
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
         $(document).data("selected_row", $(ev.currentTarget))
@@ -207,13 +305,12 @@ function row_select(ev) {
     }
 
     var filter = $("#sample_filter").find(".active").find("a").attr("href")
-
-    var d = {"profile_id": $(row).find("td").data("profile_id"), "filter": filter}
-    $("#profile_id").val(d.profile_id)
-
-
+    var profile_id = $(row).find("td").data("profile_id")
+    $("#profile_id").val(profile_id)
     $("#spinner").show()
-
+    sample_table.ajax.reload()
+    $("#spinner").fadeOut("fast")
+/*
     $.ajax({
         url: "/copo/get_samples_for_profile",
         data: d,
@@ -222,120 +319,15 @@ function row_select(ev) {
     }).error(function (data) {
         console.error("ERROR: " + data)
     }).done(function (data) {
-            if ($.fn.DataTable.isDataTable('#profile_samples')) {
-                $("#profile_samples").DataTable().clear().destroy();
-
-            }
-            $("#sample_panel").find("thead").empty()
-            $("#sample_panel").find("tbody").empty()
-
+            sample_table.clear();
             if (data.length) {
                 var header = $("<h4/>", {
                     html: "Samples"
                 })
                 $("#sample_panel").find(".labelling").empty().append(header)
 
-                var rows = []
-                $(data).each(function (idx, row) {
-                    var th_row = document.createElement("tr")
-                    var td_row = document.createElement("tr")
-                    td_row.className = "sample_table_row"
+                sample_table.rows.add(data)
 
-                    if (idx == 0) {
-                        // do header and row
-                        if (filter === "pending" || filter === "rejected") {
-
-                            var empty_th = document.createElement("th")
-                            th_row.appendChild(empty_th)
-                            var td = document.createElement("td")
-                            td.className = "tickbox"
-
-                            var tickbox = $("<input/>",
-                                {
-                                    "type": "checkbox",
-                                    class: "form-check-input"
-                                })
-
-                            var tickbox = document.createElement("input")
-                            tickbox.type = "checkbox"
-                            tickbox.className = "form-check-input"
-                            td.appendChild(tickbox)
-                            td_row.appendChild(td)
-
-                        }
-                        for (el in row) {
-                            if (el == "_id") {
-                                //$(td_row).data("id", row._id.$oid)
-                                td_row.setAttribute("id", row._id.$oid)
-                                $(td_row).attr("sample_id", row._id.$oid)
-                            } else if (!excluded_fields.includes(el)) {
-                                // make header
-                                var th = $("<th/>", {
-                                    html: el
-                                })
-                                $(th_row).append(
-                                    th
-                                )
-                                // and row
-                                td = $("<td/>", {
-                                    html: row[el]
-                                })
-                                if (row[el] == 'NA') {
-                                    $(td).addClass("na_color")
-                                } else if (row[el] == "") {
-                                    $(td).addClass("empty_color")
-                                }
-                                $(td_row).append(
-                                    td
-                                )
-                            }
-                        }
-                        document.getElementById("profile_samples").getElementsByTagName("thead")[0].appendChild(th_row)
-                        document.getElementById("profile_samples").getElementsByTagName("tbody")[0].appendChild(td_row)
-
-                    } else { // if not first element
-                        if (filter === "pending" || filter === "rejected") {
-
-                            var td = document.createElement("td")
-                            td.className = "tickbox"
-                            var tickbox = document.createElement("input")
-                            tickbox.type = "checkbox"
-                            tickbox.className = "form-check-input checkbox"
-                            td.appendChild(tickbox)
-                            td_row.appendChild(td)
-                        }
-                        for (el in row) {
-                            if (el == "_id") {
-                                td_row.setAttribute("id", row._id.$oid)
-                                td_row.setAttribute("sample_id", row._id.$oid)
-                            } else if (!excluded_fields.includes(el)) {
-                                // just do row
-                                td = $("<td/>", {
-                                    html: row[el]
-                                })
-                                var td = document.createElement("td")
-                                td.innerHTML = row[el]
-                                if (row[el] == 'NA') {
-                                    td.className = "na_color"
-                                } else if (row[el] == "") {
-                                    td.className = "empty_color"
-                                }
-                                td_row.appendChild(td)
-
-                            }
-
-                        }
-                        rows.push(td_row)
-                    }
-                })
-                fastdom.mutate(() => {
-                    //$("#profile_samples tbody").append(rows)
-                    var tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0]
-                    rows.forEach(el => {
-                        tbody.appendChild(el)
-                    })
-                    $("#profile_samples").DataTable(dt_options);
-                })
             } else {
                 var content
                 if (data.hasOwnProperty("locked")) {
@@ -353,11 +345,13 @@ function row_select(ev) {
                 $("#accept_reject_button").find("button").prop("disabled", true)
 
             }
+            sample_table.draw();
 
             $("#spinner").fadeOut("fast")
 
         }
     )
+    */
 }
 
 function delay(fn, ms) {
@@ -403,7 +397,7 @@ function update_pending_samples_table() {
 
 function handle_accept_reject(el) {
     $("#spinner").fadeIn(fadeSpeed)
-
+    $("#accept_reject_button").find("button").prop("disabled", true)
 
     var checked = $(".form-check-input:checked").closest("tr")
 

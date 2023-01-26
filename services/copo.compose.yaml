@@ -52,6 +52,8 @@ services:
       - ECS_SECRET_KEY_FILE=/run/secrets/ecs_secret_key
       - ECS_ACCESS_KEY_ID=copo@nbi.ac.uk
       - ECS_ENDPOINT=http://ei-copo.obj-data.nbi.ac.uk
+      - ENA_V2_SERVICE_SYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit
+      - ENA_V2_SERVICE_ASYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit/queue
     depends_on:
       - redis
       - postgres 
@@ -96,7 +98,7 @@ services:
       - copo_bioimage_path
       - ecs_secret_key  
   nginx:
-    image: debbyku/copo-nginx:1.23.3.10
+    image: copo/copo-nginx:1.23.3
     networks:
       - copo-frontend-network
     volumes:

@@ -209,4 +209,6 @@ urlpatterns = [
          name="init_manifest_submission"),
     path('process_urls', ajax_handlers.process_urls,
          name="process_urls"),
+    path('get_sample_column_names/', ajax_handlers.get_samples_column_names,
+         name="get_sample_column_names"),
 ]

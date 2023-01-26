@@ -1451,13 +1451,27 @@ def get_samples_for_profile(request):
     if not ViewLock().isViewLockedCreate(url=url):
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
-        samples = Sample().get_dtol_from_profile_id(profile_id, filter)
+        start = request.GET.get("start", "0")
+        length = request.GET.get("length", "10")
+        draw = request.GET.get("draw", "1")
+        sort_by = request.GET.get("order[0][column]", "")
+        direction = request.GET.get("order[0][dir]", "")
+        search = request.GET.get("search", "")
+        dir = 1
+        if direction == "desc":
+            dir = -1
+
+        samples = Sample().get_dtol_from_profile_id(profile_id, filter, draw, start, length, sort_by, dir, search)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
+
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 
+def get_samples_column_names(request):
+    columnanmes = Sample().get_sample_display_column_names();
+    return HttpResponse(json_util.dumps(columnanmes))
 
 def mark_sample_rejected(request):
     sample_ids = request.GET.get("sample_ids")
@@ -1500,13 +1514,14 @@ def add_sample_to_dtol_submission(request):
 
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
-        sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
-        sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
-        if "dtol_specimen" not in sub:
-            sub["dtol_specimen"] = []
-        for speciment_id in sepciment_ids:
-            if speciment_id not in sub["dtol_specimen"]:
-                sub["dtol_specimen"].append(speciment_id)
+
+        #sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        #sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
+        #if "dtol_specimen" not in sub:
+        #    sub["dtol_specimen"] = []
+        #for speciment_id in sepciment_ids:
+        #    if speciment_id not in sub["dtol_specimen"]:
+        #        sub["dtol_specimen"].append(speciment_id)
 
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
