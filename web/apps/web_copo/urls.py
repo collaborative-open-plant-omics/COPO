@@ -1,5 +1,6 @@
 from api.views import general
 from api.views import sample as s
+from api.views import stats
 from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
@@ -57,6 +58,7 @@ urlpatterns = [
     re_path(r'sample/sample_field/(?P<dtol_field>[A-Za-z0-9-_]+)/(?P<value>[A-Za-z0-9-_ ,.@]+)', s.get_by_field,
             name='get_by_dtol_field'),
     re_path(r'stats/numbers', general.numbers, name='stats/numbers'),
+    re_path(r'stats/combined_stats_json', stats.combined_stats_json, name='combined_stats_csv'),
     path('author_template/<template_id>/view', views.author_template, name='author_template'),
     path('copo_forms/', views.copo_forms, name="copo_forms"),
     path('delete_profile/', views.delete_profile, name="delete_profile"),

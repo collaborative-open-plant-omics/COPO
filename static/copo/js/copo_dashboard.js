@@ -23,10 +23,21 @@ $(document).ready(function () {
             $("#num_users").html(data.users)
             $("#num_uploads").html(data.datafiles)
         }).error(function (error) {
-        console.log(`Error: ${error}`)
+        console.log(`Error: ${error.message}`)
     })
 
-    // Statistics card [bar chart]
+    // COPO Statistics card
+    $.getJSON("copo/stats/combined_stats_json")
+        .done(function (data) {
+            console.log(`Number of samples (y-axis): ${data.samples}`)
+            // y-axis label : number of samples
+            // Tool tip: Date
+            // Number of samples: value
+            console.log(`Date (x-axis): ${data.date}`) //%Y-%m-%d" format
+        }).error(function (error) {
+        console.log(`Error: ${error.message}`)
+    })
+
     const barChartCtx = document.getElementById('chart-bars').getContext("2d");
 
     new Chart(barChartCtx, {
@@ -108,20 +119,24 @@ $(document).ready(function () {
         },
     });
 
-
-    // GAL Inspection card [pie chart]
-    // get_gal_names() // Get GAL names and populate gal_names table
-    // $(document).data("selected_row", $($("#gal_names tr")[1])) // Set selected GAL name to first element in table
-    // console.log('GAL field value1: ', $($(document).data("selected_row", $($("#gal_names tr")[1]))).find("td").text())
-    let active_taxonomy_level = $('#taxonomyLevelsDivID > input.active_taxonomy_level')
-    populate_pie_chart(active_taxonomy_level); // Call function from 'tol_inspect_gal_funtions' js file
+    // GAL Inspection card
+    $($("#gal_names tbody tr")[1]).click()
 
     // TOL Inspection card
     const project = $("#sample_filter").find(".active").find("a").attr("href");
     get_profile_titles(project)
+
+    // Ensure that the exisiting dataTable (if any at all) is removed before being retinialised
+    if ($.fn.DataTable.isDataTable('#profile_samples')) $("#profile_samples").DataTable().clear().destroy();
+
     let first_profile_row = $($("#profile_titles tr")[1])
     populate_samples_table_based_on_profile_title(first_profile_row) // Call function from 'tol_inspect_funtions' js file
     $('#profile_samples_wrapper .dataTables_scroll > div.dataTables_scrollHead').css({"width": "540px"}) // Set width for samples table
+
+
+    $("table#profile_samples tr").removeAttr("onclick"); // Disable click event on table rows
+    $("#profile_samples").removeClass("table-hover") // Remove hover on table
+
 
     // World map
     // Show/Hide "World map is loading" spinner
@@ -134,8 +149,6 @@ $(document).ready(function () {
                 name: x.name, latLng: [x.latitude, x.longitude], style: {r: x.style.r, fill: x.style.fill},
                 city: x.city, state: x.state, country: x.country, samples_count: x.samples_count
             }));
-
-            console.log("Map markers", map_markers)
 
             // Create and populate world map with map markers
             $('#world_map').vectorMap({

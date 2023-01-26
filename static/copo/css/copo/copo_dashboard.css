@@ -9,21 +9,29 @@
 }
 
 /*Overide datatables CSS*/
-.dataTables_wrapper
-.dataTables_paginate
+.dataTables_wrapper,
+.dataTables_paginate,
 .paginate_button {
-    padding: 5px 5px 0px 0px !important; /*top | right | bottom | left*/
+    padding: 5px 5px 0 0 !important; /*top | right | bottom | left*/
+}
+
+.dataTables_paginate {
+    padding-top: 20px !important;
+}
+
+.profile_samples_info {
+    padding-top: 40px;
 }
 
 /* Override CSS for .card and .card-body CSS*/
 /*COPO statistics card*/
 .statistics_card {
-    padding: 95px 2rem 0px 2rem !important;
+    padding: 65px 2rem 0 2rem !important;
 }
 
 /*GAL inspection card*/
 .gal_inspection_card {
-    padding: 5px 2rem 0px 2rem !important;
+    padding: 5px 2rem 0 2rem !important;
 }
 
 #taxonomyLevelsDivID .form-control {
@@ -37,12 +45,27 @@
 
 /*TOL inspection card*/
 .tol_inspect_card {
-    padding: 31px 2rem 0px 2rem !important;
+    padding: 10px 2rem 0 2rem !important;
 }
+
+/*Set cursor pointer to normal*/
+#profile_samples {
+    cursor: default;
+}
+
+/*Show only 4 rows of the profile_samples table*/
+#profile_samples > tbody > tr.toggle {
+    display: none;
+}
+
+#profile_samples.show-all > tbody > tr {
+    display: table-row;
+}
+
 
 /*Map card*/
 .gal_worldwide_view_card {
-    padding: 0px 2rem 0px 2rem !important;
+    padding: 0 2rem 0 2rem !important;
 }
 
 /* World map*/
@@ -51,7 +74,7 @@
 }
 
 .jvectormap-legend {
-    margin: 0px 10px 30px 0px !important; /*top | right | bottom | left*/
+    margin: 0 10px 30px 0 !important; /*top | right | bottom | left*/
 }
 
 .jvectormap-legend-cnt-h .jvectormap-legend-tick {

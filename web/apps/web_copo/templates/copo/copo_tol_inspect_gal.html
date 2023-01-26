@@ -53,7 +53,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel">
+        <div style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8" id="sample_panel_tol_inspect_gal">
             <h4 class="h4"><small class="labelling">Click a GAL on the left to see its samples' taxonomy.</small></h4>
             <div class="tab">
                 <button class="tablinks active" onclick="showTab('taxonomyPieChartTabID')">Taxonomy
@@ -65,8 +65,9 @@
             </div>
 
             <div>
-                <div id="taxonomyPieChartTabID" class="tabcontent center-div">
-                    <canvas id="pieChartID" class="chartjs-render-monitor" width="1616" height="1616"
+                <div id="taxonomyPieChartTabID" class="tabcontent">
+                    <canvas id="pieChartID" class="chartjs-render-monitor"
+                            style="margin:0 auto 0 auto;height: 600px !important; width: 600px !important;"
                             aria-label="taxonomy representation" role="figure">
                     </canvas>
                 </div>

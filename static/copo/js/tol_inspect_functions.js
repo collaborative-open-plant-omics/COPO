@@ -1,11 +1,13 @@
 /** Created by AProvidence on 16012023
  * Functions defined are called from 'copo_tol_inspect' web page
  */
-const dt_options = {
+const dt_options1 = {
     "scrollY": 400,
     "scrollX": true,
     "bSortClasses": false,
+    "bDestroy": true,
     "lengthMenu": [10, 25, 50, 75, 100, 500, 1000, 2000],
+    "bLengthChange": true,
     select: {
         style: 'os',
         selector: 'td:first-child'
@@ -17,9 +19,9 @@ $(document).ready(function () {
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
     // add field names here which you don't want to appear in the supervisors table
-    excluded_fields = ["profile_id", "biosample_id"]
+    excluded_fields_tol_inspect = ["profile_id", "biosample_id"]
     // add field names here which you want to appear in the 'tol_inspect' samples' table
-    included_fields = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
+    included_fields_tol_inspect = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
 
 
     // Get active manifest type tab on tab change
@@ -76,7 +78,7 @@ $(document).ready(function () {
             // different nav items are clicked
             let isSampleModalSearchQueryChecked = $(document).data("isSampleModalSearchQueryChecked");
             let navItem = preNavItem.text()
-            let navItemView = $("#sample_panel").clone()
+            let navItemView = $("#sample_panel_tol_inspect").clone()
             let navItemViewDict = $(document).data("navBarItemsTableBodyView")
             let searchQueryDict = $(document).data("searchQuery")
             let field_value = $(this).next('.field_valueDiv').find('#field_valueID').val()
@@ -398,21 +400,21 @@ function populate_samples_table_based_on_profile_title(ev) {
     // Get samples for the profile clicked in the left-hand panel and
     // populate the table in the right-hand panel
     jQuery.support.cors = true;
-    let isSampleModalSearchQueryChecked = $(document).data("isSampleModalSearchQueryChecked");
-    let searchQueryDict = $(document).data("searchQuery")
+    let isSampleModalSearchQueryChecked = $(document).data("isSampleModalSearchQueryChecked") ?? true
+    let searchQueryDict = $(document).data("searchQuery") ?? {}
     let row;
 
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a profile on the left hand list
-        $(document).data("selected_row", $(ev.currentTarget))
-        row = $(document).data("selected_row")
-        $(".selected").removeClass("selected")
+        $(document).data("selected_profile_title_row", $(ev.currentTarget))
+        row = $(document).data("selected_profile_title_row") ?? $(ev.currentTarget)
+        $(".profile_title_selectable_row .selected").removeClass("selected")
         $(row).addClass("selected")
     } else {
-        row = $(document).data("selected_row")
+        row = $(document).data("selected_profile_title_row")
     }
     const project = $("#sample_filter").find(".active").find("a").attr("href");
-
+    console.log("Profile ID", $(row).find("td").data("profile_id"))
     const d = {"profile_id": $(row).find("td").data("profile_id"), "project": project};
 
     const get_samples_by_project_s = {
@@ -421,7 +423,7 @@ function populate_samples_table_based_on_profile_title(ev) {
         method: "GET",
         dataType: "json"
     }
-// JSON.parse(JSON.stringify(searchQueryDict)).field
+
     const get_samples_by_field_and_value_s = {
         url: `sample/sample_field/${searchQueryDict.field}/${searchQueryDict.field_value}`,
         data: {},
@@ -435,22 +437,23 @@ function populate_samples_table_based_on_profile_title(ev) {
     $("#spinner").show()
 
 
-    $.ajax(s).error(function (data) {
-        console.error("ERROR: " + data)
-    }).done(function (data) {
-            let sample_panel = $("#sample_panel")
+    $.ajax(s).done(function (data) {
+            let sample_panel_tol_inspect = $("#sample_panel_tol_inspect")
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
 
             }
-            sample_panel.find("thead").empty()
-            sample_panel.find("tbody").empty()
+            sample_panel_tol_inspect.find("thead").empty()
+            sample_panel_tol_inspect.find("tbody").empty()
+
+            // Show only 8 rows when copo_dashboard web page is displayed
+            data = window.location.href.includes('dashboard') ? data.slice(0, 8) : data
 
             if (data.length) {
                 const header = $("<h4/>", {
                     html: "Samples"
                 });
-                sample_panel.find(".labelling").empty().append(header)
+                sample_panel_tol_inspect.find(".labelling").empty().append(header)
 
                 // Create page top navigation
                 const navMenu = $("<li/>", {
@@ -490,9 +493,9 @@ function populate_samples_table_based_on_profile_title(ev) {
                             if (el === "_id") {
                                 td_row.setAttribute("id", row._id.$oid)
                                 $(td_row).attr("sample_id", row._id.$oid)
-                            } else if (!areAllTableFieldsShown && included_fields.includes(el)) {
+                            } else if (!areAllTableFieldsShown && included_fields_tol_inspect.includes(el)) {
                                 get_profile_samples_table_first_element_block_of_code(el, td, row, th_row, td_row)
-                            } else if (areAllTableFieldsShown && !excluded_fields.includes(el)) {
+                            } else if (areAllTableFieldsShown && !excluded_fields_tol_inspect.includes(el)) {
                                 get_profile_samples_table_first_element_block_of_code(el, td, row, th_row, td_row)
                             }
                         }
@@ -511,9 +514,9 @@ function populate_samples_table_based_on_profile_title(ev) {
                             if (el === "_id") {
                                 td_row.setAttribute("id", row._id.$oid)
                                 td_row.setAttribute("sample_id", row._id.$oid)
-                            } else if (!areAllTableFieldsShown && included_fields.includes(el)) {
+                            } else if (!areAllTableFieldsShown && included_fields_tol_inspect.includes(el)) {
                                 get_profile_samples_table_not_first_element_block_of_code(el, row, td_row)
-                            } else if (areAllTableFieldsShown && !excluded_fields.includes(el)) {
+                            } else if (areAllTableFieldsShown && !excluded_fields_tol_inspect.includes(el)) {
                                 get_profile_samples_table_not_first_element_block_of_code(el, row, td_row)
                             }
                         }
@@ -530,7 +533,17 @@ function populate_samples_table_based_on_profile_title(ev) {
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
-                    $("#profile_samples").DataTable(dt_options);
+                    $("#profile_samples").DataTable(dt_options1);
+
+                    // Re-configure profile_samples table if 'copo_dashboard'
+                    if (window.location.href.includes('dashboard')) {
+                        dt_options1.lengthMenu = [10]
+                        dt_options1.bLengthChange = false
+                        dt_options1.scrollY = 300
+                        dt_options1.autoWidth = true
+                        $("#profile_samples").DataTable().destroy()
+                        $("#profile_samples").DataTable(dt_options1);
+                    }
 
                     // Add checkbox to show all fields within the table beside the search box
                     // within the profile samples data table
@@ -555,16 +568,53 @@ function populate_samples_table_based_on_profile_title(ev) {
                         html: "No Samples Found"
                     })
                 }
-                $("#sample_panel").find(".labelling").empty().html(
+                $("#sample_panel_tol_inspect").find(".labelling").empty().html(
                     content
                 )
                 $("#tolInspectNavBar").find(".breadcrumb").empty().html("")
                 $(document).data("navBarItems", [])
             }
+
+
             $("#spinner").fadeOut("fast")
+            // if (window.location.href.includes('dashboard')) hide_some_profile_samples_table_info()
         }
-    )
+    ).error(function (error) {
+        console.error(`Error: ${error.message}`)
+    })
 }
+
+// The following relates to the copo-dashboard webpage
+// if (window.location.href.includes('dashboard')) hide_some_profile_samples_table_info()
+function hide_some_profile_samples_table_info() {
+    // Calls the following after the web page has loaded
+    // if ($.fn.DataTable.isDataTable('#profile_samples')) {
+    $('#profile_samples').dataTable({
+        "pageLength": 4, // Set number of rows to 4
+        "bDestroy": true,
+        "bInfo": false, // hide showing entries
+        "bPaginate": false,  //hide pagination
+    })
+    // $("#profile_samples").DataTable().clear().destroy();
+    // $("#profile_samples").DataTable().destroy();
+    // }
+    if ($.fn.DataTable.isDataTable('#profile_samples') && (window.location.href.includes('dashboard'))) {
+
+        $("#profile_samples_info").hide(); // Hides pagination on profile samples table
+        $("#profile_samples_paginate").hide(); // Hides the number of entries on 'profile_samples'
+        // Display only four rows of the 'profile_samples' table
+        $("#profile_samples > tbody > tr").addClass('toggle').slice(0, 4).removeClass('toggle');
+        $('#profile_samples').toggleClass('show-all');
+        // .data_scrollBody max-height: 150px
+        //  height: 150px
+    }
+
+}
+
+// $(window).load(function () {
+//     // Run code
+//     hide_some_profile_samples_table_info()
+// });
 
 function get_profile_titles(project) {
     // get profiles with samples needing looked at and populate left hand column
@@ -595,6 +645,7 @@ function get_profile_titles(project) {
         profile_titlesID.DataTable({
             responsive: true,
             paging: false,
+            destroy: true,
             dom: '<"top"f>rt<"bottom"lp><"clear">',
             "order": [[1, "desc"]],
 

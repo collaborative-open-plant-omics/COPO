@@ -76,3 +76,9 @@ td {
     border: 1px solid #ccc;
     border-top: none;
 }
+
+div.x-off-canvas .x-off-canvas-content {
+    max-width: 32em;
+    padding: 0 !important;
+    background-color: hsl(0, 0%, 100%);
+}

@@ -7,7 +7,7 @@ $(document).ready(function () {
     const copoTOLInspectionURL = "/copo/tol_inspect";
 
     // add field names here which you want to use for the 'tol_inspect_gal' pie chart
-    included_fields = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"]
+    included_fields_tol_inspect_gall = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"]
 
     $(document).on("click", ".tol_inspect", function () {
         document.location = copoTOLInspectionURL;
@@ -26,35 +26,18 @@ $(document).ready(function () {
     });
 
     get_gal_names()
-
-    console.log()
-
 });
 
 
-// function get_gal_name_after_timer() {
-//
-//     return $($(document).data("selected_row")).find("td").text()
-// }
-
 function populate_pie_chart(el) {
-    // if (document.readyState === 'complete') {
-    //     return false
-    // }
     const gal_field_name = "GAL"
-    // Get GAL name after a few seconds since an empty string is displayed before its data is retrieved
-    let gal_name_row = $(document).data("selected_row")
+    let gal_name_row = $(document).data("selected_gal_name_row")
     let gal_field_value = $(gal_name_row).find("td").text()
-    // let gal_field_value = setTimeout(function () {
-    //     get_gal_name_after_timer();
-    // }, 1000);
-    let taxonomy_field_name = el.target === undefined || el.target === null ? $("#taxonomyLevelsDivID > input.active_taxonomy_level").val() : el.target.value
-
-    console.log('GAL field value: ', gal_field_value)
-    let sample_panel = $("#sample_panel")
+    let previous_active_taxonomy_level = $("#taxonomyLevelsDivID > input.active_taxonomy_level")
+    let taxonomy_field_name = el.target === undefined || el.target === null ? previous_active_taxonomy_level.val() : el.target.value
+    let sample_panel_tol_inspect_gal = $("#sample_panel_tol_inspect_gal")
 
     // Remove previous active taxonomy level
-    let previous_active_taxonomy_level = $("#taxonomyLevelsDivID > input.active_taxonomy_level")
     previous_active_taxonomy_level.css({"background-color": ""});
 
     $('#taxonomyLevelsDivID input.active_taxonomy_level').removeClass('active_taxonomy_level')
@@ -77,11 +60,11 @@ function populate_pie_chart(el) {
 
                 const header = $("<h4/>", {html: "Details"});
 
-                sample_panel.find(".labelling").empty().append(header)
+                sample_panel_tol_inspect_gal.find(".labelling").empty().append(header)
 
                 $(data).each(function (idx, db_data) {
                     for (let db_field_name in db_data) {
-                        if (taxonomy_field_name === db_field_name && included_fields.includes(db_field_name)) {
+                        if (taxonomy_field_name === db_field_name && included_fields_tol_inspect_gall.includes(db_field_name)) {
                             let selected_taxonomy_field_value = db_data[db_field_name]
                             pie_chart_labels.push(selected_taxonomy_field_value)
                         }
@@ -147,7 +130,7 @@ function populate_pie_chart(el) {
                         html: "Details Unavailable"
                     })
                 }
-                sample_panel.find(".labelling").empty().html(content)
+                sample_panel_tol_inspect_gal.find(".labelling").empty().html(content)
             }
             $("#spinner").fadeOut("fast")
 
@@ -222,9 +205,9 @@ function get_selected_gal_name_in_row(ev) {
 
     if ($(ev.currentTarget).is("td") || $(ev.currentTarget).is("tr")) {
         // we have clicked a gal name on the left-hand list
-        $(document).data("selected_row", $(ev.currentTarget))
-        row = $(document).data("selected_row")
-        $(".selected").removeClass("selected")
+        $(document).data("selected_gal_name_row", $(ev.currentTarget))
+        row = $(document).data("selected_gal_name_row")
+        $(".gal_name_selectable_row .selected").removeClass("selected")
         $(row).addClass("selected")
 
         // We have clicked the first taxonomy level
@@ -232,10 +215,10 @@ function get_selected_gal_name_in_row(ev) {
         first_taxonomy_level.click()
 
         $("#taxonomyPieChartTabID").show() // Show pie chart
+    } else {
+        row = $(document).data("selected_gal_name_row")
     }
-    // else {
-    //     $(document).data("selected_row")
-    // }
+
 
 }
 
@@ -257,13 +240,14 @@ function get_gal_names() {
 
         $($("#gal_names tr")[1]).click() // Click first gal name displayed
 
-        // gal_names.DataTable({
-        //     responsive: true,
-        //     paging: false,
-        //     dom: '<"top"f>rt<"bottom"lp><"clear">',
-        //     "order": [[1, "desc"]],
-        //
-        // })
+        gal_names.DataTable({
+            responsive: true,
+            paging: false,
+            destroy: true,
+            dom: '<"top"f>rt<"bottom"lp><"clear">',
+            "order": [[0, "desc"]], // Order 'GAL' column
+
+        })
 
     }).error(function (error) {
         console.error(`Error: ${error.message}`)

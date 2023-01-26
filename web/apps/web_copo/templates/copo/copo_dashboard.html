@@ -74,16 +74,17 @@
         <div class="row mt-4">
             {# Satistics card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
-                <div class="card z-index-2 " style="height:730px; width:600px">
-                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                <div class="card z-index-2 " style="height:660px; width:600px">
+                    <div class="card-header p-0 position-relative mx-3 z-index-2 bg-transparent"
+                         style="margin-top: 60px !important;">
                         <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
                             <div class="chart">
-                                <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+                                <canvas id="chart-bars" class="chart-canvas" height="430"></canvas>
                             </div>
                         </div>
                     </div>
                     <div class="card-body statistics_card">
-                        <h6 class="mb-0 section_title statistics_card_title">Sample Statistics</h6>
+                        <h6 class="mb-0 section_title statistics_card_title">COPO Statistics</h6>
                         <p class="text-sm ">View the statistics of COPO objects over time and of Tree of Life by
                             variables</p>
                         <hr class="dark horizontal">
@@ -92,7 +93,7 @@
             </div>
             {# GAL inspection card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
-                <div class="card z-index-2" style="height:730px; width:600px">
+                <div class="card z-index-2" style="height:660px; width:600px">
                     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
                         <div class="card-body center-div">
                             {#GAL names table is needed for pie chart to be shown#}
@@ -107,14 +108,6 @@
                                 </table>
                             </div>
                             <div class="chart chart-xs">
-                                <div class="chartjs-size-monitor">
-                                    <div class="chartjs-size-monitor-expand">
-                                        <div class=""></div>
-                                    </div>
-                                    <div class="chartjs-size-monitor-shrink">
-                                        <div class=""></div>
-                                    </div>
-                                </div>
                                 <canvas id="pieChartID" class="chartjs-render-monitor" width="796" height="400"
                                         style="display: block; height: 200px; width: 398px;"
                                         aria-label="taxonomy representation" role="figure">
@@ -142,9 +135,9 @@
             </div>
             {# TOL inspection card #}
             <div class="col-lg-4 mt-4 mb-3 ui link cards">
-                <div class="card" style="height:730px; width:1040px">
+                <div class="card" style="height:660px; width:1040px">
 
-                    <div class="card-body px-4 pb-2">
+                    <div class="card-body px-4 pb-2" style="flex: none; !important">
                         <div class="row" style="">
                             {# Profile titles table is needed for pie chart to be shown#}
                             <div hidden class="col-lg-2 col-md-2 col-sm-2">
@@ -174,7 +167,8 @@
 
                             </div>
                             <div id="checkbox_valueID"></div>
-                            <div id="sample_panel" style="padding-left:10px" class="col-lg-12 col-md-12 col-sm-12">
+                            <div id="sample_panel_tol_inspect" style="padding-left:10px"
+                                 class="col-lg-12 col-md-12 col-sm-12">
                                 <h4 class="h4"><small class="labelling"><h4>Samples</h4></small></h4>
                                 <table id="profile_samples" class="table table-hover table-bordered display compact"
                                        style="width:540px ! important">
@@ -185,11 +179,11 @@
                         </div>
                     </div>
                     <div class="card-body row tol_inspect_card">
-                        <div class="col-lg-9 mt-3"><h6 class="mb-0 section_title tol_inspect_card_title"> Tree of Life
+                        <div class="col-lg-8 mt-3"><h6 class="mb-0 section_title tol_inspect_card_title"> Tree of Life
                             (TOL) Inspection</h6>
                             <p class="text-sm "> View sample details based on profile type</p></div>
 
-                        <div class="col-lg-3 mt-3 mb-3">
+                        <div class="col-lg-4 mt-3 mb-3">
                             <label class="text-sm mb-0 pull-right"> <input id="filterByCOPODatabaseID" type="checkbox"
                                                                            onclick="populate_samples_table_based_on_profile_title(this)"
                                                                            style="margin-right:8px"> In <span
@@ -333,9 +327,9 @@
 {% block js_block %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
-    <script src="{% static 'copo/js/tol_inspect_functions.js' %}"></script>
     <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
+    <script src="{% static 'copo/js/tol_inspect_functions.js' %}"></script>
+    <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
     <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-2.05.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-world-mill.js' %}"></script>
