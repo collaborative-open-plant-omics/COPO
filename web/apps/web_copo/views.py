@@ -98,6 +98,7 @@ def ena_read_manifest_validate(request, profile_id):
 @login_required()
 def ena_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
+
     existing_sub = Submission().get_records_by_field("profile_id", profile_id)
     if existing_sub:
         existing_accessions = existing_sub[0].get("accessions", "")
@@ -132,7 +133,9 @@ def ena_assembly(request, profile_id):
                 messages.error(request, 'At least one assembly file is required')
                 messages.error(request, form.errors)
             else:
-                #uploading files to folder in COPO
+                # uploading files to folder in COPO
+                notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
+                                html_id="loading_span")
                 EnaAssembly.upload_assembly_files(files)
                 sub_result = EnaAssembly.validate_assembly(formdata)
                 if sub_result.get("error", ""):

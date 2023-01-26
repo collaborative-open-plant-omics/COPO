@@ -67,10 +67,12 @@ PROJECT_APPS = [
     'chunked_upload',
     'compressor',
     'django_extensions',
-    'corsheaders'
+    'corsheaders',
+    'crispy_forms'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
+CRISPY_TEMPLATE_PACK = 'uni_form'
 # sass, social accounts...
 sass_exe = '/usr/local/bin/sass'
 COMPRESS_PRECOMPILERS = (
@@ -90,10 +92,11 @@ SOCIALACCOUNT_PROVIDERS = \
           'AUTH_PARAMS': {'access_type': 'online'}}}
 
 MIDDLEWARE = [
+    'django.middleware.csrf.CsrfViewMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -182,7 +185,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-CSRF_TRUSTED_ORIGINS = ['http://*.copo-project.org', 'https://*.copo-project.org', '127.0.0.1']
+# CSRF_TRUSTED_ORIGINS = ['http://*.copo-project.org', 'https://*.copo-project.org', '127.0.0.1:8000']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -239,15 +242,15 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MESSAGE_TAGS = {
-        messages.DEBUG: 'alert-secondary',
-        messages.INFO: 'alert-info',
-        messages.SUCCESS: 'alert-success',
-        messages.WARNING: 'alert-warning',
-        messages.ERROR: 'alert-danger',
+    messages.DEBUG: 'alert-secondary',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
 }
 
-#FILE_UPLOAD_HANDLERS = (
+# FILE_UPLOAD_HANDLERS = (
 #    "django.core.files.uploadhandler.MemoryFileUploadHandler",
 #    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
 #    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
-#)
+# )

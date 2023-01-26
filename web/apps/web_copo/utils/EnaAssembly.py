@@ -4,7 +4,7 @@ from pathlib import Path
 from django.shortcuts import render
 import subprocess
 import re
-
+from submission.helpers.generic_helper import notify_frontend
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal

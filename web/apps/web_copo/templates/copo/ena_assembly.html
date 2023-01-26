@@ -3,7 +3,7 @@
 {% load static %}
 {% load web_tags_orcid %}
 {% load web_tags %}
-
+{% load crispy_forms_tags %}
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
@@ -138,25 +138,28 @@
         {% endfor %}
     {% endif %}
     <div style="width:40%">
-        {% if hide_form == False %}
-            <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
-                  enctype="multipart/form-data">
-                <input type="hidden" name="csrfmiddlewaretoken" value="" id="csrfmiddlewaretoken"/>
 
-                {{ form }}
-                <div style="margin-bottom: 20px"></div>
-                <div style="float: right; margin-bottom: 30px">
+        <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <input id="submit_assembly_button" type="submit" value="Submit Assembly"
+                   class="ui blue button" onclick="doPost(event)">
+
+
+        </form>
+        <div style="margin-bottom: 20px"></div>
+        <div style="float: right; margin-bottom: 30px">
                 <span id="loading_span" style="display:none">
                     <strong><small>Processing - this can take some time</small></strong>
                     <img id="loader" style="height:24px; margin-right:10px"
                          src="{% static "copo/img/loading.gif" %}"/>
                     </span>
-                    <input id="submit_assembly_button" type="submit" value="Submit Assembly" class="ui blue button">
+        </div>
 
-                </div>
-            </form>
-        {% endif %}
     </div>
+
+    <button id="Test_Button">Press me</button>
 
 {% endblock %}
 
@@ -165,17 +168,7 @@
 
 {% block js_block %}
     <script>
-        $(document).ready(function () {
-            $("#csrfmiddlewaretoken").val($.cookie("csrftoken"))
-            $(document).on("submit", "#assembly_form", function () {
-                $("#submit_assembly_button").attr('disabled', 'disabled')
-                $("input").attr("disabled", "disabled")
-                $("select").attr("disabled", "disabled")
-                $("textarea").attr("disabled", "disabled")
-                $("#loading_span").fadeIn()
 
-            })
-        })
     </script>
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>

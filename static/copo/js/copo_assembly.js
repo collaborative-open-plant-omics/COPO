@@ -1,12 +1,16 @@
-function upload_assembly_files(file) {
+function upload_assembly_files() {
     var csrftoken = $.cookie('csrftoken');
     var profile_id = $("#profile_id").val();
-    form = new FormData();
-    var count = 0
-    for (f in file) {
-        form.append(count.toString(), file[f])
-        count++
+    const html_form = document.getElementById('assembly_form');
+    var fieldset = $("#assembly_form").find("input, select, textarea")
+    const form = new FormData();
+    for (f in fieldset) {
+        field = fieldset[f]
+        form.append(field.name, field.value)
     }
+
+    var count = 0
+
     form.append("profile_id", profile_id)
     jQuery.ajax({
         url: '/copo/assembly_files/',
@@ -29,3 +33,20 @@ function upload_assembly_files(file) {
 
     })
 }
+
+
+function doPost(evt) {
+    evt.preventDefault()
+
+    $("#submit_assembly_button").attr('disabled', 'disabled')
+    $("input").attr("disabled", "disabled")
+    $("select").attr("disabled", "disabled")
+    $("textarea").attr("disabled", "disabled")
+    $("#loading_span").fadeIn()
+    upload_assembly_files()
+
+
+}
+
+
+

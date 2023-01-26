@@ -2129,3 +2129,9 @@ def validate_common_value(request):
         return HttpResponse(json.dumps({'response': isCommonValueValid}))
     else:
         return HttpResponse(json.dumps({'response': isCommonValueValid, 'error': error_message}))
+
+
+def test_post(request):
+    notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
+                    html_id="dtol_sample_info")
+    return HttpResponse("jkjskd")
