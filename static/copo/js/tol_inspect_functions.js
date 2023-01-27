@@ -414,7 +414,6 @@ function populate_samples_table_based_on_profile_title(ev) {
         row = $(document).data("selected_profile_title_row")
     }
     const project = $("#sample_filter").find(".active").find("a").attr("href");
-    console.log("Profile ID", $(row).find("td").data("profile_id"))
     const d = {"profile_id": $(row).find("td").data("profile_id"), "project": project};
 
     const get_samples_by_project_s = {

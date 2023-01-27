@@ -29,110 +29,145 @@ $(document).ready(function () {
     // COPO Statistics card
     $.getJSON("copo/stats/combined_stats_json")
         .done(function (data) {
-            console.log(`Number of samples (y-axis): ${data.samples}`)
-            // y-axis label : number of samples
-            // Tool tip: Date
-            // Number of samples: value
-            console.log(`Date (x-axis): ${data.date}`) //%Y-%m-%d" format
+            let lineGraph_x_axis_values = []
+            let lineGraph_y_axis_values = []
+
+            lineGraph_x_axis_values = data.map(x => x.date); // x-axis i.e. Number of samples
+            lineGraph_y_axis_values = data.map(x => x.samples); // y-axis i.e. Dates
+
+            // Reverse Bar graph x values and y values
+            lineGraph_x_axis_values.reverse()
+            lineGraph_y_axis_values.reverse()
+
+
+            // Build bar graph
+            // Check if there is an existing instance of bar graph, if there is, destroy it
+            if (Chart.getChart("lineGraphID") !== undefined) Chart.getChart("lineGraphID").destroy()
+
+            let lineGraphID = document.getElementById("lineGraphID")
+
+            if (typeof lineGraphID !== 'undefined' && lineGraphID !== null) {
+                // new Date(Date.parse(title))
+
+                const lineGraphCtx = document.getElementById('lineGraphID').getContext("2d");
+                new Chart(lineGraphCtx, {
+                    type: "line",
+                    data: {
+                        labels: lineGraph_x_axis_values,
+                        datasets: [{
+                            label: "Number of Samples",
+                            tension: 0,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#000000',
+                            pointHoverBackgroundColor: '#4383b5',
+                            pointBorderColor: "transparent",
+                            pointHoverBorderColor: 'rgba(255, 255, 255, .2)',
+                            borderColor: '#4383b5',
+                            borderWidth: 4,
+                            pointHoverBorderWidth: 2,
+                            backgroundColor: "transparent",
+                            fill: true,
+                            data: lineGraph_y_axis_values,
+                            maxBarThickness: 4
+
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                backgroundColor: "#FFFFFF",
+                                titleAlign: 'center',
+                                bodyAlign: 'center',
+                                titleColor: '#000000',
+                                titleFont: {size: 14},
+                                bodyColor: '#000000',
+                                bodyFont: {size: 13},
+                                borderColor: 'rgba(255, 255, 255, .2)',
+                                borderWidth: 3,
+                                boxPadding: 3,
+                                callbacks: {
+                                    title: function (context) {
+                                        let title = context[0].label
+                                        return moment(title).format("MMMM dddd D, YYYY")
+                                    },
+                                    label: ({
+                                                label, formattedValue
+                                            }) => `\xa0Number of samples: ${formattedValue}`,
+                                    labelColor: function (context) {
+                                        return {
+                                            borderColor: 'transparent',
+                                            backgroundColor: 'transparent',
+                                        };
+                                    },
+                                },
+                            },
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Samples'
+                                },
+
+                                ticks: {
+                                    display: true,
+                                    color: '#000000', //'#f8f9fa',
+                                    padding: 10,
+                                    font: {
+                                        size: 12,
+                                        weight: 300,
+                                        family: "sans-serif",
+                                        style: 'normal',
+                                        lineHeight: 2
+                                    },
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    drawBorder: false,
+                                    display: false,
+                                    drawOnChartArea: false,
+                                    drawTicks: false,
+                                    borderDash: [5, 5]
+                                },
+                                ticks: {
+                                    display: true,
+                                    color: '#000000', //'#f8f9fa',
+                                    padding: 10,
+                                    font: {
+                                        size: 12,
+                                        weight: 300,
+                                        family: "sans-serif",
+                                        style: 'normal',
+                                        lineHeight: 2
+                                    },
+                                }
+                            },
+                        },
+                    },
+                });
+            }
+
         }).error(function (error) {
         console.log(`Error: ${error.message}`)
     })
 
-    const barChartCtx = document.getElementById('chart-bars').getContext("2d");
-
-    new Chart(barChartCtx, {
-        type: "line",
-        data: {
-            labels: ["2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01", "2022-09-01", "2022-10-01", "2022-11-0", "2022-12-01"],
-            datasets: [{
-                label: "Number of Samples",
-                tension: 0,
-                pointRadius: 5,
-                pointBackgroundColor: "rgba(255, 255, 255, .8)",
-                pointBorderColor: "transparent",
-                borderColor: "rgba(255, 255, 255, .8)",
-                borderWidth: 4,
-                backgroundColor: "transparent",
-                fill: true,
-                data: [39, 39, 39, 39, 0, 139, 47, 47],
-                maxBarThickness: 6
-
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false,
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index',
-            },
-            scales: {
-                y: {
-                    grid: {
-                        drawBorder: false,
-                        display: true,
-                        drawOnChartArea: true,
-                        drawTicks: false,
-                        borderDash: [5, 5],
-                        color: 'rgba(255, 255, 255, .2)'
-                    },
-                    ticks: {
-                        display: true,
-                        color: '#f8f9fa',
-                        padding: 10,
-                        font: {
-                            size: 14,
-                            weight: 300,
-                            family: "Roboto",
-                            style: 'normal',
-                            lineHeight: 2
-                        },
-                    }
-                },
-                x: {
-                    grid: {
-                        drawBorder: false,
-                        display: false,
-                        drawOnChartArea: false,
-                        drawTicks: false,
-                        borderDash: [5, 5]
-                    },
-                    ticks: {
-                        display: true,
-                        color: '#f8f9fa',
-                        padding: 10,
-                        font: {
-                            size: 14,
-                            weight: 300,
-                            family: "Roboto",
-                            style: 'normal',
-                            lineHeight: 2
-                        },
-                    }
-                },
-            },
-        },
-    });
 
     // GAL Inspection card
     $($("#gal_names tbody tr")[1]).click()
 
     // TOL Inspection card
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
-    get_profile_titles(project)
-
-    // Ensure that the exisiting dataTable (if any at all) is removed before being retinialised
-    if ($.fn.DataTable.isDataTable('#profile_samples')) $("#profile_samples").DataTable().clear().destroy();
-
-    let first_profile_row = $($("#profile_titles tr")[1])
-    populate_samples_table_based_on_profile_title(first_profile_row) // Call function from 'tol_inspect_funtions' js file
-    $('#profile_samples_wrapper .dataTables_scroll > div.dataTables_scrollHead').css({"width": "540px"}) // Set width for samples table
-
+    $($("#profile_titles tr")[1]).click()
 
     $("table#profile_samples tr").removeAttr("onclick"); // Disable click event on table rows
     $("#profile_samples").removeClass("table-hover") // Remove hover on table

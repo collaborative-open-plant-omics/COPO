@@ -99,6 +99,7 @@ function populate_pie_chart(el) {
                                 borderWidth: 5
                             }]
                         }, options: {
+                            responsive: true,
                             plugins: {
                                 legend: {
                                     display: true, position: 'right',
@@ -176,6 +177,7 @@ function populate_bar_graph() {
                     borderWidth: 1
                 }]
             }, options: {
+                responsive: true,
                 indexAxis: 'y', plugins: {
                     legend: {
                         display: false
