@@ -70,9 +70,13 @@ def process_pending_dtol_samples():
             l.log("Dtol_submission : 67", type=Logtype.FILE)
             try:
                 sam = Sample().get_record(s_id)
+                if not sam:
+                    l.log("Dtol submission : 74 - no sample found for id " + str(s_id), type=Logtype.FILE)
+                    break
             except:
-                l.log("Dtol submission : 71 - no sample found for id " + str(s_id), type=Logtype.FILE)
+                l.log("Dtol submission : 77 - no sample found for id " + str(s_id), type=Logtype.FILE)
                 break
+
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
                 targetsam = Sample().get_target_by_specimen_id(sam["SPECIMEN_ID"])
@@ -201,7 +205,7 @@ def process_pending_dtol_samples():
                     Source().update_public_name(spec_tolid[0])
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
                     assert len(sour) == 1
-                    sour = sour[0] 
+                    sour = sour[0]
 
                 build_specimen_sample_xml(sour)
                 build_submission_xml(str(sour['_id']), release=True)
@@ -215,9 +219,9 @@ def process_pending_dtol_samples():
                         msg = "Submission Rejected: specimen level " + sam["SPECIMEN_ID"] + "<p>" + accessions[
                             "msg"] + "</p>"
                         notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                        html_id="dtol_sample_info")   
+                                        html_id="dtol_sample_info")
                         status = {}
-                        status["msg"] =msg                                                             
+                        status["msg"] = msg
                         Sample().add_rejected_status(status, s_id)
                         s_ids.remove(s_id)
                         Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id], submission_id=[])
@@ -261,7 +265,7 @@ def process_pending_dtol_samples():
                             action="info",
                             html_id="dtol_sample_info")
 
-        else: 
+        else:
 
             # query for public names and update
             notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
@@ -271,9 +275,9 @@ def process_pending_dtol_samples():
             tolidflag = True
             if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
                 # hadle failure to get public names and halt submission
-                if all(public_names[x].get("status","")=="Rejected" for x in range(len(public_names))):
+                if all(public_names[x].get("status", "") == "Rejected" for x in range(len(public_names))):
                     l.log("all missing tolid request were rejected", type=Logtype.FILE)
-                    Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]], submission_id=[] )   
+                    Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]], submission_id=[])
                     tolidflag = False
                 else:
                     # change dtol_status to "awaiting_tolids"
@@ -305,7 +309,7 @@ def process_pending_dtol_samples():
             l.log("updating bundle xml", type=Logtype.FILE)
             if len(s_ids)==0:
                 notify_frontend(data={"profile_id": profile_id}, msg="Nothing more to submit", action="info",
-                                    html_id="dtol_sample_info")                
+                                html_id="dtol_sample_info")
                 #if all samples were moved to rejected
                 continue
             update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
@@ -688,14 +692,14 @@ def build_validate_xml(sample_id):
                encoding='unicode')
 
 
-def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="sample", async_send=False ): 
+def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="sample", async_send=False):
     submissionfile = "submission_" + str(subfix) + ".xml"
     samplefile = "bundle_" + str(subfix) + ".xml"
 
     submission_dom = minidom.parse(submissionfile)
     samplefile_dom = minidom.parse(samplefile)
     root = minidom.Document()
- 
+
     webin = root.createElement('WEBIN')
     root.appendChild(webin)
     submission_set = root.createElement("SUBMISSION_SET")
@@ -706,10 +710,10 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 
     xml_str = root.toprettyxml(indent ="\t")
     save_path_file = "filesubmisison_"+str(subfix)+".xml"
-    
+
     with open(save_path_file, "w") as f:
         f.write(xml_str)
-     
+
     cmd =  ena_v2_service_sync
     if async_send   :
         cmd = ena_v2_service_async
@@ -740,7 +744,7 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + cmd
             notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                             html_id="dtol_sample_info")
-            reset_submission_status(collection_id)            
+            reset_submission_status(collection_id)
     except ET.ParseError as e:
         l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
         message = " Unrecognized response from ENA - " + str(
@@ -748,14 +752,14 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
         reset_submission_status(collection_id)
-        return False          
-    except Exception as e:        
+        return False
+    except Exception as e:
         l.log("General Error " + str(e), type=Logtype.FILE)
-        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " +  cmd
+        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + cmd
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
         reset_submission_status(collection_id)
-        return False        
+        return False
     finally:
         os.remove(submissionfile)
         os.remove(samplefile)
@@ -766,7 +770,8 @@ def handle_async_receipt(receipt, sample_ids, sub_id):
     submission_id = result["submissionId"]
     href = result["_links"]["poll-xml"]["href"]
     return Submission().update_submission_async(sub_id, href, sample_ids, submission_id)
- 
+
+
 def poll_asyn_ena_submission():
     submissions = Submission().get_async_submission()
     session = requests.Session()
@@ -781,15 +786,15 @@ def poll_asyn_ena_submission():
                 l.log("ENA RECEIPT " + response.text, type=Logtype.FILE)
                 try:
                     tree = ET.fromstring(response.text)
-                    accessions = handle_submit_receipt(Sample(),submission["_id"], tree)
+                    accessions = handle_submit_receipt(Sample(), submission["_id"], tree)
                 except ET.ParseError as e:
                     l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
                     message = " Unrecognized response from ENA - " + str(
                         response.content) + " Please try again later, if it persists contact admins"
                     notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
                                     html_id="dtol_sample_info")
-                    continue          
-                except Exception as e:        
+                    continue
+                except Exception as e:
                     l.log("General Error " + str(e), type=Logtype.FILE)
                     message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + sub["href"]
                     notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
@@ -817,10 +822,10 @@ def poll_asyn_ena_submission():
                     notify_frontend(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
                                     html_id="dtol_sample_info")
                     Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=[], submission_id=sub["id"])
-                                    
+
                 notify_frontend(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
                             html_id="dtol_sample_info")
- 
+
 
 def handle_submit_receipt(sampleobj, collection_id, tree, type="sample"):
     success_status = tree.get('success')
