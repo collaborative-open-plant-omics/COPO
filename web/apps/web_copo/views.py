@@ -124,6 +124,7 @@ def ena_assembly(request, profile_id):
                     sample_accession.append(sample.get("sample_accession", ""))
 
     if request.method == 'POST':
+        return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
         form = AssemblyForm(request.POST, request.FILES, sample_accession = sample_accession)
         if form.is_valid():
             #this is a dict

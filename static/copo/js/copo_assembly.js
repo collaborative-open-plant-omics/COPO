@@ -2,18 +2,17 @@ function upload_assembly_files() {
     var csrftoken = $.cookie('csrftoken');
     var profile_id = $("#profile_id").val();
     const html_form = document.getElementById('assembly_form');
-    var fieldset = $("#assembly_form").find("input, select, textarea")
+    var fieldset = $("#assembly_form input, textarea, select")
     const form = new FormData();
-    for (f in fieldset) {
-        field = fieldset[f]
-        form.append(field.name, field.value)
-    }
-
     var count = 0
+    $(fieldset).each(function (idx, el) {
+        form.append(el.name, el.value)
+    })
+
 
     form.append("profile_id", profile_id)
     jQuery.ajax({
-        url: '/copo/assembly_files/',
+        url: '/copo/ena_assembly/' + profile_id,
         data: form,
         cache: false,
         contentType: false,
@@ -35,9 +34,9 @@ function upload_assembly_files() {
 }
 
 
-function doPost(evt) {
+function doPost() {
+    var evt = window.event
     evt.preventDefault()
-
     $("#submit_assembly_button").attr('disabled', 'disabled')
     $("input").attr("disabled", "disabled")
     $("select").attr("disabled", "disabled")

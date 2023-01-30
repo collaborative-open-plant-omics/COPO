@@ -144,7 +144,7 @@
             {% csrf_token %}
             {{ form | crispy }}
             <input id="submit_assembly_button" type="submit" value="Submit Assembly"
-                   class="ui blue button" onclick="doPost(event)">
+                   class="ui blue button" onclick="doPost()">
 
 
         </form>
@@ -159,7 +159,6 @@
 
     </div>
 
-    <button id="Test_Button">Press me</button>
 
 {% endblock %}
 
