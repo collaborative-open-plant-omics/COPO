@@ -5,11 +5,9 @@
 const fadeSpeed = 'fast';
 $(document).ready(function () {
     const copoTOLInspectionURL = "/copo/tol_inspect";
+    let taxonomyLevelsDivID = $("#taxonomyLevelsDivID")
 
-    // add field names here which you want to use for the 'tol_inspect_gal' pie chart
-    included_fields_tol_inspect_gall = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"]
-
-    $(document).on("click", ".tol_inspect", function () {
+    $(document).on("click", ".tol_inspect1", function () {
         document.location = copoTOLInspectionURL;
     })
 
@@ -19,10 +17,14 @@ $(document).ready(function () {
 
     $(document).data("gal_names_lst", [])
 
-    $(".taxonnomy_levelsDiv").hide()// hide on load
+    taxonomyLevelsDivID.hide()// hide on load
 
     $(".tablinks").click(function () {
         this.className += " active";
+        const tablink2_ID = "galSampleGoalStatisticsTabID";
+
+        // Hide taxonomy levels div if tablink 2 is active/visible
+        (!!this.outerHTML.includes(tablink2_ID)) ? taxonomyLevelsDivID.hide() : taxonomyLevelsDivID.show()
     });
 
     get_gal_names()
@@ -51,6 +53,7 @@ function populate_pie_chart(el) {
     $.getJSON(`copo/sample/sample_field/${gal_field_name}/${gal_field_value}`)
         .done(function (samples) {
             let data = samples.data
+            let included_fields_tol_inspect_gal;
 
             if (data.length) {
                 let pie_chart_labels = [];
@@ -59,12 +62,15 @@ function populate_pie_chart(el) {
                 let pie_chart_labels_distinct;
 
                 const header = $("<h4/>", {html: "Details"});
+                
+                // add field names here which you want to use for the 'tol_inspect_gal' pie chart
+                included_fields_tol_inspect_gal = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"]
 
                 sample_panel_tol_inspect_gal.find(".labelling").empty().append(header)
 
                 $(data).each(function (idx, db_data) {
                     for (let db_field_name in db_data) {
-                        if (taxonomy_field_name === db_field_name && included_fields_tol_inspect_gall.includes(db_field_name)) {
+                        if (taxonomy_field_name === db_field_name && included_fields_tol_inspect_gal.includes(db_field_name)) {
                             let selected_taxonomy_field_value = db_data[db_field_name]
                             pie_chart_labels.push(selected_taxonomy_field_value)
                         }
@@ -118,7 +124,7 @@ function populate_pie_chart(el) {
 
                 populate_bar_graph() // Populate the bar graph showing the goal statistics for the selected GAL
 
-                $(".taxonnomy_levelsDiv").show()
+                $("#taxonomyLevelsDivID").show()
 
             } else {
                 let content
@@ -143,9 +149,9 @@ function populate_pie_chart(el) {
 function populate_bar_graph() {
     // Build bar graph
     let gal_names_lst = $(document).data("gal_names_lst")
-    let bar_graph_background_colours = []
-    let bar_graph_border_colours = []
-    let gal_sample_goal_percentage_lst = []
+    let bar_graph_background_colours
+    let bar_graph_border_colours
+    let gal_sample_goal_percentage_lst
     let roundValue = Math.round, rndmValue = Math.random, maxNum = 255;
 
     // Get rgb colours for border colours
@@ -217,10 +223,7 @@ function get_selected_gal_name_in_row(ev) {
         first_taxonomy_level.click()
 
         $("#taxonomyPieChartTabID").show() // Show pie chart
-    } else {
-        row = $(document).data("selected_gal_name_row")
     }
-
 
 }
 

@@ -43,6 +43,12 @@
     background-color: #fff3ce;
 }
 
+canvas {
+    width: 100%;
+    object-fit: contain;
+}
+
+
 /*TOL inspection card*/
 .tol_inspect_card {
     padding: 10px 2rem 0 2rem !important;

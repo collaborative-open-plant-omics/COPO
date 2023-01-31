@@ -3,6 +3,10 @@ $(document).ready(function () {
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
     const copoTOLInspectionURL = "/copo/tol_inspect";
 
+    // Set faceted search/ search filter to 'false' so that search queries are initially
+    // done within samples within the user's profile
+    $(document).data("filterByCOPODatabaseID", false)
+
     $(document).on("click", ".statistics_card .statistics_card_title", function () {
         document.location = copoStatisticsURL
     })
@@ -13,6 +17,11 @@ $(document).ready(function () {
 
     $(document).on("click", ".tol_inspect_card .tol_inspect_card_title", function () {
         document.location = copoTOLInspectionURL;
+    })
+
+    $(document).on("click", "#filterByCOPODatabaseID", function () {
+        let checkedValue = !!$("#filterByCOPODatabaseID").is(":checked");
+        $(document).data("filterByCOPODatabaseID", checkedValue);
     })
 
     // Status bar
@@ -169,7 +178,7 @@ $(document).ready(function () {
     // TOL Inspection card
     $($("#profile_titles tr")[1]).click()
 
-    $("table#profile_samples tr").removeAttr("onclick"); // Disable click event on table rows
+    $("table#profile_samples tr th").removeAttr("onclick"); // Disable click event on table rows
     $("#profile_samples").removeClass("table-hover") // Remove hover on table
 
 

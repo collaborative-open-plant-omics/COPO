@@ -18,12 +18,6 @@ $(document).ready(function () {
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
-    // add field names here which you don't want to appear in the supervisors table
-    excluded_fields_tol_inspect = ["profile_id", "biosample_id"]
-    // add field names here which you want to appear in the 'tol_inspect' samples' table
-    included_fields_tol_inspect = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
-
-
     // Get active manifest type tab on tab change
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         let project = $(e.target).attr("href")
@@ -474,8 +468,17 @@ function populate_samples_table_based_on_profile_title(ev) {
 
                 $(data).each(function (idx, row) {
                     let td;
+                    let excluded_fields_tol_inspect;
+                    let included_fields_tol_inspect;
+
                     const th_row = document.createElement("tr");
                     const td_row = document.createElement("tr");
+
+                    // add field names here which you don't want to appear in the supervisors table
+                    excluded_fields_tol_inspect = ["profile_id", "biosample_id"]
+                    // add field names here which you want to appear in the 'tol_inspect' samples' table
+                    included_fields_tol_inspect = ["SPECIMEN_ID", "SCIENTIFIC_NAME", "public_name"]
+
                     td_row.className = "sample_table_row"
 
                     if (idx === 0) {
@@ -546,15 +549,29 @@ function populate_samples_table_based_on_profile_title(ev) {
 
                     // Add checkbox to show all fields within the table beside the search box
                     // within the profile samples data table
-                    $("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>');
+                    let showAllTableFieldsCheckbox_html = '<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>'
+                    let filterByCOPODatabaseIDCheckbox_html = '<label style="padding-right: 40px"> Show all fields: <input id="filterByCOPODatabaseID1" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"style="margin-right:8px"> In <span\n' +
+                        '                                    class="font-weight-bold ms-1">COPO</span> record</label>'
+
+                    //$("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showFieldsID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>');
+                    $("#profile_samples_filter").prepend(showAllTableFieldsCheckbox_html)
+                    $("#profile_samples_filter").prepend(filterByCOPODatabaseIDCheckbox_html)
 
                     $("#showFieldsID").prop('checked', $(document).data("showAllTableFieldsCheckbox"));
+                    $("#filterByCOPODatabaseID1").prop('checked', $(document).data("filterByCOPODatabaseID"));
 
                     document.querySelector("#showFieldsID").onchange = (e) => {
                         let checked = e.target.checked;
                         $(document).data("showAllTableFieldsCheckbox", checked);
                     }
                     $("#showFieldsID").prop('checked', $(document).data("showAllTableFieldsCheckbox"));
+                    $("#filterByCOPODatabaseID1").prop('checked', $(document).data("filterByCOPODatabaseID"));
+
+                    // Disable 'Show all fields' checkbox when on dashboard web page
+                    if (window.location.href.includes('dashboard')) {
+                        $("#showFieldsID").prop("disabled", true);
+                        $("#filterByCOPODatabaseID1").hide()
+                    }
                 })
             } else {
                 let content
@@ -576,44 +593,11 @@ function populate_samples_table_based_on_profile_title(ev) {
 
 
             $("#spinner").fadeOut("fast")
-            // if (window.location.href.includes('dashboard')) hide_some_profile_samples_table_info()
         }
     ).error(function (error) {
         console.error(`Error: ${error.message}`)
     })
 }
-
-// The following relates to the copo-dashboard webpage
-// if (window.location.href.includes('dashboard')) hide_some_profile_samples_table_info()
-function hide_some_profile_samples_table_info() {
-    // Calls the following after the web page has loaded
-    // if ($.fn.DataTable.isDataTable('#profile_samples')) {
-    $('#profile_samples').dataTable({
-        "pageLength": 4, // Set number of rows to 4
-        "bDestroy": true,
-        "bInfo": false, // hide showing entries
-        "bPaginate": false,  //hide pagination
-    })
-    // $("#profile_samples").DataTable().clear().destroy();
-    // $("#profile_samples").DataTable().destroy();
-    // }
-    if ($.fn.DataTable.isDataTable('#profile_samples') && (window.location.href.includes('dashboard'))) {
-
-        $("#profile_samples_info").hide(); // Hides pagination on profile samples table
-        $("#profile_samples_paginate").hide(); // Hides the number of entries on 'profile_samples'
-        // Display only four rows of the 'profile_samples' table
-        $("#profile_samples > tbody > tr").addClass('toggle').slice(0, 4).removeClass('toggle');
-        $('#profile_samples').toggleClass('show-all');
-        // .data_scrollBody max-height: 150px
-        //  height: 150px
-    }
-
-}
-
-// $(window).load(function () {
-//     // Run code
-//     hide_some_profile_samples_table_info()
-// });
 
 function get_profile_titles(project) {
     // get profiles with samples needing looked at and populate left hand column
