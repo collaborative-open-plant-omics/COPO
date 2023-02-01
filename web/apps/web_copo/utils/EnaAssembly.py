@@ -88,6 +88,10 @@ def validate_assembly(form):
     #print(webin_cmd)
     try:
         print('validating assembly submission')
+        notify_frontend(data={"profile_id": profile_id},
+                        msg="Validating Assembly Submission",
+                        action="info",
+                        html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
@@ -96,7 +100,7 @@ def validate_assembly(form):
     #todo decide if keeping or deleting these files
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
     if not "ERROR" in output:
-        output = submit_assembly(str(manifest_path))
+        output = submit_assembly(str(manifest_path), profile_id)
         if "ERROR" in output:
             #handle possibility submission is not successfull
             #this may happen for instance if the same assembly has already been submitted, which would not get caught
@@ -111,24 +115,31 @@ def validate_assembly(form):
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
             # ENA alias costructed as webin-genome-assemblyname (maybe different for transriptome?)
-            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-"+form["assemblyname"])
+            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-" + form["assemblyname"])
         else:
-            fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions" :
-                { "assembly" : {"accession" :accession, "alias": "webin-genome-"+form["assemblyname"]}}}
+            fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions":
+                {"assembly": {"accession": accession, "alias": "webin-genome-" + form["assemblyname"]}}}
             Submission().save_record(autofields={}, **fieldsdict)
     else:
         return {"error": output}
-    return {"accession" : accession}
+    return {"accession": accession}
 
-def submit_assembly(file_path):
+
+def submit_assembly(file_path, profile_id):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(file_path) + " -submit"
-    #print(webin_cmd)
-    #try/except as it turns out this can fail even if validate is successfull
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
+        file_path) + " -submit"
+
+    # print(webin_cmd)
+    # try/except as it turns out this can fail even if validate is successfull
     try:
         print("submitting assembly")
+        notify_frontend(data={"profile_id": profile_id},
+                        msg="Submitting Assembly",
+                        action="info",
+                        html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout

@@ -5,8 +5,13 @@ function upload_assembly_files() {
     var fieldset = $("#assembly_form input, textarea, select")
     const form = new FormData();
     var count = 0
+    var files = []
     $(fieldset).each(function (idx, el) {
-        form.append(el.name, el.value)
+        if (el.type == "file") {
+            form.append(el.name, el.files[0])
+        } else {
+            form.append(el.name, el.value)
+        }
     })
 
 
@@ -14,12 +19,15 @@ function upload_assembly_files() {
     jQuery.ajax({
         url: '/copo/ena_assembly/' + profile_id,
         data: form,
+        files: files,
         cache: false,
         contentType: false,
         processData: false,
-
         type: 'POST', // For jQuery < 1.9
-        headers: {"X-CSRFToken": csrftoken},
+        headers:
+            {
+                "X-CSRFToken": csrftoken
+            },
 
     }).error(function (data) {
         $("#upload_controls").fadeIn()
@@ -29,7 +37,14 @@ function upload_assembly_files() {
             message: "Error " + data
         });
     }).done(function (data) {
-
+        $("#submit_assembly_button").fadeOut()
+        $("#assembly_form").hide()
+        $("#loading_span").hide()
+        //$("input").fadeOut()
+        //$("select").fadeOut()
+        //$("textarea").fadeOut()
+        //
+        console.log(data)
     })
 }
 
