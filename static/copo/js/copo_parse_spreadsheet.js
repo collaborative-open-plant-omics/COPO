@@ -1,6 +1,7 @@
 var finishBtnStatus
 var confirmBtnStatus
 var permitBtnStatus
+
 function upload_image_files(file) {
     var csrftoken = $.cookie('csrftoken');
     var validation_record_id = $(document).data("validation_record_id")
@@ -35,16 +36,16 @@ function upload_image_files(file) {
 
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
-        xhr: function() {
+        xhr: function () {
             var xhr = jQuery.ajaxSettings.xhr();
-            xhr.upload.onprogress = function(evt) {
-               var percentVal = Math.round(evt.loaded / evt.total*100)
-               percent.html("<b>" + percentVal + "%</b>")
-               console.log('progress', percentVal)
+            xhr.upload.onprogress = function (evt) {
+                var percentVal = Math.round(evt.loaded / evt.total * 100)
+                percent.html("<b>" + percentVal + "%</b>")
+                console.log('progress', percentVal)
             };
-            xhr.upload.onload = function() {
-              percent.html("")
-              console.log('DONE!')
+            xhr.upload.onload = function () {
+                percent.html("")
+                console.log('DONE!')
             };
             return xhr;
         }
@@ -82,16 +83,16 @@ function upload_permit_files(file) {
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
 
-        xhr: function() {
+        xhr: function () {
             var xhr = jQuery.ajaxSettings.xhr();
-            xhr.upload.onprogress = function(evt) {
-               var percentVal = Math.round(evt.loaded / evt.total*100)
-               percent.html("<b>" + percentVal + "%</b>")
-               console.log('progress', percentVal)
+            xhr.upload.onprogress = function (evt) {
+                var percentVal = Math.round(evt.loaded / evt.total * 100)
+                percent.html("<b>" + percentVal + "%</b>")
+                console.log('progress', percentVal)
             };
-            xhr.upload.onload = function() {
-              percent.html("")
-              console.log('DONE!')
+            xhr.upload.onload = function () {
+                percent.html("")
+                console.log('DONE!')
             };
             return xhr;
         }
@@ -131,16 +132,16 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
         method: 'POST',
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
-        xhr: function() {
+        xhr: function () {
             var xhr = jQuery.ajaxSettings.xhr();
-            xhr.upload.onprogress = function(evt) {
-               var percentVal = Math.round(evt.loaded / evt.total*100)
-               percent.html("<b>" + percentVal + "%</b>")
-               console.log('progress', percentVal)
+            xhr.upload.onprogress = function (evt) {
+                var percentVal = Math.round(evt.loaded / evt.total * 100)
+                percent.html("<b>" + percentVal + "%</b>")
+                console.log('progress', percentVal)
             };
-            xhr.upload.onload = function() {
-              percent.html("")
-              console.log('DONE!')
+            xhr.upload.onload = function () {
+                percent.html("")
+                console.log('DONE!')
             };
             return xhr;
         }
@@ -360,6 +361,16 @@ $(document).ready(function () {
                     $("#" + d.html_id).html(d.message)
                     $("#export_errors_button").fadeIn()
                     $("#spinner").fadeOut()
+
+                } else if (d.action === "success") {
+                    // check info div is visible
+                    if (!$("#" + d.html_id).is(":visible")) {
+                        $("#" + d.html_id).fadeIn("50")
+                    }
+                    $("#" + d.html_id).removeClass("alert-info").addClass("alert-success")
+                    $("#" + d.html_id).html(d.message)
+                    $("#export_errors_button").fadeIn()
+                    $("#spinner").fadeOut()
                 } else if (d.action === "make_images_table") {
                     // make table of images matched to
                     // headers
@@ -368,10 +379,10 @@ $(document).ready(function () {
                     $("#images_label").find("input").removeAttr("disabled")
                     $("#ss_upload_spinner").fadeOut("fast")
                     if (!finishBtnStatus) {
-                       $("#finish_button").show()
+                        $("#finish_button").show()
                     }
                     if (!confirmBtnStatus) {
-                       $("#confirm_button").show()
+                        $("#confirm_button").show()
                     }
                     if (!permitBtnStatus) {
                         $("#files_label").removeClass("disabled")
