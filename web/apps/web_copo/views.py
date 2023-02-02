@@ -152,7 +152,7 @@ def ena_assembly(request, profile_id):
                                     html_id="assembly_info")
                 else:
                     notify_frontend(data={"profile_id": profile_id},
-                                    msg=sub_result.get("error", ""),
+                                    msg=sub_result.get("accession", "Success"),
                                     action="success",
                                     html_id="assembly_info")
                 # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
