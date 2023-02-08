@@ -33,6 +33,7 @@ colored==1.4.3
 configparser==3.7.4
 constantly==15.1.0
 cryptography==2.7
+django-crispy-forms==1.14.0
 daphne==2.3.0
 -e git+https://github.com/IQSS/dataverse-client-python.git@5f95a11e2f32bcfabe28e6ad43b2f7edac60d983#egg=dataverse
 decorator==4.4.0
