@@ -72,6 +72,7 @@
         </div>
 
         <div class="row mt-4">
+            {#        <div class="row">#}
             {# Satistics card #}
             <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
                 <div class="card z-index-2 " style="height:660px; width:600px">
@@ -79,7 +80,7 @@
                          style="margin-top: 60px !important;">
                         <div class="border-radius-lg py-3 pe-1">
                             <div class="chart">
-                                <canvas id="lineGraphID" class="chart-canvas" height="430"></canvas>
+                                <canvas id="lineGraphID" class="chart-canvas" height="500"></canvas>
                             </div>
                         </div>
                     </div>
@@ -179,14 +180,16 @@
                         </div>
                     </div>
                     <div class="card-body row tol_inspect_card">
-                        <div class="col-lg-8 mt-3"><h6 class="mb-0 section_title tol_inspect_card_title"> Tree of Life
+                        <div class="col-lg-8 mt-3"><h6 class="mb-0 section_title tol_inspect_card_title"> Tree of
+                            Life
                             (TOL) Inspection</h6>
                             <p class="text-sm "> View sample details based on profile type</p></div>
 
                         <div class="col-lg-4 mt-3 mb-3">
-                            <label class="text-sm mb-0 pull-right"> <input id="filterByCOPODatabaseID" type="checkbox"
+                            <label class="text-sm mb-0 pull-right"> <input id="queryCOPORecordsCheckBoxID"
+                                                                           type="checkbox"
                                                                            onclick="populate_samples_table_based_on_profile_title(this)"
-                                                                           style="margin-right:8px"> In <span
+                                                                           style="margin-right:8px"> Query in <span
                                     class="font-weight-bold ms-1">COPO</span> record</label>
                         </div>
                         <hr class="dark horizontal">
@@ -195,6 +198,7 @@
 
                 </div>
             </div>
+            {#        </div>#}
             {# World map card #}
             <div class="row mb-4">
                 <div class="col-lg-8 col-md-6 mb-md-0 mb-4 mt-0">
@@ -292,7 +296,7 @@
                                 </div>
                                 <div class="timeline-block mb-3">
                                   <span class="timeline-step">
-                                    <i class="icon table sign" style=" font-size: 1.32em"></i>
+                                    <i class="icon table sign" style="color:#7b809a; font-size: 1.32em"></i>
                                   </span>
                                     <div class="timeline-content">
                                         <h6 class="text-dark text-lg font-weight-bold mb-0">Complete and upload
@@ -331,7 +335,7 @@
     <script src="{% static 'copo/js/copo_dashboard.js' %}"></script>
     <script src="{% static 'copo/js/tol_inspect_functions.js' %}"></script>
     <script src="{% static 'copo/js/tol_inspect_gal_functions.js' %}"></script>
-    <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>
+    {#    <script src="{% static 'copo/js/material-dashboard.min.js' %}"></script>#}
     <script src="{% static 'copo/js/jquery-jvectormap-2.05.min.js' %}"></script>
     <script src="{% static 'copo/js/jquery-jvectormap-world-mill.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>

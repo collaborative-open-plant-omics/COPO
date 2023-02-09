@@ -64,7 +64,7 @@ $(document).ready(function () {
                     data: {
                         labels: lineGraph_x_axis_values,
                         datasets: [{
-                            label: "Number of Samples",
+                            label: "number of samples",
                             tension: 0,
                             pointRadius: 3,
                             pointHoverRadius: 6,
@@ -125,7 +125,7 @@ $(document).ready(function () {
                             y: {
                                 title: {
                                     display: true,
-                                    text: 'Number of Samples'
+                                    text: 'number of samples'
                                 },
 
                                 ticks: {

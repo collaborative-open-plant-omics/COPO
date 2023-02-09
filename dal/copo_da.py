@@ -6,6 +6,7 @@ from datetime import datetime, timezone, date
 import importlib
 import re
 import importlib
+import json
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -18,7 +19,7 @@ from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
 from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
-from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
+from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids, cursor_to_list_str_and_datetime_to_string
 from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
@@ -1084,6 +1085,100 @@ class Sample(DAComponent):
             out.append(sam)
         return out
 
+    def get_dtol_by_aggregation(self, match_dict):
+        # Get all field names
+        all_field_names = self.get_collection_handle().aggregate([
+            {"$project": {"arrayofkeyvalue": {"$objectToArray": "$$ROOT"}}},
+            {"$unwind": "$arrayofkeyvalue"},
+            {"$group": {"_id": None, "allkeys": {"$addToSet": "$arrayofkeyvalue.k"}}}
+        ]).next()["allkeys"]
+
+        # specify projection
+        query_projection = {field_name: 1 for field_name in all_field_names}
+        match_dict = json.loads(match_dict)  # Converts JSON into object
+        cursor = self.get_collection_handle().aggregate(
+            [
+                {
+                    "$match": match_dict
+                },
+                {
+                    "$project": query_projection
+                }
+            ])
+        records = cursor_to_list_str_and_datetime_to_string(cursor)
+
+        # get schema
+        sc = self.get_component_schema()
+        out = list()
+        taxon = dict()
+        for i in records:
+            if "species_list" in i:
+                sp_lst = i["species_list"]
+                for sp in sp_lst:
+                    # only extract target info...don't extract symnbiont info
+                    if sp["SYMBIONT"] == "TARGET":
+                        for k, v in sp.items():
+                            i[k] = v
+                    else:
+                        pass
+            sam = dict()
+            for cell in i:
+                for field in sc:
+
+                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+                            if field.get("show_in_table", ""):
+                                sam[cell] = i[cell]
+            out.append(sam)
+        return out
+
+    # def get_dtol_profiles_by_aggregation(self, match_dict):
+    #     # Get all field names
+    #     all_field_names = self.get_collection_handle().aggregate([
+    #         {"$project": {"arrayofkeyvalue": {"$objectToArray": "$$ROOT"}}},
+    #         {"$unwind": "$arrayofkeyvalue"},
+    #         {"$group": {"_id": None, "allkeys": {"$addToSet": "$arrayofkeyvalue.k"}}}
+    #     ]).next()["allkeys"]
+    #
+    #     # specify projection
+    #     query_projection = {field_name: 1 for field_name in all_field_names}
+    #
+    #     cursor = self.get_collection_handle().aggregate(
+    #         [
+    #             {
+    #                 "$match": match_dict
+    #             },
+    #             {
+    #                 "$project": {field_name: 1}
+    #             }
+    #         ])
+    #     records = cursor_to_list_str_and_datetime_to_string(cursor)
+    #
+    #     # get schema
+    #     sc = self.get_component_schema()
+    #     out = list()
+    #     taxon = dict()
+    #     for i in records:
+    #         if "species_list" in i:
+    #             sp_lst = i["species_list"]
+    #             for sp in sp_lst:
+    #                 # only extract target info...don't extract symnbiont info
+    #                 if sp["SYMBIONT"] == "TARGET":
+    #                     for k, v in sp.items():
+    #                         i[k] = v
+    #                 else:
+    #                     pass
+    #         sam = dict()
+    #         for cell in i:
+    #             for field in sc:
+    #
+    #                 if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+    #                     if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+    #                         if field.get("show_in_table", ""):
+    #                             sam[cell] = i[cell]
+    #         out.append(sam)
+    #     return out
+
     def mark_rejected(self, sample_id, reason="Sample rejected by curator."):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)},
                                                    {"$set": {"status": "rejected", "error": reason}})
@@ -2036,9 +2131,25 @@ class Profile(DAComponent):
             pymongo.DESCENDING)
         return cursor_to_list(p)
 
+    def get_dtol_only_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
     def get_asg_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_asg_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
             "date_created",
             pymongo.DESCENDING)
         return cursor_to_list(p)
@@ -2048,10 +2159,25 @@ class Profile(DAComponent):
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)
         return cursor_to_list(p)
 
+    def get_erga_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created",
+                                                                                                     pymongo.DESCENDING)
+        return cursor_to_list(p)
+
     def get_dtolenv_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified",
                                                                                               pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtolenv_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort(
+            "date_modified",
+            pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):

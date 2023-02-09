@@ -1,6 +1,12 @@
-.section_title:hover {
-    color: #4183c4;
-    text-decoration: underline;
+/* Custom CSS*/
+.alert-info {
+    background-image: none !important;
+    background-color: #cce5ff !important; /* transparent !important;*/
+}
+
+canvas {
+    width: 100%;
+    object-fit: contain; /*  Enables reponsiveness*/
 }
 
 .center-div {
@@ -8,46 +14,62 @@
     place-items: center;
 }
 
-/*Overide datatables CSS*/
-.dataTables_wrapper,
-.dataTables_paginate,
-.paginate_button {
-    padding: 5px 5px 0 0 !important; /*top | right | bottom | left*/
+input {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
 }
 
-.dataTables_paginate {
-    padding-top: 20px !important;
+label {
+    display: inline-block;
 }
 
-.profile_samples_info {
-    padding-top: 40px;
+table {
+    caption-side: bottom;
+    border-collapse: collapse;
 }
 
-/* Override CSS for .card and .card-body CSS*/
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+}
+
+th {
+    text-align: inherit;
+    text-align: -webkit-match-parent;
+}
+
 /*COPO statistics card*/
 .statistics_card {
-    padding: 65px 2rem 0 2rem !important;
+    padding: 4px 2rem 0 2rem !important;
 }
+
+.section_title:hover {
+    color: #4183c4;
+    text-decoration: underline;
+}
+
 
 /*GAL inspection card*/
 .gal_inspection_card {
     padding: 5px 2rem 0 2rem !important;
 }
 
-#taxonomyLevelsDivID .form-control {
-    text-align: center;
-    width: 380px;
-}
-
 #taxonomyLevelsDivID > input.active_taxonomy_level {
     background-color: #fff3ce;
 }
 
-canvas {
-    width: 100%;
-    object-fit: contain;
+#taxonomyLevelsDivID .form-control {
+    text-align: center;
+    width: 380px;
 }
-
 
 /*TOL inspection card*/
 .tol_inspect_card {
@@ -59,6 +81,10 @@ canvas {
     cursor: default;
 }
 
+.profile_samples_info {
+    padding-top: 40px;
+}
+
 /*Show only 4 rows of the profile_samples table*/
 #profile_samples > tbody > tr.toggle {
     display: none;
@@ -68,13 +94,17 @@ canvas {
     display: table-row;
 }
 
+/*Set 'profile_samples table' CSS style*/
+.table-bordered {
+    width: 525px;
+}
 
-/*Map card*/
+
+/*World map card*/
 .gal_worldwide_view_card {
     padding: 0 2rem 0 2rem !important;
 }
 
-/* World map*/
 .jvectormap-legend-inner {
     margin-bottom: 5px !important;
 }
@@ -109,7 +139,595 @@ canvas {
     margin-left: 5px;
 }
 
-.alert-info {
-    background-image: none !important;
-    background-color: #cce5ff !important; /* transparent !important;*/
-}
+
+/*!
+=========================================================
+* Material Dashboard - v3.0.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2021 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (site.license)
+
+* Coded by www.creative-tim.com
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
+/*.bg-transparent {*/
+/*    background-color: transparent !important;*/
+/*}*/
+
+/*.border-radius-lg {*/
+/*    border-radius: 0.5rem;*/
+/*}*/
+
+/*.card {*/
+/*    position: relative;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    min-width: 0;*/
+/*    word-wrap: break-word;*/
+/*    background-color: #fff;*/
+/*    background-clip: border-box;*/
+/*    border: 0 solid rgba(0, 0, 0, 0.125);*/
+/*    border-radius: 0.75rem;*/
+/*}*/
+
+/*.card > hr {*/
+/*    margin-right: 0;*/
+/*    margin-left: 0;*/
+/*}*/
+
+
+/*.card.card-background .card-body {*/
+/*    color: #fff;*/
+/*    position: relative;*/
+/*    z-index: 2;*/
+/*}*/
+
+/*.card.card-background .card-body .content-center,*/
+/*.card.card-background .card-body .content-left {*/
+/*    min-height: 330px;*/
+/*    max-width: 450px;*/
+/*    padding-top: 60px;*/
+/*    padding-bottom: 60px;*/
+/*}*/
+
+/*.card.card-background .card-body .content-center {*/
+/*    text-align: center;*/
+/*}*/
+
+/*.card.card-background .card-body.body-left {*/
+/*    width: 90%;*/
+/*}*/
+
+/*.card.card-background .card-body .author .name span,*/
+/*.card.card-background .card-body .author .name .stats {*/
+/*    color: #fff;*/
+/*}*/
+
+/*.card .card-body {*/
+/*    font-family: "Roboto", Helvetica, Arial, sans-serif;*/
+/*    padding: 1.5rem;*/
+/*}*/
+
+/*.card > hr {*/
+/*    margin-right: 0;*/
+/*    margin-left: 0;*/
+/*}*/
+
+/*.card > .list-group {*/
+/*    border-top: inherit;*/
+/*    border-bottom: inherit;*/
+/*}*/
+
+/*.card > .list-group:first-child {*/
+/*    border-top-width: 0;*/
+/*    border-top-left-radius: 0.75rem;*/
+/*    border-top-right-radius: 0.75rem;*/
+/*}*/
+
+/*.card > .list-group:last-child {*/
+/*    border-bottom-width: 0;*/
+/*    border-bottom-right-radius: 0.75rem;*/
+/*    border-bottom-left-radius: 0.75rem;*/
+/*}*/
+
+/*.card > .card-header + .list-group,*/
+/*.card > .list-group + .card-footer {*/
+/*    border-top: 0;*/
+/*}*/
+
+/*.card-body {*/
+/*    flex: 1 1 auto;*/
+/*    padding: 1rem 1rem;*/
+/*}*/
+
+
+/*.card-header {*/
+/*    padding: 0.5rem 1rem;*/
+/*    margin-bottom: 0;*/
+/*    background-color: #fff;*/
+/*    border-bottom: 0 solid rgba(0, 0, 0, 0.125);*/
+/*}*/
+
+/*.card-header:first-child {*/
+/*    border-radius: 0.75rem 0.75rem 0 0;*/
+/*}*/
+
+/*.card-title {*/
+/*    margin-bottom: 0.5rem;*/
+/*}*/
+
+/*.col-lg-2 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 16.66667%;*/
+/*}*/
+
+
+/*.col-lg-4 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 33.33333%;*/
+/*}*/
+
+/*.col-lg-8 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 66.66667%;*/
+/*}*/
+
+/*.col-lg-10 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 83.33333%;*/
+/*}*/
+
+/*.col-lg-12 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 100%;*/
+/*}*/
+
+/*.col-md-2 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 16.66667%;*/
+/*}*/
+
+/*.col-md-6 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 50%;*/
+/*}*/
+
+/*.col-md-10 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 83.33333%;*/
+/*}*/
+
+/*.col-md-12 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 100%;*/
+/*}*/
+
+/*.col-sm-2 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 16.66667%;*/
+/*}*/
+
+/*.col-sm-5 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 41.66667%;*/
+/*}*/
+
+/*.col-sm-6 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 50%;*/
+/*}*/
+
+/*.col-sm-7 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 58.33333%;*/
+/*}*/
+
+/*.col-sm-10 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 83.33333%;*/
+/*}*/
+
+/*.col-sm-12 {*/
+/*    flex: 0 0 auto;*/
+/*    width: 100%;*/
+/*}*/
+
+/*.container {*/
+/*    width: 100%;*/
+/*    padding-right: var(--bs-gutter-x, 1.5rem);*/
+/*    padding-left: var(--bs-gutter-x, 1.5rem);*/
+/*    margin-right: auto;*/
+/*    margin-left: auto;*/
+/*}*/
+
+/*@media (min-width: 576px) {*/
+/*    .container {*/
+/*        max-width: 540px;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 768px) {*/
+/*    .container {*/
+/*        max-width: 720px;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 992px) {*/
+/*    .container {*/
+/*        max-width: 960px;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 1200px) {*/
+/*    .container {*/
+/*        max-width: 1140px;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 1400px) {*/
+/*    .container {*/
+/*        max-width: 1320px;*/
+/*    }*/
+/*}*/
+
+/*.back-background .card-body {*/
+/*    min-height: auto;*/
+/*    padding-top: 15px;*/
+/*    padding-bottom: 15px;*/
+/*}*/
+
+/*.flex-fill {*/
+/*    flex: 1 1 auto !important;*/
+/*}*/
+
+/*.font-weight-bold {*/
+/*    font-weight: 600 !important;*/
+/*}*/
+
+/*h4,*/
+/*h5,*/
+/*.h4 {*/
+/*    margin-top: 0;*/
+/*    margin-bottom: 0.5rem;*/
+/*    font-weight: 400;*/
+/*    line-height: 1.2;*/
+/*    color: #344767;*/
+/*}*/
+
+/*h4, .h4 {*/
+/*    font-size: calc(1.275rem + 0.3vw);*/
+/*}*/
+
+/*h5 {*/
+/*    font-size: 1.25rem;*/
+/*}*/
+
+
+/*h4, .h4, .h4, h5 {*/
+/*    font-weight: 600;*/
+/*}*/
+
+/*h4, .h4, .h4 {*/
+/*    letter-spacing: -0.05rem;*/
+/*}*/
+
+/*@media (min-width: 1200px) {*/
+/*    h4, .h4 {*/
+/*        font-size: 1.5rem;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 575.98px) {*/
+/*    h5 {*/
+/*        font-size: 1.25rem;*/
+/*    }*/
+/*}*/
+
+/*h4, .h4 {*/
+/*    font-size: 1.5rem;*/
+/*    line-height: 1.375;*/
+/*}*/
+
+/*h5 {*/
+/*    font-size: 1.25rem;*/
+/*    line-height: 1.375;*/
+/*}*/
+
+/*@media (max-width: 575.98px) {*/
+/*    h5 {*/
+/*        font-size: 1.25rem;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 575.98px) {*/
+/*    h4, .h4, .h4 {*/
+/*        font-size: calc(1.275rem + 0.3vw);*/
+/*    }*/
+/*}*/
+
+/*.material-icons {*/
+/*    font-family: 'Material Icons Round';*/
+/*    font-weight: normal;*/
+/*    font-style: normal;*/
+/*    font-size: 20px;*/
+/*    !* Preferred icon size *!*/
+/*    display: inline-block;*/
+/*    line-height: 1;*/
+/*    text-transform: none;*/
+/*    letter-spacing: normal;*/
+/*    word-wrap: normal;*/
+/*    white-space: nowrap;*/
+/*    direction: ltr;*/
+/*    !* Support for all WebKit browsers. *!*/
+/*    -webkit-font-smoothing: antialiased;*/
+/*    !* Support for Safari and Chrome. *!*/
+/*    text-rendering: optimizeLegibility;*/
+/*    !* Support for Firefox. *!*/
+/*    -moz-osx-font-smoothing: grayscale;*/
+/*    !* Support for IE. *!*/
+/*    font-feature-settings: 'liga';*/
+/*}*/
+
+/*.mb-0 {*/
+/*    margin-bottom: 0 !important;*/
+/*}*/
+
+/*.mb-3 {*/
+/*    margin-bottom: 1rem !important;*/
+/*}*/
+
+/*.mb-4 {*/
+/*    margin-bottom: 1.5rem !important;*/
+/*}*/
+
+/*.mb-md-0 {*/
+/*    margin-bottom: 0 !important;*/
+/*}*/
+
+/*.mt-0 {*/
+/*    margin-top: 0 !important;*/
+/*}*/
+
+/*.mt-1 {*/
+/*    margin-top: 0.25rem !important;*/
+/*}*/
+
+/*.mt-3 {*/
+/*    margin-top: 1rem !important;*/
+/*}*/
+
+/*.mt-4 {*/
+/*    margin-top: 1.5rem !important;*/
+/*}*/
+
+/*.mt-n4 {*/
+/*    margin-top: -1.5rem !important;*/
+/*}*/
+
+/*.mx-3 {*/
+/*    margin-right: 1rem !important;*/
+/*    margin-left: 1rem !important;*/
+/*}*/
+
+/*.p-0 {*/
+/*    padding: 0 !important;*/
+/*}*/
+
+/*.p-3 {*/
+/*    padding: 1rem !important;*/
+/*}*/
+
+/*.pb-2 {*/
+/*    padding-bottom: 0.5rem !important;*/
+/*}*/
+
+/*.pb-3 {*/
+/*    padding-bottom: 1rem !important;*/
+/*}*/
+
+/*.pe-1 {*/
+/*    padding-right: 0.25rem !important;*/
+/*}*/
+
+/*.position-relative {*/
+/*    position: relative !important;*/
+/*}*/
+
+/*.px-4 {*/
+/*    padding-right: 1.5rem !important;*/
+/*    padding-left: 1.5rem !important;*/
+/*}*/
+
+/*.py-3 {*/
+/*    padding-top: 1rem !important;*/
+/*    padding-bottom: 1rem !important;*/
+/*}*/
+
+/*.row {*/
+/*    --bs-gutter-x: 1.5rem;*/
+/*    --bs-gutter-y: 0;*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*    margin-top: calc(-1 * var(--bs-gutter-y));*/
+/*    margin-right: calc(-.5 * var(--bs-gutter-x));*/
+/*    margin-left: calc(-.5 * var(--bs-gutter-x));*/
+/*}*/
+
+/*.row > * {*/
+/*    flex-shrink: 0;*/
+/*    width: 100%;*/
+/*    max-width: 100%;*/
+/*    padding-right: calc(var(--bs-gutter-x) * .5);*/
+/*    padding-left: calc(var(--bs-gutter-x) * .5);*/
+/*    margin-top: var(--bs-gutter-y);*/
+/*}*/
+
+/*.rtl .timeline .timeline-content {*/
+/*    margin-right: 45px;*/
+/*    margin-left: 0;*/
+/*}*/
+
+/*.rtl .timeline.timeline-one-side .timeline-step {*/
+/*    right: 1rem;*/
+/*}*/
+
+/*.rtl .timeline .timeline-step {*/
+/*    transform: translateX(50%);*/
+/*}*/
+
+/*.text-dark {*/
+/*    color: #344767 !important;*/
+/*}*/
+
+/*.text-gradient.text-dark {*/
+/*    background-image: linear-gradient(195deg, #42424a, #191919);*/
+/*}*/
+
+/*.text-lg {*/
+/*    font-size: 1.125rem !important;*/
+/*}*/
+
+/*.text-secondary {*/
+/*    color: #7b809a !important;*/
+/*}*/
+
+/*.text-sm {*/
+/*    line-height: 1.5;*/
+/*}*/
+
+/*.text-sm {*/
+/*    font-size: 0.875rem !important;*/
+/*}*/
+
+/*.text-success {*/
+/*    color: #4CAF50 !important;*/
+/*}*/
+
+/*.text-warning {*/
+/*    color: #fb8c00 !important;*/
+/*}*/
+
+/*.timeline {*/
+/*    position: relative;*/
+/*}*/
+
+/*.timeline:before {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    left: 1rem;*/
+/*    height: 100%;*/
+/*    border-right: 2px solid #e5e5e5;*/
+/*}*/
+
+/*.timeline.timeline-dark:before {*/
+/*    border-right-color: #4a4a4a;*/
+/*}*/
+
+/*.timeline-block {*/
+/*    position: relative;*/
+/*}*/
+
+/*.timeline-block:after {*/
+/*    content: "";*/
+/*    display: table;*/
+/*    clear: both;*/
+/*}*/
+
+/*.timeline-block:first-child {*/
+/*    margin-top: 0;*/
+/*}*/
+
+/*.timeline-block:last-child {*/
+/*    margin-bottom: 0;*/
+/*}*/
+
+/*.timeline-step {*/
+/*    position: absolute;*/
+/*    display: inline-flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    left: 0;*/
+/*    width: 26px;*/
+/*    height: 26px;*/
+/*    border-radius: 50%;*/
+/*    background: #fff;*/
+/*    text-align: center;*/
+/*    transform: translateX(-50%);*/
+/*    font-size: 1rem;*/
+/*    font-weight: 600;*/
+/*    z-index: 1;*/
+/*}*/
+
+/*.timeline-step svg, .timeline-step i {*/
+/*    line-height: 1.4;*/
+/*}*/
+
+/*.timeline-content {*/
+/*    position: relative;*/
+/*    margin-left: 45px;*/
+/*    padding-top: 0.35rem;*/
+/*    position: relative;*/
+/*    top: -6px;*/
+/*}*/
+
+/*.timeline-content:after {*/
+/*    content: "";*/
+/*    display: table;*/
+/*    clear: both;*/
+/*}*/
+
+/*@media (min-width: 992px) {*/
+/*    .timeline:before {*/
+/*        left: 50%;*/
+/*        margin-left: -1px;*/
+/*    }*/
+
+/*    .timeline-step {*/
+/*        left: 50%;*/
+/*    }*/
+
+/*    .timeline-content {*/
+/*        width: 38%;*/
+/*    }*/
+
+/*    .timeline-block:nth-child(even) .timeline-content {*/
+/*        float: right;*/
+/*    }*/
+/*}*/
+
+/*.timeline-one-side:before {*/
+/*    left: 1rem;*/
+/*}*/
+
+/*.timeline-one-side .timeline-step {*/
+/*    left: 1rem;*/
+/*}*/
+
+/*.timeline-one-side .timeline-content {*/
+/*    width: auto;*/
+/*}*/
+
+/*@media (min-width: 992px) {*/
+/*    .timeline-one-side .timeline-content {*/
+/*        max-width: 30rem;*/
+/*    }*/
+/*}*/
+
+/*.timeline-one-side .timeline-block:nth-child(even) .timeline-content {*/
+/*    float: none;*/
+/*}*/
+
+/*.w-100 {*/
+/*    width: 100% !important;*/
+/*}*/
+
+/*.z-index-2 {*/
+/*    z-index: 2 !important;*/
+/*}*/
