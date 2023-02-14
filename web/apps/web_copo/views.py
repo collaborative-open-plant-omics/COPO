@@ -150,16 +150,20 @@ def ena_assembly(request, profile_id):
                                     msg=sub_result.get("error", ""),
                                     action="error",
                                     html_id="assembly_info")
+                    messages.error(request,sub_result)
                 else:
+                    messages.info(request, "The assembly has been created with accession: " + sub_result.get("accession", "Success"))
                     notify_frontend(data={"profile_id": profile_id},
                                     msg=sub_result.get("accession", "Success"),
                                     action="success",
                                     html_id="assembly_info")
                 # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
-                return HttpResponse()
-
-
+                #return HttpResponse()
+        else:
+            messages.error(request, form.errors)
+        
     else:
+        
         # todo I'm probably out of time to do this, but we need to account -maybe?- for a situation in which we have
         # multiple assemblies submitted as part of the same profile, probably the structure in the database need to
         # change slightly so that it is possible for us to link accession and relative sample
@@ -168,8 +172,9 @@ def ena_assembly(request, profile_id):
         # pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         # set authomatically and cannot be changed by the user
         form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession,
-                            initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
-                                     "description": "jfksjkdlfs"})
+                            #initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
+                            #         "description": "jfksjkdlfs"}
+                             )
     return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
 
 

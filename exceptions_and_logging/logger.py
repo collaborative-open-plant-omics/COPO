@@ -9,6 +9,7 @@ from exceptions_and_logging.CopoRuntimeError import CopoRuntimeError
 from web.apps.web_copo.lookup.copo_enums import *
 from django.conf import settings
 from datetime import datetime, timedelta
+import traceback
 
 class Logger():
 
@@ -20,6 +21,17 @@ class Logger():
     def log(self, msg, level=Loglvl.INFO, type=Logtype.CONSOLE):
         return self._log_to_file(msg, level)
 
+    def debug(self, msg):
+        return self._log_to_file(msg, Loglvl.DEBUG)
+    
+
+    def exception(self, e):
+        self.error(e)
+        self.error(traceback.format_exc())
+
+    def error(self, msg):
+        return self._log_to_file(msg, Loglvl.ERROR)
+    
     def _log_to_console(self, msg, lvl=Loglvl.ERROR):
         # log to console in colour
         msg = str(msg)

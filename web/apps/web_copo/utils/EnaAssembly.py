@@ -13,6 +13,9 @@ from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 
 from dal.copo_da import Assembly, Submission
+from exceptions_and_logging.logger import Logger
+from django.contrib import messages
+import glob
 
 
 # other types of assemblies (not individualss or cultured isolates):
@@ -64,6 +67,7 @@ def validate_assembly(form):
     profile_id = request.session["profile_id"]
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
     these_assemblies = assembly_path / profile_id
+    these_assemblies_url_path = f"{settings.MEDIA_URL}ena_assembly_files/{profile_id}"
     manifest_content =""
     file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
     for key, value in form.items():
@@ -84,18 +88,21 @@ def validate_assembly(form):
         test = " -test "
     cli_path = "tools/reposit/ena_cli/webin-cli.jar"
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
-        manifest_path) + " -validate"
+        manifest_path) + " -validate -ascp"
+    Logger().debug(msg=webin_cmd)
     #print(webin_cmd)
     try:
-        print('validating assembly submission')
+        Logger().log(msg='validating assembly submission')
         notify_frontend(data={"profile_id": profile_id},
                         msg="Validating Assembly Submission",
                         action="info",
                         html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
     except subprocess.CalledProcessError as cpe:
+        return_code = cpe.returncode
         output = cpe.stdout
     output = output.decode("ascii")
+    Logger().debug(msg=output)
     #print(output)
     #todo decide if keeping or deleting these files
     #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
@@ -105,7 +112,7 @@ def validate_assembly(form):
             #handle possibility submission is not successfull
             #this may happen for instance if the same assembly has already been submitted, which would not get caught
             #by the validation step
-            return {"error" : output}
+            return {"error": output}
         for f in form:
             if f in file_fields:
                 form[f] = str(form[f])
@@ -115,13 +122,27 @@ def validate_assembly(form):
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
             # ENA alias costructed as webin-genome-assemblyname (maybe different for transriptome?)
-            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-" + form["assemblyname"])
+            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-" + form["assemblyname"].replace(" ", "_"))
         else:
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions":
-                {"assembly": {"accession": accession, "alias": "webin-genome-" + form["assemblyname"]}}}
+                {"assembly": {"accession": accession, "alias": "webin-genome-" + form["assemblyname"].replace(" ", "_")}}}
             Submission().save_record(autofields={}, **fieldsdict)
     else:
-        return {"error": output}
+        if return_code == 2:
+            with open(these_assemblies / "manifest.txt.report") as report_file:
+                return {"error": (report_file.read())}
+        elif return_code == 3:
+
+            directories = glob.glob(f"{settings.MEDIA_ROOT}/ena_assembly_files/{profile_id}/genome/*")
+            with open(f"{directories[0]}/validate/webin-cli.report") as report_file:
+                error = report_file.read()
+             
+            for file in os.scandir(f"{directories[0]}/validate"):
+                if file.name != "webin-cli.report":
+                    with open(file) as report_file:
+                        error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
+            return {"error": error}
+        
     return {"accession": accession}
 
 
@@ -130,12 +151,12 @@ def submit_assembly(file_path, profile_id):
     if "dev" in ena_service:
         test = " -test "
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
-        file_path) + " -submit"
-
+        file_path) + " -submit -ascp"
+    Logger().debug(msg=webin_cmd)
     # print(webin_cmd)
     # try/except as it turns out this can fail even if validate is successfull
     try:
-        print("submitting assembly")
+        Logger().log(msg="submitting assembly")
         notify_frontend(data={"profile_id": profile_id},
                         msg="Submitting Assembly",
                         action="info",
@@ -144,7 +165,7 @@ def submit_assembly(file_path, profile_id):
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
     output = output.decode("ascii")
-    #print(output)
+    Logger().debug(msg=output)
 
     #todo delete files after successfull submission
     #todo decide if keeping manifest.txt and store accession in assembly objec too

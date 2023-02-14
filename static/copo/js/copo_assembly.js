@@ -30,11 +30,12 @@ function upload_assembly_files() {
             },
 
     }).error(function (data) {
-        $("#upload_controls").fadeIn()
+        $("#loading_span").fadeOut()
+        $('.ena_assembly_form').prop('disabled', false);
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data
+            message: "Error " + data.responseText
         });
     }).done(function (data) {
         $("#submit_assembly_button").fadeOut()
@@ -52,14 +53,13 @@ function upload_assembly_files() {
 function doPost() {
     var evt = window.event
     evt.preventDefault()
-    $("#submit_assembly_button").attr('disabled', 'disabled')
-    $("input").attr("disabled", "disabled")
-    $("select").attr("disabled", "disabled")
-    $("textarea").attr("disabled", "disabled")
+ 
+    
+    $("#submit_assembly_button").fadeOut()
+
     $("#loading_span").fadeIn()
-    upload_assembly_files()
-
-
+    $('#assembly_form').submit()
+    var fieldset = $("#assembly_form input, textarea, select").prop("disabled", true)
 }
 
 

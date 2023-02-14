@@ -498,3 +498,6 @@ def transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwa
         return False
 
     return True
+
+def delete_submisison_bundle(submission_id):
+    get_submission_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": [], "bundle_meta": []}})

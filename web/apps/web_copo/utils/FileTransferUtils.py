@@ -215,6 +215,7 @@ def check_gzip(tx):
             fh.read(1)
             return True
         except OSError as e:
+            Logger.error(e)
             return False
 
 
