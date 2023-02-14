@@ -1,5 +1,6 @@
 import boto3
-from boto3.session import Session, Config
+#from boto3.session import Session
+from botocore.config import Config
 from django.conf import settings as s
 from botocore.exceptions import EndpointConnectionError
 from smart_open import open as s_open
@@ -15,26 +16,23 @@ class S3Connection():
     """
 
     def __init__(self):
-        self.ecs_endpoint = s.ECS_ENDPOINT
+        self.ecs_endpoint = "https://ei-copo.obj-data.nbi.ac.uk"  #s.ECS_ENDPOINT
         self.ecs_access_key_id = s.ECS_ACCESS_KEY_ID
         self.ecs_secret_key = s.ECS_SECRET_KEY
 
         self.expiration = 60 * 60 * 24
         self.path = '/'
+        boto3.set_stream_logger(name='', level=10, format_string=None)
         self.s3_client = boto3.client('s3', endpoint_url=self.ecs_endpoint, verify=False,
-                                      config=Config(signature_version='s3', s3={'addressing_style': 'path'}),
+                                      config=Config(signature_version='s3v4', connect_timeout=10, retries={"max_attempts":2}, s3={'addressing_style': 'path'}),
                                       aws_access_key_id=self.ecs_access_key_id,
                                       aws_secret_access_key=self.ecs_secret_key)
         self.transport_params = {'client': self.s3_client}
-        print("endpoint", self.ecs_endpoint, "access key", self.ecs_access_key_id, "secret", self.ecs_secret_key)
-
+        Logger().debug(msg=f"endpoint: {self.ecs_endpoint}, access key: {self.ecs_access_key_id}, secret: {self.ecs_secret_key}")
+ 
     def list_buckets(self):
-        try:
-            response = self.s3_client.list_buckets()
-        except EndpointConnectionError as e:
-            print(e)
-            return False
-        print(response['Buckets'])
+        response = self.s3_client.list_buckets()
+        Logger().debug(msg=response['Buckets'])
         return response["Buckets"]
 
     def list_objects(self, bucket):
@@ -73,8 +71,8 @@ class S3Connection():
         '''
         try:
             response = self.s3_client.generate_presigned_url('put_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=expires_seconds)
-        except:
-            response = "error"
+        except Exception as e:
+            response = e
         return response
 
     def check_for_s3_bucket(self, uid):
@@ -83,13 +81,11 @@ class S3Connection():
         :param uid: the name of the bucket
         :return: True if exists, False if not
         '''
-        try:
-            bucket_list = self.list_buckets()
-            for bucket in bucket_list:
-                if bucket["Name"] == uid:
-                    return True
-        except Exception as e:
-            print(e)
+        response = self.s3_client.list_buckets()
+        bucket_list = response['Buckets']
+        for bucket in bucket_list:
+            if bucket["Name"] == uid:
+                return True
         return False
 
     def make_s3_bucket(self, bucket_name):
@@ -99,13 +95,14 @@ class S3Connection():
         :return: the bucket
         '''
 
-        try:
-            bucket = self.s3_client.create_bucket(Bucket=str(bucket_name))
-
-        except Exception as e:
-            print(e)
-            response = "error"
-        return bucket
+        #try:
+        return self.s3_client.create_bucket(Bucket=str(bucket_name))
+    
+    
+        #except Exception as e:
+        #    response = "error"
+        #    print(e)
+        #return bucket
 
     def check_s3_bucket_for_files(self, bucket_name, file_list):
         '''
