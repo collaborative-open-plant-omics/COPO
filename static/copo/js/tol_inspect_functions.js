@@ -20,6 +20,9 @@ const profile_samples_dt_options = {
 $(document).ready(function () {
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
     const copoTolDashboardURL = "/copo/dashboard/";
+    // Get profile_titles_nav_tabs()
+    get_profile_titles_nav_tabs()
+
     const project = $("#sample_filter").find(".active").find("a").attr("href");
 
     // Get active manifest type tab on tab change
@@ -39,7 +42,7 @@ $(document).ready(function () {
         document.location = copoGALInspectionURL;
     })
 
-    $(document).on("click", ".copo_dashboard", function (evt) {
+    $(document).on("click", ".copo_dashboard", function () {
         document.location = copoTolDashboardURL
     })
 
@@ -66,7 +69,7 @@ $(document).ready(function () {
                 'sample_id': sample_id,
             },
             success: function (data) {
-                json2HtmlForm_SampleDetails(data)
+                if (!window.location.href.includes('dashboard')) json2HtmlForm_SampleDetails(data)
             },
             error: function () {
                 alert(errorMsg);
@@ -133,6 +136,35 @@ $(document).ready(function () {
 
 });
 
+function get_profile_titles_nav_tabs() {
+    // check profiles
+    let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox") ?? true
+    let profile_titles_nav_bar = $("#sample_filter")
+    const li = $("<li/>", {
+        class: "hot_tab in"
+    });
+
+    const a = $("<a/>", {});
+
+    $.ajax({
+        url: "/copo/get_profile_titles_nav_tabs",
+        method: "GET",
+        dataType: "json",
+        data: {
+            'queryUserProfileRecords': queryUserProfileRecordsCheckBox
+        }
+    }).error(function (e) {
+        console.error(e)
+    }).done(function (data) {
+        console.log('From Ajax', data)
+        let profile_type = "DTOL"
+        $(li).addClass("active") //  Let the first profile type (in alphabetical order) be the first tab displayed
+        a.attr("data-toggle", "tab");
+        a.attr("href", profile_type);
+        a.text(profile_type)
+    })
+
+}
 
 function build_form_body_sample_Details(data, form) {
     const formDiv = document.getElementsByClassName("formDiv");
@@ -654,7 +686,8 @@ function populate_samples_table_based_on_profile_title(ev) {
                 $("#sample_panel_tol_inspect").find(".labelling").empty().html(
                     content
                 )
-                $("#tolInspectNavBar").find(".breadcrumb").empty().html("")
+                // Hide navbar menu if no sample records exist in a profile
+                $("#tolInspectNavBar").find(".breadcrumb").empty().html("").hide()
                 $(document).data("navBarItems", [])
             }
 

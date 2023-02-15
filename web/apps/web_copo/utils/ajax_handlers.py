@@ -1442,6 +1442,46 @@ def update_pending_samples_table(request):
     return HttpResponse(json_util.dumps(profiles))
 
 
+def get_profile_titles_nav_tabs(request):
+    queryUserProfileRecords = request.GET["queryUserProfileRecords"]
+    print('Is query in user profile checked: ', queryUserProfileRecords)
+    if queryUserProfileRecords:
+        owner_id = data_utils.get_user_id()
+        all_profiles = Profile().get_all_profiles(user=owner_id)
+        print('All user profiles: ', all_profiles)
+        #   profile_types = [Profile().get_type(str(profile["_id"])) for profile in allUserProfiles]
+        #   profile_types = set(profile_types)  # Remove duplicates
+        #   profile_types = list(map(str.lower, profile_types)) # Convert each string to lowercase
+        # profile_types_abbreviations = [i.upper()  for i in lkup.TOL_PROFILE_TYPES for j in profile_types if i in j]
+    else:
+        all_profiles = Profile().get_all_profiles()
+        print('All COPO profiles: ', all_profiles)
+
+    profile_types = [all_profiles[x]['type'] for x in range(len(all_profiles))]
+    profile_types = set(profile_types)  # Remove duplicates
+    # profile_types = list(map(str.lower, profile_types))  # Convert each string to lowercase
+
+    profile_types_abbreviations = [i.upper() for i in lkup.TOL_PROFILE_TYPES if
+                                   i.upper() in profile_types and re.search(r'\((.*?)\)', s).group(1)]
+
+    print('Profile types: ', profile_types_abbreviations)
+    # lkup.TOL_PROFILE_TYPES
+    #
+    # if project == "ERGA":
+    #     ergprofiles = Profile().get_erga_profiles_based_on_user_id()
+    # elif project == "DTOL":
+    #     profiles = Profile().get_dtol_only_profiles_based_on_user_id()
+    # elif project == "ASG":
+    #     profiles = Profile().get_asg_profiles_based_on_user_id()
+    # else:
+    #     profiles = Profile().get_dtolenv_profiles_based_on_user_id()
+    #
+    # samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
+    #            in profiles]
+
+    return HttpResponse(json_util.dumps(profile_types_abbreviations))
+
+
 def get_profiles_based_on_project(request):
     project = request.GET["project"]
 

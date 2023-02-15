@@ -5,10 +5,15 @@
 const fadeSpeed = 'fast';
 $(document).ready(function () {
     const copoTOLInspectionURL = "/copo/tol_inspect";
+    const copoTolDashboardURL = "/copo/dashboard/";
     let taxonomyLevelsDivID = $("#taxonomyLevelsDivID")
 
     $(document).on("click", ".tol_inspect1", function () {
         document.location = copoTOLInspectionURL;
+    })
+
+    $(document).on("click", ".copo_dashboard", function () {
+        document.location = copoTolDashboardURL
     })
 
     $(document).on("click", ".taxonomyLevel_fieldName", populate_pie_chart)
@@ -62,7 +67,7 @@ function populate_pie_chart(el) {
                 let pie_chart_labels_distinct;
 
                 const header = $("<h4/>", {html: "Details"});
-                
+
                 // add field names here which you want to use for the 'tol_inspect_gal' pie chart
                 included_fields_tol_inspect_gal = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME"]
 
@@ -108,7 +113,11 @@ function populate_pie_chart(el) {
                             responsive: true,
                             plugins: {
                                 legend: {
-                                    display: true, position: 'right',
+                                    display: true, position: 'right', maxWidth: 200,
+                                    labels: {
+                                        usePointStyle: true,
+                                        boxWidth: 6 // Get circular symbols instead of rectangular symbols
+                                    },
                                 }, tooltip: {
                                     callbacks: {
                                         label: ({
