@@ -201,13 +201,13 @@ class EnaReads:
 
         # submit datafiles via the RESTful pathway
 
-        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, isNew=False)
+        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=False)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
 
-        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, isNew=True)
+        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=True)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
@@ -759,7 +759,7 @@ class EnaReads:
 
         return context
 
-    def _submit_datafiles_rest(self, submission_xml_path=str(), isNew=True):
+    def _submit_datafiles_rest(self, submission_xml_path=str(), is_new=True):
         """
         function submits run xmls using ENA RESTfulness API,
         and also schedules the transfer of datafiles to ENA Dropbox
@@ -787,7 +787,7 @@ class EnaReads:
 
         if not len(datafiles_df):
             # no further datafiles to submit, finalise submission
-            self.finalise_submission()
+            self.finalise_submission(is_new)
             return dict(status=True, value='')
 
         # set default for nans
@@ -801,14 +801,14 @@ class EnaReads:
         submitted_files = [x for y in run_accessions for x in y.get('datafiles', list())]
 
         # filter out submitted files from datafiles_df
-        if isNew:
+        if is_new:
             datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
         else:
             datafiles_df = datafiles_df[datafiles_df.datafile_id.isin(submitted_files)]
 
         if not len(datafiles_df):
             # no further datafiles to submit, finalise submission
-            self.finalise_submission()
+            self.finalise_submission(is_new)
             return dict(status=True, value='')
 
         # get pairing info
@@ -817,7 +817,7 @@ class EnaReads:
         # filter datafiles_pairs based on submitted_files and datafiles_df
         # i.e. if any file in a pair has been submitted, then remove the paired record
         if len(datafiles_pairs):
-            if isNew:
+            if is_new:
                 datafiles_pairs = datafiles_pairs[
                     ~((datafiles_pairs['_id'].isin(submitted_files)) | (datafiles_pairs['_id2'].isin(submitted_files)))]
             else:
@@ -1064,7 +1064,7 @@ class EnaReads:
             run_xml_path = result['value']
 
             final_submission_xml_path = submission_xml_path
-            if not isNew:
+            if not is_new:
                 result = self._get_edit_submission_xml(submission_xml_path) 
                 final_submission_xml_path = result['value']
 
@@ -1182,9 +1182,9 @@ class EnaReads:
             # filter out submitted files from datafiles_df
             datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
 
-            if  isNew and not len(datafiles_df):
+            if  not len(datafiles_df):
                 # all files have been successfully submitted, finalise submission
-                self.finalise_submission()
+                self.finalise_submission(is_new)
 
         return result
 
@@ -1545,11 +1545,13 @@ class EnaReads:
 
         return cli_cmd
 
-    def finalise_submission(self):
+    def finalise_submission(self, is_new=True):
         """
         function runs final steps to complete the submission
         :return:
         """
+        if not is_new:
+            return
 
         # all metadata have been successfully submitted
         log_message = "Finalising submission..."

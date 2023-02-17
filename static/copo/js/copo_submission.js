@@ -431,11 +431,11 @@ $(document).ready(function () {
                     'component': component
                 },
                 success: function (data) {
-                    loader.remove();
+                    $("#cover-spin-bundle").html("");
                     do_display_submissions(data);
                 },
                 error: function (data) {
-                    loader.remove();
+                    $("#cover-spin-bundle").html("");
                     alert("Couldn't retrieve submissions!");
                 }
             });
@@ -865,7 +865,7 @@ $(document).ready(function () {
                     'target_id': submission_id
                 },
                 success: function (data) {
-                    loader.remove();
+                    viewPort.html("");
                     let result = data.result;
 
                     var feedbackMessage = "Full details of the destination repository are provided below.";
@@ -1074,7 +1074,7 @@ $(document).ready(function () {
                     'target_id': submission_id
                 },
                 success: function (data) {
-                    loader.remove();
+                    viewPort.html("");
                     let result = data.result;
 
                     //display any error
@@ -1296,7 +1296,7 @@ $(document).ready(function () {
                     'target_id': submission_id
                 },
                 success: function (data) {
-                    loader.remove();
+                    viewPort.html("")
                     let dataSet = data.submission_accessions.dataSet;
                     let columns = data.submission_accessions.columns;
                     let message = "No accessions recorded";
@@ -1461,9 +1461,8 @@ $(document).ready(function () {
                     'component': componentMeta.component,
                     'target_id': submission_id
                 },
-                success: function (data) {
-                    loader.remove();
-
+                success: function (data) {                    
+                    viewPort.html("")
                     viewPort.append(table_div);
                     var dataSet = data.table_data.dataSet;
                     var cols = data.table_data.columns;

@@ -53,7 +53,7 @@ class Logger():
 
     def housekeeping_logfile(self):
         housekeep_timestamp = datetime.timestamp(datetime.now() + timedelta(days=-7))
-        with os.scandir(self.logfile_path) as ls:
+        with os.scandir(os.path.join(settings.BASE_DIR,self.logfile_path)) as ls:
             for logFile in ls:
                 if os.path.getctime(logFile) < housekeep_timestamp:
                     os.remove(logFile)

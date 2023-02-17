@@ -41,7 +41,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpRespo
 from web.apps.web_copo.utils import EnaAssembly
 from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
 from django.contrib import messages
-
+from submission.helpers import generic_helper as ghlper
 
 @login_required
 def index(request):
@@ -99,6 +99,7 @@ def ena_read_manifest_validate(request, profile_id):
 
 @login_required()
 def ena_assembly(request, profile_id):
+    is_error = False
     request.session["profile_id"] = profile_id
 
     existing_sub = Submission().get_records_by_field("profile_id", profile_id)
@@ -137,8 +138,11 @@ def ena_assembly(request, profile_id):
             formdata = form.cleaned_data
             files = request.FILES
             if not files:
-                messages.error(request, 'At least one assembly file is required')
-                messages.error(request, form.errors)
+                ghlper.notify_assembly_status(data={"profile_id": profile_id},
+                                msg='At least one assembly file is required',
+                                action="error",
+                                html_id="assembly_info")
+                is_error = True
             else:
                 # uploading files to folder in COPO
                 notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
@@ -146,21 +150,26 @@ def ena_assembly(request, profile_id):
                 EnaAssembly.upload_assembly_files(files)
                 sub_result = EnaAssembly.validate_assembly(formdata)
                 if sub_result.get("error", ""):
-                    notify_frontend(data={"profile_id": profile_id},
+                    ghlper.notify_assembly_status(data={"profile_id": profile_id},
                                     msg=sub_result.get("error", ""),
                                     action="error",
                                     html_id="assembly_info")
-                    messages.error(request,sub_result)
+                    is_error = True
+                    #messages.error(request,sub_result)
                 else:
-                    messages.info(request, "The assembly has been created with accession: " + sub_result.get("accession", "Success"))
-                    notify_frontend(data={"profile_id": profile_id},
-                                    msg=sub_result.get("accession", "Success"),
-                                    action="success",
+                    ghlper.notify_assembly_status(data={"profile_id": profile_id},
+                                    msg="The assembly has been created with accession: " + sub_result.get("accession", "Success"),
+                                    action="info",
                                     html_id="assembly_info")
                 # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
                 #return HttpResponse()
         else:
-            messages.error(request, form.errors)
+            ghlper.notify_assembly_status(data={"profile_id": profile_id},
+                msg=str(form.errors),
+                action="error",
+                html_id="assembly_info")
+            is_error = True
+            #messages.error(request, form.errors)
         
     else:
         
@@ -175,8 +184,10 @@ def ena_assembly(request, profile_id):
                             #initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
                             #         "description": "jfksjkdlfs"}
                              )
-    return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
-
+        return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
+    if is_error:
+        return HttpResponse(content="Validation Error" , status=400)
+    return HttpResponse(status=200)
 
 @login_required
 def copo_repository(request, profile_id):
