@@ -650,13 +650,9 @@
     }, {
       "id": "2954c4af-6efa-489d-aa82-46cc17485d31",
       "comment": "",
-      "command": "waitForElementPresent",
+      "command": "//wait for element present",
       "target": "css=.page-title-custom",
-      "targets": [
-        ["css=.page-title-custom", "css:finder"],
-        ["xpath=//div[2]/div/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Submissions')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": "30000"
     }]
   }, {
@@ -824,7 +820,7 @@
         ["xpath=//div[@id='div_id_assemblyname']/input", "xpath:idRelative"],
         ["xpath=//div[4]/input", "xpath:position"]
       ],
-      "value": "test 222"
+      "value": "test 333"
     }, {
       "id": "414c1d51-1f2e-481d-9588-616e8914d62b",
       "comment": "",
@@ -900,7 +896,7 @@
       "command": "waitForElementPresent",
       "target": "xpath=//div[contains(., \"Validating Assembly Submission\")]",
       "targets": [],
-      "value": "60000"
+      "value": "30000"
     }, {
       "id": "2967c245-b33e-43ba-9f21-b1a767e9f4c2",
       "comment": "",
@@ -1623,6 +1619,169 @@
       "target": "xpath=//table[contains(@id, 'submission_accessions_view_tbl')]/tbody//tr/td[1][starts-with(., 'ERZ')] ",
       "targets": [],
       "value": ""
+    }]
+  }, {
+    "id": "39060337-4435-4f66-ace1-abf2828f55f1",
+    "name": "submit assembly with duplicate assemblyname",
+    "commands": [{
+      "id": "59f83004-510e-4437-a02d-0db7f46f14c4",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "923a3fc0-284f-400f-8cef-d53b25772654",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1920x1055",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bda01ac4-f44a-4d17-9dba-070f6eb96392",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//div[div=\"test Assembly profile\"][1]/span[1]/div[1]",
+      "targets": [
+        ["css=#menu_63ecaa4b69887b5e4d43d02e > .ui:nth-child(1)", "css:finder"],
+        ["xpath=//span[@id='menu_63ecaa4b69887b5e4d43d02e']/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/span/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "468edcf5-b871-4132-b77f-20ac5f625c5f",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Submit Assembly",
+      "targets": [
+        ["linkText=Submit Assembly", "linkText"],
+        ["css=.transition > .item:nth-child(2)", "css:finder"],
+        ["xpath=(//a[contains(text(),'Submit Assembly')])[2]", "xpath:link"],
+        ["xpath=//span[@id='menu_63ecaa4b69887b5e4d43d02e']/div/div/a[2]", "xpath:idRelative"],
+        ["xpath=//div/div/span/div/div/a[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7100a712-cdc4-49df-b980-c6b497d6efbd",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=id_assemblyname",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "958be044-3213-4738-9ac9-b150a4d5e745",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "xpath=//input[@id='id_study' and contains(@value, 'PRJ')]",
+      "targets": [
+        ["id=id_study", "id"],
+        ["name=study", "name"],
+        ["css=#id_study", "css:finder"],
+        ["xpath=//input[@id='id_study']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_study']/input", "xpath:idRelative"],
+        ["xpath=//fieldset/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "976fae5e-4f62-4b91-9600-8adaef0660ce",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_assemblyname",
+      "targets": [
+        ["id=id_assemblyname", "id"],
+        ["name=assemblyname", "name"],
+        ["css=#id_assemblyname", "css:finder"],
+        ["xpath=//input[@id='id_assemblyname']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_assemblyname']/input", "xpath:idRelative"],
+        ["xpath=//div[4]/input", "xpath:position"]
+      ],
+      "value": "test"
+    }, {
+      "id": "cd554483-8d3f-4631-ab31-25eddb438bf4",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_assemblyname",
+      "targets": [
+        ["id=id_assemblyname", "id"],
+        ["name=assemblyname", "name"],
+        ["css=#id_assemblyname", "css:finder"],
+        ["xpath=//input[@id='id_assemblyname']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_assemblyname']/input", "xpath:idRelative"],
+        ["xpath=//div[4]/input", "xpath:position"]
+      ],
+      "value": "test 555"
+    }, {
+      "id": "ab43c6a9-1a4e-4241-8de8-dd8085622633",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_coverage",
+      "targets": [
+        ["id=id_coverage", "id"],
+        ["name=coverage", "name"],
+        ["css=#id_coverage", "css:finder"],
+        ["xpath=//input[@id='id_coverage']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_coverage']/input", "xpath:idRelative"],
+        ["xpath=//div[6]/input", "xpath:position"]
+      ],
+      "value": "1"
+    }, {
+      "id": "f2d61eb4-15fa-40bd-8ca2-a23bfba3e9b9",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_program",
+      "targets": [
+        ["id=id_program", "id"],
+        ["name=program", "name"],
+        ["css=#id_program", "css:finder"],
+        ["xpath=//input[@id='id_program']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_program']/input", "xpath:idRelative"],
+        ["xpath=//div[7]/input", "xpath:position"]
+      ],
+      "value": "test"
+    }, {
+      "id": "440a1204-2c47-405a-8844-67f5d7124133",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_platform",
+      "targets": [
+        ["id=id_platform", "id"],
+        ["name=platform", "name"],
+        ["css=#id_platform", "css:finder"],
+        ["xpath=//input[@id='id_platform']", "xpath:attributes"],
+        ["xpath=//div[@id='div_id_platform']/input", "xpath:idRelative"],
+        ["xpath=//div[8]/input", "xpath:position"]
+      ],
+      "value": "test"
+    }, {
+      "id": "09ee8192-9784-4f00-985f-1790a76c2e05",
+      "comment": "",
+      "command": "type",
+      "target": "id=id_fasta",
+      "targets": [],
+      "value": "/Users/zef22hak/development/COPO/selenium_test/data/reads/Cafeteria_transcriptome.fasta.gz"
+    }, {
+      "id": "48974aa6-121e-4be1-beca-eab0afba28f7",
+      "comment": "",
+      "command": "click",
+      "target": "id=submit_assembly_button",
+      "targets": [
+        ["id=submit_assembly_button", "id"],
+        ["css=#submit_assembly_button", "css:finder"],
+        ["xpath=//input[@id='submit_assembly_button']", "xpath:attributes"],
+        ["xpath=//form[@id='assembly_form']/fieldset/input", "xpath:idRelative"],
+        ["xpath=//fieldset/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "39962176-4360-45df-8da8-af73c3454204",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//div[contains(@class, 'alert') and contains(., 'AssemblyName test_555 already exists')]",
+      "targets": [
+        ["css=.alert:nth-child(5)", "css:finder"],
+        ["xpath=//div[5]/div/div/div[4]", "xpath:position"]
+      ],
+      "value": "15000"
     }]
   }],
   "suites": [{

@@ -1907,16 +1907,14 @@ class Submission(DAComponent):
         else:
             return False
 
-    def add_assembly_accession(self, s_id, accession, alias):
+    def add_assembly_accession(self, s_id, accession, alias, assembly_idstr):
         #todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
         #reference assembly and sample
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": { "accessions.assembly": {}}})
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": { "accessions.assembly.accession" : accession,
-                                                           "accessions.assembly.alias": alias}})
+        assembly_accession = self.get_collection_handle().find_one({"_id": ObjectId(s_id), "accessions.assembly.accession": accession}, {"_id":1})
+        if not assembly_accession:
+            self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                    {"$push": { "accessions.assembly": {"accession": accession, "alias": alias, "assembly_id": assembly_idstr}}})
         return
-
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2655,7 +2653,6 @@ class APIValidationReport(DAComponent):
 class Assembly(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "assembly")
-
 
 def is_number(s):
     try:

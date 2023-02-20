@@ -121,7 +121,6 @@ class TestCopoassemblyf01():
     WebDriverWait(self.driver, 10).until(expected_conditions.presence_of_element_located((By.ID, "id_assemblyname")))
     elements = self.driver.find_elements(By.XPATH, "//input[@id=\'id_study\' and contains(@value, \'PRJ\')]")
     assert len(elements) > 0
-    self.driver.find_element(By.ID, "id_assemblyname").send_keys("test")
     self.driver.find_element(By.ID, "id_assemblyname").send_keys("test " + id_generator())
     self.driver.find_element(By.ID, "id_coverage").send_keys("1")
     self.driver.find_element(By.ID, "id_program").send_keys("test")
@@ -153,8 +152,7 @@ class TestCopoassemblyf01():
     WebDriverWait(self.driver, 10).until(expected_conditions.presence_of_element_located((By.ID, "id_assemblyname")))
     elements = self.driver.find_elements(By.XPATH, "//input[@id=\'id_study\' and contains(@value, \'PRJ\')]")
     assert len(elements) > 0
-    self.driver.find_element(By.ID, "id_assemblyname").send_keys("test")
-    self.driver.find_element(By.ID, "id_assemblyname").send_keys("test 333")
+    self.driver.find_element(By.ID, "id_assemblyname").send_keys("test " + id_generator())
     self.driver.find_element(By.ID, "id_coverage").send_keys("1")
     self.driver.find_element(By.ID, "id_program").send_keys("test")
     self.driver.find_element(By.ID, "id_platform").send_keys("test")

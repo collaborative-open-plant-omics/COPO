@@ -148,7 +148,7 @@ def ena_assembly(request, profile_id):
                 notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
                                 html_id="loading_span")
                 EnaAssembly.upload_assembly_files(files)
-                sub_result = EnaAssembly.validate_assembly(formdata)
+                sub_result = EnaAssembly.validate_assembly(formdata, profile_id)
                 if sub_result.get("error", ""):
                     ghlper.notify_assembly_status(data={"profile_id": profile_id},
                                     msg=sub_result.get("error", ""),

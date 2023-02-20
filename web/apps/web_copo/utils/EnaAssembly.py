@@ -16,6 +16,7 @@ from dal.copo_da import Assembly, Submission
 from exceptions_and_logging.logger import Logger
 from django.contrib import messages
 import glob
+from submission.helpers import generic_helper as ghlper
 
 
 # other types of assemblies (not individualss or cultured isolates):
@@ -62,9 +63,15 @@ def upload_assembly_files(files):
     output = "done"
     return output
 
-def validate_assembly(form):
+def validate_assembly(form, profile_id):
+    #check assemblyname unique
+    form["assemblyname"] = '_'.join(form["assemblyname"].split())
+    ass = Assembly(profile_id = profile_id).execute_query({"assemblyname" : form["assemblyname"] })
+    if len(ass) > 0:
+        msg = "AssemblyName " + form["assemblyname"] + " already exists "
+        return {"error": msg}
+
     request = ThreadLocal.get_current_request()
-    profile_id = request.session["profile_id"]
     assembly_path = Path(settings.MEDIA_ROOT) / "ena_assembly_files"
     these_assemblies = assembly_path / profile_id
     these_assemblies_url_path = f"{settings.MEDIA_URL}ena_assembly_files/{profile_id}"
@@ -86,14 +93,14 @@ def validate_assembly(form):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    cli_path = "tools/reposit/ena_cli/webin-cli.jar"
+    #cli_path = "tools/reposit/ena_cli/webin-cli.jar"
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
         manifest_path) + " -validate -ascp"
     Logger().debug(msg=webin_cmd)
     #print(webin_cmd)
     try:
         Logger().log(msg='validating assembly submission')
-        notify_frontend(data={"profile_id": profile_id},
+        ghlper.notify_assembly_status(data={"profile_id": profile_id},
                         msg="Validating Assembly Submission",
                         action="info",
                         html_id="assembly_info")
@@ -116,16 +123,17 @@ def validate_assembly(form):
         for f in form:
             if f in file_fields:
                 form[f] = str(form[f])
-        Assembly(profile_id = profile_id).save_record(auto_fields={},**form)
+        form["profile_id"] = profile_id  
+        assembly_rec = Assembly().save_record(auto_fields={},**form)
         accession = re.search( "ERZ\d*\w" , output).group(0).strip()
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
             # ENA alias costructed as webin-genome-assemblyname (maybe different for transriptome?)
-            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-" + form["assemblyname"].replace(" ", "_"))
+            Submission().add_assembly_accession(existing_sub_id, accession, "webin-genome-" + form["assemblyname"], str(assembly_rec["_id"]))
         else:
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions":
-                {"assembly": {"accession": accession, "alias": "webin-genome-" + form["assemblyname"].replace(" ", "_")}}}
+                {"assembly": [{"accession": accession, "alias": "webin-genome-" + form["assemblyname"], "assembly_id": str(assembly_rec["_id"])}]}}
             Submission().save_record(autofields={}, **fieldsdict)
     else:
         if return_code == 2:
@@ -142,7 +150,8 @@ def validate_assembly(form):
                     with open(file) as report_file:
                         error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
             return {"error": error}
-        
+        else:
+            return {"error": output}
     return {"accession": accession}
 
 
@@ -151,13 +160,13 @@ def submit_assembly(file_path, profile_id):
     if "dev" in ena_service:
         test = " -test "
     webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
-        file_path) + " -submit -ascp"
+        file_path) + " -submit"
     Logger().debug(msg=webin_cmd)
     # print(webin_cmd)
     # try/except as it turns out this can fail even if validate is successfull
     try:
         Logger().log(msg="submitting assembly")
-        notify_frontend(data={"profile_id": profile_id},
+        ghlper.notify_assembly_status(data={"profile_id": profile_id},
                         msg="Submitting Assembly",
                         action="info",
                         html_id="assembly_info")

@@ -56,8 +56,8 @@ def parse_ena_spreadsheet(request):
         if ena.validate():
             l.log("About to collect Dtol manifest")
             # check s3 for bucket and files files
-            #bucket_name = str(request.user.id) + "_" + request.user.username
-            bucket_name = request.user.username
+            bucket_name = str(request.user.id) + "_" + request.user.username
+            #bucket_name = request.user.username
 
             if s3obj.check_for_s3_bucket(bucket_name):
                 # get filenames from manifest
@@ -72,9 +72,9 @@ def parse_ena_spreadsheet(request):
                     for i in f.split(","):
                         files.append(join(settings.UPLOAD_PATH, username, i.strip()))
   
-                sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle_meta.file_location": {"$in": files}})
-                if sub and sub["accessions"]:
-                        return HttpResponse(content="The sample(s) has been submitted before, it cannot be updated", status=400)
+                #sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle_meta.file_location": {"$in": files}})
+                #if sub and sub["accessions"]:
+                #        return HttpResponse(content="The sample(s) has been submitted before, it cannot be updated", status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
                 notify_frontend(data={"profile_id": profile_id},
@@ -186,8 +186,8 @@ def save_ena_records(request):
         df["file_type"] = "TODO"
         df["type"] = "RAW DATA FILE"
 
-        #df["bucket_name"] = str(request.user.id) + "_" + request.user.username
-        df["bucket_name"] = username
+        df["bucket_name"] = str(request.user.id) + "_" + request.user.username
+        #df["bucket_name"] = username
 
         # create local location
         Path(join(settings.UPLOAD_PATH, username)).mkdir(parents=True, exist_ok=True)
@@ -196,8 +196,8 @@ def save_ena_records(request):
         if s["library_layout"] == "SINGLE":
             # create single record
             f_name = s["file_name"]
-            #df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-            df["ecs_location"] = username + "/" + f_name   #temp-solution
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = username + "/" + f_name   #temp-solution
             df["file_name"] = f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
@@ -220,8 +220,8 @@ def save_ena_records(request):
             file_names = s["file_name"].split(",")
             f_name = file_names[0].strip()
             df["file_name"] = f_name
-            #df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-            df["ecs_location"] = username + "/" + f_name   #temp-solution
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = username + "/" + f_name   #temp-solution
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
             df["name"] = f_name
@@ -245,8 +245,8 @@ def save_ena_records(request):
             # df.pop("_id")
             f_name = file_names[1].strip()
             df["file_name"] = f_name
-            #df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-            df["ecs_location"] = request.user.username + "/" + f_name
+            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = request.user.username + "/" + f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
             df["name"] = f_name
@@ -274,7 +274,7 @@ def save_ena_records(request):
 
     
     #if sub and sub["accessions"]:
-    #    return HttpResponse(content="The sample(s) has been submitted before, it cannot be updated", status=400)
+    #    return HttpResponse(content="", status=400)
         
     if not sub:
         sub = dict()

@@ -340,6 +340,78 @@
       "required": "false",
       "show_in_table": true,
       "control": "text"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "deleted"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Delete",
+      "show_in_form": false,
+      "id": "copo.assembly.deleted",
+      "type": "string",
+      "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "date_modified"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Date Modified",
+      "show_in_form": false,
+      "id": "copo.assembly.date_modified",
+      "type": "string",
+      "show_in_table": true,
+      "control": "date-picker"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "date_created"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Created",
+      "show_in_form": false,
+      "id": "copo.assembly.date_created",
+      "type": "string",
+      "show_in_table": false,
+      "control": "datetime"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "profile_id"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Profile ID",
+      "show_in_form": false,
+      "id": "copo.assembly.profile_id",
+      "type": "string",
+      "show_in_table": false,
+      "control": "text"
     }
   ]
 }

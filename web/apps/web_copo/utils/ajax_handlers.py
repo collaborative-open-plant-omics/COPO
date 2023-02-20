@@ -1746,8 +1746,8 @@ def process_urls(request):
         msg='', action="info",
         html_id="sample_info", group_name=channels_group_name)       
     file_list = json.loads(request.POST["data"])
-    #bucket_name = str(request.user.id) + "_" + request.user.username
-    bucket_name = request.user.username
+    bucket_name = str(request.user.id) + "_" + request.user.username
+    #bucket_name = request.user.username
 
     s3con = s3()
  
