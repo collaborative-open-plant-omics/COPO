@@ -199,3 +199,4 @@ xmljson==0.1.9
 XlsxWriter==3.0.3
 zipp==0.6.0
 Pillow==9.4.0
+django-crispy-forms==1.14.0
