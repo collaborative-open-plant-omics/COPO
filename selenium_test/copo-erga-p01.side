@@ -1,0 +1,669 @@
+{
+  "id": "7e7a0881-8b46-4dba-9b19-6b8f06a50e86",
+  "version": "2.0",
+  "name": "copo",
+  "url": "http://127.0.0.1:8000/copo",
+  "tests": [{
+    "id": "8994e0af-1d81-4b1a-bbe1-0e90221e7c6e",
+    "name": "login",
+    "commands": [{
+      "id": "8bcb4304-9a20-4a6e-9fc6-2431b0e4d486",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f0ca8837-3a07-491f-8a3b-6e838c0220e5",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1188x839",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fcdbd279-c1fb-4d80-a434-b5932d2aa166",
+      "comment": "",
+      "command": "click",
+      "target": "css=.login-button",
+      "targets": [
+        ["css=.login-button", "css:finder"],
+        ["xpath=//span", "xpath:position"],
+        ["xpath=//span[contains(.,'Sign in with Orcid.org')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "a85588d5-c052-446d-8575-1e3d88580372",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "id=password",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "c3cd4e58-40c1-444c-92f1-b3c8acdf4219",
+      "comment": "",
+      "command": "type",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//main[@id='main']/div/div/div/mat-card/mat-card-content/app-form-sign-in/form/mat-form-field[2]/div/div/div[3]/input", "xpath:idRelative"],
+        ["xpath=//mat-form-field[2]/div/div/div[3]/input", "xpath:position"]
+      ],
+      "value": "Iam1testUser"
+    }, {
+      "id": "3b5c0738-bfb4-4750-9c3d-9210f7cad009",
+      "comment": "",
+      "command": "type",
+      "target": "id=username",
+      "targets": [
+        ["id=username", "id"],
+        ["css=#username", "css:finder"],
+        ["xpath=//input[@id='username']", "xpath:attributes"],
+        ["xpath=//main[@id='main']/div/div/div/mat-card/mat-card-content/app-form-sign-in/form/mat-form-field/div/div/div[3]/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "debby.ku@earlham.ac.uk"
+    }, {
+      "id": "5e96c9a6-e219-4cd8-8686-e0392c9e477d",
+      "comment": "",
+      "command": "click",
+      "target": "css=#signin-button > .mat-button-wrapper",
+      "targets": [
+        ["css=#signin-button > .mat-button-wrapper", "css:finder"],
+        ["xpath=//button[@id='signin-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"],
+        ["xpath=//span[contains(.,'SIGN IN')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4e1290d9-c0e6-4f03-88af-2d37957bbb10",
+      "comment": "",
+      "command": "pause",
+      "target": "5000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f7209f24-5413-498f-860f-93113e125a9d",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "xpath=//span[contains(.,'Work Profiles')]",
+      "targets": [
+        ["css=.page-title-custom", "css:finder"],
+        ["xpath=//div[2]/div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Work Profiles')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "1ea50f2c-6111-43ef-bbca-36c22c422adc",
+    "name": "Create ERGA Profile",
+    "commands": [{
+      "id": "81a55a3f-bf4f-444f-aa88-586580e77130",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f51ca4fe-f4dc-40cc-88c6-12c4b6ed536d",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1188x839",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b8786ca4-5611-4b2d-89d0-00f76695ba63",
+      "comment": "",
+      "command": "click",
+      "target": "css=.new-component-template > .icon",
+      "targets": [
+        ["css=.new-component-template > .icon", "css:finder"],
+        ["xpath=//span[2]/button[2]/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "02729db5-5303-4e3d-966a-d189c6cf4bec",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "id=copo.profile.title",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "e462b060-9efb-410a-9711-20f08c00b87c",
+      "comment": "",
+      "command": "click",
+      "target": "id=copo.profile.title",
+      "targets": [
+        ["id=copo.profile.title", "id"],
+        ["name=copo.profile.title", "name"],
+        ["css=#copo\\.profile\\.title", "css:finder"],
+        ["xpath=//input[@id='copo.profile.title']", "xpath:attributes"],
+        ["xpath=//div[@id='bad090fa-2e6b-4861-9ee9-2f2d17c0228e']/div/div/div[2]/div/div/div/div[3]/div/div/form/div/div/div/div/div/input", "xpath:idRelative"],
+        ["xpath=//div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e7d98f26-bd89-42b6-b727-28971be2f625",
+      "comment": "",
+      "command": "type",
+      "target": "id=copo.profile.title",
+      "targets": [
+        ["id=copo.profile.title", "id"],
+        ["name=copo.profile.title", "name"],
+        ["css=#copo\\.profile\\.title", "css:finder"],
+        ["xpath=//input[@id='copo.profile.title']", "xpath:attributes"],
+        ["xpath=//div[@id='bad090fa-2e6b-4861-9ee9-2f2d17c0228e']/div/div/div[2]/div/div/div/div[3]/div/div/form/div/div/div/div/div/input", "xpath:idRelative"],
+        ["xpath=//div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": "test ERGA "
+    }, {
+      "id": "1adbabde-a381-443e-9b09-ea5171139934",
+      "comment": "",
+      "command": "click",
+      "target": "id=copo.profile.description",
+      "targets": [
+        ["id=copo.profile.description", "id"],
+        ["name=copo.profile.description", "name"],
+        ["css=#copo\\.profile\\.description", "css:finder"],
+        ["xpath=//textarea[@id='copo.profile.description']", "xpath:attributes"],
+        ["xpath=//div[@id='bad090fa-2e6b-4861-9ee9-2f2d17c0228e']/div/div/div[2]/div/div/div/div[3]/div/div/form/div[2]/div/div/div/textarea", "xpath:idRelative"],
+        ["xpath=//textarea", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "85a4ef51-a944-4312-b917-42bc3b3aefe9",
+      "comment": "",
+      "command": "type",
+      "target": "id=copo.profile.description",
+      "targets": [
+        ["id=copo.profile.description", "id"],
+        ["name=copo.profile.description", "name"],
+        ["css=#copo\\.profile\\.description", "css:finder"],
+        ["xpath=//textarea[@id='copo.profile.description']", "xpath:attributes"],
+        ["xpath=//div[@id='bad090fa-2e6b-4861-9ee9-2f2d17c0228e']/div/div/div[2]/div/div/div/div[3]/div/div/form/div[2]/div/div/div/textarea", "xpath:idRelative"],
+        ["xpath=//textarea", "xpath:position"]
+      ],
+      "value": "test ERGA profile"
+    }, {
+      "id": "8cb867be-e67b-4f81-89c3-84adebdbd8f3",
+      "comment": "",
+      "command": "select",
+      "target": "id=copo.profile.type",
+      "targets": [],
+      "value": "label=European Reference Genome Atlas (ERGA)"
+    }, {
+      "id": "48746d4c-c71b-49db-b201-2bf3cf49e732",
+      "comment": "",
+      "command": "click",
+      "target": "css=option:nth-child(5)",
+      "targets": [
+        ["css=option:nth-child(5)", "css:finder"],
+        ["xpath=//option[@value='European Reference Genome Atlas (ERGA)']", "xpath:attributes"],
+        ["xpath=//select[@id='copo.profile.type']/option[5]", "xpath:idRelative"],
+        ["xpath=//option[5]", "xpath:position"],
+        ["xpath=//option[contains(.,'European Reference Genome Atlas (ERGA)')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "98032e47-c98f-415e-aa92-26a81670c2ed",
+      "comment": "",
+      "command": "click",
+      "target": "css=.copo-components-icons",
+      "targets": [
+        ["css=.copo-components-icons", "css:finder"],
+        ["xpath=//button[@id='btnFormSave']/i", "xpath:idRelative"],
+        ["xpath=//div/div/button[2]/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b7d38722-4789-47a0-9070-b7c3a8af66d6",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//div[contains(.,'test ERGA profile')]",
+      "targets": [],
+      "value": "30000"
+    }]
+  }, {
+    "id": "bdaa1984-85f6-43b7-8dbe-7bcb30f6f8b5",
+    "name": "Upload ERGA Manifest",
+    "commands": [{
+      "id": "29fd90d0-c5da-4ec5-bd27-1ec1040c7f76",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b070915b-bc85-4266-9cbd-930d29cb00d4",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1188x840",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "be1d6c2e-aa8a-40f5-96f8-cf2999369cd5",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//div[div=\"test ERGA profile\"][1]/span[1]/div[1]",
+      "targets": [
+        ["css=#menu_63d8fbcd871268ddd8525ef1 > .ui:nth-child(1)", "css:finder"],
+        ["xpath=//span[@id='menu_63d8fbcd871268ddd8525ef1']/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/span/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "50e2fabb-1b3d-40d8-a715-7a547220d5b6",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Submit ERGA Manifest",
+      "targets": [
+        ["linkText=Submit ERGA Manifest", "linkText"],
+        ["css=.transition > .item:nth-child(4)", "css:finder"],
+        ["xpath=(//a[contains(text(),'Submit ERGA Manifest')])[2]", "xpath:link"],
+        ["xpath=//span[@id='menu_63d8e5cb388a7ff3950474bc']/div/div/a[4]", "xpath:idRelative"],
+        ["xpath=//div/div/span/div/div/a[4]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3a62f087-7dfa-4c52-b1fc-f19d4c5f7132",
+      "comment": "",
+      "command": "click",
+      "target": "css=.pink > .icon",
+      "targets": [
+        ["css=.pink > .icon", "css:finder"],
+        ["xpath=//button[4]/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "ef56593a-00fc-4339-89a3-0709e7c27ea6",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//button[contains(.,'Ok')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "653c4e83-dff8-48ac-be41-aed9e687236a",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//button[contains(.,'Ok')]",
+      "targets": [
+        ["id=fd3c1085-c493-4929-9e23-d53bbd051147", "id"],
+        ["css=#fd3c1085-c493-4929-9e23-d53bbd051147", "css:finder"],
+        ["xpath=//button[@id='fd3c1085-c493-4929-9e23-d53bbd051147']", "xpath:attributes"],
+        ["xpath=//div[@id='e4152eea-a965-4fbd-bd2a-1929f81515cc']/div/div/div[3]/div/div/button[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/button[2]", "xpath:position"],
+        ["xpath=//button[contains(.,'Ok')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4bec9692-4cdd-4c82-ac8f-8f004efbf9bb",
+      "comment": "",
+      "command": "type",
+      "target": "id=file",
+      "targets": [
+        ["id=file", "id"],
+        ["css=#file", "css:finder"],
+        ["xpath=//input[@id='file']", "xpath:attributes"],
+        ["xpath=//label[@id='upload_label']/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/label/input", "xpath:position"]
+      ],
+      "value": "/Users/zef22hak/development/COPO/selenium_test/data/copo-erga-p01.xlsx"
+    }, {
+      "id": "95c5ad71-e7d5-4bdc-a23e-5f81cca95cc3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//div[@id='upload_buttons']/button[not(contains(@style,'display:none'))][1]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "328e5d4d-fab8-4cf7-8f50-6a3bbab4ef1b",
+      "comment": "",
+      "command": "assertElementNotPresent",
+      "target": "xpath=//button[@id='export_errors_button' and not(contains(@style,'display:none'))]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "561dc7ae-423a-4155-9fbb-5dc62983db9e",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//label[@id='images_label' and not(contains(@style,'disabled'))]",
+      "targets": [],
+      "value": "1500"
+    }, {
+      "id": "1fd873f6-1c47-45f3-97a5-469019a76db2",
+      "comment": "",
+      "command": "type",
+      "target": "id=images",
+      "targets": [],
+      "value": "/Users/zef22hak/development/COPO/selenium_test/data/ERGA_PI_7940_01-1.jpg"
+    }, {
+      "id": "2a94cab4-a6f6-46ea-ba1e-c8eaf7bf292c",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//button[@id='finish_button' and not(contains(@style,'display:none'))]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "521746c3-fd4d-407a-ab5d-7823b072f251",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f1db87fe-8ac6-4038-9261-4b7d9b634546",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "xpath=//td[contains(.,'ERGA_PI_7940_01-1.jpg')]",
+      "targets": [
+        ["css=#image_table td:nth-child(2)", "css:finder"],
+        ["xpath=//table[@id='image_table']/tbody/tr/td[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div/table/tbody/tr/td[2]", "xpath:position"],
+        ["xpath=//td[contains(.,'ERGA_PI_7940_01-1.jpg')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "f157fe34-017c-49ec-9ef8-4ae7f413fca5",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//table[@id='image_table']/tbody/tr/td[1]",
+      "targets": [],
+      "value": "ERGA_PI_7940_01"
+    }, {
+      "id": "9d3bfa64-8e3a-4069-9883-06774735dab2",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//button[@id='finish_button' and not(contains(@style,'display:none'))]",
+      "targets": [
+        ["id=finish_button", "id"],
+        ["css=#finish_button", "css:finder"],
+        ["xpath=//button[@id='finish_button']", "xpath:attributes"],
+        ["xpath=//div[@id='upload_buttons']/button", "xpath:idRelative"],
+        ["xpath=//div[6]/div/div/div[2]/div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Finish')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c1773c55-1466-4c94-bec2-f3f0be37e4a8",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//div[3]/div/div/button[2]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "554d7482-9c50-40d0-b62c-dc21f3b19768",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//div[3]/div/div/button[2]",
+      "targets": [
+        ["id=fbcfbdb6-433b-4d6d-99c2-7d389c7e2bf1", "id"],
+        ["css=#fbcfbdb6-433b-4d6d-99c2-7d389c7e2bf1", "css:finder"],
+        ["xpath=//button[@id='fbcfbdb6-433b-4d6d-99c2-7d389c7e2bf1']", "xpath:attributes"],
+        ["xpath=//div[@id='b6a89992-dd20-401d-89bb-66dea6d20c9b']/div/div/div[3]/div/div/button[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2957e322-e89e-4917-ac75-070c04df523c",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "xpath=//span[contains(.,'Samples')]",
+      "targets": [],
+      "value": "1500"
+    }]
+  }, {
+    "id": "14b20065-9e1e-45c1-baf0-66a9ed7b4062",
+    "name": "Approve Samples",
+    "commands": [{
+      "id": "cdd78dc4-a224-4bc9-9642-72b51debe860",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "7a45bba7-17d2-4de4-b9a5-73044adaf5cc",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1200x1011",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bb228b37-1634-4df9-9bf8-9906ea08ea1f",
+      "comment": "",
+      "command": "click",
+      "target": "css=#accept_reject_shortcut > .icon",
+      "targets": [
+        ["css=#accept_reject_shortcut > .icon", "css:finder"],
+        ["xpath=//button[@id='accept_reject_shortcut']/i", "xpath:idRelative"],
+        ["xpath=//div[2]/button/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "78f3833f-c144-4b46-befd-4cc8fa0f41d1",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//td[contains(.,'test ERGA')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "cee0eba9-74b5-4e7e-9360-575da97f2834",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//td[contains(.,'test ERGA')]",
+      "targets": [
+        ["css=.selectable_row:nth-child(1) > .sorting_1", "css:finder"],
+        ["xpath=//table[@id='profile_titles']/tbody/tr/td[2]", "xpath:idRelative"],
+        ["xpath=//td[2]", "xpath:position"],
+        ["xpath=//td[contains(.,'31/01/2023')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "9d81a38d-b509-4b66-bb1d-29bb48815729",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "linkText=Pending Samples",
+      "targets": [
+        ["linkText=Pending Samples", "linkText"],
+        ["css=.hot_tab:nth-child(1) > a", "css:finder"],
+        ["xpath=//a[contains(text(),'Pending Samples')]", "xpath:link"],
+        ["xpath=//ul[@id='sample_filter']/li/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, 'pending')]", "xpath:href"],
+        ["xpath=//div[2]/ul/li/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Pending Samples')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "493df28f-c980-45da-ac14-ea66c5b9a952",
+      "comment": "",
+      "command": "click",
+      "target": "css=.form-check-input",
+      "targets": [
+        ["css=.form-check-input", "css:finder"],
+        ["xpath=//input[@type='checkbox']", "xpath:attributes"],
+        ["xpath=//tr[@id='63d9143cc579d4b0504521b7']/td/input", "xpath:idRelative"],
+        ["xpath=//td/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "888ef3e3-449d-4104-a507-842322b7cd1c",
+      "comment": "",
+      "command": "click",
+      "target": "css=.positive",
+      "targets": [
+        ["css=.positive", "css:finder"],
+        ["xpath=(//button[@type='button'])[3]", "xpath:attributes"],
+        ["xpath=//div[@id='accept_reject_button']/button[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div/button[2]", "xpath:position"],
+        ["xpath=//button[contains(.,' Accept')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b674359d-9b7e-451d-90c1-c5cf84d1503b",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//button[contains(.,'Ok')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "c7791039-25af-4993-923a-b84a0d3b75d8",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//button[contains(.,'Ok')]",
+      "targets": [
+        ["id=63838095-bdfe-4fe1-9aa5-70b1f0c39afa", "id"],
+        ["css=#\\36 3838095-bdfe-4fe1-9aa5-70b1f0c39afa", "css:finder"],
+        ["xpath=//button[@id='63838095-bdfe-4fe1-9aa5-70b1f0c39afa']", "xpath:attributes"],
+        ["xpath=//div[@id='d76d057b-eadf-4d35-b921-208c6ccc80f4']/div/div/div[3]/div/div/button[2]", "xpath:idRelative"],
+        ["xpath=//div[7]/div/div/div[3]/div/div/button[2]", "xpath:position"],
+        ["xpath=//button[contains(.,'Ok')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "91916e3b-d7fb-425a-b93a-fcba14e8e9e2",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//p[starts-with(.,'Querying Public Naming Service')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "2094f853-54bf-4d39-b98b-d83c7eb015da",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//p[starts-with(.,'Last Sample Submitted')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "1755016d-e8f6-42c0-8095-9d0f055ed580",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//p[starts-with(., 'Bioimage submitting')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "8278d334-7c0e-46f9-8077-4c398be7e66e",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//p[starts-with(., 'Bioimage submitted')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "b3a5b644-76b8-4c73-aad2-150dfc33ce61",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.dataTables_empty",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4b78e9a9-18cf-4166-aa1b-c01fcd391b44",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Processing Samples",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "00ee2615-2bdb-4ba7-80c1-ec4cd137d848",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "css=.dataTables_empty",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "bd847548-434d-48c6-b59b-67b5a63132e6",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Accepted Samples",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9925f32e-964e-4d0f-b866-264359628539",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//div[2]/table/tbody/tr/td[2]",
+      "targets": [],
+      "value": "30000"
+    }]
+  }, {
+    "id": "b3359651-ea6c-4c78-b98f-6af051f92312",
+    "name": "logout",
+    "commands": [{
+      "id": "d33239ff-1108-4d14-827a-092146f95d16",
+      "comment": "",
+      "command": "open",
+      "target": "http://127.0.0.1:8000/copo/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "7f683932-85ad-4dd1-bb58-1a059871a333",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1188x839",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "20e4986c-87f8-4953-9f7c-d04cbbbc97ed",
+      "comment": "",
+      "command": "click",
+      "target": "css=.caret",
+      "targets": [
+        ["css=.caret", "css:finder"],
+        ["xpath=//nav[@id='copo-global-nav']/div/ul/li[3]/a/span/span", "xpath:idRelative"],
+        ["xpath=//span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7fd6c592-ec0b-4aa2-b778-cb2cbc8b3741",
+      "comment": "",
+      "command": "click",
+      "target": "css=li:nth-child(7) .icon_text",
+      "targets": [
+        ["css=li:nth-child(7) .icon_text", "css:finder"],
+        ["xpath=//nav[@id='copo-global-nav']/div/ul/li[3]/ul/li[7]/a/div/span", "xpath:idRelative"],
+        ["xpath=//li[7]/a/div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Logout')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "fb331e53-c0e0-4cd0-afc3-e0edbb9166dc",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn",
+      "targets": [
+        ["css=.btn", "css:finder"],
+        ["xpath=//button[@type='submit']", "xpath:attributes"],
+        ["xpath=//button", "xpath:position"],
+        ["xpath=//button[contains(.,'Sign Out')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "d480e651-f4dc-4dd1-937d-4a76efd89b72",
+      "comment": "",
+      "command": "open",
+      "target": "https://orcid.org/signout",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "1047c3bc-15a7-4b62-83cb-780f9b4caab8",
+    "name": "Clear Data",
+    "commands": [{
+      "id": "83d8ca9b-afad-42f3-88fa-d922560af7f2",
+      "comment": "",
+      "command": "executeScript",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "afb46dc1-11e0-4e90-bb22-c4b1449c86aa",
+    "name": "copo-erga-p01",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["8994e0af-1d81-4b1a-bbe1-0e90221e7c6e", "1ea50f2c-6111-43ef-bbca-36c22c422adc", "bdaa1984-85f6-43b7-8dbe-7bcb30f6f8b5", "14b20065-9e1e-45c1-baf0-66a9ed7b4062", "b3359651-ea6c-4c78-b98f-6af051f92312"]
+  }],
+  "urls": ["http://127.0.0.1:8000/", "http://127.0.0.1:8000/copo"],
+  "plugins": []
+}

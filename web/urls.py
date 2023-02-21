@@ -29,8 +29,8 @@ urlpatterns = [
 handler404 = views.handler404
 handler500 = views.handler500
 
-if settings.DEBUG is False:  # if DEBUG is True it will be served automatically
-    urlpatterns += [
-        re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]
+#if settings.DEBUG is False:  # if DEBUG is True it will be served automatically
+urlpatterns += [
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]

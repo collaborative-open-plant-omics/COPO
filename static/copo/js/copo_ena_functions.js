@@ -30,6 +30,7 @@ $(document).ready(function () {
                 $("#" + d.html_id).html(d.message)
                 $("#spinner").fadeOut()
             }
+
         }
         window.addEventListener("beforeunload", function (event) {
             s3socket.close()

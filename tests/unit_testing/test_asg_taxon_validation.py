@@ -16,7 +16,7 @@ from tests.utilities.helpers import one_of_these_elements_is_visible
 
 import os
 import tools.resolve_env as env
-from web.apps.web_copo.utils.dtol.tol_validators.validation_messages import MESSAGES as validation_messages
+from web.apps.web_copo.validators.validation_messages import MESSAGES as validation_messages
 
 
 # Ensure that the "copodev" django server is running before running this test
@@ -69,7 +69,7 @@ class ASGTaxonValidationTest(TestCase):
         asg_sample1_file = os.path.join(self.manifests_dir_path, "ASG_SAMPLE_MANIFEST_1.xlsx")
         element.send_keys(asg_sample1_file)
         # Launch the "Upload Spreadsheet" dialog
-        element = WebDriverWait(self.webdriver, 20).until(
+        element = WebDriverWait(self.webdriver, 30).until(
             one_of_these_elements_is_visible("finish_button", "export_errors_button"))
 
         try:

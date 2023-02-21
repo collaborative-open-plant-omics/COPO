@@ -1421,50 +1421,50 @@ console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message f
 console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
 JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
 1651735548901	Marionette	INFO	Stopped listening on port 43957
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed  InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches local data was corrupted
 console.warn: services.settings: main/fxmonitor-breaches Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed again InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1651736509016	geckodriver	INFO	Listening on 127.0.0.1:54381
@@ -1538,70 +1538,70 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed  InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches local data was corrupted
 console.warn: services.settings: main/fxmonitor-breaches Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed again InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1651737556633	geckodriver	INFO	Listening on 127.0.0.1:44603
@@ -1685,64 +1685,64 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileNkk0l8/search.json.mozlz4", (void 0)))
 1651738193972	Marionette	INFO	Listening on port 37503
 1651738194100	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1651738680987	geckodriver	INFO	Listening on 127.0.0.1:52131
@@ -1755,50 +1755,50 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofiletkLuCo/search.json.mozlz4", (void 0)))
 1651738684213	Marionette	INFO	Listening on port 38627
 1651738684324	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed  InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches local data was corrupted
 console.warn: services.settings: main/fxmonitor-breaches Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed again InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1651738986567	Marionette	INFO	Stopped listening on port 38627
@@ -1834,50 +1834,50 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
 
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed  InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches local data was corrupted
 console.warn: services.settings: main/fxmonitor-breaches Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed again InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1651739971228	Marionette	INFO	Stopped listening on port 44765
@@ -1940,22 +1940,22 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1651741829684	Marionette	INFO	Listening on port 35769
 1651741829806	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1651741845630	Marionette	INFO	Stopped listening on port 35769
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651742979156	geckodriver	INFO	Listening on 127.0.0.1:46477
@@ -1968,9 +1968,9 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileMfDCFT/search.json.mozlz4", (void 0)))
 1651742982231	Marionette	INFO	Listening on port 46821
 1651742982297	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651743309957	geckodriver	INFO	Listening on 127.0.0.1:53525
@@ -2020,9 +2020,9 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
 console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "https://orcid.org"
 JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651744202042	Marionette	INFO	Stopped listening on port 35791
@@ -2038,9 +2038,9 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilebHKuZK/search.json.mozlz4", (void 0)))
 1651750330071	Marionette	INFO	Listening on port 43565
 1651750330146	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 
@@ -2078,19 +2078,19 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileI1LBBe/search.json.mozlz4", (void 0)))
 1651751155544	Marionette	INFO	Listening on port 41069
 1651751155678	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 Exiting due to channel error.
@@ -2114,9 +2114,9 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile2yJ0Es/search.json.mozlz4", (void 0)))
 1651751935457	Marionette	INFO	Listening on port 45671
 1651751935541	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651752906849	Marionette	INFO	Stopped listening on port 45671
@@ -2267,40 +2267,40 @@ Exiting due to channel error.
 Exiting due to channel error.
 Exiting due to channel error.
 Exiting due to channel error.
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651753272206	geckodriver	INFO	Listening on 127.0.0.1:56073
@@ -2414,24 +2414,24 @@ ATTENTION: default value of option mesa_glthread overridden by environment.
 ATTENTION: default value of option mesa_glthread overridden by environment.
 ATTENTION: default value of option mesa_glthread overridden by environment.
 1651753294017	Marionette	INFO	Marionette enabled
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config Signature failed  InvalidSignatureError: Invalid content signature (main/doh-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-config local data was corrupted
 console.warn: services.settings: main/doh-config Signature verified failed. Retry from scratch
 1651757205049	Marionette	INFO	Stopped listening on port 36707
@@ -2532,14 +2532,14 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 console.error: Region.jsm: "Error fetching region" (new AbortError("The operation was aborted. ", (void 0), 770))
 console.error: Region.jsm: "Failed to fetch region" (new Error("NO_RESULT", "resource://gre/modules/Region.jsm", 419))
 1651757929028	Marionette	INFO	Listening on port 41785
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
@@ -2982,7 +2982,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1651759974359	Marionette	INFO	Listening on port 37529
 1651759974406	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1651759974517	Marionette	INFO	Stopped listening on port 37529
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1651760015632	geckodriver	INFO	Listening on 127.0.0.1:45965
 1651760015636	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilexV2vvL"
@@ -3317,7 +3317,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1651844342394	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1651844342536	Marionette	INFO	Stopped listening on port 33427
 JavaScript error: chrome://remote/content/marionette/cert.js, line 55: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1651844342613	geckodriver	INFO	Listening on 127.0.0.1:39733
 1651844342617	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileL4NwMT"
@@ -3512,7 +3512,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1651844412654	Marionette	INFO	Listening on port 40635
 1651844412717	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1651844412831	Marionette	INFO	Stopped listening on port 40635
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1651844414196	Marionette	INFO	Stopped listening on port 42983
 1651844517609	geckodriver	INFO	Listening on 127.0.0.1:34889
@@ -3634,45 +3634,45 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1651844538152	Marionette	INFO	Listening on port 33569
 1651844538217	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1651844538354	Marionette	INFO	Stopped listening on port 33569
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed  InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches local data was corrupted
 console.warn: services.settings: main/fxmonitor-breaches Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/fxmonitor-breaches Signature failed again InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/fxmonitor-breaches)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed  InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list local data was corrupted
 console.warn: services.settings: main/public-suffix-list Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/public-suffix-list Signature failed again InvalidSignatureError: Invalid content signature (main/public-suffix-list)
-console.error: services.settings: 
+console.error: services.settings:
   Message: InvalidSignatureError: Invalid content signature (main/public-suffix-list)
   Stack:
     InvalidSignatureError@resource://services-settings/RemoteSettingsClient.jsm:135:5
 _validateCollectionSignature@resource://services-settings/RemoteSettingsClient.jsm:875:13
 
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites Signature failed  InvalidSignatureError: Invalid content signature (main/top-sites)
-console.error: services.settings: 
+console.error: services.settings:
   main/top-sites local data was corrupted
 console.warn: services.settings: main/top-sites Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers Signature failed  InvalidSignatureError: Invalid content signature (main/doh-providers)
-console.error: services.settings: 
+console.error: services.settings:
   main/doh-providers local data was corrupted
 console.warn: services.settings: main/doh-providers Signature verified failed. Retry from scratch
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config Signature failed  InvalidSignatureError: Invalid content signature (main/search-config)
-console.error: services.settings: 
+console.error: services.settings:
   main/search-config local data was corrupted
 console.warn: services.settings: main/search-config Signature verified failed. Retry from scratch
 1652101559883	geckodriver	INFO	Listening on 127.0.0.1:38291
@@ -4499,7 +4499,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1652430427995	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1652430428118	Marionette	WARN	Ignoring event 'pageshow' because document has an invalid readyState of 'uninitialized'.
 1652430428238	Marionette	INFO	Stopped listening on port 44911
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1652430472405	geckodriver	INFO	Listening on 127.0.0.1:60375
 1652430472407	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileiCX2Je"
@@ -6076,7 +6076,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 1652977780789	Marionette	INFO	Listening on port 46633
 1652977780929	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1652977783216	Marionette	INFO	Stopped listening on port 46633
-RunWatchdog: Mainthread nested event loops during hang: 
+RunWatchdog: Mainthread nested event loops during hang:
  --- (no nested event loop active)
 ExceptionHandler::GenerateDump cloned child ExceptionHandler::WaitForContinueSignal waiting for continue signal...
 61907
@@ -7024,7 +7024,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 41947
 1653664741808	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653664741843	Marionette	INFO	Stopped listening on port 41947
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
@@ -7042,7 +7042,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 33361
 1653664845242	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653664845310	Marionette	INFO	Stopped listening on port 33361
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 Sandbox: Unexpected EOF, op 0 flags 00 path /proc/cpuinfo
 1653664913679	geckodriver	INFO	Listening on 127.0.0.1:37959
@@ -7704,7 +7704,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 35625
 1653665682183	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665682247	Marionette	INFO	Stopped listening on port 35625
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665683595	geckodriver	INFO	Listening on 127.0.0.1:34875
 1653665684599	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileug8ZgJ"
@@ -7744,7 +7744,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 45621
 1653665697570	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665697690	Marionette	INFO	Stopped listening on port 45621
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665699019	geckodriver	INFO	Listening on 127.0.0.1:33169
 1653665700033	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileQjZobU"
@@ -7758,7 +7758,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 42561
 1653665703164	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665703217	Marionette	INFO	Stopped listening on port 42561
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665704600	geckodriver	INFO	Listening on 127.0.0.1:50151
 1653665705616	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile8JOgsq"
@@ -7772,7 +7772,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 44157
 1653665707576	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665707659	Marionette	INFO	Stopped listening on port 44157
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665709033	geckodriver	INFO	Listening on 127.0.0.1:42335
 1653665710037	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileIbJCR4"
@@ -7802,7 +7802,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 42931
 1653665718200	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665718276	Marionette	INFO	Stopped listening on port 42931
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665719710	geckodriver	INFO	Listening on 127.0.0.1:58673
 1653665720720	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilehxTw7b"
@@ -7854,7 +7854,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 41679
 1653665739238	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665739296	Marionette	INFO	Stopped listening on port 41679
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665740694	geckodriver	INFO	Listening on 127.0.0.1:38755
 1653665741699	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileuuFuEQ"
@@ -7962,7 +7962,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 43029
 1653665781261	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665781309	Marionette	INFO	Stopped listening on port 43029
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665782416	geckodriver	INFO	Listening on 127.0.0.1:34163
 1653665783421	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileJHnrnH"
@@ -8032,7 +8032,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 40897
 1653665806770	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665806816	Marionette	INFO	Stopped listening on port 40897
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
@@ -8065,7 +8065,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 41255
 1653665818628	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665818676	Marionette	INFO	Stopped listening on port 41255
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665820088	geckodriver	INFO	Listening on 127.0.0.1:54143
 1653665821107	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile869tPg"
@@ -8079,7 +8079,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 33521
 1653665824555	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665824616	Marionette	INFO	Stopped listening on port 33521
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665826002	geckodriver	INFO	Listening on 127.0.0.1:54321
 1653665827009	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile3Ax4rh"
@@ -8111,7 +8111,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 45141
 1653665834812	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665834851	Marionette	INFO	Stopped listening on port 45141
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
@@ -8128,7 +8128,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 46549
 1653665839732	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665839800	Marionette	INFO	Stopped listening on port 46549
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665841632	geckodriver	INFO	Listening on 127.0.0.1:38815
 1653665842637	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileqXGwnm"
@@ -8155,7 +8155,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 32949
 1653665849994	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665850138	Marionette	INFO	Stopped listening on port 32949
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665852057	geckodriver	INFO	Listening on 127.0.0.1:40691
 1653665853074	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileJH7efO"
@@ -8194,7 +8194,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 37751
 1653665860573	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665860618	Marionette	INFO	Stopped listening on port 37751
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665862188	geckodriver	INFO	Listening on 127.0.0.1:34165
 1653665863213	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilewIphQx"
@@ -8220,7 +8220,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 38929
 1653665871829	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665871921	Marionette	INFO	Stopped listening on port 38929
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 console.log: "RemoteSettingsWorker error: Error: Can't import when we've started shutting down."
 1653665873458	geckodriver	INFO	Listening on 127.0.0.1:36717
@@ -8275,7 +8275,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 36019
 1653665892728	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665892843	Marionette	INFO	Stopped listening on port 36019
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665894562	geckodriver	INFO	Listening on 127.0.0.1:50455
 1653665895580	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileGT6JrW"
@@ -8315,7 +8315,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 43695
 1653665907595	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665907674	Marionette	INFO	Stopped listening on port 43695
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665909055	geckodriver	INFO	Listening on 127.0.0.1:50963
 1653665910062	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileI2Zv2k"
@@ -8329,7 +8329,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 41737
 1653665912709	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665912775	Marionette	INFO	Stopped listening on port 41737
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
@@ -8346,7 +8346,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 33157
 1653665918346	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665918400	Marionette	INFO	Stopped listening on port 33157
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665919767	geckodriver	INFO	Listening on 127.0.0.1:49969
 1653665920780	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile5cv1w7"
@@ -8387,7 +8387,7 @@ console.warn: SearchSettings: "get: No settings file exists, new profile?" (new 
 Read port: 35101
 1653665934666	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 1653665934728	Marionette	INFO	Stopped listening on port 35101
-console.error: services.settings: 
+console.error: services.settings:
   main/query-stripping Signature failed  TypeError: NetworkError: Network request failed
 1653665935949	geckodriver	INFO	Listening on 127.0.0.1:54689
 1653665936965	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileLrnbQd"
@@ -9313,3 +9313,306 @@ Read port: 34969
 1656417517793	Marionette	INFO	Stopped listening on port 34969
 Missing chrome or resource URL: resource://gre/modules/UpdateListener.jsm
 console.error: "Error during quit-application-granted: [Exception... \"File error: Not found\"  nsresult: \"0x80520012 (NS_ERROR_FILE_NOT_FOUND)\"  location: \"JS frame :: resource:///modules/BrowserGlue.jsm :: _onQuitApplicationGranted/tasks< :: line 1969\"  data: no]"
+1671540449189	geckodriver	INFO	Listening on 127.0.0.1:40269
+1671540450199	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile2EXvxj"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671540452204	Marionette	INFO	Marionette enabled
+1671540452219	Marionette	INFO	Listening on port 34297
+1671540452535	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile2EXvxj/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671540492419	Marionette	INFO	Stopped listening on port 34297
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+sendPing@resource://gre/modules/EventPing.jsm:51:30
+_submitPing@resource://gre/modules/EventPing.jsm:229:12
+shutdown@resource://gre/modules/EventPing.jsm:112:10
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:940:31
+shutdown/<@resource://gre/modules/TelemetryControllerParent.jsm:1010:24
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+saveShutdownPings@resource://gre/modules/TelemetrySession.jsm:982:34
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1232:20
+cleanup@resource://gre/modules/TelemetrySession.jsm:1239:9
+shutdownChromeProcess@resource://gre/modules/TelemetrySession.jsm:1256:14
+shutdown@resource://gre/modules/TelemetrySession.jsm:247:17
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:959:35
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+saveShutdownPings@resource://gre/modules/TelemetrySession.jsm:1014:36
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1232:20
+cleanup@resource://gre/modules/TelemetrySession.jsm:1239:9
+shutdownChromeProcess@resource://gre/modules/TelemetrySession.jsm:1256:14
+shutdown@resource://gre/modules/TelemetrySession.jsm:247:17
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:959:35
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  TelemetryController: shutting down
+          Phase: profile-before-change-telemetry
+          State: Error getting state: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange" at addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+getShutdownState@resource://gre/modules/TelemetrySend.jsm:1687:7
+getShutdownState@resource://gre/modules/TelemetrySend.jsm:369:30
+_getState@resource://gre/modules/TelemetryControllerParent.jsm:1058:38
+setupTelemetry/<@resource://gre/modules/TelemetryControllerParent.jsm:917:18
+safeGetState@resource://gre/modules/AsyncShutdown.jsm:242:17
+Barrier/addBlocker/promise<@resource://gre/modules/AsyncShutdown.jsm:751:20
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+removeAbortedSessionPing@resource://gre/modules/TelemetryControllerParent.jsm:721:5
+removeAbortedSessionPing@resource://gre/modules/TelemetryControllerParent.jsm:249:17
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1235:42
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+1671540538050	geckodriver	INFO	Listening on 127.0.0.1:51839
+1671540538059	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofile4kHKCM"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671540540680	Marionette	INFO	Marionette enabled
+1671540540700	Marionette	INFO	Listening on port 40695
+1671540541063	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile4kHKCM/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671540575303	Marionette	INFO	Stopped listening on port 40695
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+sendPing@resource://gre/modules/EventPing.jsm:51:30
+_submitPing@resource://gre/modules/EventPing.jsm:229:12
+shutdown@resource://gre/modules/EventPing.jsm:112:10
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:940:31
+shutdown/<@resource://gre/modules/TelemetryControllerParent.jsm:1010:24
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+saveShutdownPings@resource://gre/modules/TelemetrySession.jsm:982:34
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1232:20
+cleanup@resource://gre/modules/TelemetrySession.jsm:1239:9
+shutdownChromeProcess@resource://gre/modules/TelemetrySession.jsm:1256:14
+shutdown@resource://gre/modules/TelemetrySession.jsm:247:17
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:959:35
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  Waiting for ping task
+          Phase: TelemetryController: Waiting for pending ping activity
+          State: (none)
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:103:5
+promiseArchivePing@resource://gre/modules/TelemetryArchive.jsm:63:33
+_submitPingLogic@resource://gre/modules/TelemetryControllerParent.jsm:540:48
+send@resource://gre/modules/TelemetryControllerParent.jsm:628:24
+submitExternalPing@resource://gre/modules/TelemetryControllerParent.jsm:182:17
+saveShutdownPings@resource://gre/modules/TelemetrySession.jsm:1014:36
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1232:20
+cleanup@resource://gre/modules/TelemetrySession.jsm:1239:9
+shutdownChromeProcess@resource://gre/modules/TelemetrySession.jsm:1256:14
+shutdown@resource://gre/modules/TelemetrySession.jsm:247:17
+_cleanupOnShutdown@resource://gre/modules/TelemetryControllerParent.jsm:959:35
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: A blocker encountered an error while we were waiting.
+          Blocker:  TelemetryController: shutting down
+          Phase: profile-before-change-telemetry
+          State: Error getting state: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange" at addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+getShutdownState@resource://gre/modules/TelemetrySend.jsm:1687:7
+getShutdownState@resource://gre/modules/TelemetrySend.jsm:369:30
+_getState@resource://gre/modules/TelemetryControllerParent.jsm:1058:38
+setupTelemetry/<@resource://gre/modules/TelemetryControllerParent.jsm:917:18
+safeGetState@resource://gre/modules/AsyncShutdown.jsm:242:17
+Barrier/addBlocker/promise<@resource://gre/modules/AsyncShutdown.jsm:751:20
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+WARNING: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+WARNING: addBlocker@resource://gre/modules/AsyncShutdown.jsm:703:15
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:511:26
+addBlocker@resource://gre/modules/AsyncShutdown.jsm:450:15
+setupShutdown@resource://gre/modules/osfile/osfile_async_front.jsm:1563:28
+@resource://gre/modules/osfile/osfile_async_front.jsm:1583:16
+@resource://gre/modules/osfile.jsm:12:30
+@resource://gre/modules/TelemetryStorage.jsm:19:28
+removeAbortedSessionPing@resource://gre/modules/TelemetryControllerParent.jsm:721:5
+removeAbortedSessionPing@resource://gre/modules/TelemetryControllerParent.jsm:249:17
+shutdownChromeProcess/cleanup/<@resource://gre/modules/TelemetrySession.jsm:1235:42
+observe@resource://gre/modules/AsyncShutdown.jsm:560:16
+
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+JavaScript error: resource://gre/modules/AsyncShutdown.jsm, line 703: Error: Phase "profile-before-change" is finished, it is too late to register completion condition "OS.File: flush I/O queued before profileBeforeChange"
+1671540623881	geckodriver	INFO	Listening on 127.0.0.1:37625
+1671540623888	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileSyf9ax"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671540625623	Marionette	INFO	Marionette enabled
+1671540625634	Marionette	INFO	Listening on port 46123
+1671540625808	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileSyf9ax/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671540655871	Marionette	INFO	Stopped listening on port 46123
+1671541655929	geckodriver	INFO	Listening on 127.0.0.1:40425
+1671541655935	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileqRDFeM"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671541657439	Marionette	INFO	Marionette enabled
+1671541657449	Marionette	INFO	Listening on port 33439
+1671541657637	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileqRDFeM/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671541688465	Marionette	INFO	Stopped listening on port 33439
+1671541794749	geckodriver	INFO	Listening on 127.0.0.1:35747
+1671541794757	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileTpB046"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671541796371	Marionette	INFO	Marionette enabled
+1671541796381	Marionette	INFO	Listening on port 38463
+1671541796587	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileTpB046/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671541817396	Marionette	INFO	Stopped listening on port 38463
+1671541869303	geckodriver	INFO	Listening on 127.0.0.1:48855
+1671541869310	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileL3YHCe"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671541870869	Marionette	INFO	Marionette enabled
+1671541870875	Marionette	INFO	Listening on port 42047
+1671541871024	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileL3YHCe/search.json.mozlz4", (void 0)))
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://orcid.org."
+JavaScript error: http://127.0.0.1:8000/static/copo/js/dtol_functions.js, line 381: TypeError: data[d].date_created is undefined
+1671541890443	Marionette	INFO	Stopped listening on port 42047
+1671542338660	geckodriver	INFO	Listening on 127.0.0.1:57033
+1671542338670	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilecNxFll"
+[GFX1-]: glxtest: VA-API test failed: failed to initialise VAAPI connection.
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1671542340314	Marionette	INFO	Marionette enabled
+1671542340324	Marionette	INFO	Listening on port 44389
+1671542340468	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilecNxFll/search.json.mozlz4", (void 0)))
+1671542344729	Marionette	INFO	Stopped listening on port 44389

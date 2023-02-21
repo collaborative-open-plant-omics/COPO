@@ -17,10 +17,10 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     ruby-dev \
     rubygems \
-    poppler-utils
-
-RUN gem install sass
-RUN pip install --upgrade pip
+    poppler-utils && \
+    gem install sass && \
+    pip install --upgrade pip && \
+    apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements/ /tmp/requirements/
 RUN pip install --use-deprecated=legacy-resolver -r /tmp/requirements/dev.txt
@@ -30,6 +30,8 @@ RUN mkdir /code
 
 WORKDIR /copo
 COPY . /code/
+
+RUN wget -O webin-cli.jar https://github.com/enasequence/webin-cli/releases/download/5.2.0/webin-cli-5.2.0.jar
 
 # add aspera client to path
 COPY ./tools/reposit/.aspera/ /root/.aspera/

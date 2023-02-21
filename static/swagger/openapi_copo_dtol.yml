@@ -212,6 +212,33 @@ paths:
         "400":
           description: InvalidId found in request
 
+  /sample/associated_tol_project/{values}:
+    get:
+      tags:
+        - Sample
+      summary:
+        Get all Samples in a project by associated project type(s)
+      description: >
+        Get a list of all the samples of a project in COPO by associated project type
+      parameters:
+        - name: values
+          in: path
+          required: true
+          description: ampersand (&) separated list of supported associated project types
+          schema:
+            type: string
+            minimum: 1
+
+      responses:
+        "200": # status code
+          description: A JSON array sample objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleList'
+        "400":
+          description: Invalid associated profile type found in request
+
   /sample/copo_id/{copo_ids}:
     get:
       tags:
@@ -499,6 +526,8 @@ components:
         title:
           type: string
         tol_type:
+          type: string
+        associated_tol_type:
           type: string
 
     StatsNumber:
@@ -839,6 +868,8 @@ components:
         status:
           type: string
         copo_profile_title:
+          type: string
+        associated_tol_project:
           type: string
         SYMBIONT:
           type: string

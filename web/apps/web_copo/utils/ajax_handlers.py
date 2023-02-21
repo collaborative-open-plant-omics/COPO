@@ -23,8 +23,9 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
 from jsonpickle import encode
+from django.shortcuts import render
 
 import pickle
 import web.apps.web_copo.lookup.lookup as ol
@@ -59,6 +60,8 @@ from exceptions_and_logging import logger
 # from web.apps.web_copo.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
+import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
+from web.forms import AssemblyForm
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
@@ -1549,13 +1552,27 @@ def get_samples_for_profile(request):
     if not ViewLock().isViewLockedCreate(url=url):
         profile_id = request.GET["profile_id"]
         filter = request.GET["filter"]
-        samples = Sample().get_dtol_from_profile_id(profile_id, filter)
+        start = request.GET.get("start", "0")
+        length = request.GET.get("length", "10")
+        draw = request.GET.get("draw", "1")
+        sort_by = request.GET.get("order[0][column]", "")
+        direction = request.GET.get("order[0][dir]", "")
+        search = request.GET.get("search", "")
+        dir = 1
+        if direction == "desc":
+            dir = -1
+
+        samples = Sample().get_dtol_from_profile_id(profile_id, filter, draw, start, length, sort_by, dir, search)
         # notify_frontend(msg="Creating Sample: " + "sprog", action="info",
         #                     html_id="dtol_sample_info")
+
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 
+def get_samples_column_names(request):
+    columnanmes = Sample().get_sample_display_column_names();
+    return HttpResponse(json_util.dumps(columnanmes))
 
 def get_samples_for_project_and_profileID(request):
     url = request.build_absolute_uri()
@@ -1617,8 +1634,19 @@ def add_sample_to_dtol_submission(request):
             notify_frontend(action="delete_row", html_id=sample_id, data={})
             if not sample_id in sub["dtol_samples"]:
                 sub["dtol_samples"].append(sample_id)
+                Sample().get_all_records_columns()
+
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
+
+        #sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        #sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
+        #if "dtol_specimen" not in sub:
+        #    sub["dtol_specimen"] = []
+        #for speciment_id in sepciment_ids:
+        #    if speciment_id not in sub["dtol_specimen"]:
+        #        sub["dtol_specimen"].append(speciment_id)
+
         if Submission().save_record(dict(), **sub):
             return HttpResponse(status=200)
         else:
@@ -1636,7 +1664,7 @@ def delete_dtol_samples(request):
 
 def sample_images(request):
     files = request.FILES
-    dtol = DtolSpreadsheet()
+    dtol = DtolSpreadsheet(validation_record_id=request.POST["validation_record_id"])
     matchings = dtol.check_image_names(files)
 
     return HttpResponse(json.dumps(matchings))
@@ -1648,6 +1676,12 @@ def sample_permits(request):
     matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
+
+def assembly_files(request):
+    files = request.FILES
+    EnaAssembly.upload_assembly_files(files)
+
+    return HttpResponse(json.dumps({}))
 
 
 def process_column_name(column):
@@ -2234,3 +2268,9 @@ def validate_common_value(request):
         return HttpResponse(json.dumps({'response': isCommonValueValid}))
     else:
         return HttpResponse(json.dumps({'response': isCommonValueValid, 'error': error_message}))
+
+
+def test_post(request):
+    notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
+                    html_id="dtol_sample_info")
+    return HttpResponse("jkjskd")

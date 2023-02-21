@@ -246,6 +246,18 @@ def get_project_samples(request, project):
     return finish_request(out)
 
 
+def get_project_samples_by_associated_project_type(request, values):
+    associated_profile_types_List = values.split("&")
+    associated_profile_types_List = list(map(lambda x: x.strip(), associated_profile_types_List))
+    # remove any empty elements in the list (e.g. where 2 or more ampersands (i.e. &) have been typed in error
+    associated_profile_types_List[:] = [x for x in associated_profile_types_List if x]
+    samples = Sample().get_project_samples_by_associated_project_type(associated_profile_types_List)
+    out = list()
+    if samples:
+        out = filter_for_API(samples, add_all_fields=True)
+    return finish_request(out)
+
+
 def get_by_copo_ids(request, copo_ids):
     # get sample by COPO id if known
     ids = copo_ids.split(",")

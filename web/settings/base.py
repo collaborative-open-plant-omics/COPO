@@ -2,6 +2,8 @@
 import os
 from tools import resolve_env
 from django.conf import settings
+from django.contrib.messages import constants as messages
+
 from datetime import timedelta
 from django.conf import settings
 
@@ -67,10 +69,12 @@ PROJECT_APPS = [
     'chunked_upload',
     'compressor',
     'django_extensions',
-    'corsheaders'
+    'corsheaders',
+    'crispy_forms'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
+CRISPY_TEMPLATE_PACK = 'uni_form'
 # sass, social accounts...
 sass_exe = '/usr/local/bin/sass'
 COMPRESS_PRECOMPILERS = (
@@ -90,16 +94,18 @@ SOCIALACCOUNT_PROVIDERS = \
           'AUTH_PARAMS': {'access_type': 'online'}}}
 
 MIDDLEWARE = [
+    'django.middleware.csrf.CsrfViewMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     'django_brotli.middleware.BrotliMiddleware',
     'web.apps.web_copo.middleware.LocksMiddleware.LocksMiddleware',
+    'web.apps.web_copo.middleware.LogUncaughtExceptions.LogUncaughtExceptions',
     'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
@@ -181,6 +187,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# CSRF_TRUSTED_ORIGINS = ['http://*.copo-project.org', 'https://*.copo-project.org', '127.0.0.1:8000']
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
@@ -210,9 +218,10 @@ DATAVERSE = {
 }
 
 UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
+
 TEST_USER_NAME = 'aaliyah'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 500000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
 
 CACHES = {
@@ -234,3 +243,17 @@ HTMLVALIDATOR_DUMPDIR = os.path.join(BASE_DIR, 'html_validators')
 # Warning: Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
 # Solution: Set 'django.db.models.AutoField'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-secondary',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
+
+# FILE_UPLOAD_HANDLERS = (
+#    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+#    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
+#    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+# )

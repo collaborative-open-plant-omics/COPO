@@ -90,7 +90,8 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSameAs",
         "sampleSymbiontOf",
         "copo_profile_title",
-        "tol_project"
+        "tol_project",
+        "associated_tol_project"
 
     ],
     "erga": [
@@ -195,7 +196,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSymbiontOf",
         "copo_profile_title",
         "tol_project",
-
+        "associated_tol_project"
     ],
     "asg": [
         "SERIES",
@@ -282,7 +283,8 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSameAs",
         "sampleSymbiontOf",
         "copo_profile_title",
-        "tol_project"
+        "tol_project",
+        "associated_tol_project"
     ],
     "env": []
 }
@@ -1137,11 +1139,11 @@ DTOL_RULES = {
         "human_readable": "integer"
     },
     "ORIGINAL_DECIMAL_LATITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)",
         "human_readable": "numeric"
     },
     "ORIGINAL_DECIMAL_LONGITUDE": {
-        "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)",
+        "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)",
         "human_readable": "numeric"
     },
     "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID": {

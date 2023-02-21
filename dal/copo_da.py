@@ -62,6 +62,7 @@ ValidationQueueCollection = 'ValidationQueueCollection'
 ENAFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
+AssemblyCollection = 'AssemblyCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -81,7 +82,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
                    enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
-                   apiValidationReport=get_collection_ref(APIValidationReport)
+                   apiValidationReport=get_collection_ref(APIValidationReport),
+                   assembly=get_collection_ref(AssemblyCollection)
                    )
 
 
@@ -659,6 +661,13 @@ class Source(DAComponent):
     def get_by_specimen(self, value):
         return cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": value}))  # todo can this be find one
 
+    def get_sourcemap_by_specimens(self, value):
+        sources = cursor_to_list(self.get_collection_handle().find({"SPECIMEN_ID": {"$in": value}}))
+        source_map = {}
+        for source in sources:
+            source_map[source["SPECIMEN_ID"]] = source
+        return source_map
+
     def get_by_specimen_id_regex(self, value):
         # Get sources from Mongo database similar to SQL's '%' operator or 'LIKE'
         return cursor_to_list(
@@ -892,6 +901,10 @@ class Sample(DAComponent):
             {"_id": 1}
         ))
 
+    def get_project_samples_by_associated_project_type(self, values):
+        regex_values = [re.compile(f"^{value}") for value in values]
+        return cursor_to_list(self.get_collection_handle().find({"associated_tol_project": {"$in": regex_values}}))
+
     def get_gal_names(self, projects):
         return cursor_to_list(self.get_collection_handle().find(
             {"sample_type": {"$in": projects}},
@@ -951,6 +964,7 @@ class Sample(DAComponent):
             },
             {"$set":
                 {
+                    'error': "",
                     'biosampleAccession': biosample_accession,
                     'sraAccession': sra_accession,
                     'submissionAccession': submission_accession,
@@ -1001,42 +1015,112 @@ class Sample(DAComponent):
         )
 
     def get_by_profile_and_field(self, profile_id, field, value):
-        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}))
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}),
+                              {"_id": 1})
 
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
 
-    def get_dtol_from_profile_id(self, profile_id, filter):
+    def get_dtol_from_profile_id(self, profile_id, filter, draw, start, length, sort_by, dir, search):
+
+        sc = self.get_component_schema()
+        if sort_by == "0":
+            sort_by_column = "_id"
+        else:
+            i = 0
+            sort_by_column = ""
+            for field in sc:
+                if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get(
+                        "show_in_table", ""):
+                    i = i + 1
+                    if i == int(sort_by):
+                        sort_by_column = field.get("id", "").split(".")[-1]
+                        break;
+        total_count = 0;
+
+        find_condition = dict()
+        if search:
+            find_condition["$text"] = {"$search": search}
+        find_condition["profile_id"] = profile_id
+        sort_clause = [[sort_by_column, dir]]
+        handler = self.get_collection_handle()
+
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id,
-                 "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}})
-        elif filter == "pending_barcode":
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "pending_barcode"}
-            )
+            find_condition["status"] = {
+                "$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}
+
+            # cursor = self.get_collection_handle().find(
+            #    { 'profile_id': profile_id,
+            #      "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}, '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+
+            # total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id,
+            #     "status": {"$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}, '$text': {'$search': search }}).count()
+
+        # elif filter == "pending_barcode":
+        #    cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        #    find_condition["status"]=  "pending_barcode"
+        #    total_count = handler.find(find_condition).count()
+
+        # cursor = self.get_collection_handle().find(
+        #    {'profile_id': profile_id, "status": "pending_barcode", '$text': {'$search': search }}
+        # ).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+        # total_count = self.get_collection_handle().find(
+        #    {'profile_id': profile_id, "status": "pending_barcode", '$text': {'$search': search }}
+        # ).count()
         elif filter == "conflicting_barcode":
-            out = list()
-            cursor = self.get_collection_handle().find(
-                {'profile_id': profile_id, "status": "conflicting"})
-            samples = list(cursor)
+            find_condition["status"] = "conflicting"
+            # out = list()
+            # cursor = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "conflicting", '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            # total_count = self.get_collection_handle().find(
+            #    {'profile_id': profile_id, "status": "conflicting", '$text': {'$search': search }}).count()
+            # samples = list(cursor)
+            # barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
+            ##id_query = [x["_id"] for x in samples]
+            # for bc in barcodes:
+            #    for idx, s in enumerate(samples):
+            #        if bc["sample_id"] == str(s["_id"]):
+            #            samples[idx]["barcoding"] = bc
+            # cursor = samples
+        # elif filter == "processing":
+        #    find_condition["status"]=  "processing"
+        #    cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        #    total_count = handler.find(find_condition).count()
+        # out = list()
+        # cursor = self.get_collection_handle().find(
+        #    {'profile_id': profile_id, "status": "processing",'$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+        # total_count = self.get_collection_handle().find(
+        #    {'profile_id': profile_id, "status": "processing", '$text': {'$search': search }}).count()
+        # samples = list(cursor)
+        # cursor = samples
+        else:
+            find_condition["status"] = filter
+            # cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+            # total_count = handler.find(find_condition).count()
+            # else return samples who's status simply matches the filter
+            # cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter, '$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
+            # total_count = self.get_collection_handle().find({'profile_id': profile_id, "status": filter, '$text': {'$search': search }}).count()
+
+        cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
+        total_count = handler.find(find_condition).count()
+        samples = list(cursor);
+
+        if filter == "conflicting_barcode":
             id_query = [x["_id"] for x in samples]
             barcodes = handle_dict["barcode"].find({"sample_id": {"$in": id_query}})
             for bc in barcodes:
                 for idx, s in enumerate(samples):
                     if bc["sample_id"] == str(s["_id"]):
                         samples[idx]["barcoding"] = bc
-            cursor = samples
-        else:
-            # else return samples who's status simply matches the filter
-            cursor = self.get_collection_handle().find({'profile_id': profile_id, "status": filter})
 
         # get schema
-        sc = self.get_component_schema()
+        # samples = list(cursor);
+        # sc = self.get_component_schema()
         out = list()
         taxon = dict()
-        for i in list(cursor):
+        for i in samples:
             if "species_list" in i:
                 sp_lst = i["species_list"]
                 for sp in sp_lst:
@@ -1047,15 +1131,34 @@ class Sample(DAComponent):
                     else:
                         pass
             sam = dict()
-            for cell in i:
-                for field in sc:
+            sam["_id"] = str(i["_id"])
+            for field in sc:
+                if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get(
+                        "show_in_table", ""):
+                    name = field.get("id", "").split(".")[-1]
+                    sam[name] = i[name]
 
-                    if cell == field.get("id", "").split(".")[-1] or cell == "_id":
-                        if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
-                            if field.get("show_in_table", ""):
-                                sam[cell] = i[cell]
+            sam["error"] = i.get("error", "")
             out.append(sam)
-        return out
+
+        result = dict()
+        result["recordsTotal"] = total_count
+        result["recordsFiltered"] = total_count
+        result["draw"] = draw
+        result["data"] = out
+        return result
+
+    def get_sample_display_column_names(self):
+        sc = self.get_component_schema()
+        columns = [];
+        columns.append("_id")
+        for field in sc:
+            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",
+                                                                                                       ""):
+                columns.append(field.get("id", "").split(".")[-1])
+
+        columns.append("error")
+        return columns;
 
     def get_dtol_from_profile_id_and_project(self, profile_id, project):
         cursor = self.get_collection_handle().find({'profile_id': profile_id, "tol_project": project})
@@ -1361,16 +1464,43 @@ class Submission(DAComponent):
     def __init__(self, profile_id=None):
         super(Submission, self).__init__(profile_id, "submission")
 
-    def dtol_sample_processed(self, sub_id, sam_ids):
+    def dtol_sample_processed(self, sub_id, submission_id):
+        self.update_dtol_sample(sub_id, [], submission_id, "bioimage_pending")
+
+    def dtol_sample_rejected(self, sub_id, sam_ids, submission_id):
+        self.update_dtol_sample(sub_id, sam_ids, submission_id, "complete")
+
+    def update_dtol_sample(self, sub_id, sam_ids, submission_id, next_status):
         # when dtol sample has been processed, pull id from submission and check if there are remaining
         # samples left to go. If not, make submission complete. This will stop celery processing the this submission.
         sub_handle = self.get_collection_handle()
-        for sam_id in sam_ids:
-            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"dtol_samples": sam_id}})
-        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"dtol_samples": 1})
+        # for sam_id in sam_ids:
+        if submission_id:
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"submission": {"id": submission_id}}})
+        if sam_ids:
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"dtol_samples": {"$in": sam_ids}}})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"submission": 1, "dtol_samples": 1})
+        if len(sub["submission"]) < 1 and len(sub["dtol_samples"]) < 1:
+            sub_handle.update({"_id": ObjectId(sub_id)},
+                              {"$set": {"dtol_status": next_status, "date_modified": datetime.now()}})
 
-        if len(sub["dtol_samples"]) < 1:
-            sub_handle.update({"_id": ObjectId(sub_id)}, {"$set": {"dtol_status": "complete"}})
+    def update_dtol_specimen_for_bioimage_tosend(self, sub_id, sepcimen_ids):
+        sub_handle = self.get_collection_handle()
+        sub_handle.update({"_id": ObjectId(sub_id)}, {"$push": {"dtol_specimen": {"$each": sepcimen_ids}},
+                                                      "$set": {"date_modified": datetime.now()}})
+
+    def update_submission_async(self, sub_id, href, sample_ids, submission_id):
+        sub_handle = self.get_collection_handle()
+        submission = {'id': submission_id, 'sample_ids': sample_ids, 'href': href}
+        sub_handle.update({"_id": ObjectId(sub_id)},
+                          {"$set": {"date_modified": datetime.now()}, "$push": {"submission": submission},
+                           "$pull": {"dtol_samples": {"$in": sample_ids}}})
+
+    def get_async_submission(self):
+        sub_handle = self.get_collection_handle()
+        sub = sub_handle.find({"submission": {"$exists": True, "$ne": []}},
+                              {"_id": 1, "submission": 1, "profile_id": 1, "dtol_specimen": 1})
+        return cursor_to_list(sub)
 
     def get_dtol_samples_in_biostudy(self, study_ids):
         sub = self.get_collection_handle().find(
@@ -1379,14 +1509,14 @@ class Submission(DAComponent):
         )
         return cursor_to_list(sub)
 
-    def get_pending_dtol_samples(self):
+    def get_bioimage_pending_submission(self):
         REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
         # called by celery to get samples the supeprvisor has set to be sent to ENA
         # those not yet sent should be in pending state. Occasionally there will be
         # stuck submissions in sending state, so get both types
         sub = self.get_collection_handle().find(
-            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["sending", "pending"]}},
-            {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["bioimage_sending", "bioimage_pending"]}},
+            {"dtol_specimen": 1, "dtol_status": 1, "profile_id": 1,
              "date_modified": 1, "type": 1})
         sub = cursor_to_list(sub)
         out = list()
@@ -1396,7 +1526,39 @@ class Submission(DAComponent):
             recorded_time = s.get("date_modified", datetime.now())
             current_time = datetime.now()
             time_difference = current_time - recorded_time
-            if s.get("dtol_status", "") == "sending" and time_difference.seconds > (REFRESH_THRESHOLD):
+            if s.get("dtol_status", "") == "bioimage_sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                # submission retry time has elapsed so re-add to list
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                lg.log("ADDING STALLED BIOIMAGE SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da:1083",
+                       level=Loglvl.ERROR, type=Logtype.FILE)
+
+                # no need to change status
+            elif s.get("dtol_status", "") == "bioimage_pending":
+                out.append(s)
+                self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
+                                                    {"$set": {"dtol_status": "bioimage_sending"}})
+        return out
+
+    def get_pending_dtol_samples(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        sub = self.get_collection_handle().find(
+            {"type": {"$in": TOL_PROFILE_TYPES}, "dtol_status": {"$in": ["sending", "pending"]}},
+            {"dtol_samples": 1, "dtol_status": 1, "profile_id": 1,
+             "date_modified": 1, "type": 1, "dtol_specimen": 1})
+        sub = cursor_to_list(sub)
+        out = list()
+
+        for s in sub:
+            # calculate whether a submission is an old one
+            recorded_time = s.get("date_modified", datetime.now())
+            current_time = datetime.now()
+            time_difference = current_time - recorded_time
+            if s.get("dtol_status", "") == "sending" and time_difference.total_seconds() > (REFRESH_THRESHOLD):
                 # submission retry time has elapsed so re-add to list
                 out.append(s)
                 self.update_submission_modified_timestamp(s["_id"])
@@ -1917,6 +2079,16 @@ class Submission(DAComponent):
         else:
             return False
 
+    def add_assembly_accession(self, s_id, accession, alias):
+        # todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
+        # reference assembly and sample
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": {"accessions.assembly": {}}})
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$set": {"accessions.assembly.accession": accession,
+                                                          "accessions.assembly.alias": alias}})
+        return
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -1998,9 +2170,13 @@ class DataFile(DAComponent):
         self.get_collection_handle().update({"_id": ObjectId(file_id)}, {"$push": {"file_level_annotation": data}})
         return self.get_file_level_metadata_for_sheet(file_id, data["sheet_name"])
 
-    def insert_sample_id(self, file_id, sample_id):
-        self.get_collection_handle().update({"_id": ObjectId(file_id)}, {
-            "$push": {"description.attributes.attach_samples.study_samples": sample_id}})
+    def insert_sample_ids(self, file_name, sample_ids):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$push": {"description.attributes.attach_samples.study_samples": {"$each": sample_ids}}})
+
+    def update_bioimage_name(self, file_name, bioimage_name, bioimage_path):
+        self.get_collection_handle().update({"name": file_name}, {
+            "$set": {"bioimage_name": bioimage_name, "file_location": bioimage_path}})
 
     def get_file_level_metadata_for_sheet(self, file_id, sheetname):
 
@@ -2029,6 +2205,19 @@ class DataFile(DAComponent):
         })
         return cursor_to_list(sub)
 
+    def get_records_by_fields(self, fields):
+        sub = self.get_collection_handle().find(fields)
+        return cursor_to_list(sub)
+
+    def get_datafile_names_by_name_regx(self, names):
+        regex_names = [re.compile(f"^{name}") for name in names]
+        sub = self.get_collection_handle().find({
+            "name": {"$in": regex_names}, "bioimage_name": {"$ne": ""}, "deleted": data_utils.get_not_deleted_flag()
+        }, {"name": 1, "_id": 0})
+        datafiles = cursor_to_list(sub)
+        result = [i["name"] for i in datafiles if i['name']]
+        return set(result)
+
 
 class Profile(DAComponent):
     def __init__(self, profile=None):
@@ -2046,6 +2235,13 @@ class Profile(DAComponent):
         p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
         if p:
             return p.get("type", "")
+        else:
+            return False
+
+    def get_associated_type(self, profile_id):
+        p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
+        if p:
+            return p.get("associated_type", "")
         else:
             return False
 
@@ -2633,7 +2829,6 @@ class ENAFileTransferObject(DAComponent):
         super(ENAFileTransferObject, self).__init__(profile_id, "ENAFileTransferObject")
         self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
         self.profile_id = profile_id
-        self.profile_id = profile_id
         self.component = str()
 
     def get_pending_transfers(self):
@@ -2680,6 +2875,11 @@ class APIValidationReport(DAComponent):
             msg = msg.replace(el[0], el[1])
         self.get_collection_handle().update({"_id": ObjectId(report_id)},
                                             {"$set": {"status": "failed", "content": msg}})
+
+
+class Assembly(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Assembly, self).__init__(profile_id, "assembly")
 
 
 def is_number(s):
