@@ -2,6 +2,7 @@
 import inspect
 import math
 import os
+import re
 import uuid
 import pickle
 import importlib
@@ -150,6 +151,22 @@ class DtolSpreadsheet:
             self.type = "DTOL_ENV"
         else:
             self.type = "DTOL"
+
+        # get associated profile type(s) of manifest
+        associated_t = Profile().get_associated_type(self.profile_id)
+        lst = []
+        regexExp = '\(([^)]+)'
+        for item in associated_t:
+            #  Check if 'associated type' array/list contains parentheses
+            if re.search(regexExp, item):
+                # Get abbreviation within parentheses
+                abbreviation = re.search(regexExp, item).group(1)
+            else:
+                # Set abbreviation as full string if no parentheses exist
+                abbreviation = item
+            lst.append(abbreviation)
+        self.associated_type = " | ".join(lst)  # Get associated type(s) as string separated by '|' symbol
+
         '''
         # create list of required validators
         required = dict(globals().items())["required_validators"]
@@ -315,16 +332,16 @@ class DtolSpreadsheet:
         # compare list of sample names with specimen ids already uploaded
         samples = self.sample_data
         # get list of specimen_ids in sample
-        #specimen_id_column_index = 0
+        # specimen_id_column_index = 0
         output = list()
-        #for num, col_name in enumerate(samples.columns):
+        # for num, col_name in enumerate(samples.columns):
         #    if col_name == "SPECIMEN_ID":
         #        specimen_id_column_index = num
         #        break
-        #if os.path.isdir(self.these_images):
+        # if os.path.isdir(self.these_images):
         #    rmtree(self.these_images)
 
-        #find distinct specimenId
+        # find distinct specimenId
         specimentIds = samples["SPECIMEN_ID"].drop_duplicates().dropna()
 
         thumbnail_folder = self.these_images / "thumbnail"
@@ -332,46 +349,47 @@ class DtolSpreadsheet:
 
         image_path = Path(self.these_images)
         display_path = Path(self.display_images)
-        #image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
+        # image_path = Path(settings.MEDIA_ROOT) / "sample_images" / self.profile_id
         existing_images = DataFile().get_datafile_names_by_name_regx(specimentIds)
 
         for f in files:
             file = files[f]
 
-            #file_path = image_path / file.name
+            # file_path = image_path / file.name
             # write full sized image to large storage
             file_path = image_path / file.name
             thumbnail_path = thumbnail_folder / file.name
             thumbnail_display_path = display_path / "thumbnail" / file.name
             file_display_path = display_path / file.name
 
-
             filename = os.path.splitext(file.name)[0].upper()
             # now iterate through samples data to see if there is a match between specimen_id and image name
             found = False
-            size = 128,128
+            size = 128, 128
             for specimenId in specimentIds:
-                if filename.startswith(specimenId+"-"):
+                if filename.startswith(specimenId + "-"):
                     found = True
                     if file.name in existing_images:
                         output.append(
-                            {"file_name": str(file_display_path), "thumbnail": "", "specimen_id": "Duplicated", "name": ""})
+                            {"file_name": str(file_display_path), "thumbnail": "", "specimen_id": "Duplicated",
+                             "name": ""})
                         break
                     # we have a match
-                    output.append({"file_name": str(file_display_path), "thumbnail": str(thumbnail_display_path), "specimen_id": specimenId, "name": file.name})
+                    output.append({"file_name": str(file_display_path), "thumbnail": str(thumbnail_display_path),
+                                   "specimen_id": specimenId, "name": file.name})
 
-                    #logging.info("writing " + str(file_path))
+                    # logging.info("writing " + str(file_path))
                     with default_storage.open(file_path, 'wb+') as destination:
                         for chunk in file.chunks():
                             destination.write(chunk)
 
-                    im=Image.open(file_path)
+                    im = Image.open(file_path)
                     im.thumbnail(size)
                     im.save(thumbnail_path)
-                    #logging.info("written " + str(file_path))
+                    # logging.info("written " + str(file_path))
                     break
             if not found:
-                output.append({ "file_name": str(file_display_path), "specimen_id": "", "name": ""})
+                output.append({"file_name": str(file_display_path), "specimen_id": "", "name": ""})
         # save to session
         request = ThreadLocal.get_current_request()
         request.session["image_specimen_match"] = output
@@ -549,6 +567,7 @@ class DtolSpreadsheet:
 
             s["sample_type"] = self.type.lower()
             s["tol_project"] = self.type
+            s["associated_tol_project"] = self.associated_type
             s["biosample_accession"] = []
             s["manifest_id"] = manifest_id
             if "erga" in self.type.lower() and s["ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"]:
@@ -589,7 +608,7 @@ class DtolSpreadsheet:
 
             p["_id"] = sampl["_id"]
 
-            #for im in image_data:
+            # for im in image_data:
             #    # create matching DataFile object for image is provided
             #    if s["SPECIMEN_ID"] in im["specimen_id"]:
             #        DataFile().insert_sample_id(im["name"], sampl["_id"])

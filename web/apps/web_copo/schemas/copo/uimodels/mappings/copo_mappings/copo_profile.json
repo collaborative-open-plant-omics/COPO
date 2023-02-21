@@ -67,6 +67,33 @@
       ]
     },
     {
+      "help_tip": "What are the other profile type(s) that the profile type (above) is associated with?",
+      "required": "false",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "associated_type"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Associated Profile Type",
+      "placeholder": "Select associated type(s)",
+      "show_in_form": true,
+      "id": "copo.profile.associated_type",
+      "type": "string",
+      "show_in_table": true,
+      "control": "copo-multi-select2",
+      "option_values": [
+        "Aquatic Symbiosis Genomics (ASG)",
+        "Biodiversity Genomics Europe (BGE)",
+        "Darwin Tree of Life (DTOL)",
+        "Darwin Tree of Life Environmental Samples (DTOL_ENV)",
+        "European Reference Genome Atlas (ERGA)",
+        "European Reference Genome Atlas - Pilot (ERGA_PILOT)"
+      ]
+    },
+    {
       "help_tip": "",
       "required": "true",
       "default_value": "",

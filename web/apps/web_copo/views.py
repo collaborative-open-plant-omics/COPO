@@ -168,7 +168,8 @@ def ena_assembly(request, profile_id):
         # pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         # set authomatically and cannot be changed by the user
         form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession,
-                            initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
+                            initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd",
+                                     "platform": "kkfjoep", "mingaplength": 10,
                                      "description": "jfksjkdlfs"})
     return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
 

@@ -2397,7 +2397,7 @@ function get_profile_components() {
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
-            visibleColumns: 3,
+            visibleColumns: 4,
             recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"] //specifies action buttons for records manipulation
         },
         {

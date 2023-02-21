@@ -71,6 +71,7 @@ var controlsMapping = {
     "copo-lookup": "do_copo_lookup_ctrl",
     "copo-lookup2": "do_copo_lookup2_ctrl",
     "select": "do_select_ctrl",
+    "multi-select": "do_multi_select_ctrl",
     "copo-onto-select": "do_onto_select_ctrl",
     "copo-multi-search": "do_copo_multi_search_ctrl",
     "copo-multi-select": "do_copo_multi_select_ctrl",
@@ -155,7 +156,7 @@ function initiate_annotation_call() {
 function json2HtmlForm(data) {
 
     //tidy up before closing the modal
-    var doTidyClose = {
+    const doTidyClose = {
         closeIt: function (dialogRef) {
             refresh_tool_tips();
 
@@ -163,12 +164,12 @@ function json2HtmlForm(data) {
             dialogRef.close();
         }
     };
-
-    var dialog = new BootstrapDialog({
+    let dialog_title = get_form_title(data)
+    const dialog = new BootstrapDialog({
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
         title: function () {
-            return $('<span>' + get_form_title(data) + '</span>');
+            return $('<span>' + dialog_title + '</span>');
         },
         closable: false,
         animate: true,
@@ -177,20 +178,65 @@ function json2HtmlForm(data) {
             refresh_tool_tips();
         },
         onshown: function (dialogRef) {
-
             //prevent enter keypress from submitting form automatically
             $("form").keypress(function (e) {
                 //Enter key
-                if (e.which == 13) {
+                if (e.which === 13) {
                     return false;
                 }
             });
+
+            // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
+            if (dialog_title.includes("Add Profile")) {
+                document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
+                    // Perform the following only if selected 'Profile Type' is not "Stand-alone"
+                    if (this.value !== "Stand-alone") {
+                        $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
+                        // Retrieve the parentheses and the enclosed string from the selected profile type
+                        let selected_type;
+                        let multi_select_options = $('.copo-multi-select2')
+                        const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+
+                        if (!pattern.test(this.value))
+                            selected_type = this.value // Get selected value if no parentheses exist
+                        else {
+                            let associated_type_abbreviation_without_parentheses;
+                            associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+
+                            // Get abbreviated associated type enclosed in parentheses
+                            selected_type = `(${associated_type_abbreviation_without_parentheses})`
+                            // If empty parentheses are returned, set the abbreviation as
+                            // the full string excluding the empty parentheses
+                            selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
+                        }
+
+                        let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
+                        if (associated_type_option.length) {
+                            // Exclude the selected profile from the associated profile type dropdown menu options
+                            multi_select_options.select2({
+                                templateResult: function (option) {
+
+                                    if (option.text.includes(selected_type)) {
+                                        return null;
+                                    }
+                                    return option.text;
+                                }
+                            });
+                            // Reinitialise/update the multi-select options
+                            multi_select_options.trigger('change');
+
+                        }
+                    } else {
+                        $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
+                    }
+                });
+
+            }
 
             //custom validators
             custom_validate(htmlForm.find("form"));
 
             refresh_form_aux_controls();
-
 
             //validate on submit event
             htmlForm.find("form").validator().on('submit', function (e) {
@@ -202,21 +248,19 @@ function json2HtmlForm(data) {
                 }
             });
 
-            var event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
-
             if (!groups.includes("dtol_users")) {
-            $('select option[value *= "(DTOL)"]').hide();
-            $('select option[value *= "(ASG)"]').hide();
-                }
+                $('select option[value *= "(DTOL)"]').hide();
+                $('select option[value *= "(ASG)"]').hide();
+            }
             if (!groups.includes("erga_users")) {
                 $('select option[value *= "(ERGA)"]').hide();
             }
             if (!groups.includes("dtolenv_users")) {
                 $('select option[value *= "(DTOL_ENV)"]').hide();
             }
-
         },
         buttons: [
             {
@@ -238,14 +282,17 @@ function json2HtmlForm(data) {
         ]
     });
 
-    var $dialogContent = $('<div/>');
+    const $dialogContent = $('<div/>');
 
-    var form_help_div = set_up_form_help_div(data);
-    var form_message_div = get_form_message(data);
+    const form_help_div = set_up_form_help_div(data);
+    const form_message_div = get_form_message(data);
 
-    var form_body_div = set_up_form_body_div(data);
+    const form_body_div = set_up_form_body_div(data);
 
     $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
+    // Hide 'Associated profile type(s)' field on dialog launch
+    // because "Stand-alone" is the default value for 'Profile Type'
+    if (dialog_title.includes("Add Profile")) $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
     dialog.realize();
     dialog.setMessage($dialogContent);
     dialog.open();
@@ -446,14 +493,13 @@ function set_up_form_help_div(data) {
 }
 
 function set_up_form_body_div(data) {
-    var formBodyDiv = $('<div/>',
+    let formBodyDiv = $('<div/>',
         {
             class: "row formDivRow"
         }).append($('<div/>',
         {
             class: "col-sm-12 col-md-12 col-lg-12"
         }).append(htmlForm));
-
     //build main form
     build_form_body(data);
 
@@ -847,6 +893,52 @@ var dispatchFormControl = {
 
         return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
     },
+    // do_multi_select_ctrl: function (formElem, elemValue) {
+    //     const ctrlsDiv = $('<div/>',
+    //         {
+    //             class: "ctrlDIV"
+    //         });
+    //
+    //     //build multi-select
+    //     const multiSelectCtrl = $('<select/>',
+    //         {
+    //             class: "form-control input-copo copo-multi-select-control",
+    //             id: formElem.id,
+    //             name: formElem.id,
+    //         });
+    //
+    //     // Set attributes
+    //     multiSelectCtrl.attr("multiple", "multiple")
+    //     multiSelectCtrl.attr("multiselect-search", "true")
+    //     multiSelectCtrl.attr("multiselect-select-all", "true") // Option to select all options
+    //     // multiSelectCtrl.attr("multiselect-max-items","3") // Sets maximum number of items displayed in the control
+    //     multiSelectCtrl.attr(" multiselect-hide-x", "false") // Shows a button to remove selected option
+    //
+    //     if (formElem.option_values) {
+    //         for (let i = 0; i < formElem.option_values.length; ++i) {
+    //             let option = formElem.option_values[i];
+    //             let lbl = "";
+    //             let vl = "";
+    //             if (typeof option === "string") {
+    //                 lbl = option;
+    //                 vl = option;
+    //             } else if (typeof option === "object") {
+    //                 lbl = option.label;
+    //                 vl = option.value;
+    //             }
+    //             if (vl === "required") {
+    //                 $('<option disabled selected value>' + lbl + '</option>').appendTo(multiSelectCtrl)
+    //             } else {
+    //                 $('<option value="' + vl + '">' + lbl + '</option>').appendTo(multiSelectCtrl);
+    //             }
+    //         }
+    //     }
+    //
+    //     ctrlsDiv.append(multiSelectCtrl);
+    //
+    //     return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+    // },
+    //
     do_onto_select_ctrl: function (formElem, elemValue) {
         var ctrlsDiv = $('<div/>',
             {
@@ -1285,7 +1377,7 @@ var dispatchFormControl = {
 
         var lookupMessage = "<div class='text-primary' style='margin-top: 10px;'>Enter one or more characters to search for a term.</div>";
 
-        if(!formElem.hasOwnProperty("help_tip")) {
+        if (!formElem.hasOwnProperty("help_tip")) {
             formElem["help_tip"] = '';
         }
 
@@ -2995,7 +3087,7 @@ function get_form_ctrl(ctrlsDiv, formElem, elemValue) {
     var ctrlObjects = resolve_ctrl_values(ctrlsDiv.clone(), counter, formElem, elemValue);
 
     var firstElement = ctrlObjects.ctrlsWithValuesDiv;
-    if (formElem.type == "array") {
+    if (formElem.type === "array") {
         firstElement = $('<div/>', {
             class: "row control-row"
         });
