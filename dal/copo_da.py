@@ -871,6 +871,10 @@ class Sample(DAComponent):
             {"_id": 1}
         ))
 
+    def get_project_samples_by_associated_project_type(self, values):
+        regex_values = [re.compile(f"^{value}") for value in values]
+        return cursor_to_list(self.get_collection_handle().find({"associated_tol_project": {"$in": regex_values}}))
+
     def get_all_tol_samples(self):
         return self.get_collection_handle().find({"tol_project": {"$in": ["ASG", "DTOL"]}})
 
