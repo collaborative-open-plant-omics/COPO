@@ -22,6 +22,8 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from bson import ObjectId
 from django_tools.middlewares.ThreadLocal import get_current_request
 import re
+from web.apps.web_copo.lookup.copo_enums import Loglvl
+
 
 with open(settings, "r") as settings_stream:
     sra_settings = json.loads(settings_stream.read())["properties"]
@@ -67,15 +69,23 @@ def process_pending_dtol_samples():
         # check for public name with Sanger Name Service
         public_name_list = list()
         for s_id in submission["dtol_samples"]:
-            l.log("Dtol_submission : 67", type=Logtype.FILE)
+            l.log("Dtol_submission : 67")
             try:
                 sam = Sample().get_record(s_id)
                 if not sam:
-                    l.log("Dtol submission : 74 - no sample found for id " + str(s_id), type=Logtype.FILE)
-                    break
+                    log_message("No sample found for id " + str(s_id), Loglvl.ERROR, profile_id=profile_id)
+                    Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(s_id)], submission_id=[])
+                    #notify_frontend(data={"profile_id": profile_id}, msg="No sample found for id " + str(s_id), action="error",
+                    #                html_id="dtol_sample_info")
+                    #l.error("Dtol submission : 74 - no sample found for id " + str(s_id))
+                    continue
             except:
-                l.log("Dtol submission : 77 - no sample found for id " + str(s_id), type=Logtype.FILE)
-                break
+                log_message("No sample found for id " + str(s_id), Loglvl.ERROR, profile_id=profile_id)
+                Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(s_id)], submission_id=[])
+                #notify_frontend(data={"profile_id": profile_id}, msg="No sample found for id " + str(s_id), action="error",
+                #            html_id="dtol_sample_info")
+                #l.error("Dtol submission : 77 - no sample found for id " + str(s_id))
+                continue
 
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
@@ -83,13 +93,17 @@ def process_pending_dtol_samples():
                 try:
                     assert targetsam
                 except AssertionError:
-                    l.log("Dtol Submission : 78 - Assertion error, no target found", type=Logtype.FILE)
+                    log_message("No target found by specimen_id " + sam["SPECIMEN_ID"], Loglvl.ERROR, profile_id=profile_id)
+                    #notify_frontend(data={"profile_id": profile_id}, msg="No target found " + sam["SPECIMEN_ID"], action="error",
+                    #        html_id="dtol_sample_info")
+                    #l.error("Dtol Submission : 78 - Assertion error, no target found")                   
                     break
                 #ASSERT ALL TAXON ID ARE THE SAME, they can only be associated to one specimen
                 try:
                     assert all(x["species_list"][0]["TAXON_ID"] == targetsam[0]["species_list"][0]["TAXON_ID"] for x in targetsam)
                 except AssertionError:
-                    l.log("Dtol submission : 83 - Assertion error", type=Logtype.FILE)
+                    log_message("All taxon id are not the same, they can only be associated to one specimen", Loglvl.ERROR, profile_id=profile_id)
+                    #l.error("Dtol submission : 83 - Assertion error")
                     break
                 targetsam = targetsam[0]
             else:
@@ -98,7 +112,7 @@ def process_pending_dtol_samples():
             print(type(sam['public_name']), sam['public_name'])
 
             if not sam["public_name"]: #todo
-                l.log("Dtol submission : 91 - sample has no public name", type=Logtype.FILE)
+                l.log("Dtol submission : 91 - sample has no public name")
                 try:
                     if issymbiont == "TARGET":
                         public_name_list.append(
@@ -109,9 +123,10 @@ def process_pending_dtol_samples():
                             {"taxonomyId": int(targetsam["species_list"][0]["TAXON_ID"]), "specimenId": targetsam["SPECIMEN_ID"],
                              "sample_id": str(sam["_id"])})
                 except ValueError:
-                    notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
-                                    html_id="dtol_sample_info")
-                    l.log("Dtol_submission : 105 - invalid taxon ID", type=Logtype.FILE)
+                    log_message(" Invalid tax id found ", Loglvl.ERROR, profile_id=profile_id)
+                    #notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
+                    #                html_id="dtol_sample_info")
+                    #l.error("Dtol_submission : 105 - invalid taxon ID")
                     break
 
             s_ids.append(s_id)
@@ -121,20 +136,23 @@ def process_pending_dtol_samples():
             try:
                 assert len(specimen_sample) <= 1
             except AssertionError:
-                l.log("Multiple sources for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                log_message("Multiple sources for SPECIMEN_ID " + sam["SPECIMEN_ID"], Loglvl.ERROR, profile_id=profile_id)
+                #l.error("Multiple sources for SPECIMEN_ID " + sam["SPECIMEN_ID"])
                 break
             specimen_accession = ""
             if specimen_sample:
                 specimen_accession = specimen_sample[0].get("biosampleAccession", "")
-                l.log("Specimen accession at 119 is " + specimen_accession, type=Logtype.FILE)
+                l.log("Specimen accession at 119 is " + specimen_accession)
             else:
                 # create specimen object and submit
-                l.log("creating specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
-                notify_frontend(data={"profile_id": profile_id},
-                                msg="Creating Sample for SPECIMEN_ID " + sam.get("RACK_OR_PLATE_ID", "") + "/" + sam[
-                                    "SPECIMEN_ID"],
-                                action="info",
-                                html_id="dtol_sample_info")
+                log_message("Creating Sample for SPECIMEN_ID " + sam.get("RACK_OR_PLATE_ID", "") + "/" + sam[
+                                    "SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
+                #l.log("creating specimen level sample for " + sam["SPECIMEN_ID"])
+                #notify_frontend(data={"profile_id": profile_id},
+                #                msg="Creating Sample for SPECIMEN_ID " + sam.get("RACK_OR_PLATE_ID", "") + "/" + sam[
+                #                    "SPECIMEN_ID"],
+                #                action="info",
+                #                html_id="dtol_sample_info")
                 if type_submission == "asg":
                     sample_type = "asg_specimen"
                 elif type_submission == "erga":
@@ -158,15 +176,18 @@ def process_pending_dtol_samples():
                     specimen_obj_fields = populate_source_fields(targetsam)
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                     Source().add_fields(specimen_obj_fields, str(sour['_id']))
-                l.log("created specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                log_message("Specimen level sample for " + sam["SPECIMEN_ID"] + " created", Loglvl.INFO)    
+                #l.log("created specimen level sample for " + sam["SPECIMEN_ID"])
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
-                l.log("retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                log_message("Retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
+                #l.log("retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"])
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])
                 try:
                     assert len(sour) == 1, "more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"]
                 except AssertionError:
-                    l.log("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                    log_message("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID" + ". Please contact COPO"], Loglvl.ERROR, profile_id=profile_id)
+                    #l.error("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"])
                     break
                 sour = sour[0]
                 if not sour['public_name']:
@@ -177,7 +198,8 @@ def process_pending_dtol_samples():
                     try:
                         assert len(spec_tolid) == 1
                     except AssertionError:
-                        l.log("AssertionError: line 170 dtol submission", type=Logtype.FILE)
+                        log_message("Cannot retrieve public name", Loglvl.ERROR, profile_id=profile_id)
+                        #l.error("AssertionError: line 170 dtol submission")
                         break
                     if not spec_tolid[0].get("tolId", ""):
                         # hadle failure to get public names and halt submission
@@ -191,14 +213,16 @@ def process_pending_dtol_samples():
                             s_ids.remove(s_id)
                             Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id],submission_id=[])
                             msg = "A public name request was rejected, some submissions were halted -" +toliderror
-                            notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                            html_id="dtol_sample_info")
+                            log_message(msg, Loglvl.ERROR, profile_id=profile_id)
+                            #notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                            #                html_id="dtol_sample_info")
                             break
                         # change dtol_status to "awaiting_tolids"
                         msg = "We couldn't retrieve one or more public names, a request for a new tolId has been " \
                               "sent, COPO will try again in 24 hours"
-                        notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                        html_id="dtol_sample_info")
+                        log_message(msg, Loglvl.INFO, profile_id=profile_id)
+                        #notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                        #                html_id="dtol_sample_info")
                         Submission().make_dtol_status_awaiting_tolids(submission['_id'])
                         tolidflag = False
                         break
@@ -209,7 +233,7 @@ def process_pending_dtol_samples():
 
                 build_specimen_sample_xml(sour)
                 build_submission_xml(str(sour['_id']), release=True)
-                l.log("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+                log_message("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], Loglvl.INFO)
                 accessions = submit_biosample_v2(str(sour['_id']), Source(), submission['_id'], {}, type="source", async_send=False)
                 # l.log("submission status is " + str(accessions.get("status", "")), type=Logtype.FILE)
                 if accessions.get("status", "") == "error":
@@ -232,15 +256,16 @@ def process_pending_dtol_samples():
                                                                                                 "")
 
             if not specimen_accession:
-                l.log("no accession found, set submission to pending", type=Logtype.FILE)
+                l.log("no accession found, set submission to pending")
                 Submission().make_dtol_status_pending(submission['_id'])
                 msg = "Connection issue - please try resubmit later"
-                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="dtol_sample_info")
+                log_message(msg, Loglvl.INFO, profile_id=profile_id)
+                #notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                #                html_id="dtol_sample_info")
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
             #set appropriate relationship to specimen level sample
-            l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"], type=Logtype.FILE)
+            l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"])
             if issymbiont == "SYMBIONT":
                 Sample().add_field("sampleSymbiontOf", specimen_accession, sam['_id'])
                 sam["sampleSymbiontOf"] = specimen_accession
@@ -257,35 +282,37 @@ def process_pending_dtol_samples():
                 assert any([updated_sample.get("sampleSymbiontOf", ""), updated_sample.get("sampleSameAs", ""),
                             updated_sample.get("sampleDerivedFrom", "")])
             except AssertionError:
-                l.log("Missing relationship to parent sample for sample " + sam["_id"], type=Logtype.FILE)
+                log_message("Missing relationship to parent sample for sample " + sam["_id"], Loglvl.ERROR, profile_id=profile_id)
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
 
-            notify_frontend(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
-                            action="info",
-                            html_id="dtol_sample_info")
+            log_message("Adding to Sample Batch: " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
+            #notify_frontend(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
+            #                action="info",
+            #                html_id="dtol_sample_info")
 
         else:
 
             # query for public names and update
             notify_frontend(data={"profile_id": profile_id}, msg="Querying Public Naming Service", action="info",
                             html_id="dtol_sample_info")
-            l.log("querying public name service for line 251", type=Logtype.FILE)
+            l.log("querying public name service for line 251")
             public_names = query_public_name_service(public_name_list)
             tolidflag = True
             if any(not public_names[x].get("tolId", "") for x in range(len(public_names))):
                 # hadle failure to get public names and halt submission
                 if all(public_names[x].get("status", "") == "Rejected" for x in range(len(public_names))):
-                    l.log("all missing tolid request were rejected", type=Logtype.FILE)
+                    l.log("all missing tolid request were rejected")
                     Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]], submission_id=[])
                     tolidflag = False
                 else:
                     # change dtol_status to "awaiting_tolids"
-                    l.log("one or more public names missing, setting to awaiting_tolids", type=Logtype.FILE)
+                    #l.log("one or more public names missing, setting to awaiting_tolids")
                     msg = "We couldn't retrieve one or more public names, a request for a new tolId has been sent, " \
                         "COPO will try again in 24 hours"
-                    notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                    html_id="dtol_sample_info")
+                    log_message(msg, Loglvl.INFO, profile_id=profile_id)
+                    #notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
+                    #                html_id="dtol_sample_info")
                     Submission().make_dtol_status_awaiting_tolids(submission['_id'])
                     tolidflag = False
 
@@ -322,35 +349,35 @@ def process_pending_dtol_samples():
 
 def query_awaiting_tolids():
     #get all submission awaiting for tolids
-    l.log("Running awaiting tolid task ", type=Logtype.FILE)
+    l.log("Running awaiting tolid task ")
     sub_id_list = Submission().get_awaiting_tolids()
     for submission in sub_id_list:
         public_name_list = list()
         samplelist = submission["dtol_samples"]
-        l.log("samplelist to go trough is "+str(samplelist), type=Logtype.FILE)
+        l.log("samplelist to go trough is "+str(samplelist))
         for samid in samplelist:
             try:
                 sam = Sample().get_record(samid)
             except Exception as e:
-                l.log("error at line 270 " + str(e), type=Logtype.FILE)
-            l.log("sample is " + str(sam), type=Logtype.FILE)
+                l.error("error at line 270 " + str(e))
+            l.log("sample is " + str(sam))
             if not sam["public_name"]:
                 try:
                     public_name_list.append(
                         {"taxonomyId": int(sam["species_list"][0]["TAXON_ID"]), "specimenId": sam["SPECIMEN_ID"],
                          "sample_id": str(sam["_id"])})
                 except ValueError:
-                    l.log("Value Error" + str(sam), type=Logtype.FILE)
+                    l.error("Value Error" + str(sam))
                     return False
         try:
             assert len(public_name_list)>0
         except AssertionError:
-            l.log("Assertion Error in query awaiting tolids", type=Logtype.FILE)
+            l.error("Assertion Error in query awaiting tolids")
         public_names = query_public_name_service(public_name_list)
         #still no response, do nothing
         #NOTE the query fails even if only one TAXON_ID can't be found
         if not public_names:
-            l.log("No public names returned", type=Logtype.FILE)
+            l.error("No public names returned")
             return
         #update samples and set dtol_sattus to pending
         else:
@@ -371,9 +398,9 @@ def query_awaiting_tolids():
                         print(str(rejsam["_id"]))
                         Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(rejsam["_id"])], submission_id=[])
                 else:
-                    l.log("Still no tolId identified for " + str(name), type=Logtype.FILE)
+                    l.log("Still no tolId identified for " + str(name))
                     return
-        l.log("Changing submission status from awaiting tolids to pending", type=Logtype.FILE)
+        l.log("Changing submission status from awaiting tolids to pending")
         Submission().make_dtol_status_pending(submission["_id"])
 
 def populate_source_fields(sampleobj):
@@ -1109,3 +1136,13 @@ def handle_common_ENA_error(error_to_parse, source_id):
     except Exception as e:
         print("PUBLIC NAME SERVER ERROR: " + str(e))
         return {}'''
+
+def log_message(msg, loglvl=Loglvl.INFO,  to_frontend=True, profile_id=profile_id ):
+
+    if to_frontend:
+        if loglvl==Loglvl.ERROR:
+            action = "error"
+        else :
+            action = "info"
+        notify_frontend(data={"profile_id": profile_id}, msg=msg, action=action, html_id="dtol_sample_info")
+    l.log("Dtol submission for profile " + profile_id  + " : " + msg, level=loglvl)
