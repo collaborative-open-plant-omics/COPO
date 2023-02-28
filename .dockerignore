@@ -4,5 +4,5 @@ README.md
 *.pyc
 *.yml
 **/.git
-selselenium_test/
+selenium_test/
 
