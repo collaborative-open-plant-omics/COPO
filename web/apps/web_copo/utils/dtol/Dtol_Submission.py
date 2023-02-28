@@ -176,7 +176,7 @@ def process_pending_dtol_samples():
                     specimen_obj_fields = populate_source_fields(targetsam)
                     sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                     Source().add_fields(specimen_obj_fields, str(sour['_id']))
-                log_message("Specimen level sample for " + sam["SPECIMEN_ID"] + " created", Loglvl.INFO)    
+                log_message("Specimen level sample for " + sam["SPECIMEN_ID"] + " created", Loglvl.INFO, profile_id=profile_id)    
                 #l.log("created specimen level sample for " + sam["SPECIMEN_ID"])
             #source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
@@ -233,7 +233,7 @@ def process_pending_dtol_samples():
 
                 build_specimen_sample_xml(sour)
                 build_submission_xml(str(sour['_id']), release=True)
-                log_message("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], Loglvl.INFO)
+                log_message("submitting specimen level sample to ENA for " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
                 accessions = submit_biosample_v2(str(sour['_id']), Source(), submission['_id'], {}, type="source", async_send=False)
                 # l.log("submission status is " + str(accessions.get("status", "")), type=Logtype.FILE)
                 if accessions.get("status", "") == "error":
