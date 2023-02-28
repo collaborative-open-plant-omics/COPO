@@ -118,7 +118,7 @@ def save_ena_records(request):
         s = (map_to_dict(sample_data[0], sample_data[p]))
 
         # check if sample already exists, if so, add new datafile
-        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"]})
+        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"], "profile_id": profile_id})
         if not sample:
             source = dict()
             curl_cmd = "curl " + \
@@ -134,7 +134,7 @@ def save_ena_records(request):
             source["organism"] = \
                 {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
                     termAccession}
-            source["profile_id"] = request.session["profile_id"]
+            #source["profile_id"] = request.session["profile_id"]
             source["date_created"] = datetime.datetime.utcnow()
             source["profile_id"] = profile_id
             source["deleted"] = "0"
@@ -146,7 +146,7 @@ def save_ena_records(request):
             # create associated sample
             sample = dict()
             sample["sample_type"] = "isasample"
-            sample["profile_id"] = request.session["profile_id"]
+            #sample["profile_id"] = request.session["profile_id"]
             sample["derivesFrom"] = [source_id]
             sample["date_modified"] = datetime.datetime.utcnow()
             sample["profile_id"] = profile_id

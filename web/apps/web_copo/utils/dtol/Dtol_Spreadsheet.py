@@ -115,11 +115,11 @@ class DtolSpreadsheet:
         if file:
             self.file = file
         else:
-            self.sample_data = self.req.session.get("sample_data", "")
-            if self.sample_data == "":
-                self.sample_data = pickle.loads(self.vr["manifest_data"])
+            #self.sample_data = self.req.session.get("sample_data", "")
+            #if self.sample_data == "":
+            #    self.sample_data = pickle.loads(self.vr["manifest_data"])
+            self.sample_data = pickle.loads(self.vr["manifest_data"])
             self.isupdate = self.req.session.get("isupdate", False)
-
         self.profile_id = p_id
 
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"

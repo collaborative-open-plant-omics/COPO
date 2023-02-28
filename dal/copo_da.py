@@ -2605,10 +2605,21 @@ class ENAFileTransferObject(DAComponent):
         self.component = str()
 
     def get_pending_transfers(self):
-        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
+        result_list = []
+        result = self.ENAFileTransferObjectCollection.find({"transfer_status": {"$ne": 2}, "status": "pending"})
+        if result:
+            result_list = list(result)
+        #at most download 2 files at the sametime    
+        count = self.ENAFileTransferObjectCollection.find({"transfer_status": 2, "status": "processing"}).count()
+        if count <= 1:
+            result = self.ENAFileTransferObjectCollection.find_one({"transfer_status": 2, "status": "pending"})
+            if result:
+                result_list.append(result)
+        return result_list
 
     def get_processing_transfers(self):
         return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})
+     
 
     def set_processing(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
