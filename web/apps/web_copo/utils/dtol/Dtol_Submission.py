@@ -17,7 +17,7 @@ from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS as settings
-from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_SAMPLE_TEMPLATE, SRA_PROJECT_TEMPLATE
+from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_SAMPLE_TEMPLATE, SRA_PROJECT_TEMPLATE, DTOL_SAMPLE_COLLECTION_LOCATION_STATEMENT
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from bson import ObjectId
 from django_tools.middlewares.ThreadLocal import get_current_request
@@ -454,6 +454,15 @@ def update_bundle_sample_xml(sample_list, bundlefile):
         sample_name = ET.SubElement(sample_alias, 'SAMPLE_NAME')
         taxon_id = ET.SubElement(sample_name, 'TAXON_ID')
         taxon_id.text = sample.get("species_list", [])[0].get('TAXON_ID', "")
+#add sample description
+        collection_location =  sample.get("COLLECTION_LOCATION", "")
+        collection_country = collection_location.split("|")[0].strip()
+        if collection_country:
+            statement = DTOL_SAMPLE_COLLECTION_LOCATION_STATEMENT.get(collection_country.upper(), "")
+            if statement:
+                description = ET.SubElement(sample_alias, "DESCRIPTION")
+                description.text = statement
+
         sample_attributes = ET.SubElement(sample_alias, 'SAMPLE_ATTRIBUTES')
         # validating against TOL checklist
         sample_attribute = ET.SubElement(sample_attributes, 'SAMPLE_ATTRIBUTE')
