@@ -1093,7 +1093,7 @@ class Sample(DAComponent):
             for field in sc:
                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table", ""):
                     name = field.get("id", "").split(".")[-1]
-                    sam[name] = i[name]
+                    sam[name] = i.get("name","")
 
             sam["error"] = i.get("error","")        
             out.append(sam)
