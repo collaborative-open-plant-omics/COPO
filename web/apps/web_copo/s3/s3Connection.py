@@ -124,13 +124,13 @@ class S3Connection():
             missing_files = list()
             # get objects in the supplied bucket name
             bucket_files = self.list_objects(bucket=bucket_name)
-            '''
+            
             if not bucket_files:
                 msg = "Bucket not found: " + bucket_name
                 notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                                 html_id="sample_info", group_name=channels_group_name)
                 return False
-            '''
+            
             for f in file_list:
 
                 # if found, iterate list of given files to see if each if present in the bucket

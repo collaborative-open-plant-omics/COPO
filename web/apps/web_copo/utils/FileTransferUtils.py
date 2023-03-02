@@ -1,7 +1,4 @@
 __author__ = 'fshaw'
-from gevent import monkey
-monkey.patch_socket()
-#monkey.patch_ssl()
 import os
 from dal.copo_da import ENAFileTransferObject, DataFile, Profile
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
@@ -21,27 +18,34 @@ def make_transfer_record(file_id, submission_id):
     # make transfer object
     file = DataFile().get_record(file_id)
     tx = dict()
-    tx["created"] = datetime.utcnow()
-    tx["last_checked"] = datetime.utcnow()
+
     tx["remote_path"] = submission_id + "/reads/"
     tx["local_path"] = file["file_location"]
     tx["ecs_location"] = file["ecs_location"]
     tx["file_id"] = str(file["_id"])
     tx["profile_id"] = file["profile_id"]
-    tx["status"] = "pending"
+    #tx["status"] = "pending"
     tx["submission_id"] = submission_id
     # N.B. Transfer Status
     # 0 transfer complete
     # 1 check for presences of file on ecs
     # 2 transfer to COPO
     # 3 check for gzip
-    # 4 check for md5
+    # 4 check for md5ß
     # 5 transfer to ENA
     # 10 Error
-    tx["transfer_status"] = 1
+    #tx["transfer_status"] = 1
     print(tx)
-    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one({"local_path": file["file_location"]}, {"$set": tx}, upsert=True)
-
+    ena_file = ENAFileTransferObject().ENAFileTransferObjectCollection.find_one({"local_path": file["file_location"]})
+    if (not ena_file) or ena_file["status"] != "processing":
+        tx["created"] = datetime.utcnow()
+        tx["last_checked"] = datetime.utcnow()
+        tx["status"] = "pending"
+        tx["transfer_status"] = 1
+        ENAFileTransferObject().ENAFileTransferObjectCollection.update_one({"local_path": file["file_location"]}, {"$set": tx}, upsert=True)
+    else:
+        Logger().log("The file is downloading, will not download it again: " + tx["local_path"])
+    
 
 def check_for_stuck_transfers():
     # N.B. called from celery

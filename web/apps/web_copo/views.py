@@ -101,16 +101,12 @@ def ena_read_manifest_validate(request, profile_id):
 def ena_assembly(request, profile_id):
     is_error = False
     request.session["profile_id"] = profile_id
+    study_accession = ""
+    sample_accession = []
 
     existing_sub = Submission().get_records_by_field("profile_id", profile_id)
     if existing_sub:
         existing_accessions = existing_sub[0].get("accessions", "")
-    else:
-        # initializing empty variables to create form
-        existing_accessions = False
-        study_accession = ""
-        sample_accession = ""
-    sample_accession = []
     if existing_accessions:
         study = existing_accessions.get("project", "")
         if study:
