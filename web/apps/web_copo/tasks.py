@@ -40,7 +40,7 @@ def only_one(fun=None, key="", timeout=None):
                     try:
                         lock.release()
                     except Exception as e:
-                        Logger().error(e)
+                        Logger().error(fun.__name__ + " " + str(e))
         return inner_func
     return actual_only_one    
 
