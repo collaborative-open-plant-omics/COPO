@@ -43,7 +43,7 @@
       "show_in_form" : true,
       "id" : "copo.datafile.bioimage_name",
       "type" : "string",
-      "show_in_table" : true,
+      "show_in_table" : false,
       "control" : "text",
       "show_as_attribute" : true
     },

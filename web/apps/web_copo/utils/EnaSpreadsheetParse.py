@@ -23,6 +23,7 @@ from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from dal.broker_da import BrokerDA
 from pymongo import ReturnDocument
 import web.apps.web_copo.utils.FileTransferUtils as tx
+from web.apps.web_copo.schemas.utils import data_utils
 
 l = logger.Logger("exceptions_and_logging/logs")
 schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
@@ -34,9 +35,12 @@ from pathlib import Path
 
 
 def parse_ena_spreadsheet(request):
+    username = request.user.username
     profile_id = request.session["profile_id"]
     channels_group_name = "s3_" + profile_id
-
+    notify_frontend(data={"profile_id": profile_id},
+                    msg='', action="info",
+                    html_id="sample_info", group_name=channels_group_name)    
     # method called by rest
     file = request.FILES["file"]
     name = file.name
@@ -53,6 +57,7 @@ def parse_ena_spreadsheet(request):
             l.log("About to collect Dtol manifest")
             # check s3 for bucket and files files
             bucket_name = str(request.user.id) + "_" + request.user.username
+            #bucket_name = request.user.username
 
             if s3obj.check_for_s3_bucket(bucket_name):
                 # get filenames from manifest
@@ -61,9 +66,20 @@ def parse_ena_spreadsheet(request):
                 if not s3obj.check_s3_bucket_for_files(bucket_name=bucket_name, file_list=file_names):
                     # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
                     return HttpResponse()
-
+                # check if the files have been submitted or not
+                files = []
+                for f in file_names:
+                    for i in f.split(","):
+                        files.append(join(settings.UPLOAD_PATH, username, i.strip()))
+  
+                #sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle_meta.file_location": {"$in": files}})
+                #if sub and sub["accessions"]:
+                #        return HttpResponse(content="The sample(s) has been submitted before, it cannot be updated", status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
+                notify_frontend(data={"profile_id": profile_id},
+                                msg='s3 bucket not found, creating it', action="info",
+                                html_id="sample_info", group_name=channels_group_name)                
                 s3obj.make_s3_bucket(bucket_name=bucket_name)
                 notify_frontend(data={"profile_id": profile_id},
                                 msg='Files not found, please click "Upload Data into COPO" and follow the '
@@ -89,13 +105,20 @@ def save_ena_records(request):
     bundle_meta = list()
     pairing = list()
     datafile_list = list()
+    existing_bundle = list()
+    existing_bundle_meta = list()
+    sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "deleted": data_utils.get_not_deleted_flag()})
+    if sub:
+        existing_bundle = sub["bundle"]
+        existing_bundle_meta = sub["bundle_meta"]
+
     for p in range(1, len(sample_data)):
         # for each row in the manifest
 
         s = (map_to_dict(sample_data[0], sample_data[p]))
 
         # check if sample already exists, if so, add new datafile
-        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"]})
+        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"], "profile_id": profile_id})
         if not sample:
             source = dict()
             curl_cmd = "curl " + \
@@ -111,20 +134,19 @@ def save_ena_records(request):
             source["organism"] = \
                 {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
                     termAccession}
-            source["profile_id"] = request.session["profile_id"]
+            #source["profile_id"] = request.session["profile_id"]
             source["date_created"] = datetime.datetime.utcnow()
             source["profile_id"] = profile_id
             source["deleted"] = "0"
             source_id = str(
                 Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession},
                                                                      {"$set": source},
-                                                                     upsert=True, return_document=ReturnDocument.AFTER)[
-                    "_id"])
+                                                                     upsert=True, return_document=ReturnDocument.AFTER)["_id"])
 
             # create associated sample
             sample = dict()
             sample["sample_type"] = "isasample"
-            sample["profile_id"] = request.session["profile_id"]
+            #sample["profile_id"] = request.session["profile_id"]
             sample["derivesFrom"] = [source_id]
             sample["date_modified"] = datetime.datetime.utcnow()
             sample["profile_id"] = profile_id
@@ -133,8 +155,7 @@ def save_ena_records(request):
             sample_id = str(
                 Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample},
                                                                      upsert=True,
-                                                                     return_document=ReturnDocument.AFTER)[
-                    "_id"])
+                                                                     return_document=ReturnDocument.AFTER)["_id"])
         else:
             sample_id = str(sample["_id"])
 
@@ -164,7 +185,9 @@ def save_ena_records(request):
         df["profile_id"] = str(p["_id"])
         df["file_type"] = "TODO"
         df["type"] = "RAW DATA FILE"
+
         df["bucket_name"] = str(request.user.id) + "_" + request.user.username
+        #df["bucket_name"] = username
 
         # create local location
         Path(join(settings.UPLOAD_PATH, username)).mkdir(parents=True, exist_ok=True)
@@ -174,20 +197,23 @@ def save_ena_records(request):
             # create single record
             f_name = s["file_name"]
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = username + "/" + f_name   #temp-solution
             df["file_name"] = f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].strip()
+            df["deleted"] =  data_utils.get_not_deleted_flag()
             inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
                                                                               {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
-            bundle.append(str(inserted["_id"]))
-            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid), f_name),
-                      "upload_status": False}
-            bundle_meta.append(f_meta)
+            if str(inserted["_id"]) not in existing_bundle:  
+                existing_bundle.append(str(inserted["_id"]))
+                f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location,
+                        "upload_status": False}
+                existing_bundle_meta.append(f_meta) 
         else:
             # create record for left
             tmp_pairing = dict()
@@ -195,79 +221,109 @@ def save_ena_records(request):
             f_name = file_names[0].strip()
             df["file_name"] = f_name
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = username + "/" + f_name   #temp-solution
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[0].strip()
+            df["deleted"] =  data_utils.get_not_deleted_flag()
             inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
                                                                               {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
-            bundle.append(str(inserted["_id"]))
-            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid),
-                                                                             file_names[0]), "upload_status": False}
+            if str(inserted["_id"]) not in existing_bundle:  
+                existing_bundle.append(str(inserted["_id"]))
+                f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location,
+                        "upload_status": False}
+                existing_bundle_meta.append(f_meta)
+            #bundle.append(str(inserted["_id"]))
+            #f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location, "upload_status": False}
             # create record for right
             tmp_pairing["_id"] = str(inserted["_id"])
-            bundle_meta.append(f_meta)
+            #bundle_meta.append(f_meta)
             # df.pop("_id")
             f_name = file_names[1].strip()
             df["file_name"] = f_name
             df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            #df["ecs_location"] = request.user.username + "/" + f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[1].strip()
+            df["deleted"] =  data_utils.get_not_deleted_flag()
             inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
                                                                               {"$set": df}, upsert=True,
                                                                               return_document=ReturnDocument.AFTER)
             datafile_list.append(inserted)
             bundle.append(str(inserted["_id"]))
-            f_meta = {"file_id": str(inserted["_id"]), "file_location": join(settings.UPLOAD_PATH, str(uid),
-                                                                             file_names[1]), "upload_status": False}
+            f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location, "upload_status": False}
+            if str(inserted["_id"]) not in existing_bundle:  
+                existing_bundle.append(str(inserted["_id"]))
+                f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location,
+                        "upload_status": False}
+                existing_bundle_meta.append(f_meta)
+                             
             tmp_pairing["_id2"] = str(inserted["_id"])
             pairing.append(tmp_pairing)
+            #bundle_meta.append(f_meta)
 
-            bundle_meta.append(f_meta)
-    submission = dict()
     attributes["datafiles_pairing"] = pairing
-    submission["repository"] = "ena"
-    submission["date_created"] = datetime.datetime.utcnow()
-    submission["complete"] = "false"
-    submission["user_id"] = uid
-    submission["accessions"] = dict()
-    submission["bundle_meta"] = bundle_meta
-    submission["bundle"] = bundle
-    submission["profile_id"] = profile_id
-    submission["manifest_submission"] = 1
+    #read_files = [x["file_location"] for x in bundle_meta]
+
+    
+    #if sub and sub["accessions"]:
+    #    return HttpResponse(content="", status=400)
+        
+    if not sub:
+        sub = dict()
+        sub["date_created"] = datetime.datetime.utcnow()
+        sub["repository"] = "ena"
+        sub["accessions"] = dict()
+        sub["profile_id"] = profile_id
+        
+    sub["complete"] = "false"
+    sub["user_id"] = uid
+    sub["bundle_meta"] = existing_bundle_meta
+    sub["bundle"] = existing_bundle
+    sub["manifest_submission"] = 1
+    sub["deleted"] = data_utils.get_not_deleted_flag()
 
     # make description records and submissions record
     dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile',
                                           name=profile_name)
-    submission["description_token"] = dr["_id"]
-    subs = Submission().get_collection_handle().find({"profile_id": profile_id})
+    sub["description_token"] = dr["_id"]
+
+    if "_id" in sub:
+        Submission().get_collection_handle().update_one({"_id": sub["_id"]}, {"$set": sub})
+        sub_id = sub["_id"]
+    else:
+        sub_id = Submission().get_collection_handle().insert_one(sub).inserted_id
+
+    '''
     duplicates = list()
     update_ids = list()
     if subs:
         for s in subs:
             for s_bm in s.get("bundle_meta", ""):
-                for bm in submission.get("bundle_meta", ""):
+                for bm in submission1.get("bundle_meta", ""):
                     if s_bm.get("file_location") == bm.get("file_location", ""):
                         # we have an existing submission with at least one of these file locations so update existing submission record
 
                         duplicates.append(s_bm.get("file_location"))
                         update_ids.append(s["_id"])
         if len(duplicates) > 0:
-            submission.pop("accessions")
-            Submission().get_collection_handle().update_one({"_id": update_ids[0]}, {"$set": submission})
+            submission1.pop("accessions")
+            Submission().get_collection_handle().update_one({"_id": update_ids[0]}, {"$set": submission1})
             sub_id = update_ids[0]
         else:
-            sub_id = Submission().get_collection_handle().insert_one(submission)["_id"]
+            sub_id = Submission().get_collection_handle().insert_one(submission1)
     else:
-        sub = Submission().get_collection_handle().insert_one(submission)
+        sub = Submission().get_collection_handle().insert_one(submission1)
         sub_id = str(sub.inserted_id)
-
+    '''
+    
     for f in datafile_list:
         tx.make_transfer_record(file_id=f["_id"], submission_id=str(sub_id))
 
@@ -279,6 +335,7 @@ class ENASpreadsheet:
     def __init__(self, file):
         self.req = ThreadLocal.get_current_request()
         self.profile_id = self.req.session.get("profile_id", None)
+        self.channels_group_name = "s3_" + self.profile_id
 
         self.data = None
         self.fields = None
@@ -311,7 +368,8 @@ class ENASpreadsheet:
 
         if self.profile_id is not None:
             notify_frontend(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
-                            html_id="sample_info")
+                            html_id="sample_info", group_name=self.channels_group_name)
+            
             try:
                 # read excel and convert all to string
                 if m_format == "xls":
@@ -328,7 +386,7 @@ class ENASpreadsheet:
                 # if error notify via web socket
                 notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
                                 action="info",
-                                html_id="sample_info")
+                                html_id="sample_info", group_name=self.channels_group_name)
                 return False
             return True
 
@@ -337,7 +395,7 @@ class ENASpreadsheet:
         errors = []
         warnings = []
         self.isupdate = False
-
+   
         try:
             # get definitive list of mandatory DTOL fields from schema
             s = json_to_pytype(lk.WIZARD_FILES["ena_seq_manifest"], compatibility_mode=False)
@@ -357,7 +415,7 @@ class ENASpreadsheet:
                 notify_frontend(data={"profile_id": self.profile_id},
                                 msg="<br>".join(warnings),
                                 action="warning",
-                                html_id="warning_info2")
+                                html_id="warning_info2", group_name=self.channels_group_name)
             # if flag is false, compile list of errors
             if not flag:
                 errors = list(map(lambda x: "<li>" + x + "</li>", errors))
@@ -366,7 +424,7 @@ class ENASpreadsheet:
                 notify_frontend(data={"profile_id": self.profile_id},
                                 msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
                                 action="error",
-                                html_id="sample_info")
+                                html_id="sample_info", group_name=self.channels_group_name)
                 return False
 
 
@@ -375,15 +433,15 @@ class ENASpreadsheet:
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
-                            html_id="sample_info")
+                            html_id="sample_info", group_name=self.channels_group_name)
 
             return False
 
         # if we get here we have a valid spreadsheet
         notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
-                        html_id="sample_info")
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
+                        html_id="sample_info", group_name=self.channels_group_name)
+        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls", group_name=self.channels_group_name)
+        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info", group_name=self.channels_group_name)
 
         return True
 
@@ -404,4 +462,4 @@ class ENASpreadsheet:
         self.req.session["sample_data"] = sample_data
 
         notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                        html_id="sample_table")
+                        html_id="sample_table", group_name=self.channels_group_name)

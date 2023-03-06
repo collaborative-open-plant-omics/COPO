@@ -121,7 +121,6 @@ class DtolSpreadsheet:
             #    self.sample_data = pickle.loads(self.vr["manifest_data"])
             self.sample_data = pickle.loads(self.vr["manifest_data"])
             self.isupdate = self.req.session.get("isupdate", False)
-
         self.profile_id = p_id
 
         sample_images = Path(settings.MEDIA_ROOT) / "sample_images"

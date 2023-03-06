@@ -42,7 +42,7 @@ defusedxml==0.6.0
 Deprecated==1.2.13
 dict-toolbox==2.2.0
 dict.sorted==1.0.0
-Django==3.1
+Django==3.2.18
 django-allauth==0.46.0
 django-allow-cidr==0.3.1
 django-appconf==1.0.3
@@ -64,8 +64,8 @@ enum-compat==0.0.2
 et-xmlfile==1.0.1
 eventlet==0.22.1
 Genshi==0.7.3
-gevent==1.4.0
-greenlet==0.4.15
+gevent==22.10.2
+greenlet==2.0.1
 gunicorn==19.9.0
 hiredis==1.0.0
 html5lib==1.0.1

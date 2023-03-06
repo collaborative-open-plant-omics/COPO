@@ -25,7 +25,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, StreamingHttpResponse, HttpResponseRedirect
 from jsonpickle import encode
 from django.shortcuts import render
 
@@ -1740,11 +1740,25 @@ def init_manifest_submission(request):
 
 
 def process_urls(request):
+    profile_id = data_utils.get_current_request().session['profile_id']
+    channels_group_name = "s3_" + profile_id
+    notify_frontend(data={"profile_id": profile_id},
+        msg='', action="info",
+        html_id="sample_info", group_name=channels_group_name)       
     file_list = json.loads(request.POST["data"])
     bucket_name = str(request.user.id) + "_" + request.user.username
+    #bucket_name = request.user.username
+
     s3con = s3()
+ 
     if not s3con.check_for_s3_bucket(bucket_name):
+        notify_frontend(data={"profile_id": profile_id},
+                msg='s3 bucket not found, creating it', action="info",
+                html_id="sample_info", group_name=channels_group_name)   
         s3con.make_s3_bucket(bucket_name)
+        notify_frontend(data={"profile_id": profile_id},
+                msg='s3 bucket created', action="info",
+                html_id="sample_info", group_name=channels_group_name)  
     urls_list = list()
     for file_name in file_list:
         if file_name and not file_name.endswith("/"):
@@ -2147,6 +2161,6 @@ def validate_common_value(request):
 
 
 def test_post(request):
-    notify_frontend(data={"profile_id": profile_id}, msg="Invalid Taxon ID found", action="info",
+    notify_frontend(data={"profile_id": ""}, msg="Invalid Taxon ID found", action="info",
                     html_id="dtol_sample_info")
     return HttpResponse("jkjskd")

@@ -1921,16 +1921,14 @@ class Submission(DAComponent):
         else:
             return False
 
-    def add_assembly_accession(self, s_id, accession, alias):
-        # todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
-        # reference assembly and sample
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": {"accessions.assembly": {}}})
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": {"accessions.assembly.accession": accession,
-                                                          "accessions.assembly.alias": alias}})
+    def add_assembly_accession(self, s_id, accession, alias, assembly_idstr):
+        #todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
+        #reference assembly and sample
+        assembly_accession = self.get_collection_handle().find_one({"_id": ObjectId(s_id), "accessions.assembly.accession": accession}, {"_id":1})
+        if not assembly_accession:
+            self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                    {"$push": { "accessions.assembly": {"accession": accession, "alias": alias, "assembly_id": assembly_idstr}}})
         return
-
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2629,10 +2627,21 @@ class ENAFileTransferObject(DAComponent):
         self.component = str()
 
     def get_pending_transfers(self):
-        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
+        result_list = []
+        result = self.ENAFileTransferObjectCollection.find({"transfer_status": {"$ne": 2}, "status": "pending"})
+        if result:
+            result_list = list(result)
+        #at most download 2 files at the sametime    
+        count = self.ENAFileTransferObjectCollection.find({"transfer_status": 2, "status": "processing"}).count()
+        if count <= 1:
+            result = self.ENAFileTransferObjectCollection.find_one({"transfer_status": 2, "status": "pending"})
+            if result:
+                result_list.append(result)
+        return result_list
 
     def get_processing_transfers(self):
         return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})
+     
 
     def set_processing(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
@@ -2677,7 +2686,6 @@ class APIValidationReport(DAComponent):
 class Assembly(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "assembly")
-
 
 def is_number(s):
     try:
