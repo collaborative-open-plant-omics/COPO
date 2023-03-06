@@ -80,7 +80,6 @@ def process_ena_transfer(self):
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 @only_one(key="biosample_submission", timeout=5)
-@only_one(key="biosample_submission", timeout=5)
 def process_dtol_sample_submission(self):
     Logger().debug("Running process_dtol_sample_submission")
     Logger().debug("Running process_dtol_sample_submission")
@@ -88,8 +87,6 @@ def process_dtol_sample_submission(self):
     return True
 
 
-@app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="bioimage_submission", timeout=5)
 @app.task(bind=True, base=CopoBaseClassForTask)
 @only_one(key="bioimage_submission", timeout=5)
 def process_bioimage_submission(self):
@@ -140,7 +137,6 @@ def process_tol_validations(self):
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
-@only_one(key="pending_file_transfers", timeout=2)
 @only_one(key="pending_file_transfers", timeout=2)
 def process_pending_file_transfers(self):
     Logger().debug("Running process_pending_file_transfers")
