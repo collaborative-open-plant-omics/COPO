@@ -48,7 +48,7 @@ dtol_api_patterns = [
             name='get_by_dtol_field'),
     re_path(r'sample/dtol/num_samples', s.get_num_dtol_samples, name='get_num_dtol_samples'),
     re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', s.get_project_samples, name='get_project_samples'),
-    re_path(r'sample/associated_tol_project/(?P<values>[a-zA-Z, ]+)',
+    re_path(r'sample/associated_tol_project/(?P<values>[A-Za-z0-9-_ ,.@]+)',
             s.get_project_samples_by_associated_project_type,
             name='get_project_samples_by_associated_project_type'),
     re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_samples_from_study_accessions,
