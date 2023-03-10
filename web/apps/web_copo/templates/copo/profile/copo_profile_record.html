@@ -1,0 +1,148 @@
+<div class="grid">
+    <div class="copo-records-panel" profile_type="{{ profile.type }}">
+        <!--Panel -->
+        <div class="panel">
+            <!--Panel heading -->
+            <div class="panel-heading" style="background-color: {{ profile.heading_bgColour }}">
+                <div class="row">
+                    <div class="col-sm-10 col-md-10 col-lg-10 row-title">
+                        <span id="{{ profile.record_id }}">{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis">
+                        <div id="{{ profile.record_id }}" class="pull-right vertical-ellipsis"
+                             title="View profile options">
+                            <i class="fa fa-ellipsis-v" style="font-size:14px"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Panel body -->
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12"
+                         style="padding-top: {{ profile.panel_content_paddingTop }}">
+                        <!--Panel content -->
+                        <div>Created:</div>
+                        <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
+                        <div>Description:</div>
+                        <div style="margin-bottom: 10px;">{{ profile.description }}</div>
+
+                        {% if profile.associated_type %}
+                            <div class="associated_type_div_label" style="display: block;">
+                                Associated
+                                Profile Type(s):
+                            </div>
+                            <div style="margin-bottom:10px;">
+                                <ul class="associated_type_ulTag"
+                                    style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }};">
+
+                                    {% for element in profile.associated_type_elements %}
+                                        <li title="{{ element.associated_type }}">  {{ element.abbreviation }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <!--Panel menu -->
+                        <span class="ui vertical menu expanding_menu" id="menu_{{ profile.record_id }}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block js_block %}
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+
+            {##}
+            {#        function set_component_buttons() {#}
+            {#            const copo_records_panel = $('.copo-records-panel');#}
+            {#            const panel = $('.panel');#}
+            {#            const panel_body = $('panel-body');#}
+            {#            const panel_body_row = $('<div></div>').attr({class: "row"});#}
+            {#            const menu = $("#expanding_menu").clone();#}
+            {##}
+            {#            copo_records_panel.attr("profile_type", `{{ profile.type}}`)#}
+            {#            $(menu).attr("id", "menu_" + "{{ profile.title }}")#}
+            {#            let component_buttons;#}
+            {#            component_buttons = append_component_buttons("{{ profile.title }}")#}
+            {#            $(menu).find(".comp").append(component_buttons)#}
+            {#            let colsHTML;#}
+            {#            {% if profile.associated_type %}#}
+            {#                // Display "Associated Profile Type(s)" label only if the profile has associated types#}
+            {#                let associated_type_label_div = $('<div></div>').attr({class: "associated_type_div_label"});#}
+            {##}
+            {#                let associated_type = []#}
+            {#                let strip_value;#}
+            {#                let a_t;#}
+            {#                let new_type;#}
+            {##}
+            {#                {% for a_type  in profile.associated_type  %}#}
+            {#                    a_t = `{{ type }}`#}
+            {#                    strip_value = a_t.includes('&#x27;') ? '&#x27;' : ';#x27;'; //';#x27;'#}
+            {##}
+            {#                    if (strip_value.trim().toString() !== "") {#}
+            {#                        console.log('1', a_t)#}
+            {#                        a_t.replace(strip_value, '');#}
+            {#                        console.log('1.1', a_t)#}
+            {#                        associated_type.push(a_t)#}
+            {#                    } else {#}
+            {#                        console.log('2', strip_value)#}
+            {#                        associated_type.push(a_t)#}
+            {#                    }#}
+            {#                {% endfor %}#}
+            {##}
+            {#                console.log(associated_type)#}
+            {#                associated_type.length !== 0#}
+            {#                    ? associated_type_label_div.text('Associated Profile Type(s):').show().css("visibility", "visible")#}
+            {#                    : associated_type_label_div.text('').hide().css("visibility", "hidden")#}
+            {##}
+            {#                // Display associated types(s) (if any exists) as bullet points#}
+            {#                let associated_type_div = $('<div/>',#}
+            {#                    {#}
+            {#                        style: "margin-bottom:10px;"#}
+            {#                    });#}
+            {#                associated_type_div.append(create_ul_Tag(associated_type))#}
+            {##}
+            {#                colsHTML = $('<div class="col-sm-12 col-md-12 col-lg-12"></div>')#}
+            {#                    .append('<div>Created:</div>')#}
+            {#                    .append('<div style="margin-bottom: 10px;">' + `{{ profile.profile_date }}` + '</div>')#}
+            {#                    .append('<div>Description:</div>')#}
+            {#                    .append('<div style="margin-bottom: 10px;">' + `{{ profile.description }}` + '</div>')#}
+            {#                    .append(associated_type_label_div)#}
+            {#                    .append(associated_type_div)#}
+            {#                    .append(menu);#}
+            {##}
+            {##}
+            {#                panel_body_row.append(colsHTML);#}
+            {#                panel_body.html(panel_body_row);#}
+            {#                panel.append(panel_body);#}
+            {#                copo_records_panel.append(panel);#}
+            {##}
+            {#            {% else %}#}
+            {#                colsHTML = $('<div class="col-sm-12 col-md-12 col-lg-12"></div>')#}
+            {#                    .append('<div>Created:</div>')#}
+            {#                    .append('<div style="margin-bottom: 10px;">' + `{{ profile.profile_date }}` + '</div>')#}
+            {#                    .append('<div>Description:</div>')#}
+            {#                    .append('<div style="margin-bottom: 10px;">' + `{{ profile.description }}` + '</div>')#}
+            {#                    .append(menu);#}
+            {##}
+            {##}
+            {#                panel_body_row.append(colsHTML);#}
+            {#                panel_body.html(panel_body_row);#}
+            {#                panel.append(panel_body);#}
+            {#                copo_records_panel.append(panel);#}
+            {#            {% endif %}#}
+            {#        }#}
+            {##}
+            {#        console.log('Hi 1')#}
+            {#        {% if profile.title %}#}
+            {#            console.log("{{ profile.title }}")#}
+            {##}
+            {#            set_profile_heading();#}
+            {#            set_component_buttons();#}
+            {#            console.log('Hi 2')#}
+            {#        {% endif %}#}
+        });
+    </script>
+{% endblock %}

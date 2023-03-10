@@ -3,12 +3,13 @@ from django.urls import path, re_path
 from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views
+from . import copo_profile_views
 
 app_name = 'web_copo'
 
 urlpatterns = [
-    path('', views.index, name='index'),
-
+    # path('', views.index, name='index'),
+    path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
