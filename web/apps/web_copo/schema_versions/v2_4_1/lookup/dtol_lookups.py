@@ -283,7 +283,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSameAs",
         "sampleSymbiontOf",
         "copo_profile_title",
-        "tol_project"
+        "tol_project",
         "associated_tol_project"
     ],
     "env": []
