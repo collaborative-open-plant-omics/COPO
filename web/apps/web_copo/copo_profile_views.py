@@ -60,7 +60,7 @@ def copo_profile_index(request):
     existing_profiles = Profile().get_collection_handle().find({"user_id": uid}).sort("date_modified",
                                                                                       pymongo.DESCENDING)
     profiles_length = len([i for i in existing_profiles if i])
-    num_of_pages = profiles_length / 4  # row count
+    num_of_pages = profiles_length / num_of_profiles_per_page  # row count
     db_skip_num = num_of_profiles_per_page * (page - 1)
 
     # Get 4 profiles per page/row
@@ -69,11 +69,11 @@ def copo_profile_index(request):
         db_skip_num).limit(
         num_of_profiles_per_page * page)
 
-    profile_page = cursor_to_list_str2(existing_profiles_paginated)
+    profile_page = cursor_to_list_str2(existing_profiles_paginated, use_underscore_in_id=False)
 
     profile_page_length = len([i for i in profile_page if i])
     profile_page_length += profile_page_length
-
+   
     for i in profile_page:
         # Set panel heading background colour and small text for each profile record
         if "DTOL_ENV" in i.get("type", ""):

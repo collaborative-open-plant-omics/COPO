@@ -95,7 +95,16 @@
     <!-- test -->
     <!-- end test -->
 
-
+    <!-- Indicate that one should scroll downwards to view more profiles -->
+    <a href="javascript:void(0);" id="navigateToBottom" class="navigate-to-bottom"
+       title="Scroll down to view more profiles">
+        <i class="down-arrow"></i><i class="down-arrow"></i>
+    </a>
+    <!-- Navigate to top of web page button -->
+    <a href="javascript:void(0);" id="navigateToTop" class="navigate-to-top"
+       title="Navigate to top of the web page">
+        <i class="up-arrow"></i><i class="up-arrow"></i>
+    </a>
     <!-- getting started section -->
 
     <div class="row">
@@ -158,22 +167,15 @@
                 <div class="pull-right" style="padding-top: 9px;"> Sort by:</div>
             </div>
             <div class="col-xs-2 col-md-2 col-lg-2">
-                <div class="dropdown dropdown-sort" style="padding-bottom:10px">
-                    <button id="sortProfilesBtn" class="form-control" type="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="true">
-                        Date Created
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="sortProfilesBtn">
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Date Created</a></li>
-                        <li role="presentation" class="active"><a role="menuitem" tabindex="-1" href="#">Profile
-                            Title</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Profile Type</a></li>
-                    </ul>
-                </div>
+                <select id="sortProfilesBtn" class="form-control" style="padding-bottom:10px">
+                    aria-describedby="">
+                    <option value="date_created">Date Created</option>
+                    <option value="title">Profile Title</option>
+                    <option value="type">Profile Type</option>
+                </select>
             </div>
             <div class="col-xs-0 col-md-0 col-lg-0">
-                <div class="pull-left"><i id="sortIconID" class="fa fa-sort-up sort-icon "></i></div>
+                <div class="pull-left"><i id="sortIconID" class="sort-down fa fa-sort-down sort-icon"></i></div>
 
             </div>
         </div>

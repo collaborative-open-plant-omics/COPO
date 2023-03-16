@@ -87,9 +87,7 @@ def cursor_to_list_str2(cursor, use_underscore_in_id=True):
             r["id"] = str(r["_id"])
             r.pop("_id")
             r["date_created"] = r['date_created'].strftime('%a, %d %b %Y %H:%M')
-            r.pop("date_created")
             r["date_modified"] = r['date_modified'].strftime('%a, %d %b %Y %H:%M')
-            r.pop("date_modified")
     return records
 
 
