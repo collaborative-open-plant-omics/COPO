@@ -882,7 +882,7 @@ adding here will make the schema importable as primer fields in a new experimata
 TEMPLATES_TO_APPEAR_IN_EDITOR = ["dc_stages", "miappe", "dcterms"]
 
 DTOL_SAMPLE_COLLECTION_LOCATION_STATEMENT = {
-    "SPAIN" : "The biological material collected in Spain, and used to generate digital sequences, was retrieved from \
+    "__SPAIN__" : "The biological material collected in Spain, and used to generate digital sequences, was retrieved from \
 wildlife taxa regulated by the Spanish Royal Decree 124/2017 (https://www.boe.es/eli/es/rd/2017/02/24/124)."
 
 }
