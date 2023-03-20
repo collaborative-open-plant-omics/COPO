@@ -166,9 +166,30 @@ a.component-btns {
     border-top: none;
 }
 
-/*end profile details panel*/
+/* end profile details panel */
 
-/* Icon: Ellipsis */
+/* Text/paragraph ellipsis when text is too long */
+.showEllipsisFor2TextLines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 3em; /*1.5em x 2 = 3em*/ /* fallback */
+}
+
+.showEllipsisFor1TextLine {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
+}
+
+/* Icon ellipsis */
 /* unvisited link */
 a#ellipsisID:link {
     color: white !important;
@@ -351,6 +372,27 @@ a#ellipsisID:active {
     margin-right: 1em;
 }
 
+/*CSS styles for profile records with no associated types assigned*/
+.no_associatedTypes_marginBottom {
+    margin-bottom: 70px;
+}
+
+.associatedTypes_marginBottom {
+    margin-bottom: 10px;
+}
+
+/*CSS styles for profile records with associated types assigned*/
+.one_associatedType_marginBottom {
+    margin-bottom: 70px;
+}
+
+.two_associatedTypes_marginBottom {
+    margin-bottom: 40px;
+}
+
+.several_associatedType_marginBottom {
+    margin-bottom: 10px;
+}
 
 /*Navigate to top button CSS*/
 .navigate-to-top {

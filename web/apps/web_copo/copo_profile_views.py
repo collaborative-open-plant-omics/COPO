@@ -73,7 +73,7 @@ def copo_profile_index(request):
 
     profile_page_length = len([i for i in profile_page if i])
     profile_page_length += profile_page_length
-   
+
     for i in profile_page:
         # Set panel heading background colour and small text for each profile record
         if "DTOL_ENV" in i.get("type", ""):
@@ -123,7 +123,7 @@ def copo_profile_index(request):
 
             i.update(associated_type_elements)
         else:
-            additional_info_dict = {"panel_content_paddingTop": "8px"}
+            additional_info_dict = {"panel_content_paddingTop": "40px"}
             i.update(additional_info_dict)
 
     if not request.is_ajax():

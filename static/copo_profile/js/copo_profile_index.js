@@ -1,18 +1,13 @@
 $(document).ready(function () {
     //****************************** Event handlers block *************************//
-    // Get data to display
     const component = "profile";
-    const componentMeta = get_component_meta(component);
-    const copoFormsURL = "/copo/copo_forms/";
-    const copoVisualsURL = "/copo/copo_visualize/";
-    const copoDeleteProfile = "/copo/delete_profile/";
     const copoProfileIndexURL = "/copo/";
     const copoAcceptRejectURL = "/copo/accept_reject_sample"
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
     const copoENAAssemblyURL = "/copo/ena_assembly/"
+    const copoVisualsURL = "/copo/copo_visualize/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
-    let body = $('body')
     let page = 1;
     let block_request = false;
     let end_pagination = false;
@@ -21,16 +16,11 @@ $(document).ready(function () {
 
     csrftoken = $.cookie('csrftoken');
 
-    // Load work profiles
-    // If there are no profiles, display an empty profile message else show loader
-    if (profiles.length === 0) {
-        console.log('No records to show')
-    } else {
-        $("#component_table_loader").append(tableLoader);
-        tableLoader.remove();
-    }
+    // Do nothing if there no profile records exist
+    set_empty_component_message(profiles_total); //display empty profile message for potential first time users
+    if (profiles.length === 0) return false;
 
-    // Groups
+    // Profile groups
     for (let g in groups) {
         if (groups[g].includes("sample_managers")) {
             $("#accept_reject_shortcut").show()
@@ -38,20 +28,29 @@ $(document).ready(function () {
         }
     }
 
-    $('a').webuiPopover({closeable: true}); // Initialises the popover option for each profile record
+    // Initialise the popover 'View profile options' option for each profile record
+    $('a').webuiPopover({
+        closeable: true,
+        onHide: function ($element) {
+            unselect_profile_record_on_dimiss()
+        }
+    });
 
     $("#sortProfilesBtn")[0].selectedIndex = 0 // Set first option of sort menu
 
-    set_empty_component_message(profiles_total); // Display an empty profile message for potential first time users
-
     grid_count.text(profiles.length); // Number of profile records visible
     grid_total.text(profiles_total); //  Total number of profile records for the user
-    filter_action_menu();
 
-    // Trigger refresh of profiles list
-    body.on('refreshtable', function () {
-        tableLoader.remove();
-        filter_action_menu();
+    filter_action_menu();
+    update_counts(copoVisualsURL, csrftoken, component);
+
+    // $("#component_table_loader").append(tableLoader);
+    // tableLoader.remove();
+
+    $('#sortProfilesBtn').on('change', function () {
+        const option_selected = this.value;
+        sortProfiles(option_selected)
+
     });
 
     $(document).data("sortByDescendingOrder", true)
@@ -83,25 +82,23 @@ $(document).ready(function () {
         }
     })
 
-    // Toggle the visibility of the button to sort in
-    // ascending order and descending order
+    // Toggle the visibility of the button to
+    // sort in ascending order or descending order
     $(document).on("click", "#sortIconID", function (e) {
+        let option = $("#sortProfilesBtn").val()
+
         $(this).toggleClass("sort-down fa fa-sort-down")
         $(this).toggleClass("sort-up fa fa-sort-up")
 
         if ($('i.sort-down').length) {
             $(document).data("sortByDescendingOrder", true)
+            sortProfiles(option)
         } else {
             $(document).data("sortByDescendingOrder", false)
+            sortProfiles(option)
         }
 
         e.preventDefault();
-    });
-
-    $('#sortProfilesBtn').on('change', function (e) {
-        const option_selected = this.value;
-        sortProfiles(option_selected)
-
     });
 
     $(document).on("click", "#copo_profiles_table", unselect_profile_record_on_dimiss)
@@ -115,10 +112,7 @@ $(document).ready(function () {
         initiate_form_call(component);
     });
 
-    // Show the option to edit/delete a profile record
-    // once the vertical ellipsis is clicked
-
-    // Profiles - Trigger infinite scroll once user scrolls downwards and display more profile records
+    // Trigger infinite scroll once user scrolls downwards to display more profile records that exist
     $(window).scroll(function () {
         const margin = $(document).height() - $(window).height() - 200;
         // Scroll downwards
@@ -153,13 +147,13 @@ $(document).ready(function () {
 
     });
 
-    // Scroll to the bottom of the web page on button clicked
+    // Show a button which once a user hovers, it'll indicate that the
+    // user can scroll downwards to view more profile records that were created
     let navigateToBottomOfPageBtn = $('#navigateToBottom');
 
     grid_count.text() < grid_total.text() && $(window).scrollTop() < 100
         ? navigateToBottomOfPageBtn.addClass('show')
         : navigateToBottomOfPageBtn.removeClass('show')
-
 
     // Navigate to the top of the web page on button clicked
     let navigateToTopOfPageBtn = $('#navigateToTop');
@@ -180,9 +174,15 @@ $(document).ready(function () {
             scrollTop: 0
         }, '300');
     });
+
+    // On web page reload/refresh, sort profile records by default sort option and method
+    window.onload = () => {
+        let option = $("#sortProfilesBtn").val()
+        sortProfiles(option)
+    };
 }); // End document ready
 
-//****************************** Functions Block ******************************//
+//****************************** Functions block ******************************//
 function editProfileRecord(profileRecordID) {
     $('a').webuiPopover('hide'); // Hides the popover
     const component = "profile";
@@ -259,30 +259,21 @@ function set_selected_profile_record(element) {
 
     // Check if any grid and panel-body are marked as 'selected',
     // if at least one exists, unselect it and select the current selected grid and panel-body
-
     if (selected_grids.length !== 0) {
-        console.log("selected grid exists")
         selected_grids.each(function (index, item) {
-            console.log(item)
             item.classList.remove("grid-selected")
-
         })
     }
 
     if (selected_panels.length !== 0) {
-        console.log("selected panel exists")
         selected_panels.each(function (index, item) {
             item.classList.remove("panel-body-selected");
-
         })
     }
 
     // Set grid and panel-body as selected
     $(element).closest('.grid').toggleClass("grid-selected")
     $(element).closest('.panel-heading').next('.panel-body').toggleClass("panel-body-selected")
-
-
-    // set_selected_rows(dt); // Highlight selected grid
 }
 
 function unselect_profile_record_on_dimiss() {
@@ -291,7 +282,6 @@ function unselect_profile_record_on_dimiss() {
 
     // Check if any grid and panel-body are marked as 'selected',
     // if at least one exists, unselect it and select the current selected grid and panel-body
-
     if (selected_grids.length !== 0) {
         console.log("selected grid exists")
         selected_grids.each(function (index, item) {
@@ -299,6 +289,7 @@ function unselect_profile_record_on_dimiss() {
 
         })
     }
+
     if (selected_panels.length !== 0) {
         console.log("selected panel exists")
         selected_panels.each(function (index, item) {
@@ -309,32 +300,29 @@ function unselect_profile_record_on_dimiss() {
 }
 
 function sortProfiles(option) {
-    console.log('Value selected', option)
-    console.log('Sorting by descending order?', $(document).data("sortByDescendingOrder"))
+    // Determine the query selector
+    let selector = element => element.querySelector('.panel-body div:nth-child(2)').innerText; // date_created selector
 
-    // Determine the selector
-    let selector = document.querySelector('.panel-body div:nth-child(2)').innerText; // date_created selector
     switch (option) {
         case "date_created":
-            selector = document.querySelector('.panel-body div:nth-child(2)').innerText;
+            selector = element => element.querySelector('.panel-body div:nth-child(2)').innerText;
             break;
         case "title":
-            selector = document.querySelector('.row-title span').innerText;
-            selector.replace(/\s*\(.*?\)\s*/g, '') // Remove parentheses if present
+            // Remove parentheses if present from title
+            selector = element => element.querySelector('.row-title span').innerText.replace(/\s*\(.*?\)\s*/g, '')
             break;
         case "type":
             selector = element => element.querySelector('.copo-records-panel').getAttribute('profile_type');
             break;
         default:
-            selector = document.querySelector('.panel-body div:nth-child(2)').innerText;// date_created selector
+            selector = element => element.querySelector('.panel-body div:nth-child(2)').innerText;// date_created selector
     }
 
-
     // Choose the order method
-    const descendingOrder = $(document).data("sortByDescendingOrder"); // ascendingOrder ? [elementA, elementB] : [elementB, elementA];
+    const descendingOrder = $(document).data("sortByDescendingOrder");
     const isNumeric = false;
 
-    // Select all elements
+    // Select all (profile grid) elements
     const elements = [...document.querySelectorAll('.grid')];
 
     // Find parent node
@@ -351,7 +339,6 @@ function sortProfiles(option) {
             return collator.compare(textOfFirstElement, textOfSecondElement)
         })
         .forEach(element => parentElement.appendChild(element));
-
 }
 
 function do_render_profile_counts(data) {
@@ -409,116 +396,3 @@ function filter_action_menu() {
         }
     })
 }
-
-// function do_record_task(event, component, copoDeleteProfile, copoFormsURL) {
-//     let csrftoken;
-//     const task = event.task.toLowerCase(); //action to be performed e.g., 'Edit', 'Delete'
-//     const tableID = event.tableID; //get target table
-//
-//     //retrieve target records and execute task
-//     const table = $('#' + tableID).DataTable();
-//     const records = []; //
-//     $.map(table.rows('.selected').data(), function (item) {
-//         records.push(item);
-//     });
-//
-//     //add task
-//     if (task === "add") {
-//         initiate_form_call(component);
-//
-//         return false;
-//     }
-//
-//
-//     //edit task
-//     if (task === "edit") {
-//         csrftoken = $.cookie('csrftoken');
-//         $.ajax({
-//             url: copoFormsURL,
-//             type: "POST",
-//             headers: {'X-CSRFToken': csrftoken},
-//             data: {
-//                 'task': 'form',
-//                 'component': component,
-//                 'target_id': records[0].record_id // only allowing row action for edit, hence first record taken as target
-//             },
-//             success: function (data) {
-//                 json2HtmlForm(data);
-//             },
-//             error: function () {
-//                 alert("Couldn't build profile form!");
-//             }
-//         });
-//     }
-//
-//     //delete task
-//     if (task === "validate_and_delete") {
-//         csrftoken = $.cookie('csrftoken');
-//         $.ajax({
-//             url: copoDeleteProfile,
-//             type: "POST",
-//             headers: {'X-CSRFToken': csrftoken},
-//             data: {
-//                 'task': 'validate_and_delete',
-//                 'componenent': component,
-//                 'target_id': records, //maybe i need to make a list of all record_id in records
-//             }
-//         }).done(function () {
-//             BootstrapDialog.show({
-//                 title: "Profile/s deleted",
-//                 message: "All profile/s selected have been deleted.",
-//                 cssClass: "copo-modal1",
-//                 closable: true,
-//                 animate: true,
-//                 type: BootstrapDialog.TYPE_INFO
-//             });
-//             for (let i = 0; i < records.length; i++) {
-//                 document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
-//             }
-//         }).error(function (data_response) {
-//             BootstrapDialog.show({
-//                 title: "Profile deletion - error",
-//                 message: "One or more profiles couldn't be removed. Only profiles that have no datafiles or " +
-//                     "samples associated can be deleted.",
-//                 cssClass: "copo-modal1",
-//                 closable: true,
-//                 animate: true,
-//                 type: BootstrapDialog.TYPE_DANGER
-//             });
-//             for (let i = 0; i < records.length; i++) {
-//                 if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
-//                     document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
-//                 }
-//             }
-//             console.log(data_response)
-//         });
-//     }
-//
-//     //table.rows().deselect(); //deselect all rows
-//
-//     //handle button actions
-//     // if (ids.length > 0) {
-//     //     if (task == "edit") {
-//     //         $.ajax({
-//     //             url: copoFormsURL,
-//     //             type: "POST",
-//     //             headers: {'X-CSRFToken': csrftoken},
-//     //             data: {
-//     //                 'task': 'form',
-//     //                 'component': component,
-//     //                 'target_id': ids[0] //only allowing row action for edit, hence first record taken as target
-//     //             },
-//     //             success: function (data) {
-//     //                 json2HtmlForm(data);
-//     //             },
-//     //             error: function () {
-//     //                 alert("Couldn't build publication form!");
-//     //             }
-//     //         });
-//     //     } else if (task == "delete") { //handles delete, allows multiple row delete
-//     //         var deleteParams = {component: component, target_ids: ids};
-//     //         do_component_delete_confirmation(deleteParams);
-//     //     }
-//     // }
-// }
-//
