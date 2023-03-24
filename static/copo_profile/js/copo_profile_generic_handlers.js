@@ -2389,7 +2389,7 @@ function get_component_meta(component) {
 }
 
 function get_profile_components() {
-    var componentProperties = [
+    return [
         {
             component: 'profile',
             title: 'Work Profiles',
@@ -2518,9 +2518,7 @@ function get_profile_components() {
             recordActions: ["delete_record_multi"],
             visibleColumns: 10000
         }*/
-    ];
-
-    return componentProperties
+    ]
 }
 
 

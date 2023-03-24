@@ -41,11 +41,9 @@ $(document).ready(function () {
     grid_count.text(profiles.length); // Number of profile records visible
     grid_total.text(profiles_total); //  Total number of profile records for the user
 
+    appendRecordComponents($('div.grid'))
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
-
-    // $("#component_table_loader").append(tableLoader);
-    // tableLoader.remove();
 
     $('#sortProfilesBtn').on('change', function () {
         const option_selected = this.value;
@@ -61,7 +59,8 @@ $(document).ready(function () {
 
     $(document).on("click", ".expanding_menu > div", function (e) {
         const el = $(e.currentTarget);
-        el.closest("tr").removeClass("selected")
+        el.closest('.grid').removeClass("grid-selected")
+        el.closest('.panel-heading').next('.panel-body').removeClass("panel-body-selected")
     })
 
     $(document).on("click", ".item a", function (e) {
@@ -71,6 +70,7 @@ $(document).ready(function () {
             const action_type = el.data("action_type");
             let id = el.closest(".expanding_menu").attr("id");
             id = id.split("_")[1]
+
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
             } else if (action_type === "reads") {
@@ -81,6 +81,7 @@ $(document).ready(function () {
             document.location = url
         }
     })
+
 
     // Toggle the visibility of the button to
     // sort in ascending order or descending order
@@ -115,10 +116,13 @@ $(document).ready(function () {
     // Trigger infinite scroll once user scrolls downwards to display more profile records that exist
     $(window).scroll(function () {
         const margin = $(document).height() - $(window).height() - 200;
+
         // Scroll downwards
         if ($(window).scrollTop() > margin && end_pagination === false && block_request === false) {
             block_request = true;
             page += 1;
+
+            $("#component_table_loader").append(tableLoader); // Show loading .gif
 
             $.ajax({
                 type: 'GET',
@@ -132,17 +136,27 @@ $(document).ready(function () {
                     } else {
                         block_request = false;
                     }
-                    // Appends the html template from the 'copo_profile_record.html' to the 'copo_profiels_table' div
-                    $('#copo_profiles_table').append(data.content);
 
-                    // Increment the number profile records displayed
+                    let content = $(data.content)
+
+                    appendRecordComponents(content) // Adds 'Actions' and 'Components' buttons
+
+                    // Appends the html template from the 'copo_profile_record.html' to the 'copo_profiels_table' div
+                    $('#copo_profiles_table').append(content);
+
+                    initialise_loading_records(copoVisualsURL, csrftoken, component, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
+
+                    // Increment the number of profile records displayed
                     grid_count.text($('.grid').length)
-                    // tableLoader.remove();
+
+                    tableLoader.remove(); // Remove loading .gif
                 },
                 error: function () {
                     alert("Couldn't retrieve profiles!");
                 }
             })
+
+
         }
 
     });
@@ -162,6 +176,7 @@ $(document).ready(function () {
         if ($(window).scrollTop() > 100) {
             // Hide the 'scroll down' button
             if (navigateToBottomOfPageBtn.hasClass('show')) navigateToBottomOfPageBtn.removeClass('show');
+            // Show 'scroll up' button
             navigateToTopOfPageBtn.addClass('show');
         } else {
             navigateToTopOfPageBtn.removeClass('show');
@@ -173,6 +188,7 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: 0
         }, '300');
+        $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
     });
 
     // On web page reload/refresh, sort profile records by default sort option and method
@@ -180,13 +196,43 @@ $(document).ready(function () {
         let option = $("#sortProfilesBtn").val()
         sortProfiles(option)
     };
+
+    // Programmatically scroll down the web page a little if a user decides to
+    // click the button which indicates on hover to scroll down to view more profiles
+    navigateToBottomOfPageBtn.click(function () {
+        $('html, body').animate({
+            scrollTop: document.body.scrollHeight + 30
+        }, "slow");
+        $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
+        navigateToBottomOfPageBtn.removeClass('show') // Hide 'scroll down' button
+
+    });
+
+    // loop through each grid
+    // appendRecordComponents()
+
 }); // End document ready
 
 //****************************** Functions block ******************************//
+function appendRecordComponents(grids) {
+    // loop through each grid
+    grids.each(function () {
+        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');
+
+        // Add component buttons to the menu for each profile record
+        let menu = $(this).closest('.grid').find('#expanding_menu')
+        let component_buttons;
+        $(menu).attr("id", "menu_" + record_id)
+        component_buttons = append_component_buttons(record_id)
+        $(menu).find(".comp").append(component_buttons)
+    });
+
+}
+
 function editProfileRecord(profileRecordID) {
     $('a').webuiPopover('hide'); // Hides the popover
     const component = "profile";
-    const copoFormsURL = "/copo/copo_forms/";
+    let copoFormsURL = "/copo/copo_forms/";
     let csrftoken = $.cookie('csrftoken');
 
     $.ajax({
@@ -246,14 +292,11 @@ function deleteProfileRecord(profileRecordID) {
         if (!data_response.responseJSON["undeleted"].includes(profileRecordID)) {
             document.getElementById(profileRecordID).closest(".copo-records-panel").style.display = 'none';
         }
-
-        console.log(data_response)
     });
 
 }
 
 function set_selected_profile_record(element) {
-    console.log('I am clicked')
     const selected_grids = $("#copo_profiles_table div[class$='grid grid-selected']");
     const selected_panels = $(".panel div[class$='panel-body panel-body-selected']");
 
@@ -283,18 +326,14 @@ function unselect_profile_record_on_dimiss() {
     // Check if any grid and panel-body are marked as 'selected',
     // if at least one exists, unselect it and select the current selected grid and panel-body
     if (selected_grids.length !== 0) {
-        console.log("selected grid exists")
         selected_grids.each(function (index, item) {
             item.classList.remove("grid-selected")
-
         })
     }
 
     if (selected_panels.length !== 0) {
-        console.log("selected panel exists")
         selected_panels.each(function (index, item) {
             item.classList.remove("panel-body-selected");
-
         })
     }
 }
@@ -395,4 +434,104 @@ function filter_action_menu() {
             $(el).find("a[anchor_type='erga_option']").hide()
         }
     })
+}
+
+function append_component_buttons(record_id) {
+    //components row
+    const components = get_profile_components();
+    const componentsDIV = $('<div/>', {
+        class: "item"
+    });
+
+    components.forEach(function (item) {
+        //  skip profile entry metadata
+        if (item.component === "profile") {
+            return false;
+        }
+
+        let component_link = '#';
+
+        try {
+            component_link = $("#" + item.component + "_url").val().replace("999", record_id);
+        } catch (err) {
+            console.log(item.title);
+        }
+
+        // Create button html
+        let pcomponent_count_span = $('<span></span>')
+            .attr("class", "pcomponent-count")
+            .attr("id", record_id + "_" + item.countsKey)
+            .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
+
+        let pcomponent_count_div = $('<div></div>')
+            .attr("class", `tiny ui basic pcomponent-color left pointing label ${item.color}`)
+            .html(pcomponent_count_span);
+
+        let pcomponent_name_div = $('<div></div>')
+            .attr("class", `tiny ui button pcomponent-color ${item.color}`)
+            .append('<i class="pcomponent-icon ' + item.iconClass + '"></i>')
+            .append('<span class="pcomponent-name" style="padding-left: 3px;">' + item.title + '</span>');
+
+        let buttonHTML = $('<a></a>')
+            .attr("title", "Navigate to " + item.title)
+            .attr("href", component_link)
+            .attr("class", "tiny ui labeled button pcomponent-button")
+            .attr("tabindex", "0")
+            .css("margin", "3px")
+            .append(pcomponent_name_div)
+            .append(pcomponent_count_div);
+
+        componentsDIV.append(buttonHTML);
+
+    });
+
+    return componentsDIV;
+}
+
+
+function initialise_loading_records(copoVisualsURL, csrftoken, component, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
+    filter_action_menu() // Filter action menu
+    update_counts(copoVisualsURL, csrftoken, component); // Update count for each Components menu button
+
+    // Initialise the dropdown menu so that the options for the 'Actions' and 'Components' buttons
+    // will display once the buttons are clicked
+    $('.ui.dropdown').dropdown();
+
+
+    // Initialise the popover 'View profile options' option for each profile record
+    $('a#ellipsisID').webuiPopover({
+        closeable: true,
+        onHide: function ($element) {
+            unselect_profile_record_on_dimiss()
+        }
+    });
+
+    // Intialise click on
+    $('.expanding_menu > div').click(function (e) {
+        const el = $(e.currentTarget);
+        el.closest('.grid').removeClass("grid-selected")
+        el.closest('.panel-heading').next('.panel-body').removeClass("panel-body-selected")
+    })
+
+    // Initialise the item clicked action
+    $(".item a").click(function (e) {
+        let url;
+        const el = $(e.currentTarget);
+        if (el.hasClass("action")) {
+            const action_type = el.data("action_type");
+            let id = el.closest(".expanding_menu").attr("id");
+            id = id.split("_")[1]
+
+            if (action_type === "dtol" || action_type === "erga") {
+                url = copoSamplesURL + id + "/view"
+            } else if (action_type === "reads") {
+                url = copoENAReadManifestValidateURL + id
+            } else if (action_type === "assembly") {
+                url = copoENAAssemblyURL + id
+            }
+            document.location = url
+        }
+    });
+
+
 }
