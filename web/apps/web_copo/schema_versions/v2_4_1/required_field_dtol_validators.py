@@ -99,10 +99,13 @@ class RackPlateUniquenessValidator(Validator):
                         elif exsam["status"] == "pending":
                             self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
                             self.kwargs["isupdate"] = True
-                    else:
-                        #rack_tube has already been approved or rejected by sample manager and can't be updated any more
-                        self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
-                        self.flag = False
+                    else:     #allow for update after approval in the same profile
+                         self.kwargs["isupdate"] = True
+                         self.warnings.append(msg["validation_msg_warning_update_submitted_sample"] % (
+                                    str(rack_tube[0]), exsam["biosampleAccession"]))
+                    #    #rack_tube has already been approved by sample manager and can't be updated any more
+                    #    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    #    self.flag = False
                 else:
                     #rack_tube exist in another profile, can't be updated
                     self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))

@@ -339,12 +339,22 @@ def process_pending_dtol_samples():
                                 html_id="dtol_sample_info")
                 #if all samples were moved to rejected
                 continue
-            update_bundle_sample_xml(s_ids, "bundle_" + file_subfix + ".xml")
-            build_submission_xml(file_subfix, release=True)
 
-            # store accessions, remove sample id from bundle and on last removal, set status of submission
-            l.log("submitting bundle xml to ENA", type=Logtype.FILE)
-            accessions = submit_biosample_v2(file_subfix, Sample(), submission['_id'],s_ids, async_send=True)
+            #for update
+            build_bundle_sample_xml(file_subfix+"-01")
+            if update_bundle_sample_xml(s_ids, "bundle_" + file_subfix+"-01" + ".xml", is_modify=True):
+                build_submission_xml(file_subfix+"-01", modify=True)
+                # store accessions, remove sample id from bundle and on last removal, set status of submission
+                l.log("submitting modify bundle xml to ENA", type=Logtype.FILE)
+                accessions = submit_biosample_v2(file_subfix+"-01", Sample(), submission['_id'],s_ids, async_send=True)
+
+            #for add
+            build_bundle_sample_xml(file_subfix+"-02")
+            if update_bundle_sample_xml(s_ids, "bundle_" + file_subfix+"-02" + ".xml", is_modify=False):
+                build_submission_xml(file_subfix+"-02", release=True)
+                # store accessions, remove sample id from bundle and on last removal, set status of submission
+                l.log("submitting bundle xml to ENA", type=Logtype.FILE)
+                accessions = submit_biosample_v2(file_subfix+"-02", Sample(), submission['_id'],s_ids, async_send=True)
 
 
 def query_awaiting_tolids():
@@ -435,15 +445,20 @@ def build_bundle_sample_xml(file_subfix):
     shutil.copy(SRA_SAMPLE_TEMPLATE, "bundle_" + file_subfix + ".xml")
 
 
-def update_bundle_sample_xml(sample_list, bundlefile):
+def update_bundle_sample_xml(sample_list, bundlefile, is_modify=False):
     '''update the sample with submission alias adding a new sample'''
     # print("adding sample to bundle sample xml")
     tree = ET.parse(bundlefile)
     root = tree.getroot()
     project = Sample().get_record(sample_list[0]).get('tol_project', 'DTOL')
+    is_found = False
     for sam in sample_list:
         sample = Sample().get_record(sam)
-
+        if sample["biosampleAccession"] and not is_modify:
+            continue
+        elif not sample["biosampleAccession"] and is_modify:
+            continue
+        is_found = True
         sample_alias = ET.SubElement(root, 'SAMPLE')
         sample_alias.set('alias', str(sample['_id']))  # updated to copo id to retrieve it when getting accessions
         sample_alias.set('center_name', 'EarlhamInstitute')  # mandatory for broker account
@@ -556,7 +571,7 @@ def update_bundle_sample_xml(sample_list, bundlefile):
     ET.dump(tree)
     tree.write(open(bundlefile, 'w'),
                encoding='unicode')
-
+    return is_found
 
 def build_specimen_sample_xml(sample):
     # build specimen sample XML
@@ -671,7 +686,7 @@ def build_specimen_sample_xml(sample):
                encoding='unicode')
 
 
-def build_submission_xml(sample_id, hold="", release=False):
+def build_submission_xml(sample_id, hold="", release=False, modify=""):
     # build submission XML
     tree = ET.parse(SRA_SUBMISSION_TEMPLATE)
     root = tree.getroot()
@@ -687,6 +702,13 @@ def build_submission_xml(sample_id, hold="", release=False):
     copo_contact.set("name", sra_settings["sra_broker_contact_name"])
     copo_contact.set("inform_on_error", sra_settings["sra_broker_inform_on_error"])
     copo_contact.set("inform_on_status", sra_settings["sra_broker_inform_on_status"])
+    if modify:
+        actions = root.find('ACTIONS')
+        action = actions.find('ACTION')
+        add = action.find("ADD")
+        if add != None:
+            action.remove(add)
+        modify = ET.SubElement(action, 'MODIFY')
     if hold:
         actions = root.find('ACTIONS')
         action = ET.SubElement(actions, 'ACTION')

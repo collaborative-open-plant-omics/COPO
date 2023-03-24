@@ -109,4 +109,7 @@ MESSAGES = {
     "validation_msg_single_file_error": "Field indicates that files should be single, but multiple filenames were "
                                         "provided at row <strong>%s</strong>",
     "validation_msg_string_in_taxon_id": "Non numeric TAXON_ID found in row <strong>%s</strong>. Taxon ids must be integer",
+    "validation_msg_warning_update_submitted_sample": "Warning: <strong>%s</strong> has been submitted with biosample accession <strong>%s</strong>. Please check this is "
+                                              "correct before clicking 'Finish'.",
+
 }

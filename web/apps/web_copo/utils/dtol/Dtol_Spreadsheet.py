@@ -653,6 +653,7 @@ class DtolSpreadsheet:
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             sample_data.at[p, '_id'] = recorded_sample["_id"]
+            is_updated = False
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
                     0].get(field, ""):
@@ -662,11 +663,16 @@ class DtolSpreadsheet:
                                                     recorded_sample["_id"])
                         # update sample
                         Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
+                        is_updated = True
                     else:
                         # record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
                         # update sample
                         Sample().add_field(field, s[field], recorded_sample["_id"])
+                        is_updated = True
+
+            if recorded_sample["biosampleAccession"] and is_updated:
+                Sample().mark_pending(recorded_sample["_id"])
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
