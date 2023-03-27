@@ -72,9 +72,9 @@ def parse_ena_spreadsheet(request):
                     for i in f.split(","):
                         files.append(join(settings.UPLOAD_PATH, username, i.strip()))
   
-                #sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle_meta.file_location": {"$in": files}})
-                #if sub and sub["accessions"]:
-                #        return HttpResponse(content="The sample(s) has been submitted before, it cannot be updated", status=400)
+                #sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle" : {"$exists": "true", "$ne": [] }})
+                #if sub :
+                #    return HttpResponse(content="Please submit the samples before upload , it cannot be updated", status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
                 notify_frontend(data={"profile_id": profile_id},
@@ -108,9 +108,10 @@ def save_ena_records(request):
     existing_bundle = list()
     existing_bundle_meta = list()
     sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "deleted": data_utils.get_not_deleted_flag()})
-    if sub:
-        existing_bundle = sub["bundle"]
-        existing_bundle_meta = sub["bundle_meta"]
+    #override the bundle files for every manifest upload
+    #if sub:
+    #    existing_bundle = sub["bundle"]
+    #    existing_bundle_meta = sub["bundle_meta"]
 
     for p in range(1, len(sample_data)):
         # for each row in the manifest

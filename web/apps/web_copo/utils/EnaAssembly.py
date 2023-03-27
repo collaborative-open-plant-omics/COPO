@@ -94,7 +94,7 @@ def validate_assembly(form, profile_id):
     if "dev" in ena_service:
         test = " -test "
     #cli_path = "tools/reposit/ena_cli/webin-cli.jar"
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password '" + pass_word + "'" + test + " -context genome -manifest " + str(
         manifest_path) + " -validate -ascp"
     Logger().debug(msg=webin_cmd)
     #print(webin_cmd)
@@ -105,6 +105,7 @@ def validate_assembly(form, profile_id):
                         action="info",
                         html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
+        Logger().debug(output)
     except subprocess.CalledProcessError as cpe:
         return_code = cpe.returncode
         output = cpe.stdout
@@ -159,7 +160,7 @@ def submit_assembly(file_path, profile_id):
     test = ""
     if "dev" in ena_service:
         test = " -test "
-    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password " + pass_word + test + " -context genome -manifest " + str(
+    webin_cmd = "java -jar webin-cli.jar -username " + user_token + " -password '" + pass_word + "'" + test + " -context genome -manifest " + str(
         file_path) + " -submit"
     Logger().debug(msg=webin_cmd)
     # print(webin_cmd)
@@ -171,6 +172,7 @@ def submit_assembly(file_path, profile_id):
                         action="info",
                         html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
+        Logger().debug(output)
     except subprocess.CalledProcessError as cpe:
         output = cpe.stdout
     output = output.decode("ascii")

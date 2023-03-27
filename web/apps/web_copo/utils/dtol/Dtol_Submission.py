@@ -894,8 +894,8 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
 
     submissionfile = "submission_" + str(subfix) + ".xml"
     samplefile = "bundle_" + str(subfix) + ".xml"
-    curl_cmd = 'curl -m 300 -u ' + user_token + ':' + pass_word \
-               + ' -F "SUBMISSION=@' \
+    curl_cmd = 'curl -m 300 -u "' + user_token + ':' + pass_word \
+               + '" -F "SUBMISSION=@' \
                + submissionfile \
                + '" -F "SAMPLE=@' \
                + samplefile \
@@ -1031,8 +1031,8 @@ def create_study(profile_id, collection_id):
     submissionfile = "submission_" + profile_id + ".xml"
     build_submission_xml(profile_id, hold=date.today().strftime("%Y-%m-%d"))
 
-    curl_cmd = 'curl -u -m 300' + user_token + ':' + pass_word \
-               + ' -F "SUBMISSION=@' \
+    curl_cmd = 'curl -u -m 300 "' + user_token + ':' + pass_word \
+               + '" -F "SUBMISSION=@' \
                + submissionfile \
                + '" -F "PROJECT=@' \
                + studyfile \
@@ -1123,8 +1123,8 @@ def handle_common_ENA_error(error_to_parse, source_id):
     '''build_submission_xml(alias, actionxml="RECEIPT", alias=alias)
 
     submissionfile = "submission_" + str(alias) + ".xml"
-    curl_cmd = 'curl -m 300 -u ' + user_token + ':' + pass_word \
-               + ' -F "SUBMISSION=@' \
+    curl_cmd = 'curl -m 300 -u "' + user_token + ':' + pass_word \
+               + '" -F "SUBMISSION=@' \
                + submissionfile \
                + '" "' + ena_service \
                + '"'
