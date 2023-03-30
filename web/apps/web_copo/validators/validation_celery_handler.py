@@ -1,18 +1,20 @@
+from api.utils import map_to_dict
+from django.conf import settings
 from dal.copo_da import ValidationQueue, Profile, Sample, APIValidationReport
-from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, taxon_validators
-from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+from submission.helpers.generic_helper import notify_frontend
+from urllib.error import HTTPError
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions import optional_field_dtol_validators as optional_validators, taxon_validators
+from web.apps.web_copo.schema_versions import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
+from web.apps.web_copo.lookup import lookup as lk
+import jsonpath_rw_ext as jp
 import pandas
 import inspect
 import pickle
 import math
-from web.apps.web_copo.lookup import dtol_lookups as lookup
-from submission.helpers.generic_helper import notify_frontend
-from urllib.error import HTTPError
-from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.lookup import lookup as lk
-import jsonpath_rw_ext as jp
-from api.utils import map_to_dict
+
 
 class ProcessValidationQueue:
 
@@ -32,6 +34,7 @@ class ProcessValidationQueue:
         self.data = None
         self.isupdate = None
         self.type = None
+        self.current_schema_version = None
         self.public_name_list = list()
 
     def process_validation_queue(self):
@@ -63,18 +66,25 @@ class ProcessValidationQueue:
         for qm in queued_manifests:
             if not qm["report_id"] == "":
                 APIValidationReport().setRunning(qm["report_id"])
+
             self.sample_data = pickle.loads(qm["manifest_data"])
             self.profile_id = qm["profile_id"]
             self.file_name = qm["file_name"]
             t = Profile().get_type(self.profile_id)
+
             if "ASG" in t:
                 self.type = "ASG"
+                self.current_schema_version = settings.CURRENT_ASG_VERSION
             elif "DTOL_EI" in t:
                 self.type = "DTOL_EI"
+                self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
             elif "ERGA" in t:
                 self.type = "ERGA"
+                self.current_schema_version = settings.CURRENT_ERGA_VERSION
             else:
                 self.type = "DTOL"
+                self.current_schema_version = settings.CURRENT_DTOL_VERSION
+
             try:
                 self.data = pandas.read_excel(self.sample_data, keep_default_na=False, na_values=lookup.NA_VALS)
             except:
@@ -173,7 +183,7 @@ class ProcessValidationQueue:
                 # get definitive list of mandatory DTOL fields from schema
                 s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
+                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*] == "' + self.current_schema_version + '")].versions[0]',
                     s)
 
                 # validate for required fields
@@ -188,7 +198,8 @@ class ProcessValidationQueue:
 
                 # get list of all DTOL fields from schemas
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', s)
+                    '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"@.manifest_version[*] == "' + self.current_schema_version + ')].versions[0]',
+                    s)
 
                 # validate for optional dtol fields
                 for v in self.optional_field_validators:
@@ -249,7 +260,8 @@ class ProcessValidationQueue:
         for col in list(self.data.columns):
             headers.append(col)
         sample_data.append(headers)
-        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get("NAGOYA_PERMITS_REQUIRED", "")):
+        if "Y" in list(self.data.get("SAMPLING_PERMITS_REQUIRED", "")) + list(
+                self.data.get("ETHICS_PERMITS_REQUIRED", "")) + list(self.data.get("NAGOYA_PERMITS_REQUIRED", "")):
             permits_required = True
         for index, row in self.data.iterrows():
             r = list(row)
@@ -260,7 +272,8 @@ class ProcessValidationQueue:
 
         notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
                         html_id="")
-        notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data, action="make_table",
+        notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=sample_data,
+                        action="make_table",
                         html_id="sample_table")
 
     def make_update_notifications(self, qm):
@@ -315,7 +328,8 @@ class ProcessValidationQueue:
                         r[idx] = ""
                 out_data.append(r)
 
-            notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]), action="store_validation_record_id",
+            notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]),
+                            action="store_validation_record_id",
                             html_id="")
             notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
                             html_id="warning_info3")

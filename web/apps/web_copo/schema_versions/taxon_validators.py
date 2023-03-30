@@ -1,18 +1,13 @@
 from Bio import Entrez
 from dal.copo_da import Profile
-from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
-import importlib
 
 whole_used_specimens = set()
 regex_human_readable = ""
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 # validations are run in alphabetic order of class name
@@ -30,7 +25,8 @@ class ATaxonIdMustBeIntegerValidator(Validator):
 class DtolEnumerationValidator(Validator):
 
     def __init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs):
-        super().__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
+        # super(DtolEnumerationValidator, self).__init__(profile_id, fields, data, errors, warnings, flag, **kwargs)
+        Validator.__init__(self, profile_id, fields, data, errors, warnings, flag, **kwargs)
         # self.warnings = list()
         self.taxonomy_dict = {}
 

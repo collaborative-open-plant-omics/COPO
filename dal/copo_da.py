@@ -4,7 +4,6 @@ import os
 from datetime import datetime, timezone, date
 
 import copy
-import importlib
 import re
 import pandas as pd
 import pymongo
@@ -23,7 +22,7 @@ from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
-# from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -32,11 +31,6 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
-SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 
 PubCollection = 'PublicationCollection'
 PersonCollection = 'PersonCollection'

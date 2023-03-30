@@ -2,22 +2,15 @@ from bson import json_util
 from dal import cursor_to_list
 from dal.copo_da import Sample
 from datetime import datetime, timezone
-from django.conf import settings as settings
 from django.core.management import BaseCommand
 from openpyxl import load_workbook
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 from xlrd import open_workbook, XLRDError
 import ast
 import dal.copo_da as da
-import importlib
 import json
 import pandas as pd
 import re
-
-# schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-schema_version_path_dtol_lookups = 'web.apps.web_copo.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
-TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
 
 
 class Command(BaseCommand):

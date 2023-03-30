@@ -58,7 +58,7 @@ from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
-# from web.apps.web_copo.lookup import dtol_lookups as lkup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
@@ -66,9 +66,6 @@ from web.forms import AssemblyForm
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lkup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get_source_count(self):

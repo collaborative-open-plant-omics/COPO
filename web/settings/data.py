@@ -73,14 +73,11 @@ SAMPLE_OBJECT_PREFIX = "samples_"
 DATAFILE_OBJECT_PREFIX = "datafiles_"
 DESCRIPTION_GRACE_PERIOD = 10  # no of days after which pending descriptions are deleted
 
-# settings for TOL schemas
-CURRENT_DTOL_VERSION = "2.4.1"
+# settings for TOL schema (manifest) versions i.e. code modularisation
 CURRENT_ASG_VERSION = "2.4.1"
-CURRENT_ERGA_VERSION = "2.4"
+CURRENT_DTOL_VERSION = "2.4.1"
 CURRENT_DTOLENV_VERSION = "2.4"
-
-# settings for schemas i.e. code modularisation
-CURRENT_SCHEMA_VERSION = "v2_4_1"
+CURRENT_ERGA_VERSION = "2.4.2"
 
 # settings for ECS
 ECS_ACCESS_KEY_ID = resolve_env.get_env('ECS_ACCESS_KEY_ID')

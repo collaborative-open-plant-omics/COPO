@@ -7,17 +7,16 @@ import xml.etree.ElementTree as ET
 from collections import namedtuple
 from datetime import datetime, tzinfo, timedelta
 from exceptions_and_logging import logger
-
-l = logger.Logger("exceptions_and_logging/logs")
 import jsonref
 import pandas as pd
 from bson.json_util import dumps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
-
 import web.apps.web_copo.lookup.lookup as lookup
 from web.apps.web_copo.lookup.resolver import RESOLVER
+
+l = logger.Logger("exceptions_and_logging/logs")
 
 
 class simple_utc(tzinfo):
@@ -104,9 +103,7 @@ def json_to_pytype(path_to_json, compatibility_mode=True):
         if compatibility_mode:
             data = json.loads(f)
         else:
-            data = jsonref.loads(f,
-                                 base_uri="file:" + settings.SCHEMA_VERSIONS_DIR + "/" + settings.CURRENT_SCHEMA_VERSION
-                                          + "/", jsonschema=True)
+            data = jsonref.loads(f, base_uri="file:" + settings.SCHEMA_VERSIONS_DIR + "/", jsonschema=True)
         if "properties" in data and isinstance(data["properties"], list):
             cp = list(data["properties"])
             idxes = list()

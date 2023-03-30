@@ -3,15 +3,12 @@ import re
 from dal.copo_da import Profile, Sample
 from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 import importlib
 import validators
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 class DtolEnumerationValidator(Validator):

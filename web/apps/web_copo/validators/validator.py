@@ -9,6 +9,5 @@ class Validator:
         self.flag = flag
         self.kwargs = kwargs
 
-
     def validate(self):
-        raise NotImplemented
+        raise NotImplementedError

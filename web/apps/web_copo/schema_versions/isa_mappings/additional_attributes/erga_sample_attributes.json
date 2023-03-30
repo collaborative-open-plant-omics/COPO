@@ -3,6 +3,10 @@
     "help_tip": "",
     "required": "true",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "COLLECTED_BY"
     ],
@@ -10,10 +14,7 @@
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "show_in_form": true,
     "label": "Collected By",
@@ -24,25 +25,10 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/recordedBy",
     "type": "string",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "V",
-        "order": 22
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "V",
-        "order": 22
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "X",
         "order": 24
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -50,6 +36,10 @@
     "help_tip": "",
     "required": "true",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DATE_OF_COLLECTION"
     ],
@@ -57,10 +47,7 @@
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "show_in_form": true,
     "label": "Date of Collection",
@@ -71,25 +58,10 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimEventDate",
     "type": "string",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "X",
-        "order": 24
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "X",
-        "order": 24
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AA",
         "order": 27
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -98,12 +70,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "http://rs.tdwg.org/dwc/terms/sex",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SEX"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -122,16 +96,6 @@
       "Unknown"
     ],
     "index": {
-      "dtol": {
-        "colour": "#dad3ea",
-        "excel_col": "O",
-        "order": 15
-      },
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "O",
-        "order": 15
-      },
       "erga": {
         "colour": "#dad3ea",
         "excel_col": "Q",
@@ -145,12 +109,14 @@
     "control_meta": {},
     "control": "text",
     "dwc": "http://rs.tdwg.org/dwc/terms/lifeStage",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "LIFESTAGE"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -162,16 +128,6 @@
     "type": "string",
     "show_in_table": true,
     "index": {
-      "dtol": {
-        "colour": "#dad3ea",
-        "excel_col": "N",
-        "order": 14
-      },
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "N",
-        "order": 14
-      },
       "erga": {
         "colour": "#dad3ea",
         "excel_col": "P",
@@ -183,6 +139,10 @@
     "help_tip": "Separate multiple names with '|'",
     "required": "true",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "IDENTIFIED_BY"
     ],
@@ -190,8 +150,6 @@
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "show_in_form": true,
@@ -203,16 +161,6 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/identifiedBy",
     "type": "string",
     "index": {
-      "dtol": {
-        "colour": "#e9efb5",
-        "excel_col": "AM",
-        "order": 39
-      },
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AM",
-        "order": 39
-      },
       "erga": {
         "colour": "#e9efb5",
         "excel_col": "AP",
@@ -224,6 +172,10 @@
     "help_tip": "Separate multiple names with '|'",
     "required": "true",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "IDENTIFIER_AFFILIATION"
     ],
@@ -231,8 +183,6 @@
     "deprecated": false,
     "hidden": "false",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "show_in_form": true,
@@ -244,16 +194,6 @@
     "dwc": "http://rs.tdwg.org/dwc/terms/identifierAffiliation",
     "type": "string",
     "index": {
-      "dtol": {
-        "colour": "#e9efb5",
-        "excel_col": "AN",
-        "order": 40
-      },
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AN",
-        "order": 40
-      },
       "erga": {
         "colour": "#e9efb5",
         "excel_col": "AQ",
@@ -268,15 +208,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SPECIMEN_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -287,25 +228,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/recordNumber",
     "index": {
-      "dtol": {
-        "colour": "#badac5",
-        "excel_col": "D",
-        "order": 4
-      },
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "D",
-        "order": 4
-      },
       "erga": {
         "colour": "#badac5",
         "excel_col": "B",
         "order": 2
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -316,13 +242,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORDER_OR_GROUP"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -334,16 +262,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "E",
-        "order": 5
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "E",
-        "order": 5
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "G",
@@ -358,13 +276,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "FAMILY"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -375,27 +295,7 @@
     "label": "FAMILY",
     "show_in_table": true,
     "dwc": "",
-    "default_bg_colour": {
-      "dtol": "#ffffe6",
-      "asg": "#ffffe6",
-      "erga": "#ffffe6"
-    },
     "index": {
-      "dtol": "F",
-      "asg": "F",
-      "erga": "H"
-    },
-    "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "F",
-        "order": 6
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "F",
-        "order": 6
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "H",
@@ -410,13 +310,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "GENUS"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -428,16 +330,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "G",
-        "order": 7
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "G",
-        "order": 7
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "I",
@@ -452,15 +344,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TAXON_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -471,25 +364,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "H",
-        "order": 8
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "H",
-        "order": 8
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "J",
         "order": 10
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -500,13 +378,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SCIENTIFIC_NAME"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -518,16 +398,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "I",
-        "order": 9
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "I",
-        "order": 9
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "K",
@@ -542,15 +412,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TAXON_REMARKS"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -561,25 +432,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "J",
-        "order": 10
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "J",
-        "order": 10
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "L",
         "order": 12
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -590,13 +446,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "INFRASPECIFIC_EPITHET"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -608,16 +466,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "K",
-        "order": 11
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "K",
-        "order": 11
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "M",
@@ -632,13 +480,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "CULTURE_OR_STRAIN_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -650,16 +500,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "L",
-        "order": 12
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "L",
-        "order": 12
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "N",
@@ -674,13 +514,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "COMMON_NAME"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -692,16 +534,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "M",
-        "order": 13
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "M",
-        "order": 13
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "O",
@@ -716,13 +548,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SCIENTIFIC_NAME"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -734,16 +568,6 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ffffe6",
-        "excel_col": "I",
-        "order": 9
-      },
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "I",
-        "order": 9
-      },
       "erga": {
         "colour": "#ffffe6",
         "excel_col": "K",
@@ -758,15 +582,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "COLLECTOR_AFFILIATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -777,25 +602,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/institutionCode",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "W",
-        "order": 23
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "W",
-        "order": 23
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "Y",
         "order": 25
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -806,15 +616,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "HAZARD_GROUP"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -825,25 +636,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BG",
-        "order": 59
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BG",
-        "order": 59
-      },
       "erga": {
         "colour": "#daebd4",
         "excel_col": "CB",
         "order": 80
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -854,15 +650,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "REGULATORY_COMPLIANCE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -873,25 +670,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BH",
-        "order": 60
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BH",
-        "order": 60
-      },
       "erga": {
         "colour": "#fff2cd",
         "excel_col": "BQ",
         "order": 69
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -902,15 +684,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "COLLECTION_LOCATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -924,25 +707,10 @@
       "gaz"
     ],
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "Y",
-        "order": 25
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "Y",
-        "order": 25
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AC",
         "order": 29
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -953,15 +721,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DECIMAL_LATITUDE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -972,25 +741,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLatitude",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "Z",
-        "order": 26
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "Z",
-        "order": 26
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AD",
         "order": 30
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1001,15 +755,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DECIMAL_LONGITUDE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1020,25 +775,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLongitude",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AA",
-        "order": 27
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AA",
-        "order": 27
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AE",
         "order": 31
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1049,15 +789,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "GRID_REFERENCE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1068,25 +809,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/georeferenceSources",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AB",
-        "order": 28
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AB",
-        "order": 28
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AF",
         "order": 32
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1097,15 +823,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "HABITAT"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1116,25 +843,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/locationRemarks",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AC",
-        "order": 29
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AC",
-        "order": 29
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AG",
         "order": 33
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1145,13 +857,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DEPTH"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1163,16 +877,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AD",
-        "order": 30
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AD",
-        "order": 30
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AH",
@@ -1187,14 +891,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ELEVATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga"
+      "asg"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1205,16 +911,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AE",
-        "order": 31
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AE",
-        "order": 31
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AI",
@@ -1229,15 +925,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DESCRIPTION_OF_COLLECTION_METHOD"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1248,25 +945,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/samplingProtocol",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AK",
-        "order": 37
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AK",
-        "order": 37
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AN",
         "order": 40
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1277,15 +959,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1296,25 +979,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/samplingEffort",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AL",
-        "order": 38
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AL",
-        "order": 38
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AO",
         "order": 41
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1325,15 +993,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "date-picker",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "DATE_OF_PRESERVATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1344,25 +1013,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventDate",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AW",
-        "order": 49
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AW",
-        "order": 49
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AZ",
         "order": 52
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1373,13 +1027,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TIME_OF_COLLECTION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1391,16 +1047,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AJ",
-        "order": 36
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AJ",
-        "order": 36
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AB",
@@ -1415,15 +1061,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1434,25 +1081,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AV",
-        "order": 48
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AV",
-        "order": 48
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AY",
         "order": 51
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1463,13 +1095,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PRESERVATION_APPROACH"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1481,16 +1115,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AT",
-        "order": 46
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AT",
-        "order": 46
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AW",
@@ -1505,15 +1129,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PRESERVATIVE_SOLUTION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1524,67 +1149,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AU",
-        "order": 47
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AU",
-        "order": 47
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AX",
         "order": 50
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Rack or Plate Id",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "RACK_OR_PLATE_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol",
-      "asg",
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.RACK_OR_PLATE_ID",
-    "label": "Rack or Plate Id",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol": {
-        "colour": "#badac5",
-        "excel_col": "B",
-        "order": 2
-      },
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "B",
-        "order": 2
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1595,16 +1163,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TUBE_OR_WELL_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "bc",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1615,30 +1183,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
     "index": {
-      "dtol": {
-        "colour": "#badac5",
-        "excel_col": "C",
-        "order": 3
-      },
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "C",
-        "order": 3
-      },
-      "bc": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "#badac5",
         "excel_col": "A",
         "order": 1
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1649,14 +1197,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "GAL"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1667,80 +1217,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
     "index": {
-      "dtol": {
-        "colour": "#e2e0e0",
-        "excel_col": "S",
-        "order": 19
-      },
       "erga": {
         "colour": "#e2e0e0",
         "excel_col": "U",
         "order": 21
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Partner",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "PARTNER"
-    ],
-    "ref": "",
-    "specifications": [
-      "asg"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PARTNER",
-    "label": "Partner",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Partner Sample ID",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "PARTNER_SAMPLE_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "asg"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PARTNER_SAMPLE_ID",
-    "label": "Partner Sample ID",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1751,14 +1231,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "GAL_SAMPLE_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1769,20 +1251,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
     "index": {
-      "dtol": {
-        "colour": "#e2e0e0",
-        "excel_col": "T",
-        "order": 20
-      },
       "erga": {
         "colour": "#e2e0e0",
         "excel_col": "V",
         "order": 22
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1793,15 +1265,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "COLLECTOR_SAMPLE_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -1812,25 +1285,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "U",
-        "order": 21
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "U",
-        "order": 21
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "W",
         "order": 23
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -1841,13 +1299,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PRESERVED_BY"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1859,16 +1319,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AR",
-        "order": 44
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AR",
-        "order": 44
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AU",
@@ -1883,13 +1333,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PRESERVER_AFFILIATION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1901,16 +1353,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AS",
-        "order": 45
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AS",
-        "order": 45
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "AV",
@@ -1925,13 +1367,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORGANISM_PART"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -1943,62 +1387,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#dad3ea",
-        "excel_col": "P",
-        "order": 16
-      },
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "P",
-        "order": 16
-      },
       "erga": {
         "colour": "#dad3ea",
         "excel_col": "R",
         "order": 18
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "SYMBIONT"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol",
-      "asg",
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SYMBIONT",
-    "label": "Symbiont",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol": {
-        "colour": "#dad3ea",
-        "excel_col": "Q",
-        "order": 17
-      },
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "Q",
-        "order": 17
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -2009,13 +1401,15 @@
     "show_as_attribute": false,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "species_list"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -2027,16 +1421,6 @@
     "show_in_table": false,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -2051,15 +1435,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "RELATIONSHIP"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -2070,25 +1455,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#dad3ea",
-        "excel_col": "R",
-        "order": 18
-      },
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "R",
-        "order": 18
-      },
       "erga": {
         "colour": "#dad3ea",
         "excel_col": "T",
         "order": 20
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -2099,13 +1469,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "IDENTIFIED_HOW"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -2117,16 +1489,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences",
     "index": {
-      "dtol": {
-        "colour": "#e9efb5",
-        "excel_col": "AO",
-        "order": 41
-      },
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AO",
-        "order": 41
-      },
       "erga": {
         "colour": "#e9efb5",
         "excel_col": "AR",
@@ -2141,13 +1503,15 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SPECIMEN_IDENTITY_RISK"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "deprecated": false,
@@ -2159,16 +1523,6 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences",
     "index": {
-      "dtol": {
-        "colour": "#e9efb5",
-        "excel_col": "AP",
-        "order": 42
-      },
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AP",
-        "order": 42
-      },
       "erga": {
         "colour": "#e9efb5",
         "excel_col": "AS",
@@ -2177,333 +1531,18 @@
     }
   },
   {
-    "help_tip": "Temperature in degrees Centigrade",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "TEMPERATURE"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.TEMPERATURE",
-    "label": "Temperature",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Salinity",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "SALINITY"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SALINITY",
-    "label": "Salinity in g/Kg",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "pH",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "PH"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PH",
-    "label": "pH",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Chlorophyll a in mg/Litre",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "CHLA"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.CHLA",
-    "label": "Chlorophyll a mg/Litre",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Light Intensity in Lux",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "LIGHT_INTENSITY"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.LIGHT_INTENSITY",
-    "label": "Light Intensity (Lux)",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Percentage Dissolved Oxygen Saturation",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "DISOLVED_OXYGEN"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.DISOLVED_OXYGEN",
-    "label": "Dissolved Oxygen (%)",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementType",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Other Information",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "OTHER_INFORMATION"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol",
-      "asg",
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "array",
-    "show_in_form": true,
-    "id": "copo.sample.OTHER_INFORMATION",
-    "label": "Other Information",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
-    "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BN",
-        "order": 66
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BN",
-        "order": 66
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "rack_tube",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": false,
-    "control_meta": {},
-    "control": "text",
-    "versions": [
-      "rack_tube"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol"
-    ],
-    "deprecated": false,
-    "hidden": "true",
-    "type": "string",
-    "show_in_form": false,
-    "id": "copo.sample.rack_tube",
-    "label": "",
-    "show_in_table": false,
-    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "control_meta": {},
-    "dwc": "",
-    "versions": [
-      "SPECIES_RARITY"
-    ],
-    "specifications": [
-      "dtol"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Species Rarity",
-    "show_in_form": true,
-    "id": "copo.sample.SPECIES_RARITY",
-    "type": "string",
-    "show_in_table": true,
-    "control": "select",
-    "default_value": "Common",
-    "option_values": [
-      "Common",
-      "Common but Seasonal",
-      "Rare",
-      "Precious",
-      "Unknown"
-    ],
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Gigabases are 10 to the power of 9 bases, that is billions of bases. The human genome at around 3.2 billion base pairs (3.2 Gb) would be recorded here as 3.2. The Arabidopsis genome at around 135 million base pairs (135 Mb) would be recorded as 0.135. A virus genome at 3 thousand base pairs (3 Kb) would be recorded as 0.000003",
-    "required": "false",
-    "default_value": "",
-    "control_meta": {},
-    "dwc": "",
-    "versions": [
-      "GENOME_SIZE"
-    ],
-    "specifications": [
-      "dtol"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Genome Size (In Gigabases)",
-    "show_in_form": true,
-    "id": "copo.sample.GENOME_SIZE",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
     "help_tip": "",
     "required": "true",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "SIZE_OF_TISSUE_IN_TUBE"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2517,16 +1556,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#f4ebe2",
-        "excel_col": "AX",
-        "order": 50
-      },
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AX",
-        "order": 50
-      },
       "erga": {
         "colour": "#f4ebe2",
         "excel_col": "BA",
@@ -2539,12 +1568,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "TISSUE_REMOVED_FOR_BARCODING"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2558,16 +1589,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "AZ",
-        "order": 52
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "AZ",
-        "order": 52
-      },
       "erga": {
         "colour": "#c3f6ef",
         "excel_col": "BB",
@@ -2580,47 +1601,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
-    "versions": [
-      "PLATE_ID_FOR_BARCODING"
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
     ],
-    "specifications": [
-      "dtol",
-      "asg"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Plate ID for Barcoding",
-    "show_in_form": true,
-    "id": "copo.sample.PLATE_ID_FOR_BARCODING",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "BA",
-        "order": 53
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BA",
-        "order": 53
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "dwc": "",
     "versions": [
       "TUBE_OR_WELL_ID_FOR_BARCODING"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2634,16 +1622,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "BB",
-        "order": 54
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BB",
-        "order": 54
-      },
       "erga": {
         "colour": "#c3f6ef",
         "excel_col": "BC",
@@ -2656,53 +1634,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
-    "versions": [
-      "SERIES"
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
     ],
-    "specifications": [
-      "dtol",
-      "asg",
-      "dtol_env"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Series",
-    "show_in_form": true,
-    "id": "copo.sample.SERIES",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "index": {
-      "dtol": {
-        "colour": "#badac5",
-        "excel_col": "A",
-        "order": 1
-      },
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "A",
-        "order": 1
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "dwc": "",
     "versions": [
       "TISSUE_FOR_BARCODING"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2716,16 +1655,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "BC",
-        "order": 55
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BC",
-        "order": 55
-      },
       "erga": {
         "colour": "#c3f6ef",
         "excel_col": "BD",
@@ -2738,12 +1667,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "BARCODE_PLATE_PRESERVATIVE"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2757,16 +1688,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "BD",
-        "order": 56
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BD",
-        "order": 56
-      },
       "erga": {
         "colour": "#c3f6ef",
         "excel_col": "BE",
@@ -2779,14 +1700,15 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PURPOSE_OF_SPECIMEN"
     ],
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -2799,25 +1721,10 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BF",
-        "order": 58
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BF",
-        "order": 58
-      },
       "erga": {
         "colour": "#badac5",
         "excel_col": "C",
         "order": 3
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -2826,12 +1733,14 @@
     "required": "true",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "VOUCHER_ID"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -2845,16 +1754,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BI",
-        "order": 61
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BI",
-        "order": 61
-      },
       "erga": {
         "colour": "#ebd2dd",
         "excel_col": "BL",
@@ -2868,6 +1767,10 @@
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "characteristics"
     ],
@@ -2891,6 +1794,10 @@
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "factorValues"
     ],
@@ -2913,6 +1820,10 @@
     "default_value": "",
     "control_meta": {},
     "control": "select",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "sample_type"
     ],
@@ -2937,6 +1848,10 @@
     "required": "true",
     "default_value": "",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "profile_id"
     ],
@@ -2955,6 +1870,10 @@
     "required": "false",
     "default_value": "na",
     "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "manifest_id"
     ],
@@ -2983,12 +1902,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "biosampleAccession"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3002,16 +1923,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3024,12 +1935,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "sraAccession"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3043,16 +1956,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3065,12 +1968,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "submissionAccession"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3084,16 +1989,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3106,12 +2001,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "status"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3125,16 +2022,6 @@
     "control": "text",
     "default_value": "pending",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3147,12 +2034,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "tol_project"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3166,16 +2055,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3188,12 +2067,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "associated_tol_project"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3207,16 +2088,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3229,12 +2100,14 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "manifest_version"
     ],
     "specifications": [
-      "dtol",
-      "asg",
       "erga"
     ],
     "ref": "",
@@ -3248,16 +2121,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3270,13 +2133,15 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "public_name"
     ],
     "specifications": [
-      "dtol",
-      "erga",
-      "asg"
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -3289,16 +2154,6 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
       "erga": {
         "colour": "",
         "excel_col": "",
@@ -3311,14 +2166,15 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORIGINAL_GEOGRAPHIC_LOCATION"
     ],
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -3331,25 +2187,10 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AG",
-        "order": 33
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AG",
-        "order": 33
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AK",
         "order": 37
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3358,14 +2199,15 @@
     "required": "false",
     "control_meta": {},
     "dwc": "",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORIGINAL_COLLECTION_DATE"
     ],
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "ref": "",
     "deprecated": false,
@@ -3378,60 +2220,10 @@
     "control": "text",
     "default_value": "",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AF",
-        "order": 32
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AF",
-        "order": 32
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AJ",
         "order": 36
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "dwc": "",
-    "versions": [
-      "BARCODE_HUB"
-    ],
-    "specifications": [
-      "dtol",
-      "asg"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Barcode Hub",
-    "show_in_form": true,
-    "id": "copo.sample.BARCODE_HUB",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "AY",
-        "order": 51
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "AY",
-        "order": 51
       }
     }
   },
@@ -3442,15 +2234,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORIGINAL_DECIMAL_LATITUDE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3461,25 +2254,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLatitude",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AH",
-        "order": 34
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AH",
-        "order": 34
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AL",
         "order": 38
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3490,15 +2268,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "ORIGINAL_DECIMAL_LONGITUDE"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3509,25 +2288,10 @@
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLongitude",
     "index": {
-      "dtol": {
-        "colour": "#d0e3f3",
-        "excel_col": "AI",
-        "order": 35
-      },
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AI",
-        "order": 35
-      },
       "erga": {
         "colour": "#d0e3f3",
         "excel_col": "AM",
         "order": 39
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3538,15 +2302,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "MIXED_SAMPLE_RISK"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3557,25 +2322,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#e9efb5",
-        "excel_col": "AQ",
-        "order": 43
-      },
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AQ",
-        "order": 43
-      },
       "erga": {
         "colour": "#e9efb5",
         "excel_col": "AT",
         "order": 46
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3586,15 +2336,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "BARCODING_STATUS"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3605,25 +2356,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#c3f6ef",
-        "excel_col": "BE",
-        "order": 57
-      },
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BE",
-        "order": 57
-      },
       "erga": {
         "colour": "#c3f6ef",
         "excel_col": "BF",
         "order": 58
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3634,15 +2370,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PROXY_VOUCHER_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3653,25 +2390,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BJ",
-        "order": 62
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BJ",
-        "order": 62
-      },
       "erga": {
         "colour": "#ebd2dd",
         "excel_col": "BM",
         "order": 65
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3682,15 +2404,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "VOUCHER_LINK"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3701,25 +2424,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BK",
-        "order": 63
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BK",
-        "order": 63
-      },
       "erga": {
         "colour": "#ebd2dd",
         "excel_col": "BN",
         "order": 66
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3730,15 +2438,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "PROXY_VOUCHER_LINK"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3749,25 +2458,10 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BL",
-        "order": 64
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BL",
-        "order": 64
-      },
       "erga": {
         "colour": "#ebd2dd",
         "excel_col": "BO",
         "order": 67
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
@@ -3778,15 +2472,16 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "VOUCHER_INSTITUTION"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg",
-      "erga",
-      "dtol_env"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
@@ -3797,61 +2492,638 @@
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "#ead2dc",
-        "excel_col": "BM",
-        "order": 65
-      },
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BM",
-        "order": 65
-      },
       "erga": {
         "colour": "#ebd2dd",
         "excel_col": "BP",
         "order": 68
-      },
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
       }
     }
   },
   {
-    "help_tip": "Sample format",
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLE_COORDINATOR"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador)",
+    "id": "copo.sample.SAMPLE_COORDINATOR",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "D",
+        "order": 4
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLE_COORDINATOR_AFFILIATION"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador) Affiliation",
+    "id": "copo.sample.SAMPLE_COORDINATOR_AFFILIATION",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "E",
+        "order": 5
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLE_COORDINATOR_ORCID_ID"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sample Coordinator (ERGA Ambassador) ORCID ID",
+    "id": "copo.sample.SAMPLE_COORDINATOR_ORCID_ID",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#badac5",
+        "excel_col": "F",
+        "order": 6
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "INDIGENOUS_RIGHTS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Indigenous Rights Def",
+    "id": "copo.sample.INDIGENOUS_RIGHTS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BS",
+        "order": 71
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge Or Biocultural Righta Applicable",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_RIGHTS_APPLICABLE",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BR",
+        "order": 70
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge or Biocultural Project ID",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BT",
+        "order": 72
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Associated Traditional Knowledge Contact",
+    "id": "copo.sample.ASSOCIATED_TRADITIONAL_KNOWLEDGE_CONTACT",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BU",
+        "order": 73
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "ETHICS_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Ethics Permits Required",
+    "id": "copo.sample.ETHICS_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BV",
+        "order": 74
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "ETHICS_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Ethics Permits Def",
+    "id": "copo.sample.ETHICS_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BW",
+        "order": 75
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLING_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sampling Permits Required",
+    "id": "copo.sample.SAMPLING_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BX",
+        "order": 76
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLING_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sampling Permits Def",
+    "id": "copo.sample.SAMPLING_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BY",
+        "order": 77
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "NAGOYA_PERMITS_REQUIRED"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Nagoya Permits Required",
+    "id": "copo.sample.NAGOYA_PERMITS_REQUIRED",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "BZ",
+        "order": 78
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "NAGOYA_PERMITS_DEF"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Nagoya Permits Def",
+    "id": "copo.sample.NAGOYA_PERMITS_DEF",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "CA",
+        "order": 79
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "TISSUE_REMOVED_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue Removed For Biobanking",
+    "id": "copo.sample.TISSUE_REMOVED_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BG",
+        "order": 59
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "TISSUE_VOUCHER_ID_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue Voucher ID For Biobanking",
+    "id": "copo.sample.TISSUE_VOUCHER_ID_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BH",
+        "order": 60
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "TISSUE_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Tissue For Biobanking",
+    "id": "copo.sample.TISSUE_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BI",
+        "order": 61
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "DNA_REMOVED_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "DNA Removed For Biobanking",
+    "id": "copo.sample.DNA_REMOVED_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BJ",
+        "order": 62
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "DNA_VOUCHER_ID_FOR_BIOBANKING"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "DNA Voucher ID For Biobanking",
+    "id": "copo.sample.DNA_VOUCHER_ID_FOR_BIOBANKING",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#ebd2dd",
+        "excel_col": "BK",
+        "order": 63
+      }
+    }
+  },
+  {
+    "help_tip": "Collector ORCID ID",
     "required": "true",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
-      "SAMPLE_FORMAT"
+      "COLLECTOR_ORCID_ID"
     ],
     "ref": "",
     "specifications": [
-      "dtol",
-      "asg"
+      "erga"
     ],
     "deprecated": false,
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.SAMPLE_FORMAT",
-    "label": "sampleFormat",
+    "id": "copo.sample.COLLECTOR_ORCID_ID",
+    "label": "Collector Orcid Identifier",
     "show_in_table": true,
     "dwc": "",
     "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      },
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
+      "erga": {
+        "colour": "#d0e3f3",
+        "excel_col": "Z",
+        "order": 26
       }
     }
   }
