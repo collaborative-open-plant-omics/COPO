@@ -630,8 +630,8 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description,
-                                        project=self.type.upper())
+        CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=True)
 
     def update_records(self):
         binary = pickle.loads(self.vr["manifest_data"])
@@ -644,6 +644,7 @@ class DtolSpreadsheet:
         request = ThreadLocal.get_current_request()
         public_name_list = list()
         sample_data["_id"] = ""
+        need_send_email = False
         for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
@@ -673,6 +674,7 @@ class DtolSpreadsheet:
 
             if recorded_sample["biosampleAccession"] and is_updated:
                 Sample().mark_pending(recorded_sample["_id"])
+                need_send_email = True
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
@@ -686,6 +688,10 @@ class DtolSpreadsheet:
             profile = Profile().get_record(profile_id)
             title = profile["title"]
             description = profile["description"]
+
+        if need_send_email:
+            CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=False)
 
         image_data = request.session.get("image_specimen_match", [])
         for im in image_data:
