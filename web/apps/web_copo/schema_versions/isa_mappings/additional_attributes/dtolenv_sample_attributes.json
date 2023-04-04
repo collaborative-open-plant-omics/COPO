@@ -3,26 +3,26 @@
     "help_tip": "",
     "required": "true",
     "control_meta": {},
+    "dwc": "",
     "manifest_version": [
       "2.4"
     ],
     "versions": [
-      "COLLECTED_BY"
+      "SERIES"
+    ],
+    "specifications": [
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
     "hidden": "false",
-    "specifications": [
-      "dtol_env"
-    ],
+    "label": "Series",
     "show_in_form": true,
-    "label": "Collected By",
-    "id": "copo.sample.COLLECTED_BY",
+    "id": "copo.sample.SERIES",
+    "type": "string",
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "dwc": "http://rs.tdwg.org/dwc/terms/recordedBy",
-    "type": "string",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -32,29 +32,63 @@
     }
   },
   {
-    "help_tip": "",
+    "help_tip": "Rack or Plate Id",
     "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
     "control_meta": {},
+    "control": "text",
     "manifest_version": [
       "2.4"
     ],
     "versions": [
-      "DATE_OF_COLLECTION"
+      "RACK_OR_PLATE_ID"
     ],
     "ref": "",
-    "deprecated": false,
-    "hidden": "false",
     "specifications": [
       "dtol_env"
     ],
-    "show_in_form": true,
-    "label": "Date of Collection",
-    "id": "copo.sample.DATE_OF_COLLECTION",
-    "show_in_table": true,
-    "control": "date-picker",
-    "default_value": "",
-    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimEventDate",
+    "deprecated": false,
+    "hidden": "false",
     "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.RACK_OR_PLATE_ID",
+    "label": "Rack or Plate Id",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Tube or Well Id",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "TUBE_OR_WELL_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TUBE_OR_WELL_ID",
+    "label": "Tube or Well Id",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -163,6 +197,203 @@
     }
   },
   {
+    "help_tip": "",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "SYMBIONT"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SYMBIONT",
+    "label": "Symbiont",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "RELATIONSHIP"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.RELATIONSHIP",
+    "label": "Relationship",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Genome Acquision Laboratory",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "GAL"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.GAL",
+    "label": "GAL (Genome Acquision Laboratory)",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Genome Acquision Laboratory Sample ID",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "GAL_SAMPLE_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.GAL_SAMPLE_ID",
+    "label": "GAL (Genome Acquision Laboratory) Identifier",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Collector Sample ID",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "COLLECTOR_SAMPLE_ID"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.COLLECTOR_SAMPLE_ID",
+    "label": "Collector Sample Identifier",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "COLLECTED_BY"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "dtol_env"
+    ],
+    "show_in_form": true,
+    "label": "Collected By",
+    "id": "copo.sample.COLLECTED_BY",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "http://rs.tdwg.org/dwc/terms/recordedBy",
+    "type": "string",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
     "help_tip": "The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record.",
     "required": "true",
     "default_value": "",
@@ -196,63 +427,29 @@
     }
   },
   {
-    "help_tip": "Hazard Group",
+    "help_tip": "",
     "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
     "control_meta": {},
-    "control": "text",
     "manifest_version": [
       "2.4"
     ],
     "versions": [
-      "HAZARD_GROUP"
+      "DATE_OF_COLLECTION"
     ],
     "ref": "",
+    "deprecated": false,
+    "hidden": "false",
     "specifications": [
       "dtol_env"
     ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.HAZARD_GROUP",
-    "label": "Hazard Group",
+    "label": "Date of Collection",
+    "id": "copo.sample.DATE_OF_COLLECTION",
     "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Regulatory Compliance",
-    "required": "true",
+    "control": "date-picker",
     "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "REGULATORY_COMPLIANCE"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimEventDate",
     "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.REGULATORY_COMPLIANCE",
-    "label": "Regulatory Compliance",
-    "show_in_table": true,
-    "dwc": "",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -430,7 +627,7 @@
     }
   },
   {
-    "help_tip": "The name of, reference to, or description of the method or protocol used during an Event. E.g. UV light trap, mist net, bottom trawl, ad hoc observation, point count",
+    "help_tip": "The original description of the depth below the local surface.",
     "required": "true",
     "default_value": "",
     "show_as_attribute": true,
@@ -440,7 +637,7 @@
       "2.4"
     ],
     "versions": [
-      "DESCRIPTION_OF_COLLECTION_METHOD"
+      "DEPTH"
     ],
     "ref": "",
     "specifications": [
@@ -450,10 +647,10 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.DESCRIPTION_OF_COLLECTION_METHOD",
-    "label": "Description of Collection Method",
+    "id": "copo.sample.DEPTH",
+    "label": "Depth (in meters)",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/samplingProtocol",
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -463,7 +660,7 @@
     }
   },
   {
-    "help_tip": "Difficulty of sample re-collection. Quantify ie. 'guaranteed same day', 'several days searching', 'requires considerable effort' (offshore boat/Caving/remote location travel)",
+    "help_tip": "The original description of the elevation (altitude, usually above sea level) of the Location.",
     "required": "true",
     "default_value": "",
     "show_as_attribute": true,
@@ -473,7 +670,7 @@
       "2.4"
     ],
     "versions": [
-      "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE"
+      "ELEVATION"
     ],
     "ref": "",
     "specifications": [
@@ -483,600 +680,10 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
-    "label": "Difficult or High priority sample",
+    "id": "copo.sample.ELEVATION",
+    "label": "Elevation (in meters)",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/samplingEffort",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "date-picker",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "DATE_OF_PRESERVATION"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.DATE_OF_PRESERVATION",
-    "label": "Date of Preservation",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/eventDate",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
-    "label": "Time Elapsed From Collection To Preservation (in Hours)",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Specific preservative solution used in preparation",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "PRESERVATIVE_SOLUTION"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.PRESERVATIVE_SOLUTION",
-    "label": "Preservative Solution",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Rack or Plate Id",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "RACK_OR_PLATE_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.RACK_OR_PLATE_ID",
-    "label": "Rack or Plate Id",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Tube or Well Id",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "TUBE_OR_WELL_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.TUBE_OR_WELL_ID",
-    "label": "Tube or Well Id",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Genome Acquision Laboratory",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "GAL"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.GAL",
-    "label": "GAL (Genome Acquision Laboratory)",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Genome Acquision Laboratory Sample ID",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "GAL_SAMPLE_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.GAL_SAMPLE_ID",
-    "label": "GAL (Genome Acquision Laboratory) Identifier",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Collector Sample ID",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "COLLECTOR_SAMPLE_ID"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.COLLECTOR_SAMPLE_ID",
-    "label": "Collector Sample Identifier",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "SYMBIONT"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SYMBIONT",
-    "label": "Symbiont",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "RELATIONSHIP"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.RELATIONSHIP",
-    "label": "Relationship",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Other Information",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "OTHER_INFORMATION"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "array",
-    "show_in_form": true,
-    "id": "copo.sample.OTHER_INFORMATION",
-    "label": "Other Information",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "dwc": "",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "SERIES"
-    ],
-    "specifications": [
-      "dtol_env"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Series",
-    "show_in_form": true,
-    "id": "copo.sample.SERIES",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "control_meta": {},
-    "dwc": "",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "PURPOSE_OF_SPECIMEN"
-    ],
-    "specifications": [
-      "dtol_env"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Purpose Of Specimen",
-    "show_in_form": true,
-    "id": "copo.sample.PURPOSE_OF_SPECIMEN",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "Characteristics of the sample e.g., height, sex",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "characteristics"
-    ],
-    "ref": "",
-    "specifications": [
-      "isasample",
-      "biosample"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "array",
-    "show_in_form": true,
-    "id": "copo.sample.characteristics",
-    "label": "Characteristics",
-    "show_in_table": false,
-    "control": "copo-characteristics"
-  },
-  {
-    "help_tip": "Factors express treatments on the sample, e.g., compound, dose, duration",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "factorValues"
-    ],
-    "ref": "",
-    "specifications": [
-      "isasample"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "array",
-    "show_in_form": true,
-    "id": "copo.sample.factorValues",
-    "label": "Factors",
-    "show_in_table": false,
-    "control": "copo-characteristics"
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "default_value": "",
-    "control_meta": {},
-    "control": "select",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "sample_type"
-    ],
-    "deprecated": false,
-    "hidden": "true",
-    "id": "copo.sample.sample_type",
-    "label": "Sample Type",
-    "show_in_form": false,
-    "ref": "",
-    "type": "string",
-    "show_in_table": false,
-    "show_as_attribute": true,
-    "option_values": {
-      "callback": {
-        "parameter": "",
-        "function": "get_sample_type_options"
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "default_value": "",
-    "control_meta": {},
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "profile_id"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "true",
-    "label": "Profile ID",
-    "show_in_form": false,
-    "id": "copo.sample.profile_id",
-    "type": "string",
-    "show_in_table": false,
-    "control": "text"
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "na",
-    "control_meta": {},
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "manifest_id"
-    ],
-    "specifications": [
-      "dtol"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "true",
-    "label": "Manifest ID",
-    "show_in_form": false,
-    "id": "copo.sample.manifest_id",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "index": {
-      "dtol": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "control_meta": {},
-    "dwc": "",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "ORIGINAL_GEOGRAPHIC_LOCATION"
-    ],
-    "specifications": [
-      "dtol_env"
-    ],
-    "ref": "",
-    "deprecated": false,
-    "hidden": "false",
-    "label": "Original Geographic Location",
-    "show_in_form": true,
-    "id": "copo.sample.ORIGINAL_GEOGRAPHIC_LOCATION",
-    "type": "string",
-    "show_in_table": true,
-    "control": "text",
-    "default_value": "",
+    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -1105,6 +712,38 @@
     "label": "Original Collection Date",
     "show_in_form": true,
     "id": "copo.sample.ORIGINAL_COLLECTION_DATE",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "ORIGINAL_GEOGRAPHIC_LOCATION"
+    ],
+    "specifications": [
+      "dtol_env"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "label": "Original Geographic Location",
+    "show_in_form": true,
+    "id": "copo.sample.ORIGINAL_GEOGRAPHIC_LOCATION",
     "type": "string",
     "show_in_table": true,
     "control": "text",
@@ -1184,6 +823,105 @@
     }
   },
   {
+    "help_tip": "Time of Collection",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "TIME_OF_COLLECTION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TIME_OF_COLLECTION",
+    "label": "Time of Collection",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "The name of, reference to, or description of the method or protocol used during an Event. E.g. UV light trap, mist net, bottom trawl, ad hoc observation, point count",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "DESCRIPTION_OF_COLLECTION_METHOD"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.DESCRIPTION_OF_COLLECTION_METHOD",
+    "label": "Description of Collection Method",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/samplingProtocol",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Difficulty of sample re-collection. Quantify ie. 'guaranteed same day', 'several days searching', 'requires considerable effort' (offshore boat/Caving/remote location travel)",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "DIFFICULT_OR_HIGH_PRIORITY_SAMPLE"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.DIFFICULT_OR_HIGH_PRIORITY_SAMPLE",
+    "label": "Difficult or High priority sample",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/samplingEffort",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
     "help_tip": "Mixed sample risk",
     "required": "true",
     "default_value": "",
@@ -1217,6 +955,105 @@
     }
   },
   {
+    "help_tip": "Specific preservative solution used in preparation",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "PRESERVATIVE_SOLUTION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.PRESERVATIVE_SOLUTION",
+    "label": "Preservative Solution",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.TIME_ELAPSED_FROM_COLLECTION_TO_PRESERVATION",
+    "label": "Time Elapsed From Collection To Preservation (in Hours)",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "date-picker",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "DATE_OF_PRESERVATION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.DATE_OF_PRESERVATION",
+    "label": "Date of Preservation",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/eventDate",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
     "help_tip": "Barcoding Status",
     "required": "true",
     "default_value": "",
@@ -1239,6 +1076,104 @@
     "show_in_form": true,
     "id": "copo.sample.BARCODING_STATUS",
     "label": "barcodingStatus",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "dwc": "",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "PURPOSE_OF_SPECIMEN"
+    ],
+    "specifications": [
+      "dtol_env"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "label": "Purpose Of Specimen",
+    "show_in_form": true,
+    "id": "copo.sample.PURPOSE_OF_SPECIMEN",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Hazard Group",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "HAZARD_GROUP"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.HAZARD_GROUP",
+    "label": "Hazard Group",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "Regulatory Compliance",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "REGULATORY_COMPLIANCE"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.REGULATORY_COMPLIANCE",
+    "label": "Regulatory Compliance",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1382,6 +1317,39 @@
     }
   },
   {
+    "help_tip": "Other Information",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "OTHER_INFORMATION"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "array",
+    "show_in_form": true,
+    "id": "copo.sample.OTHER_INFORMATION",
+    "label": "Other Information",
+    "show_in_table": true,
+    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
     "help_tip": "",
     "required": "true",
     "default_value": "",
@@ -1392,7 +1360,7 @@
       "2.4"
     ],
     "versions": [
-      "SEQUENCING_CENTRE"
+      "CELL_NUMBER"
     ],
     "ref": "",
     "specifications": [
@@ -1402,140 +1370,8 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.SEQUENCING_CENTRE",
-    "label": "Sequencing Centre",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "true",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "WATER_BODY_TYPE"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.WATER_BODY_TYPE",
-    "label": "Water body type",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "SAMPLING_WATER_BODY_DEPTH"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.SAMPLING_WATER_BODY_DEPTH",
-    "label": "Sampling water body depth",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "WATER_SPEED"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.WATER_SPEED",
-    "label": "Water speed",
-    "show_in_table": true,
-    "dwc": "",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
-  },
-  {
-    "help_tip": "",
-    "required": "false",
-    "default_value": "",
-    "show_as_attribute": true,
-    "control_meta": {},
-    "control": "text",
-    "manifest_version": [
-      "2.4"
-    ],
-    "versions": [
-      "WATER_TYPE"
-    ],
-    "ref": "",
-    "specifications": [
-      "dtol_env"
-    ],
-    "deprecated": false,
-    "hidden": "false",
-    "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.WATER_TYPE",
-    "label": "Water type",
+    "id": "copo.sample.CELL_NUMBER",
+    "label": "Cell number",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1590,7 +1426,7 @@
       "2.4"
     ],
     "versions": [
-      "SALINITY"
+      "DISSOLVED_OXYGEN"
     ],
     "ref": "",
     "specifications": [
@@ -1600,8 +1436,8 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.SALINITY",
-    "label": "Salinity",
+    "id": "copo.sample.DISSOLVED_OXYGEN",
+    "label": "Dissolved oxygen",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1656,7 +1492,7 @@
       "2.4"
     ],
     "versions": [
-      "DISSOLVED_OXYGEN"
+      "SALINITY"
     ],
     "ref": "",
     "specifications": [
@@ -1666,8 +1502,107 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.DISSOLVED_OXYGEN",
-    "label": "Dissolved oxygen",
+    "id": "copo.sample.SALINITY",
+    "label": "Salinity",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "SAMPLING_WATER_BODY_DEPTH"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SAMPLING_WATER_BODY_DEPTH",
+    "label": "Sampling water body depth",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "SEQUENCING_CENTRE"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SEQUENCING_CENTRE",
+    "label": "Sequencing Centre",
+    "show_in_table": true,
+    "dwc": "",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "SORT_STAIN"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "string",
+    "show_in_form": true,
+    "id": "copo.sample.SORT_STAIN",
+    "label": "Sort stain",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1779,7 +1714,7 @@
   },
   {
     "help_tip": "",
-    "required": "false",
+    "required": "true",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -1788,7 +1723,7 @@
       "2.4"
     ],
     "versions": [
-      "SORT_STAIN"
+      "WATER_BODY_TYPE"
     ],
     "ref": "",
     "specifications": [
@@ -1798,8 +1733,8 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.SORT_STAIN",
-    "label": "Sort stain",
+    "id": "copo.sample.WATER_BODY_TYPE",
+    "label": "Water body type",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1812,7 +1747,7 @@
   },
   {
     "help_tip": "",
-    "required": "true",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -1821,7 +1756,7 @@
       "2.4"
     ],
     "versions": [
-      "CELL_NUMBER"
+      "WATER_SPEED"
     ],
     "ref": "",
     "specifications": [
@@ -1831,8 +1766,8 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.CELL_NUMBER",
-    "label": "Cell number",
+    "id": "copo.sample.WATER_SPEED",
+    "label": "Water speed",
     "show_in_table": true,
     "dwc": "",
     "index": {
@@ -1844,8 +1779,8 @@
     }
   },
   {
-    "help_tip": "The original description of the depth below the local surface.",
-    "required": "true",
+    "help_tip": "",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -1854,7 +1789,7 @@
       "2.4"
     ],
     "versions": [
-      "DEPTH"
+      "WATER_TYPE"
     ],
     "ref": "",
     "specifications": [
@@ -1864,10 +1799,10 @@
     "hidden": "false",
     "type": "string",
     "show_in_form": true,
-    "id": "copo.sample.DEPTH",
-    "label": "Depth (in meters)",
+    "id": "copo.sample.WATER_TYPE",
+    "label": "Water type",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth",
+    "dwc": "",
     "index": {
       "dtol_env": {
         "colour": "",
@@ -1877,32 +1812,81 @@
     }
   },
   {
-    "help_tip": "The original description of the elevation (altitude, usually above sea level) of the Location.",
-    "required": "true",
+    "help_tip": "Characteristics of the sample e.g., height, sex",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
-    "control": "text",
     "manifest_version": [
       "2.4"
     ],
     "versions": [
-      "ELEVATION"
+      "characteristics"
     ],
     "ref": "",
     "specifications": [
-      "dtol_env"
+      "isasample",
+      "biosample"
     ],
     "deprecated": false,
     "hidden": "false",
-    "type": "string",
+    "type": "array",
     "show_in_form": true,
-    "id": "copo.sample.ELEVATION",
-    "label": "Elevation (in meters)",
+    "id": "copo.sample.characteristics",
+    "label": "Characteristics",
+    "show_in_table": false,
+    "control": "copo-characteristics"
+  },
+  {
+    "help_tip": "Factors express treatments on the sample, e.g., compound, dose, duration",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": true,
+    "control_meta": {},
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "factorValues"
+    ],
+    "ref": "",
+    "specifications": [
+      "isasample"
+    ],
+    "deprecated": false,
+    "hidden": "false",
+    "type": "array",
+    "show_in_form": true,
+    "id": "copo.sample.factorValues",
+    "label": "Factors",
+    "show_in_table": false,
+    "control": "copo-characteristics"
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "default_value": "na",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "manifest_id"
+    ],
+    "specifications": [
+      "dtol"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "true",
+    "label": "Manifest ID",
+    "show_in_form": false,
+    "id": "copo.sample.manifest_id",
+    "type": "string",
     "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation",
+    "control": "text",
     "index": {
-      "dtol_env": {
+      "dtol": {
         "colour": "",
         "excel_col": "",
         "order": null
@@ -1910,35 +1894,51 @@
     }
   },
   {
-    "help_tip": "Time of Collection",
+    "help_tip": "",
     "required": "true",
     "default_value": "",
-    "show_as_attribute": true,
     "control_meta": {},
-    "control": "text",
     "manifest_version": [
       "2.4"
     ],
     "versions": [
-      "TIME_OF_COLLECTION"
+      "profile_id"
     ],
     "ref": "",
-    "specifications": [
-      "dtol_env"
+    "deprecated": false,
+    "hidden": "true",
+    "label": "Profile ID",
+    "show_in_form": false,
+    "id": "copo.sample.profile_id",
+    "type": "string",
+    "show_in_table": false,
+    "control": "text"
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "default_value": "",
+    "control_meta": {},
+    "control": "select",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "sample_type"
     ],
     "deprecated": false,
-    "hidden": "false",
+    "hidden": "true",
+    "id": "copo.sample.sample_type",
+    "label": "Sample Type",
+    "show_in_form": false,
+    "ref": "",
     "type": "string",
-    "show_in_form": true,
-    "id": "copo.sample.TIME_OF_COLLECTION",
-    "label": "Time of Collection",
-    "show_in_table": true,
-    "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
-    "index": {
-      "dtol_env": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
+    "show_in_table": false,
+    "show_as_attribute": true,
+    "option_values": {
+      "callback": {
+        "parameter": "",
+        "function": "get_sample_type_options"
       }
     }
   }

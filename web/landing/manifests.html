@@ -28,32 +28,9 @@
             </tr>
             </thead>
             <tbody>
-
-            <tr>
-                <td>DTOL - (Darwin Tree of Life)</td>
-                <td>2.4.1</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Download
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a href="{% static 'assets/manifests/DTOL_EXAMPLE_SAMPLE_MANIFEST_v2.4.1.xlsx' %}">
-                                Blank template</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a class="wizard-link" href="javascript:" title='Launch DTOL_MANIFEST_v2.4.1 wizard'
-                                   onclick="showWizardBasedOnManifestType('dtol')"
-                                   aria-hidden="true">Prefilled template</a></li>
-
-                        </ul>
-                    </div>
-                </td>
-            </tr>
             <tr>
                 <td>ASG - (Aquatic Symbiosis Genomics)</td>
-                <td>2.4.1</td>
+                <td id="current_asg_version"></td>
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2"
@@ -62,10 +39,10 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                            <li><a href="{% static 'assets/manifests/ASG_EXAMPLE_SAMPLE_MANIFEST_v2.4.1.xlsx' %}">
+                            <li><a href="{% static 'assets/manifests/ASG_MANIFEST_TEMPLATE_v2.4.1.xlsx' %}">
                                 Blank template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a class="wizard-link" href="javascript:" title='Launch ASG_MANIFEST_v2.4.1 wizard'
+                            <li><a id="asg_prefilled_template_option" class="wizard-link" href="javascript:"
                                    onclick="showWizardBasedOnManifestType('asg')"
                                    aria-hidden="true">Prefilled template</a></li>
 
@@ -74,8 +51,29 @@
                 </td>
             </tr>
             <tr>
+                <td>DTOL - (Darwin Tree of Life)</td>
+                <td id="current_dtol_version"></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Download
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="{% static 'assets/manifests/DTOL_MANIFEST_TEMPLATE_v2.4.1.xlsx' %}">
+                                Blank template</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a id="dtol_prefilled_template_option" class="wizard-link" href="javascript:"
+                                   onclick="showWizardBasedOnManifestType('dtol')"
+                                   aria-hidden="true">Prefilled template</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
                 <td>ERGA - (European Reference Genome Atlas)</td>
-                <td>2.4</td>
+                <td id="current_erga_version"></td>
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu3"
@@ -84,10 +82,10 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu3">
-                            <li><a href="{% static 'assets/manifests/ERGA_SAMPLE_MANIFEST_V2.4.xlsx' %}">
+                            <li><a href="{% static 'assets/manifests/ERGA_MANIFEST_TEMPLATE_v2.4.2.xlsx' %}">
                                 Blank template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a class="wizard-link" href="javascript:" title='Launch ERGA_MANIFEST_v2.4 wizard'
+                            <li><a id="erga_prefilled_template_option" class="wizard-link" href="javascript:"
                                    onclick="showWizardBasedOnManifestType('erga')"
                                    aria-hidden="true">Prefilled template</a></li>
                         </ul>

@@ -182,8 +182,9 @@ class ProcessValidationQueue:
             try:
                 # get definitive list of mandatory DTOL fields from schema
                 s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
+
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*] == "' + self.current_schema_version + '")].versions[0]',
+                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*]== "' + self.current_schema_version + '")].versions[0]',
                     s)
 
                 # validate for required fields
@@ -198,7 +199,7 @@ class ProcessValidationQueue:
 
                 # get list of all DTOL fields from schemas
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"@.manifest_version[*] == "' + self.current_schema_version + ')].versions[0]',
+                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
                     s)
 
                 # validate for optional dtol fields

@@ -26,7 +26,7 @@ dtol_api_patterns = [
     path('apiKey/', csrf_exempt(general.CustomAuthToken.as_view())),
     re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
 
-   # dates must be ISO 8601 formatted
+    # dates must be ISO 8601 formatted
     re_path(r'manifest/validations/', APIGetUserValidations.as_view(), name='/manifest/validate/report/'),
     re_path(r'manifest/validate/report/', APIGetManifestValidationReport.as_view(), name='/manifest/validate/report/'),
     re_path(r'manifest/validate/', APIValidateManifest.as_view(), name='manifest/validate'),
@@ -34,7 +34,7 @@ dtol_api_patterns = [
     re_path(r'manifest/(?P<project>[a-zA-Z, ]+)/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
             s.get_project_manifests_between_dates, name='get_project_manifests_between_dates'),
     re_path(r'manifest/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
-            s.get_all_manifest_between_dates, name='get_all_manifests_between_dates'),              
+            s.get_all_manifest_between_dates, name='get_all_manifests_between_dates'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)/sample_statuses', s.get_sample_statuses_for_manifest,
             name='get_sample_statuses_for_manifest'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', s.get_samples_in_manifest, name='get_for_manifest'),
@@ -78,6 +78,8 @@ stats_api_patterns = [
 ]
 
 manifest_patterns = [
+    re_path(r'get_current_manifest_version/', ajax_handlers.get_current_manifest_version,
+            name="get_current_manifest_version"),
     re_path(r'get_manifest_fields/', ajax_handlers.get_manifest_fields,
             name="get_manifest_fields"),
     re_path(r'get_common_value_dropdown_list/', ajax_handlers.get_common_value_dropdown_list,
