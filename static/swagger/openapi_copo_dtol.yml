@@ -685,6 +685,9 @@ components:
           type: string
           format: uuid
           description: unique identifier for manifest in which this sample appears
+        manifest_version:
+          type: string
+          description: version number of the manifest used
         status:
           type: string
           description: status of this sample. "pending" means waiting for supervisor approval, "accepted" means supervisor approval gained, "rejected" means supervisor rejected
@@ -855,6 +858,8 @@ components:
         manifest_id:
           type: string
           format: uuid
+        manifest_version:
+          type: string
         time_updated:
           type: string
           format: date-time
