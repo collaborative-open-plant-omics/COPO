@@ -370,8 +370,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # register project to the ENA service
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" -F "PROJECT=@' \
                    + project_xml_path \
@@ -531,8 +531,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # register samples to the ENA service
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" -F "SAMPLE=@' \
                    + sample_xml_path \
@@ -699,8 +699,8 @@ class EnaReads:
             result = dict(status=True, value='')
 
             # compose curl command for study release
-            curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                       + ' -F "SUBMISSION=@' \
+            curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                       + '" -F "SUBMISSION=@' \
                        + submission_xml_path \
                        + '" "' + self.ena_service \
                        + '"'
@@ -1069,8 +1069,8 @@ class EnaReads:
                 final_submission_xml_path = result['value']
 
             # submit xmls to ENA service
-            curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                       + ' -F "SUBMISSION=@' \
+            curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                       + '" -F "SUBMISSION=@' \
                        + final_submission_xml_path \
                        + '" -F "EXPERIMENT=@' \
                        + experiement_xml_path \
@@ -1539,7 +1539,7 @@ class EnaReads:
         #           self.sra_settings["sra_center"] + ' -inputDir ' + self.datafiles_dir + ' -ascp '
 
         cli_cmd = 'java -Xmx2048m -jar ' + ENA_CLI + ' -context reads -userName ' + self.user_token + \
-                  ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit ' \
+                  ' -password "' + self.pass_word + '" -manifest ' + manifest_location + test_service + ' -submit ' \
                                                                                                       '-centerName ' + \
                   self.sra_settings["sra_center"] + ' -ascp '
 
@@ -1676,8 +1676,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # compose curl command for study release
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" "' + self.ena_service \
                    + '"'
