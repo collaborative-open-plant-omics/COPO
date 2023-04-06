@@ -8,7 +8,7 @@
             <div class="panel-heading" style="background-color: {{ profile.heading_bgColour }}">
                 <div class="row">
                     <div class="col-sm-10 col-md-10 col-lg-10 row-title">
-                        <span id={{ profile.id }}>{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
+                        <span id={{ profile.id }} class=showEllipsisFor1TextLine>{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
                     </div>
                     <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis">
                         <div id="{{ profile.id }}" class="pull-right ellipsisDiv"
@@ -32,7 +32,7 @@
                 </div>
             </div>
             <!--Panel body -->
-            <div class="panel-body">
+            <div class="grid-panel-body">
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-lg-12"
                          style="padding-top: {{ profile.panel_content_paddingTop }}">
@@ -40,7 +40,7 @@
                         <div>Created:</div>
                         <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
                         <div>Description:</div>
-                        <div class="showEllipsisFor2TextLines {% if profile.associated_type|length == 0 %} no_associatedTypes_marginBottom {% else %} associatedTypes_marginBottom {% endif %}">
+                        <div class="showEllipsisFor2TextLines {% if profile.associated_type|length == 0 and profile.description.strip|length < 45 %} no_associatedTypes_marginBottom {% elif profile.associated_type|length == 0 and profile.description.strip|length >= 45 %}no_associatedTypes_marginBottom_2LineDescriptionText {% else %} associatedTypes_marginBottom {% endif %}">
                             {{ profile.description }}</div>
 
                         {% if profile.associated_type %}
@@ -50,7 +50,7 @@
                             </div>
                             <div class="{% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% else %}several_associatedType_marginBottom{% endif %}">
                                 <ul class="associated_type_ulTag"
-                                    style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }};">
+                                    style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }}; max-height: 85px; overflow-x: auto;">
 
                                     {% for element in profile.associated_type_elements %}
                                         <li title="{{ element.associated_type }}">  {{ element.abbreviation }}</li>

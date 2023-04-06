@@ -1,5 +1,4 @@
-/** Created by AProvidence on 01-02-2023.
- * contains functions for generating form html from JSON-based tags
+/**  * contains functions for generating form html from JSON-based tags
  * for copo_profile_index web page
  */
 
@@ -94,7 +93,9 @@ const controlsMapping = {
     "semantic-ui-search": "do_semantic_search_ui"
 };
 
-function initiate_form_call(component) {
+function initiate_profile_form_call(component) {
+    let copoFormsURL = "/copo/copo_forms/";
+    const csrftoken = $.cookie('csrftoken');
     const errorMsg = "Couldn't build " + component + " form!";
 
     $.ajax({
@@ -106,7 +107,7 @@ function initiate_form_call(component) {
             'component': component
         },
         success: function (data) {
-            json2HtmlForm(data);
+            json2HtmlProfileForm(data);
             componentData = data;
 
         },
@@ -116,45 +117,41 @@ function initiate_form_call(component) {
     });
 }
 
-function initiate_annotation_call() {
-    $('#processing_div').hide()
-    $('#file_picker_modal').modal('show')
-    $("#form_submit_btn").on('click', function () {
-        const formData = new FormData();
-        formData.append('file', $('#InputFile')[0].files[0]);
-        formData.append('file_type', $('#file_type_dropdown').val())
-        formData.append('skip_rows', $('#row_skip_dd').val())
-        const csrftoken = $.cookie('csrftoken');
-        const url = "/api/upload_annotation_file/";
-        $.ajax({
-            url: url,
-            type: "POST",
-            headers: {'X-CSRFToken': csrftoken},
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json'
-        }).done(function (e) {
-            // add mongo id to document data
-            $(document).data('annotation_id', e._id.$oid)
-            $('#annotation_table_wrapper').hide()
-            $('#annotation_content').show()
+function contact_COPO_popup_dialog() {
+    const message = "If you would like to make manifest submissions to an ASG, ERGA or DToL manifest group";
+    let $content = '<div>';
 
-            if (e.type === 'PDF Document') {
-                $(document).data('annotator_type', 'txt')
-                load_txt_data(e);
-            } else if (e.type === 'Spreadsheet') {
-                $(document).data('annotator_type', 'ss')
-                load_ss_data(e);
+    $content += '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' + message + '</div>';
+    $content += '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> in order to be added to a manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
+    $content += '</div>';
+
+    const dialog = new BootstrapDialog({
+        type: BootstrapDialog.TYPE_WARNING,
+        title: "Contact COPO via email",
+        message: $content,
+        closable: false,
+        onhide: function (dialogRef) {
+        },
+        buttons: [{
+            label: 'Okay',
+            cssClass: 'btn-custom3',
+            hotkey: 13,
+            action: function (dialogRef) {
+                dialogRef.close(); // Closes the 'Contact COPO' dialog
+                // $('.modal').modal('hide'); // Closes the 'Add Profile' dialog
             }
-
-            setup_annotator()
-            $('#file_picker_modal').modal('hide');
-        });
+        }]
     });
-}
 
-function json2HtmlForm(data) {
+    dialog.realize();
+    dialog.getModalFooter().removeClass('modal-footer');
+    dialog.getModalFooter().css({"padding": "15px", "text-align": "right"});
+
+    dialog.open();
+
+} //end of contact_COPO_popup_dialog
+
+function json2HtmlProfileForm(data) {
 
     //tidy up before closing the modal
     const doTidyClose = {
@@ -187,51 +184,58 @@ function json2HtmlForm(data) {
                 }
             });
 
-            // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
             if (dialog_title.includes("Add Profile")) {
-                document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
-                    // Perform the following only if selected 'Profile Type' is not "Stand-alone"
-                    if (this.value !== "Stand-alone") {
-                        $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
-                        // Retrieve the parentheses and the enclosed string from the selected profile type
-                        let selected_type;
-                        let multi_select_options = $('.copo-multi-select2')
-                        const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+                // If a user is not added to a manifest group, display a message for the user to contact
+                // COPO via email in order to be added to the manifest group
+                if (groups.length === 0) {
+                    contact_COPO_popup_dialog()
+                    return false;
+                } else {
+                    // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
+                    document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
+                        // Perform the following only if selected 'Profile Type' is not "Stand-alone"
+                        if (this.value !== "Stand-alone") {
+                            $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
+                            // Retrieve the parentheses and the enclosed string from the selected profile type
+                            let selected_type;
+                            let multi_select_options = $('.copo-multi-select2')
+                            const pattern = /(([\s]+))/; // parentheses regex with string enclosed
 
-                        if (!pattern.test(this.value))
-                            selected_type = this.value // Get selected value if no parentheses exist
-                        else {
-                            let associated_type_abbreviation_without_parentheses;
-                            associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+                            if (!pattern.test(this.value))
+                                selected_type = this.value // Get selected value if no parentheses exist
+                            else {
+                                let associated_type_abbreviation_without_parentheses;
+                                associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
 
-                            // Get abbreviated associated type enclosed in parentheses
-                            selected_type = `(${associated_type_abbreviation_without_parentheses})`
-                            // If empty parentheses are returned, set the abbreviation as
-                            // the full string excluding the empty parentheses
-                            selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
-                        }
+                                // Get abbreviated associated type enclosed in parentheses
+                                selected_type = `(${associated_type_abbreviation_without_parentheses})`
+                                // If empty parentheses are returned, set the abbreviation as
+                                // the full string excluding the empty parentheses
+                                selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
+                            }
 
-                        let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
-                        if (associated_type_option.length) {
-                            // Exclude the selected profile from the associated profile type dropdown menu options
-                            multi_select_options.select2({
-                                templateResult: function (option) {
+                            let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
+                            if (associated_type_option.length) {
+                                // Exclude the selected profile from the associated profile type dropdown menu options
+                                multi_select_options.select2({
+                                    templateResult: function (option) {
 
-                                    if (option.text.includes(selected_type)) {
-                                        return null;
+                                        if (option.text.includes(selected_type)) {
+                                            return null;
+                                        }
+                                        return option.text;
                                     }
-                                    return option.text;
-                                }
-                            });
-                            // Reinitialise/update the multi-select options
-                            multi_select_options.trigger('change');
+                                });
+                                // Reinitialise/update the multi-select options
+                                multi_select_options.trigger('change');
 
+                            }
+                        } else {
+                            $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
                         }
-                    } else {
-                        $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
-                    }
-                });
+                    });
 
+                }
             }
 
             //custom validators
@@ -291,14 +295,16 @@ function json2HtmlForm(data) {
     const form_body_div = set_up_form_body_div(data);
 
     $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
-    // Hide 'Associated profile type(s)' field on dialog launch
+
+    // If user is in a manifest group, hide 'Associated profile type(s)' field on dialog launch
     // because "Stand-alone" is the default value for 'Profile Type'
-    if (dialog_title.includes("Add Profile")) $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    if (dialog_title.includes("Add Profile") && groups.length >= 1) {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    }
+
     dialog.realize();
     dialog.setMessage($dialogContent);
     dialog.open();
-
-
 }
 
 //form controls
@@ -545,52 +551,6 @@ var dispatchFormControl = {
 
         return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
     },
-    // do_multi_select_ctrl: function (formElem, elemValue) {
-    //     const ctrlsDiv = $('<div/>',
-    //         {
-    //             class: "ctrlDIV"
-    //         });
-    //
-    //     //build multi-select
-    //     const multiSelectCtrl = $('<select/>',
-    //         {
-    //             class: "form-control input-copo copo-multi-select-control",
-    //             id: formElem.id,
-    //             name: formElem.id,
-    //         });
-    //
-    //     // Set attributes
-    //     multiSelectCtrl.attr("multiple", "multiple")
-    //     multiSelectCtrl.attr("multiselect-search", "true")
-    //     multiSelectCtrl.attr("multiselect-select-all", "true") // Option to select all options
-    //     // multiSelectCtrl.attr("multiselect-max-items","3") // Sets maximum number of items displayed in the control
-    //     multiSelectCtrl.attr(" multiselect-hide-x", "false") // Shows a button to remove selected option
-    //
-    //     if (formElem.option_values) {
-    //         for (let i = 0; i < formElem.option_values.length; ++i) {
-    //             let option = formElem.option_values[i];
-    //             let lbl = "";
-    //             let vl = "";
-    //             if (typeof option === "string") {
-    //                 lbl = option;
-    //                 vl = option;
-    //             } else if (typeof option === "object") {
-    //                 lbl = option.label;
-    //                 vl = option.value;
-    //             }
-    //             if (vl === "required") {
-    //                 $('<option disabled selected value>' + lbl + '</option>').appendTo(multiSelectCtrl)
-    //             } else {
-    //                 $('<option value="' + vl + '">' + lbl + '</option>').appendTo(multiSelectCtrl);
-    //             }
-    //         }
-    //     }
-    //
-    //     ctrlsDiv.append(multiSelectCtrl);
-    //
-    //     return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    // },
-    //
     do_onto_select_ctrl: function (formElem, elemValue) {
         var ctrlsDiv = $('<div/>',
             {
@@ -1864,7 +1824,7 @@ var dispatchFormControl = {
 
 };
 
-//end of json2HTMLForm
+//end of json2HtmlProfileForm
 
 function build_form_body(data) {
     const formJSON = data.form;
@@ -2011,13 +1971,11 @@ function get_form_title(data) {
 }
 
 function get_help_ctrl() {
-    const helpCtrl = $('<div/>',
+    return $('<div/>',
         {
             html: '<span style="padding:6px;">Help tips</span><input class="copo-help-chk" type="checkbox" name="helptips-chk">',
             class: "tips-switch-form-div form-group pull-right"
         });
-
-    return helpCtrl;
 }
 
 function set_up_help_ctrl(ctrlName) {
@@ -2535,36 +2493,6 @@ function form_label_ctrl(formElem) {
         }
     }
     return lblCtrl
-}
-
-function do_array_ctrls(ctrlsDiv, counter, formElem) {
-    const addbtnDiv = $('<div/>',
-        {
-            style: 'margin-top:2px;',
-            class: 'array-add-new-button-div'
-        });
-
-    const addBtn = $('<button/>',
-        {
-            style: "border-radius:0;",
-            class: "btn btn-xs btn-success",
-            type: "button",
-            html: '<i class="fa fa-plus-circle"></i> Add ' + formElem.label,
-            click: function (event) {
-                event.preventDefault();
-                ++counter;
-
-                get_element_clone(ctrlsDiv, counter).insertBefore(addbtnDiv);
-
-                //refresh controls
-                refresh_validator($(this).closest("form"));
-                refresh_tool_tips();
-            }
-        });
-
-    addbtnDiv.append(addBtn);
-
-    return addbtnDiv;
 }
 
 function get_element_clone(ctrlsDiv, counter) {
@@ -3410,6 +3338,7 @@ function save_form(formJSON, dialogRef) {
                     refresh_tool_tips();
 
                     do_crud_action_feedback(data.action_feedback);
+                    window.location.reload() // Refresh web page to have change reflected
                     return true;
                 }
             }

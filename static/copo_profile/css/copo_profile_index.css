@@ -253,11 +253,12 @@ a#ellipsisID:active {
     color: white;
 }
 
-.panel-body {
-    height: 350px !important;
+.grid-panel-body {
+    padding: 15px;
+    height: 356px !important;
 }
 
-.panel-body-selected {
+.grid-panel-body-selected {
     background-color: #ff8c8c !important;
     color: white !important;
     font-weight: bolder !important;
@@ -271,6 +272,7 @@ a#ellipsisID:active {
     padding-left: 8px;
     font-size: 1.1em;
     border-top: 1px solid #d0d0d0;
+    margin-top: 15px;
 }
 
 
@@ -290,7 +292,7 @@ a#ellipsisID:active {
 .grid-item {
     height: 400px !important; /*600px !important; !*height: 55vh;*/
     border-radius: 5px;
-    border: 1px solid #c0c0c0;
+    /*border: 1px solid #c0c0c0;*/
     /* 4 per row, with space for margin */
     width: calc((100% / 4) - 24px); /*- 24px*/
 
@@ -377,6 +379,10 @@ a#ellipsisID:active {
     margin-bottom: 85px;
 }
 
+.no_associatedTypes_marginBottom_2LineDescriptionText {
+    margin-bottom: 68px;
+}
+
 .associatedTypes_marginBottom {
     margin-bottom: 10px;
 }
@@ -392,6 +398,13 @@ a#ellipsisID:active {
 
 .several_associatedType_marginBottom {
     margin-bottom: 10px;
+}
+
+/* Menu: Actions & Components button */
+/* Have buttons in the Components button be dipsplayed in two columns */
+.ui.menu .ui.dropdown.item .menu .item:not(.filtered) {
+    display: inline-grid !important;
+    grid-template-columns: auto auto;
 }
 
 /*Navigate to top button CSS*/
@@ -579,6 +592,7 @@ a#ellipsisID:active {
     animation-timing-function: linear;
 }
 
+/*Responsiveness*/
 @media only screen and (max-width: 575px) {
     .navigate-to-top {
         width: 40px;
@@ -618,5 +632,118 @@ a#ellipsisID:active {
     .down-arrow {
         top: 27%;
         left: 37%;
+    }
+}
+
+@media only screen and (max-width: 1567px) {
+    .associated_type_ulTag {
+        padding: 0 0 0 5px; /*top right bottom left */
+        max-width: 220px;
+        column-gap: 0;
+    }
+
+    .associated_type_ulTag li {
+        padding: 0;
+    }
+}
+
+@media only screen and (max-width: 1556px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 75px;
+    }
+
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 75px;
+    }
+
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 64px;
+    }
+
+    .panel-body {
+        height: 395px;
+    }
+
+    .associated_type_ulTag {
+        max-width: 130px;
+        column-count: 1 !important;
+        overflow-y: auto;
+    }
+
+}
+
+@media only screen and (max-width: 1473px) {
+    .associated_type_ulTag {
+        max-width: 180px !important;
+        column-count: 1 !important;
+    }
+
+    .associated_type_ulTag li {
+        padding: 0 0 0 5px; /*top right bottom left */
+    }
+}
+
+@media only screen and (max-width: 1473px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 90px 15px 15px !important; /*top right bottom left */
+    }
+
+    .panel-body {
+        height: 395px;
+    }
+}
+
+@media only screen and (max-width: 1394px) {
+    .ui.vertical.menu {
+        width: 0;
+    }
+}
+
+@media only screen and (max-width: 1381px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 80px 15px 15px !important; /*top right bottom left */
+    }
+}
+
+@media only screen and (max-width: 1391px) {
+    .ui.vertical.menu {
+        width: 10rem;
+    }
+}
+
+@media only screen and (max-width: 1089px) {
+    .ui.vertical.menu {
+        width: 10rem;
+    }
+
+    .associated_type_ulTag {
+        max-width: 150px !important;
+        max-height: 50px !important;
+        column-count: 1 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
+    }
+
+    #sortProfilesBtn {
+        overflow: hidden;
+        white-space: pre;
+        text-overflow: ellipsis;
+        -webkit-appearance: none;
+    }
+
+    .ui.vertical.menu {
+        width: 10rem;
+        height: 5rem;
+        padding: 10px;
+    }
+
+    .ui.left.pointing.dropdown.link.item {
+        padding: 5px;
+    }
+
+    .panel-body {
+        height: 435px;
     }
 }

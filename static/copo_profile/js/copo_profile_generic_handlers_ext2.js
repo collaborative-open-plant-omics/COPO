@@ -12,7 +12,7 @@ $(document).ready(function () {
 
 });
 
-function set_empty_component_message(dataRows, table_id = "*") {
+function set_empty_profile_component_message(dataRows, table_id = "*") {
     //decides, based on presence of record, to display table or getting started info
 
     if (dataRows == 0) {

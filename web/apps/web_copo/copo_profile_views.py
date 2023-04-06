@@ -43,7 +43,7 @@ LOGGER = settings.LOGGER
 @login_required
 def copo_profile_index(request):
     print(get_env("MEDIA_ROOT"))
-    num_of_profiles_per_page = 4  # number of records on a single page i.e. per row
+    num_of_profiles_per_page = 8  # number of records on a single page i.e. per row
     uid = request.user.id
     page = int(request.GET.get('page', 1))  # current page
 
@@ -99,8 +99,8 @@ def copo_profile_index(request):
         # Set associated type length/count, columnCount, width, abbreviation
         if i.get("associated_type", ""):
             associated_type_count = len(i.get("associated_type", ""))
-            associated_type_columnCount = "3" if associated_type_count > 3 else "1"
-            associated_type_width = "500px" if associated_type_count > 3 else "200px"
+            associated_type_columnCount = "2" if associated_type_count > 3 else "1"
+            associated_type_width = "300px" if associated_type_count > 3 else "200px"
             regex = '\(([^)]+)'
 
             additional_info_dict = {"associated_type_count": associated_type_count,
@@ -140,6 +140,50 @@ def copo_profile_index(request):
             "content": content,
             "end_pagination": True if page >= num_of_pages else False,
         })
+
+
+@login_required()
+def delete_profile(request):
+    context = dict()
+    task = request.POST.get("task", str())
+
+    x = 0
+    profile_ids = []
+    while request.POST.get("target_id[" + str(x) + "][record_id]", ""):
+        profile_ids.append(request.POST.get("target_id[" + str(x) + "][record_id]", ""))
+        x += 1
+
+    response = HttpResponse(content_type="application/json")
+    response.status_code = 200
+    profiles_undeleted = []
+    if not profile_ids:
+        response.status_code = 405
+    else:
+        for profile in profile_ids:
+            if not Profile().validate_and_delete(profile):
+                profiles_undeleted.append(profile)
+                response.status_code = 405
+    undeleted_json = json.dumps({"undeleted": profiles_undeleted})
+    response.write(undeleted_json)
+    return response
+
+
+@login_required
+def get_profile_counts(request):
+    profile_id = request.session["profile_id"]
+    counts = ProfileInfo(profile_id).get_counts()
+    return HttpResponse(encode(counts))
+
+
+@login_required
+def view_copo_profile(request, profile_id):
+    request.session["profile_id"] = profile_id
+
+    profile = Profile().get_record(profile_id)
+    if not profile:
+        return render(request, 'copo/error_page.html')
+    context = {"p_id": profile_id, 'counts': ProfileInfo(profile_id).get_counts(), "profile": profile}
+    return render(request, 'copo/copo_profile.html', context)
 
 # def login(request):
 #     context = {

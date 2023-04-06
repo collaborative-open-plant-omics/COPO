@@ -1644,7 +1644,7 @@ function refresh_general_ontology_search() {
                                 elem.closest(".ontology-parent").find(".elem-fields").val(JSON.stringify(data.api_schema));
                             }
 
-                            if (data.hasOwnProperty('status') && data.status == 'success') {
+                            if (data.hasOwnProperty('status') && data.status === 'success') {
                                 ontologies = data.items;
                             }
 
@@ -2041,11 +2041,6 @@ var auto_complete = function () {
 
 } //end of function
 
-function isInArray(value, array) {
-    //checks if a value is in array
-    return array.indexOf(value) > -1;
-}
-
 function get_data_list_panel(itemData, link) {
     if (!itemData) {
         return "";
@@ -2215,53 +2210,6 @@ function get_data_item_collapse(link, itemData, itemCount) {
     return ctrlDiv.html();
 }
 
-function format_camel_case(xter) {
-    var a = xter
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/^./, function (str) {
-            return str.toUpperCase();
-        });
-
-
-    var refinedXter = a.trim().split(/\s+/g);
-
-    for (var i = 1; i < refinedXter.length; ++i) {
-        var str = refinedXter[i];
-        str = str.toLowerCase().replace(/\b[a-z]/g, function (letter) {
-            return letter.toLowerCase();
-        });
-
-        refinedXter[i] = str;
-    }
-
-    return refinedXter.join(' ');
-
-}
-
-function build_description_display(data) {
-    //this is a specialised counterpart to the function 'build_attributes_display()',
-    // but handles datafile description metadata
-
-    var resolvedTable = $('<table/>');
-
-    for (var j = 0; j < data.description.columns.length; ++j) {
-        var Ddata = data.description.columns[j];
-
-        var iRow = $('<tr/>', {
-            "class": "copo-webui-tabular"
-        });
-
-        var labelCol = $('<td/>').attr('colspan', 2).append(Ddata.title);
-        iRow.append(labelCol);
-
-        var dataCol = $('<td/>').attr('colspan', 2).append(data.description.data_set[Ddata.data]);
-        iRow.append(dataCol);
-
-        resolvedTable.append(iRow);
-    }
-
-    return resolvedTable;
-}
 
 function build_attributes_display(data) {
     var contentHtml = $('<table/>', {
@@ -2288,55 +2236,6 @@ function build_attributes_display(data) {
     }
 
     return contentHtml;
-}
-
-function get_collapsible_panel(panelType) {
-    if (!panelType) {
-        panelType = 'default'
-    }
-
-    var panelGroup = $('<div/>', {
-        class: "panel-group",
-    });
-
-    var panelClass = "panel panel-" + panelType;
-    var panel = $('<div/>', {
-        class: panelClass,
-    });
-
-    var panelHeading = $('<div/>', {
-        class: "panel-heading",
-    });
-
-    var panelTitle = $('<div/>', {
-        class: "panel-title"
-    });
-
-    var panelTitleAnchor = $('<a/>', {
-        "data-toggle": "collapse"
-    });
-
-    panelTitle.append(panelTitleAnchor);
-    panelHeading.append(panelTitle);
-
-    panel.append(panelHeading);
-
-    var panelCollapse = $('<div/>', {
-        class: "panel-collapse collapse",
-    });
-
-
-    var panelBody = $('<div/>', {
-        class: "panel-body"
-    });
-
-    panelCollapse.append(panelBody);
-
-    panel.append(panelCollapse);
-
-    panelGroup.append(panel);
-
-    return $('<div/>').append(panelGroup).clone();
 }
 
 function get_panel(panelType) {
@@ -2376,10 +2275,10 @@ function get_panel(panelType) {
 // Set COPO frontpage properties in this dictionary
 function get_component_meta(component) {
     var componentMeta = null;
-    var components = get_profile_components();
+    var components = get_copo_profile_components();
 
     components.forEach(function (comp) {
-        if (comp.component == component) {
+        if (comp.component === component) {
             componentMeta = comp;
             return false;
         }
@@ -2388,7 +2287,7 @@ function get_component_meta(component) {
     return componentMeta
 }
 
-function get_profile_components() {
+function get_copo_profile_components() {
     return [
         {
             component: 'profile',
@@ -2525,10 +2424,10 @@ function get_profile_components() {
 //builds component-page navbar
 function do_page_controls(componentName) {
     var component = null;
-    var components = get_profile_components();
+    var components = get_copo_profile_components();
 
     components.forEach(function (comp) {
-        if (comp.component == componentName) {
+        if (comp.component === componentName) {
             component = comp;
             return false;
         }
@@ -2635,35 +2534,6 @@ function generate_component_control(component) {
     //refresh components...
     quick_tour_event();
     refresh_tool_tips();
-}
-
-function refresh_webpop(elem, title, content, exrta_meta) {
-    var config = {
-        title: title,
-        content: '<div class="webpop-content-div">' + content + '</div>',
-        closeable: true,
-        cache: false,
-        width: 300,
-        trigger: 'hover',
-        arrow: false,
-        animation: 'fade',
-        placement: 'right',
-        dismissible: false,
-        onHide: function ($element) {
-            WebuiPopovers.updateContent(elem, '<div class="webpop-content-div">' + content + '</div>');
-            elem.removeClass("copo-form-control-focus");
-        },
-        onShow: function ($element) {
-            elem.addClass("copo-form-control-focus");
-        }
-    };
-
-    //refresh config with extra configurations
-    $.each(exrta_meta, function (key, val) {
-        config[key] = val;
-    });
-
-    elem.webuiPopover(config);
 }
 
 function toggle_display_help_tips(state, parentElement) {
