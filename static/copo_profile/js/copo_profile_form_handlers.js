@@ -1,45 +1,254 @@
-/**  * contains functions for generating form html from JSON-based tags
+/**  * Contains functions for generating form html from JSON-based tags
  * for copo_profile_index web page
  */
 
-var olsURL = ""; // url of ols lookup for ontology fields
-var lookupsURL = ""; //lookup url for agrovoc labels
-var copoSchemas = {};
-var copoFormsURL = "/copo/copo_forms/";
-var globalDataBuffer = {};
 var htmlForm = $('<div/>'); //global form div
-var formMode = "add";
-var componentData = null;
 var global_key_split = "___0___";
 
-$(document).ready(function () {
-    var csrftoken = $.cookie('csrftoken');
+//map controls to rendering functions
+const controlsMapping = {
+    "text": "do_text_ctrl",
+    "textarea": "do_textarea_ctrl",
+    "select": "do_select_ctrl",
+    "copo-multi-select2": "do_copo_multi_select2_ctrl"
+};
+let contactCOPODialogCount = 0;
 
-    //get urls
-    olsURL = $("#elastic_search_ajax").val();
-    lookupsURL = $("#ajax_search_copo_local").val();
+//form controls
+var dispatchFormControl = {
+    do_text_ctrl: function (formElem, elemValue) {
+        let txt;
+        const ctrlsDiv = $('<div/>',
+            {
+                class: "ctrlDIV"
+            });
 
-    //retrieve and set form resources
-    $.ajax({
-        url: copoFormsURL,
-        type: "POST",
-        headers: {'X-CSRFToken': csrftoken},
-        data: {
-            'task': 'resources'
-        },
-        success: function (data) {
-            copoSchemas = data.copo_schemas;
-        },
-        error: function () {
-            alert("Couldn't retrieve form resources!");
+        let metaDiv = $('<div/>');
+        let readonly = false;
+
+        if (formElem.readonly) {
+            readonly = formElem.readonly;
         }
-    });
 
+        if (formElem.control === 'email') {
+            formElem.email = true;
+        }
+
+        if (formElem.disabled === "true") {
+            txt = $('<input/>',
+                {
+                    type: "text",
+                    class: "input-copo form-control copo-text-control",
+                    id: formElem.id,
+                    name: formElem.id,
+                    readonly: readonly,
+                    disabled: true
+                });
+        } else {
+            txt = $('<input/>',
+                {
+                    type: "text",
+                    class: "input-copo form-control copo-text-control",
+                    id: formElem.id,
+                    name: formElem.id,
+                    readonly: readonly,
+                });
+        }
+
+
+        //set validation markers
+        const vM = set_validation_markers(formElem, txt);
+
+        metaDiv.append(txt);
+
+
+        // set control metadata
+        if (formElem.hasOwnProperty("control_meta")) {
+            const control_meta = formElem.control_meta;
+
+            if (control_meta.hasOwnProperty("input_group_addon")) {
+                //get addon label
+                let input_group_addon_label = '';
+
+                try {
+                    input_group_addon_label = control_meta.input_group_addon_label;
+                } catch (err) {
+
+                }
+
+                //redefine metaDiv
+                metaDiv = $('<div/>',
+                    {
+                        class: "input-group"
+                    });
+
+                const inputGroupSpan = $('<span/>',
+                    {
+                        class: "input-group-addon",
+                        html: input_group_addon_label
+                    });
+
+                if (control_meta.input_group_addon === "right") {
+                    metaDiv.append(txt).append(inputGroupSpan);
+                } else {
+                    metaDiv.append(inputGroupSpan).append(txt);
+                }
+            }
+
+        }
+
+        ctrlsDiv.append(metaDiv);
+        ctrlsDiv.append(vM.errorHelpDiv);
+
+        const output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+        return add_message_segment(output);
+    },
+    do_textarea_ctrl: function (formElem, elemValue) {
+
+        const ctrlsDiv = $('<div/>',
+            {
+                class: "ctrlDIV"
+            });
+
+        const txt = $('<textarea/>',
+            {
+                class: "form-control copo-textarea-control",
+                rows: 4,
+                cols: 40,
+                id: formElem.id,
+                name: formElem.id
+            });
+
+        //set validation markers
+        const vM = set_validation_markers(formElem, txt);
+
+        ctrlsDiv.append(txt);
+        ctrlsDiv.append(vM.errorHelpDiv);
+
+        const output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+        return add_message_segment(output);
+    },
+    do_select_ctrl: function (formElem, elemValue) {
+        const ctrlsDiv = $('<div/>',
+            {
+                class: "ctrlDIV"
+            });
+
+        //build select
+        const selectCtrl = $('<select/>',
+            {
+                class: "form-control input-copo copo-select-control",
+                id: formElem.id,
+                name: formElem.id
+            });
+
+        if (formElem.option_values) {
+            for (let i = 0; i < formElem.option_values.length; ++i) {
+                const option = formElem.option_values[i];
+                let lbl = "";
+                let vl = "";
+                if (typeof option === "string") {
+                    lbl = option;
+                    vl = option;
+                } else if (typeof option === "object") {
+                    lbl = option.label;
+                    vl = option.value;
+                }
+                if (vl === "required") {
+                    $('<option disabled selected value>' + lbl + '</option>').appendTo(selectCtrl)
+                } else {
+                    $('<option value="' + vl + '">' + lbl + '</option>').appendTo(selectCtrl);
+                }
+            }
+        }
+
+        ctrlsDiv.append(selectCtrl);
+
+        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+    },
+    do_copo_multi_select2_ctrl: function (formElem, elemValue) {
+        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
+
+        var ctrlsDiv = $('<div/>',
+            {
+                class: "ctrlDIV"
+            });
+
+        var placeholder = "Select " + formElem.label + "...";
+        if (formElem.hasOwnProperty("placeholder")) {
+            placeholder = formElem.placeholder;
+        }
+
+        //maximum selection
+        var maximumSelectionLength = -1;
+        if (formElem.data_maxItems) {
+            maximumSelectionLength = formElem.data_maxItems;
+        }
+
+        //form options
+        var optionsList = [];
+
+        if (formElem.option_values && formElem.option_values.length) {
+            optionsList = formElem.option_values.map(function (item) {
+                if (typeof item === "string") {
+                    var newItem = item;
+                    item = {};
+                    item.value = newItem;
+                    item.label = newItem;
+                }
+                return {
+                    id: item.accession || item.value,
+                    text: item.label,
+                    selected: true
+                };
+            });
+        }
+
+        //set current data
+        var currentValue = [];
+
+        if (elemValue) {
+            if (typeof elemValue === "string") {
+                currentValue = elemValue.split(",");
+            } else if (typeof elemValue === "object") {
+                currentValue = elemValue;
+            }
+        }
+
+        //generate element controls
+        var ctrl = $('<select/>',
+            {
+                class: "input-copo form-control copo-multi-select2",
+                style: "width: 100%",
+                "multiple": "multiple",
+                id: formElem.id,
+                name: formElem.id,
+                "data-validate": true,
+                "data-placeholder": placeholder,
+                "data-maximumSelectionLength": maximumSelectionLength,
+                "data-currentValue": JSON.stringify(currentValue),
+                "data-optionsList": JSON.stringify(optionsList)
+            });
+
+
+        //set validation markers
+        var vM = set_validation_markers(formElem, ctrl);
+
+        ctrlsDiv.append(ctrl);
+        ctrlsDiv.append(vM.errorHelpDiv);
+
+        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+
+        return add_message_segment(returnDiv);
+    }
+};
+
+$(document).ready(function () {
     //handle event for form calls
     $(document).on("click", ".new-form-call", function (e) { //call to generate form
         e.preventDefault();
 
-        var component = "";
+        let component = "";
         try {
             component = $(this).attr("data-component");
         } catch (err) {
@@ -49,54 +258,22 @@ $(document).ready(function () {
         if (component === 'annotation') {
             initiate_annotation_call();
         } else {
-            initiate_form_call(component);
+            initiate_profile_form_call(component);
         }
     });
 
+    // Add an event listener/bind the close button of the 'COPO contact dialog'
+    $('#contactCOPODialogBtnID').bind('click', function () {
+        contactCOPODialogCount++;
+    });
 
 }); //end of document ready
 
-//map controls to rendering functions
-const controlsMapping = {
-    "text": "do_text_ctrl",
-    "email": "do_text_ctrl",
-    "text_small": "do_small_text_ctrl",
-    "textarea": "do_textarea_ctrl",
-    "hidden": "do_hidden_ctrl",
-    "copo-select": "do_copo_select_ctrl",
-    "copo-select2": "do_copo_select2_ctrl",
-    "ontology term": "do_ontology_term_ctrl",
-    "copo-general-onto": "do_general_ontology_term_ctrl",
-    "copo-general-ontoselect": "do_general_ontology_select_ctrl",
-    "copo-lookup": "do_copo_lookup_ctrl",
-    "copo-lookup2": "do_copo_lookup2_ctrl",
-    "select": "do_select_ctrl",
-    "multi-select": "do_multi_select_ctrl",
-    "copo-onto-select": "do_onto_select_ctrl",
-    "copo-multi-search": "do_copo_multi_search_ctrl",
-    "copo-multi-select": "do_copo_multi_select_ctrl",
-    "copo-multi-select2": "do_copo_multi_select2_ctrl",
-    "copo-single-select": "do_copo_single_select_ctrl",
-    "copo-comment": "do_copo_comment_ctrl",
-    "copo-characteristics": "do_copo_characteristics_ctrl_2",
-    "copo-environmental-characteristics": "do_copo_characteristics_ctrl_2",
-    "copo-phenotypic-characteristics": "do_copo_characteristics_ctrl_2",
-    "oauth_required": "do_oauth_required",
-    "copo-button-list": "do_copo_button_list_ctrl",
-    "copo-item-count": "do_copo_item_count_ctrl",
-    "date-picker": "do_date_picker_ctrl",
-    "date-picker-dtol": "do_date_picker_dtol_ctrl",
-    "copo-duration": "do_copo_duration_ctrl",
-    "text-percent": "do_percent_text_box",
-    "copo-resolver": "do_copo_resolver_ctrl",
-    "copo-input-group": "do_copo_input_group_ctrl",
-    "semantic-ui-search": "do_semantic_search_ui"
-};
-
 function initiate_profile_form_call(component) {
-    let copoFormsURL = "/copo/copo_forms/";
+    let copoFormsURL = "/copo/copo_profile_forms/";
     const csrftoken = $.cookie('csrftoken');
     const errorMsg = "Couldn't build " + component + " form!";
+    let componentData = null;
 
     $.ajax({
         url: copoFormsURL,
@@ -122,7 +299,7 @@ function contact_COPO_popup_dialog() {
     let $content = '<div>';
 
     $content += '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' + message + '</div>';
-    $content += '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> in order to be added to a manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
+    $content += '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> in order to be added to the manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
     $content += '</div>';
 
     const dialog = new BootstrapDialog({
@@ -130,15 +307,18 @@ function contact_COPO_popup_dialog() {
         title: "Contact COPO via email",
         message: $content,
         closable: false,
+        onshown: function (dialogRef) {
+            contactCOPODialogCount++; // Increment the number of times the dialog is shown
+        },
         onhide: function (dialogRef) {
         },
         buttons: [{
+            id: 'contactCOPODialogBtnID',
             label: 'Okay',
             cssClass: 'btn-custom3',
             hotkey: 13,
             action: function (dialogRef) {
-                dialogRef.close(); // Closes the 'Contact COPO' dialog
-                // $('.modal').modal('hide'); // Closes the 'Add Profile' dialog
+                dialogRef.close(); // Close the 'Contact COPO' dialog
             }
         }]
     });
@@ -147,22 +327,28 @@ function contact_COPO_popup_dialog() {
     dialog.getModalFooter().removeClass('modal-footer');
     dialog.getModalFooter().css({"padding": "15px", "text-align": "right"});
 
-    dialog.open();
+    // Show the 'Contact COPO dialog' no more than two times
+    if (contactCOPODialogCount >= 2) {
+        contactCOPODialogCount++;
+        return false;
+    } else {
+        dialog.open();
+    }
 
-} //end of contact_COPO_popup_dialog
+} //end of contact_COPO_popup_dialog  **************
 
 function json2HtmlProfileForm(data) {
 
     //tidy up before closing the modal
     const doTidyClose = {
         closeIt: function (dialogRef) {
-            refresh_tool_tips();
+            refresh_profile_tool_tips();
 
             htmlForm.empty(); //clear form
             dialogRef.close();
         }
     };
-    let dialog_title = get_form_title(data)
+    let dialog_title = get_profile_form_title(data)
     const dialog = new BootstrapDialog({
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
@@ -173,7 +359,7 @@ function json2HtmlProfileForm(data) {
         animate: true,
         draggable: true,
         onhide: function (dialogRef) {
-            refresh_tool_tips();
+            refresh_profile_tool_tips();
         },
         onshown: function (dialogRef) {
             //prevent enter keypress from submitting form automatically
@@ -188,8 +374,7 @@ function json2HtmlProfileForm(data) {
                 // If a user is not added to a manifest group, display a message for the user to contact
                 // COPO via email in order to be added to the manifest group
                 if (groups.length === 0) {
-                    contact_COPO_popup_dialog()
-                    return false;
+                    contact_COPO_popup_dialog();
                 } else {
                     // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
                     document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
@@ -307,1523 +492,6 @@ function json2HtmlProfileForm(data) {
     dialog.open();
 }
 
-//form controls
-var dispatchFormControl = {
-    do_semantic_search_ui: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>', {
-            class: "input-group",
-
-        })
-
-        var icon = $('<span>', {
-            class: "input-group-addon",
-            "html": "@"
-        })
-
-        var input = $('<input>', {
-            "type": "text",
-            "class": "form-control",
-            "Placeholder": "Search...",
-            "id": formElem.id,
-            "name": formElem.id,
-            "style": "width: 400px"
-
-        })
-
-        $(ctrlsDiv).append(input)
-
-        $(ctrlsDiv).append(icon)
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_percent_text_box: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV input-group"
-            });
-        var span = $('<span/>',
-            {
-                class: "input-group-addon"
-            })
-        $(span).html('%')
-        var input = $('<input/>',
-            {
-                type: "text",
-                class: "input-copo form-control",
-                id: formElem.id,
-                name: formElem.id,
-
-            })
-        ctrlsDiv.append(input)
-        ctrlsDiv.append(span)
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_date_picker_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var txt = $('<input/>',
-            {
-                type: "text",
-                class: "input-copo form-control date-picker",
-                id: formElem.id,
-                name: formElem.id
-            });
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, txt);
-
-        ctrlsDiv.append(txt);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-        return add_message_segment(output);
-    },
-    do_text_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var metaDiv = $('<div/>');
-        var readonly = false;
-
-        if (formElem.readonly) {
-            readonly = formElem.readonly;
-        }
-
-        if (formElem.control == 'email') {
-            formElem.email = true;
-        }
-
-        if (formElem.disabled == "true") {
-            var txt = $('<input/>',
-                {
-                    type: "text",
-                    class: "input-copo form-control copo-text-control",
-                    id: formElem.id,
-                    name: formElem.id,
-                    readonly: readonly,
-                    disabled: true
-                });
-        } else {
-            var txt = $('<input/>',
-                {
-                    type: "text",
-                    class: "input-copo form-control copo-text-control",
-                    id: formElem.id,
-                    name: formElem.id,
-                    readonly: readonly,
-                });
-        }
-
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, txt);
-
-        metaDiv.append(txt);
-
-
-        // set control metadata
-        if (formElem.hasOwnProperty("control_meta")) {
-            var control_meta = formElem.control_meta;
-
-            if (control_meta.hasOwnProperty("input_group_addon")) {
-                //get addon label
-                var input_group_addon_label = '';
-
-                try {
-                    var input_group_addon_label = control_meta.input_group_addon_label;
-                } catch (err) {
-                    ;
-                }
-
-                //redefine metaDiv
-                metaDiv = $('<div/>',
-                    {
-                        class: "input-group"
-                    });
-
-                var inputGroupSpan = $('<span/>',
-                    {
-                        class: "input-group-addon",
-                        html: input_group_addon_label
-                    });
-
-                if (control_meta.input_group_addon == "right") {
-                    metaDiv.append(txt).append(inputGroupSpan);
-                } else {
-                    metaDiv.append(inputGroupSpan).append(txt);
-                }
-            }
-
-        }
-
-        ctrlsDiv.append(metaDiv);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-        return add_message_segment(output);
-    },
-    do_small_text_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var txt = $('<input/>',
-            {
-                type: "text",
-                class: "input-copo form-control width100",
-                id: formElem.id,
-                name: formElem.id,
-            });
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, txt);
-
-        ctrlsDiv.append(txt);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        return add_message_segment(get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue));
-    },
-    do_textarea_ctrl: function (formElem, elemValue) {
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var txt = $('<textarea/>',
-            {
-                class: "form-control copo-textarea-control",
-                rows: 4,
-                cols: 40,
-                id: formElem.id,
-                name: formElem.id
-            });
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, txt);
-
-        ctrlsDiv.append(txt);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-        return add_message_segment(output);
-    },
-    do_select_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //build select
-        var selectCtrl = $('<select/>',
-            {
-                class: "form-control input-copo copo-select-control",
-                id: formElem.id,
-                name: formElem.id
-            });
-
-        if (formElem.option_values) {
-            for (var i = 0; i < formElem.option_values.length; ++i) {
-                var option = formElem.option_values[i];
-                var lbl = "";
-                var vl = "";
-                if (typeof option === "string") {
-                    lbl = option;
-                    vl = option;
-                } else if (typeof option === "object") {
-                    lbl = option.label;
-                    vl = option.value;
-                }
-                if (vl == "required") {
-                    $('<option disabled selected value>' + lbl + '</option>').appendTo(selectCtrl)
-                } else {
-                    $('<option value="' + vl + '">' + lbl + '</option>').appendTo(selectCtrl);
-                }
-            }
-        }
-
-        ctrlsDiv.append(selectCtrl);
-
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_onto_select_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //build select
-        var selectCtrl = $('<select/>',
-            {
-                class: "form-control input-copo onto-select",
-                id: formElem.id,
-                name: formElem.id,
-                placeholder: formElem.label
-            });
-
-        ctrlsDiv.append(selectCtrl);
-
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_copo_duration_ctrl: function (formElem, elemValue) {
-
-        var durationSchema = copoSchemas[formElem.control.toLowerCase()];
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        for (var i = 0; i < durationSchema.length; ++i) {
-            var mg = "";
-            if (i == 0) {
-                mg = '';
-            }
-            var fv = formElem.id + "." + durationSchema[i].id.split(".").slice(-1)[0];
-
-
-            var sp = $('<div/>',
-                {
-                    // style: "display: inline-block; " + mg
-                });
-
-            var durationCtrlObject = get_basic_input(sp, durationSchema[i]);
-
-
-            durationCtrlObject.find(":input").each(function () {
-                //toni's comment
-                // if (this.id) {
-                //     this.id = fv + "." + this.id;
-                // }
-
-                //end toni's comment
-
-                if (this.id) {
-                    this.id = fv;
-                }
-
-                //set placeholder text
-                if ($(this).hasClass("ontology-field")) {
-                    $(this).attr("placeholder", durationSchema[i].label.toLowerCase());
-                }
-            });
-
-            ctrlsDiv.append(durationCtrlObject);
-        }
-
-        var output = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return add_message_segment(output);
-    },
-    do_copo_characteristics_ctrl_2: function (formElem, elemValue) {
-        var workingSchema = copoSchemas[formElem.control.toLowerCase()];
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV form-inline row"
-            });
-
-        for (var i = 0; i < workingSchema.length; ++i) {
-            var fv = formElem.id + "." + workingSchema[i].id.split(".").slice(-1)[0];
-
-            if (workingSchema[i].hidden == "false") {
-
-                var sp = $('<div/>',
-                    {
-                        class: "form-group col-sm-4 col-md-4 col-lg-4"
-                    });
-
-                //get ontology ctrl
-                var ontologyCtrlObject = get_ontology_span_2(sp, workingSchema[i]);
-
-                ontologyCtrlObject.find(":input").each(function () {
-                    if (this.id) {
-                        this.id = fv + "." + this.id;
-                        this.name = this.id;
-                        $(this).attr("data-parent1", workingSchema[i].id.split(".").slice(-1)[0]);
-                    }
-                });
-
-                //set placeholder text
-                ontologyCtrlObject.find(".onto-select").attr("placeholder", workingSchema[i].label);
-
-                //check for validation parameters
-                if (workingSchema[i].hasOwnProperty("validation_target") && (workingSchema[i].validation_target.toString() == "true")) {
-                    ontologyCtrlObject.find(".onto-select").addClass("copo-validation-target");
-                }
-
-                if (workingSchema[i].hasOwnProperty("validation_source") && (workingSchema[i].validation_source.toString() == "true")) {
-                    ontologyCtrlObject.find(".onto-select").addClass("copo-validation-source");
-                }
-
-                ctrlsDiv.append(ontologyCtrlObject);
-
-                //set validation markers
-                if (ontologyCtrlObject.find(".copo-validation-source").length || ontologyCtrlObject.find(".copo-validation-target").length) {
-                    var validationObject = ontologyCtrlObject.find(".onto-select");
-                    var formElemAdHoc = {}; //ad-hoc form element
-                    formElemAdHoc["characteristics"] = "true";
-                    var vM = set_validation_markers(formElemAdHoc, validationObject);
-                    ontologyCtrlObject.append(vM.errorHelpDiv);
-                }
-
-            } else {
-                ctrlsDiv.append($('<input/>',
-                    {
-                        type: "hidden",
-                        id: fv,
-                        name: fv
-                    }));
-            }
-        }
-
-        return add_message_segment(get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue));
-    },
-    do_copo_comment_ctrl: function (formElem, elemValue) {
-        var commentSchema = copoSchemas[formElem.control.toLowerCase()];
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV form-inline row",
-                style: "margin-top: 10px;"
-            });
-
-        for (var i = 0; i < commentSchema.length; ++i) {
-            var fv = commentSchema[i].id.split(".").slice(-1)[0];
-
-            if (commentSchema[i].hidden == "false") {
-                var sp = $('<div/>',
-                    {
-                        class: "form-group col-sm-6 col-md-6 col-lg-6"
-                    });
-
-                if (formElem.hasOwnProperty("_displayOnlyThis") && (fv != formElem["_displayOnlyThis"])) {
-                    //note: _displayOnlyThis is a mechanism for hiding some parts of a composite
-                    //control that would have ordinarily been displayed on the UI. Its use does not in any way
-                    // replace, or serve the purpose of, the html 'hidden' property defined on 'formElem'
-
-                    sp.attr({
-                        style: "display: none; "
-                    });
-                }
-
-
-                var txt = $('<textarea/>',
-                    {
-                        class: "form-control copo-comment-control",
-                        rows: 2,
-                        style: "min-width: 100%;",
-                        placeholder: commentSchema[i].label,
-                        id: formElem.id + '.' + fv,
-                        name: formElem.id + '.' + fv
-                    });
-
-                sp.append(txt);
-                ctrlsDiv.append(sp);
-
-            } else {
-                ctrlsDiv.append($('<input/>',
-                    {
-                        type: "hidden",
-                        id: formElem.id + "." + fv,
-                        name: formElem.id + "." + fv,
-                    }));
-            }
-        }
-
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_general_ontology_select_ctrl: function (formElem, elemValue) {
-
-        /* example formElem for this control is:
-
-        formElem = {
-            "ref": "",
-                "id": "x_y_id",
-                "label": label,
-                "help_tip": "Please select a value from the list",
-                "required": "true",
-                "type": "string",
-                "control": "copo-general-ontoselect",
-                "value_change_event": "name_of_event_to_trigger",
-                "default_value": "",
-                "placeholder": "Select a ...",
-                "control_meta": {},
-                "deprecated": false,
-                "hidden": "false",
-                "option_values": [{...},{...}],
-        }
-
-        * examples api_schema:
-        * api_schema = [
-                            {'id': 'name', 'label': 'Name', 'show_in_table': true},
-                            {'id': 'type', 'label': 'Type', 'show_in_table': false}
-                        ]
-
-        api_schema = []
-        * */
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //get ontology ctrl
-        var ontologyCtrlObject = get_general_ontologyselect_span($('<span/>'), formElem);
-
-        ontologyCtrlObject.find(".general-onto-select").attr("data-currentValue", elemValue);
-
-        //set placeholder text
-        if (formElem.hasOwnProperty("placeholder")) {
-            ontologyCtrlObject.find(".general-onto-select").attr("placeholder", formElem.placeholder);
-        }
-
-
-        var validationCandidate = ontologyCtrlObject.find(".general-onto")[0];
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, $(validationCandidate));
-
-        ctrlsDiv.append(ontologyCtrlObject);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var hiddenCtrl = $('<input/>',
-            {
-                type: "hidden",
-                name: formElem.id,
-                id: formElem.id
-            });
-
-        ctrlsDiv.append(hiddenCtrl);
-
-        return add_message_segment(get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue));
-    },
-    do_general_ontology_term_ctrl: function (formElem, elemValue) {
-
-        /* example formElem for this control is:
-
-        formElem = {
-            "ref": "",
-            "id": "your_control_id",
-            "label": "Control label",
-            "help_tip": "You can search by x, y, z fields",
-            "required": "false",
-            "type": "string",
-            "control": "copo-general-onto",
-            "value_change_event": "dv_search_change", //event to trigger upon value change
-            "default_value": "",
-            "placeholder": "Enter an optional placeholder",
-            "hidden": "false",
-            "data_url": "/copo/some_copo_url/",
-            "api_schema": [see below for example],
-            "call_parameters": {see below for example}
-        }
-
-        * examples api_schema:
-        * api_schema = [
-                            {'id': 'name', 'label': 'Name', 'show_in_table': true},
-                            {'id': 'type', 'label': 'Type', 'show_in_table': false}
-                        ]
-
-        api_schema = []
-
-        * example call_parameters:
-        * call_parameters =  {'profile_id': 'xyz123', 'abc': 'de'}
-
-        call_parameters = {}
-        * */
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //get ontology ctrl
-        var ontologyCtrlObject = get_general_ontology_span($('<span/>'), formElem);
-
-        ontologyCtrlObject.find(":input").each(function () {
-            if (this.id) {
-                var tempID = this.id;
-                this.id = formElem.id + "." + tempID;
-                this.name = formElem.id + "." + tempID;
-            }
-        });
-
-        //set placeholder text
-        if (formElem.hasOwnProperty("placeholder")) {
-            ontologyCtrlObject.find(".general-onto-search").attr("placeholder", formElem.placeholder);
-        }
-
-
-        var validationCandidate = ontologyCtrlObject.find(".general-onto-search")[0];
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, $(validationCandidate));
-
-        ctrlsDiv.append(ontologyCtrlObject);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        return add_message_segment(get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue));
-    },
-    do_ontology_term_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //get ontology ctrl
-        var ontologyCtrlObject = get_ontology_span_2($('<span/>'), formElem);
-
-        ontologyCtrlObject.find(":input").each(function () {
-            if (this.id) {
-                var tempID = this.id;
-                this.id = formElem.id + "." + tempID;
-                this.name = formElem.id + "." + tempID;
-            }
-        });
-
-        //set placeholder text
-        if (formElem.hasOwnProperty("placeholder")) {
-            ontologyCtrlObject.find(".onto-select").attr("placeholder", formElem.placeholder);
-        }
-
-
-        var validationCandidate = ontologyCtrlObject.find(".onto-select")[0];
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, $(validationCandidate));
-
-        ctrlsDiv.append(ontologyCtrlObject);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        return add_message_segment(get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue));
-    },
-    do_copo_lookup_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV",
-                style: "margin-top:10px;"
-            });
-
-        ctrlsDiv = get_lookup_span(ctrlsDiv, formElem);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return returnDiv;
-    },
-    do_copo_lookup2_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, since multi_search takes care of the multiple values
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var placeholder = "Search " + formElem.label + "...";
-        if (formElem.hasOwnProperty("placeholder")) {
-            placeholder = formElem.placeholder;
-        }
-
-        //lookup url
-        var localolsURL = lookupsURL;
-        if (formElem.hasOwnProperty('data_source')) {
-            localolsURL = lookupsURL.replace("999", formElem.data_source);
-        }
-
-        //maximum selection
-        var maximumSelectionLength = -1;
-        if (formElem.data_maxItems) {
-            maximumSelectionLength = formElem.data_maxItems;
-        }
-
-        //set current data
-        var currentValue = [];
-
-        if (formElem.option_values && formElem.option_values.length) {
-            currentValue = formElem.option_values.map(function (item) {
-                if (typeof item === "string") {
-                    var newItem = item;
-                    item = {};
-                    item.value = newItem;
-                    item.label = newItem;
-                }
-                return {
-                    id: item.accession || item.value,
-                    text: item.label,
-                    selected: true
-                };
-            });
-        }
-
-        //generate element controls
-        var ctrl = $('<select/>',
-            {
-                class: "copo-lookup2 input-copo form-control",
-                style: "width: 100%",
-                "multiple": "multiple",
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-                "data-placeholder": placeholder,
-                "data-url": localolsURL,
-                "data-ref": formElem.ref || '',
-                "data-maximumSelectionLength": maximumSelectionLength,
-                "data-currentValue": JSON.stringify(currentValue)
-            });
-
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, ctrl);
-
-        ctrlsDiv.append(ctrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        //create new item button
-        var newItemCreate = formElem.create_new_item || false;
-        var optionComponent = formElem.option_component || false;
-
-        var lookupMessage = "<div class='text-primary' style='margin-top: 10px;'>Enter one or more characters to search for a term.</div>";
-
-        if (!formElem.hasOwnProperty("help_tip")) {
-            formElem["help_tip"] = '';
-        }
-
-        formElem["help_tip"] = formElem["help_tip"] + lookupMessage;
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-        var firstElement = returnDiv;
-
-        if (newItemCreate.toString().toLowerCase() == "true" && optionComponent != '') {
-
-            firstElement = $('<div/>', {
-                class: "row control-row"
-            });
-
-            var left = $('<div/>', {
-                class: "col-sm-9"
-            });
-
-            var right = $('<div/>', {
-                class: "col-sm-3",
-                style: "padding-top: 28px; padding-left: 5px;"
-            });
-
-            firstElement
-                .append(left)
-                .append(right);
-
-            var addBtn = get_add_button("Create and add a new " + formElem.label);
-
-            left.append(returnDiv);
-            right.append(addBtn);
-
-            addBtn
-                .attr({"data-component": formElem.option_component, "data-element-id": formElem.id})
-                .click(function (event) {
-                    event.preventDefault();
-                    create_attachable_component(formElem);
-                });
-        }
-
-        return add_message_segment(firstElement);
-    },
-    do_copo_multi_select_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV",
-                style: "margin-top:10px;"
-            });
-
-        //build hidden fields to hold selected options, and supply control data
-
-        var data_maxItems = 'null';
-        if (formElem.data_maxItems) {
-            data_maxItems = formElem.data_maxItems;
-        }
-
-        var hiddenValuesCtrl = $('<input/>',
-            {
-                type: "hidden",
-                id: formElem.id,
-                name: formElem.id,
-                class: "copo-multi-values",
-                "data-maxItems": data_maxItems, //sets the maximum selectable elements, default is 'null'
-            });
-
-        //build select
-        var selectCtrl = $('<select/>',
-            {
-                class: "input-copo copo-multi-select",
-                placeholder: "Select " + formElem.label + "...",
-                multiple: "multiple",
-                "data-validate": true,
-            });
-
-        if (formElem.option_values) {
-            for (var i = 0; i < formElem.option_values.length; ++i) {
-                var option = formElem.option_values[i];
-                var lbl = "";
-                var vl = "";
-                if (typeof option === "string") {
-                    lbl = option;
-                    vl = option;
-                } else if (typeof option === "object") {
-                    lbl = option.label;
-                    vl = option.value;
-                }
-
-                $('<option value="' + vl + '">' + lbl + '</option>').appendTo(selectCtrl);
-            }
-        }
-
-        ctrlsDiv.append(selectCtrl).append(hiddenValuesCtrl);
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, selectCtrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-    },
-    do_copo_multi_select2_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var placeholder = "Select " + formElem.label + "...";
-        if (formElem.hasOwnProperty("placeholder")) {
-            placeholder = formElem.placeholder;
-        }
-
-        //maximum selection
-        var maximumSelectionLength = -1;
-        if (formElem.data_maxItems) {
-            maximumSelectionLength = formElem.data_maxItems;
-        }
-
-        //form options
-        var optionsList = [];
-
-        if (formElem.option_values && formElem.option_values.length) {
-            optionsList = formElem.option_values.map(function (item) {
-                if (typeof item === "string") {
-                    var newItem = item;
-                    item = {};
-                    item.value = newItem;
-                    item.label = newItem;
-                }
-                return {
-                    id: item.accession || item.value,
-                    text: item.label,
-                    selected: true
-                };
-            });
-        }
-
-        //set current data
-        var currentValue = [];
-
-        if (elemValue) {
-            if (typeof elemValue === "string") {
-                currentValue = elemValue.split(",");
-            } else if (typeof elemValue === "object") {
-                currentValue = elemValue;
-            }
-        }
-
-        //generate element controls
-        var ctrl = $('<select/>',
-            {
-                class: "input-copo form-control copo-multi-select2",
-                style: "width: 100%",
-                "multiple": "multiple",
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-                "data-placeholder": placeholder,
-                "data-maximumSelectionLength": maximumSelectionLength,
-                "data-currentValue": JSON.stringify(currentValue),
-                "data-optionsList": JSON.stringify(optionsList)
-            });
-
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, ctrl);
-
-        ctrlsDiv.append(ctrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return add_message_segment(returnDiv);
-    },
-    do_copo_single_select_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var placeholder = "Select " + formElem.label + "...";
-        if (formElem.hasOwnProperty("placeholder")) {
-            placeholder = formElem.placeholder;
-        }
-
-        //form options
-        var optionsList = [];
-
-        if (formElem.option_values && formElem.option_values.length) {
-            optionsList = formElem.option_values.map(function (item) {
-                if (typeof item === "string") {
-                    var newItem = item;
-                    item = {};
-                    item.value = newItem;
-                    item.label = newItem;
-                }
-                return {
-                    id: item.accession || item.value,
-                    text: item.label,
-                    selected: true,
-                    description: item.description || ''
-                };
-            });
-        }
-
-        //set current data
-        var currentValue = [];
-
-        if (elemValue) {
-            if (typeof elemValue === "string") {
-                currentValue = elemValue.split(",");
-            } else if (typeof elemValue === "object") {
-                currentValue = elemValue;
-            }
-
-            currentValue = currentValue[0];
-        }
-
-        //generate element controls
-        var ctrl = $('<select/>',
-            {
-                class: "input-copo form-control copo-single-select",
-                style: "width: 100%",
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-                "data-placeholder": placeholder,
-                "data-currentValue": JSON.stringify(currentValue),
-                "data-optionsList": JSON.stringify(optionsList)
-            });
-
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, ctrl);
-
-        ctrlsDiv.append(ctrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return add_message_segment(returnDiv);
-    },
-    do_copo_multi_search_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        ctrlsDiv = get_multi_search_span(formElem, ctrlsDiv);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        //if required, attach create button that will enable elements of this kind to be created and assigned
-        if (formElem.hasOwnProperty("show_create_button") && (formElem.show_create_button.toString() == "true")) {
-            var addBtn = $('<button/>',
-                {
-                    style: "border-radius:0;",
-                    type: "button",
-                    class: "btn btn-sm btn-primary copo-component-control",
-                    "data-component": formElem.option_component,
-                    "data-element-id": formElem.id,
-                    html: '<i class="fa fa-plus-circle"></i> Create & Assign ' + formElem.label,
-                    click: function (event) {
-                        event.preventDefault();
-                        create_attachable_component(formElem);
-                    },
-                });
-
-            var addbtnDiv = $('<div/>',
-                {
-                    class: "col-sm-12 col-md-12 col-lg-12"
-                }).append(addBtn);
-
-            var addbtnDivRow = $('<div/>',
-                {
-                    class: "row btn-row",
-                }).append(addbtnDiv);
-
-            returnDiv.append(addbtnDivRow);
-        }
-
-        return returnDiv;
-    },
-    do_copo_select_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        //generate element controls
-        var txt = $('<input/>',
-            {
-                type: "text",
-                class: "copo-select input-copo",
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-            });
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, txt);
-
-        ctrlsDiv.append(txt);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return add_message_segment(returnDiv);
-    },
-    do_copo_select2_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var placeholder = "Enter " + formElem.label + "...";
-
-        if (formElem.hasOwnProperty("placeholder")) {
-            placeholder = formElem.placeholder;
-        }
-
-        //set current data
-        var currentValue = [];
-
-        if (elemValue) {
-            var optionValues = [];
-
-            if (typeof elemValue === "string") {
-                optionValues = elemValue.split(",");
-            } else if (typeof elemValue === "object") {
-                optionValues = elemValue;
-            }
-
-            currentValue = optionValues.map(function (item) {
-                return {
-                    id: item,
-                    text: item,
-                    selected: true
-                };
-            });
-        }
-
-        //generate element controls
-        var ctrl = $('<select/>',
-            {
-                class: "copo-select2 input-copo form-control",
-                "multiple": "multiple",
-                style: "width: 100%",
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-                "data-placeholder": placeholder,
-                "data-currentValue": JSON.stringify(currentValue)
-            });
-
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, ctrl);
-
-        ctrlsDiv.append(ctrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
-
-        return add_message_segment(returnDiv);
-    },
-    do_hidden_ctrl: function (formElem, elemValue) {
-
-        var hiddenCtrl = $('<input/>',
-            {
-                type: "hidden",
-                id: formElem.id,
-                name: formElem.id,
-                value: elemValue
-            });
-
-        return hiddenCtrl;
-
-    },
-    do_oauth_required: function () {
-        return $('<a/>', {
-            href: "/rest/forward_to_figshare/",
-            html: "Grant COPO access to your Figshare account"
-        });
-    },
-    do_copo_button_list_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var radioGroup = $('<div/>',
-            {
-                class: "ui grid",
-            });
-
-        var hiddenCtrl = $('<input/>',
-            {
-                type: "hidden",
-                name: formElem.id,
-                id: formElem.id
-            });
-
-        //holds previous value for this control before any change occurs
-        var hiddenCtrlPreviousValue = $('<input/>',
-            {
-                type: "hidden",
-                name: formElem.id + "_previousValue",
-                id: formElem.id + "_previousValue"
-            });
-
-        var columnClass = "six"; //defines how wide the options will be
-        if (formElem.option_values.length > 3) {
-            columnClass = "five";
-        }
-
-
-        for (var i = 0; i < formElem.option_values.length; ++i) {
-            var option = formElem.option_values[i];
-            var description = '';
-            var descriptionDiv = '';
-            if (option.hasOwnProperty('description')) {
-                description = option.description;
-
-                descriptionDiv = $('<div/>',
-                    {
-                        style: "padding: 5px; border-left: 6px solid #D4E4ED; color:#4d4d4d; margin-bottom:4px; line-height:1.7;",
-                        class: "copo-radio-description",
-                        html: description
-                    });
-            }
-
-            var radioCtrl = $('<input/>',
-                {
-                    type: "radio",
-                    class: "copo-radio-option",
-                    name: formElem.id + "_input",
-                    value: option.value,
-                    "data-lbl": option.label,
-                    "data-desc": description,
-                    "data-value": option.value,
-                    change: function (evt) {
-                        if ($(this).is(':checked')) {
-                            hiddenCtrlPreviousValue.val(hiddenCtrl.val());
-                            hiddenCtrl.val($(this).val())
-                                .trigger('change');
-                        }
-                    }
-                });
-
-            if (option.value == elemValue) {
-                radioCtrl.attr('checked', true);
-                hiddenCtrl.val(elemValue);
-            }
-
-            var radioCtrlTxt = $('<span/>',
-                {
-                    style: "padding-left:5px;",
-                    html: option.label,
-                });
-
-            var radioCtrlLabel = $('<label/>', {
-                style: "font-weight: normal; cursor:pointer;",
-            }).append(radioCtrl).append(radioCtrlTxt);
-
-
-            var radioCtrlDiv = $('<div/>',
-                {
-                    style: "position: relative; display: block; margin-top: 10px; margin-bottom: 5px;",
-                    class: "radioCtrlDiv " + columnClass + " wide column"
-
-                })
-                .append(radioCtrlLabel)
-                .append(descriptionDiv);
-
-            radioGroup.append(radioCtrlDiv);
-        }
-
-        ctrlsDiv.append(form_label_ctrl(formElem)).append(radioGroup).append(hiddenCtrl).append(hiddenCtrlPreviousValue);
-
-        var output = form_div_ctrl()
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-
-    },
-    do_copo_resolver_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>');
-
-        var inputGroupDiv = $('<div/>',
-            {
-                class: "input-group",
-            });
-
-        ctrlsDiv.append(inputGroupDiv);
-
-        //create input box for resolver data entry
-        var resolverDataInput = $('<input/>',
-            {
-                type: "text",
-                id: formElem.id,
-                name: formElem.id,
-                value: elemValue,
-                placeholder: "Enter " + formElem.label + "...",
-                class: "form-control resolver-data",
-                "data-resolve-uri": formElem.resolver_uri,
-                "data-resolve-component": formElem.resolver_component,
-                blur: function (event) {
-                    event.preventDefault();
-                    $(this).closest(".copo-form-group").find(".help-block").html("");
-                }
-            });
-
-        inputGroupDiv.append(resolverDataInput);
-
-        //create inputgroupbtnspan
-        var inputSpan = $('<span/>',
-            {
-                class: "input-group-btn",
-            });
-
-        inputGroupDiv.append(inputSpan);
-
-        //create resolver-submit button
-        var resolverSubmitBtn = $('<button/>',
-            {
-                type: "button",
-                class: "btn btn-primary resolver-submit",
-                html: "Resolve!"
-            });
-
-        inputSpan.append(resolverSubmitBtn);
-
-
-        //create help-block div
-        var helpDiv = $('<div/>',
-            {
-                class: "help-block",
-            });
-
-        ctrlsDiv.append(helpDiv);
-
-        var feedBackElem = $('<div/>',
-            {
-                class: "webpop-content-div feedback-element",
-                style: "max-height: 150px; overflow-y:auto; background: #ccc;"
-            });
-
-        ctrlsDiv.append(feedBackElem);
-
-        var output = form_div_ctrl()
-            .append(form_label_ctrl(formElem))
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-
-    },
-    do_copo_input_group_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>');
-
-        var inputGroupDiv = $('<div/>',
-            {
-                class: "input-group",
-            });
-
-        ctrlsDiv.append(inputGroupDiv);
-
-        //create input box for data entry
-        var textDataInput = $('<input/>',
-            {
-                type: "text",
-                id: formElem.id,
-                name: formElem.id,
-                value: elemValue,
-                placeholder: "Enter " + formElem.label + "...",
-                class: "form-control copo-input-data"
-            });
-
-        inputGroupDiv.append(textDataInput);
-
-        //create inputgroupbtnspan
-        var inputSpan = $('<span/>',
-            {
-                class: "input-group-btn",
-            });
-
-        inputGroupDiv.append(inputSpan);
-
-        //create resolver-submit button
-        var resolverSubmitBtn = $('<button/>',
-            {
-                type: "button",
-                class: "btn btn-primary copo-trigger-submit",
-                "data-target": formElem.id,
-                html: formElem.button_label
-            });
-
-        inputSpan.append(resolverSubmitBtn);
-
-
-        //create help-block div
-        var helpDiv = $('<div/>',
-            {
-                class: "help-block",
-            });
-
-        ctrlsDiv.append(helpDiv);
-
-        var feedBackElem = $('<div/>',
-            {
-                class: "webpop-content-div feedback-element"
-            });
-
-        ctrlsDiv.append(feedBackElem);
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, textDataInput);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var output = form_div_ctrl()
-            .append(form_label_ctrl(formElem))
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-
-    },
-    do_copo_button_list_ctrl_old: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>');
-
-        var hiddenCtrl = $('<input/>',
-            {
-                type: "hidden",
-                id: formElem.id,
-                name: formElem.id,
-                value: elemValue
-            });
-
-        ctrlsDiv.append(hiddenCtrl);
-
-        var listGroup = $('<div/>',
-            {
-                class: "list-group"
-            });
-
-        ctrlsDiv.append(form_label_ctrl(formElem)).append(listGroup);
-
-        for (var i = 0; i < formElem.option_values.length; ++i) {
-            var option = formElem.option_values[i];
-
-            var listGroupTitleHTML = '<h4 class="list-group-item-heading">' + option.label + '</h4>';
-            listGroupTitleHTML += '<p class="list-group-item-text" style="line-height: 1.7; font-size: 14px;">' + option.description + '</p>';
-
-            var listDiv = $('<div/>',
-                {
-                    class: "copo-button-listDiv"
-                });
-
-            listGroup.append(listDiv);
-
-            var optionValueElem = $('<input/>',
-                {
-                    type: "hidden",
-                    class: "button-value-elem",
-                    name: option.label + "_value",
-                    value: option.value
-                })
-
-            var btnSample = $('<a/>',
-                {
-                    class: "list-group-item",
-                    title: formElem.help_tip + " " + option.label,
-                    style: "border: 1px solid #cccccc;",
-                    href: "#",
-                    click: function (event) {
-                        event.preventDefault();
-                        hiddenCtrl.val($(this).parent().find(".button-value-elem").val());
-
-                        $(this).closest(".copo-button-listDiv").siblings('.copo-button-listDiv').removeClass("copo-list-type-selected well well-sm");
-                        $(this).closest(".copo-button-listDiv").addClass("copo-list-type-selected well well-sm").css("margin-bottom", "0px");
-                    }
-                });
-
-            btnSample.append(listGroupTitleHTML);
-            listDiv.append(btnSample).append(optionValueElem);
-
-            if (i == 0) {//remember to set this back to 0, for the first element to be selected by default
-                hiddenCtrl.val(option.value);
-                btnSample.closest(".copo-button-listDiv").addClass("copo-list-type-selected well well-sm").css("margin-bottom", "0px");
-            }
-
-        }
-
-        var output = form_div_ctrl()
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-    },
-    do_copo_item_slider_ctrl: function (formElem, elemValue) {
-
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "range-slider-parent"
-            });
-
-        var countCtrl = $('<input/>',
-            {
-                min: "1",
-                max: "100",
-                step: "1",
-                class: "form-control range-slider",
-                "data-orientation": "horizontal",
-                value: "1"
-            });
-
-        var hiddenCtrl = $('<input/>',
-            {
-                type: "hidden",
-                class: "elem-value",
-                id: formElem.id,
-                name: formElem.id,
-                value: "1"
-            });
-
-        var countCtrlDiv = $('<div/>',
-            {
-                style: "margin-top:15px;",
-                title: "Slide to select " + formElem.label
-            });
-
-        countCtrlDiv.append(countCtrl);
-
-        var countCtrlOutputDiv = $('<div/>',
-            {
-                style: "margin-top:20px; text-align:center;"
-            });
-
-
-        var countCtrlBtn = $('<button/>',
-            {
-                type: "button",
-                style: "border-radius:0; background-image:none;",
-                class: "btn btn-primary",
-                html: formElem.label + ": "
-            });
-
-        countCtrlOutputDiv.append(countCtrlBtn);
-
-        var countCtrlOutput = $('<span/>',
-            {
-                class: "range-slider-output",
-                style: "font-size:20px;",
-                html: "1"
-            });
-
-        countCtrlBtn.append(countCtrlOutput);
-
-
-        ctrlsDiv.append(form_label_ctrl(formElem)).append(countCtrlDiv);
-        ctrlsDiv.append(countCtrlOutputDiv);
-        ctrlsDiv.append(hiddenCtrl);
-
-        var output = form_div_ctrl()
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-    },
-    do_copo_item_count_ctrl: function (formElem, elemValue) {
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        var min = 1;
-        if (formElem.hasOwnProperty("min")) {
-            min = formElem.min
-        }
-
-        if (!elemValue) {
-            elemValue = min;
-        }
-
-        var counter_ctrl = $('<input/>',
-            {
-                type: "number",
-                min: min,
-                class: "input-copo form-control",
-                id: formElem.id,
-                name: formElem.id,
-                value: elemValue,
-            });
-
-        var minmax = "Min: " + min;
-
-        var message_span = $('<span/>',
-            {
-                html: minmax,
-                style: "font-size: 12px;"
-            });
-
-
-        if (formElem.hasOwnProperty("max")) {
-            counter_ctrl.attr("max", formElem.max);
-            message_span.html(minmax + "; Max: " + formElem.max);
-        }
-
-        ctrlsDiv.append(form_label_ctrl(formElem)).append(counter_ctrl).append(message_span);
-
-        //set validation markers
-        var vM = set_validation_markers(formElem, counter_ctrl);
-        ctrlsDiv.append(vM.errorHelpDiv);
-
-        var output = form_div_ctrl()
-            .append(form_help_ctrl(formElem.help_tip))
-            .append(ctrlsDiv);
-
-        return add_message_segment(output);
-    },
-    do_dataverse_author: function do_dataverse_author(formElem) {
-        alert('abc')
-    },
-
-};
-
 //end of json2HtmlProfileForm
 
 function build_form_body(data) {
@@ -1878,45 +546,6 @@ function build_form_body(data) {
 
 }
 
-function generate_form_controls(formSchema, formValue) {
-    const layoutDiv = $('<div/>');
-
-    for (let i = 0; i < formSchema.length; ++i) {
-
-        const FormElem = formSchema[i];
-
-        let control = FormElem.control;
-        let elemValue = null;
-
-        if (formValue) {
-            const elem = FormElem.id.split(".").slice(-1)[0];
-            if (formValue[elem]) {
-                elemValue = formValue[elem];
-            }
-        } else {
-            if (FormElem.default_value) {
-                elemValue = FormElem.default_value;
-            } else {
-                elemValue = "";
-            }
-        }
-
-        if (FormElem.hidden === "true") {
-            control = "hidden";
-        }
-
-        try {
-            layoutDiv.append(dispatchFormControl[controlsMapping[control.toLowerCase()]](FormElem, elemValue));
-        } catch (err) {
-            console.log(err);
-            layoutDiv.append('<div class="form-group copo-form-group"><span class="text-danger">Form Control Error</span> (' + FormElem.label + '): Cannot resolve form control!</div>');
-        }
-    }
-
-    return layoutDiv
-}
-
-
 function get_form_message(data) {
     const messageRowDiv = $('<div/>',
         {
@@ -1956,8 +585,9 @@ function get_form_message(data) {
     return messageRowDiv;
 }
 
-function get_form_title(data) {
+function get_profile_form_title(data) {
     let formTitle = "";
+    let formMode = "add";
 
     if (data.form.target_id) {
         formTitle = "Edit " + data.form.form_label;
@@ -1968,14 +598,6 @@ function get_form_title(data) {
     }
 
     return formTitle;
-}
-
-function get_help_ctrl() {
-    return $('<div/>',
-        {
-            html: '<span style="padding:6px;">Help tips</span><input class="copo-help-chk" type="checkbox" name="helptips-chk">',
-            class: "tips-switch-form-div form-group pull-right"
-        });
 }
 
 function set_up_help_ctrl(ctrlName) {
@@ -2008,11 +630,6 @@ function set_up_form_help_div(data) {
             class: "col-sm-7 col-md-7 col-lg-7"
         });
 
-    const helpCtrl = $('<div/>',
-        {
-            class: "col-sm-5 col-md-5 col-lg-5"
-        }).append(get_help_ctrl());
-
     return ctrlDiv.append(cloneCol);
 }
 
@@ -2030,43 +647,9 @@ function set_up_form_body_div(data) {
     return formBodyDiv;
 }
 
-function build_clone_control(component_records, component_label) {
-    const ctrlsDiv = $('<div/>',
-        {
-            style: "padding:1px; margin-bottom:-15px;"
-        });
-
-    //build hidden fields to hold selected options, and supply control data
-    const hiddenValuesCtrl = $('<input/>',
-        {
-            type: "hidden",
-            class: "copo-multi-values copo-clone-control",
-            "data-maxItems": 1, //makes this a single select box instead of the default multiple
-        });
-
-    //build select
-    const selectCtrl = $('<select/>',
-        {
-            class: "input-copo copo-multi-select",
-            placeholder: "Clone a " + component_label + " record..."
-        });
-
-    $('<option value=""></option>').appendTo(selectCtrl);
-
-    for (let i = 0; i < component_records.length; ++i) {
-        const option = component_records[i];
-        $('<option value="' + option.value + '">' + option.label + '</option>').appendTo(selectCtrl);
-    }
-
-    ctrlsDiv.append(selectCtrl).append(hiddenValuesCtrl);
-
-    return form_div_ctrl().append(ctrlsDiv);
-}
-
-
 function refresh_form_aux_controls() {
     //refresh controls
-    refresh_tool_tips();
+    refresh_profile_tool_tips();
 
     //set up help tips
     set_up_help_ctrl("helptips-chk");
@@ -2172,266 +755,6 @@ function set_validation_markers(formElem, ctrl) {
 
     return validationMarkers;
 }
-
-
-function create_attachable_component(formElem) {
-    const formCtrl = $('<form/>',
-        {
-            "data-toggle": "validator",
-        });
-
-    const formBodyDiv = $('<div/>',
-        {
-            class: "row formDivRow"
-        }).append($('<div/>',
-        {
-            class: "col-sm-12 col-md-12 col-lg-12"
-        }).append(formCtrl));
-
-    const helpCtrl = $('<div/>',
-        {
-            html: '<span style="padding:6px;">Help tips</span><input class="copo-help-chk" type="checkbox" name="helptips-chk-sub">',
-            class: "tips-switch-form-div form-group pull-right"
-        });
-
-    const helpDivRow = $('<div/>',
-        {
-            class: "row helpDivRow",
-            style: "margin-bottom:20px;"
-        });
-
-    const cloneCol = $('<div/>',
-        {
-            class: "col-sm-7 col-md-7 col-lg-7 ctrlDIV"
-        });
-
-    const helpCtrlCol = $('<div/>',
-        {
-            class: "col-sm-5 col-md-5 col-lg-5"
-        }).append(helpCtrl);
-
-    helpDivRow.append(cloneCol);
-
-    const dialog = new BootstrapDialog({
-        type: BootstrapDialog.TYPE_PRIMARY,
-        size: BootstrapDialog.SIZE_NORMAL,
-        title: function () {
-            return $('<span>Create & Assign ' + formElem.label + '</span>');
-        },
-        closable: false,
-        animate: true,
-        draggable: false,
-        onhide: function (dialogRef) {
-            refresh_tool_tips();
-        },
-        onshown: function (dialogRef) {
-            //prevent enter keypress from submitting form automatically
-            formCtrl.keypress(function (e) {
-                //Enter key
-                if (e.which === 13) {
-                    return false;
-                }
-            });
-
-            //custom validators
-            custom_validate(formCtrl);
-
-            //validate on submit event
-            formCtrl.validator().on('submit', function (e) {
-                if (e.isDefaultPrevented()) {
-                    return false;
-                } else {
-                    e.preventDefault();
-
-                    const csrftoken = $.cookie('csrftoken');
-                    const form_values = {};
-
-                    formCtrl.find(":input").each(function () {
-                        form_values[this.id] = $(this).val();
-                    });
-
-                    const auto_fields = JSON.stringify(form_values);
-
-                    $.ajax({
-                        url: copoFormsURL,
-                        type: "POST",
-                        headers: {'X-CSRFToken': csrftoken},
-                        data: {
-                            'task': "save",
-                            'auto_fields': auto_fields,
-                            'component': formElem.option_component,
-                            'data_source': formElem.data_source || '',
-                            'visualize': "created_component_json"
-                        },
-                        success: function (data) {
-                            //set returned record
-
-                            if (formElem.control === "copo-lookup2") {
-                                if (data.option_values.length) {
-                                    const currentValue = data.option_values.map(function (item) {
-                                        if (typeof item === "string") {
-                                            let newItem = item;
-                                            item = {};
-                                            item.value = newItem;
-                                            item.label = newItem;
-                                        }
-                                        return {
-                                            id: item.accession || item.value,
-                                            text: item.label,
-                                            selected: true
-                                        };
-                                    });
-
-                                    const newOption = new Option(currentValue[0].text, currentValue[0].id, true, true);
-
-                                    if (formElem.data_maxItems && formElem.data_maxItems.toString() === "1") {
-                                        selectizeObjects[formElem.id].val(null).trigger('change');
-                                    }
-
-                                    selectizeObjects[formElem.id].append(newOption).trigger('change');
-                                }
-                            } else if (selectizeObjects.hasOwnProperty(formElem.id)) {
-                                const selectizeControl = selectizeObjects[formElem.id];
-
-                                //refresh options with the newly created record
-                                const options = formElem.option_values.options;
-                                options.unshift(data.option_values[0]); //expects one item in the returned options
-
-                                //refresh the control
-                                selectizeControl.addOption(options);
-                                selectizeControl.refreshOptions();
-
-                                //set the new record
-                                selectizeControl.setValue(data.created_record_id, false);
-
-                                refresh_tool_tips();
-                            }
-
-                            refresh_tool_tips();
-
-                            dialogRef.close();
-                        },
-                        error: function () {
-                            alert("Couldn't create and assign record!");
-                        }
-                    });
-                }
-            });
-
-            //refresh form validator
-            refresh_validator(formCtrl);
-
-            //refresh controls
-            refresh_tool_tips();
-
-            //set up help tips
-            set_up_help_ctrl("helptips-chk-sub");
-        },
-        buttons: [
-            {
-                label: 'Cancel',
-                cssClass: 'tiny ui basic button',
-                action: function (dialogRef) {
-                    refresh_tool_tips();
-                    dialogRef.close();
-                }
-            },
-            {
-                label: '<i class="copo-components-icons glyphicon glyphicon-save"></i> Save',
-                cssClass: 'tiny ui basic primary button',
-                action: function (dialogRef) {
-                    validate_forms(formCtrl);
-                }
-            }
-        ]
-    });
-
-    const $dialogContent = $('<div/>');
-
-    const formLoader = get_spinner_image();
-
-    $dialogContent.append(formLoader);
-    $dialogContent.append(helpDivRow).append(formBodyDiv);
-    dialog.realize();
-    dialog.setMessage($dialogContent);
-    dialog.open();
-
-    const csrftoken = $.cookie('csrftoken');
-    const referenced_field = formElem.ref || '';
-    const referenced_type = formElem.cg_type_name || ''; //mostly apply to cgcore types - to determine field constraint
-
-    $.ajax({
-        url: copoFormsURL,
-        type: "POST",
-        headers: {'X-CSRFToken': csrftoken},
-        data: {
-            'task': 'form_and_component_records',
-            'component': formElem.option_component,
-            'referenced_field': referenced_field,
-            'referenced_type': referenced_type
-        },
-        success: function (data) {
-            //generate controls and attach to form object
-            var formSchema = data.form.form_schema;
-            formCtrl.append(generate_form_controls(formSchema, data.form.form_value));
-
-            //refresh controls
-            refresh_tool_tips();
-
-            //attach clone control
-            if (data.component_records.length) {
-                cloneCol.append(build_clone_control(data.component_records, formElem.label));
-
-                //refresh controls
-                refresh_tool_tips();
-
-                //listen to clone control value change
-                cloneCol.find(".copo-clone-control").on("change", function (event) {
-                    event.preventDefault();
-
-                    //retriev record and rebuild form
-                    var formLoader2 = get_spinner_image();
-                    formCtrl.html(formLoader2);
-
-                    $.ajax({
-                        url: copoFormsURL,
-                        type: "POST",
-                        headers: {'X-CSRFToken': csrftoken},
-                        data: {
-                            'task': "component_form_record",
-                            'component': formElem.option_component,
-                            'referenced_field': referenced_field,
-                            'referenced_type': referenced_type,
-                            'action_type': 'cloning',
-                            'target_id': $(this).val()
-                        },
-                        success: function (clone_data) {
-                            formLoader2.remove();
-                            formCtrl.append(generate_form_controls(clone_data.component_schema, clone_data.component_record));
-
-                            //refresh form validator
-                            refresh_validator(formCtrl);
-
-                            //refresh controls
-                            refresh_tool_tips();
-                        },
-                        error: function () {
-                            alert("Couldn't retrieve clone record!");
-                        }
-                    });
-                });
-            }
-
-            formLoader.remove();
-
-        },
-        error: function () {
-            alert("Couldn't create requested form");
-        }
-    });
-
-}
-
 
 function form_help_ctrl(tip) {
     if (tip) {
@@ -2540,7 +863,7 @@ function get_element_clone(ctrlsDiv, counter) {
         get_element_clone(ctrlsDiv, counter).insertAfter(row);
 
         //refresh controls
-        refresh_tool_tips();
+        refresh_profile_tool_tips();
     });
 
 
@@ -2656,337 +979,6 @@ function resolve_ctrl_values_aux_1(ctrlObjectID, formElem, elemValue) {
     return embedValue;
 }
 
-function get_basic_input(sp, formElem) {
-    const fv = formElem.id.split(".").slice(-1)[0];
-
-    const input = ($('<input/>',
-        {
-            type: "text",
-            placeholder: formElem.placeholder,
-            id: fv,
-            name: fv,
-            class: 'form-control'
-        }));
-    if (sp) {
-        $(sp).append(input)
-        return sp
-    }
-    return input
-}
-
-function get_basic_label(sp, formElem) {
-    const fv = formElem.id.split(".").slice(-1)[0];
-    return $('<label/>',
-        {
-            for: fv
-        }).html(formElem.label)
-}
-
-function get_ontology_span_2(ontologySpan, formElem) {
-    const ontologySchema = copoSchemas[formElem.control.toLowerCase()];
-    ontologySpan.addClass("ontology-parent"); //used for selecting siblings in auto-complete
-
-    let localolsURL = olsURL;
-
-    for (let i = 0; i < ontologySchema.length; ++i) {
-        const fv = ontologySchema[i].id.split(".").slice(-1)[0];
-
-        ontologySpan.append($('<input/>',
-            {
-                type: "hidden",
-                class: "ontology-field-hidden",
-                id: fv,
-                name: fv,
-                "data-key": fv
-            }));
-    }
-
-    //set restricted ontologies
-    if (formElem.ontology_names && formElem.ontology_names.length) {
-        localolsURL = olsURL.replace("999", formElem.ontology_names.join(","));
-    }
-
-    //build select; basis for auto-completion
-    const selectCtrl = $('<select/>',
-        {
-            class: "form-control input-copo onto-select",
-            "data-url": localolsURL,
-            "data-element": formElem.id,
-            "data-validate": true,
-        });
-
-    ontologySpan.append(selectCtrl);
-
-    const label = $('<div/>',
-        {
-            style: "margin-top:5px;  padding:3px; background-image:none; border-color:transparent; word-wrap: break-word;",
-            class: "onto-label ontol-span webpop-content-div alert alert-default copo-tooltip",
-            title: "Ontology field",
-            html: '<span class="ontology-label"><i class="fa fa-align-justify free-text" style="padding-right: 5px; display: none;"></i><img class="non-free-text" src="/static/copo/img/ontology2.png" style="cursor:pointer;"></span><span class="onto-label-span"></span><span class="onto-label-more collapse"></span>'
-        });
-
-    ontologySpan.append(label);
-
-    return ontologySpan;
-}
-
-function get_general_ontologyselect_span(ontologySpan, formElem) {
-    let apiSchema = []; //schema defines what/how fields are requested from search end-point
-
-    if (formElem.hasOwnProperty("api_schema")) {
-        apiSchema = formElem.api_schema;
-    }
-
-    ontologySpan.addClass("ontology-parent"); //used for selecting siblings in auto-complete
-
-
-    const hiddenFields = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-fields",
-            value: JSON.stringify(apiSchema)
-        });
-
-    ontologySpan.append(hiddenFields);
-
-    let option_values = [];
-    if (formElem.hasOwnProperty("option_values")) {
-        option_values = formElem.option_values;
-    }
-
-    const hiddenOptions = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-options",
-            value: JSON.stringify(option_values)
-        });
-
-    ontologySpan.append(hiddenOptions);
-
-    //check for event name
-    let event_name = "";
-    if (formElem.hasOwnProperty("value_change_event")) {
-        event_name = formElem.value_change_event;
-    }
-
-    //build select; basis for auto-completion
-    const selectCtrl = $('<select/>',
-        {
-            class: "form-control input-copo general-onto general-onto-select",
-            "data-element": formElem.id,
-            "data-validate": false,
-            "data-eventname": event_name
-        });
-
-    ontologySpan.append(selectCtrl);
-
-    //set id and label fields
-    if (formElem.hasOwnProperty("control_id_field") && formElem.control_id_field !== "") {
-        selectCtrl.attr("data-idField", formElem.control_id_field)
-    }
-
-    if (formElem.hasOwnProperty("control_label_field") && formElem.control_label_field !== "") {
-        selectCtrl.attr("data-labelField", formElem.control_label_field)
-    }
-
-    const labelTag = $('' +
-        '<div class="ui divided selection list">\n' +
-        '        <div class="item copo-item">\n' +
-        '               <div class="row">\n' +
-        '                   <div class="col-sm-2"><span class="ui large blue ribbon label copo-tag">Info pane...</span></div>\n' +
-        '                   <div class="col-sm-10"><span class="webpop-content-div copo-tag-2"></span></div>\n' +
-        '               </div>' +
-        '               <div class="row">\n' +
-        '                   <div class="col-sm-12"><div class="collapse copo-tag-content webpop-content-div" style="word-wrap: break-word; margin-top: 5px; max-height: 300px; overflow-y: scroll;">No info</div></div>\n' +
-        '               </div>' +
-        '        </div>\n' +
-        ' </div>'
-    );
-
-    ontologySpan.append(labelTag);
-
-    return ontologySpan;
-}
-
-function get_general_ontology_span(ontologySpan, formElem) {
-    let apiSchema = []; //schema defines what/how fields are requested from search end-point
-
-    if (formElem.hasOwnProperty("api_schema")) {
-        apiSchema = formElem.api_schema;
-    }
-
-    ontologySpan.addClass("ontology-parent"); //used for selecting siblings in auto-complete
-
-    //get service url
-    const localolsURL = formElem.data_url;
-
-    let call_parameters = [];
-    if (formElem.hasOwnProperty("call_parameters")) {
-        call_parameters = formElem.call_parameters;
-    }
-
-    const hiddenFields = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-fields",
-            value: JSON.stringify(apiSchema)
-        });
-
-    ontologySpan.append(hiddenFields);
-
-
-    const hiddenParams = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-params",
-            value: JSON.stringify(call_parameters)
-        });
-
-    ontologySpan.append(hiddenParams);
-
-    //check for event name
-    var event_name = "";
-    if (formElem.hasOwnProperty("value_change_event")) {
-        event_name = formElem.value_change_event;
-    }
-
-    //build select; basis for auto-completion
-    const selectCtrl = $('<select/>',
-        {
-            class: "form-control input-copo general-onto general-onto-search",
-            "data-url": localolsURL,
-            "data-element": formElem.id,
-            "data-validate": false,
-            "data-eventname": event_name
-        });
-
-    ontologySpan.append(selectCtrl);
-
-    const labelTag = $('' +
-        '<div class="ui divided selection list">\n' +
-        '        <div class="item copo-item">\n' +
-        '               <div class="row">\n' +
-        '                   <div class="col-sm-2"><span class="ui large blue ribbon label copo-tag">Info pane...</span></div>\n' +
-        '                   <div class="col-sm-10"><span class="webpop-content-div copo-tag-2"></span></div>\n' +
-        '               </div>' +
-        '               <div class="row">\n' +
-        '                   <div class="col-sm-12"><div class="collapse copo-tag-content webpop-content-div" style="word-wrap: break-word; margin-top: 5px; max-height: 300px; overflow-y: scroll;">No info</div></div>\n' +
-        '               </div>' +
-        '        </div>\n' +
-        ' </div>'
-    );
-
-    ontologySpan.append(labelTag);
-
-    return ontologySpan;
-}
-
-function get_lookup_span(ctrlsDiv, formElem) {
-    let localolsURL = lookupsURL;
-
-    //specify target component
-    if (formElem.hasOwnProperty('data_source')) {
-        localolsURL = lookupsURL.replace("999", formElem.data_source);
-    }
-
-    const hiddenValuesCtrl = $('<input/>',
-        {
-            type: "hidden",
-            id: formElem.id,
-            name: formElem.id,
-            class: "copo-multi-values",
-            "data-maxItems": 1, //to accommodate multiple values, set type in schema to 'array'
-        });
-
-    let elemJson = [];
-    if (formElem.hasOwnProperty("option_values")) {
-        elemJson = formElem.option_values;
-    }
-
-    const hiddenJsonCtrl = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-json",
-            value: JSON.stringify(elemJson)
-        });
-
-    let placeholder = "Lookup " + formElem.label + "...";
-    if (formElem.hasOwnProperty("placeholder")) {
-        placeholder = formElem.placeholder;
-    }
-
-    const selectCtrl = $('<select/>',
-        {
-            class: "input-copo copo-lookup ",
-            "data-url": localolsURL,
-            placeholder: placeholder,
-            multiple: "multiple",
-            "data-validate": true
-        });
-
-    ctrlsDiv.append(selectCtrl).append(hiddenValuesCtrl).append(hiddenJsonCtrl);
-
-    //set validation markers
-    const vM = set_validation_markers(formElem, selectCtrl);
-    ctrlsDiv.append(vM.errorHelpDiv);
-
-    return ctrlsDiv;
-}
-
-function get_multi_search_span(formElem, ctrlsDiv) {
-    //build hidden fields to hold selected options and supply control data respectively
-
-    let data_maxItems = 'null';
-    if (formElem.data_maxItems) {
-        data_maxItems = formElem.data_maxItems;
-    }
-
-    const hiddenValuesCtrl = $('<input/>',
-        {
-            type: "hidden",
-            id: formElem.id,
-            name: formElem.id,
-            class: "copo-multi-values",
-            "data-maxItems": data_maxItems, //sets the maximum selectable elements, default is 'null'
-        });
-
-    const hiddenJsonCtrl = $('<input/>',
-        {
-            type: "hidden",
-            class: "elem-json",
-            value: JSON.stringify(formElem.option_values)
-        });
-
-
-    let quickViewClass = " "; //will be passed along on hovering an option to inform the display of option details.
-
-    if (formElem.hasOwnProperty("option_component")) {
-        quickViewClass = formElem.option_component;
-    }
-
-    let placeholder = "Select " + formElem.label + "...";
-    if (formElem.hasOwnProperty("placeholder")) {
-        placeholder = formElem.placeholder;
-    }
-
-    var selectCtrl = $('<select/>',
-        {
-            class: "input-copo copo-multi-search ",
-            placeholder: placeholder,
-            multiple: "multiple",
-            "data-component": quickViewClass,
-            "data-validate": true
-        });
-
-    ctrlsDiv.append(selectCtrl).append(hiddenValuesCtrl).append(hiddenJsonCtrl);
-
-    //set validation markers
-    var vM = set_validation_markers(formElem, selectCtrl);
-    ctrlsDiv.append(vM.errorHelpDiv);
-
-    return ctrlsDiv;
-}
-
 function add_message_segment(outputCtrl) {
     var row = $('<div/>', {
         class: "row rendered-control"
@@ -3047,7 +1039,7 @@ function get_form_ctrl(ctrlsDiv, formElem, elemValue) {
             get_element_clone(ctrlsDiv, counter).insertAfter(firstElement);
 
             //refresh controls
-            refresh_tool_tips();
+            refresh_profile_tool_tips();
         });
     }
 
@@ -3259,6 +1251,8 @@ function custom_validate(formObject) {
 }
 
 function save_form(formJSON, dialogRef) {
+    let globalDataBuffer = {};
+    let copoFormsURL = "/copo/copo_profile_forms/";
     let task = "save";
     let error_msg = "Couldn't add " + formJSON.form_label + "!";
     if (formJSON.target_id) {
@@ -3335,16 +1329,20 @@ function save_form(formJSON, dialogRef) {
                     return true;
                 } else {
                     dialogRef.close();
-                    refresh_tool_tips();
+                    refresh_profile_tool_tips();
 
-                    do_crud_action_feedback(data.action_feedback);
-                    window.location.reload() // Refresh web page to have change reflected
+                    do_crud_profile_action_feedback(data.action_feedback);
+
+                    // Refresh web page to have change reflected after 3 seconds
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 3000);
                     return true;
                 }
             }
 
             dialogRef.close();
-            refresh_tool_tips();
+            refresh_profile_tool_tips();
         },
         error: function (data) {
             console.log(data.responseText);
@@ -3370,17 +1368,3 @@ function save_form(formJSON, dialogRef) {
         }
     });
 } //end of function
-
-function get_del_button(theTitle) {
-    const title = theTitle || "Remove";
-    return $('<button title="' + title + '"  class="ui negative icon button copo-tooltip">\n' +
-        '  <i class="minus icon"></i>\n' +
-        '</button>');
-}
-
-function get_add_button(theTitle) {
-    const title = theTitle || "Add";
-    return $('<button title="' + title + '" class="ui primary icon button copo-tooltip">\n' +
-        '  <i class="plus icon"></i>\n' +
-        '</button>');
-}

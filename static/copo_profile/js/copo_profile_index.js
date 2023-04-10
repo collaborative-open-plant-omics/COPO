@@ -6,8 +6,11 @@ $(document).ready(function () {
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
     const copoENAAssemblyURL = "/copo/ena_assembly/"
-    const copoVisualsURL = "/copo/copo_visualize/";
+    const copoVisualsURL = "/copo/copo_profile_visualise/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
+    const componentMeta = get_profile_component_meta(component);
+    const tableID = componentMeta.tableID
+
     let page = 1;
     let block_request = false;
     let end_pagination = false;
@@ -16,12 +19,13 @@ $(document).ready(function () {
 
     csrftoken = $.cookie('csrftoken');
 
+    // Store the title displayed when a user hovers the ellipsis/profile options icon
+    $(document).data("profileOptionsTitle", $('.row-ellipsis').attr('title'))
 
     // Add new profile button
     $(document).on("click", ".new-component-template", function () {
         initiate_profile_form_call(component);
     });
-
 
     // Display 'Accept/reject' button for sample managers
     for (let g in groups) {
@@ -30,15 +34,6 @@ $(document).ready(function () {
             break;
         }
     }
-
-    // Initialise the dropdown menu so that the options for the 'Actions' and 'Components' buttons
-    // will display once the buttons are clicked
-    $(document).on('click', '.dropdown-menu', function (e) {
-        if ($(this).hasClass('keep-open-on-click')) {
-            e.stopPropagation();
-        }
-    });
-    //end suspended toggle
 
     //display empty profile message for potential first time users
     set_empty_profile_component_message(profiles_total);
@@ -49,13 +44,46 @@ $(document).ready(function () {
         return false;
     }
     // Profile records exist
-    // Initialise the popover 'View profile options' option for each profile record
-    $('a').webuiPopover({
-        closeable: true,
-        onHide: function ($element) {
-            unselect_profile_record_on_dismiss()
-        }
+    // Initialise the popover 'View profile options' for each profile record
+    let popover = $('#ellipsisID[data-toggle="popover"]').popover({}).on('show.bs.popover', function (e) {
+        // Set content of the popover
+        const $content = $('<div></div>');
+        const $editButton = $('<button id="editProfileBtn" class="btn btn-sm btn-success" title="Edit record"><i class="fa fa-pencil-square-o"></i>&nbsp;Edit</button>');
+        const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
+
+        $deleteButton.css('margin-left', '15px');
+
+        $content.append($editButton);
+        $content.append($deleteButton);
+
+        // Apply the content to the popover
+        popover.attr('data-content', $content.html());
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID[data-toggle="popover"]').not(this).popover('hide');
+        e.stopPropagation();
+    }).on('show.bs.popover', function (e) {
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
+    }).on('shown.bs.popover', function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+
+        set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
+
+        $('#editProfileBtn').click(function (event) {
+            editProfileRecord(profile_id);
+        });
+
+        $('#deleteProfileBtn').click(function (event) {
+            deleteProfileRecord(profile_id);
+        });
+
+        $('#popoverCloseBtn').click(function (event) {
+            $('#ellipsisID[data-toggle="popover"]').popover('hide')
+        });
+    }).on('hide.bs.popover', function () {
+        unselect_profile_record_on_dismiss(tableID);
     });
+
 
     $("#sortProfilesBtn")[0].selectedIndex = 0 // Set first option of sort menu
 
@@ -103,7 +131,6 @@ $(document).ready(function () {
         }
     })
 
-
     // Toggle the visibility of the button to
     // sort in ascending order or descending order
     $(document).on("click", "#sortIconID", function (e) {
@@ -123,12 +150,25 @@ $(document).ready(function () {
         e.preventDefault();
     });
 
-    $(document).on("click", "#copo_profiles_table", unselect_profile_record_on_dismiss)
+    // Hide the profile options popover, display 'View profile options' on hover of the profile
+    // options ellipsis icon and unhighlight focus on desired profile grid
+    $(document).on("click", `#${tableID}`, function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide');
+        $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
+        unselect_profile_record_on_dismiss(tableID);
+    });
 
-    $(document).on("click", ".copo-main", unselect_profile_record_on_dismiss)
+    $(document).on("click", ".copo-main", function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide');
+        $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
+        unselect_profile_record_on_dismiss(tableID);
+    });
 
-    $(document).on("click", ".copo-sidebar", unselect_profile_record_on_dismiss)
-
+    $(document).on("click", ".copo-sidebar", function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide');
+        $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
+        unselect_profile_record_on_dismiss(tableID);
+    });
 
     // Trigger infinite scroll once user scrolls downwards to display more profile records that exist
     $(window).scroll(function () {
@@ -159,9 +199,11 @@ $(document).ready(function () {
                     appendRecordComponents(content) // Adds 'Actions' and 'Components' buttons
 
                     // Appends the html template from the 'copo_profile_record.html' to the 'copo_profiels_table' div
-                    $('#copo_profiles_table').append(content);
+                    $(`#${tableID}`).append(content);
 
-                    initialise_loading_records(copoVisualsURL, csrftoken, component, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
+                    // Initialise functions for the profile grids beyond the 8 records that are shown by default
+                    refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
+                    initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
 
                     // Increment the number of profile records displayed
                     grid_count.text($('.grid').length)
@@ -172,10 +214,7 @@ $(document).ready(function () {
                     alert("Couldn't retrieve profiles!");
                 }
             })
-
-
         }
-
     });
 
     // Show a button which once a user hovers, it'll indicate that the
@@ -205,7 +244,7 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: 0
         }, '300');
-        $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
+        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
     });
 
     // On web page reload/refresh, sort profile records by default sort option and method
@@ -220,7 +259,7 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: document.body.scrollHeight + 30
         }, "slow");
-        $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
+        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
         navigateToBottomOfPageBtn.removeClass('show') // Hide 'scroll down' button
 
     });
@@ -244,10 +283,11 @@ function appendRecordComponents(grids) {
 }
 
 function editProfileRecord(profileRecordID) {
-    $('a').webuiPopover('hide'); // Hides the popover
     const component = "profile";
-    let copoFormsURL = "/copo/copo_forms/";
+    let copoFormsURL = "/copo/copo_profile_forms/";
     let csrftoken = $.cookie('csrftoken');
+
+    $('#ellipsisID[data-toggle="popover"]').popover('hide'); // Hides the popover
 
     $.ajax({
         url: copoFormsURL,
@@ -268,10 +308,11 @@ function editProfileRecord(profileRecordID) {
 }
 
 function deleteProfileRecord(profileRecordID) {
-    $('a').webuiPopover('hide'); // Hides the popover
     const component = "profile";
     const copoDeleteProfile = "/copo/delete_profile/";
     let csrftoken = $.cookie('csrftoken');
+
+    $('#ellipsisID[data-toggle="popover"]').popover('hide'); // Hides the popover
 
     $.ajax({
         url: copoDeleteProfile,
@@ -279,13 +320,13 @@ function deleteProfileRecord(profileRecordID) {
         headers: {'X-CSRFToken': csrftoken},
         data: {
             'task': 'validate_and_delete',
-            'componenent': component,
+            'component': component,
             'target_id': profileRecordID,
         }
     }).done(function () {
         BootstrapDialog.show({
             title: "Profile deleted",
-            message: "Profile selected has been deleted.",
+            message: "Profile selected has been deleted. Web page will reload in 3 seconds.",
             cssClass: "copo-modal1",
             closable: true,
             animate: true,
@@ -293,6 +334,11 @@ function deleteProfileRecord(profileRecordID) {
         });
 
         document.getElementById(profileRecordID).closest(".copo-records-panel").style.display = 'none';
+
+        // Refresh web page to have change reflected after 3 seconds
+        setTimeout(function () {
+            window.location.reload();
+        }, 3000);
     }).error(function (data_response) {
         BootstrapDialog.show({
             title: "Profile deletion - error",
@@ -303,15 +349,17 @@ function deleteProfileRecord(profileRecordID) {
             animate: true,
             type: BootstrapDialog.TYPE_DANGER
         });
+
         if (!data_response.responseJSON["undeleted"].includes(profileRecordID)) {
             document.getElementById(profileRecordID).closest(".copo-records-panel").style.display = 'none';
         }
+        console.log(data_response)
     });
 
 }
 
-function set_selected_profile_record(element) {
-    const selected_grids = $("#copo_profiles_table div[class$='grid grid-selected']");
+function set_selected_profile_record(element, tableID) {
+    const selected_grids = $(`#${tableID} div[class$='grid grid-selected']`);
     const selected_panels = $(".panel div[class$='panel-body grid-panel-body-selected']");
 
     // Check if any grid and panel-body are marked as 'selected',
@@ -333,8 +381,8 @@ function set_selected_profile_record(element) {
     $(element).closest('.panel-heading').next('.grid-panel-body').toggleClass("grid-panel-body-selected")
 }
 
-function unselect_profile_record_on_dismiss() {
-    const selected_grids = $("#copo_profiles_table div[class$='grid grid-selected']");
+function unselect_profile_record_on_dismiss(tableID) {
+    const selected_grids = $(`#${tableID} div[class$='grid grid-selected']`);
     const selected_panels = $(".panel div[class$='panel-body grid-panel-body-selected']");
 
     // Check if any grid and panel-body are marked as 'selected',
@@ -350,15 +398,19 @@ function unselect_profile_record_on_dismiss() {
             item.classList.remove("grid-panel-body-selected");
         })
     }
+
+
 }
 
 function sort_profile_records(option) {
     // Determine the query selector
-    let selector = element => element.querySelector('.grid-panel-body div:nth-child(2)').innerText; // date_created selector
+    let selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime(); // 'date_created' selector
+    let isValueNumeric = false
 
     switch (option) {
         case "date_created":
-            selector = element => element.querySelector('.grid-panel-body div:nth-child(2)').innerText;
+            selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime();
+            isValueNumeric = true;
             break;
         case "title":
             // Remove parentheses if present from title
@@ -368,12 +420,13 @@ function sort_profile_records(option) {
             selector = element => element.querySelector('.copo-records-panel').getAttribute('profile_type');
             break;
         default:
-            selector = element => element.querySelector('.grid-panel-body div:nth-child(2)').innerText;// date_created selector
+            isValueNumeric = true;
+            selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime();// 'date_created' selector
     }
 
     // Choose the order method
     const descendingOrder = $(document).data("sortByDescendingOrder");
-    const isNumeric = false;
+    const isNumeric = isValueNumeric;
 
     // Select all (profile grid) elements
     const elements = [...document.querySelectorAll('.grid')];
@@ -432,24 +485,6 @@ function update_counts(copoVisualsURL, csrftoken, component) {
     });
 }
 
-function filter_action_menu() {
-    $(".copo-records-panel").each(function (idx, el) {
-        const t = $(el).attr("profile_type");
-        if (t.includes("ERGA")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='dtol_option']").hide()
-        } else if (t.includes("DTOL") || t.includes("ASG")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
-        } else if (t.includes("Stand-alone")) {
-            $(el).find("a[anchor_type='dtol_option']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
-        }
-    })
-}
-
 function append_component_buttons(record_id) {
     //components row
     const components = get_copo_profile_components();
@@ -502,31 +537,28 @@ function append_component_buttons(record_id) {
     return componentsDIV;
 }
 
-function initialise_loading_records(copoVisualsURL, csrftoken, component, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
-    filter_action_menu() // Filter action menu
-    update_counts(copoVisualsURL, csrftoken, component); // Update count for each Components menu button
-
-    // Initialise the dropdown menu so that the options for the 'Actions' and 'Components' buttons
-    // will display once the buttons are clicked
-    $('.dropdown-menu').dropdown();
-
-
-    // Initialise the popover 'View profile options' option for each profile record
-    $('a#ellipsisID').webuiPopover({
-        closeable: true,
-        onHide: function ($element) {
-            unselect_profile_record_on_dismiss()
+function filter_action_menu() {
+    $(".copo-records-panel").each(function (idx, el) {
+        const t = $(el).attr("profile_type");
+        if (t.includes("ERGA")) {
+            $(el).find("a[anchor_type='reads']").hide()
+            $(el).find("a[anchor_type='assembly']").hide()
+            $(el).find("a[anchor_type='dtol_option']").hide()
+        } else if (t.includes("DTOL") || t.includes("ASG")) {
+            $(el).find("a[anchor_type='reads']").hide()
+            $(el).find("a[anchor_type='assembly']").hide()
+            $(el).find("a[anchor_type='erga_option']").hide()
+        } else if (t.includes("Stand-alone")) {
+            $(el).find("a[anchor_type='dtol_option']").hide()
+            $(el).find("a[anchor_type='erga_option']").hide()
         }
-    });
-
-    // Intialise click on
-    $('.expanding_menu > div').click(function (e) {
-        const el = $(e.currentTarget);
-        el.closest('.grid').removeClass("grid-selected")
-        el.closest('.panel-heading').next('.grid-panel-body').removeClass("grid-panel-body-selected")
     })
+}
 
-    // Initialise the item clicked action
+function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
+    filter_action_menu();
+    update_counts(copoVisualsURL, csrftoken, component);
+
     $(".item a").click(function (e) {
         let url;
         const el = $(e.currentTarget);
@@ -544,9 +576,52 @@ function initialise_loading_records(copoVisualsURL, csrftoken, component, copoSa
             }
             document.location = url
         }
+    })
+
+    $(".expanding_menu > div").click(function (e) {
+        const el = $(e.currentTarget);
+        el.closest('.grid').removeClass("grid-selected")
+        el.closest('.panel-heading').next('.grid-panel-body').removeClass("grid-panel-body-selected")
+    })
+
+    // Initialise the popover 'View profile options' for each profile record
+    let popover = $('#ellipsisID[data-toggle="popover"]').popover({}).on('show.bs.popover', function (e) {
+        // Set content of the popover
+        const $content = $('<div></div>');
+        const $editButton = $('<button id="editProfileBtn" class="btn btn-sm btn-success" title="Edit record"><i class="fa fa-pencil-square-o"></i>&nbsp;Edit</button>');
+        const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
+
+        $deleteButton.css('margin-left', '15px');
+
+        $content.append($editButton);
+        $content.append($deleteButton);
+
+        // Apply the content to the popover
+        popover.attr('data-content', $content.html());
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID').not(this).popover('hide');
+        e.stopPropagation();
+    }).on('show.bs.popover', function (e) {
+
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
+    }).on('shown.bs.popover', function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+
+        set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
+
+        $('#editProfileBtn').click(function (event) {
+            editProfileRecord(profile_id);
+        });
+
+        $('#deleteProfileBtn').click(function (event) {
+            deleteProfileRecord(profile_id);
+        });
+
+        $('#popoverCloseBtn').click(function (event) {
+            $('#ellipsisID[data-toggle="popover"]').popover('hide')
+        });
+    }).on('hide.bs.popover', function () {
+        unselect_profile_record_on_dismiss(tableID);
     });
-
-
 }
-
-

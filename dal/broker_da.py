@@ -125,7 +125,7 @@ class BrokerDA:
         elif action_type == "add" and status != "success":
             report_metadata["message"] = "There was a problem creating the " + self.component + " record!"
         elif action_type == "edit" and status == "success":
-            report_metadata["message"] = "Record updated!"
+            report_metadata["message"] = "Record updated! <br><br>Web page will refresh in 3 seconds."
         elif action_type == "edit" and status == "duplicated":
             targetid = kwargs["target_id"]
             targetprofiletitle = self.da_object.get_record(targetid).get("title", "")
@@ -142,7 +142,7 @@ class BrokerDA:
                     "_id", "") and len(lst_of_profile_ids) == 1:
                 # edit record
                 record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
-                report_metadata["message"] = "Record updated!"
+                report_metadata["message"] = "Record updated! <br><br>Web page will refresh in 3 seconds."
                 status = "success"
             elif targetprofiletitle != self.auto_fields["copo.profile.title"] and targetid != lst_of_profile_ids[0].get(
                     "_id", "") and len(lst_of_profile_ids) == 1:

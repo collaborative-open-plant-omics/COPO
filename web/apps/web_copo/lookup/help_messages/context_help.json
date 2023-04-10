@@ -19,7 +19,7 @@
     },
     {
       "title": "How can I edit or delete a profile that I have created in COPO?",
-      "content": "Click the vertical ellipsis (<i class='fa fa-ellipsis-v'></i>) that is associated with the desired profile. The option to edit or delete a profile componenet will be displayed once clicked.",
+      "content": "Click the vertical ellipsis (<i class='fa fa-ellipsis-v'></i>) that is associated with the desired profile. <br><br>The option to edit or delete a profile component will be displayed once clicked. <br><br>The web page will refresh after the task has been completed successfully.",
       "context": [
         "profile"
       ]
@@ -33,7 +33,7 @@
     },
     {
       "title": "How can I view more profiles that I have created in COPO?",
-      "content": "Scroll downwards on the web page. More profiles that you have created will be loaded.",
+      "content": "Scroll downwards on the web page. <br><br>More profiles that you have created will be loaded.",
       "context": [
         "profile"
       ]

@@ -1,5 +1,4 @@
 {% load static %}
-<script src="{% static 'copo/semantic_ui/components/dropdown.min.js' %}"></script>
 <div class="grid">
     <div class="copo-records-panel" profile_type="{{ profile.type }} ">
         <!--Panel -->
@@ -10,24 +9,12 @@
                     <div class="col-sm-10 col-md-10 col-lg-10 row-title">
                         <span id={{ profile.id }} class=showEllipsisFor1TextLine>{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
                     </div>
-                    <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis">
-                        <div id="{{ profile.id }}" class="pull-right ellipsisDiv"
-                             title="View profile options">
-                            <a id="ellipsisID" href="#" data-width=220 data-animation="pop" data-placement="right"><i
-                                    class="fa fa-ellipsis-v"
-                                    style="font-size:14px" onclick="set_selected_profile_record(this)"></i></a>
-                            <div class="webui-popover-content">
-                                <button class="btn btn-sm btn-success" type="button"
-                                        onclick="editProfileRecord('{{ profile.id }}')"><i
-                                        class="fa fa-pencil-square-o"></i>&nbsp;Edit
-                                </button>
-                                &emsp;
-                                <button class="btn btn-sm btn-danger" type="button"><i
-                                        class="fa fa-trash-o" onclick="deleteProfileRecord('{{ profile.id }}')"></i>&nbsp;Delete
-                                </button>
-                            </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis" title="View profile options">
+                        <div id="{{ profile.id }}" class="pull-right ellipsisDiv">
+                            <i id="ellipsisID" class="fa fa-ellipsis-v" data-toggle="popover"
+                               data-html="true" role="button"
+                               title='<i id="popoverCloseBtn" class="fa fa-times pull-right"></i>'></i>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -35,14 +22,13 @@
             <div class="grid-panel-body">
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-lg-12"
-                         style="padding-top: {{ profile.panel_content_paddingTop }}">
+                         style="padding-top: {{ profile.panel_content_paddingTop }}; height:fit-content;">
                         <!--Panel content -->
                         <div>Created:</div>
                         <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
                         <div>Description:</div>
                         <div class="showEllipsisFor2TextLines {% if profile.associated_type|length == 0 and profile.description.strip|length < 45 %} no_associatedTypes_marginBottom {% elif profile.associated_type|length == 0 and profile.description.strip|length >= 45 %}no_associatedTypes_marginBottom_2LineDescriptionText {% else %} associatedTypes_marginBottom {% endif %}">
                             {{ profile.description }}</div>
-
                         {% if profile.associated_type %}
                             <div class="associated_type_div_label" style="display: block;">
                                 Associated
@@ -51,7 +37,6 @@
                             <div class="{% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% else %}several_associatedType_marginBottom{% endif %}">
                                 <ul class="associated_type_ulTag"
                                     style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }}; max-height: 85px; overflow-x: auto;">
-
                                     {% for element in profile.associated_type_elements %}
                                         <li title="{{ element.associated_type }}">  {{ element.abbreviation }}</li>
                                     {% endfor %}
@@ -73,120 +58,9 @@
                             <div class="ui left pointing dropdown link item" tabindex="0">
                                 Components
                                 <i class="dropdown icon"></i>
-                                <div class="menu comp" tabindex="-1">
-
-                                </div>
+                                <div class="menu comp" tabindex="-1"></div>
                             </div>
                         </span>
-                        {#                        <span class="ui vertical menu expanding_menu" id="menu_{{ profile.id }}">#}
-                        {#                            <div class="ui left pointing dropdown link item" tabindex="0">#}
-                        {#                                Actions#}
-                        {#                                <i class="dropdown icon"></i>#}
-                        {#                                <div class="menu" tabindex="-1">#}
-                        {#                                    <a class="item action" anchor_type="reads" data-action_type="reads">#}
-                        {#                                        Submit Reads#}
-                        {#                                    </a>#}
-                        {#                                    <a class="item action" anchor_type="assembly" data-action_type="assembly">#}
-                        {#                                        Submit Assembly#}
-                        {#                                    </a>#}
-                        {#                                    <a class="item action" anchor_type="dtol_option" data-action_type="dtol">#}
-                        {#                                        Submit DTOL/ASG manifest#}
-                        {#                                    </a>#}
-                        {#                                    <a class="item action" anchor_type="erga_option" data-action_type="erga">#}
-                        {#                                        Submit ERGA Manifest#}
-                        {#                                    </a>#}
-                        {#                                </div>#}
-                        {#                            </div>#}
-                        {#                            <div class="ui left pointing dropdown link item" tabindex="0">#}
-                        {#                                Components#}
-                        {#                                <i class="dropdown icon"></i>#}
-                        {#                                <div class="menu comp" tabindex="-1">#}
-                        {##}
-                        {#                                    <div class="item">#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to Samples"#}
-                        {#                                           href="/copo/copo_samples/{{ profile.id }}/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color olive">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-filter"></i>#}
-                        {#                                                <span class="pcomponent-name" style="padding-left: 3px;">Samples</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label olive">#}
-                        {#                                                <span class="pcomponent-count"#}
-                        {#                                                      id="{{ profile.id }}_num_sample">0</span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to Datafiles"#}
-                        {#                                           href="/copo/copo_data/{{ profile.id }}cdf/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color black">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-database"></i>#}
-                        {#                                                <span class="pcomponent-name"#}
-                        {#                                                      style="padding-left: 3px;">Datafiles</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label black">#}
-                        {#                                                <span class="pcomponent-count" id="{{ profile.id }}_num_data"></span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to Submissions"#}
-                        {#                                           href="/copo/copo_submissions/{{ profile.id }}/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color green">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-envelope"></i>#}
-                        {#                                                <span class="pcomponent-name"#}
-                        {#                                                      style="padding-left: 3px;">Submissions</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label green">#}
-                        {#                                                <span class="pcomponent-count"#}
-                        {#                                                      id="{{ profile.id }}_num_submission"></span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to Publications"#}
-                        {#                                           href="/copo/copo_publications/{{ profile.id }}/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color orange">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-paperclip"></i>#}
-                        {#                                                <span class="pcomponent-name"#}
-                        {#                                                      style="padding-left: 3px;">Publications</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label orange">#}
-                        {#                                                <span class="pcomponent-count" id="{{ profile.id }}_num_pub"></span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to Metadata Template"#}
-                        {#                                           href="/copo/view_templates/{{ profile.id }}/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color blue">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-table"></i>#}
-                        {#                                                <span class="pcomponent-name" style="padding-left: 3px;">Metadata Template</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label blue">#}
-                        {#                                                <span class="pcomponent-count" id="{{ profile.id }}_num_temp"></span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"#}
-                        {#                                           style="margin: 3px;"#}
-                        {#                                           title="Navigate to People"#}
-                        {#                                           href="/copo/copo_people/{{ profile.id }}cdf/view">#}
-                        {#                                            <div class="tiny ui button pcomponent-color red">#}
-                        {#                                                <i class="pcomponent-icon  fa fa-users"></i>#}
-                        {#                                                <span class="pcomponent-name" style="padding-left: 3px;">People</span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="tiny ui basic pcomponent-color left pointing label red">#}
-                        {#                                                <span class="pcomponent-count"#}
-                        {#                                                      id="{{ profile.id }}_num_person"></span>#}
-                        {#                                            </div>#}
-                        {#                                        </a>#}
-                        {#                                    </div>#}
-                        {#                                #}
-                        {#                                </div>#}
-                        {#                            </div>#}
-                        {#                        </span>#}
-                        {#                   #}
                     </div>
                 </div>
             </div>

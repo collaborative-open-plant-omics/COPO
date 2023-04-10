@@ -189,27 +189,15 @@ a.component-btns {
     max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
 }
 
-/* Icon ellipsis */
-/* unvisited link */
-a#ellipsisID:link {
-    color: white !important;
-}
-
-/* visited link */
-a#ellipsisID:visited {
-    color: white !important;
+#ellipsisID {
+    font-size: 14px;
+    cursor: pointer;
 }
 
 /* mouse over link */
-a#ellipsisID:hover {
+#ellipsisID:hover {
     color: black !important;
 }
-
-/* selected link */
-a#ellipsisID:active {
-    color: white !important;
-}
-
 
 /* Icon: Sorting */
 .sort-icon {;
@@ -229,19 +217,29 @@ a#ellipsisID:active {
 
 /* Popover: Ellipsis */
 .popover-title {
-    background: #000000 !important;
-    color: white !important;
-
-}
-
-.popover-header {
-    background: #000000 !important;
-    color: white !important;
+    background: #ffffff !important;
+    color: black !important;
+    border-bottom: none !important;
 }
 
 .popover-content {
-    background: #000000 !important;
-    color: white !important;
+    background: #ffffff !important;
+    color: black !important;
+}
+
+.popover {
+    width: 195px;
+}
+
+#popoverCloseBtn {
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    float: right;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
 }
 
 /* Profile panels */
@@ -251,6 +249,10 @@ a#ellipsisID:active {
 
 .panel-heading {
     color: white;
+}
+
+.panel-body {
+    height: fit-content; /* Auto adjusts the height of the div according to its contents */
 }
 
 .grid-panel-body {
@@ -290,19 +292,12 @@ a#ellipsisID:active {
 /* Profile grid */
 .grid,
 .grid-item {
-    height: 400px !important; /*600px !important; !*height: 55vh;*/
+    height: 400px !important;
     border-radius: 5px;
-    /*border: 1px solid #c0c0c0;*/
     /* 4 per row, with space for margin */
-    width: calc((100% / 4) - 24px); /*- 24px*/
-
-    /* Initial colour before loading animation */
-    background-color: #eaeaea;
-
-    /* Grid spacing */
+    width: calc((100% / 4) - 24px);
+    background-color: #ffffff;
     margin: 8px;
-
-    /* Fit into grid */
     display: inline-block;
 }
 
@@ -400,9 +395,14 @@ a#ellipsisID:active {
     margin-bottom: 10px;
 }
 
+.several_associatedType_marginBottom_2LineDescriptionText {
+    margin-bottom: 10px;
+}
+
+
 /* Menu: Actions & Components button */
-/* Have buttons in the Components button be dipsplayed in two columns */
-.ui.menu .ui.dropdown.item .menu .item:not(.filtered) {
+/* Display buttons in the Components menu button in two columns */
+.ui.menu .ui.dropdown.item .comp .item:not(.filtered) {
     display: inline-grid !important;
     grid-template-columns: auto auto;
 }
@@ -592,7 +592,7 @@ a#ellipsisID:active {
     animation-timing-function: linear;
 }
 
-/*Responsiveness*/
+/* Responsiveness */
 @media only screen and (max-width: 575px) {
     .navigate-to-top {
         width: 40px;
@@ -660,10 +660,6 @@ a#ellipsisID:active {
         margin-bottom: 64px;
     }
 
-    .panel-body {
-        height: 395px;
-    }
-
     .associated_type_ulTag {
         max-width: 130px;
         column-count: 1 !important;
@@ -687,9 +683,15 @@ a#ellipsisID:active {
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 15px 90px 15px 15px !important; /*top right bottom left */
     }
+}
 
-    .panel-body {
-        height: 395px;
+@media only screen and (max-width: 1458px) {
+    .ui.vertical.menu {
+        width: 10rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
     }
 }
 
@@ -710,6 +712,39 @@ a#ellipsisID:active {
         width: 10rem;
     }
 }
+
+@media only screen and (max-width: 1325px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 0 15px 15px !important; /*top right bottom left */
+    }
+}
+
+@media only screen and (max-width: 1217px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 55px;
+    }
+
+    .several_associatedType_marginBottom {
+        margin-bottom: 35px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 0 15px 15px !important; /*top right bottom left */
+    }
+}
+
+@media only screen and (max-width: 1325px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 5px 15px 5px !important; /*top right bottom left */
+    }
+}
+
+@media only screen and (max-width: 1138px) {
+    .grid-panel-body-selected {
+        height: 300px !important;
+    }
+}
+
 
 @media only screen and (max-width: 1089px) {
     .ui.vertical.menu {
@@ -742,8 +777,25 @@ a#ellipsisID:active {
     .ui.left.pointing.dropdown.link.item {
         padding: 5px;
     }
+}
 
-    .panel-body {
-        height: 435px;
+@media only screen and (max-width: 974px) {
+    .ui.vertical.menu {
+        width: 8rem;
+        padding: 0;
+
     }
+
+    .no_associatedTypes_marginBottom {
+        margin-bottom: 65px;
+    }
+
+    .one_associatedType_marginBottom {
+        margin-bottom: 35px;
+    }
+
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 15px;
+    }
+
 }

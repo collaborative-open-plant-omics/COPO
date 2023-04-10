@@ -171,17 +171,20 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
                 continue
 
             if component == "profile":
-                if "type" in f["id"] and 'Stand-alone' in f["option_values"]:
-                    # Check if a user is in ASG group, DTOL group, ERGA group or DTOL_ENV group,
-                    # If a user has not been added to any of the manifest groups, display only the 'Stand-alone'
-                    # project type in the dropdown menu on the forn
-                    request = ThreadLocal.get_current_request()
-                    is_user_in_any_manifest_group = request.user.groups.filter(
-                        name__in=['dtol_users', 'erga_users', 'dtolenv_users']).exists()
-                    
-                    if not is_user_in_any_manifest_group:
-                        # "Stand-alone" is the first project type in the list
-                        f["option_values"] = [f["option_values"][0]]
+                # Check if a user is in ASG group, DTOL group, ERGA group or DTOL_ENV group,
+                request = ThreadLocal.get_current_request()
+                is_user_in_any_manifest_group = request.user.groups.filter(
+                    name__in=['dtol_users', 'erga_users', 'dtolenv_users']).exists()
+
+                # If a user has not been added to any of the manifest groups, display only the 'Stand-alone'
+                # project type in the dropdown menu on the form
+                if not is_user_in_any_manifest_group and "type" in f["id"] and 'Stand-alone' in f["option_values"]:
+                    # "Stand-alone" is the first project type in the list
+                    f["option_values"] = [f["option_values"][0]]
+
+                # Do not display the 'associated type' field if user is not in a manifest group
+                if not is_user_in_any_manifest_group and "associated_type" in f["id"]:
+                    break
 
             form_schema.append(f)
 
