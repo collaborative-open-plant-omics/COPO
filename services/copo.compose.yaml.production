@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   web:
-    image: copo/copo-web:v1.9.33.9
+    image: copo/copo-web:v1.10.1
     volumes:
       - web-data:/copo/media
       - static-data:/copo/static
@@ -12,12 +12,12 @@ services:
       - ASPERA_PLUGIN_DIRECTORY=aspera_linux_plugin
       - SECRET_KEY_FILE=/run/secrets/copo_web_secret_key
       - MEDIA_PATH=media/
-      - DEBUG=true
+      - DEBUG=false
       - REDIS_HOST=copo_redis
       - REDIS_PORT=6379
       - WEBIN_USER_FILE=/run/secrets/copo_webin_user
       - WEBIN_USER_PASSWORD_FILE=/run/secrets/copo_webin_user_password
-      - ENA_SERVICE=https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/
+      - ENA_SERVICE=https://www.ebi.ac.uk/ena/submit/drop-box/submit/
       - MONGO_USER=copo_user
       - MONGO_USER_PASSWORD_FILE=/run/secrets/copo_mongo_user_password
       - MONGO_DB=copo_mongo
@@ -45,15 +45,15 @@ services:
       - MAIL_USERNAME=eidata@nbi.ac.uk
       - ALLOWED_HOSTS=
       - PUBLIC_NAME_SERVICE=https://id.tol.sanger.ac.uk/api/v2/
-      - ENA_ENDPOINT_REPORT=https://wwwdev.ebi.ac.uk/ena/submit/report/samples
+      - ENA_ENDPOINT_REPORT=https://www.ebi.ac.uk/ena/submit/report/samples
       - ASPERA_PATH=/root/.aspera/cli
       - BIOIMAGE_PATH_FILE=/run/secrets/copo_bioimage_path
       - BIOIMAGE_SERVER=bsaspera_w@hx-fasp-1.ebi.ac.uk
       - ECS_SECRET_KEY_FILE=/run/secrets/ecs_secret_key
       - ECS_ACCESS_KEY_ID=copo@nbi.ac.uk
       - ECS_ENDPOINT=http://ei-copo.obj-data.nbi.ac.uk
-      - ENA_V2_SERVICE_SYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit
-      - ENA_V2_SERVICE_ASYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit/queue
+      - ENA_V2_SERVICE_SYNC=https://www.ebi.ac.uk/ena/submit/webin-v2/submit
+      - ENA_V2_SERVICE_ASYNC=https://www.ebi.ac.uk/ena/submit/webin-v2/submit/queue
     depends_on:
       - redis
       - postgres 
@@ -71,11 +71,11 @@ services:
           - "node.labels.web-service==true"
       resources:
         limits:
-          cpus: '2'
-          memory: 7GB
+          cpus: '5'
+          memory: 20GB
         reservations:
-          cpus: '0.4'
-          memory: 2GB
+          cpus: '3'
+          memory: 10GB
       update_config:
         parallelism: 1
         delay: 10s
@@ -125,11 +125,11 @@ services:
         delay: 10s
       resources:
         limits:
-          cpus: "1"
-          memory: 3GB
+          cpus: "1.5"
+          memory: 10GB
         reservations:
-          cpus: "0.3"
-          memory: 512mb
+          cpus: "1"
+          memory: 1GB
 
   backup:
     image: copo/copo-backup
@@ -165,11 +165,11 @@ services:
         delay: 10s
       resources:
         limits:
-          cpus: "0.5"
-          memory: 1GB
+          cpus: "3"
+          memory: 10GB
         reservations:
-          cpus: "0.3"
-          memory: 512mb
+          cpus: "1"
+          memory: 1GB
 
 
   redis:
@@ -189,11 +189,11 @@ services:
         delay: 10s
       resources:
         limits:
+          cpus: "1.5"
+          memory: 10GB
+        reservations:
           cpus: "0.5"
           memory: 1GB
-        reservations:
-          cpus: "0.3"
-          memory: 512mb
 
   postgres:
     image: postgres:9.6
@@ -221,11 +221,11 @@ services:
         delay: 10s
       resources:
         limits:
-          cpus: "0.5"
-          memory: 1GB
+          cpus: "3"
+          memory: 2GB
         reservations:
-          cpus: "0.3"
-          memory: 512mb
+          cpus: "3"
+          memory: 1GB
 
   mongo:
     image: copo/copo-mongo:20
@@ -255,11 +255,11 @@ services:
         delay: 10s
       resources:
         limits:
-          cpus: "0.8"
-          memory: 2GB
+          cpus: "5"
+          memory: 10GB
         reservations:
-          cpus: "0.4"
-          memory: 512mb
+          cpus: "4"
+          memory: 5GB
 
 networks:
   copo-backend-network:

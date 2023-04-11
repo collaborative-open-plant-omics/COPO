@@ -22,6 +22,8 @@ from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publicati
 from allauth.socialaccount import providers
 from hurry.filesize import size as hurrysize
 from django_tools.middlewares import ThreadLocal
+from exceptions_and_logging.logger import Logger
+
 
 register = template.Library()
 
@@ -858,6 +860,7 @@ def get_submission_remote_url(submission_id=str()):
     try:
         repository = Submission().get_repository_type(submission_id=submission_id)
     except (IndexError, AttributeError) as error:
+        Logger().error(error)
         result['status'] = 'error'
         result['message'] = 'Could not retrieve record'
         return result
@@ -870,8 +873,8 @@ def get_submission_remote_url(submission_id=str()):
             return result
 
         prj = doc.get('accessions', dict()).get('project', list())
-        result["urls"].append("https://www.ebi.ac.uk/ena/data/view/" + prj[0].get("accession", str()))
-        return result
+        if prj:
+            result["urls"].append("https://www.ebi.ac.uk/ena/data/view/" + prj[0].get("accession", str()))
 
     # generate for other repository types here
 
@@ -1122,7 +1125,7 @@ def generate_submission_datafiles_data(submission_id=str()):
     filter_by = dict()
     filter_by["_id"] = {'$in': datafile_object_list}
 
-    records = DataFile().get_all_records_columns(sort_by='created_on', sort_direction=1, projection=projection,
+    records = DataFile().get_all_records_columns(sort_by='date_created', sort_direction=1, projection=projection,
                                                  filter_by=filter_by)
 
     if len(records):

@@ -18,27 +18,34 @@ def make_transfer_record(file_id, submission_id):
     # make transfer object
     file = DataFile().get_record(file_id)
     tx = dict()
-    tx["created"] = datetime.utcnow()
-    tx["last_checked"] = datetime.utcnow()
+
     tx["remote_path"] = submission_id + "/reads/"
     tx["local_path"] = file["file_location"]
     tx["ecs_location"] = file["ecs_location"]
     tx["file_id"] = str(file["_id"])
     tx["profile_id"] = file["profile_id"]
-    tx["status"] = "pending"
+    #tx["status"] = "pending"
     tx["submission_id"] = submission_id
     # N.B. Transfer Status
     # 0 transfer complete
     # 1 check for presences of file on ecs
     # 2 transfer to COPO
     # 3 check for gzip
-    # 4 check for md5
+    # 4 check for md5ß
     # 5 transfer to ENA
     # 10 Error
-    tx["transfer_status"] = 1
+    #tx["transfer_status"] = 1
     print(tx)
-    ENAFileTransferObject().ENAFileTransferObjectCollection.update_one({"local_path": file["file_location"]}, {"$set": tx}, upsert=True)
-
+    ena_file = ENAFileTransferObject().ENAFileTransferObjectCollection.find_one({"local_path": file["file_location"]})
+    if (not ena_file) or ena_file["status"] != "processing":
+        tx["created"] = datetime.utcnow()
+        tx["last_checked"] = datetime.utcnow()
+        tx["status"] = "pending"
+        tx["transfer_status"] = 1
+        ENAFileTransferObject().ENAFileTransferObjectCollection.update_one({"local_path": file["file_location"]}, {"$set": tx}, upsert=True)
+    else:
+        Logger().log("The file is downloading, will not download it again: " + tx["local_path"])
+    
 
 def check_for_stuck_transfers():
     # N.B. called from celery
@@ -58,12 +65,16 @@ def check_for_stuck_transfers():
                 if delta.seconds > 60 * 10:
                     ENAFileTransferObject().set_pending(tx["_id"])
                     Logger().log("resetting to pending transfer: " + tx["local_path"])
-            elif tx_status in (2, 5):
+            elif tx_status == 2:
                 # these are the processes which could take a long time so should have a much longer timeout
-                if delta.seconds > 60 * 60 * 6:
+                if delta.seconds > 60 * 60 * 1:
                     ENAFileTransferObject().set_pending(tx["_id"])
                     Logger().log("resetting to pending transfer: " + tx["local_path"])
-
+            elif tx_status == 5:
+                # these are the processes which could take a long time so should have a much longer timeout
+                if delta.seconds > 60 * 60 * 1:
+                    ENAFileTransferObject().set_pending(tx["_id"])
+                    Logger().log("resetting to pending transfer: " + tx["local_path"])
 
 def insert_message(message, user):
     sm = StatusMessage(message_owner=user, message=message)
@@ -82,7 +93,7 @@ def process_pending_file_transfers():
     # 5 transfer to ENA
     if docs:
         # cast cursor to list for double iteration
-        docs = list(docs)
+        # docs = list(docs)
         for tx in docs:
             # first iterate all transfer records and set to processing so celery won't pick them again and send for processing as this
             # can lead to circular operations which won't terminate
@@ -104,24 +115,21 @@ def process_pending_file_transfers():
                 chk = check_file_in_ecs(tx)
                 if not chk:
                     # not much we can do here...this should not happen, just update last checked
-                    record_error(tx, chk)
+                    Logger().error(tx["local_path"] + " not in ecs ")
                     reset_status_counter(tx)
                 else:
                     # no need to update last checked
                     increment_status_counter(tx)
-                continue
+                #continue
             elif tx_status == 2:
                 # transfer to COPO
                 insert_message(message="Transferring file to COPO: " + tx["ecs_location"], user=user)
-                transfer_success = get_ecs_file(tx)
                 try:
-                    if transfer_success:
-                        increment_status_counter(tx)
-                    else:
-                        record_error(tx, "error transfering file")
-                        reset_status_counter(tx)
+                    get_ecs_file(tx)
+                    increment_status_counter(tx)
                 except Exception as e:
-                    record_error("error downloading from ecs: " + str(e))
+                    Logger().error("error downloading from ecs: " + str(e))
+                    Logger().exception(e)
                     reset_status_counter(tx)
             elif tx_status == 3:
                 increment_status_counter(tx)
@@ -130,7 +138,7 @@ def process_pending_file_transfers():
                 if check_gzip(tx):
                     increment_status_counter(tx)
                 else:
-                    record_error(tx, "file not gzipped")
+                    record_error("file not gzipped")
                     reset_status_counter(tx)
                 '''
             elif tx_status == 4:
@@ -141,10 +149,9 @@ def process_pending_file_transfers():
                     # Todo - need to do something cleverer here
                     reset_status_counter(tx)
             elif tx_status == 5:
-                mark_complete(tx)
+                ENAFileTransferObject().set_processing(tx["_id"])
                 insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])
-
                 thread = ToENA(tx=tx, user_details=ud, pid=pid)
                 thread.start()
                 # transfer_to_ena(tx)
@@ -152,8 +159,8 @@ def process_pending_file_transfers():
 
 
 
-def record_error(tx, error):
-    Logger().log(error)
+def record_error(error):
+    Logger().error(error)
 
 
 def increment_status_counter(tx):
@@ -215,6 +222,7 @@ def check_gzip(tx):
             fh.read(1)
             return True
         except OSError as e:
+            Logger.error(e)
             return False
 
 
@@ -255,6 +263,7 @@ class ToENA(threading.Thread):
             record_error("error transfering to ENA: " + str(e))
             reset_status_counter(self.tx)
         # now check if active tasks can be marked False
+        mark_complete(self.tx)
         transfers = ENAFileTransferObject().ENAFileTransferObjectCollection.find({"profile_id": self.pid})
         complete = True
         if os.path.exists(self.tx["local_path"]):

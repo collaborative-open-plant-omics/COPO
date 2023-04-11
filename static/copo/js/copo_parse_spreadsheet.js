@@ -51,14 +51,15 @@ function upload_image_files(file) {
         }
 
     }).error(function (data) {
+        $("#ss_upload_spinner").fadeOut("fast")
         $("#upload_controls").fadeIn()
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data
+            message: "Error " + data.status + ": " + data.statusText            
         });
     }).done(function (data) {
-
+        $("#ss_upload_spinner").fadeOut("fast")
     })
 }
 
@@ -97,14 +98,15 @@ function upload_permit_files(file) {
             return xhr;
         }
     }).error(function (data) {
+        $("#ss_upload_spinner").fadeOut("fast")
         $("#upload_controls").fadeIn()
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data
+            message: "Error " +  data.status + ": " + data.statusText 
         });
     }).done(function (data) {
-
+        $("#ss_upload_spinner").fadeOut("fast")
     })
 }
 
@@ -146,6 +148,7 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
             return xhr;
         }
     }).error(function (data) {
+        $("#ss_upload_spinner").fadeOut("fast")
         $("#upload_controls").fadeIn()
         console.error(data)
         BootstrapDialog.show({

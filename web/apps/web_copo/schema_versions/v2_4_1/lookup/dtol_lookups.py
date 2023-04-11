@@ -84,6 +84,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "submissionAccession",
         "sraAccession",
         "manifest_id",
+        "manifest_version",
         "time_updated",
         "updated_by",
         "status",
@@ -188,6 +189,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "submissionAccession",
         "sraAccession",
         "manifest_id",
+        "manifest_version",
         "time_updated",
         "updated_by",
         "status",
@@ -276,6 +278,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "submissionAccession",
         "sraAccession",
         "manifest_id",
+        "manifest_version",
         "time_updated",
         "updated_by",
         "status",
@@ -283,7 +286,7 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         "sampleSameAs",
         "sampleSymbiontOf",
         "copo_profile_title",
-        "tol_project"
+        "tol_project",
         "associated_tol_project"
     ],
     "env": []
@@ -1102,8 +1105,6 @@ DTOL_RULES = {
     "ORIGINAL_COLLECTION_DATE": {
         "ena_regex": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?(/[0-9]{"
                      "4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?([+-][0-9]{1,2})?)?)?)?)?$",
-        "strict_regex": "^(1\d{3}(-0\d(-[0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)|(20[0-2]\d{1}(-0\d(-["
-                        "0-2]\d|-3[0-1])?|-1[0-2](-[0-2]\d|-3[0-1])?)?)$",
         "human_readable": "Date as YYYY, YYYY-MM or YYYY-MM-DD"
     },
     "SAMPLE_COORDINATOR_ORCID_ID": {

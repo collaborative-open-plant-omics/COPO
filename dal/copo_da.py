@@ -1,8 +1,9 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 22/10/15'
 
-import copy
 import os
 from datetime import datetime, timezone, date
+
+import copy
 import importlib
 import re
 import importlib
@@ -902,8 +903,9 @@ class Sample(DAComponent):
         ))
 
     def get_project_samples_by_associated_project_type(self, values):
-        regex_values = [re.compile(f"^{value}") for value in values]
-        return cursor_to_list(self.get_collection_handle().find({"associated_tol_project": {"$in": regex_values}}))
+        regex_values = ' | '.join(values)
+        return cursor_to_list(
+            self.get_collection_handle().find({"associated_tol_project": {"$regex": regex_values, "$options": "i"}}))
 
     def get_gal_names(self, projects):
         return cursor_to_list(self.get_collection_handle().find(
@@ -1136,7 +1138,7 @@ class Sample(DAComponent):
                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get(
                         "show_in_table", ""):
                     name = field.get("id", "").split(".")[-1]
-                    sam[name] = i[name]
+                    sam[name] = i.get(name, "")
 
             sam["error"] = i.get("error", "")
             out.append(sam)
@@ -2079,14 +2081,16 @@ class Submission(DAComponent):
         else:
             return False
 
-    def add_assembly_accession(self, s_id, accession, alias):
+    def add_assembly_accession(self, s_id, accession, alias, assembly_idstr):
         # todo if it's decided to have multiple assemblies per profile add accessions.assembly.sample to be able to cross
         # reference assembly and sample
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": {"accessions.assembly": {}}})
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
-                                                {"$set": {"accessions.assembly.accession": accession,
-                                                          "accessions.assembly.alias": alias}})
+        assembly_accession = self.get_collection_handle().find_one(
+            {"_id": ObjectId(s_id), "accessions.assembly.accession": accession}, {"_id": 1})
+        if not assembly_accession:
+            self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                    {"$push": {
+                                                        "accessions.assembly": {"accession": accession, "alias": alias,
+                                                                                "assembly_id": assembly_idstr}}})
         return
 
 
@@ -2832,7 +2836,17 @@ class ENAFileTransferObject(DAComponent):
         self.component = str()
 
     def get_pending_transfers(self):
-        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "pending"})
+        result_list = []
+        result = self.ENAFileTransferObjectCollection.find({"transfer_status": {"$ne": 2}, "status": "pending"})
+        if result:
+            result_list = list(result)
+        # at most download 2 files at the sametime
+        count = self.ENAFileTransferObjectCollection.find({"transfer_status": 2, "status": "processing"}).count()
+        if count <= 1:
+            result = self.ENAFileTransferObjectCollection.find_one({"transfer_status": 2, "status": "pending"})
+            if result:
+                result_list.append(result)
+        return result_list
 
     def get_processing_transfers(self):
         return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})

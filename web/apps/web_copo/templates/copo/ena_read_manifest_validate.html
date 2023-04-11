@@ -89,6 +89,23 @@
                 Upload a completed manifest for validation
             </p>
 
+
+            <form style="margin-bottom: 20px">
+                <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
+                    COPO
+                </button>
+                <label class="ui blue button" for="file" id="upload_label" style="width:200px">
+                    <input id="file" type="file" style="display:none"
+                           onchange="upload_spreadsheet(this.files[0])">
+                    Upload Sample Manifest
+                </label>
+                <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
+                    <div class="percent"></div>
+                </div>
+                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+
+            </form>
+
             <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
                  role="alert">
             </div>
@@ -99,22 +116,8 @@
                  role="alert">
             </div>
             <div style="display:none; margin-top: 30px; " id="sample_info" class="alert alert-info"
-                 role="alert"></div>
-
-
-            <form style="margin-bottom: 20px">
-                <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
-                    COPO
-                </button>
-                <label class="ui blue button" for="file" id="upload_label" style="width:200px">
-                    <input id="file" type="file" style="display:none"
-                           onchange="upload_spreadsheet('ena_seq_reads', this.files[0])">
-                    Upload Sample Manifest
-                </label>
-                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
-
-            </form>
-
+                 role="alert">
+            </div>
 
             <div>
                 <table id="sample_parse_table" class="table table-striped table-bordered">
@@ -153,6 +156,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="copy_urls_button" class="btn btn-primary">Copy</button>
                     <button type="button" id="process_urls_button" class="btn btn-primary">Process</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -168,6 +172,6 @@
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
+    <!--script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script-->
     <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
 {% endblock %}

@@ -133,7 +133,7 @@
     {% if messages %}
         {% for m in messages %}
             <div class="alert {{ m.tags }} alert-success" role="alert">
-                {{ m }}
+                {{ m | safe}}
             </div>
         {% endfor %}
     {% endif %}
@@ -142,10 +142,12 @@
         <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
               enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form | crispy }}
-            <input id="submit_assembly_button" type="submit" value="Submit Assembly"
-                   class="ui blue button" onclick="doPost()">
+            <fieldset class="ena_assembly_form">      
 
+            {{ form | crispy }}
+            <input id="submit_assembly_button" type="button" value="Submit Assembly" onclick="doPost()"
+                   class="ui blue button" ">
+            </fieldset>
 
         </form>
         <div style="margin-bottom: 20px"></div>
@@ -172,7 +174,7 @@
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
-    <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
+    <!--script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script-->
+    <!--script src="{% static 'copo/js/copo_ena_functions.js' %}"></script-->
     <script src="{% static 'copo/js/copo_assembly.js' %}"></script>
 {% endblock %}

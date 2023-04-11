@@ -52,7 +52,6 @@ class EnaReads:
         self.webin_domain = resolve_env.get_env('WEBIN_USER').split("@")[1]
 
         self.submission_helper = None
-        self.submission_location = None
         self.sra_settings = None
         self.datafiles_dir = None
         self.submission_context = None
@@ -202,11 +201,21 @@ class EnaReads:
 
         # submit datafiles via the RESTful pathway
 
-        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path)
+        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=False)
         if context['status'] is False:
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
+
+        context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=True)
+        if context['status'] is False:
+            ghlper.update_submission_status(status='error', message=context.get("message", str()),
+                                            submission_id=self.submission_id)
+            return context
+        
+        #delete bundle as submission complete
+        ghlper.delete_submisison_bundle(submission_id=self.submission_id)
+
         # todo branch here for manifest submissions, as we will be handling datafiles differently
 
         # process study release
@@ -295,6 +304,26 @@ class EnaReads:
 
         return self.write_xml_file(xml_object=root, file_name="submission.xml")
 
+
+    def _get_edit_submission_xml(self,submission_xml_path=str()):
+        """
+        function creates and return submission xml path
+        :return:
+        """
+        # create submission xml
+        ghlper.logging_info("Creating submission xml for edit....", self.submission_id)
+
+        parser = etree.XMLParser(remove_blank_text=True)
+        root = etree.parse(submission_xml_path, parser).getroot()
+        actions = root.find('ACTIONS')
+        action = actions.find('ACTION')
+        add = action.find("ADD")
+        if add != None:
+            action.remove(add)
+        modify = etree.SubElement(action, 'MODIFY')
+        
+        return self.write_xml_file(xml_object=root, file_name="submission_edit.xml")
+
     def _register_project(self, submission_xml_path=str()):
         """
         function creates and submits project (study) xml
@@ -341,8 +370,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # register project to the ENA service
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" -F "PROJECT=@' \
                    + project_xml_path \
@@ -359,7 +388,7 @@ class EnaReads:
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + \
                       curl_cmd.replace(
                           self.pass_word, "xxxxxx")
-
+            
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
             result['status'] = False
@@ -502,8 +531,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # register samples to the ENA service
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" -F "SAMPLE=@' \
                    + sample_xml_path \
@@ -670,8 +699,8 @@ class EnaReads:
             result = dict(status=True, value='')
 
             # compose curl command for study release
-            curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                       + ' -F "SUBMISSION=@' \
+            curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                       + '" -F "SUBMISSION=@' \
                        + submission_xml_path \
                        + '" "' + self.ena_service \
                        + '"'
@@ -730,7 +759,7 @@ class EnaReads:
 
         return context
 
-    def _submit_datafiles_rest(self, submission_xml_path=str()):
+    def _submit_datafiles_rest(self, submission_xml_path=str(), is_new=True):
         """
         function submits run xmls using ENA RESTfulness API,
         and also schedules the transfer of datafiles to ENA Dropbox
@@ -758,7 +787,7 @@ class EnaReads:
 
         if not len(datafiles_df):
             # no further datafiles to submit, finalise submission
-            self.finalise_submission()
+            self.finalise_submission(is_new)
             return dict(status=True, value='')
 
         # set default for nans
@@ -772,11 +801,14 @@ class EnaReads:
         submitted_files = [x for y in run_accessions for x in y.get('datafiles', list())]
 
         # filter out submitted files from datafiles_df
-        datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
+        if is_new:
+            datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
+        else:
+            datafiles_df = datafiles_df[datafiles_df.datafile_id.isin(submitted_files)]
 
         if not len(datafiles_df):
             # no further datafiles to submit, finalise submission
-            self.finalise_submission()
+            self.finalise_submission(is_new)
             return dict(status=True, value='')
 
         # get pairing info
@@ -785,8 +817,11 @@ class EnaReads:
         # filter datafiles_pairs based on submitted_files and datafiles_df
         # i.e. if any file in a pair has been submitted, then remove the paired record
         if len(datafiles_pairs):
-            datafiles_pairs = datafiles_pairs[
-                ~((datafiles_pairs['_id'].isin(submitted_files)) | (datafiles_pairs['_id2'].isin(submitted_files)))]
+            if is_new:
+                datafiles_pairs = datafiles_pairs[
+                    ~((datafiles_pairs['_id'].isin(submitted_files)) | (datafiles_pairs['_id2'].isin(submitted_files)))]
+            else:
+                datafiles_pairs = datafiles_pairs[((datafiles_pairs['_id'].isin(submitted_files)) | (datafiles_pairs['_id2'].isin(submitted_files)))]
 
         datafile_ids = list(datafiles_df.datafile_id)
 
@@ -1028,10 +1063,15 @@ class EnaReads:
 
             run_xml_path = result['value']
 
+            final_submission_xml_path = submission_xml_path
+            if not is_new:
+                result = self._get_edit_submission_xml(submission_xml_path) 
+                final_submission_xml_path = result['value']
+
             # submit xmls to ENA service
-            curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                       + ' -F "SUBMISSION=@' \
-                       + submission_xml_path \
+            curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                       + '" -F "SUBMISSION=@' \
+                       + final_submission_xml_path \
                        + '" -F "EXPERIMENT=@' \
                        + experiement_xml_path \
                        + '" -F "RUN=@' \
@@ -1048,7 +1088,7 @@ class EnaReads:
             try:
                 receipt = subprocess.check_output(curl_cmd, shell=True)
             except Exception as e:
-                message = 'API call error ' + str(e)
+                message = 'API call error ' + str(e).replace(self.pass_word,"xxxxxx"),
                 ghlper.logging_error(message, self.submission_id)
                 submission_errors.append(message)
                 continue
@@ -1091,13 +1131,35 @@ class EnaReads:
             if submission_record:
                 accessions = submission_record.get("accessions", dict())
 
-                previous_run = accessions.get('run', list())
-                previous_run.append(run_dict)
-                accessions['run'] = previous_run
+                #previous_run = accessions.get('run', list())
+                #accessions['run'] = previous_run
+                #previous_run.append(run_dict)
 
-                previous_exp = accessions.get('experiment', list())
-                previous_exp.append(experiment_dict)
-                accessions['experiment'] = previous_exp
+                #previous_exp = accessions.get('experiment', list())
+                #accessions['experiment'] = previous_exp
+                #previous_exp.append(experiment_dict)
+
+                previous_run = accessions.get('run', list())
+                is_found = False
+                for access in previous_run: 
+                    if run_dict["accession"] == access["accession"]:
+                        is_found = True
+                        break
+                if not is_found:
+                    previous_run.append(run_dict)
+                    accessions['run'] = previous_run
+
+                previous_exp = accessions.get('experiment', list())                                                        
+                is_found = False
+                for access in previous_exp: 
+                    if experiment_dict["accession"] == access["accession"]:
+                        is_found = True
+                        break
+                if not is_found:    
+                    previous_exp.append(experiment_dict)
+                    accessions['experiment'] = previous_exp
+
+
 
                 submission_record['accessions'] = accessions
 
@@ -1120,9 +1182,9 @@ class EnaReads:
             # filter out submitted files from datafiles_df
             datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
 
-            if not len(datafiles_df):
+            if  not len(datafiles_df):
                 # all files have been successfully submitted, finalise submission
-                self.finalise_submission()
+                self.finalise_submission(is_new)
 
         return result
 
@@ -1381,12 +1443,24 @@ class EnaReads:
                                     accessions = submission_record.get("accessions", dict())
 
                                     previous_run = accessions.get('run', list())
-                                    previous_run.append(run_dict)
-                                    accessions['run'] = previous_run
+                                    is_found = False
+                                    for access in previous_run: 
+                                        if run_dict["accession"] == access["accession"]:
+                                            is_found = True
+                                            break
+                                    if not is_found:
+                                        previous_run.append(run_dict)
+                                        accessions['run'] = previous_run
 
-                                    previous_exp = accessions.get('experiment', list())
-                                    previous_exp.append(experiment_dict)
-                                    accessions['experiment'] = previous_exp
+                                    previous_exp = accessions.get('experiment', list())                                                        
+                                    is_found = False
+                                    for access in previous_exp: 
+                                        if experiment_dict["accession"] == access["accession"]:
+                                            is_found = True
+                                            break
+                                    if not is_found:    
+                                        previous_exp.append(experiment_dict)
+                                        accessions['experiment'] = previous_exp
 
                                     submission_record['accessions'] = accessions
                                     submission_record['target_id'] = str(submission_record.pop('_id'))
@@ -1465,17 +1539,19 @@ class EnaReads:
         #           self.sra_settings["sra_center"] + ' -inputDir ' + self.datafiles_dir + ' -ascp '
 
         cli_cmd = 'java -Xmx2048m -jar ' + ENA_CLI + ' -context reads -userName ' + self.user_token + \
-                  ' -password ' + self.pass_word + ' -manifest ' + manifest_location + test_service + ' -submit ' \
+                  ' -password "' + self.pass_word + '" -manifest ' + manifest_location + test_service + ' -submit ' \
                                                                                                       '-centerName ' + \
                   self.sra_settings["sra_center"] + ' -ascp '
 
         return cli_cmd
 
-    def finalise_submission(self):
+    def finalise_submission(self, is_new=True):
         """
         function runs final steps to complete the submission
         :return:
         """
+        if not is_new:
+            return
 
         # all metadata have been successfully submitted
         log_message = "Finalising submission..."
@@ -1600,8 +1676,8 @@ class EnaReads:
         result = dict(status=True, value='')
 
         # compose curl command for study release
-        curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
-                   + ' -F "SUBMISSION=@' \
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
                    + submission_xml_path \
                    + '" "' + self.ena_service \
                    + '"'
