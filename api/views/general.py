@@ -1,22 +1,17 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 14/05/15'
 
 import importlib
-import itertools
 import json
 import jsonpickle
-import operator
-import re
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
-
 import web.apps.web_copo.repos.figshare as f
 from api.doi_metadata import DOI2Metadata
 from dal.copo_base_da import Collection_Head
 from dal.copo_da import Profile, Sample, DataFile
 from dal.ena_da import EnaCollection
-from geopy.geocoders import Nominatim
 from web.apps.web_copo.schemas.utils.data_formats import DataFormats
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -153,89 +148,6 @@ def number_of_users():
 
 def number_of_datafiles():
     return DataFile().get_number()
-
-
-def gal_and_partners(request):
-    # {**x, **y} # merges dictionary x and dictionary y
-    # Field name: "PARTNER"
-    partner_map_marker_colour = "#F8E23B"
-    partner_lst = [convert_string_to_titlecase(item) for item in lkup.DTOL_ENUMS["PARTNER"]]
-    # partner_location_information = [get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-    #                                                      lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")[
-    #                                                          "longitude"]) for
-    #                                 key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if
-    #                                key in lkup.DTOL_ENUMS["PARTNER"]]
-    partner_locations_lst = [
-        {**{"name": convert_string_to_titlecase(key)}, **lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, ""),
-         **get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-                                lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-         **{"samples_count": get_number_of_samples_produced("PARTNER", key)},
-         **{"style": {"r": 5, "fill": partner_map_marker_colour}}} for
-        key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if key in lkup.DTOL_ENUMS["PARTNER"]]
-
-    # Field name: "GAL"
-    gal_map_marker_colour = "#3B7DDD"
-    # Get list of GAL names based on manifest type and once GAL name begins with an uppercase letter
-    gal_lst = [(convert_string_to_titlecase(item), manifest_type) for manifest_type, gal in
-               lkup.DTOL_ENUMS["GAL"].items() for item in gal if item[0].isupper()]
-
-    gal_lst_sorted = sorted(gal_lst, key=operator.itemgetter(0))  # Sort before grouping list
-    gal_lst_grouped = itertools.groupby(gal_lst_sorted, key=operator.itemgetter(0))  # Group list by GAL name
-    gal_lst = {k: list(map(operator.itemgetter(1), v)) for k, v in gal_lst_grouped}
-
-    gal_lst_uppercase = [x.upper() for x in list(gal_lst.keys())]  # Convert GAL names to uppercase
-    gal_locations_lst = [
-        {**{"name": convert_string_to_titlecase(key)}, **lkup.GAL_MAP_LOCATION_COORDINATES.get(key, ""),
-         **get_location_details(lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-                                lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-         **{"samples_count": get_number_of_samples_produced("GAL", key)},
-         **{"style": {"r": 5, "fill": gal_map_marker_colour}}} for
-        key, value in lkup.GAL_MAP_LOCATION_COORDINATES.items() if
-        key.upper() in gal_lst_uppercase]
-
-    out = {'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst,
-           'partner_locations_lst': partner_locations_lst}
-
-    return HttpResponse(json.dumps(out))  # partner_locations_lst  # HttpResponse(json.dumps(out))
-
-
-def convert_string_to_titlecase(txt):
-    txt = txt.upper()  # Convert string word to uppercase
-
-    # Convert titlecase prepositions to lowercase
-    word_exceptions = ["OF", "AND", "FOR", "THE"]  # Prepositions/conjuctions should be lowercase
-    temp1 = ' '.join(
-        word.title() if index == 0 or not word.upper() in word_exceptions else word.lower()
-        for index, word in
-        enumerate(txt.split(' ')))
-
-    # Convert sentencecase words to uppercase
-    words_to_be_uppercase_lst = ['Dna', 'Ngs']
-    temp2 = ' '.join(
-        temp1.replace(item, item.upper()) if item in temp1 else temp1 for item in
-        words_to_be_uppercase_lst if item in temp1)
-
-    titlecase_word = ''.join(temp2 if any(x in temp1 for x in words_to_be_uppercase_lst) else temp1)
-
-    # Get (one occurence of) string within regular brackets if it exists
-    # (given that there should be no nested parenthesis)
-    is_parenthesis_in_word = re.search(r'\((.*?)\)', titlecase_word)
-    word_within_parenthesis = is_parenthesis_in_word.group(1) if is_parenthesis_in_word else ""
-    result = titlecase_word.replace(word_within_parenthesis, word_within_parenthesis.upper())
-
-    return result if word_within_parenthesis else titlecase_word
-
-
-def get_location_details(latitude, longitude):
-    geolocator = Nominatim(user_agent="geoapiExercises")
-    location = geolocator.reverse(str(latitude) + "," + str(longitude))
-    address = location.raw['address']
-    out = {"city": address.get("city", ""), "state": address.get("state", ""), "country": address.get("country", "")}
-    return out
-
-
-def get_number_of_samples_produced(field_name, field_value):
-    return Sample().get_collection_handle().count({field_name: field_value})
 
 
 class CustomAuthToken(ObtainAuthToken):

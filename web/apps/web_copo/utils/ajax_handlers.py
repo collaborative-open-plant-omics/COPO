@@ -23,7 +23,8 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, StreamingHttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, StreamingHttpResponse, \
+    HttpResponseRedirect
 from jsonpickle import encode
 from django.shortcuts import render
 
@@ -1445,108 +1446,6 @@ def update_pending_samples_table(request):
     return HttpResponse(json_util.dumps(profiles))
 
 
-def get_profile_titles_nav_tabs(request):
-    queryUserProfileRecords = request.GET["queryUserProfileRecords"]
-    print('Is query in user profile checked: ', queryUserProfileRecords)
-    if queryUserProfileRecords:
-        owner_id = data_utils.get_user_id()
-        all_profiles = Profile().get_all_profiles(user=owner_id)
-        print('All user profiles: ', all_profiles)
-        #   profile_types = [Profile().get_type(str(profile["_id"])) for profile in allUserProfiles]
-        #   profile_types = set(profile_types)  # Remove duplicates
-        #   profile_types = list(map(str.lower, profile_types)) # Convert each string to lowercase
-        # profile_types_abbreviations = [i.upper()  for i in lkup.TOL_PROFILE_TYPES for j in profile_types if i in j]
-    else:
-        all_profiles = Profile().get_all_profiles()
-        print('All COPO profiles: ', all_profiles)
-
-    profile_types = [all_profiles[x]['type'] for x in range(len(all_profiles))]
-    profile_types = set(profile_types)  # Remove duplicates
-    # profile_types = list(map(str.lower, profile_types))  # Convert each string to lowercase
-
-    profile_types_abbreviations = [i.upper() for i in lkup.TOL_PROFILE_TYPES if
-                                   i.upper() in profile_types and re.search(r'\((.*?)\)', s).group(1)]
-
-    print('Profile types: ', profile_types_abbreviations)
-    # lkup.TOL_PROFILE_TYPES
-    #
-    # if project == "ERGA":
-    #     ergprofiles = Profile().get_erga_profiles_based_on_user_id()
-    # elif project == "DTOL":
-    #     profiles = Profile().get_dtol_only_profiles_based_on_user_id()
-    # elif project == "ASG":
-    #     profiles = Profile().get_asg_profiles_based_on_user_id()
-    # else:
-    #     profiles = Profile().get_dtolenv_profiles_based_on_user_id()
-    #
-    # samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-    #            in profiles]
-
-    return HttpResponse(json_util.dumps(profile_types_abbreviations))
-
-
-def get_profiles_based_on_project(request):
-    project = request.GET["project"]
-
-    if project == "ERGA":
-        profiles = Profile().get_erga_profiles_based_on_user_id()
-    elif project == "DTOL":
-        profiles = Profile().get_dtol_only_profiles_based_on_user_id()
-    elif project == "ASG":
-        profiles = Profile().get_asg_profiles_based_on_user_id()
-    else:
-        profiles = Profile().get_dtolenv_profiles_based_on_user_id()
-
-    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-               in profiles]
-
-    return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
-
-
-def get_profiles_based_on_project_by_aggregation(request):
-    project = request.GET["project"]
-
-    if project == "ERGA":
-        profiles = Profile().get_erga_profiles()
-    elif project == "DTOL":
-        profiles = Profile().get_dtol_only_profiles()
-    elif project == "ASG":
-        profiles = Profile().get_asg_profiles()
-    else:
-        profiles = Profile().get_dtolenv_profiles()
-
-    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-               in profiles]
-
-    return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
-
-
-def get_gal_names(request):
-    projects = lkup.TOL_PROFILE_TYPES
-    samples = Sample().get_gal_names(projects)
-    # Get 'GAL' field value, if it is not empty
-    gal_names = [sample.get('GAL') for sample in samples if sample.get('GAL')]
-    gal_names = set(gal_names)  # Get unique values for the 'GAL' field name
-    return HttpResponse(json_util.dumps(gal_names))
-
-
-def get_sample_details(request):
-    sample_id = ObjectId(request.POST["sample_id"])
-    sample_data = Sample().get_sample_by_id(sample_id)
-    excluded_fields = ["profile_id", "biosample_id", "_id"]  # Filter dictionary field keys with dict comprehension
-    sample_data_with_blank_field_values = {field: value for (field, value) in sample_data[0].items() if
-                                           field not in excluded_fields}
-
-    # Change "public_name" field name to "tolid" field name
-    sample_data_with_blank_field_values["tolid"] = sample_data_with_blank_field_values.pop("public_name")
-
-    sorted_sample_data_with_blank_field_values = dict(sorted(sample_data_with_blank_field_values.items()))
-
-    return HttpResponse(json_util.dumps(sorted_sample_data_with_blank_field_values))
-
-
 def get_samples_for_profile(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
@@ -1570,31 +1469,10 @@ def get_samples_for_profile(request):
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 
+
 def get_samples_column_names(request):
     columnanmes = Sample().get_sample_display_column_names();
     return HttpResponse(json_util.dumps(columnanmes))
-
-def get_samples_for_project_and_profileID(request):
-    url = request.build_absolute_uri()
-    if not ViewLock().isViewLockedCreate(url=url):
-        profile_id = request.GET["profile_id"]
-        project = request.GET["project"]
-        samples = Sample().get_dtol_from_profile_id_and_project(profile_id, project)
-
-        return HttpResponse(json_util.dumps(samples))
-    else:
-        return HttpResponse(json_util.dumps({"locked": True}))
-
-
-def get_samples_by_search_faceting(request):
-    url = request.build_absolute_uri()
-    if not ViewLock().isViewLockedCreate(url=url):
-        match_dict = request.GET["match_items"]
-        samples = Sample().get_dtol_by_aggregation(match_dict)
-
-        return HttpResponse(json_util.dumps(samples))
-    else:
-        return HttpResponse(json_util.dumps({"locked": True}))
 
 
 def mark_sample_rejected(request):
@@ -1639,11 +1517,11 @@ def add_sample_to_dtol_submission(request):
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
 
-        #sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
-        #sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
-        #if "dtol_specimen" not in sub:
+        # sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        # sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
+        # if "dtol_specimen" not in sub:
         #    sub["dtol_specimen"] = []
-        #for speciment_id in sepciment_ids:
+        # for speciment_id in sepciment_ids:
         #    if speciment_id not in sub["dtol_specimen"]:
         #        sub["dtol_specimen"].append(speciment_id)
 
@@ -1676,6 +1554,7 @@ def sample_permits(request):
     matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
+
 
 def assembly_files(request):
     files = request.FILES
@@ -1867,22 +1746,22 @@ def process_urls(request):
     profile_id = data_utils.get_current_request().session['profile_id']
     channels_group_name = "s3_" + profile_id
     notify_frontend(data={"profile_id": profile_id},
-        msg='', action="info",
-        html_id="sample_info", group_name=channels_group_name)       
+                    msg='', action="info",
+                    html_id="sample_info", group_name=channels_group_name)
     file_list = json.loads(request.POST["data"])
     bucket_name = str(request.user.id) + "_" + request.user.username
-    #bucket_name = request.user.username
+    # bucket_name = request.user.username
 
     s3con = s3()
- 
+
     if not s3con.check_for_s3_bucket(bucket_name):
         notify_frontend(data={"profile_id": profile_id},
-                msg='s3 bucket not found, creating it', action="info",
-                html_id="sample_info", group_name=channels_group_name)   
+                        msg='s3 bucket not found, creating it', action="info",
+                        html_id="sample_info", group_name=channels_group_name)
         s3con.make_s3_bucket(bucket_name)
         notify_frontend(data={"profile_id": profile_id},
-                msg='s3 bucket created', action="info",
-                html_id="sample_info", group_name=channels_group_name)  
+                        msg='s3 bucket created', action="info",
+                        html_id="sample_info", group_name=channels_group_name)
     urls_list = list()
     for file_name in file_list:
         if file_name and not file_name.endswith("/"):

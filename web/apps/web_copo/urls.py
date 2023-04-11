@@ -6,20 +6,20 @@ from django.urls import path, re_path
 from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views
+from . import copo_dashboard_views
 
 app_name = 'web_copo'
 
 urlpatterns = [
     path('', views.index, name='index'),
-
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
+    path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
+    path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
-    path('dashboard/gal_and_partners/', general.gal_and_partners, name='copo_gal_and_partners'),
     # path('test_submission/', views.test_submission, name='test_submission'),
     path('test/', views.test, name='test'),
-    path('dashboard/', views.copo_dashboard, name="copo_dashboard"),
-    path('tol_inspect/', views.copo_tol_inspect, name="tol_inspect"),
-    path('tol_inspect/gal/', views.copo_tol_inspect_gal, name="tol_inspect_gal"),
+    path('tol_inspect/', copo_dashboard_views.copo_tol_inspect, name="tol_inspect"),
+    path('tol_inspect/gal/', copo_dashboard_views.copo_tol_inspect_gal, name="tol_inspect_gal"),
     path('stats/<str:view>', views.stats, name='stats'),
     path('stats/', views.stats, name='stats'),
     path('login/', views.login, name='auth'),
@@ -36,7 +36,6 @@ urlpatterns = [
             name='copo_publications'),
     re_path(r'^copo_data/(?P<profile_id>[a-z0-9]+)/view', views.copo_data,
             name='copo_data'),
-
     re_path(r'^copo_samples/(?P<profile_id>[a-z0-9]+)/view', views.copo_samples,
             name='copo_samples'),
     re_path(r'^copo_submissions/(?P<profile_id>[a-z0-9]+)/view', views.copo_submissions,
@@ -196,22 +195,22 @@ urlpatterns = [
     path('update_pending_samples_table/', ajax_handlers.update_pending_samples_table,
          name="update_pending_samples_table"),
     path('get_profiles_based_on_project/',
-         ajax_handlers.get_profiles_based_on_project,
+         copo_dashboard_views.get_profiles_based_on_project,
          name="get_profiles_based_on_project"),
     path('get_profile_titles_nav_tabs/',
-         ajax_handlers.get_profile_titles_nav_tabs,
+         copo_dashboard_views.get_profile_titles_nav_tabs,
          name="get_profile_titles_nav_tabs"),
     path('get_profiles_based_on_project_by_aggregation/',
-         ajax_handlers.get_profiles_based_on_project_by_aggregation,
+         copo_dashboard_views.get_profiles_based_on_project_by_aggregation,
          name="get_profiles_based_on_project_by_aggregation"),
-    path('get_gal_names/', ajax_handlers.get_gal_names, name="get_gal_names"),
-    path('get_sample_details/', ajax_handlers.get_sample_details,
+    path('get_gal_names/', copo_dashboard_views.get_gal_names, name="get_gal_names"),
+    path('get_sample_details/', copo_dashboard_views.get_sample_details,
          name="get_sample_details"),
     path('get_samples_for_profile/', ajax_handlers.get_samples_for_profile,
          name="get_samples_for_profile"),
-    path('get_samples_for_project_and_profileID/', ajax_handlers.get_samples_for_project_and_profileID,
+    path('get_samples_for_project_and_profileID/', copo_dashboard_views.get_samples_for_project_and_profileID,
          name="get_samples_for_project_and_profileID"),
-    path('get_samples_by_search_faceting/', ajax_handlers.get_samples_by_search_faceting,
+    path('get_samples_by_search_faceting/', copo_dashboard_views.get_samples_by_search_faceting,
          name="get_samples_by_search_faceting"),
     path('mark_sample_rejected/', ajax_handlers.mark_sample_rejected,
          name="mark_sample_rejected"),
