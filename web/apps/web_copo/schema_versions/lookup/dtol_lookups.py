@@ -66,8 +66,20 @@ DTOL_ENA_MAPPINGS = {
     'IDENTIFIER_AFFILIATION': {
         'ena': 'identifier_affiliation'
     },
+    'LATITUDE_END': {
+        'ena': 'geographic location end (latitude_end)'
+    },
+    'LATITUDE_START': {
+        'ena': 'geographic location start (latitude_start)'
+    },
     'LIFESTAGE': {
         'ena': 'lifestage'
+    },
+    'LONGITUDE_END': {
+        'ena': 'geographic location end (longitude_end)'
+    },
+    'LONGITUDE_START': {
+        'ena': 'geographic location start (longitude_start)'
     },
     'ORGANISM_PART': {
         'ena': 'organism part'
@@ -1152,6 +1164,10 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         'COLLECTION_LOCATION',
         'DECIMAL_LATITUDE',
         'DECIMAL_LONGITUDE',
+        'LATITUDE_START',
+        'LONGITUDE_START',
+        'LATITUDE_END',
+        'LONGITUDE_END',
         'HABITAT',
         'DEPTH',
         'ELEVATION',
@@ -1198,7 +1214,6 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         'HAZARD_GROUP',
         'OTHER_INFORMATION',
         'BARCODE_HUB',
-        'GRID_REFERENCE',
         'INDIGENOUS_RIGHTS_APPLICABLE',
         'PLATE_ID_FOR_BARCODING',
         'RACK_OR_PLATE_ID',
@@ -1389,13 +1404,26 @@ DTOL_RULES = {
         },
     'DECIMAL_LATITUDE':
         {
-            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
             "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+        },
+    'DECIMAL_LATITUDE_ERGA':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
         },
     'DECIMAL_LONGITUDE':
         {
-            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
             "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+
+        },
+    'DECIMAL_LONGITUDE_ERGA':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
         },
     'DEPTH':
         {
@@ -1414,13 +1442,51 @@ DTOL_RULES = {
         },
     'LATITUDE_END':
         {
-            'ena_regex': '(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ',
-            'human_readable': 'numeric, NOT_COLLECTED or NOT_PROVIDED'
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
+            "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+        },
+    'LATITUDE_END_ERGA':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
         },
     'LATITUDE_START':
         {
-            'ena_regex': '(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$) ',
-            'human_readable': 'numeric, NOT_COLLECTED or NOT_PROVIDED'
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
+            "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+
+        },
+    'LATITUDE_START_ERGA':
+        {
+
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
+        },
+    'LONGITUDE_END':
+        {
+
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
+            "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+
+        },
+    'LONGITUDE_END_ERGA':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
+        },
+    'LONGITUDE_START':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
+            "human_readable": "numeric, NOT_COLLECTED or NOT_PROVIDED"
+        },
+    'LONGITUDE_START_ERGA':
+        {
+            "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
+            "human_readable": "numeric, or NOT_COLLECTED"
+
         },
     'ORIGINAL_COLLECTION_DATE':
         {
@@ -1506,6 +1572,8 @@ DTOL_UNITS = {
     'ELEVATION': {'ena_unit': 'm'},
     'LATITUDE_END': {'ena_unit': 'DD'},
     'LATITUDE_START': {'ena_unit': 'DD'},
+    'LONGITUDE_END': {'ena_unit': 'DD'},
+    'LONGITUDE_START': {'ena_unit': 'DD'},
     'ORIGINAL_DECIMAL_LATITUDE': {'ena_unit': 'DD'},
     'ORIGINAL_DECIMAL_LONGITUDE': {'ena_unit': 'DD'}
 }

@@ -109,4 +109,33 @@ MESSAGES = {
     "validation_msg_single_file_error": "Field indicates that files should be single, but multiple filenames were "
                                         "provided at row <strong>%s</strong>",
     "validation_msg_string_in_taxon_id": "Non numeric TAXON_ID found in row <strong>%s</strong>. Taxon ids must be integer",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_missing_value": "Any of <strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> field or any "
+                                                                               "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong> field "
+                                                                               "cannot be empty at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_mixed_value": "<strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> and "
+                                                                             "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong> "
+                                                                             "field cannot contain a decimal value and have <strong>NOT_COLLECTED</strong> "
+                                                                             "at the same time at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_all_not_collected": "All fields (<strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> and "
+                                                                                   "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong>) "
+                                                                                   "are <strong>NOT_COLLECTED</strong> at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_missing_start_end": "Missing <strong>LATITUDE_START/LATITUDE_END</strong> field or "
+                                                                                   "<strong>LONGITUDE_START/LONGITUDE_END</strong> field "
+                                                                                   "at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_missing_decimal_latlong": "Missing <strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> field "
+                                                                                         "at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_not_collected_mixed_value": "<strong>NOT_COLLECTED</strong> cannot be the value  for both "
+                                                                                           "<strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> field and "
+                                                                                           "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong> "
+                                                                                           "field at row <strong>%s</strong>",
+
+    "validation_msg_error_decimal_latlong_or_latlong_start_end_all_contains_a_value": "All fields (<strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> and "
+                                                                                      "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong>) "
+                                                                                      "cannot have a decimal value at row <strong>%s</strong>"
 }

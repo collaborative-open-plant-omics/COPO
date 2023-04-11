@@ -952,7 +952,7 @@
   },
   {
     "help_tip": "The geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
-    "required": "true",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
@@ -986,7 +986,7 @@
   },
   {
     "help_tip": "The geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
-    "required": "true",
+    "required": "false",
     "default_value": "",
     "show_as_attribute": true,
     "control_meta": {},
