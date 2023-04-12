@@ -103,7 +103,7 @@ DTOL_ENA_MAPPINGS = {
         'ena': 'GAL_sample_id'
     },
     'PROXY_TISSUE_VOUCHER_ID_FOR_BIOBANKING': {
-        'ena': 'proxy_bio_material'
+        'ena': 'proxy biomaterial'
     },
     'PROXY_VOUCHER_ID': {
         'ena': 'proxy voucher'

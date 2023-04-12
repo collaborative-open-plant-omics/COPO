@@ -826,6 +826,97 @@ class Sample(DAComponent):
             {"$project": {"factorValues": 1, "name": 1}}
         ])
 
+    def save_record(self, auto_fields=dict(), **kwargs):
+        fields = dict()
+        schema = kwargs.get("schema", list()) or self.get_component_schema()
+
+        # set auto fields
+        if auto_fields:
+            fields = DecoupleFormSubmission(auto_fields, schema).get_schema_fields_updated_dict()
+
+        # should have target_id for updates and return empty string for inserts
+        target_id = kwargs.pop("target_id", str())
+
+        # set system fields
+        system_fields = dict(
+            date_modified=data_utils.get_datetime(),
+            deleted=data_utils.get_not_deleted_flag()
+        )
+
+        if not target_id:
+            system_fields["date_created"] = data_utils.get_datetime()
+            system_fields["profile_id"] = self.profile_id
+
+        # Get profile type
+        manifest_type = Profile().get_type(self.profile_id)
+        manifest_type = manifest_type.lower()
+        current_schema_version = ""
+        profile_type = ""
+
+        # Get manifest version based on profile type
+        if "asg" in manifest_type:
+            profile_type = "asg"
+            current_schema_version = settings.CURRENT_ASG_VERSION
+        elif "dtolenv" in manifest_type:
+            profile_type = "dtolenv"
+            current_schema_version = settings.CURRENT_DTOLENV_VERSION
+        elif "dtol" in manifest_type:
+            profile_type = "dtol"
+            current_schema_version = settings.CURRENT_DTOL_VERSION
+        elif "erga" in manifest_type:
+            profile_type = "erga"
+            current_schema_version = settings.CURRENT_ERGA_VERSION
+
+        # extend system fields
+        for k, v in kwargs.items():
+            system_fields[k] = v
+
+        # add system fields to 'fields' and set default values - insert mode only
+        for f in schema:
+            # Filter schema based on manfest type and manifest version
+            print('Field in schema: ', f)
+            f_specifications = f.get("specifications", "")
+            f_manifest_version = f.get("manifest_version", "")
+
+            if f_specifications and profile_type not in f_specifications or f_manifest_version and current_schema_version not in f_manifest_version:
+                continue
+
+            print('Field in schema (after): ', f)
+            f_id = f["id"].split(".")[-1]
+            try:
+                v_id = f["versions"][0]
+            except:
+                v_id = ""
+            if f_id in system_fields:
+                fields[f_id] = system_fields.get(f_id)
+            elif v_id in system_fields:
+                fields[f_id] = system_fields.get(v_id)
+
+            if not target_id and f_id not in fields:
+                fields[f_id] = data_utils.default_jsontype(f["type"])
+
+        # if True, then the database action (to save/update) is never performed, but validated 'fields' are returned
+        validate_only = kwargs.pop("validate_only", False)
+        fields["date_modified"] = datetime.now()
+        # check if there is attached profile then update date modified
+        if "profile_id" in fields:
+            self.update_profile_modified(fields["profile_id"])
+        if validate_only is True:
+            return fields
+        else:
+            if target_id:
+                self.get_collection_handle().update(
+                    {"_id": ObjectId(target_id)},
+                    {'$set': fields})
+            else:
+                doc = self.get_collection_handle().insert(fields)
+                target_id = str(doc)
+
+            # return saved record
+            rec = self.get_record(target_id)
+
+            return rec
+
     def update_public_name(self, name):
         self.get_collection_handle().update_many(
             {"SPECIMEN_ID": name['specimen']["specimenId"]},
