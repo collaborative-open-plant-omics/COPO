@@ -540,7 +540,7 @@ class DtolSpreadsheet:
         public_name_list = list()
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
-            '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+            '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
             x)
 
         sample_data["_id"] = ""

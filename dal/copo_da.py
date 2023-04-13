@@ -874,14 +874,12 @@ class Sample(DAComponent):
         # add system fields to 'fields' and set default values - insert mode only
         for f in schema:
             # Filter schema based on manfest type and manifest version
-            print('Field in schema: ', f)
             f_specifications = f.get("specifications", "")
             f_manifest_version = f.get("manifest_version", "")
 
             if f_specifications and profile_type not in f_specifications or f_manifest_version and current_schema_version not in f_manifest_version:
                 continue
 
-            print('Field in schema (after): ', f)
             f_id = f["id"].split(".")[-1]
             try:
                 v_id = f["versions"][0]

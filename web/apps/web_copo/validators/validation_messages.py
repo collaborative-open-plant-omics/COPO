@@ -137,7 +137,7 @@ MESSAGES = {
 
     "validation_msg_error_decimal_latlong_or_latlong_start_end_all_contains_a_value": "All fields (<strong>DECIMAL_LATITUDE/DECIMAL_LONGITUDE</strong> and "
                                                                                       "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong>) "
-                                                                                      "cannot have a decimal value at row <strong>%s</strong>"
+                                                                                      "cannot have a decimal value at row <strong>%s</strong>",
     "validation_msg_warning_update_submitted_sample": "Warning: <strong>%s</strong> has been submitted with biosample accession <strong>%s</strong>. Please check this is "
                                               "correct before clicking 'Finish'.",
 
