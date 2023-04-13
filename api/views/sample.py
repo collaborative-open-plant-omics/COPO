@@ -1,27 +1,22 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 import datetime
-import importlib
 import sys
 import requests
 import dateutil.parser as parser
 from bson.errors import InvalidId
-from django.conf import settings
 from django.http import HttpResponse
 import json
 from api.utils import get_return_template, extract_to_template, finish_request
 from web.apps.web_copo.utils.ajax_handlers import sample_spreadsheet
 from dal.copo_da import Sample, Source, Submission, APIValidationReport, Profile
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup.lookup import API_ERRORS
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import authentication, permissions
 from django.views.decorators.csrf import csrf_exempt
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get(request, id):

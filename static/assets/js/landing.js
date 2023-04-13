@@ -21,7 +21,7 @@ $(document).ready(function () {
             $("#num_profiles").html(data.profiles)
             $("#num_users").html(data.users)
             $("#num_uploads").html(data.datafiles)
-        }).error(function (data) {
+        }).fail(function (data) {
         console.log(data)
     })
 

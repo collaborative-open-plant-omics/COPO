@@ -12,17 +12,26 @@ $(document).ready(function () {
     // Show info popup dialog when info icon is clicked
     $(document).on("click", "#info", function () {
         let manifest_type = $(document).data("manifest_type")
-        const asg_and_dtol_sop_link = "https://github.com/darwintreeoflife/metadata"
+
+        const asg_sop_link = "https://github.com/darwintreeoflife/metadata"
+        const dtol_sop_link = "https://github.com/darwintreeoflife/metadata"
         const erga_sop_link = "https://github.com/ERGA-consortium/ERGA-sample-manifest"
         const dtolenv_sop_link = ""
-        const sop_link = manifest_type === "asg" || manifest_type === "dtol" ? asg_and_dtol_sop_link :
-            manifest_type === "erga" ? erga_sop_link : manifest_type === "dtolenv" ? dtolenv_sop_link : ""
 
-        let info_message = "<ul  style = " + "'padding-top: 15px; padding-left: 10px;padding-right: 10px;" + "'> <li>To input a common value, select a field name from the dropdown list</li> <li style = " + "'margin-top: 10px;" + "'>Inputted values <b>must</b> conform to the <a href=" + sop_link + ">Standard Operating Procedure (SOP)</a></li></ul>";
+        const sop_link = manifest_type === "asg" ? asg_sop_link : manifest_type === "dtol" ? dtol_sop_link :
+            manifest_type === "erga" ? erga_sop_link : manifest_type === "dtolenv" || manifest_type === "dtol_env" ||
+            manifest_type === "env" ? dtolenv_sop_link : ""
+
+        let $info_message = "<ul  style = " + "'padding-top: 15px; padding-left: 10px;padding-right: 10px;" + "'> "
+        $info_message += "<li>To input a common value, select a field name from the dropdown list</li> "
+        $info_message += "<li style = " + "'margin-top: 10px;" + "'>Inputted values <b>must</b> conform to the "
+        $info_message += "<a href=" + sop_link + ">Standard Operating Procedure (SOP)</a>"
+        $info_message += "</li>"
+        $info_message += "</ul>";
 
         bootbox.dialog({
             size: 'small',
-            message: info_message,
+            message: $info_message,
             buttons: {
                 "success": {
                     "label": "OK",
@@ -56,6 +65,7 @@ $(document).ready(function () {
     //$(document).on("change", "#manifestType", get_common_fields_handler);
 
     wizard_handler();
+    get_current_manifest_version(); // Populate the table with the current version of each manifest type
 });
 
 function wizard_handler() {
@@ -518,7 +528,8 @@ function generateManifestTemplate(event) {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
             let link = document.createElement('a');
             let blob = new Blob([this.response], {});
-            link.download = `${manifest_type.toUpperCase()}_MANIFEST_TEMPLATE.xlsx`
+
+            link.download = get_manifest_filename(manifest_type) // set manfiest filename
             link.href = URL.createObjectURL(blob);
             link.click();
             window.URL.revokeObjectURL(link.href);
@@ -552,4 +563,66 @@ function showWizardBasedOnManifestType(manifest_type) {
     document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
     // $('.btn-prev').hide(); // Hide previous button
     get_common_fields_handler();// Preload with the common fields dropdown list
+}
+
+function get_current_manifest_version() {
+    $.ajax({
+        type: "GET",
+        url: "get_current_manifest_version/",
+        dataType: "json",
+        data: {}
+    }).done(function (data) {
+        //asg
+        $("#current_asg_version").html(data.current_asg_manifest_version)
+        $("a#asg_prefilled_template_option").prop('title', `Launch ASG_MANIFEST_v${data.current_asg_manifest_version} wizard`)
+
+        // dtolenv
+        $("#current_dtolenv_version").html(data.current_dtolenv_manifest_version)
+        $("a#dtolenv_prefilled_template_option").prop('title', `Launch DTOLENV_MANIFEST_v${data.current_DTOLENV_manifest_version} wizard`)
+
+        // dtol
+        $("#current_dtol_version").html(data.current_dtol_manifest_version)
+        $("a#dtol_prefilled_template_option").prop('title', `Launch DTOL_MANIFEST_v${data.current_dtol_manifest_version} wizard`)
+
+        //   erga
+        $("#current_erga_version").html(data.current_erga_manifest_version)
+        $("a#erga_prefilled_template_option").prop('title', `Launch ERGA_MANIFEST_v${data.current_erga_manifest_version} wizard`)
+    }).fail(function (error) {
+        console.log('Error:', error.message);
+
+    });
+
+}
+
+function get_manifest_filename(manifest_type) {
+    const current_dtol_version = $("#current_dtol_version")
+    const current_dtolenv_version = $("#current_dtolenv_version")
+
+    let filename = ''
+    let filename_part = `${manifest_type.toUpperCase()}_MANIFEST_TEMPLATE_v`
+
+
+    switch (manifest_type) {
+        case "asg":
+            filename = `${filename_part}${$("#current_asg_version").text()}.xlsx`
+            break;
+        case "dtolenv":
+            filename = `${filename_part}${current_dtolenv_version.text()}.xlsx`
+            break;
+        case "dtol_env":
+            filename = `${filename_part}${current_dtolenv_version.text()}.xlsx`
+            break;
+        case "dtol":
+            filename = `${filename_part}${current_dtol_version.text()}.xlsx`
+            break;
+        case "env":
+            filename = `${filename_part}${current_dtolenv_version.text()}.xlsx`
+            break;
+        case "erga":
+            filename = `${filename_part}${$("#current_erga_version").text()}.xlsx`
+            break;
+        default:
+            filename = '.xlsx'
+    }
+    return filename;
 }

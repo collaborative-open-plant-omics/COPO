@@ -25,7 +25,8 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, StreamingHttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError, StreamingHttpResponse, \
+    HttpResponseRedirect
 from jsonpickle import encode
 from django.shortcuts import render
 
@@ -58,7 +59,7 @@ from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
 from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
-# from web.apps.web_copo.lookup import dtol_lookups as lkup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
@@ -66,9 +67,6 @@ from web.forms import AssemblyForm
 
 l = logger.Logger("exceptions_and_logging/logs")
 DV_STRING = 'HARVARD_TEST_API'
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lkup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def get_source_count(self):
@@ -1469,9 +1467,11 @@ def get_samples_for_profile(request):
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
 
+
 def get_samples_column_names(request):
     columnanmes = Sample().get_sample_display_column_names();
     return HttpResponse(json_util.dumps(columnanmes))
+
 
 def mark_sample_rejected(request):
     sample_ids = request.GET.get("sample_ids")
@@ -1515,11 +1515,11 @@ def add_sample_to_dtol_submission(request):
             Sample().mark_processing(sample_id)
             Sample().timestamp_dtol_sample_updated(sample_id)
 
-        #sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
-        #sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
-        #if "dtol_specimen" not in sub:
+        # sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
+        # sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
+        # if "dtol_specimen" not in sub:
         #    sub["dtol_specimen"] = []
-        #for speciment_id in sepciment_ids:
+        # for speciment_id in sepciment_ids:
         #    if speciment_id not in sub["dtol_specimen"]:
         #        sub["dtol_specimen"].append(speciment_id)
 
@@ -1552,6 +1552,7 @@ def sample_permits(request):
     matchings = dtol.check_permit_names(files)
 
     return HttpResponse(json.dumps(matchings))
+
 
 def assembly_files(request):
     files = request.FILES
@@ -1743,22 +1744,22 @@ def process_urls(request):
     profile_id = data_utils.get_current_request().session['profile_id']
     channels_group_name = "s3_" + profile_id
     notify_frontend(data={"profile_id": profile_id},
-        msg='', action="info",
-        html_id="sample_info", group_name=channels_group_name)       
+                    msg='', action="info",
+                    html_id="sample_info", group_name=channels_group_name)
     file_list = json.loads(request.POST["data"])
     bucket_name = str(request.user.id) + "_" + request.user.username
-    #bucket_name = request.user.username
+    # bucket_name = request.user.username
 
     s3con = s3()
- 
+
     if not s3con.check_for_s3_bucket(bucket_name):
         notify_frontend(data={"profile_id": profile_id},
-                msg='s3 bucket not found, creating it', action="info",
-                html_id="sample_info", group_name=channels_group_name)   
+                        msg='s3 bucket not found, creating it', action="info",
+                        html_id="sample_info", group_name=channels_group_name)
         s3con.make_s3_bucket(bucket_name)
         notify_frontend(data={"profile_id": profile_id},
-                msg='s3 bucket created', action="info",
-                html_id="sample_info", group_name=channels_group_name)  
+                        msg='s3 bucket created', action="info",
+                        html_id="sample_info", group_name=channels_group_name)
     urls_list = list()
     for file_name in file_list:
         if file_name and not file_name.endswith("/"):
@@ -1796,27 +1797,47 @@ def is_number(s):
         return False
 
 
+def get_current_manifest_version(request):
+    return HttpResponse(json.dumps({'current_asg_manifest_version': settings.CURRENT_ASG_VERSION,
+                                    'current_dtolenv_manifest_version': settings.CURRENT_DTOLENV_VERSION,
+                                    'current_dtol_manifest_version': settings.CURRENT_DTOL_VERSION,
+                                    'current_erga_manifest_version': settings.CURRENT_ERGA_VERSION}))
+
+
 def get_manifest_fields(request):
     manifest_type = request.GET["manifest_type"]
+    current_schema_version = ""
+
+    # Get manfiest version
+    if "asg" in manifest_type:
+        current_schema_version = settings.CURRENT_ASG_VERSION
+    elif "dtol_ei" in manifest_type or "dtol_env" in manifest_type:
+        current_schema_version = settings.CURRENT_DTOLENV_VERSION
+    elif "erga" in manifest_type:
+        current_schema_version = settings.CURRENT_ERGA_VERSION
+    else:
+        current_schema_version = settings.CURRENT_DTOL_VERSION
 
     # Get sample fields
     s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
 
     field_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].versions[''0]', s)
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].versions[''0]',
+        s)
 
     # Get sample fields' order number
     order_num_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index.["' + manifest_type + '"].order', s)
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].order',
+        s)
 
     # Get sample fields' MS Excel column letter
     excel_col_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index["' + manifest_type + '"].excel_col',
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].excel_col',
         s)
 
     # Get sample fields' colour
     colour_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '" )].index["' + manifest_type + '"].colour',
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].colour',
         s)
 
     # Combine the information in a tuple
@@ -1867,17 +1888,21 @@ def get_common_value_dropdown_list(request):
             {'dropdownlist': common_value_dropdownlist, 'date_fields': date_fields, 'integer_fields': integer_fields}))
 
 
-def get_filename(manifest_type):
-    if manifest_type == "asg":
-        return f'ASG_EXAMPLE_SAMPLE_MANIFEST_v{settings.CURRENT_ASG_VERSION}.xlsx'
-    elif manifest_type == "dtol":
-        return f'DTOL_EXAMPLE_SAMPLE_MANIFEST_v{settings.CURRENT_DTOL_VERSION}.xlsx'
-    elif manifest_type == "erga":
-        return f'ERGA_SAMPLE_MANIFEST_V{settings.CURRENT_ERGA_VERSION}.xlsx'
+def get_manifest_filename(manifest_type):
+    filename_part = '_MANIFEST_TEMPLATE_v'
+    manifest_type = manifest_type.upper()
+
+    if "ASG" in manifest_type:
+        return f'{manifest_type}{filename_part}{settings.CURRENT_ASG_VERSION}.xlsx'
+    elif "DTOLENV" in manifest_type or "DTOL_ENV" in manifest_type or "ENV" in manifest_type:
+        return f'DTOLENV{filename_part}{settings.CURRENT_DTOLENV_VERSION}.xlsx'
+    elif "DTOL" in manifest_type:
+        return f'{manifest_type}{filename_part}{settings.CURRENT_DTOL_VERSION}.xlsx'
+    elif "ERGA" in manifest_type:
+        return f'{manifest_type}{filename_part}{settings.CURRENT_ERGA_VERSION}.xlsx'
     else:
-        # manifest_type == "env" or manifest_type == "dtolenv"
-        # filename = f'DTOLENV_EXAMPLE_SAMPLE_MANIFEST_v{CURRENT_DTOLENV_VERSION}.xlsx
-        return ""
+        # default/other
+        return ".xlsx"
 
 
 def generate_manifest_template(request):
@@ -1892,7 +1917,7 @@ def generate_manifest_template(request):
     manifests_dir = os.path.join("static", "assets", "manifests")
 
     # Set the path to the blank manifest template based on the manifest type
-    filename = get_filename(manifest_type)
+    filename = get_manifest_filename(manifest_type)
 
     manifest_template_path = os.path.join(manifests_dir, filename)
 
