@@ -30,6 +30,7 @@ services:
       - POSTGRES_SERVICE=copo_postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/copo_postgres_user_password
       - ORCID_SECRET_FILE=/run/secrets/copo_orcid_secret_key
+      - ORCID_CLIENT_FILE=/run/secrets/copo_orcid_client_id
       - FIGSHARE_CONSUMER_SECRET_FILE=/run/secrets/copo_figshare_consumer_secret_key
       - FIGSHARE_CLIENT_ID_FILE=/run/secrets/copo_figshare_client_id_key
       - FIGSHARE_CLIENT_SECRET_FILE=/run/secrets/copo_figshare_client_secret_key
@@ -87,6 +88,7 @@ services:
       - copo_facebook_secret_key
       - copo_twitter_secret_key
       - copo_orcid_secret_key
+      - copo_orcid_client_id
       - copo_figshare_client_id_key
       - copo_figshare_client_secret_key
       - copo_figshare_consumer_secret_key
@@ -283,6 +285,8 @@ secrets:
     external: true
   copo_orcid_secret_key:
     external: true
+  copo_orcid_client_id:
+    external: true    
   copo_figshare_client_secret_key:
     external: true
   copo_figshare_consumer_secret_key:

@@ -44,10 +44,12 @@ class Command(BaseCommand):
             cursor.execute("INSERT INTO django_site (id, domain, name) VALUES (%s, %s, %s)",
                            (1, "www.copo-project.org", "www.copo-project.org"))
 
+            ORCID_CLIENT_ID = resolve_env.get_env('ORCID_CLIENT')
             ORCID_SECRET = resolve_env.get_env('ORCID_SECRET')
             FACEBOOK_SECRET = resolve_env.get_env('FACEBOOK_SECRET')
             TWITTER_SECRET = resolve_env.get_env('TWITTER_SECRET')
             GOOGLE_SECRET = resolve_env.get_env('GOOGLE_SECRET')
+            
 
             cursor.execute(
                 "INSERT INTO socialaccount_socialapp (id, provider, name, client_id, secret, key) VALUES (%s, %s, %s, %s, %s, %s)",
@@ -55,7 +57,7 @@ class Command(BaseCommand):
                  GOOGLE_SECRET, " "))
             cursor.execute(
                 "INSERT INTO socialaccount_socialapp (id, provider, name, client_id, secret, key) VALUES (%s, %s, %s, %s, %s, %s)",
-                (2, "orcid", "Orcid", "APP-EGMH46B26C2OCJ9F", ORCID_SECRET, " "))
+                (2, "orcid", "Orcid", ORCID_CLIENT_ID, ORCID_SECRET, " "))
             cursor.execute(
                 "INSERT INTO socialaccount_socialapp (id, provider, name, client_id, secret, key) VALUES (%s, %s, %s, %s, %s, %s)",
                 (3, "facebook", "Facebook", "497282503814650", FACEBOOK_SECRET, " "))
