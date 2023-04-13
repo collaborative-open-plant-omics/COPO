@@ -132,12 +132,16 @@ class DtolSpreadsheet:
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
             self.type = "ASG"
+            self.current_schema_version = settings.CURRENT_ASG_VERSION
         elif "ERGA" in t:
             self.type = "ERGA"
+            self.current_schema_version = settings.CURRENT_ERGA_VERSION
         elif "DTOL_ENV" in t:
             self.type = "DTOL_ENV"
+            self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
         else:
             self.type = "DTOL"
+            self.current_schema_version = settings.CURRENT_DTOL_VERSION
 
         # get associated profile type(s) of manifest
         associated_t = Profile().get_associated_type(self.profile_id)
@@ -214,7 +218,7 @@ class DtolSpreadsheet:
             # get definitive list of mandatory DTOL fields from schema
             s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
             self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
+                '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*]== "' + self.current_schema_version + '")].versions[0]',
                 s)
 
             # validate for required fields
@@ -226,7 +230,8 @@ class DtolSpreadsheet:
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', s)
+                '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+                s)
 
             # validate for optional dtol fields
             for v in self.optional_field_validators:
@@ -535,7 +540,8 @@ class DtolSpreadsheet:
         public_name_list = list()
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
-            '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
+            '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+            x)
 
         sample_data["_id"] = ""
         for index, p in sample_data.iterrows():
