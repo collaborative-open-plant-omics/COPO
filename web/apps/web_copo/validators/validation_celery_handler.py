@@ -1,33 +1,19 @@
+from api.utils import map_to_dict
 from django.conf import settings
 from dal.copo_da import ValidationQueue, Profile, Sample, APIValidationReport
-# from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-#     taxon_validators
-# from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+from submission.helpers.generic_helper import notify_frontend
+from urllib.error import HTTPError
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions import optional_field_dtol_validators as optional_validators, taxon_validators
+from web.apps.web_copo.schema_versions import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
+from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
+from web.apps.web_copo.lookup import lookup as lk
+import jsonpath_rw_ext as jp
 import pandas
 import inspect
 import pickle
 import math
-import importlib
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
-from submission.helpers.generic_helper import notify_frontend
-from urllib.error import HTTPError
-from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.lookup import lookup as lk
-import jsonpath_rw_ext as jp
-from api.utils import map_to_dict
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
-
-schema_version_path_optional_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.optional_field_dtol_validators'
-optional_validators = importlib.import_module(schema_version_path_optional_validators)
-
-schema_version_path_taxon_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.taxon_validators'
-taxon_validators = importlib.import_module(schema_version_path_taxon_validators)
-
-schema_version_path_required_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.required_field_dtol_validators'
-required_validators = importlib.import_module(schema_version_path_required_validators)
 
 
 class ProcessValidationQueue:
@@ -48,6 +34,7 @@ class ProcessValidationQueue:
         self.data = None
         self.isupdate = None
         self.type = None
+        self.current_schema_version = None
         self.public_name_list = list()
 
     def process_validation_queue(self):
@@ -79,18 +66,25 @@ class ProcessValidationQueue:
         for qm in queued_manifests:
             if not qm["report_id"] == "":
                 APIValidationReport().setRunning(qm["report_id"])
+
             self.sample_data = pickle.loads(qm["manifest_data"])
             self.profile_id = qm["profile_id"]
             self.file_name = qm["file_name"]
             t = Profile().get_type(self.profile_id)
+
             if "ASG" in t:
                 self.type = "ASG"
+                self.current_schema_version = settings.CURRENT_ASG_VERSION
             elif "DTOL_EI" in t:
                 self.type = "DTOL_EI"
+                self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
             elif "ERGA" in t:
                 self.type = "ERGA"
+                self.current_schema_version = settings.CURRENT_ERGA_VERSION
             else:
                 self.type = "DTOL"
+                self.current_schema_version = settings.CURRENT_DTOL_VERSION
+
             try:
                 self.data = pandas.read_excel(self.sample_data, keep_default_na=False, na_values=lookup.NA_VALS)
             except:
@@ -188,8 +182,9 @@ class ProcessValidationQueue:
             try:
                 # get definitive list of mandatory DTOL fields from schema
                 s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
+
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
+                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*]== "' + self.current_schema_version + '")].versions[0]',
                     s)
 
                 # validate for required fields
@@ -204,7 +199,8 @@ class ProcessValidationQueue:
 
                 # get list of all DTOL fields from schemas
                 self.fields = jp.match(
-                    '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', s)
+                    '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+                    s)
 
                 # validate for optional dtol fields
                 for v in self.optional_field_validators:

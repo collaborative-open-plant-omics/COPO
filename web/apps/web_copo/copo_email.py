@@ -11,8 +11,8 @@ class CopoEmail:
     def __init__(self):
         self.messages = {
             "new_manifest":
-                "<h4>New Manifest Available</h4>" +
-                "<p>A new manifest has been uploaded for approval. Please follow the link to proceed</p>" +
+                "<h4>Manifest Available</h4>" +
+                "<p>A manifest has been uploaded for approval. Please follow the link to proceed</p>" +
                 "<h5>{} - {}</h5>" +
                 "<p><a href='{}'>{}</a></p>"
         }
@@ -38,7 +38,7 @@ class CopoEmail:
         self.mailserver.sendmail(email_settings.mail_address, to, msg.as_string())
         self.mailserver.quit()
 
-    def notify_new_manifest(self, data, **kwargs):
+    def notify_manifest_pending_approval(self, data, **kwargs):
         # get users in group
         if kwargs.get("project", "") in ["DTOL", "ASG"]:
             users = User.objects.filter(groups__name='dtol_sample_notifiers')
@@ -53,13 +53,13 @@ class CopoEmail:
         if len(users) > 0:
             for u in users:
                 email_addresses.append(u.email)
+
+            demo_notification = ""
+            is_new = "New "
             if "demo" in data:
-                # if this is running on the demo server, add note into subject and content of email
-                msg = self.messages["new_manifest"].format(kwargs["title"],
-                                                           "DEMO SERVER NOTIFICATION - " + kwargs["description"], data,
-                                                           data)
-                sub = "DEMO SERVER NOTIFICATION: New " + kwargs["project"] + "Manifest - " + kwargs["title"]
-            else:
-                msg = self.messages["new_manifest"].format(kwargs["title"], kwargs["description"], data, data)
-                sub = "New " + kwargs["project"] + " Manifest - " + kwargs["title"]
+                demo_notification = "DEMO SERVER NOTIFICATION: "
+            if not kwargs.get("is_new", True) :            
+                is_new = "Modified "
+            msg = self.messages["new_manifest"].format(kwargs["title"], demo_notification + kwargs["description"], data, data)
+            sub = demo_notification + is_new + kwargs["project"] + " Manifest - " + kwargs["title"]
             self.send(to=email_addresses, sub=sub, content=msg, html=True)

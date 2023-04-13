@@ -87,25 +87,28 @@ class RackPlateUniquenessValidator(Validator):
 
 
             #check if rack_tube present we are in the same profile
-            existingsam = Sample().get_by_field("rack_tube", [str(rack_tube[0])])
+            existingsam = Sample().get_by_field("rack_tube", err) #[str(rack_tube[0])])
             for exsam in existingsam:
                 if exsam["profile_id"] == self.profile_id:
-                    #todo check SYMBIONT value in species list is the same too
-                    #check accessions do not exist yet and status is pending
+                    # todo check SYMBIONT value in species list is the same too
+                    # check accessions do not exist yet and status is pending
                     if not exsam["biosampleAccession"]:
                         if "ERGA" in p_type and exsam["status"] in ["pending", "rejected"]:
-                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.warnings.append(msg["validation_msg_isupdate"] % exsam["rack_tube"])
                             self.kwargs["isupdate"] = True
                         elif exsam["status"] == "pending":
-                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.warnings.append(msg["validation_msg_isupdate"] % exsam["rack_tube"])
                             self.kwargs["isupdate"] = True
-                    else:
-                        #rack_tube has already been approved or rejected by sample manager and can't be updated any more
-                        self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
-                        self.flag = False
+                    else:     #allow for update after approval in the same profile
+                         self.kwargs["isupdate"] = True
+                         self.warnings.append(msg["validation_msg_warning_update_submitted_sample"] % (
+                                    exsam["rack_tube"], exsam["biosampleAccession"]))
+                    #    #rack_tube has already been approved by sample manager and can't be updated any more
+                    #    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    #    self.flag = False
                 else:
                     #rack_tube exist in another profile, can't be updated
-                    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % exsam["rack_tube"])
                     self.flag = False
 
         # duplicates are allowed for asg (and possibily dtol) but one element of duplicate set must have one
@@ -123,8 +126,91 @@ class RackPlateUniquenessValidator(Validator):
             if counts["TARGET"] > 1:
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
-            #TODO this can go at version 2.3 of DTOL
-            if counts["TARGET"]+counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
+            # TODO this can go at version 2.3 of DTOL
+            if counts["TARGET"] + counts["SYMBIONT"] < len(list(rows["SYMBIONT"].values)):
                 self.errors.append(msg["validation_msg_multiple_targets_with_same_id"] % (i))
                 self.flag = False
-        return self.errors, self.warnings,self.flag, self.kwargs.get("isupdate")
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
+
+
+class DecimalLatitudeLongitudeValidator(Validator):
+    def validate(self):
+        """
+            Check if sample has an ERGA manifest type and validate the fields - DECIMAL_LATITUDE, DECIMAL_LONGITUDE,
+            LATITUDE_START, LATITUDE_END, LONGITUDE_START and LONGITUDE_END based on the following scenarios:
+
+            1) If any of the aforementioned fields is empty, then the valdiation should fail
+               because if there is no value, 'NOT_COLLECTED' should be the value
+
+            2) All of the aforementioned fields cannot be 'NOT_COLLECTED'. The validation should fail if that occurs.
+
+            3) If LATITUDE_START, LATITUDE_END, LONGITUDE_START and LONGITUDE_END have a decimal value then,
+               DECIMAL_LATITUDE and DECIMAL_LONGITUDE must have the value 'NOT_COLLECTED'
+
+            4) If DECIMAL_LATITUDE and DECIMAL_LONGITUDE have a decimal value then, LATITUDE_START, LATITUDE_END,
+               LONGITUDE_START and LONGITUDE_END must have the value 'NOT_COLLECTED'
+        """
+
+        p_type = Profile().get_type(profile_id=self.profile_id)
+
+        if "ERGA" in p_type:
+            for index, row in self.data.iterrows():
+                decimal_latlong_lst = [row.get("DECIMAL_LATITUDE", ""), row.get("DECIMAL_LONGITUDE", "")]
+                latlong_start_end_lst = [row.get("LATITUDE_START", ""), row.get("LATITUDE_END", ""),
+                                         row.get("LONGITUDE_START", ""), row.get("LONGITUDE_END", "")]
+
+                if any(i == "" for i in decimal_latlong_lst) or any(i == "" for i in latlong_start_end_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_value"] % str(index + 2))
+                    self.flag = False
+
+                elif any(i == "NOT_COLLECTED" for i in decimal_latlong_lst) and any(
+                        i != "NOT_COLLECTED" for i in decimal_latlong_lst) or any(
+                    i == "NOT_COLLECTED" for i in latlong_start_end_lst) and any(
+                    i != "NOT_COLLECTED" for i in latlong_start_end_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_mixed_value"] % str(index + 2))
+                    self.flag = False
+
+                elif all(i == "NOT_COLLECTED" for i in decimal_latlong_lst) and all(
+                        i == "NOT_COLLECTED" for i in latlong_start_end_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_all_not_collected"] % str(
+                            index + 2))
+                    self.flag = False
+
+
+                elif all(i == "NOT_COLLECTED" for i in decimal_latlong_lst) and any(
+                        i == "NOT_COLLECTED" for i in latlong_start_end_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_start_end"] % str(
+                            index + 2))
+                    self.flag = False
+
+
+                elif all(i == "NOT_COLLECTED" for i in latlong_start_end_lst) and any(
+                        i == "NOT_COLLECTED" for i in decimal_latlong_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_decimal_latlong"] % str(
+                            index + 2))
+                    self.flag = False
+
+
+                elif any(i == "NOT_COLLECTED" for i in decimal_latlong_lst) and any(
+                        i == "NOT_COLLECTED" for i in latlong_start_end_lst):
+                    self.errors.append(msg[
+                                           "validation_msg_error_decimal_latlong_or_latlong_start_end_not_collected_mixed_value"] % str(
+                        index + 2))
+                    self.flag = False
+
+                elif all(i != "NOT_COLLECTED" for i in decimal_latlong_lst) and all(
+                        i != "NOT_COLLECTED" for i in latlong_start_end_lst):
+                    self.errors.append(
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_all_contains_a_value"] % str(
+                            index + 2))
+                    self.flag = False
+
+                else:
+                    print('success')
+
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

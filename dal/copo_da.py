@@ -4,10 +4,8 @@ import os
 from datetime import datetime, timezone, date
 
 import copy
-import importlib
-import re
-import importlib
 import json
+import re
 import pandas as pd
 import pymongo
 from pymongo import ReturnDocument
@@ -20,12 +18,12 @@ from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
 from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
-from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids, cursor_to_list_str_and_datetime_to_string
+from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids, cursor_to_list_str2
 from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
-# from web.apps.web_copo.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -34,10 +32,6 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import make_tax_from_sample
 from pymongo.collection import ReturnDocument
 
 lg = settings.LOGGER
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-TOL_PROFILE_TYPES = dtol_lookups_data.TOL_PROFILE_TYPES
-SANGER_TOL_PROFILE_TYPES = dtol_lookups_data.SANGER_TOL_PROFILE_TYPES
 
 PubCollection = 'PublicationCollection'
 PersonCollection = 'PersonCollection'
@@ -862,6 +856,95 @@ class Sample(DAComponent):
             {"$project": {"factorValues": 1, "name": 1}}
         ])
 
+    def save_record(self, auto_fields=dict(), **kwargs):
+        fields = dict()
+        schema = kwargs.get("schema", list()) or self.get_component_schema()
+
+        # set auto fields
+        if auto_fields:
+            fields = DecoupleFormSubmission(auto_fields, schema).get_schema_fields_updated_dict()
+
+        # should have target_id for updates and return empty string for inserts
+        target_id = kwargs.pop("target_id", str())
+
+        # set system fields
+        system_fields = dict(
+            date_modified=data_utils.get_datetime(),
+            deleted=data_utils.get_not_deleted_flag()
+        )
+
+        if not target_id:
+            system_fields["date_created"] = data_utils.get_datetime()
+            system_fields["profile_id"] = self.profile_id
+
+        # Get profile type
+        manifest_type = Profile().get_type(self.profile_id)
+        manifest_type = manifest_type.lower()
+        current_schema_version = ""
+        profile_type = ""
+
+        # Get manifest version based on profile type
+        if "asg" in manifest_type:
+            profile_type = "asg"
+            current_schema_version = settings.CURRENT_ASG_VERSION
+        elif "dtolenv" in manifest_type:
+            profile_type = "dtolenv"
+            current_schema_version = settings.CURRENT_DTOLENV_VERSION
+        elif "dtol" in manifest_type:
+            profile_type = "dtol"
+            current_schema_version = settings.CURRENT_DTOL_VERSION
+        elif "erga" in manifest_type:
+            profile_type = "erga"
+            current_schema_version = settings.CURRENT_ERGA_VERSION
+
+        # extend system fields
+        for k, v in kwargs.items():
+            system_fields[k] = v
+
+        # add system fields to 'fields' and set default values - insert mode only
+        for f in schema:
+            # Filter schema based on manfest type and manifest version
+            f_specifications = f.get("specifications", "")
+            f_manifest_version = f.get("manifest_version", "")
+
+            if f_specifications and profile_type not in f_specifications or f_manifest_version and current_schema_version not in f_manifest_version:
+                continue
+
+            f_id = f["id"].split(".")[-1]
+            try:
+                v_id = f["versions"][0]
+            except:
+                v_id = ""
+            if f_id in system_fields:
+                fields[f_id] = system_fields.get(f_id)
+            elif v_id in system_fields:
+                fields[f_id] = system_fields.get(v_id)
+
+            if not target_id and f_id not in fields:
+                fields[f_id] = data_utils.default_jsontype(f["type"])
+
+        # if True, then the database action (to save/update) is never performed, but validated 'fields' are returned
+        validate_only = kwargs.pop("validate_only", False)
+        fields["date_modified"] = datetime.now()
+        # check if there is attached profile then update date modified
+        if "profile_id" in fields:
+            self.update_profile_modified(fields["profile_id"])
+        if validate_only is True:
+            return fields
+        else:
+            if target_id:
+                self.get_collection_handle().update(
+                    {"_id": ObjectId(target_id)},
+                    {'$set': fields})
+            else:
+                doc = self.get_collection_handle().insert(fields)
+                target_id = str(doc)
+
+            # return saved record
+            rec = self.get_record(target_id)
+
+            return rec
+
     def update_public_name(self, name):
         self.get_collection_handle().update_many(
             {"SPECIMEN_ID": name['specimen']["specimenId"]},
@@ -1089,7 +1172,7 @@ class Sample(DAComponent):
         # elif filter == "processing":
         #    find_condition["status"]=  "processing"
         #    cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
-        #    total_count = handler.find(find_condition).count()
+        #    total_count = handler.find(find_condition).count()            
         # out = list()
         # cursor = self.get_collection_handle().find(
         #    {'profile_id': profile_id, "status": "processing",'$text': {'$search': search }}).sort([[sort_by_column, dir]]).skip(int(start)).limit(int(length))
@@ -1152,7 +1235,7 @@ class Sample(DAComponent):
 
     def get_sample_display_column_names(self):
         sc = self.get_component_schema()
-        columns = [];
+        columns = []
         columns.append("_id")
         for field in sc:
             if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",
@@ -1160,7 +1243,7 @@ class Sample(DAComponent):
                 columns.append(field.get("id", "").split(".")[-1])
 
         columns.append("error")
-        return columns;
+        return columns
 
     def get_dtol_from_profile_id_and_project(self, profile_id, project):
         cursor = self.get_collection_handle().find({'profile_id': profile_id, "tol_project": project})
@@ -1210,7 +1293,7 @@ class Sample(DAComponent):
                     "$project": query_projection
                 }
             ])
-        records = cursor_to_list_str_and_datetime_to_string(cursor)
+        records = cursor_to_list_str2(cursor)
 
         # get schema
         sc = self.get_component_schema()
@@ -1290,6 +1373,10 @@ class Sample(DAComponent):
 
     def mark_processing(self, sample_id):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "processing"}})
+
+    def mark_pending(self, sample_id):
+        return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "pending"}})
+
 
     def get_by_manifest_id(self, manifest_id):
         samples = cursor_to_list(self.get_collection_handle().find({"manifest_id": manifest_id}))

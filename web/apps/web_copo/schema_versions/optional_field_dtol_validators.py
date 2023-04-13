@@ -3,15 +3,12 @@ import re
 from dal.copo_da import Profile, Sample
 from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 import importlib
 import validators
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 class DtolEnumerationValidator(Validator):
@@ -51,14 +48,22 @@ class DtolEnumerationValidator(Validator):
                     allowed_vals = lookup_entry
 
                 # check if there's a regex rule for the header and exceptional handling
-                if lookup.DTOL_RULES.get(header, ""):
+                header_rules = lookup.DTOL_RULES.get(f'{header}_{p_type}', "")
+
+                # Check if header does not contain the profile type at the end
+                if not header_rules:
+                    header_rules = lookup.DTOL_RULES.get(header, "")
+
+                # Check if header contains the profile type at the end
+                if header_rules:
                     # control for when ENA regex is too permissive
-                    if lookup.DTOL_RULES[header].get("strict_regex", ""):
-                        regex_rule = lookup.DTOL_RULES[header].get("strict_regex", "")
+                    if header_rules.get("strict_regex", ""):
+                        regex_rule = header_rules.get("strict_regex", "")
                     else:
-                        regex_rule = lookup.DTOL_RULES[header].get("ena_regex", "")
-                    regex_human_readable = lookup.DTOL_RULES[header].get("human_readable", "")
-                    optional_regex = lookup.DTOL_RULES[header].get("optional_regex", "")
+                        regex_rule = header_rules.get("ena_regex", "")
+
+                    regex_human_readable = header_rules.get("human_readable", "")
+                    optional_regex = header_rules.get("optional_regex", "")
                 else:
                     regex_rule = ""
                     optional_regex = ""

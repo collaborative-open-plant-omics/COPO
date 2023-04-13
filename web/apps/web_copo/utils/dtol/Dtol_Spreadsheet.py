@@ -1,12 +1,10 @@
 # Created by fshaw at 03/04/2020
 import inspect
 import math
-import importlib
 import os
 import re
 import uuid
 import pickle
-import importlib
 from os.path import join, isfile
 from pathlib import Path
 from shutil import rmtree
@@ -23,35 +21,23 @@ from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.copo_email import CopoEmail
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import query_public_name_service
 from .Dtol_Helpers import make_tax_from_sample
-# from web.apps.web_copo.validators.tol_validators import optional_field_dtol_validators as optional_validators, \
-#     taxon_validators
-# from web.apps.web_copo.validators.tol_validators import required_field_dtol_validators as required_validators
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions import optional_field_dtol_validators as optional_validators, \
+    taxon_validators
+from web.apps.web_copo.schema_versions import required_field_dtol_validators as required_validators
 from web.apps.web_copo.validators.validator import Validator
 from dal import cursor_to_list
 from exceptions_and_logging import logger
 import os
-import sys
 from PIL import Image
 import logging
 
 l = logger.Logger("exceptions_and_logging/logs")
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
-
-schema_version_path_optional_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.optional_field_dtol_validators'
-optional_validators = importlib.import_module(schema_version_path_optional_validators)
-
-schema_version_path_taxon_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.taxon_validators'
-taxon_validators = importlib.import_module(schema_version_path_taxon_validators)
-
-schema_version_path_required_validators = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.required_field_dtol_validators'
-required_validators = importlib.import_module(schema_version_path_required_validators)
 
 
 def make_target_sample(sample):
@@ -117,8 +103,8 @@ class DtolSpreadsheet:
         if file:
             self.file = file
         else:
-            #self.sample_data = self.req.session.get("sample_data", "")
-            #if self.sample_data == "":
+            # self.sample_data = self.req.session.get("sample_data", "")
+            # if self.sample_data == "":
             #    self.sample_data = pickle.loads(self.vr["manifest_data"])
             self.sample_data = pickle.loads(self.vr["manifest_data"])
             self.isupdate = self.req.session.get("isupdate", False)
@@ -146,12 +132,16 @@ class DtolSpreadsheet:
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
             self.type = "ASG"
+            self.current_schema_version = settings.CURRENT_ASG_VERSION
         elif "ERGA" in t:
             self.type = "ERGA"
+            self.current_schema_version = settings.CURRENT_ERGA_VERSION
         elif "DTOL_ENV" in t:
             self.type = "DTOL_ENV"
+            self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
         else:
             self.type = "DTOL"
+            self.current_schema_version = settings.CURRENT_DTOL_VERSION
 
         # get associated profile type(s) of manifest
         associated_t = Profile().get_associated_type(self.profile_id)
@@ -228,7 +218,7 @@ class DtolSpreadsheet:
             # get definitive list of mandatory DTOL fields from schema
             s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
             self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true")].versions[0]',
+                '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*]== "' + self.current_schema_version + '")].versions[0]',
                 s)
 
             # validate for required fields
@@ -240,7 +230,8 @@ class DtolSpreadsheet:
 
             # get list of all DTOL fields from schemas
             self.fields = jp.match(
-                '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', s)
+                '$.properties[?(@.specifications[*] == ' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+                s)
 
             # validate for optional dtol fields
             for v in self.optional_field_validators:
@@ -549,7 +540,8 @@ class DtolSpreadsheet:
         public_name_list = list()
         x = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
         self.fields = jp.match(
-            '$.properties[?(@.specifications[*] == ' + self.type.lower() + ')].versions[0]', x)
+            '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
+            x)
 
         sample_data["_id"] = ""
         for index, p in sample_data.iterrows():
@@ -631,8 +623,8 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description,
-                                        project=self.type.upper())
+        CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=True)
 
     def update_records(self):
         binary = pickle.loads(self.vr["manifest_data"])
@@ -645,6 +637,7 @@ class DtolSpreadsheet:
         request = ThreadLocal.get_current_request()
         public_name_list = list()
         sample_data["_id"] = ""
+        need_send_email = False
         for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
@@ -654,6 +647,7 @@ class DtolSpreadsheet:
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             sample_data.at[p, '_id'] = recorded_sample["_id"]
+            is_updated = False
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
                     0].get(field, ""):
@@ -663,11 +657,17 @@ class DtolSpreadsheet:
                                                     recorded_sample["_id"])
                         # update sample
                         Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
+                        is_updated = True
                     else:
                         # record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
                         # update sample
                         Sample().add_field(field, s[field], recorded_sample["_id"])
+                        is_updated = True
+
+            if recorded_sample["biosampleAccession"] and is_updated:
+                Sample().mark_pending(recorded_sample["_id"])
+                need_send_email = True
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
@@ -681,6 +681,10 @@ class DtolSpreadsheet:
             profile = Profile().get_record(profile_id)
             title = profile["title"]
             description = profile["description"]
+
+        if need_send_email:
+            CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=False)
 
         image_data = request.session.get("image_specimen_match", [])
         for im in image_data:

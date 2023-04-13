@@ -1,15 +1,10 @@
 from web.apps.web_copo.validators.validator import Validator
 from dal.copo_da import Sample, Profile
-from django.conf import settings
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from Bio import Entrez
-import importlib
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 import importlib
 
