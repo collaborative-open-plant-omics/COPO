@@ -5,13 +5,12 @@ from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
-from . import views
-from . import copo_dashboard_views
+from . import views, copo_dashboard_views, copo_profile_views
 
 app_name = 'web_copo'
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    #path('', views.index, name='index'),path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
     path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
@@ -25,13 +24,16 @@ urlpatterns = [
     path('login/', views.login, name='auth'),
     path('logout/', views.copo_logout, name='logout'),
     path('register/', views.copo_register, name='register'),
-    path('profile/update_counts/', views.get_profile_counts, name='update_counts'),
+    # path('profile/update_counts/', views.get_profile_counts, name='update_counts'),
+    path('profile/update_counts/', copo_profile_views.get_profile_counts, name='update_counts'),
     path('view_user_info/', views.view_user_info, name='view_user_info'),
     path('error/', views.goto_error, name='error_page'),
     path('access_denied/', views.goto_unauthorised_page, name='unauthorised_page'),
     path('register_to_irods/', views.register_to_irods, name='register_to_irods'),
-    re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/view', views.view_copo_profile,
+    re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/view', copo_profile_views.view_copo_profile,
             name='view_copo_profile'),
+    # re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/view', views.view_copo_profile,
+    #         name='view_copo_profile'),
     re_path(r'^copo_publications/(?P<profile_id>[a-z0-9]+)/view', views.copo_publications,
             name='copo_publications'),
     re_path(r'^copo_data/(?P<profile_id>[a-z0-9]+)/view', views.copo_data,
@@ -60,8 +62,11 @@ urlpatterns = [
     re_path(r'stats/combined_stats_json', stats.combined_stats_json, name='combined_stats_csv'),
     path('author_template/<template_id>/view', views.author_template, name='author_template'),
     path('copo_forms/', views.copo_forms, name="copo_forms"),
-    path('delete_profile/', views.delete_profile, name="delete_profile"),
+    path('copo_profile_forms/', copo_profile_views.copo_profile_forms, name="copo_profile_forms"),
+    # path('delete_profile/', views.delete_profile, name="delete_profile"),
+    path('delete_profile/', copo_profile_views.delete_profile, name="delete_profile"),
     path('copo_visualize/', views.copo_visualize, name="copo_visualize"),
+    path('copo_profile_visualise/', copo_profile_views.copo_profile_visualise, name="copo_profile_visualise"),
     path('authenticate_figshare/', views.authenticate_figshare, name='authenticate_figshare'),
     path('publish_figshare/', ajax_handlers.publish_figshare, name='publish_figshare'),
     path('view_oauth_tokens/', views.view_oauth_tokens, name='view_oauth_tokens'),

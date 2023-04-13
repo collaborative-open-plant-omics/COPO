@@ -24,7 +24,6 @@ from hurry.filesize import size as hurrysize
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging.logger import Logger
 
-
 register = template.Library()
 
 # dictionary of components table id, gotten from the UI
@@ -172,12 +171,20 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
                 continue
 
             if component == "profile":
-                if "type" in f["id"]:
-                    # check if this user is in dtol group, if not, break so as to not add dropdown to form
-                    request = ThreadLocal.get_current_request()
-                    is_DTOL = request.user.groups.filter(name__in=['dtol_users', 'erga_users']).exists()
-                    if not is_DTOL:
-                        break
+                # Check if a user is in ASG group, DTOL group, ERGA group or DTOL_ENV group,
+                request = ThreadLocal.get_current_request()
+                is_user_in_any_manifest_group = request.user.groups.filter(
+                    name__in=['dtol_users', 'erga_users', 'dtolenv_users']).exists()
+
+                # If a user has not been added to any of the manifest groups, display only the 'Stand-alone'
+                # project type in the dropdown menu on the form
+                if not is_user_in_any_manifest_group and "type" in f["id"] and 'Stand-alone' in f["option_values"]:
+                    # "Stand-alone" is the first project type in the list
+                    f["option_values"] = [f["option_values"][0]]
+
+                # Do not display the 'associated type' field if user is not in a manifest group
+                if not is_user_in_any_manifest_group and "associated_type" in f["id"]:
+                    break
 
             form_schema.append(f)
 
@@ -905,7 +912,6 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
         "repository_docs.type": 1,
         "repository_docs._id": 1,
     }
-
 
     doc = Submission().get_collection_handle().aggregate(
         [

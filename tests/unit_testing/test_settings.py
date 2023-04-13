@@ -42,7 +42,7 @@ class SettingsTest(SimpleTestCase):
 class LoggerTest(StaticLiveServerTestCase):
     def test_logger_settings(self):
         # <link rel = "stylesheet" href = "{% static 'copo/css/copo/index.css' %}" >
-        # record = self.live_server_url + settings.STATIC_URL + 'index.html'
+        # record = self.live_server_url + settings.STATIC_URL + 'copo_profile_index.html'
         # print(record)
         # record = static('assets/files/COPO_visual_user_documentation.pdf')
         # print(skip_static_requests(record))

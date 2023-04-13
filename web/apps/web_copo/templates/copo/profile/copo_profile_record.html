@@ -1,0 +1,69 @@
+{% load static %}
+<div class="grid">
+    <div class="copo-records-panel" profile_type="{{ profile.type }} ">
+        <!--Panel -->
+        <div class="panel">
+            <!--Panel heading -->
+            <div class="panel-heading" style="background-color: {{ profile.heading_bgColour }}">
+                <div class="row">
+                    <div class="col-sm-10 col-md-10 col-lg-10 row-title">
+                        <span id={{ profile.id }} class=showEllipsisFor1TextLine>{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis" title="View profile options">
+                        <div id="{{ profile.id }}" class="pull-right ellipsisDiv">
+                            <i id="ellipsisID" class="fa fa-ellipsis-v" data-toggle="popover"
+                               data-html="true" role="button"
+                               title='<i id="popoverCloseBtn" class="fa fa-times pull-right"></i>'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Panel body -->
+            <div class="grid-panel-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12"
+                         style="padding-top: {{ profile.panel_content_paddingTop }}; height:fit-content;">
+                        <!--Panel content -->
+                        <div>Created:</div>
+                        <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
+                        <div>Description:</div>
+                        <div class="showEllipsisFor2TextLines {% if profile.associated_type|length == 0 and profile.description.strip|length < 45 %} no_associatedTypes_marginBottom {% elif profile.associated_type|length == 0 and profile.description.strip|length >= 45 %}no_associatedTypes_marginBottom_2LineDescriptionText {% else %} associatedTypes_marginBottom {% endif %}">
+                            {{ profile.description }}</div>
+                        {% if profile.associated_type %}
+                            <div class="associated_type_div_label" style="display: block;">
+                                Associated
+                                Profile Type(s):
+                            </div>
+                            <div class="{% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% else %}several_associatedType_marginBottom{% endif %}">
+                                <ul class="associated_type_ulTag"
+                                    style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }}; max-height: 85px; overflow-x: auto;">
+                                    {% for element in profile.associated_type_elements %}
+                                        <li title="{{ element.associated_type }}">  {{ element.abbreviation }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <!--Panel expanding menu -->
+                        <span class="ui vertical menu expanding_menu" id="expanding_menu">
+                            <div class="ui left pointing dropdown link item" tabindex="0">
+                                Actions
+                                <i class="dropdown icon"></i>
+                                <div class="menu" tabindex="-1">
+                                    <a class="item action" anchor_type="reads" data-action_type="reads">Submit Reads</a>
+                                    <a class="item action" anchor_type="assembly" data-action_type="assembly">Submit Assembly</a>
+                                    <a class="item action" anchor_type="dtol_option" data-action_type="dtol">Submit DTOL/ASG manifest</a>
+                                    <a class="item action" anchor_type="erga_option" data-action_type="erga">Submit ERGA Manifest</a>
+                                </div>
+                            </div>
+                            <div class="ui left pointing dropdown link item" tabindex="0">
+                                Components
+                                <i class="dropdown icon"></i>
+                                <div class="menu comp" tabindex="-1"></div>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

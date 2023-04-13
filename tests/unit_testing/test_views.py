@@ -309,7 +309,7 @@ class LandingViewTests(BaseTest):
     def test_landing_view_uses_correct_template(self):
         self.client.login(username=self.username, password=self.user_password)
         response = self.client.get(reverse('index'))
-        self.assertTemplateUsed(response, "index.html")
+        self.assertTemplateUsed(response, "copo_profile_index.html")
 
     def test_landing_view_template_content(self):
         self.client.login(username=self.username, password=self.user_password)
@@ -553,7 +553,7 @@ class ViewsTest(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ip_server_response.status_code, 200)
         self.assertTemplateUsed(response, 'copo/base_simple.html')  # 'index_new.html'
-        self.assertTemplateUsed(response2, 'copo/base_simple.html')  # 'copo/index.html'
+        self.assertTemplateUsed(response2, 'copo/base_simple.html')  # 'copo/copo_profile_index.html'
         index_page_resolver = resolve(reverse('web_copo:index'))
         self.assertEquals(index_page_resolver.func, views.index)
 

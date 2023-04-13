@@ -4,8 +4,7 @@
 {% load web_tags %}
 
 {% block stylesheet_block %}
-    <link rel="stylesheet" href="{% static 'copo/css/copo/index.css' %}">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/index.css' %}">
+    <link rel="stylesheet" href="{% static 'copo_profile/css/copo_profile_index.css' %}">
 {% endblock %}
 
 
@@ -42,7 +41,6 @@
 
     <style>
 
-
     </style>
 {% endblock browse_header_block %}
 
@@ -69,34 +67,37 @@
     <div class="row" style="margin-bottom:70px;">
         <div class="col-sm-5 col-md-5 col-lg-5 copo-page-headers"></div>
         <div class="col-sm-7 col-md-7 col-lg-7 copo-page-icons">
-            <span style="display: inline;">&nbsp;
-                <button id="copo_dashboard_shortcut" style="display:none"
-                        class="big circular ui icon yellow button pull-right copo_dashboard copo-tooltip"
-                        title="View COPO Dashboard">
-                    <i class="icon dashboard" style="font-size: 1.3em"></i>
-                </button>
-                <span style="display: inline;">&nbsp;</span>
-                    <span style="display: inline;">&nbsp;</span>
-                <button id="accept_reject_shortcut" style="display:none"
-                        class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
-                        title="Accept/Reject TOL Samples">
-                    <i class="icon tasks sign"></i>
-                </button>
-                <span style="display: inline;">&nbsp;</span>
-            </span>
+            <button id="accept_reject_shortcut" style="display:none"
+                    class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
+                    title="Accept/Reject TOL Samples">
+                <i class="icon tasks sign"></i>
+            </button>
         </div>
     </div>
 {% endblock page_tile %}
 
 {% block content %}
     <script>
-        var groups =
+        let groups =
         {{ groups|safe }}
     </script>
+    <script> let profiles =
+    {{ profiles|safe }} </script>
+    <script>  let profiles_total =
+    {{ profiles_total|safe }} </script>
     <!-- test -->
     <!-- end test -->
 
-
+    <!-- Indicate that one should scroll downwards to view more profiles -->
+    <a href="javascript:void(0);" id="navigateToBottom" class="navigate-to-bottom"
+       title="Scroll down to view more profiles">
+        <i class="down-arrow"></i><i class="down-arrow"></i>
+    </a>
+    <!-- Navigate to top of web page button -->
+    <a href="javascript:void(0);" id="navigateToTop" class="navigate-to-top"
+       title="Navigate to top of the web page">
+        <i class="up-arrow"></i><i class="up-arrow"></i>
+    </a>
     <!-- getting started section -->
 
     <div class="row">
@@ -150,16 +151,45 @@
     <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
          data-copo-tour-id="profile_table"></div>
     <!-- div used by the quick tour agent -->
-    <div id="profile_table_div">
-        <table id="copo_profiles_table" class="ui celled table copo-noselect-table copo-noborders-table"
-               cellspacing="0" width="100%">
-        </table>
+    <!-- Profile tables div-->
 
-        <table id="copo_shared_profiles_table" class="ui celled table copo-noselect-table copo-noborders-table"
-               cellspacing="0" width="100%">
-        </table>
+    <!-- Sort Work Profiles button-->
+    {% if profiles %}
+        <div class="row">
+            <div class="col-xs-2 col-md-3 col-lg-4">
+                <div class="pull-right" style="padding-top: 9px;"> Sort by:</div>
+            </div>
+            <div class="col-xs-2 col-md-2 col-lg-2">
+                <select id="sortProfilesBtn" class="form-control" style="padding-bottom:10px">
+                    <option value="date_created">Date Created</option>
+                    <option value="title">Profile Title</option>
+                    <option value="type">Profile Type</option>
+                </select>
+            </div>
+            <div class="col-xs-0 col-md-0 col-lg-0">
+                <div class="pull-left"><i id="sortIconID" class="sort-down fa fa-sort-down sort-icon"></i></div>
+
+            </div>
+        </div>
+    {% endif %}
+    <br>
+    <!-- COPO profiles' grid -->
+    <div id="copo_profiles_table">
+        {% for profile in profiles %}
+            {% include 'copo/profile/copo_profile_record.html' %}
+        {% endfor %}
     </div>
-
+    <div id="copo_shared_profiles_table">
+        {% for shared_profile in shared_profiles %}
+            {% include 'copo/profile/copo_shared_profile_record.html' %}
+        {% endfor %}
+    </div>
+    <div id="bottom-panel">
+        Showing:
+        &nbsp;<b><span id="grid-count"></span>
+        &nbsp;</b>/
+        &nbsp;<b><span id="grid-total"></span></b>&ensp;profiles
+    </div>
 {% endblock %}
 
 {% block help_section %}
@@ -170,8 +200,7 @@
 
 
 {% block js_block %}
-    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
-    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/index.js' %}"></script>
+    <script src="{% static 'copo_profile/js/copo_profile_generic_handlers.js' %}"></script>
+    <script src="{% static 'copo_profile/js/copo_profile_form_handlers.js' %}"></script>
+    <script src="{% static 'copo_profile/js/copo_profile_index.js' %}"></script>
 {% endblock %}
