@@ -272,7 +272,8 @@ class BrokerDA:
         return self.context
 
     def do_user_email(self):
-        user_id = self.param_dict.get("user_id", str())
+        #user_id = self.param_dict.get("user_id", str())
+        user_id = data_utils.get_current_user().id
         user_email = self.param_dict.get("user_email", str())
         user = User.objects.get(pk=int(user_id))
         user.email = user_email
