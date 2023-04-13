@@ -3080,7 +3080,7 @@
     "ref": "",
     "deprecated": false,
     "hidden": "true",
-    "label": "TOL Project",
+    "label": "Manifest Version",
     "show_in_form": false,
     "id": "copo.sample.manifest_version",
     "type": "string",
@@ -3142,6 +3142,40 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
+    "index": {
+      "erga": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "rack_tube",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": false,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "rack_tube"
+    ],
+    "ref": "",
+    "specifications": [
+      "erga"
+    ],
+    "deprecated": false,
+    "hidden": "true",
+    "type": "string",
+    "show_in_form": false,
+    "id": "copo.sample.rack_tube",
+    "label": "",
+    "show_in_table": false,
+    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
     "index": {
       "erga": {
         "colour": "",

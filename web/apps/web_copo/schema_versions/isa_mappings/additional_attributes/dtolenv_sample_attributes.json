@@ -1874,7 +1874,7 @@
       "manifest_id"
     ],
     "specifications": [
-      "dtol"
+      "dtol_env"
     ],
     "ref": "",
     "deprecated": false,
@@ -1886,7 +1886,39 @@
     "show_in_table": true,
     "control": "text",
     "index": {
-      "dtol": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "false",
+    "control_meta": {},
+    "dwc": "",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "manifest_version"
+    ],
+    "specifications": [
+      "dtol_env"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "true",
+    "label": "Manifest Version",
+    "show_in_form": false,
+    "id": "copo.sample.manifest_version",
+    "type": "string",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "index": {
+      "dtol_env": {
         "colour": "",
         "excel_col": "",
         "order": null
@@ -1913,6 +1945,39 @@
     "type": "string",
     "show_in_table": false,
     "control": "text"
+  },
+  {
+    "help_tip": "rack_tube",
+    "required": "false",
+    "default_value": "",
+    "show_as_attribute": false,
+    "control_meta": {},
+    "control": "text",
+    "manifest_version": [
+      "2.4"
+    ],
+    "versions": [
+      "rack_tube"
+    ],
+    "ref": "",
+    "specifications": [
+      "dtol_env"
+    ],
+    "deprecated": false,
+    "hidden": "true",
+    "type": "string",
+    "show_in_form": false,
+    "id": "copo.sample.rack_tube",
+    "label": "",
+    "show_in_table": false,
+    "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
+    "index": {
+      "dtol_env": {
+        "colour": "",
+        "excel_col": "",
+        "order": null
+      }
+    }
   },
   {
     "help_tip": "",

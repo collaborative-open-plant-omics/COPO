@@ -1806,25 +1806,38 @@ def get_current_manifest_version(request):
 
 def get_manifest_fields(request):
     manifest_type = request.GET["manifest_type"]
+    current_schema_version = ""
+
+    # Get manfiest version
+    if "asg" in manifest_type:
+        current_schema_version = settings.CURRENT_ASG_VERSION
+    elif "dtol_ei" in manifest_type or "dtol_env" in manifest_type:
+        current_schema_version = settings.CURRENT_DTOLENV_VERSION
+    elif "erga" in manifest_type:
+        current_schema_version = settings.CURRENT_ERGA_VERSION
+    else:
+        current_schema_version = settings.CURRENT_DTOL_VERSION
 
     # Get sample fields
     s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
 
     field_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].versions[''0]', s)
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].versions[''0]',
+        s)
 
     # Get sample fields' order number
     order_num_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index.["' + manifest_type + '"].order', s)
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].order',
+        s)
 
     # Get sample fields' MS Excel column letter
     excel_col_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '")].index["' + manifest_type + '"].excel_col',
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].excel_col',
         s)
 
     # Get sample fields' colour
     colour_lst = jp.match(
-        '$.properties[?(@.specifications[*] == "' + manifest_type + '" )].index["' + manifest_type + '"].colour',
+        '$.properties[?(@.specifications[*] == "' + manifest_type + '"& @.manifest_version[*]=="' + current_schema_version + '")].colour',
         s)
 
     # Combine the information in a tuple

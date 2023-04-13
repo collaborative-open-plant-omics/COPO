@@ -2637,7 +2637,7 @@
     "ref": "",
     "deprecated": false,
     "hidden": "true",
-    "label": "TOL Project",
+    "label": "Manifest Version",
     "show_in_form": false,
     "id": "copo.sample.manifest_version",
     "type": "string",
