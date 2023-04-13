@@ -2,8 +2,9 @@ __author__ = 'felix.shaw@tgac.ac.uk - 20/01/2016'
 
 import json
 import bson.json_util as jsonb
-import jsonpickle
 from django.http import HttpResponse
+import pandas as pd
+from django_tools.middlewares import ThreadLocal
 
 from web.apps.web_copo.lookup.lookup import API_RETURN_TEMPLATES
 
@@ -42,6 +43,13 @@ def finish_request(template=None, error=None, num_found=None, return_http_respon
     :param error_info: error created if any
     :return: the complete API return
     """
+    request = ThreadLocal.get_current_request()
+    is_csv = request.GET.get('csv', False)
+    if is_csv == 'True' or is_csv == 'true' or is_csv == '1' or is_csv == 1 :
+        is_csv = True
+    else:
+        is_csv = False
+
     wrapper = get_return_template('WRAPPER')
     if error is None:
         if num_found == None:
@@ -62,7 +70,15 @@ def finish_request(template=None, error=None, num_found=None, return_http_respon
         wrapper['data'] = None
     output = jsonb.dumps(wrapper)
     if return_http_response:
-        return HttpResponse(output, content_type="application/json")
+        if is_csv:
+            # Create the HttpResponse object with the appropriate CSV header.
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=export.csv'
+            df = pd.DataFrame(template)
+            df.to_csv(response, index=False) 
+            return response
+        else:
+            return HttpResponse(output, content_type="application/json")
     else:
         return output
 

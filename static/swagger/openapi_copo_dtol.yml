@@ -48,6 +48,12 @@ paths:
         Get all manifests
       description: >
         If no manifest ID is provided, COPO simply returns a list of all manifest ids
+      parameters:
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format           
       responses:
         200:
           description: A JSON array sample objects
@@ -73,6 +79,11 @@ paths:
           schema:
             type: string
             minimum: 1
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format            
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -106,7 +117,11 @@ paths:
           schema:
             type: string
             format: date-time
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -146,7 +161,11 @@ paths:
           schema:
             type: string
             format: date-time
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -174,7 +193,11 @@ paths:
           schema:
             type: string
             minimum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array of sample status objects
@@ -201,7 +224,11 @@ paths:
           schema:
             type: string
             minimum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array sample copo_ids
@@ -228,7 +255,11 @@ paths:
           schema:
             type: string
             minimum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -255,7 +286,11 @@ paths:
           schema:
             type: string
             minimum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -282,7 +317,11 @@ paths:
           schema:
             type: string
             minimum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -315,6 +354,11 @@ paths:
           schema:
             type: string
             minimum: 1
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format               
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -340,7 +384,11 @@ paths:
             type: string
             minimum: 1
             maximum: 1
-
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format   
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -364,6 +412,11 @@ paths:
           description: a comma separated list of biostudy accessions
           schema:
             type: string
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format               
       responses:
         "200": # status code
           description: A JSON array sample objects

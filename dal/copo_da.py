@@ -765,7 +765,7 @@ class Sample(DAComponent):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
         self.get_collection_handle().update_many(
-            {"biosampleAccession": {"$ne": ""}},
+            {"biosampleAccession": {"$ne": ""}, "status":"rejected" },
             {"$set": {"status": "accepted"}}
         )
 
@@ -1217,6 +1217,10 @@ class Sample(DAComponent):
 
     def mark_processing(self, sample_id):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "processing"}})
+
+    def mark_pending(self, sample_id):
+        return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "pending"}})
+
 
     def get_by_manifest_id(self, manifest_id):
         samples = cursor_to_list(self.get_collection_handle().find({"manifest_id": manifest_id}))

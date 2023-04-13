@@ -85,26 +85,30 @@ class RackPlateUniquenessValidator(Validator):
             # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
             err = list(map(lambda x: x.get("RACK_OR_PLATE_ID", "") + "/" + x["TUBE_OR_WELL_ID"], dup))
 
-            # check if rack_tube present we are in the same profile
-            existingsam = Sample().get_by_field("rack_tube", [str(rack_tube[0])])
+
+            #check if rack_tube present we are in the same profile
+            existingsam = Sample().get_by_field("rack_tube", err) #[str(rack_tube[0])])
             for exsam in existingsam:
                 if exsam["profile_id"] == self.profile_id:
                     # todo check SYMBIONT value in species list is the same too
                     # check accessions do not exist yet and status is pending
                     if not exsam["biosampleAccession"]:
                         if "ERGA" in p_type and exsam["status"] in ["pending", "rejected"]:
-                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.warnings.append(msg["validation_msg_isupdate"] % exsam["rack_tube"])
                             self.kwargs["isupdate"] = True
                         elif exsam["status"] == "pending":
-                            self.warnings.append(msg["validation_msg_isupdate"] % str(rack_tube[0]))
+                            self.warnings.append(msg["validation_msg_isupdate"] % exsam["rack_tube"])
                             self.kwargs["isupdate"] = True
-                    else:
-                        # rack_tube has already been approved or rejected by sample manager and can't be updated any more
-                        self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
-                        self.flag = False
+                    else:     #allow for update after approval in the same profile
+                         self.kwargs["isupdate"] = True
+                         self.warnings.append(msg["validation_msg_warning_update_submitted_sample"] % (
+                                    exsam["rack_tube"], exsam["biosampleAccession"]))
+                    #    #rack_tube has already been approved by sample manager and can't be updated any more
+                    #    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    #    self.flag = False
                 else:
-                    # rack_tube exist in another profile, can't be updated
-                    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
+                    #rack_tube exist in another profile, can't be updated
+                    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % exsam["rack_tube"])
                     self.flag = False
 
         # duplicates are allowed for asg (and possibily dtol) but one element of duplicate set must have one

@@ -617,8 +617,8 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_new_manifest(uri + 'copo/accept_reject_sample/', title=title, description=description,
-                                        project=self.type.upper())
+        CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=True)
 
     def update_records(self):
         binary = pickle.loads(self.vr["manifest_data"])
@@ -631,6 +631,7 @@ class DtolSpreadsheet:
         request = ThreadLocal.get_current_request()
         public_name_list = list()
         sample_data["_id"] = ""
+        need_send_email = False
         for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
@@ -640,6 +641,7 @@ class DtolSpreadsheet:
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             sample_data.at[p, '_id'] = recorded_sample["_id"]
+            is_updated = False
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
                     0].get(field, ""):
@@ -649,11 +651,17 @@ class DtolSpreadsheet:
                                                     recorded_sample["_id"])
                         # update sample
                         Sample().add_field("species_list.0." + str(field), s[field], recorded_sample["_id"])
+                        is_updated = True
                     else:
                         # record change
                         Sample().record_user_update(field, recorded_sample[field], s[field], recorded_sample["_id"])
                         # update sample
                         Sample().add_field(field, s[field], recorded_sample["_id"])
+                        is_updated = True
+
+            if recorded_sample["biosampleAccession"] and is_updated:
+                Sample().mark_pending(recorded_sample["_id"])
+                need_send_email = True
 
             uri = request.build_absolute_uri('/')
             # query public service service a first time now to trigger request for public names that don't exist
@@ -667,6 +675,10 @@ class DtolSpreadsheet:
             profile = Profile().get_record(profile_id)
             title = profile["title"]
             description = profile["description"]
+
+        if need_send_email:
+            CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
+                                        project=self.type.upper(), is_new=False)
 
         image_data = request.session.get("image_specimen_match", [])
         for im in image_data:
