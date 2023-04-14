@@ -1,24 +1,13 @@
-from django.conf import settings
+from dal import cursor_to_list
+from dal.copo_da import Source, Sample
 from django.core.management import BaseCommand
-import importlib
+from tools import resolve_env
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS
+
+import datetime
 import os
 import subprocess
 import xml.etree.ElementTree as ET
-
-import datetime
-
-from dal.copo_da import Source, Sample
-from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids
-from tools import resolve_env
-
-# from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS, \
-#     API_KEY
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
-DTOL_UNITS = dtol_lookups_data.DTOL_UNITS
-API_KEY = dtol_lookups_data.API_KEY
 
 
 # The class must be named Command, and subclass BaseCommand

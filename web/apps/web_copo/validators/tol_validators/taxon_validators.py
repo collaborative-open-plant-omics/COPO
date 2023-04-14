@@ -1,19 +1,13 @@
 from Bio import Entrez
 from dal.copo_da import Profile
-from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
-# from web.apps.web_copo.lookup import dtol_lookups as lookup
+from web.apps.web_copo.lookup import dtol_lookups as lookup  # old
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 
-import importlib
-
 whole_used_specimens = set()
 regex_human_readable = ""
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lookup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 # validations are run in alphabetic order of class name
@@ -118,8 +112,9 @@ class DtolEnumerationValidator(Validator):
                     self.errors.append(
                         "Invalid data: couldn't resolve SCIENTIFIC_NAME <strong>%s</strong> at row "
                         "<strong>%s</strong>. " % (
-                            scientific_name, str(index + 2)) + ". If you know there is a matching record in NCBI, please make sure to add the " \
-                                                               "TAXON_ID in the manifest")
+                            scientific_name,
+                            str(index + 2)) + ". If you know there is a matching record in NCBI, please make sure to add the " \
+                                              "TAXON_ID in the manifest")
                     self.flag = False
                     continue
                 self.warnings.append(msg["validation_warning_field"] % (

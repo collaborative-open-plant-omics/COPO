@@ -561,6 +561,15 @@ def view_user_info(request):
     return render(request, 'copo/user_info.html', data_dict)
 
 
+@login_required
+def goto_unauthorised_page(request, message="Apologies, you do not have permission to view this web page"):
+    try:
+        LOGGER.log(message)
+    finally:
+        context = {'message': message}
+        return render(request, 'copo/unauthorised_page.html', context)
+
+
 def register_to_irods(request):
     status = register_to_irods()
     return_structure = {'exit_status': status}

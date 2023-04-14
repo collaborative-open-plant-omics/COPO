@@ -1,20 +1,13 @@
-from django.conf import settings
-from django.core.management import BaseCommand
 from Bio import Entrez
+from django.core.management import BaseCommand
+from tools import resolve_env
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
     build_bundle_sample_xml, update_bundle_sample_xml
-import xml.etree.ElementTree as ET
-import subprocess
-from tools import resolve_env
-import os
-# from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 
 import dal.copo_da as da
-import importlib
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-dtol_lookups_data = importlib.import_module(schema_version_path_dtol_lookups)
-DTOL_ENA_MAPPINGS = dtol_lookups_data.DTOL_ENA_MAPPINGS
+import os
+import subprocess
 
 
 # The class must be named Command, and subclass BaseCommand

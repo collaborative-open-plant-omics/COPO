@@ -1,6 +1,5 @@
 __author__ = 'felix.shaw@tgac.ac.uk - 14/05/15'
 
-import importlib
 import json
 import jsonpickle
 from django.conf import settings
@@ -16,11 +15,7 @@ from web.apps.web_copo.schemas.utils.data_formats import DataFormats
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
-schema_version_path_dtol_lookups = f'web.apps.web_copo.schema_versions.{settings.CURRENT_SCHEMA_VERSION}.lookup.dtol_lookups'
-lkup = importlib.import_module(schema_version_path_dtol_lookups)
 
 
 def forward_to_swagger(request):

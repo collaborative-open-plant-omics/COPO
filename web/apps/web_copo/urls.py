@@ -10,7 +10,8 @@ from . import views, copo_dashboard_views, copo_profile_views
 app_name = 'web_copo'
 
 urlpatterns = [
-    #path('', views.index, name='index'),path('', copo_profile_views.copo_profile_index, name='index'),
+    # path('', views.index, name='index'),
+    path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
     path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
     path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),

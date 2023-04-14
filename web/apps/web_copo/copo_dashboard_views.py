@@ -1,9 +1,11 @@
 from api.views.general import *
 from bson import json_util, ObjectId
+from dal import cursor_to_list_str2
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
 from web.apps.web_copo.models import ViewLock
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import group_functions
 
@@ -144,42 +146,29 @@ def get_number_of_samples_produced(field_name, field_value):
 
 def get_profile_titles_nav_tabs(request):
     queryUserProfileRecords = request.GET["queryUserProfileRecords"]
+    regex = r'\((.*?)\)'  # value within enclosed parentheses regex
     print('Is query in user profile checked: ', queryUserProfileRecords)
+
     if queryUserProfileRecords:
         owner_id = data_utils.get_user_id()
-        all_profiles = Profile().get_all_profiles(user=owner_id)
-        print('All user profiles: ', all_profiles)
-        #   profile_types = [Profile().get_type(str(profile["_id"])) for profile in allUserProfiles]
-        #   profile_types = set(profile_types)  # Remove duplicates
-        #   profile_types = list(map(str.lower, profile_types)) # Convert each string to lowercase
-        # profile_types_abbreviations = [i.upper()  for i in lkup.TOL_PROFILE_TYPES for j in profile_types if i in j]
+        profiles = Profile().get_all_profiles(user=owner_id)
+        print('All user profiles: ', profiles)
+
     else:
-        all_profiles = Profile().get_all_profiles()
-        print('All COPO profiles: ', all_profiles)
+        profiles = Profile().get_all_profiles()
+        print('All COPO profiles: ', profiles)
 
-    profile_types = [all_profiles[x]['type'] for x in range(len(all_profiles))]
-    profile_types = set(profile_types)  # Remove duplicates
-    # profile_types = list(map(str.lower, profile_types))  # Convert each string to lowercase
+    print('Length of profiles: ', len(profiles))
 
-    profile_types_abbreviations = [i.upper() for i in lkup.TOL_PROFILE_TYPES if
-                                   i.upper() in profile_types and re.search(r'\((.*?)\)', i).group(1)]
+    profile_types = [i.get("type", "") for i in profiles]
 
-    print('Profile types: ', profile_types_abbreviations)
-    # lkup.TOL_PROFILE_TYPES
-    #
-    # if project == "ERGA":
-    #     ergprofiles = Profile().get_erga_profiles_based_on_user_id()
-    # elif project == "DTOL":
-    #     profiles = Profile().get_dtol_only_profiles_based_on_user_id()
-    # elif project == "ASG":
-    #     profiles = Profile().get_asg_profiles_based_on_user_id()
-    # else:
-    #     profiles = Profile().get_dtolenv_profiles_based_on_user_id()
-    #
-    # samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-    #            in profiles]
+    #  Extract value within enclosed parentheses from a unique set of profile types
+    #  If the value exists, return it else, return the profile type
+    profile_types = [re.search(regex, i).group(1) if re.search(regex, i) else i for i in set(profile_types)]
+    profile_types.sort()  # Sort profile types in ascending order
+    print('Profile types: ', profile_types)
 
-    return HttpResponse(json_util.dumps(profile_types_abbreviations))
+    return HttpResponse(json_util.dumps(profile_types))
 
 
 def get_profiles_based_on_project(request):
@@ -204,14 +193,14 @@ def get_profiles_based_on_project(request):
 def get_profiles_based_on_project_by_aggregation(request):
     project = request.GET["project"]
 
-    if project == "ERGA":
-        profiles = Profile().get_erga_profiles()
-    elif project == "DTOL":
-        profiles = Profile().get_dtol_only_profiles()
-    elif project == "ASG":
+    if "ASG" in project:
         profiles = Profile().get_asg_profiles()
-    else:
+    elif "DTOL_EI" in project or "DTOL_ENV" in project or "DTOLENV" in project:
         profiles = Profile().get_dtolenv_profiles()
+    elif "ERGA" in project:
+        profiles = Profile().get_erga_profiles()
+    else:
+        profiles = Profile().get_dtol_only_profiles()
 
     samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
                in profiles]

@@ -20,16 +20,6 @@ const profile_samples_dt_options = {
 $(document).ready(function () {
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
     const copoTolDashboardURL = "/copo/dashboard/";
-    // Get profile_titles_nav_tabs()
-    get_profile_titles_nav_tabs()
-
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
-
-    // Get active manifest type tab on tab change
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        let project = $(e.target).attr("href")
-        get_profile_titles(project)
-    });
 
     $(document).data("areAllSampleModalFieldsShown", false)
     $(document).data("showAllTableFieldsCheckBox", false);
@@ -126,12 +116,34 @@ $(document).ready(function () {
             $('.modal bootstrap-dialog').css({"z-index": "9999"})
         }
     })
-
     $(document).on("click", ".profile_title_selectable_row, .hot_tab", populate_samples_table_based_on_profile_title)
     $(document).on("click", ".fieldID", function () {
 
     });
-    get_profile_titles(project)
+
+    // Wait for the profile titles tab to be displayed and get active project
+    // (async () => {
+    //     const $el = await _waitForElement(`hot_tab in active`);
+    //     let project = $($el).find("a").attr("href")
+    //     // $(document).data("active_project", project)
+    //     get_profile_titles(project)
+    // })();
+
+    // Get active manifest type tab on tab change
+    // $('a#profile_types_filter[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    //     let project = $(e.target).attr("href")
+    //     console.log("Active project2: " + project)
+    //     get_profile_titles(project)
+    // });
+
+    // get_profile_titles(project)
+    // Get active manifest type tab on tab change
+    // $('a[data-toggle="tab"]').bind('click', function () {
+    //     let project = $(e.target).attr("href")
+    //     console.log("Active project3: " + project)
+    //     get_profile_titles(project)
+    // });
+    get_profile_titles_nav_tabs() // Get profile types
     highlight_empty_cells_in_selected_row()
 
 });
@@ -139,12 +151,8 @@ $(document).ready(function () {
 function get_profile_titles_nav_tabs() {
     // check profiles
     let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox") ?? true
-    let profile_titles_nav_bar = $("#sample_filter")
-    const li = $("<li/>", {
-        class: "hot_tab in"
-    });
+    let profile_titles_nav_bar = $("#profile_types_filter")
 
-    const a = $("<a/>", {});
 
     $.ajax({
         url: "/copo/get_profile_titles_nav_tabs",
@@ -154,14 +162,31 @@ function get_profile_titles_nav_tabs() {
             'queryUserProfileRecords': queryUserProfileRecordsCheckBox
         }
     }).error(function (e) {
-        console.error(e)
+        console.log(`Error: ${e.message}`);
     }).done(function (data) {
-        console.log('From Ajax', data)
-        let profile_type = "DTOL"
-        $(li).addClass("active") //  Let the first profile type (in alphabetical order) be the first tab displayed
-        a.attr("data-toggle", "tab");
-        a.attr("href", profile_type);
-        a.text(profile_type)
+        // Populate the nav bar/tab of the profile titles table on the left of the web page
+        // with profile titles
+        data.forEach(function (profile_type, index) {
+            const li = $("<li/>", {
+                class: "hot_tab in"
+            });
+
+            const a = $("<a/>", {});
+
+            //  Set the first profile type (in alphabetical order) to be the first tab to be displayed
+            if (index === 0) {
+                $(li).addClass("active")
+                get_profile_titles() // Get the profile titles for the first profile type
+            }
+
+            a.attr("data-toggle", "tab");
+            a.attr("data-type", "tab");
+            a.text(profile_type);
+
+            li.append(a);
+
+            profile_titles_nav_bar.append(li);
+        });
     })
 
 }
@@ -300,7 +325,7 @@ function get_profile_samples_table_not_first_element_block_of_code(el, row, td_r
 }
 
 function set_up_form_show_all_fields_checkbox_div() {
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
+    const project = $("#profile_types_filter").find(".active").find("a").attr("href");
 
     const rowDiv = $('<div/>',
         {
@@ -472,7 +497,8 @@ function populate_samples_table_based_on_profile_title(ev) {
         row = $(document).data("selected_profile_title_row")
     }
 
-    const project = $("#sample_filter").find(".active").find("a").attr("href");
+    const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+    console.log("Active project5: ", project)
 
     let d = {"profile_id": $(row).find("td").data("profile_id"), "project": project}
 
@@ -706,6 +732,7 @@ function get_profile_titles(project) {
     let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox")
     let s;
 
+    console.log('Project in get_profiles_titles', project)
     let get_profiles_based_on_project = {
         url: "/copo/get_profiles_based_on_project",
         method: "GET",
@@ -729,6 +756,7 @@ function get_profile_titles(project) {
     $.ajax(s).error(function (e) {
         console.error(e)
     }).done(function (data) {
+        console.log('Profiles data: ', data['profiles'])
         let profile_titlesID = $("#profile_titles")
         // Clear existing data in the profile titles' table
         if ($.fn.DataTable.isDataTable('#profile_titles')) {
@@ -853,4 +881,32 @@ function determine_sample_request_data(row, d, project) {
     return s;
 
 
+}
+
+function _waitForElement(selector, delay = 50, tries = 100) {
+    const element = document.querySelector(selector);
+
+    if (!window[`__${selector}`]) {
+        window[`__${selector}`] = 0;
+        window[`__${selector}__delay`] = delay;
+        window[`__${selector}__tries`] = tries;
+    }
+
+    function _search() {
+        return new Promise((resolve) => {
+            window[`__${selector}`]++;
+            setTimeout(resolve, window[`__${selector}__delay`]);
+        });
+    }
+
+    if (element === null) {
+        if (window[`__${selector}`] >= window[`__${selector}__tries`]) {
+            window[`__${selector}`] = 0;
+            return Promise.resolve(null);
+        }
+
+        return _search().then(() => _waitForElement(selector));
+    } else {
+        return Promise.resolve(element);
+    }
 }
