@@ -1198,13 +1198,15 @@ class Sample(DAComponent):
         return result
 
     def get_sample_display_column_names(self):
+        
         sc = self.get_component_schema()
         columns = [];
         columns.append("_id")
         for field in sc:
-            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",
-                                                                                                       ""):
-                columns.append(field.get("id", "").split(".")[-1])
+            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",""):
+                column = field.get("id", "").split(".")[-1]
+                if column not in columns:
+                    columns.append(column)
 
         columns.append("error")
         return columns;
