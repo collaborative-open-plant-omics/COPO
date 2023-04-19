@@ -150,12 +150,12 @@ class DtolSpreadsheet:
         for item in associated_t:
             #  Check if 'associated type' array/list contains parentheses
             if re.search(regexExp, item):
-                # Get abbreviation within parentheses
-                abbreviation = re.search(regexExp, item).group(1)
+                # Get acronym within parentheses
+                acronym = re.search(regexExp, item).group(1)
             else:
-                # Set abbreviation as full string if no parentheses exist
-                abbreviation = item
-            lst.append(abbreviation)
+                # Set acronym as full string if no parentheses exist
+                acronym = item
+            lst.append(acronym)
         self.associated_type = " | ".join(lst)  # Get associated type(s) as string separated by '|' symbol
 
         '''
@@ -623,8 +623,9 @@ class DtolSpreadsheet:
         profile = Profile().get_record(profile_id)
         title = profile["title"]
         description = profile["description"]
-        CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
-                                        project=self.type.upper(), is_new=True)
+        CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title,
+                                                     description=description,
+                                                     project=self.type.upper(), is_new=True)
 
     def update_records(self):
         binary = pickle.loads(self.vr["manifest_data"])
@@ -683,8 +684,9 @@ class DtolSpreadsheet:
             description = profile["description"]
 
         if need_send_email:
-            CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title, description=description,
-                                        project=self.type.upper(), is_new=False)
+            CopoEmail().notify_manifest_pending_approval(uri + 'copo/accept_reject_sample/', title=title,
+                                                         description=description,
+                                                         project=self.type.upper(), is_new=False)
 
         image_data = request.session.get("image_specimen_match", [])
         for im in image_data:

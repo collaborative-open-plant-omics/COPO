@@ -2,8 +2,8 @@
  * for copo_profile_index web page
  */
 
-var htmlForm = $('<div/>'); //global form div
-var global_key_split = "___0___";
+let htmlForm = $('<div/>'); //global form div
+let global_key_split = "___0___";
 
 //map controls to rendering functions
 const controlsMapping = {
@@ -12,10 +12,11 @@ const controlsMapping = {
     "select": "do_select_ctrl",
     "copo-multi-select2": "do_copo_multi_select2_ctrl"
 };
-let contactCOPODialogCount = 0;
+
+let contactCOPODialogCount = 1;
 
 //form controls
-var dispatchFormControl = {
+const dispatchFormControl = {
     do_text_ctrl: function (formElem, elemValue) {
         let txt;
         const ctrlsDiv = $('<div/>',
@@ -232,12 +233,12 @@ var dispatchFormControl = {
 
 
         //set validation markers
-        var vM = set_validation_markers(formElem, ctrl);
+        const vM = set_validation_markers(formElem, ctrl);
 
         ctrlsDiv.append(ctrl);
         ctrlsDiv.append(vM.errorHelpDiv);
 
-        var returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
+        const returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
 
         return add_message_segment(returnDiv);
     }
@@ -327,8 +328,8 @@ function contact_COPO_popup_dialog() {
     dialog.getModalFooter().removeClass('modal-footer');
     dialog.getModalFooter().css({"padding": "15px", "text-align": "right"});
 
-    // Show the 'Contact COPO dialog' no more than two times
-    if (contactCOPODialogCount >= 2) {
+    // Show the 'Contact COPO dialog' once
+    if (contactCOPODialogCount > 1) {
         contactCOPODialogCount++;
         return false;
     } else {
@@ -336,6 +337,52 @@ function contact_COPO_popup_dialog() {
     }
 
 } //end of contact_COPO_popup_dialog  **************
+
+function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID) {
+    document.getElementById(profileTypeID).addEventListener("change", function () {
+        // Perform the following only if selected 'Profile Type' is not "Stand-alone"
+        if (this.value !== "Stand-alone") {
+            $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
+            // Retrieve the parentheses and the enclosed string from the selected profile type
+            let selected_type;
+            let multi_select_options = $('.copo-multi-select2')
+            const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+
+            if (!pattern.test(this.value))
+                selected_type = this.value // Get selected value if no parentheses exist
+            else {
+                let associated_type_abbreviation_without_parentheses;
+                associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+
+                // Get abbreviated associated type enclosed in parentheses
+                selected_type = `(${associated_type_abbreviation_without_parentheses})`
+                // If empty parentheses are returned, set the acronym as
+                // the full string excluding the empty parentheses
+                selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
+            }
+
+            let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
+            if (associated_type_option.length) {
+                // Exclude the selected profile from the associated profile type dropdown menu options
+                multi_select_options.select2({
+                    templateResult: function (option) {
+
+                        if (option.text.includes(selected_type)) {
+                            return null;
+                        }
+                        return option.text;
+                    }
+                });
+                // Reinitialise/update the multi-select options
+                multi_select_options.trigger('change');
+
+            }
+        } else {
+            $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
+        }
+    });
+
+}
 
 function json2HtmlProfileForm(data) {
 
@@ -370,56 +417,28 @@ function json2HtmlProfileForm(data) {
                 }
             });
 
+            // Add Profile form
             if (dialog_title.includes("Add Profile")) {
                 // If a user is not added to a manifest group, display a message for the user to contact
-                // COPO via email in order to be added to the manifest group
+                // COPO via email dialog in order to be added to the manifest group
                 if (groups.length === 0) {
                     contact_COPO_popup_dialog();
                 } else {
-                    // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
-                    document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
-                        // Perform the following only if selected 'Profile Type' is not "Stand-alone"
-                        if (this.value !== "Stand-alone") {
-                            $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
-                            // Retrieve the parentheses and the enclosed string from the selected profile type
-                            let selected_type;
-                            let multi_select_options = $('.copo-multi-select2')
-                            const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+                    // In the 'Add Profile' dialog, remove selected profile type from 'associated_type' dropdown menu
+                    // options if a user is added to a manifest group
+                    remove_selectedProfileType_from_associatedProfileTypeList(data.form.form_schema[2].id)
+                }
+            }
 
-                            if (!pattern.test(this.value))
-                                selected_type = this.value // Get selected value if no parentheses exist
-                            else {
-                                let associated_type_abbreviation_without_parentheses;
-                                associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
-
-                                // Get abbreviated associated type enclosed in parentheses
-                                selected_type = `(${associated_type_abbreviation_without_parentheses})`
-                                // If empty parentheses are returned, set the abbreviation as
-                                // the full string excluding the empty parentheses
-                                selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
-                            }
-
-                            let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
-                            if (associated_type_option.length) {
-                                // Exclude the selected profile from the associated profile type dropdown menu options
-                                multi_select_options.select2({
-                                    templateResult: function (option) {
-
-                                        if (option.text.includes(selected_type)) {
-                                            return null;
-                                        }
-                                        return option.text;
-                                    }
-                                });
-                                // Reinitialise/update the multi-select options
-                                multi_select_options.trigger('change');
-
-                            }
-                        } else {
-                            $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
-                        }
-                    });
-
+            // Edit Profile form
+            if (dialog_title.includes("Edit Profile")) {
+                if (groups.length === 0) {
+                    // If a user is not added to a manifest group,do nothing
+                    // This is already handled by back-end functionality.
+                } else {
+                    // In the 'Edit Profile' dialog, remove selected profile profile from 'associated_type'
+                    // dropdown menu options if a user is added to a manifest group
+                    remove_selectedProfileType_from_associatedProfileTypeList(data.form.form_schema[2].id)
                 }
             }
 
@@ -459,6 +478,10 @@ function json2HtmlProfileForm(data) {
                 cssClass: 'tiny ui basic button',
                 action: function (dialogRef) {
                     doTidyClose["closeIt"](dialogRef);
+                    // Close any other dialog that might have been opened
+                    $.each(BootstrapDialog.dialogs, function (id, dialog) {
+                        dialog.close();
+                    });
                 }
             },
             {
@@ -481,9 +504,16 @@ function json2HtmlProfileForm(data) {
 
     $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
 
-    // If user is in a manifest group, hide 'Associated profile type(s)' field on dialog launch
+    // If user is in a manifest group, hide 'Associated profile type(s)' field on "Add Profile" dialog launch
     // because "Stand-alone" is the default value for 'Profile Type'
     if (dialog_title.includes("Add Profile") && groups.length >= 1) {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    }
+
+    // If user is in a manifest group, hide 'Associated profile type(s)' field on "Edit Profile" dialog launch
+    // if "Stand-alone" is the value shown for 'Profile Type'
+
+    if (dialog_title.includes("Edit Profile") && groups.length >= 1 && data.form.form_schema[2].data === "Stand-alone") {
         $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
     }
 
@@ -1329,6 +1359,13 @@ function save_form(formJSON, dialogRef) {
                     return true;
                 } else {
                     dialogRef.close();
+
+                    // Close any other dialog that might be opened still if
+                    // the prior 'close dialog' action does not close the current dialog
+                    $.each(BootstrapDialog.dialogs, function (id, dialog) {
+                        dialog.close();
+                    });
+
                     refresh_profile_tool_tips();
 
                     do_crud_profile_action_feedback(data.action_feedback);

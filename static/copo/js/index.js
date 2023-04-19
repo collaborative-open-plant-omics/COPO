@@ -625,7 +625,7 @@ $(document).ready(function () {
 
 
     function create_ul_Tag(array) {
-        let abbreviation;
+        let acronym;
         const regExp = /\(([^\)]*)\)/ // parentheses regex to get enclosed string
 
         // Create the ul tag element:
@@ -644,11 +644,11 @@ $(document).ready(function () {
 
         for (let i = 0; i < array.length; i++) {
             // Check if item contains parentheses that include a string
-            // Get abbreviation from enclosed parentheses
+            // Get acronym from enclosed parentheses
             // If there are parentheses, retrieve the entire string
-            abbreviation = (array[i]).match(regExp) !== null ? (array[i]).match(regExp).pop() : array[i];
-            // If empty parentheses are returned, set the abbreviation as the full string excluding the parentheses
-            abbreviation = abbreviation === '()' ? array[i].replace(/\(\s*\)/g, "") : abbreviation
+            acronym = (array[i]).match(regExp) !== null ? (array[i]).match(regExp).pop() : array[i];
+            // If empty parentheses are returned, set the acronym as the full string excluding the parentheses
+            acronym = acronym === '()' ? array[i].replace(/\(\s*\)/g, "") : acronym
 
             // Create the list item:
             const li = document.createElement('li');
@@ -657,7 +657,7 @@ $(document).ready(function () {
             li.setAttribute('title', array[i]);
 
             // Set its contents
-            li.appendChild(document.createTextNode(abbreviation));
+            li.appendChild(document.createTextNode(acronym));
 
             // Add item to the list
             ul.appendChild(li);
