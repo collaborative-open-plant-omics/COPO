@@ -1,0 +1,22 @@
+{
+"submit_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit",
+"retrive_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/sample/",
+"password": "",
+"username": "",
+"data": [
+{
+ "sample_accession": "ERS14884903",
+ "TAXON_ID" : "130055",
+ "SCIENTIFIC_NAME" : "Cladocora caespitosa",
+ "collection date" : "2022-12-25"
+},
+{
+ "sample_accession": "ERS14884902",
+ "TAXON_ID" : "1457099",
+ "SCIENTIFIC_NAME" : "Astagobius angustatus",
+ "sample coordinator ORCID ID" : "0000-0002-0867-7601",
+ "sample coordinator affiliation": "INSTITUTE OF EVOLUTIONARY BIOLOGY"
+}
+]
+}
+

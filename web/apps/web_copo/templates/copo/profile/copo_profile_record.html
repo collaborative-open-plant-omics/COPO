@@ -22,26 +22,34 @@
             <div class="grid-panel-body">
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-lg-12"
-                         style="padding-top: {{ profile.panel_content_paddingTop }}; height:fit-content;">
+                         style="height:fit-content;">
                         <!--Panel content -->
-                        <div>Created:</div>
+                        <div class="boldText">Created:</div>
                         <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
-                        <div>Description:</div>
-                        <div class="showEllipsisFor2TextLines {% if profile.associated_type|length == 0 and profile.description.strip|length < 45 %} no_associatedTypes_marginBottom {% elif profile.associated_type|length == 0 and profile.description.strip|length >= 45 %}no_associatedTypes_marginBottom_2LineDescriptionText {% else %} associatedTypes_marginBottom {% endif %}">
-                            {{ profile.description }}</div>
+                        <div class="boldText">Description:</div>
+
                         {% if profile.associated_type %}
+                            <div class="showEllipsisFor2TextLines associatedTypes_marginBottom profileDescription">
+                                {{ profile.description }}</div>
                             <div class="associated_type_div_label" style="display: block;">
                                 Associated
                                 Profile Type(s):
                             </div>
-                            <div class="{% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% else %}several_associatedType_marginBottom{% endif %}">
-                                <ul class="associated_type_ulTag"
-                                    style="column-count: {{ profile.associated_type_columnCount }}; width: {{ profile.associated_type_width }}; max-height: 85px; overflow-x: auto;">
+
+                            <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
+                                <ul class="associated_type_ulTag">
                                     {% for element in profile.associated_type_elements %}
-                                        <li title="{{ element.associated_type }}">  {{ element.abbreviation }}</li>
+                                        <li>  {{ element.acronym }}
+                                            <i class="fa fa-info-circle associated_type_info_icon"
+                                               title="{{ element.associated_type }}"></i>
+                                        </li>
+
                                     {% endfor %}
                                 </ul>
                             </div>
+                        {% else %}
+                            <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
+                                {{ profile.description }}</div>
                         {% endif %}
                         <!--Panel expanding menu -->
                         <span class="ui vertical menu expanding_menu" id="expanding_menu">

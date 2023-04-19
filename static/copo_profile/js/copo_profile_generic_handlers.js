@@ -90,7 +90,7 @@ function refresh_validator(formObject) {
 //refreshes selectboxes to pick up events
 function refresh_selectbox() {
     $('.copo-select').each(function () {
-        var elem = $(this);
+        const elem = $(this);
 
         if (!(/selectize/i.test(elem.attr('class')))) { // if not already instantiated
             elem.selectize({
@@ -111,7 +111,7 @@ function refresh_selectbox() {
 
 function refresh_multiselect2box() {
     $('.copo-multi-select2').each(function () {
-        var elem = $(this);
+        const elem = $(this);
 
         if (!elem.hasClass("select2-hidden-accessible")) {
             elem.select2({
@@ -149,7 +149,7 @@ function get_copo_profile_components() {
             component: 'profile',
             title: 'Work Profiles',
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help", "copo-sidebar-profiles-legend"],
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
             visibleColumns: 4,
@@ -278,8 +278,8 @@ function get_copo_profile_components() {
 
 //builds component-page navbar
 function do_page_controls(componentName) {
-    var component = null;
-    var components = get_copo_profile_components();
+    let component = null;
+    const components = get_copo_profile_components();
 
     components.forEach(function (comp) {
         if (comp.component === componentName) {
@@ -297,16 +297,17 @@ function do_page_controls(componentName) {
 } //end of func
 
 function generate_component_control(component) {
-    var pageHeaders = $(".copo-page-headers"); //page header/icons
-    var pageIcons = $(".copo-page-icons"); //profile component icons
-    var sideBar = $(".copo-sidebar"); //sidebar panels
+    const pageHeaders = $(".copo-page-headers"); //page header/icons
+    const pageIcons = $(".copo-page-icons"); //profile component icons
+    const sideBar = $(".copo-sidebar"); //sidebar panels
+    let profileTitleID = $("#profile_title") // profile title ID
 
     //add profile title
-    if ($("#profile_title").length) {
+    if (profileTitleID.length) {
         const profileTitle = $('<div/>', {
             class: "page-title-custom",
             style: "margin-right:10px;",
-            html: "<span title='Profile title' style='color: #8c8c8c; font-size: 18px;'>Profile: " + $("#profile_title").val() + "</span>"
+            html: "<span title='Profile title' style='color: #8c8c8c; font-size: 18px;'>Profile: " + profileTitleID.val() + "</span>"
         });
 
         pageHeaders.append(profileTitle);
@@ -324,21 +325,24 @@ function generate_component_control(component) {
 
     //create panels
     if (component.sidebarPanels) {
-        const sidebarPanels = $(".copo-sidebar-templates").clone();
+        const sidebarTemplate = $(".copo-sidebar-templates")
+        const sidebarPanels = sidebarTemplate.clone();
         const sidebarPanels2 = sidebarPanels.clone();
         sidebarPanels.find(".nav-tabs").html('');
         sidebarPanels.find(".tab-content").html('');
-        $(".copo-sidebar-templates").remove();
+        sidebarTemplate.remove();
 
 
         component.sidebarPanels.forEach(function (item) {
             sidebarPanels.find(".nav-tabs").append(sidebarPanels2.find(".nav-tabs").find("." + item));
             sidebarPanels.find(".tab-content").append(sidebarPanels2.find(".tab-content").find("." + item));
+            sidebarPanels.find(".profiles-legend").append(sidebarPanels2.find(".profiles-legend").find("." + item));
         });
 
         sideBar
             .append(sidebarPanels.find(".nav-tabs"))
-            .append(sidebarPanels.find(".tab-content"));
+            .append(sidebarPanels.find(".tab-content"))
+            .append(sidebarPanels.find(".profiles-legend"));
 
 
     }
@@ -372,7 +376,7 @@ function generate_component_control(component) {
                     continue;
                 }
 
-                var newAnchor = pcomponentAnchor.clone();
+                const newAnchor = pcomponentAnchor.clone();
                 pcomponentHTML.append(newAnchor);
 
                 newAnchor.attr("title", "Navigate to " + comp.title);

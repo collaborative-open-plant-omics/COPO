@@ -85,6 +85,8 @@
     {{ profiles|safe }} </script>
     <script>  let profiles_total =
     {{ profiles_total|safe }} </script>
+    <script>  let profiles_legend =
+    {{ profiles_legend|safe }} </script>
     <!-- test -->
     <!-- end test -->
 
@@ -198,6 +200,9 @@
 
 {% endblock %}
 
+{% block profiles_legend_section %}
+    <!-- profiles legend -->
+{% endblock profiles_legend_section %}
 
 {% block js_block %}
     <script src="{% static 'copo_profile/js/copo_profile_generic_handlers.js' %}"></script>

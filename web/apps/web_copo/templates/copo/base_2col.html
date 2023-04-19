@@ -1,10 +1,10 @@
 {% extends 'copo/base.html' %}
 
 {% block content_area %}
-    <div class="container" >
+    <div class="container">
 
-        <div class="row" >
-            <div class="col-sm-9 col-md-9 col-lg-9 copo-main" >
+        <div class="row">
+            <div class="col-sm-9 col-md-9 col-lg-9 copo-main">
                 {% block browse_header_block %}
                 {% endblock %}
                 <div class="global-page-title">
@@ -17,6 +17,8 @@
             <div class="col-sm-3 col-md-3 col-lg-3 copo-sidebar">
                 {% block help_section %}
                 {% endblock help_section %}
+                {% block profiles_legend_section %}
+                {% endblock profiles_legend_section %}
             </div>
         </div>
     </div>

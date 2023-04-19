@@ -1179,6 +1179,60 @@ th {
     top: 61px;
 }
 
+/*CSS for profiles type legend on profile index web page*/
+.profiles-legend {
+    width: 200px;
+    height: fit-content;
+    border-radius: 4px;
+    padding: 10px 10px 0 10px; /*top right bottom left */
+    border: 2px solid rgba(17, 70, 110, 0.1) !important;
+    margin-bottom: 10px;
+}
+
+.profiles-legend-group {
+    padding-left: 0;
+}
+
+.profiles-legend-group-item:first-child {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.profiles-legend-group-item {
+    position: relative;
+    display: block;
+    padding: 10px 15px 15px 15px;
+    margin-bottom: -1px;
+}
+
+.profiles-legend.profiles-legend-group > li {
+    border: none !important;
+}
+
+.profiles-legend-title {
+    text-align: center;
+    color: #555;
+    border-bottom: 2px solid rgba(17, 70, 110, 0.1) !important;
+}
+
+.profiles-legend-info-icon {
+    position: relative;
+    right: 4px;
+}
+
+.profiles-legend-circle {
+    display: inline-block;
+    float: right;
+    min-width: 10px;
+    padding: 3px 7px;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 100%;
+    font-size: 20px !important;
+}
+
+/*end of CSS for profiles type legend on profile index web page*/
+
 /*end sidebar*/
 
 /*form state buttons*/

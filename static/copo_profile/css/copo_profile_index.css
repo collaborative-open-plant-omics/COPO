@@ -146,6 +146,11 @@ a.component-btns {
     color: rgba(41, 57, 84, 0.9);
 }
 
+/*Set the width of the buttons in the Components tab to the same width*/
+.ui.menu .ui.dropdown.item .comp .ui.button {
+    width: 190px !important;
+}
+
 /*end component buttons*/
 
 /*profile details panel*/
@@ -274,14 +279,14 @@ a.component-btns {
     padding-left: 8px;
     font-size: 1.1em;
     border-top: 1px solid #d0d0d0;
-    margin-top: 15px;
+    margin-top: 30px;
 }
 
 
 #copo_profiles_table {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: left; /* left align the grid items */
     width: 100%;
     flex-grow: 1;
     position: relative;
@@ -332,19 +337,6 @@ a.component-btns {
     animation: load 1s infinite;
 }
 
-#load-trigger {
-    margin-top: auto;
-}
-
-#load-trigger-wrapper {
-    overflow: auto;
-    scrollbar-gutter: stable;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
 @keyframes load {
     /* Slide-in animation */
     100% {
@@ -352,53 +344,100 @@ a.component-btns {
     }
 }
 
-.associated_type_ulTag {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
+/* Associated types*/
+.boldText {
+    font-weight: bold;
+}
+
+.associated_type_div_label {
+    font-weight: bold;
+}
+
+.associated_type_info_icon {
+    position: relative;
+    left: 2px;
+}
+
+ul.associated_type_ulTag {
+    float: left;
+    position: relative;
+    /*margin-right: 20px;*/
+    padding-left: 5px;
+    list-style-type: disc;
+    list-style-position: inside;
 }
 
 .associated_type_ulTag li {
-    float: left;
-    padding: 4px 15px;
-    word-wrap: break-word;
-}
-
-.associated_type_ulTag li:before {
-    content: "\2022";
-    margin-right: 1em;
+    padding-bottom: 10px;
 }
 
 /*CSS styles for profile records with no associated types assigned*/
 .no_associatedTypes_marginBottom {
-    margin-bottom: 85px;
+    margin-bottom: 144px;
 }
 
 .no_associatedTypes_marginBottom_2LineDescriptionText {
-    margin-bottom: 68px;
+    margin-bottom: 122px;
 }
 
 .associatedTypes_marginBottom {
     margin-bottom: 10px;
 }
 
+.associatedTypes_marginBottom_2LineDescriptionText {
+    margin-bottom: 10px;
+}
+
 /*CSS styles for profile records with associated types assigned*/
 .one_associatedType_marginBottom {
-    margin-bottom: 70px;
+    margin-bottom: 99px;
+    padding-top: 15px;
+}
+
+.one_associatedType_marginBottom_2LineDescriptionText {
+    margin-bottom: 80px;
+    padding-top: 15px;
 }
 
 .two_associatedTypes_marginBottom {
-    margin-bottom: 40px;
+    margin-bottom: 99px;
+    padding-top: 15px;
 }
 
-.several_associatedType_marginBottom {
+.two_associatedTypes_marginBottom_2LineDescriptionText {
+    margin-bottom: 80px;
+    padding-top: 15px;
+}
+
+
+.three_associatedTypes_marginBottom {
+    margin-bottom: 99px;
+    padding-top: 15px;
+}
+
+.three_associatedTypes_marginBottom_2LineDescriptionText {
+    height: 81px;
     margin-bottom: 10px;
+    overflow: scroll;
+    padding-top: 15px;
+    columns: 2;
 }
 
-.several_associatedType_marginBottom_2LineDescriptionText {
+.several_associatedTypes_marginBottom {
+    height: 100px;
     margin-bottom: 10px;
+    overflow: scroll;
+    padding-top: 15px;
+    columns: 2;
 }
 
+.several_associatedTypes_marginBottom_2LineDescriptionText {
+    height: 77px;
+    margin-bottom: 10px;
+    overflow: scroll;
+    padding-top: 15px;
+    columns: 2;
+}
 
 /* Menu: Actions & Components button */
 /* Display buttons in the Components menu button in two columns */
@@ -635,53 +674,69 @@ a.component-btns {
     }
 }
 
-@media only screen and (max-width: 1567px) {
-    .associated_type_ulTag {
-        padding: 0 0 0 5px; /*top right bottom left */
-        max-width: 220px;
-        column-gap: 0;
-    }
-
-    .associated_type_ulTag li {
-        padding: 0;
-    }
-}
-
-@media only screen and (max-width: 1556px) {
-    .one_associatedType_marginBottom {
-        margin-bottom: 75px;
-    }
-
-    .two_associatedTypes_marginBottom {
-        margin-bottom: 75px;
+@media only screen and (max-width: 1818px) {
+    .no_associatedTypes_marginBottom {
+        margin-bottom: 147px;
     }
 
     .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 64px;
+        margin-bottom: 122px;
     }
 
-    .associated_type_ulTag {
-        max-width: 130px;
-        column-count: 1 !important;
-        overflow-y: auto;
+    .one_associatedType_marginBottom {
+        margin-bottom: 80px;
     }
 
 }
 
-@media only screen and (max-width: 1473px) {
-    .associated_type_ulTag {
-        max-width: 180px !important;
-        column-count: 1 !important;
+@media only screen and (max-width: 1667px) {
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 98px;
     }
 
-    .associated_type_ulTag li {
-        padding: 0 0 0 5px; /*top right bottom left */
+    .one_associatedType_marginBottom {
+        margin-bottom: 98px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 98px;
+    }
+
+    .three_associatedTypes_marginBottom_2LineDescriptionText {
+        columns: revert;
+    }
+
+    .several_associatedTypes_marginBottom_2LineDescriptionText {
+        columns: revert;
+    }
+}
+
+@media only screen and (max-width: 1568px) {
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 125px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 80px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 105px;
+        padding-top: 15px;
+    }
+
+    .three_associatedTypes_marginBottom {
+        margin-bottom: 105px;
+    }
+
+    .several_associatedTypes_marginBottom {
+        columns: revert;
     }
 }
 
 @media only screen and (max-width: 1473px) {
     .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 15px 90px 15px 15px !important; /*top right bottom left */
+        padding: 15px 14px 15px 14px !important; /*top right bottom left */
     }
 }
 
@@ -701,33 +756,13 @@ a.component-btns {
     }
 }
 
-@media only screen and (max-width: 1381px) {
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 15px 80px 15px 15px !important; /*top right bottom left */
-    }
-}
-
 @media only screen and (max-width: 1391px) {
     .ui.vertical.menu {
         width: 10rem;
     }
 }
 
-@media only screen and (max-width: 1325px) {
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        padding: 15px 0 15px 15px !important; /*top right bottom left */
-    }
-}
-
-@media only screen and (max-width: 1217px) {
-    .one_associatedType_marginBottom {
-        margin-bottom: 55px;
-    }
-
-    .several_associatedType_marginBottom {
-        margin-bottom: 35px;
-    }
-
+@media only screen and (max-width: 1382px) {
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 15px 0 15px 15px !important; /*top right bottom left */
     }
@@ -739,6 +774,56 @@ a.component-btns {
     }
 }
 
+@media only screen and (max-width: 1230px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 80px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 60px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 62px;
+    }
+
+    .three_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 63px;
+    }
+
+    .several_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 62px;
+    }
+
+}
+
+@media only screen and (max-width: 1218px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 80px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 60px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 60px;
+    }
+
+    .three_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 63px;
+    }
+
+    .several_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 63px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 15px 0 15px 15px !important; /*top right bottom left */
+    }
+}
+
+
 @media only screen and (max-width: 1138px) {
     .grid-panel-body-selected {
         height: 300px !important;
@@ -749,12 +834,6 @@ a.component-btns {
 @media only screen and (max-width: 1089px) {
     .ui.vertical.menu {
         width: 10rem;
-    }
-
-    .associated_type_ulTag {
-        max-width: 150px !important;
-        max-height: 50px !important;
-        column-count: 1 !important;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -787,15 +866,66 @@ a.component-btns {
     }
 
     .no_associatedTypes_marginBottom {
-        margin-bottom: 65px;
+        margin-bottom: 120px;
+    }
+
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 100px;
     }
 
     .one_associatedType_marginBottom {
+        margin-bottom: 55px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
         margin-bottom: 35px;
     }
 
-    .two_associatedTypes_marginBottom {
-        margin-bottom: 15px;
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: -3px;
+        overflow: scroll;
+        height: 40px;
+    }
+
+    .three_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 38px;
+    }
+
+    .several_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 35px;
+    }
+
+    .grid-panel-body {
+        padding: 15px;
+        height: revert !important;
+    }
+}
+
+@media only screen and (max-width: 960px) {
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 104px;
+    }
+
+    .one_associatedType_marginBottom {
+        margin-bottom: 57px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 40px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: -20px;
+        height: 60px;
+        overflow: scroll;
+    }
+
+    .three_associatedTypes_marginBottom_2LineDescriptionText {
+        height: 40px;
+    }
+
+    .grid-panel-body {
+        height: revert !important;
     }
 
 }

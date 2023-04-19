@@ -106,6 +106,17 @@
     <script src="{% static 'copo/js/base.js' %}"></script>
     <script src="{% static 'copo/js/base.js' %}"></script>
 
+<script>
+$(document).ready(function() {
+     {% if user.is_authenticated %}
+         {% if not user.email %}
+             <script type="text/javascript">
+                 do_email_form();
+             </script>
+         {% endif %}
+    {% endif %}
+});
+</script>
     <!--
     <script src="{% static 'copo/datatables/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'copo/datatables/js/dataTables.bootstrap.min.js' %}"></script>
@@ -433,11 +444,6 @@
                     {% if user.is_authenticated %}<i class="fa fa-gear" aria-hidden="true"></i>
                         <span data-copo-tour-id="global_user_authenticated_button">{{ user }}<span
                                 class="caret" style="margin-left: 5px;"></span></span>
-                        {% if not user.email %}
-                            <script type="text/javascript">
-                                do_email_form();
-                            </script>
-                        {% endif %}
                     {% else %}
                         <i class="fa fa-sign-in copo-header-icons" aria-hidden="true">&nbsp;<span
                                 class="caret"></span></i>

@@ -200,12 +200,12 @@ function json2HtmlForm(data) {
                         if (!pattern.test(this.value))
                             selected_type = this.value // Get selected value if no parentheses exist
                         else {
-                            let associated_type_abbreviation_without_parentheses;
-                            associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+                            let associated_type_acronym_without_parentheses;
+                            associated_type_acronym_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
 
                             // Get abbreviated associated type enclosed in parentheses
-                            selected_type = `(${associated_type_abbreviation_without_parentheses})`
-                            // If empty parentheses are returned, set the abbreviation as
+                            selected_type = `(${associated_type_acronym_without_parentheses})`
+                            // If empty parentheses are returned, set the acronym as
                             // the full string excluding the empty parentheses
                             selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
                         }
