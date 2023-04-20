@@ -21,7 +21,6 @@ $(document).ready(function () {
 
     // Store the title displayed when a user hovers the ellipsis/profile options icon
     $(document).data("profileOptionsTitle", $('.row-ellipsis').attr('title'))
-    $(document).data("profilesLegendData", profiles_legend)
 
     // Add new profile button
     $(document).on("click", ".new-component-template", function () {
@@ -42,8 +41,10 @@ $(document).ready(function () {
     // No profile records exist
     if (profiles.length === 0) {
         $("#bottom-panel").hide();
+        $(".profiles-legend").hide();
         return false;
     }
+
     // Profile records exist
     // Initialise the popover 'View profile options' for each profile record
     let popover = $('#ellipsisID[data-toggle="popover"]').popover({
@@ -70,8 +71,6 @@ $(document).ready(function () {
     }).on('shown.bs.popover', function (e) {
         let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
 
-        // set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
-
         $('#editProfileBtn').click(function (event) {
             editProfileRecord(profile_id);
         });
@@ -94,7 +93,8 @@ $(document).ready(function () {
     appendRecordComponents($('div.grid'))
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
-    get_profiles_legend(profiles_legend)// Display profile legend
+
+    set_profile_grid_heading($('div.grid')) // Set profile grid heading
 
     // Adjust margin-bottom for associated types when profile description appears on 2 lines
     set_associated_types_marginBottom()
@@ -214,9 +214,10 @@ $(document).ready(function () {
                     initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
 
                     // Get legend data for the profile records loaded when a user scrolls downwards
-                    let remaining_legend_data = get_remaining_profiles_legend_data($(document).data("profilesLegendData"), data.profiles_legend)
-                    get_profiles_legend(remaining_legend_data)
+                    // let remaining_legend_data = get_remaining_profiles_legend_data(profiles_legend_lst, data.profiles_legend)
+                    // display_profiles_legend(remaining_legend_data)
 
+                    set_profile_grid_heading(content) // Set profile grid heading
                     // Adjust margin-bottom for associated types when profile description appears on 2 lines
                     set_associated_types_marginBottom()
 
@@ -407,7 +408,6 @@ function deleteProfileRecord(profileRecordID) {
     })
 }
 
-
 function sort_profile_records(option) {
     // Determine the query selector
     let selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime(); // 'date_created' selector
@@ -471,7 +471,7 @@ function do_render_profile_counts(data) {
     }
 }
 
-function get_profiles_legend(legend_data) {
+function display_profiles_legend(legend_data) {
     $.each(legend_data, function (index, element) {
         let type = `${element.profileType} profile type`;
         let acronym = element.profileTypeAcronym;
@@ -596,6 +596,107 @@ function set_mediaQueries() {
     });
 }
 
+function set_profile_grid_heading(grids) {
+    let profiles_legend_lst = []
+
+    grids.each(function () {
+        $(this).find(".copo-records-panel").each(function (idx, el) {
+            const profile_type = $(el).attr("profile_type");
+            let colour;
+            let acronym;
+            let legend_data;
+            let current_profile_legendData = $(".profiles-legend-group-item").text()
+
+            if (profile_type.includes("DTOL_ENV")) {
+                acronym = "DTOL-ENV"
+                colour = "#fb7d0d"
+                $(el).find(".panel-heading").css('background-color', colour)
+            } else if (profile_type.includes("DTOL")) {
+                acronym = "DTOL"
+                colour = "#16ab39"
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("ASG")) {
+                acronym = "ASG"
+                colour = "#5829bb"
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("ERGA")) {
+                acronym = "ERGA"
+                colour = "#E61A8D"
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("Stand-alone")) {
+                acronym = "Standalone"
+                colour = "#009c95"
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else {
+                acronym = "Shared"
+                colour = "#f26202"
+                $(el).find(".panel-heading").css("background-color", colour)
+            }
+
+            // Add profile type legend data if it is not already in the list/displayed
+            legend_data = {'profileType': profile_type, 'profileTypeAcronym': acronym, 'profileTypeColour': colour}
+
+            if (!profiles_legend_lst.map(x => x.profileType).includes(profile_type) && !current_profile_legendData.includes(acronym)) {
+                profiles_legend_lst.push(legend_data)
+            }
+        });
+
+        // Set associated types if they exist for the profile
+        $(this).find(".associated_type_ulTag").each(function (idx, el) {
+            // console.log($(this).data('associated-types'))
+            // console.log($(this).data('associated-types').length)
+            // set_profile_associated_types($(this).data('associated-types'), $(this)) //$(el).data("associated-types")
+            // let associated_types = JSON.parse(JSON.stringify($(this).data('associated-types')))
+            let associated_types = $(this).attr('data-associated-types')
+
+            // console.log('type:', typeof (associated_types))
+
+            // console.log(JSON.parse([JSON.stringify(associated_types)]))
+            // console.log(typeof (JSON.parse(JSON.stringify([associated_types]))))
+            // console.log(JSON.parse(associated_types))
+            console.log(profiles)
+
+            //set_profile_associated_types(associated_types)
+            // set_profile_associated_types($(this)) //$(el).data("associated-types")
+        });
+    });
+
+    display_profiles_legend(profiles_legend_lst)
+}
+
+function set_profile_associated_types(associated_types) {
+    // Set the associated types for each profile that have them
+    let acronym;
+    const regExp = /\(([^\)]*)\)/ // parentheses regex to get enclosed string
+    console.log('All associated profile types:', associated_types)
+    console.log('type:', typeof (associated_types))
+    // console.log('Parsed object: ', JSON.parse(JSON.stringify(element.data('associated-types'))))
+    //
+    $.each(associated_types, function (index, element) {
+        console.log("I am called")
+        console.log(element)
+    });
+
+    // console.log('All associated profile types:', JSON.parse(associated_profile_types))
+    // console.log(element)
+    // for (let i = 0; i < associated_profile_types.length; ++i) {
+    //     let a_type = associated_profile_types[i]
+    //     acronym = (a_type).match(regExp) !== null ? (a_type).match(regExp).pop() : a_type;
+    //
+    //     // If empty parentheses are returned, set the abbreviation as the full string excluding the parentheses
+    //     acronym = acronym === '()' ? a_type.replace(/\(\s*\)/g, "") : acronym
+    //
+    //     // Create profile type legend item
+    //     let $li = '<li>'
+    //     $li += acronym
+    //     $li += '<i class= "fa fa-info-circle associated_type_info_icon" title= "' + a_type + '"> </i>'
+    //     $li += '</li>'
+    //
+    //     $(element).append($li)
+    //     // element.append($li)
+    // }
+}
+
 function set_associated_types_marginBottom() {
     // Set the margin bottom once a profile description is displayed on two lines
     // NB: If line height is 21 or 24, then, profile description is displayed on one line
@@ -632,22 +733,6 @@ function set_associated_types_marginBottom() {
             }
         }
     });
-}
-
-
-function get_remaining_profiles_legend_data(initial_legend_data, remaining_legend_data) {
-    // Checks if two entries are identical
-    const isSameElement = (a, b) => a.profileType === b.profileType &&
-        a.profileTypeAcronym === b.profileTypeAcronym && a.profileTypeColour === b.profileTypeColour;
-
-    // Get items that only occur in the array B,
-    // using the compareFunction to determine equality
-    const filterElements = (arrayA, arrayB, compareFunction) =>
-        arrayA.filter(a =>
-            !arrayB.some(b =>
-                compareFunction(a, b)));
-
-    return filterElements(remaining_legend_data, initial_legend_data, isSameElement);
 }
 
 function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
