@@ -24,15 +24,16 @@ def copo_profile_index(request):
     num_of_profiles_per_page = 8  # number of records to display by default on a single page
     uid = request.user.id
     page = int(request.GET.get('page', 1))  # current page
+
     profiles_length = Profile().get_collection_handle().find({"user_id": uid}).count()
     num_of_pages = profiles_length / num_of_profiles_per_page  # row count
     db_skip_num = num_of_profiles_per_page * (page - 1)
 
     # Get/load 8 profiles on downwards scroll
-    existing_profiles_paginated = Profile().get_collection_handle().find({"user_id": uid}).sort("date_modified",
-                                                                                                pymongo.DESCENDING).skip(
-        db_skip_num).limit(
-        num_of_profiles_per_page)
+    existing_profiles_paginated = Profile() \
+        .get_collection_handle() \
+        .find({"user_id": uid}) \
+        .sort("date_modified", pymongo.DESCENDING).skip(db_skip_num).limit(num_of_profiles_per_page)
 
     profile_page = cursor_to_list_str2(existing_profiles_paginated, use_underscore_in_id=False)
 
@@ -164,27 +165,3 @@ def view_copo_profile(request, profile_id):
         return render(request, 'copo/error_page.html')
     context = {"p_id": profile_id, 'counts': ProfileInfo(profile_id).get_counts(), "profile": profile}
     return render(request, 'copo/copo_profile.html', context)
-
-
-def setup_associated_profile_types(element, associated_type, additional_info_dict):
-    if associated_type:
-        associated_type_count = len(associated_type)
-        associated_type_columnCount = "2" if associated_type_count > 3 else "1"
-        regex = '\(([^)]+)'
-
-        additional_info_dict = {"associated_type_columnCount": associated_type_columnCount}
-        element.update(additional_info_dict)
-
-        # Create a dictionary of associated type acronym and associated_type
-        element_lst = []
-        for associated_type in associated_type:
-            # Extract parentheses and its enclosed value from associated type
-            acronym = re.search(regex, associated_type).group(1) if re.search(regex,
-                                                                              associated_type) else associated_type
-
-            element_lst.append({"associated_type": associated_type, "acronym": acronym})
-
-        associated_type_elements = {"associated_type_elements": element_lst}
-        element.update(associated_type_elements)
-    else:
-        element.update(additional_info_dict)

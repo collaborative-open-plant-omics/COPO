@@ -213,19 +213,12 @@ $(document).ready(function () {
                     refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
                     initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
 
-                    // Get legend data for the profile records loaded when a user scrolls downwards
-                    // let remaining_legend_data = get_remaining_profiles_legend_data(profiles_legend_lst, data.profiles_legend)
-                    // display_profiles_legend(remaining_legend_data)
-
                     set_profile_grid_heading(content) // Set profile grid heading
                     // Adjust margin-bottom for associated types when profile description appears on 2 lines
                     set_associated_types_marginBottom()
 
                     set_mediaQueries() // Set media queries for profile records
-
-                    // Increment the number of profile records displayed
-                    grid_count.text($('.grid').length)
-
+                    grid_count.text($('.grid').length) // Increment the number of profile records displayed
                     tableLoader.remove(); // Remove loading .gif
                 },
                 error: function () {
@@ -262,7 +255,6 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: 0
         }, '300');
-        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
     });
 
     // On web page reload/refresh, sort profile records by default sort option and method
@@ -277,9 +269,7 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: document.body.scrollHeight + 30
         }, "slow");
-        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
         navigateToBottomOfPageBtn.removeClass('show') // Hide 'scroll down' button
-
     });
 
 }); // End document ready
@@ -473,7 +463,7 @@ function do_render_profile_counts(data) {
 
 function display_profiles_legend(legend_data) {
     $.each(legend_data, function (index, element) {
-        let type = `${element.profileType} profile type`;
+        let type = element.profileType;
         let acronym = element.profileTypeAcronym;
         let colour = element.profileTypeColour;
 
@@ -610,26 +600,32 @@ function set_profile_grid_heading(grids) {
             if (profile_type.includes("DTOL_ENV")) {
                 acronym = "DTOL-ENV"
                 colour = "#fb7d0d"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL-ENV)</small>');
                 $(el).find(".panel-heading").css('background-color', colour)
             } else if (profile_type.includes("DTOL")) {
                 acronym = "DTOL"
                 colour = "#16ab39"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
             } else if (profile_type.includes("ASG")) {
                 acronym = "ASG"
                 colour = "#5829bb"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(ASG)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
             } else if (profile_type.includes("ERGA")) {
                 acronym = "ERGA"
                 colour = "#E61A8D"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(ERGA)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
             } else if (profile_type.includes("Stand-alone")) {
                 acronym = "Standalone"
                 colour = "#009c95"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(Standalone)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
             } else {
                 acronym = "Shared"
                 colour = "#f26202"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(Shared With Me)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
             }
 
@@ -640,61 +636,9 @@ function set_profile_grid_heading(grids) {
                 profiles_legend_lst.push(legend_data)
             }
         });
-
-        // Set associated types if they exist for the profile
-        $(this).find(".associated_type_ulTag").each(function (idx, el) {
-            // console.log($(this).data('associated-types'))
-            // console.log($(this).data('associated-types').length)
-            // set_profile_associated_types($(this).data('associated-types'), $(this)) //$(el).data("associated-types")
-            // let associated_types = JSON.parse(JSON.stringify($(this).data('associated-types')))
-            let associated_types = $(this).attr('data-associated-types')
-
-            // console.log('type:', typeof (associated_types))
-
-            // console.log(JSON.parse([JSON.stringify(associated_types)]))
-            // console.log(typeof (JSON.parse(JSON.stringify([associated_types]))))
-            // console.log(JSON.parse(associated_types))
-            console.log(profiles)
-
-            //set_profile_associated_types(associated_types)
-            // set_profile_associated_types($(this)) //$(el).data("associated-types")
-        });
     });
 
     display_profiles_legend(profiles_legend_lst)
-}
-
-function set_profile_associated_types(associated_types) {
-    // Set the associated types for each profile that have them
-    let acronym;
-    const regExp = /\(([^\)]*)\)/ // parentheses regex to get enclosed string
-    console.log('All associated profile types:', associated_types)
-    console.log('type:', typeof (associated_types))
-    // console.log('Parsed object: ', JSON.parse(JSON.stringify(element.data('associated-types'))))
-    //
-    $.each(associated_types, function (index, element) {
-        console.log("I am called")
-        console.log(element)
-    });
-
-    // console.log('All associated profile types:', JSON.parse(associated_profile_types))
-    // console.log(element)
-    // for (let i = 0; i < associated_profile_types.length; ++i) {
-    //     let a_type = associated_profile_types[i]
-    //     acronym = (a_type).match(regExp) !== null ? (a_type).match(regExp).pop() : a_type;
-    //
-    //     // If empty parentheses are returned, set the abbreviation as the full string excluding the parentheses
-    //     acronym = acronym === '()' ? a_type.replace(/\(\s*\)/g, "") : acronym
-    //
-    //     // Create profile type legend item
-    //     let $li = '<li>'
-    //     $li += acronym
-    //     $li += '<i class= "fa fa-info-circle associated_type_info_icon" title= "' + a_type + '"> </i>'
-    //     $li += '</li>'
-    //
-    //     $(element).append($li)
-    //     // element.append($li)
-    // }
 }
 
 function set_associated_types_marginBottom() {
@@ -788,8 +732,6 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
         $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('shown.bs.popover', function (e) {
         let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
-
-        // set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
 
         $('#editProfileBtn').click(function (event) {
             editProfileRecord(profile_id);

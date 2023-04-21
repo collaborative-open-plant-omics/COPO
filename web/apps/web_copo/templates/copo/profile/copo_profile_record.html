@@ -4,10 +4,10 @@
         <!--Panel -->
         <div class="panel">
             <!--Panel heading -->
-            <div class="panel-heading" style="background-color: {{ profile.heading_bgColour }}">
+            <div class="panel-heading">
                 <div class="row">
                     <div class="col-sm-10 col-md-10 col-lg-10 row-title">
-                        <span id={{ profile.id }} class=showEllipsisFor1TextLine>{{ profile.title }}&nbsp;<small>{{ profile.title_smallText }}</small></span>
+                        <span id={{ profile.id }} class=showEllipsisFor1TextLine>{{ profile.title }}&nbsp;</span>
                     </div>
                     <div class="col-sm-2 col-md-2 col-lg-2 row-ellipsis" title="View profile options">
                         <div id="{{ profile.id }}" class="pull-right ellipsisDiv">
@@ -37,14 +37,14 @@
                             </div>
 
                             <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
-                                <ul class="associated_type_ulTag" data-associated-types={{ profile.associated_type }}>
-                                    {#                                    {% for element in profile.associated_type_elements %}#}
-                                    {#                                        <li>  {{ element.acronym }}#}
-                                    {#                                            <i class="fa fa-info-circle associated_type_info_icon"#}
-                                    {#                                               title="{{ element.associated_type }}"></i>#}
-                                    {#                                        </li>#}
-                                    {##}
-                                    {#                                    {% endfor %}#}
+                                <ul class="associated_type_ulTag">
+                                    {% for element in profile.associated_type %}
+                                        <li>  {{ element.acronym }}
+                                            <i class="fa fa-info-circle associated_type_info_icon"
+                                               title="{{ element.backronym }}"></i>
+                                        </li>
+
+                                    {% endfor %}
                                 </ul>
                             </div>
                         {% else %}

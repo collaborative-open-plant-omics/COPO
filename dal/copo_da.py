@@ -765,7 +765,7 @@ class Sample(DAComponent):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
         self.get_collection_handle().update_many(
-            {"biosampleAccession": {"$ne": ""}, "status":"rejected" },
+            {"biosampleAccession": {"$ne": ""}, "status": "rejected"},
             {"$set": {"status": "accepted"}}
         )
 
@@ -1198,12 +1198,13 @@ class Sample(DAComponent):
         return result
 
     def get_sample_display_column_names(self):
-        
+
         sc = self.get_component_schema()
         columns = [];
         columns.append("_id")
         for field in sc:
-            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",""):
+            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",
+                                                                                                       ""):
                 column = field.get("id", "").split(".")[-1]
                 if column not in columns:
                     columns.append(column)
@@ -1220,7 +1221,6 @@ class Sample(DAComponent):
 
     def mark_pending(self, sample_id):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "pending"}})
-
 
     def get_by_manifest_id(self, manifest_id):
         samples = cursor_to_list(self.get_collection_handle().find({"manifest_id": manifest_id}))
@@ -2168,15 +2168,24 @@ class Profile(DAComponent):
 
     def get_type(self, profile_id):
         p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
+
         if p:
             return p.get("type", "")
         else:
             return False
 
-    def get_associated_type(self, profile_id):
+    def get_associated_type(self, profile_id, acronym=True, backronym=True):
         p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
         if p:
-            return p.get("associated_type", "")
+            if p.get("associated_type", ""):
+                if acronym and not backronym:
+                    return [i.get("acronym", "") for i in p.get("associated_type", "") if i.get("acronym", "")]
+                elif backronym and not acronym:
+                    return [i.get("backronym", "") for i in p.get("associated_type", "") if i.get("backronym", "")]
+                else:
+                    return p.get("associated_type", "")
+            else:
+                return []
         else:
             return False
 

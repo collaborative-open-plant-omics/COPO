@@ -75,19 +75,18 @@ def cursor_to_list_str(cursor, use_underscore_in_id=True):
 
 def cursor_to_list_str2(cursor, use_underscore_in_id=True):
     # method to return pymongo cursor into standard python list
-    # with ids as strings rather than ObjectIds
-    # and datetimess as string datetime rather than datetime objects
+    # with IDs as strings instead than ObjectIds
+    # and datetimes as string datetime instead of datetime objects
     records = cursor_to_list(cursor)
     for r in records:
         if use_underscore_in_id:
             r["_id"] = str(r["_id"])
-            r["date_created"] = r['date_created'].strftime('%a, %d %b %Y %H:%M')
-            r["date_modified"] = r['date_modified'].strftime('%a, %d %b %Y %H:%M')
         else:
             r["id"] = str(r["_id"])
             r.pop("_id")
-            r["date_created"] = r['date_created'].strftime('%a, %d %b %Y %H:%M')
-            r["date_modified"] = r['date_modified'].strftime('%a, %d %b %Y %H:%M')
+
+        r["date_created"] = r['date_created'].strftime('%a, %d %b %Y %H:%M')
+        r["date_modified"] = r['date_modified'].strftime('%a, %d %b %Y %H:%M')
     return records
 
 
