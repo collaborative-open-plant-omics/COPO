@@ -49,6 +49,12 @@ $(document).ready(function () {
     // Initialise the popover 'View profile options' for each profile record
     let popover = $('#ellipsisID[data-toggle="popover"]').popover({
         sanitize: false
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID[data-toggle="popover"]').not(this).popover('hide');
+        e.stopPropagation();
+    }).on('show.bs.popover', function (e) {
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('show.bs.popover', function (e) {
         // Set content of the popover
         const $content = $('<div></div>');
@@ -56,34 +62,14 @@ $(document).ready(function () {
         const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
 
         $deleteButton.css('margin-left', '15px');
-
         $content.append($editButton);
         $content.append($deleteButton);
 
         // Apply the content to the popover
         popover.attr('data-content', $content.html());
-    }).click(function (e) {
-        $(this).popover('toggle');
-        $('#ellipsisID[data-toggle="popover"]').not(this).popover('hide');
-        e.stopPropagation();
-    }).on('show.bs.popover', function (e) {
-        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('shown.bs.popover', function (e) {
-        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
-
-        $('#editProfileBtn').click(function (event) {
-            editProfileRecord(profile_id);
-        });
-
-        $('#deleteProfileBtn').click(function (event) {
-            deleteProfileRecord(profile_id);
-        });
-
-        $('#popoverCloseBtn').click(function (event) {
-            $('#ellipsisID[data-toggle="popover"]').popover('hide')
-        });
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });
-
 
     $("#sortProfilesBtn")[0].selectedIndex = 0 // Set first option of sort menu
 
@@ -162,19 +148,30 @@ $(document).ready(function () {
     $(document).on("click", `#${tableID}`, function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
     });
 
     $(document).on("click", ".copo-main", function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
     });
 
     $(document).on("click", ".copo-sidebar", function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
+    });
+
+    $(document).on("click", "#editProfileBtn", function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        editProfileRecord(profile_id);
+    });
+
+    $(document).on("click", "#deleteProfileBtn", function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        deleteProfileRecord(profile_id);
+    });
+
+    $(document).on("click", "#popoverCloseBtn", function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide')
     });
 
     // Trigger infinite scroll once user scrolls downwards to display more profile records that exist
@@ -708,9 +705,27 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
         el.closest('.panel-heading').next('.grid-panel-body').removeClass("grid-panel-body-selected")
     })
 
+    $('#editProfileBtn').click(function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        editProfileRecord(profile_id);
+    });
+
+    $('#deleteProfileBtn').click(function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        deleteProfileRecord(profile_id);
+    });
+
+    $('#popoverCloseBtn').click(function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide')
+    });
+
     // Initialise the popover 'View profile options' for each profile record
     let popover = $('#ellipsisID[data-toggle="popover"]').popover({
         sanitize: false
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID').not(this).popover('hide');
+        e.stopPropagation();
     }).on('show.bs.popover', function (e) {
         // Set content of the popover
         const $content = $('<div></div>');
@@ -718,32 +733,12 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
         const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
 
         $deleteButton.css('margin-left', '15px');
-
         $content.append($editButton);
         $content.append($deleteButton);
 
         // Apply the content to the popover
         popover.attr('data-content', $content.html());
-    }).click(function (e) {
-        $(this).popover('toggle');
-        $('#ellipsisID').not(this).popover('hide');
-        e.stopPropagation();
-    }).on('show.bs.popover', function (e) {
-        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('shown.bs.popover', function (e) {
-        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
-
-        $('#editProfileBtn').click(function (event) {
-            editProfileRecord(profile_id);
-        });
-
-        $('#deleteProfileBtn').click(function (event) {
-            deleteProfileRecord(profile_id);
-        });
-
-        $('#popoverCloseBtn').click(function (event) {
-            $('#ellipsisID[data-toggle="popover"]').popover('hide')
-        });
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });
-
 }

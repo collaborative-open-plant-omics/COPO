@@ -81,7 +81,7 @@
       "placeholder": "Select associated type(s)",
       "show_in_form": true,
       "id": "copo.profile.associated_type",
-      "type": "string",
+      "type": "array",
       "show_in_table": true,
       "control": "copo-multi-select2",
       "option_values": [

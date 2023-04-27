@@ -39,9 +39,9 @@
                             <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
                                 <ul class="associated_type_ulTag">
                                     {% for element in profile.associated_type %}
-                                        <li>  {{ element.acronym }}
+                                        <li>  {{ element.value }}
                                             <i class="fa fa-info-circle associated_type_info_icon"
-                                               title="{{ element.backronym }}"></i>
+                                               title="{{ element.label }}"></i>
                                         </li>
 
                                     {% endfor %}

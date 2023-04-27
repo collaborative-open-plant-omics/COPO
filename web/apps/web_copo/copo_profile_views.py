@@ -33,7 +33,7 @@ def copo_profile_index(request):
     existing_profiles_paginated = Profile() \
         .get_collection_handle() \
         .find({"user_id": uid}) \
-        .sort("date_modified", pymongo.DESCENDING).skip(db_skip_num).limit(num_of_profiles_per_page)
+        .sort("date_created", pymongo.DESCENDING).skip(db_skip_num).limit(num_of_profiles_per_page)
 
     profile_page = cursor_to_list_str2(existing_profiles_paginated, use_underscore_in_id=False)
 

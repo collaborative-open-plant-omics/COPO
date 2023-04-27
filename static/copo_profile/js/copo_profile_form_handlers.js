@@ -191,12 +191,14 @@ const dispatchFormControl = {
 
         if (formElem.option_values && formElem.option_values.length) {
             optionsList = formElem.option_values.map(function (item) {
+                let newItem;
                 if (typeof item === "string") {
-                    var newItem = item;
+                    newItem = item;
                     item = {};
                     item.value = newItem;
                     item.label = newItem;
                 }
+
                 return {
                     id: item.accession || item.value,
                     text: item.label,
@@ -206,11 +208,16 @@ const dispatchFormControl = {
         }
 
         //set current data
-        var currentValue = [];
+        let currentValue = [];
 
         if (elemValue) {
             if (typeof elemValue === "string") {
                 currentValue = elemValue.split(",");
+            } else if (formElem.id.includes("associated_type") && typeof elemValue === "object") {
+                let obj = JSON.parse(JSON.stringify(elemValue))
+                $.each(obj, function (index, item) {
+                    currentValue.push(item.label)
+                });
             } else if (typeof elemValue === "object") {
                 currentValue = elemValue
             }
@@ -385,7 +392,6 @@ function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID
 }
 
 function json2HtmlProfileForm(data) {
-
     //tidy up before closing the modal
     const doTidyClose = {
         closeIt: function (dialogRef) {
@@ -916,7 +922,7 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
     }
 
     if (elemValue) {
-        if (formElem.type === "array") {
+        if (formElem.type === "array" || formElem.id.includes("associated_type")) {
             if (elemValue.length > 0) {
 
                 //first element should not be open to deletion
@@ -924,7 +930,7 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                     if (this.id) {
                         let sendOfValue = elemValue;
                         if (Object.prototype.toString.call(elemValue) === '[object Array]') {
-                            sendOfValue = elemValue[0];
+                            sendOfValue = formElem.id.includes("associated_type") ? elemValue[0].label : elemValue[0];
                         }
 
                         const resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
@@ -944,9 +950,9 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                         ctrlsWithValuesDivSiblings.find(":input").each(function () {
                             if (this.id) {
 
-                                var tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
+                                const tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
 
-                                var resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
+                                const resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
                                 $(this).val(resolvedValue);
                                 this.setAttribute("value", resolvedValue);
                             }
@@ -1024,8 +1030,7 @@ function add_message_segment(outputCtrl) {
         class: "col-sm-4 message-segment"
     });
 
-    row
-        .append(left)
+    row.append(left)
     // .append(right);
 
     return row;
@@ -1303,8 +1308,8 @@ function save_form(formJSON, dialogRef) {
                 $.each($(this).val(), function (idx, acronym) {
                     options_lst.filter(x => x.id === acronym).map(
                         i => a_type_lst.push({
-                            acronym: i.id,
-                            backronym: i.text
+                            value: i.id,
+                            label: i.text
                         })
                     );
                 });
