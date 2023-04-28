@@ -1017,7 +1017,10 @@ class DecoupleFormSubmission:
 
                     # get the primary field...and secondary data
                     if f_id in self.auto_fields.keys():
-                        value_list.append(self.auto_fields[f_id])
+                        if type(self.auto_fields[f_id]) == list:
+                            value_list = self.auto_fields[f_id]
+                        else:
+                            value_list.append(self.auto_fields[f_id])
                         secondary_data_list = [k for k in self.auto_fields.keys() if
                                                k.startswith(f_id + self.global_key_split)]
 
