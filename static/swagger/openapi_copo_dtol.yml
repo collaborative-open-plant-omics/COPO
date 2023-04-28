@@ -53,7 +53,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format           
+          description: export data into csv format
       responses:
         200:
           description: A JSON array sample objects
@@ -83,7 +83,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format            
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -121,7 +121,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -165,7 +165,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -197,7 +197,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array of sample status objects
@@ -228,7 +228,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample copo_ids
@@ -259,7 +259,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -269,6 +269,44 @@ paths:
                 $ref: '#/components/schemas/SampleList'
         "400":
           description: Invalid associated profile type found in request
+
+  /sample/{from}/{to}:
+    get:
+      tags:
+        - Sample
+      summary:
+        Get samples between dates
+      description: >
+        Returns an array of sample objects submitted between dates {from} / {to}
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: ISO 8601 formatted full date-time, samples created greater than or equal to this date will be matched, e.g. 2020-09-24T17:00:22+00:00
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: path
+          required: true
+          description: ISO 8601 formatted full date-time, samples created less than this date will be matched, e.g. 2020-09-24T17:00:22+00:00
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: csv
+          schema:
+            type: boolean
+          description: export data into csv format
+      responses:
+        "200": # status code
+          description: A JSON array of sample objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleList'
+        "400":
+          description: \'from\' must be earlier than \'to\'
 
   /sample/copo_id/{copo_ids}:
     get:
@@ -290,7 +328,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -321,7 +359,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -358,7 +396,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format               
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -388,7 +426,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format   
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -416,7 +454,7 @@ paths:
           name: csv
           schema:
             type: boolean
-          description: export data into csv format               
+          description: export data into csv format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -835,7 +873,7 @@ components:
           type: string
         IDENTIFIED_HOW:
           type: string
-        SPECIMEN_ID_RISK:
+        SPECIMEN_IDENTITY_RISK:
           type: string
         PRESERVED_BY:
           type: string

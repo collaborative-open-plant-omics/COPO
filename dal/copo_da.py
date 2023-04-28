@@ -943,6 +943,14 @@ class Sample(DAComponent):
             {"RACK_OR_PLATE_ID": 1, "TUBE_OR_WELL_ID": 1}
         ))
 
+    def get_samples_by_date(self, d_from, d_to):
+        return cursor_to_list(self.get_collection_handle().aggregate(
+            [
+                {"$match": {"sample_type": {"$in": TOL_PROFILE_TYPES}, "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$sort": {"time_created": -1}},
+
+            ]))
+
     def get_all_dtol_samples(self):
         return cursor_to_list(self.get_collection_handle().find(
             {"sample_type": "dtol"},
@@ -1064,8 +1072,8 @@ class Sample(DAComponent):
         )
 
     def get_by_profile_and_field(self, profile_id, field, value):
-        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}),
-                              {"_id": 1})
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id},
+                                                                {"_id": 1}))
 
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))

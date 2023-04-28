@@ -196,6 +196,23 @@ def get_project_manifests_between_dates(request, project, d_from, d_to):
     return finish_request(manifest_ids)
 
 
+def get_all_samples_between_dates(request, d_from, d_to):
+    # get all samples between d_from and d_to
+    # dates must be ISO 8601 formatted
+    d_from = parser.parse(d_from)
+    d_to = parser.parse(d_to)
+
+    if d_from > d_to:
+        return HttpResponse(status=400, content="'from date' must be earlier than 'to date'")
+
+    samples = Sample().get_samples_by_date(d_from, d_to)
+    out = list()
+    
+    if samples:
+        out = filter_for_API(samples, add_all_fields=True)
+    return finish_request(out)
+
+
 def get_samples_in_manifest(request, manifest_id):
     # get all samples tagged with the given manifest_id
     sample_list = Sample().get_by_manifest_id(manifest_id)
