@@ -930,7 +930,7 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                     if (this.id) {
                         let sendOfValue = elemValue;
                         if (Object.prototype.toString.call(elemValue) === '[object Array]') {
-                            sendOfValue = formElem.id.includes("associated_type") ? elemValue[0].label : elemValue[0];
+                            sendOfValue = elemValue[0];
                         }
 
                         const resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
@@ -1428,3 +1428,17 @@ function save_form(formJSON, dialogRef) {
         }
     });
 } //end of function
+
+function get_del_button(theTitle) {
+    const title = theTitle || "Remove";
+    return $('<button title="' + title + '"  class="ui negative icon button copo-tooltip">\n' +
+        '  <i class="minus icon"></i>\n' +
+        '</button>');
+}
+
+function get_add_button(theTitle) {
+    const title = theTitle || "Add";
+    return $('<button title="' + title + '" class="ui primary icon button copo-tooltip">\n' +
+        '  <i class="plus icon"></i>\n' +
+        '</button>');
+}
