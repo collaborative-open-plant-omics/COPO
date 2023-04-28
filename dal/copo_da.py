@@ -765,7 +765,7 @@ class Sample(DAComponent):
         # TODO - for some reason, some dtol samples end up rejected even though the have accessions, so find these and
         # flip them to accepted
         self.get_collection_handle().update_many(
-            {"biosampleAccession": {"$ne": ""}, "status":"rejected" },
+            {"biosampleAccession": {"$ne": ""}, "status": "rejected"},
             {"$set": {"status": "accepted"}}
         )
 
@@ -943,6 +943,14 @@ class Sample(DAComponent):
             {"RACK_OR_PLATE_ID": 1, "TUBE_OR_WELL_ID": 1}
         ))
 
+    def get_samples_by_date(self, d_from, d_to):
+        return cursor_to_list(self.get_collection_handle().aggregate(
+            [
+                {"$match": {"sample_type": {"$in": TOL_PROFILE_TYPES}, "time_created": {"$gte": d_from, "$lt": d_to}}},
+                {"$sort": {"time_created": -1}},
+
+            ]))
+
     def get_all_dtol_samples(self):
         return cursor_to_list(self.get_collection_handle().find(
             {"sample_type": "dtol"},
@@ -1064,8 +1072,8 @@ class Sample(DAComponent):
         )
 
     def get_by_profile_and_field(self, profile_id, field, value):
-        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id}),
-                              {"_id": 1})
+        return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "profile_id": profile_id},
+                                                                {"_id": 1}))
 
     def get_by_project_and_field(self, project, field, value):
         return cursor_to_list(self.get_collection_handle().find({field: {"$in": value}, "tol_project": project}))
@@ -1198,12 +1206,13 @@ class Sample(DAComponent):
         return result
 
     def get_sample_display_column_names(self):
-        
+
         sc = self.get_component_schema()
         columns = [];
         columns.append("_id")
         for field in sc:
-            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",""):
+            if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))) and field.get("show_in_table",
+                                                                                                       ""):
                 column = field.get("id", "").split(".")[-1]
                 if column not in columns:
                     columns.append(column)
@@ -1220,7 +1229,6 @@ class Sample(DAComponent):
 
     def mark_pending(self, sample_id):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "pending"}})
-
 
     def get_by_manifest_id(self, manifest_id):
         samples = cursor_to_list(self.get_collection_handle().find({"manifest_id": manifest_id}))
