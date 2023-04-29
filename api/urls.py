@@ -49,6 +49,8 @@ dtol_api_patterns = [
     re_path(r'sample/associated_tol_project/(?P<values>[a-zA-Z, ]+)',
             s.get_project_samples_by_associated_project_type,
             name='get_project_samples_by_associated_project_type'),
+    re_path(r'sample/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
+            s.get_all_samples_between_dates, name='get_all_samples_between_dates'),
     re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_samples_from_study_accessions,
             name='get_samples_from_study_accession'),
     re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_study_from_sample_accession,

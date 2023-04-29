@@ -144,19 +144,9 @@ class DtolSpreadsheet:
             self.current_schema_version = settings.CURRENT_DTOL_VERSION
 
         # get associated profile type(s) of manifest
-        associated_t = Profile().get_associated_type(self.profile_id)
-        lst = []
-        regexExp = '\(([^)]+)'
-        for item in associated_t:
-            #  Check if 'associated type' array/list contains parentheses
-            if re.search(regexExp, item):
-                # Get acronym within parentheses
-                acronym = re.search(regexExp, item).group(1)
-            else:
-                # Set acronym as full string if no parentheses exist
-                acronym = item
-            lst.append(acronym)
-        self.associated_type = " | ".join(lst)  # Get associated type(s) as string separated by '|' symbol
+        associated_type_lst = Profile().get_associated_type(self.profile_id, acronym=True, backronym=False)
+        # Get associated type(s) as string separated by '|' symbol
+        self.associated_type = " | ".join(associated_type_lst)
 
         '''
         # create list of required validators

@@ -191,12 +191,14 @@ const dispatchFormControl = {
 
         if (formElem.option_values && formElem.option_values.length) {
             optionsList = formElem.option_values.map(function (item) {
+                let newItem;
                 if (typeof item === "string") {
-                    var newItem = item;
+                    newItem = item;
                     item = {};
                     item.value = newItem;
                     item.label = newItem;
                 }
+
                 return {
                     id: item.accession || item.value,
                     text: item.label,
@@ -206,13 +208,18 @@ const dispatchFormControl = {
         }
 
         //set current data
-        var currentValue = [];
+        let currentValue = [];
 
         if (elemValue) {
             if (typeof elemValue === "string") {
                 currentValue = elemValue.split(",");
+            } else if (formElem.id.includes("associated_type") && typeof elemValue === "object") {
+                let obj = JSON.parse(JSON.stringify(elemValue))
+                $.each(obj, function (index, item) {
+                    currentValue.push(item.label)
+                });
             } else if (typeof elemValue === "object") {
-                currentValue = elemValue;
+                currentValue = elemValue
             }
         }
 
@@ -348,17 +355,17 @@ function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID
             let multi_select_options = $('.copo-multi-select2')
             const pattern = /(([\s]+))/; // parentheses regex with string enclosed
 
-            if (!pattern.test(this.value))
+            if (!pattern.test(this.value)) {
                 selected_type = this.value // Get selected value if no parentheses exist
-            else {
-                let associated_type_abbreviation_without_parentheses;
-                associated_type_abbreviation_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+            } else {
+                let associated_type_abbreviation_without_parentheses =
+                    this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
 
-                // Get abbreviated associated type enclosed in parentheses
-                selected_type = `(${associated_type_abbreviation_without_parentheses})`
-                // If empty parentheses are returned, set the acronym as
-                // the full string excluding the empty parentheses
-                selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
+                // Get associated type acronym that is enclosed in parentheses
+                // If empty an empty string is returned, set the acronym as the full string
+                selected_type = associated_type_abbreviation_without_parentheses === ''
+                    ? this.value.replace(/\(\s*\)/g, "")
+                    : associated_type_abbreviation_without_parentheses
             }
 
             let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
@@ -385,7 +392,6 @@ function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID
 }
 
 function json2HtmlProfileForm(data) {
-
     //tidy up before closing the modal
     const doTidyClose = {
         closeIt: function (dialogRef) {
@@ -916,7 +922,7 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
     }
 
     if (elemValue) {
-        if (formElem.type === "array") {
+        if (formElem.type === "array" || formElem.id.includes("associated_type")) {
             if (elemValue.length > 0) {
 
                 //first element should not be open to deletion
@@ -944,9 +950,9 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                         ctrlsWithValuesDivSiblings.find(":input").each(function () {
                             if (this.id) {
 
-                                var tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
+                                const tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
 
-                                var resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
+                                const resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
                                 $(this).val(resolvedValue);
                                 this.setAttribute("value", resolvedValue);
                             }
@@ -1024,8 +1030,7 @@ function add_message_segment(outputCtrl) {
         class: "col-sm-4 message-segment"
     });
 
-    row
-        .append(left)
+    row.append(left)
     // .append(right);
 
     return row;
@@ -1292,8 +1297,27 @@ function save_form(formJSON, dialogRef) {
 
     //manage auto-generated fields
     const form_values = Object();
+    let a_type_lst = []
+    let options_lst = [];
     htmlForm.find("form").find(":input").each(function () {
-        form_values[this.id] = $(this).val();
+        // Add the acronym and full word of the associated type
+        if (this.id.includes('associated_type')) {
+            options_lst = $(this).data('optionslist')
+
+            if ($(this).val()) {
+                $.each($(this).val(), function (idx, acronym) {
+                    options_lst.filter(x => x.id === acronym).map(
+                        i => a_type_lst.push({
+                            value: i.id,
+                            label: i.text
+                        })
+                    );
+                });
+            }
+            form_values[this.id] = a_type_lst
+        } else {
+            form_values[this.id] = $(this).val();
+        }
     });
 
     const auto_fields = JSON.stringify(form_values);
@@ -1311,7 +1335,6 @@ function save_form(formJSON, dialogRef) {
     btnSave.disable();
     btnCancel.disable();
     btnSave.spin();
-
 
     $.ajax({
         url: copoFormsURL,
@@ -1405,3 +1428,17 @@ function save_form(formJSON, dialogRef) {
         }
     });
 } //end of function
+
+function get_del_button(theTitle) {
+    const title = theTitle || "Remove";
+    return $('<button title="' + title + '"  class="ui negative icon button copo-tooltip">\n' +
+        '  <i class="minus icon"></i>\n' +
+        '</button>');
+}
+
+function get_add_button(theTitle) {
+    const title = theTitle || "Add";
+    return $('<button title="' + title + '" class="ui primary icon button copo-tooltip">\n' +
+        '  <i class="plus icon"></i>\n' +
+        '</button>');
+}

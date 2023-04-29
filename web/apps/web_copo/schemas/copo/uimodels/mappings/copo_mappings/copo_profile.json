@@ -81,16 +81,34 @@
       "placeholder": "Select associated type(s)",
       "show_in_form": true,
       "id": "copo.profile.associated_type",
-      "type": "string",
+      "type": "array",
       "show_in_table": true,
       "control": "copo-multi-select2",
       "option_values": [
-        "Aquatic Symbiosis Genomics (ASG)",
-        "Biodiversity Genomics Europe (BGE)",
-        "Darwin Tree of Life (DTOL)",
-        "Darwin Tree of Life Environmental Samples (DTOL_ENV)",
-        "European Reference Genome Atlas (ERGA)",
-        "European Reference Genome Atlas - Pilot (ERGA_PILOT)"
+        {
+          "value": "ASG",
+          "label": "Aquatic Symbiosis Genomics (ASG)"
+        },
+        {
+          "value": "BGE",
+          "label": "Biodiversity Genomics Europe (BGE)"
+        },
+        {
+          "value": "DTOL",
+          "label": "Darwin Tree of Life (DTOL)"
+        },
+        {
+          "value": "DTOL_ENV",
+          "label": "Darwin Tree of Life Environmental Samples (DTOL_ENV)"
+        },
+        {
+          "value": "ERGA",
+          "label": "European Reference Genome Atlas (ERGA)"
+        },
+        {
+          "value": "ERGA_PILOT",
+          "label": "European Reference Genome Atlas - Pilot (ERGA_PILOT)"
+        }
       ]
     },
     {

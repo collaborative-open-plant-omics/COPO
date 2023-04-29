@@ -21,7 +21,6 @@ $(document).ready(function () {
 
     // Store the title displayed when a user hovers the ellipsis/profile options icon
     $(document).data("profileOptionsTitle", $('.row-ellipsis').attr('title'))
-    $(document).data("profilesLegendData", profiles_legend)
 
     // Add new profile button
     $(document).on("click", ".new-component-template", function () {
@@ -42,12 +41,20 @@ $(document).ready(function () {
     // No profile records exist
     if (profiles.length === 0) {
         $("#bottom-panel").hide();
+        $(".profiles-legend").hide();
         return false;
     }
+
     // Profile records exist
     // Initialise the popover 'View profile options' for each profile record
     let popover = $('#ellipsisID[data-toggle="popover"]').popover({
         sanitize: false
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID[data-toggle="popover"]').not(this).popover('hide');
+        e.stopPropagation();
+    }).on('show.bs.popover', function (e) {
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('show.bs.popover', function (e) {
         // Set content of the popover
         const $content = $('<div></div>');
@@ -55,36 +62,14 @@ $(document).ready(function () {
         const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
 
         $deleteButton.css('margin-left', '15px');
-
         $content.append($editButton);
         $content.append($deleteButton);
 
         // Apply the content to the popover
         popover.attr('data-content', $content.html());
-    }).click(function (e) {
-        $(this).popover('toggle');
-        $('#ellipsisID[data-toggle="popover"]').not(this).popover('hide');
-        e.stopPropagation();
-    }).on('show.bs.popover', function (e) {
-        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('shown.bs.popover', function (e) {
-        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
-
-        // set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
-
-        $('#editProfileBtn').click(function (event) {
-            editProfileRecord(profile_id);
-        });
-
-        $('#deleteProfileBtn').click(function (event) {
-            deleteProfileRecord(profile_id);
-        });
-
-        $('#popoverCloseBtn').click(function (event) {
-            $('#ellipsisID[data-toggle="popover"]').popover('hide')
-        });
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });
-
 
     $("#sortProfilesBtn")[0].selectedIndex = 0 // Set first option of sort menu
 
@@ -94,7 +79,8 @@ $(document).ready(function () {
     appendRecordComponents($('div.grid'))
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
-    get_profiles_legend(profiles_legend)// Display profile legend
+
+    set_profile_grid_heading($('div.grid')) // Set profile grid heading
 
     // Adjust margin-bottom for associated types when profile description appears on 2 lines
     set_associated_types_marginBottom()
@@ -162,19 +148,30 @@ $(document).ready(function () {
     $(document).on("click", `#${tableID}`, function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
     });
 
     $(document).on("click", ".copo-main", function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
     });
 
     $(document).on("click", ".copo-sidebar", function () {
         $('#ellipsisID[data-toggle="popover"]').popover('hide');
         $('.row-ellipsis').attr('title', $(document).data("profileOptionsTitle"))
-        // unselect_profile_record_on_dismiss(tableID);
+    });
+
+    $(document).on("click", "#editProfileBtn", function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        editProfileRecord(profile_id);
+    });
+
+    $(document).on("click", "#deleteProfileBtn", function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        deleteProfileRecord(profile_id);
+    });
+
+    $(document).on("click", "#popoverCloseBtn", function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide')
     });
 
     // Trigger infinite scroll once user scrolls downwards to display more profile records that exist
@@ -213,18 +210,12 @@ $(document).ready(function () {
                     refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
                     initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
 
-                    // Get legend data for the profile records loaded when a user scrolls downwards
-                    let remaining_legend_data = get_remaining_profiles_legend_data($(document).data("profilesLegendData"), data.profiles_legend)
-                    get_profiles_legend(remaining_legend_data)
-
+                    set_profile_grid_heading(content) // Set profile grid heading
                     // Adjust margin-bottom for associated types when profile description appears on 2 lines
                     set_associated_types_marginBottom()
 
                     set_mediaQueries() // Set media queries for profile records
-
-                    // Increment the number of profile records displayed
-                    grid_count.text($('.grid').length)
-
+                    grid_count.text($('.grid').length) // Increment the number of profile records displayed
                     tableLoader.remove(); // Remove loading .gif
                 },
                 error: function () {
@@ -261,7 +252,6 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: 0
         }, '300');
-        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
     });
 
     // On web page reload/refresh, sort profile records by default sort option and method
@@ -276,9 +266,7 @@ $(document).ready(function () {
         $('html, body').animate({
             scrollTop: document.body.scrollHeight + 30
         }, "slow");
-        // $('.webui-popover').css("display", "none") // Hides tooltip which was still showing
         navigateToBottomOfPageBtn.removeClass('show') // Hide 'scroll down' button
-
     });
 
 }); // End document ready
@@ -407,7 +395,6 @@ function deleteProfileRecord(profileRecordID) {
     })
 }
 
-
 function sort_profile_records(option) {
     // Determine the query selector
     let selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime(); // 'date_created' selector
@@ -471,9 +458,9 @@ function do_render_profile_counts(data) {
     }
 }
 
-function get_profiles_legend(legend_data) {
+function display_profiles_legend(legend_data) {
     $.each(legend_data, function (index, element) {
-        let type = `${element.profileType} profile type`;
+        let type = element.profileType;
         let acronym = element.profileTypeAcronym;
         let colour = element.profileTypeColour;
 
@@ -596,6 +583,61 @@ function set_mediaQueries() {
     });
 }
 
+function set_profile_grid_heading(grids) {
+    let profiles_legend_lst = []
+
+    grids.each(function () {
+        $(this).find(".copo-records-panel").each(function (idx, el) {
+            const profile_type = $(el).attr("profile_type");
+            let colour;
+            let acronym;
+            let legend_data;
+            let current_profile_legendData = $(".profiles-legend-group-item").text()
+
+            if (profile_type.includes("DTOL_ENV")) {
+                acronym = "DTOL-ENV"
+                colour = "#fb7d0d"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL-ENV)</small>');
+                $(el).find(".panel-heading").css('background-color', colour)
+            } else if (profile_type.includes("DTOL")) {
+                acronym = "DTOL"
+                colour = "#16ab39"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL)</small>');
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("ASG")) {
+                acronym = "ASG"
+                colour = "#5829bb"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(ASG)</small>');
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("ERGA")) {
+                acronym = "ERGA"
+                colour = "#E61A8D"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(ERGA)</small>');
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else if (profile_type.includes("Stand-alone")) {
+                acronym = "Standalone"
+                colour = "#009c95"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(Standalone)</small>');
+                $(el).find(".panel-heading").css("background-color", colour)
+            } else {
+                acronym = "Shared"
+                colour = "#f26202"
+                $(el).find(".panel-heading").find(".row-title span").append('<small>(Shared With Me)</small>');
+                $(el).find(".panel-heading").css("background-color", colour)
+            }
+
+            // Add profile type legend data if it is not already in the list/displayed
+            legend_data = {'profileType': profile_type, 'profileTypeAcronym': acronym, 'profileTypeColour': colour}
+
+            if (!profiles_legend_lst.map(x => x.profileType).includes(profile_type) && !current_profile_legendData.includes(acronym)) {
+                profiles_legend_lst.push(legend_data)
+            }
+        });
+    });
+
+    display_profiles_legend(profiles_legend_lst)
+}
+
 function set_associated_types_marginBottom() {
     // Set the margin bottom once a profile description is displayed on two lines
     // NB: If line height is 21 or 24, then, profile description is displayed on one line
@@ -634,22 +676,6 @@ function set_associated_types_marginBottom() {
     });
 }
 
-
-function get_remaining_profiles_legend_data(initial_legend_data, remaining_legend_data) {
-    // Checks if two entries are identical
-    const isSameElement = (a, b) => a.profileType === b.profileType &&
-        a.profileTypeAcronym === b.profileTypeAcronym && a.profileTypeColour === b.profileTypeColour;
-
-    // Get items that only occur in the array B,
-    // using the compareFunction to determine equality
-    const filterElements = (arrayA, arrayB, compareFunction) =>
-        arrayA.filter(a =>
-            !arrayB.some(b =>
-                compareFunction(a, b)));
-
-    return filterElements(remaining_legend_data, initial_legend_data, isSameElement);
-}
-
 function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
@@ -679,9 +705,27 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
         el.closest('.panel-heading').next('.grid-panel-body').removeClass("grid-panel-body-selected")
     })
 
+    $('#editProfileBtn').click(function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        editProfileRecord(profile_id);
+    });
+
+    $('#deleteProfileBtn').click(function (e) {
+        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
+        deleteProfileRecord(profile_id);
+    });
+
+    $('#popoverCloseBtn').click(function () {
+        $('#ellipsisID[data-toggle="popover"]').popover('hide')
+    });
+
     // Initialise the popover 'View profile options' for each profile record
     let popover = $('#ellipsisID[data-toggle="popover"]').popover({
         sanitize: false
+    }).click(function (e) {
+        $(this).popover('toggle');
+        $('#ellipsisID').not(this).popover('hide');
+        e.stopPropagation();
     }).on('show.bs.popover', function (e) {
         // Set content of the popover
         const $content = $('<div></div>');
@@ -689,34 +733,12 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
         const $deleteButton = $('<button id="deleteProfileBtn" class="btn btn-sm btn-danger" title="Delete record"><i class="fa fa-trash-o"></i>&nbsp;Delete</button>');
 
         $deleteButton.css('margin-left', '15px');
-
         $content.append($editButton);
         $content.append($deleteButton);
 
         // Apply the content to the popover
         popover.attr('data-content', $content.html());
-    }).click(function (e) {
-        $(this).popover('toggle');
-        $('#ellipsisID').not(this).popover('hide');
-        e.stopPropagation();
-    }).on('show.bs.popover', function (e) {
-        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     }).on('shown.bs.popover', function (e) {
-        let profile_id = $(e.currentTarget).closest(".ellipsisDiv").attr("id");
-
-        // set_selected_profile_record($(e.currentTarget), tableID); // Highlight selected grid
-
-        $('#editProfileBtn').click(function (event) {
-            editProfileRecord(profile_id);
-        });
-
-        $('#deleteProfileBtn').click(function (event) {
-            deleteProfileRecord(profile_id);
-        });
-
-        $('#popoverCloseBtn').click(function (event) {
-            $('#ellipsisID[data-toggle="popover"]').popover('hide')
-        });
+        $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });
-
 }
