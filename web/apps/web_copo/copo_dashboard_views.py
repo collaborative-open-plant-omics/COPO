@@ -147,18 +147,12 @@ def get_number_of_samples_produced(field_name, field_value):
 def get_profile_titles_nav_tabs(request):
     queryUserProfileRecords = request.GET["queryUserProfileRecords"]
     regex = r'\((.*?)\)'  # value within enclosed parentheses regex
-    print('Is query in user profile checked: ', queryUserProfileRecords)
 
     if queryUserProfileRecords:
         owner_id = data_utils.get_user_id()
         profiles = Profile().get_all_profiles(user=owner_id)
-        print('All user profiles: ', profiles)
-
     else:
         profiles = Profile().get_all_profiles()
-        print('All COPO profiles: ', profiles)
-
-    print('Length of profiles: ', len(profiles))
 
     profile_types = [i.get("type", "") for i in profiles]
 
@@ -166,7 +160,6 @@ def get_profile_titles_nav_tabs(request):
     #  If the value exists, return it else, return the profile type
     profile_types = [re.search(regex, i).group(1) if re.search(regex, i) else i for i in set(profile_types)]
     profile_types.sort()  # Sort profile types in ascending order
-    print('Profile types: ', profile_types)
 
     return HttpResponse(json_util.dumps(profile_types))
 
@@ -174,14 +167,16 @@ def get_profile_titles_nav_tabs(request):
 def get_profiles_based_on_project(request):
     project = request.GET["project"]
 
-    if project == "ERGA":
-        profiles = Profile().get_erga_profiles_based_on_user_id()
-    elif project == "DTOL":
-        profiles = Profile().get_dtol_only_profiles_based_on_user_id()
-    elif project == "ASG":
+    if "ASG" in project:
         profiles = Profile().get_asg_profiles_based_on_user_id()
-    else:
+    elif "DTOL_EI" in project or "DTOL_ENV" in project or "DTOLENV" in project:
         profiles = Profile().get_dtolenv_profiles_based_on_user_id()
+    elif "ERGA" in project:
+        profiles = Profile().get_erga_profiles_based_on_user_id()
+    elif "Stand-alone" in project:
+        profiles = Profile().get_standalone_profiles_based_on_user_id()
+    else:
+        profiles = Profile().get_dtol_only_profiles_based_on_user_id()
 
     samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
                in profiles]
@@ -199,6 +194,8 @@ def get_profiles_based_on_project_by_aggregation(request):
         profiles = Profile().get_dtolenv_profiles()
     elif "ERGA" in project:
         profiles = Profile().get_erga_profiles()
+    elif "Stand-alone" in project:
+        profiles = Profile().get_standalone_profiles()
     else:
         profiles = Profile().get_dtol_only_profiles()
 
@@ -229,7 +226,7 @@ def get_samples_by_search_faceting(request):
     if not ViewLock().isViewLockedCreate(url=url):
         match_dict = request.GET["match_items"]
         samples = Sample().get_dtol_by_aggregation(match_dict)
-
+        print("Samples: ", samples)
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))

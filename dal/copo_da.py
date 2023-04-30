@@ -1305,7 +1305,7 @@ class Sample(DAComponent):
                 }
             ])
         records = cursor_to_list_str2(cursor)
-
+        print('Records: ', records)
         # get schema
         sc = self.get_component_schema()
         out = list()
@@ -2340,14 +2340,14 @@ class Profile(DAComponent):
         else:
             return False
 
-    def get_associated_type(self, profile_id, acronym=True, backronym=True):
+    def get_associated_type(self, profile_id, value=True, label=True):
         p = self.get_collection_handle().find_one({"_id": ObjectId(profile_id)})
         if p:
             if p.get("associated_type", ""):
-                if acronym and not backronym:
-                    return [i.get("acronym", "") for i in p.get("associated_type", "") if i.get("acronym", "")]
-                elif backronym and not acronym:
-                    return [i.get("backronym", "") for i in p.get("associated_type", "") if i.get("backronym", "")]
+                if value and not label:
+                    return [i.get("value", "") for i in p.get("associated_type", "") if i.get("value", "")]
+                elif label and not value:
+                    return [i.get("label", "") for i in p.get("associated_type", "") if i.get("label", "")]
                 else:
                     return p.get("associated_type", "")
             else:
@@ -2430,15 +2430,75 @@ class Profile(DAComponent):
             pymongo.DESCENDING)
         return cursor_to_list(p)
 
+    def get_dtol_only_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtol_only_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_erga_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created",
+                                                                                                     pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_dtolenv_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort("date_modified",
                                                                                               pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_dtolenv_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort(
+            "date_modified",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_asg_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_asg_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_standalone_profiles(self):
+        p = self.get_collection_handle().find(
+            {"type": {"$in": ["Stand-alone"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
+        return cursor_to_list(p)
+
+    def get_standalone_profiles_based_on_user_id(self):
+        owner_id = data_utils.get_user_id()
+        p = self.get_collection_handle().find(
+            {"user_id": owner_id, "type": {"$in": ["Stand-alone"]}}).sort(
+            "date_created",
+            pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_name(self, profile_id):

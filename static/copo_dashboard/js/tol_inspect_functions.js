@@ -138,11 +138,11 @@ $(document).ready(function () {
 
     // get_profile_titles(project)
     // Get active manifest type tab on tab change
-    // $('a[data-toggle="tab"]').bind('click', function () {
-    //     let project = $(e.target).attr("href")
-    //     console.log("Active project3: " + project)
-    //     get_profile_titles(project)
-    // });
+    $('#profile_types_filter').bind('click', function (e) {
+        let project = $(e.target).attr("href")
+        console.log("Active project3: " + project)
+        get_profile_titles(project)
+    });
     get_profile_titles_nav_tabs() // Get profile types
     highlight_empty_cells_in_selected_row()
 
@@ -176,11 +176,12 @@ function get_profile_titles_nav_tabs() {
             //  Set the first profile type (in alphabetical order) to be the first tab to be displayed
             if (index === 0) {
                 $(li).addClass("active")
-                get_profile_titles() // Get the profile titles for the first profile type
+                get_profile_titles(profile_type) // Get the profile titles for the first profile type
             }
 
             a.attr("data-toggle", "tab");
             a.attr("data-type", "tab");
+            a.attr("href", profile_type);
             a.text(profile_type);
 
             li.append(a);
@@ -498,7 +499,6 @@ function populate_samples_table_based_on_profile_title(ev) {
     }
 
     const project = $("#profile_types_filter").find(".active").find("a").attr("href");
-    console.log("Active project5: ", project)
 
     let d = {"profile_id": $(row).find("td").data("profile_id"), "project": project}
 
@@ -731,8 +731,7 @@ function get_profile_titles(project) {
     let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox")
     let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox")
     let s;
-
-    console.log('Project in get_profiles_titles', project)
+    
     let get_profiles_based_on_project = {
         url: "/copo/get_profiles_based_on_project",
         method: "GET",
@@ -756,7 +755,6 @@ function get_profile_titles(project) {
     $.ajax(s).error(function (e) {
         console.error(e)
     }).done(function (data) {
-        console.log('Profiles data: ', data['profiles'])
         let profile_titlesID = $("#profile_titles")
         // Clear existing data in the profile titles' table
         if ($.fn.DataTable.isDataTable('#profile_titles')) {
