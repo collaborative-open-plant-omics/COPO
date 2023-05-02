@@ -216,7 +216,7 @@ const dispatchFormControl = {
             } else if (formElem.id.includes("associated_type") && typeof elemValue === "object") {
                 let obj = JSON.parse(JSON.stringify(elemValue))
                 $.each(obj, function (index, item) {
-                    currentValue.push(item.label)
+                    currentValue.push(item.value)
                 });
             } else if (typeof elemValue === "object") {
                 currentValue = elemValue
@@ -228,7 +228,7 @@ const dispatchFormControl = {
             {
                 class: "input-copo form-control copo-multi-select2",
                 style: "width: 100%",
-                "multiple": "multiple",
+                "multiple": true,
                 id: formElem.id,
                 name: formElem.id,
                 "data-validate": true,
@@ -922,7 +922,7 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
     }
 
     if (elemValue) {
-        if (formElem.type === "array" || formElem.id.includes("associated_type")) {
+        if (formElem.type === "array" && !formElem.id.includes("associated_type")) {
             if (elemValue.length > 0) {
 
                 //first element should not be open to deletion

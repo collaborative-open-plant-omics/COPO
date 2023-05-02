@@ -113,7 +113,7 @@ function refresh_multiselect2box() {
     $('.copo-multi-select2').each(function () {
         const elem = $(this);
 
-        if (!elem.hasClass("select2-hidden-accessible")) {
+        //if (!elem.hasClass("select2-hidden-accessible")) {
             elem.select2({
                 data: JSON.parse(elem.attr("data-optionsList")),
                 maximumSelectionLength: elem.attr("data-maximumSelectionLength"),
@@ -122,7 +122,7 @@ function refresh_multiselect2box() {
 
             elem.val(JSON.parse(elem.attr("data-currentValue")));
             elem.trigger('change');
-        }
+        //}
 
     });
 
