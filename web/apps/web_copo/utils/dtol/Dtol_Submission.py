@@ -834,10 +834,11 @@ def poll_asyn_ena_submission():
     submissions = Submission().get_async_submission()
     session = requests.Session()
     session.auth = (user_token, pass_word)
+    headers = {'Accept': 'application/xml' }
     for submission in submissions:
         for sub in submission["submission"]:
             accessions = ""
-            response = session.get(sub["href"])
+            response = session.get(sub["href"],headers=headers)
             if response.status_code == requests.codes.accepted:
                 continue
             elif response.status_code == requests.codes.ok:
