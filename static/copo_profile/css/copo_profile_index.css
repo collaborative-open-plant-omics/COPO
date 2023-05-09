@@ -418,7 +418,7 @@ ul.associated_type_ulTag {
 .three_associatedTypes_marginBottom_2LineDescriptionText {
     height: 81px;
     margin-bottom: 10px;
-    overflow: scroll;
+    overflow: auto;
     padding-top: 15px;
     columns: 2;
 }
@@ -426,7 +426,7 @@ ul.associated_type_ulTag {
 .several_associatedTypes_marginBottom {
     height: 100px;
     margin-bottom: 10px;
-    overflow: scroll;
+    overflow: auto;
     padding-top: 15px;
     columns: 2;
 }
@@ -434,7 +434,7 @@ ul.associated_type_ulTag {
 .several_associatedTypes_marginBottom_2LineDescriptionText {
     height: 77px;
     margin-bottom: 10px;
-    overflow: scroll;
+    overflow: auto;
     padding-top: 15px;
     columns: 2;
 }
@@ -883,7 +883,7 @@ ul.associated_type_ulTag {
 
     .two_associatedTypes_marginBottom_2LineDescriptionText {
         margin-bottom: -3px;
-        overflow: scroll;
+        overflow: auto;
         height: 40px;
     }
 
@@ -917,7 +917,7 @@ ul.associated_type_ulTag {
     .two_associatedTypes_marginBottom_2LineDescriptionText {
         margin-bottom: -20px;
         height: 60px;
-        overflow: scroll;
+        overflow: auto;
     }
 
     .three_associatedTypes_marginBottom_2LineDescriptionText {

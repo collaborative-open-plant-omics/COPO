@@ -846,7 +846,7 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 def handle_async_receipt(receipt, sample_ids, sub_id):
     result = json.loads(receipt)
     submission_id = result["submissionId"]
-    href = result["_links"]["poll-xml"]["href"]
+    href = result["_links"]["poll"]["href"]
     return Submission().update_submission_async(sub_id, href, sample_ids, submission_id)
 
 
@@ -854,10 +854,11 @@ def poll_asyn_ena_submission():
     submissions = Submission().get_async_submission()
     session = requests.Session()
     session.auth = (user_token, pass_word)
+    headers = {'Accept': 'application/xml' }
     for submission in submissions:
         for sub in submission["submission"]:
             accessions = ""
-            response = session.get(sub["href"])
+            response = session.get(sub["href"],headers=headers)
             if response.status_code == requests.codes.accepted:
                 continue
             elif response.status_code == requests.codes.ok:
