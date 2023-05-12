@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal
 
-from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 
 from dal.copo_da import Assembly, Submission

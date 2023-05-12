@@ -63,10 +63,10 @@ def parse_ena_spreadsheet(request):
                     # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
                     return HttpResponse()
                 # check if the files have been submitted or not
-                files = []
-                for f in file_names:
-                    for i in f.split(","):
-                        files.append(join(settings.UPLOAD_PATH, username, i.strip()))
+                #files = []
+                #for f in file_names:
+                #    for i in f.split(","):
+                #        files.append(join(settings.UPLOAD_PATH, username, i.strip()))
 
                 # sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle" : {"$exists": "true", "$ne": [] }})
                 # if sub :

@@ -36,9 +36,9 @@ from submission.helpers.generic_helper import notify_frontend
 
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
-from web.forms import AssemblyForm
+from web.forms import AssemblyForm, AnnotationForm
 from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
-from web.apps.web_copo.utils import EnaAssembly
+from web.apps.web_copo.utils import EnaAssembly, EnaAnnotation
 from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
 from django.contrib import messages
 from submission.helpers import generic_helper as ghlper
@@ -97,6 +97,98 @@ def ena_read_manifest_validate(request, profile_id):
     request.session["profile_id"] = profile_id
     return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
+@login_required()
+def ena_annotation(request, profile_id):
+    request.session["profile_id"] = profile_id
+    is_error = False
+    request.session["profile_id"] = profile_id
+    study_accession = ""
+    sample_accession = []
+    run_accession=[]
+    experiment_accession=[]
+    existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+    existing_accessions = ""
+    if existing_sub:
+        existing_accessions = existing_sub[0].get("accessions", "")
+    if  existing_accessions:
+        study = existing_accessions.get("project", "")
+        if study:
+            if isinstance(study, dict):
+                study_accession = study.get("accession", "")
+            elif isinstance(study, list):
+                study_accession = study[0].get("accession", "")          
+        runs = existing_accessions.get("run", "")
+        if runs:
+            for run in runs:
+                if run.get("accession", ""):
+                    run_accession.append(run.get("accession", ""))
+        experiments = existing_accessions.get("experiment", "")
+        if experiments:
+            for experiment in experiments:
+                if experiment.get("accession", ""):
+                    experiment_accession.append(experiment.get("accession", ""))            
+        samples = existing_accessions.get("sample", "")
+        if samples:
+            for sample in samples:
+                if sample.get("sample_accession", ""):
+                    sample_accession.append(sample.get("sample_accession", ""))
+
+    if request.method == 'POST':
+        # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
+        form = AnnotationForm(request.POST, sample_accession=sample_accession, study_accession=study_accession, run_accession=run_accession, experiment_accession=experiment_accession)
+        if form.is_valid():
+            ghlper.notify_annotation_status(data={"profile_id": profile_id},
+                            msg="Intitialising Annotation Submission",
+                            action="info",
+                            html_id="annotation_info")
+            # this is a dict
+            formdata = form.cleaned_data
+            files = formdata["files"]
+            if not files:
+                ghlper.notify_annotation_status(data={"profile_id": profile_id},
+                                              msg='At least one annotation file is required',
+                                              action="error",
+                                              html_id="annotation_info")
+                is_error = True
+            else:
+                # uploading files to folder in COPO
+
+                sub_result = EnaAnnotation.validate_annotation(formdata, profile_id)
+                if sub_result.get("error", ""):
+                    ghlper.notify_annotation_status(data={"profile_id": profile_id},
+                                                  msg=sub_result.get("error", ""),
+                                                  action="error",
+                                                  html_id="annotation_info")
+                    is_error = True
+                    # messages.error(request,sub_result)
+                else:
+                    ghlper.notify_annotation_status(data={"profile_id": profile_id},
+                                                  msg="The assembly has been created with accession: " + sub_result.get(
+                                                      "accession", "Success"),
+                                                  action="info",
+                                                  html_id="annotation_info")
+                # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
+                # return HttpResponse()
+
+        else:
+            ghlper.notify_annotation_status(data={"profile_id": profile_id},
+                                          msg=str(form.errors),
+                                          action="error",
+                                          html_id="annotation_info")
+            is_error = True
+            # messages.error(request, form.errors)
+        if is_error:
+            return HttpResponse(content="Validation Error", status=400)
+        return HttpResponse(status=200)
+
+    else:
+        form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession,
+                            # initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
+                            #         "description": "jfksjkdlfs"}
+                            )
+        return render(request, "copo/ena_annotation.html", {"profile_id": profile_id, "form": form, "hide_form": False})
+
+ 
 
 @login_required()
 def ena_assembly(request, profile_id):
@@ -106,9 +198,10 @@ def ena_assembly(request, profile_id):
     sample_accession = []
 
     existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+    existing_accessions = ""
     if existing_sub:
         existing_accessions = existing_sub[0].get("accessions", "")
-    if existing_accessions:
+    if  existing_accessions:
         study = existing_accessions.get("project", "")
         if study:
             if isinstance(study, dict):
@@ -125,7 +218,7 @@ def ena_assembly(request, profile_id):
 
     if request.method == 'POST':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
-        form = AssemblyForm(request.POST, request.FILES, sample_accession=sample_accession)
+        form = AssemblyForm(request.POST,sample_accession=sample_accession)
         if form.is_valid():
             notify_frontend(data={"profile_id": profile_id},
                             msg="Intitialising Assembly Submission",
@@ -150,7 +243,7 @@ def ena_assembly(request, profile_id):
                     ghlper.notify_assembly_status(data={"profile_id": profile_id},
                                                   msg=sub_result.get("error", ""),
                                                   action="error",
-                                                  html_id="assembly_info")
+                                                  html_id="assembl_info")
                     is_error = True
                     # messages.error(request,sub_result)
                 else:

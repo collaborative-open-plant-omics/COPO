@@ -57,6 +57,7 @@ ENAFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
+AnnotationCollection = "SeqAnnotationCollection"
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -77,7 +78,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
                    enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
                    apiValidationReport=get_collection_ref(APIValidationReport),
-                   assembly=get_collection_ref(AssemblyCollection)
+                   assembly=get_collection_ref(AssemblyCollection),
+                   seqannotation=get_collection_ref(AnnotationCollection)
                    )
 
 
@@ -2023,7 +2025,97 @@ class Submission(DAComponent):
                                                         "accessions.assembly": {"accession": accession, "alias": alias,
                                                                                 "assembly_id": assembly_idstr}}})
         return
+    
+    def add_annotation_accessions(self, s_id, accession):
+        # todo if it's decided to have multiple assemblies per profile add accessions.annotation.sample to be able to cross
+        # reference annotation and sample
+        self.get_collection_handle().update_one(
+            {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}})
+        
+    def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_id ):
+        sub_handle = self.get_collection_handle()
+        sub_handle.update_one({"_id": sub_id}, {"$set": {"seq_annotation_status": "uploading", "date_modified":
+                                                       data_utils.get_datetime()}, "$push": {"seq_annotations": seq_annotation_id }})
 
+    def update_seq_annotation_submission(self, sub_id, seq_annotation_id=[], submission_id=[]):
+        # when dtol sample has been processed, pull id from submission and check if there are remaining
+        # samples left to go. If not, make submission complete. This will stop celery processing the this submission.
+        sub_handle = self.get_collection_handle()
+        # for sam_id in sam_ids:
+        if submission_id:
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"seq_annotation_submission": {"id": submission_id}}})
+        if seq_annotation_id:
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"seq_annotations": seq_annotation_id}})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"seq_annotation_submission": 1, "seq_annotations": 1})
+        if len(sub["seq_annotation_submission"]) < 1 and len(sub["seq_annotations"]) < 1:
+            sub_handle.update({"_id": ObjectId(sub_id)},
+                              {"$set": {"seq_annotation_status": "complete", "date_modified": data_utils.get_datetime()}})
+
+    def get_seq_annotation_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        subs = self.get_collection_handle().find(
+            {"seq_annotation_status": {"$in": ["sending", "pending"]}},
+            {"seq_annotation_status": 1, "profile_id": 1, "date_modified": 1, "seq_annotations": 1})
+        sub = cursor_to_list(subs)
+        out = list()
+        current_time = data_utils.get_datetime()
+        for s in sub:
+            # calculate whether a submission is an old one
+            if s.get("seq_annotation_status", "") == "sending":
+                recorded_time = s.get("date_modified", current_time)
+                time_difference = current_time - recorded_time
+                if time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                    # submission retry time has elapsed so re-add to list
+                    out.append(s)
+                    self.update_submission_modified_timestamp(s["_id"])
+                    lg.log("ADDING STALLED SEQ ANNOTATION SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da",
+                        level=Loglvl.ERROR, type=Logtype.FILE)
+                    # no need to change status
+            elif s.get("seq_annotation_status", "") == "pending":
+                out.append(s)
+                #self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
+                                                    {"$set": {"seq_annotation_status": "sending", "date_modified": current_time}})
+        return out
+
+    def get_seq_annotation_file_uploading(self):
+        subs = self.get_collection_handle().find(
+            {"seq_annotation_status": "uploading"},
+            {"seq_annotations": 1, "profile_id": 1, "date_modified": 1})
+        return cursor_to_list(subs)
+
+    def update_seq_annotation_submission_async(self, sub_id, href, seq_annotation_id, submission_id):
+        sub_handle = self.get_collection_handle()
+        submission = {'id': submission_id, 'seq_annotation_id': seq_annotation_id, 'href': href}
+        sub_handle.update({"_id": ObjectId(sub_id)},
+                          {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission": submission},
+                           "$pull": {"seq_annotations": {"$in": seq_annotation_id}}})
+        
+    def get_async_seq_annotation_submission(self):
+        sub_handle = self.get_collection_handle()
+        subs = sub_handle.find({"seq_annotation_submission": {"$exists": True, "$ne": []}},
+                              {"_id": 1, "seq_annotation_submission": 1, "profile_id": 1})
+        return cursor_to_list(subs)
+
+    def update_seq_annotation_submission_error(self, sub_id, seq_annotation_submission_id, error):
+
+        sub_handle = self.get_collection_handle()
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id), "seq_annotation_submission.id": seq_annotation_submission_id}, {"seq_annotation_submission.$.seq_annotation_id": 1})
+        seq_annotation_id = sub["seq_annotation_submission"][0]["seq_annotation_id"]
+        for id in seq_annotation_id:    
+            count = sub_handle.find({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id}).count()
+            if count == 0:
+                sub_handle.update_one({"_id": ObjectId(sub_id)},
+                            {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission_error": {"seq_annotion_id": id, "error": error}}})
+            else:
+                sub_handle.update_one({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id},
+                            {"$set": {"date_modified": datetime.now(), "seq_annotation_submission_error.$.error": error}})
+
+    def update_seq_annotation_submission_pending(self, sub_ids):
+        Submission().get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2716,10 +2808,10 @@ class Barcode(DAComponent):
 
 class ENAFileTransferObject(DAComponent):
     def __init__(self, profile_id=None):
-        super(ENAFileTransferObject, self).__init__(profile_id, "ENAFileTransferObject")
+        super(ENAFileTransferObject, self).__init__(profile_id, "enaFileTransferObject")
         self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
         self.profile_id = profile_id
-        self.component = str()
+        #self.component = str()
 
     def get_pending_transfers(self):
         result_list = []
@@ -2781,6 +2873,17 @@ class Assembly(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "assembly")
 
+class Sequnece_annotation(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Sequnece_annotation, self).__init__(profile_id, "seqannotation")
+
+    def add_accession(self, id, accession):
+        self.get_collection_handle().update({"_id": ObjectId(id)},
+                                                 {"$set": {"accession": accession}})
+class EnaFileTransfer(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Assembly, self).__init__(profile_id, "enafileTransfer")                                        
+                                    
 
 def is_number(s):
     try:

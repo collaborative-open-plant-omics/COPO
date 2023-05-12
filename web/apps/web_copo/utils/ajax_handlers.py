@@ -56,13 +56,13 @@ from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 
 # from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
-from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
+import web.apps.web_copo.utils.EnaAnnotation as EnaAnnotation
 from web.forms import AssemblyForm
 
 l = logger.Logger("exceptions_and_logging/logs")
@@ -1560,6 +1560,12 @@ def assembly_files(request):
 
     return HttpResponse(json.dumps({}))
 
+
+def annotation_files(request):
+    files = request.FILES
+    EnaAnnotation.upload_annotation_files(files)
+
+    return HttpResponse(json.dumps({}))
 
 def process_column_name(column):
     if "[" in column:

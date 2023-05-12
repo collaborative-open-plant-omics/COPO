@@ -6,6 +6,7 @@ $(document).ready(function () {
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
     const copoENAAssemblyURL = "/copo/ena_assembly/"
+    const copoENAAnnotationURL = "/copo/ena_annotation/"
     const copoVisualsURL = "/copo/copo_profile_visualise/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
     const componentMeta = get_profile_component_meta(component);
@@ -133,6 +134,8 @@ $(document).ready(function () {
                 url = copoENAReadManifestValidateURL + id
             } else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id
+            } else if (action_type === "annotation") {
+                url = copoENAAnnotationURL + id
             }
             document.location = url
         }
@@ -211,7 +214,7 @@ $(document).ready(function () {
 
                     // Initialise functions for the profile grids beyond the 8 records that are shown by default
                     refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
-                    initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
+                    initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL, copoENAAnnotationURL); // Initialise functions for the profile grids beyond the 8 records that are shown by default
 
                     // Get legend data for the profile records loaded when a user scrolls downwards
                     let remaining_legend_data = get_remaining_profiles_legend_data($(document).data("profilesLegendData"), data.profiles_legend)
@@ -566,10 +569,12 @@ function filter_action_menu() {
         if (t.includes("ERGA")) {
             $(el).find("a[anchor_type='reads']").hide()
             $(el).find("a[anchor_type='assembly']").hide()
+            $(el).find("a[anchor_type='annotation']").hide()
             $(el).find("a[anchor_type='dtol_option']").hide()
         } else if (t.includes("DTOL") || t.includes("ASG")) {
             $(el).find("a[anchor_type='reads']").hide()
             $(el).find("a[anchor_type='assembly']").hide()
+            $(el).find("a[anchor_type='annotation']").hide()
             $(el).find("a[anchor_type='erga_option']").hide()
         } else if (t.includes("Stand-alone")) {
             $(el).find("a[anchor_type='dtol_option']").hide()
@@ -650,7 +655,7 @@ function get_remaining_profiles_legend_data(initial_legend_data, remaining_legen
     return filterElements(remaining_legend_data, initial_legend_data, isSameElement);
 }
 
-function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL) {
+function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL, copoENAAnnotationURL) {
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
 
@@ -668,6 +673,8 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
                 url = copoENAReadManifestValidateURL + id
             } else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id
+            } else if (action_type === "annotation") {
+                url = copoENAAnnotationURL + id
             }
             document.location = url
         }

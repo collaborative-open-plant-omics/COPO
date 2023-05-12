@@ -242,6 +242,17 @@ def notify_assembly_status(action="message", msg=str(), data={}, html_id="", pro
     )
     return True
 
+def notify_annotation_status(action="message", msg=str(), data={}, html_id="", profile_id=""):
+    # type points to the object type which will be passed to the socket and is a method defined in consumer.py
+    event = {"type": "msg", "action": action, "message": msg, "data": data, "html_id": html_id}
+    channel_layer = get_channel_layer()
+    group_name = 'annotation_status_%s' % data["profile_id"]
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        event
+    )
+    return True
+
 def notify_transfer_status(profile_id=str(), submission_id=str(), status_message=str()):
     """
     function notifies client of ENA file transfer status

@@ -826,7 +826,7 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 def handle_async_receipt(receipt, sample_ids, sub_id):
     result = json.loads(receipt)
     submission_id = result["submissionId"]
-    href = result["_links"]["poll-xml"]["href"]
+    href = result["_links"]["poll"]["href"]
     return Submission().update_submission_async(sub_id, href, sample_ids, submission_id)
 
 

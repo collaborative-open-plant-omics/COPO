@@ -60,3 +60,37 @@ class AssemblyForm(forms.Form):
     agp = forms.FileField(label="AGP", required=False)
     chromosome_list = forms.FileField(label="CHROMOSOME_LIST", required=False)
     unlocalised_list = forms.FileField(label="UNLOCALISED_LIST", required=False)
+
+
+class AnnotationForm(forms.Form):
+
+    def __init__(self, *args, sample_accession=None, study_accession=None, run_accession=None, experiment_accession=None, **kwargs):
+        super(AnnotationForm, self).__init__(*args, **kwargs)
+        if study_accession:
+            self.fields['study'].initial = study_accession
+            self.fields['study'].widget.attrs['readonly'] = True
+        if run_accession:
+            self.fields['run'].widget.attrs['readonly'] = True
+            self.fields['run'].choices = [(x,x) for x in run_accession]
+        if experiment_accession:
+            self.fields['experiment'].widget.attrs['readonly'] = True
+            self.fields['experiment'].choices =  [(x,x) for x in experiment_accession]
+        if sample_accession:
+            self.fields['sample'].widget.attrs['readonly'] = True
+            self.fields['sample'].choices = [(x,x) for x in sample_accession]
+
+
+    # fields from ENA annotation documentation
+    study = forms.CharField(label="STUDY",
+                            widget=forms.TextInput(attrs={'placeholder': 'Study accession'}))
+    sample = forms.ChoiceField(label="SAMPLE")
+    run = forms.MultipleChoiceField(label="RUN", required=False)
+    experiment = forms.MultipleChoiceField(label="EXPERIMENT", required=False)
+
+    title = forms.CharField(label="ANNOTATION TITLE", widget=forms.TextInput(attrs={'placeholder': 'Annotation title user-provided'}))
+                                                                                                   
+    description = forms.CharField(label="DESCRIPTION", required=False,
+                                  widget=forms.Textarea(attrs={'placeholder': 'Free text description of the sequence annotation'
+                                                                              'annotation'}))    
+    files = forms.CharField(label="FILES", required=True, widget=forms.Textarea(attrs={'placeholder': 'Comma separated list of file names'}))
+ 

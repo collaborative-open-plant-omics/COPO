@@ -122,6 +122,7 @@ class S3Connection():
             channels_group_name = "s3_" + profile_id
 
             missing_files = list()
+            etags = dict()
             # get objects in the supplied bucket name
             bucket_files = self.list_objects(bucket=bucket_name)
             
@@ -148,6 +149,9 @@ class S3Connection():
                         if file == bucket_file["Key"]:
                             print("Found", bucket_file["Key"])
                             found_flag = 1
+                            etag = bucket_file["ETag"]
+                            etag = etag.replace('"', '')
+                            etags[file] = etag
                             break
                     if not found_flag:
                         # if a file is not found it should be recorded as such
@@ -160,7 +164,7 @@ class S3Connection():
                 # return false to halt execution
                 return False
             else:
-                return True
+                return etags
 
         except KeyError as e:
             notify_frontend(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
