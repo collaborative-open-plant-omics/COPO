@@ -244,6 +244,9 @@ function display_copo_alert(alertType, alertMessage, displayDuration) {
         alertElement.find(".alert-message").html(alertMessage);
 
         infoPanelElement.prepend(alertElement);
+
+        // adjust the margin-top between sidebar (info) tab content and the profiles legend
+        $('.profiles-legend').css('margin-top', '0');
     }
 
 }

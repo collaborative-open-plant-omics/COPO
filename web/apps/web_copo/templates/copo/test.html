@@ -3,6 +3,8 @@
 {% load static %}
 {% load web_tags_orcid %}
 
+{% block title %}Test{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
@@ -32,7 +34,7 @@
 {% endblock %}
 
 
-{% block title_block %} Index {% endblock %}
+{% block title_block %} Test {% endblock %}
 
 {% block tagline_block %}
     {% block content %}

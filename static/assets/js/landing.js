@@ -24,9 +24,24 @@ $(document).ready(function () {
         }).fail(function (data) {
         console.log(data)
     })
-
+    setActiveNavItem() // Set current web page as active nav bar item in top navbar
 });
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+function setActiveNavItem() {
+    const activePage = window.location.href;
+
+    $('.nav li a').filter(function () {
+        let linkPage = `${this.href}/`;
+        // home page i.e. COPO front page URL will end with '//' so it needs to be ommitted
+        linkPage = linkPage.endsWith('//') ? this.href : linkPage;
+
+        if (activePage === linkPage) {
+            $(this).parent().addClass("active");
+            $(this).parent().append('<span class="sr-only">(current)</span>')
+        }
+    });
 }

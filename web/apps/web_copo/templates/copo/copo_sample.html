@@ -4,6 +4,8 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}Samples{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
     <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
@@ -63,7 +65,7 @@
 
 
 
-{% block title_block %} Index {% endblock %}
+{% block title_block %} Sample {% endblock %}
 
 {% block tagline_block %}
 
@@ -371,7 +373,7 @@
                     <li>
                         <a data-toggle="tab" id="image_table_nav_tab" href="#image">Sample Images</a>
                     </li>
-                     <li>
+                    <li>
                         <a data-toggle="tab" id="permits_table_nav_tab" href="#permits_div">Sample Permits</a>
                     </li>
 
@@ -398,7 +400,7 @@
                         </table>
                     </div>
                     <div class="tab-pane" id="permits_div">
-                        <table id="permits_table" class="table table-striped table-bordered" >
+                        <table id="permits_table" class="table table-striped table-bordered">
 
                             <thead></thead>
                             <tbody></tbody>

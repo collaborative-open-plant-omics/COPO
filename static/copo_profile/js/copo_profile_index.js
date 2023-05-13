@@ -3,6 +3,7 @@ $(document).ready(function () {
     const component = "profile";
     const copoProfileIndexURL = "/copo/";
     const copoAcceptRejectURL = "/copo/accept_reject_sample"
+    const copoTolDashboardURL = "/copo/dashboard/"
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
     const copoENAAssemblyURL = "/copo/ena_assembly/"
@@ -97,6 +98,10 @@ $(document).ready(function () {
 
     $(document).on("click", "#accept_reject_shortcut", function () {
         document.location = copoAcceptRejectURL
+    })
+
+    $(document).on("click", "#copo_dashboard_shortcut", function (evt) {
+        document.location = copoTolDashboardURL
     })
 
     $(document).on("click", ".expanding_menu > div", function (e) {
@@ -475,6 +480,14 @@ function display_profiles_legend(legend_data) {
     });
 }
 
+function set_copo_sidebar_info_padding() {
+    if ($('#page_alert_panel').text().trim() === "") {
+        $('.copo-sidebar-tabs').find('#profilesLegendDivID').css('padding-top', '100px');
+    } else {
+        $('#profilesLegendDivID').css('padding-top', '0');
+    }
+}
+
 function update_counts(copoVisualsURL, csrftoken, component) {
     $.ajax({
         url: copoVisualsURL,
@@ -636,6 +649,7 @@ function set_profile_grid_heading(grids) {
     });
 
     display_profiles_legend(profiles_legend_lst)
+    set_copo_sidebar_info_padding()
 }
 
 function set_associated_types_marginBottom() {

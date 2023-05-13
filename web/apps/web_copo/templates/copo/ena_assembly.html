@@ -4,6 +4,9 @@
 {% load web_tags_orcid %}
 {% load web_tags %}
 {% load crispy_forms_tags %}
+
+{% block title %}European Nucleotide Archive Assembly{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
@@ -133,7 +136,7 @@
     {% if messages %}
         {% for m in messages %}
             <div class="alert {{ m.tags }} alert-success" role="alert">
-                {{ m | safe}}
+                {{ m | safe }}
             </div>
         {% endfor %}
     {% endif %}
@@ -142,11 +145,11 @@
         <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
               enctype="multipart/form-data">
             {% csrf_token %}
-            <fieldset class="ena_assembly_form">      
+            <fieldset class="ena_assembly_form">
 
-            {{ form | crispy }}
-            <input id="submit_assembly_button" type="button" value="Submit Assembly" onclick="doPost()"
-                   class="ui blue button" ">
+                {{ form | crispy }}
+                <input id="submit_assembly_button" type="button" value="Submit Assembly" onclick="doPost()"
+                       class="ui blue button" ">
             </fieldset>
 
         </form>

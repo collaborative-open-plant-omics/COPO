@@ -44,19 +44,6 @@ from django.contrib import messages
 from submission.helpers import generic_helper as ghlper
 
 
-# @login_required
-# def index(request):
-#     print(get_env("MEDIA_ROOT"))
-#     banner = banner_view.objects.all()
-#     if len(banner) > 0:
-#         context = {'user': request.user, "banner": banner[0]}
-#     else:
-#         context = {'user': request.user}
-#     groups = group_functions.get_group_membership_asString()
-#     context['groups'] = groups
-#     return render(request, 'copo/index.html', context)
-
-
 def login(request):
     context = {
         'login_form': LoginForm(),
@@ -306,7 +293,7 @@ def annotate_meta(request, file_id):
             os.makedirs(full_path)
             run("ebook-convert  " + df[
                 "file_location"] + " " + full_path + " --no-images --pretty-print --insert-blank-line")
-            with open(os.path.join(full_path, "index.html"), 'r') as f:
+            with open(os.path.join(full_path, "profile/copo_profile_index.html"), 'r') as f:
                 html = f.read()
             shutil.rmtree(full_path)
             # request.session["annotation_html"] = html

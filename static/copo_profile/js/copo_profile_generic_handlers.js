@@ -9,10 +9,10 @@ $(document).ready(function () {
     do_page_controls(componentName);
 
     //global_help_call
-    do_global_help(componentName);
+    //do_global_help(componentName);
 
     //context help event
-    do_context_help_event();
+    //do_context_help_event();
 
     // Generic handler: dismiss alert
     $(document).on("click", ".alertdismissOK", function () {
@@ -114,14 +114,14 @@ function refresh_multiselect2box() {
         const elem = $(this);
 
         //if (!elem.hasClass("select2-hidden-accessible")) {
-            elem.select2({
-                data: JSON.parse(elem.attr("data-optionsList")),
-                maximumSelectionLength: elem.attr("data-maximumSelectionLength"),
-                // dropdownParent: $(this).closest(".copo-form-group")
-            });
+        elem.select2({
+            data: JSON.parse(elem.attr("data-optionsList")),
+            maximumSelectionLength: elem.attr("data-maximumSelectionLength"),
+            // dropdownParent: $(this).closest(".copo-form-group")
+        });
 
-            elem.val(JSON.parse(elem.attr("data-currentValue")));
-            elem.trigger('change');
+        elem.val(JSON.parse(elem.attr("data-currentValue")));
+        elem.trigger('change');
         //}
 
     });
@@ -149,7 +149,7 @@ function get_copo_profile_components() {
             component: 'profile',
             title: 'Work Profiles',
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help", "copo-sidebar-profiles-legend"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-profiles-legend"],
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
             visibleColumns: 4,
@@ -162,7 +162,7 @@ function get_copo_profile_components() {
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
             buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "samples_color",
             color: "olive",
             profile_component: true,
@@ -179,7 +179,7 @@ function get_copo_profile_components() {
             colorClass: "data_color",
             color: "black",
             buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             tableID: 'datafile_table',
             profile_component: true,
             // recordActions: ["describe_record_multi", "unbundle_record_multi", "undescribe_record_multi"],
@@ -193,7 +193,7 @@ function get_copo_profile_components() {
             semanticIcon: "mail outline",
             countsKey: "num_submission",
             buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "submissions_color",
             color: "green",
             tableID: 'submission_table',
@@ -208,7 +208,7 @@ function get_copo_profile_components() {
             semanticIcon: "attach",
             countsKey: "num_pub",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "pubs_color",
             color: "orange",
             tableID: 'publication_table',
@@ -223,7 +223,7 @@ function get_copo_profile_components() {
             semanticIcon: "attach",
             countsKey: "num_temp",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "pubs_color",
             color: "blue",
             tableID: 'metadata_template_table',
@@ -237,7 +237,7 @@ function get_copo_profile_components() {
             semanticIcon: "users",
             countsKey: "num_person",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "people_color",
             color: "red",
             tableID: 'person_table',
@@ -252,7 +252,7 @@ function get_copo_profile_components() {
             semanticIcon: "write",
             countsKey: "num_annotation",
             buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help", "copo-sidebar-annotate"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-annotate"],
             colorClass: "annotations_color",
             color: "violet",
             tableID: 'annotation_table',
@@ -786,10 +786,10 @@ function quick_tour_messages() {
                 "title": "Profile Details",
                 "content": "View a profile details here having selected a profile record."
             },
-            "page_context_help_panel": {
-                "title": "Help",
-                "content": "Interact with the help pane to find help topics relevant to the page and/or current task."
-            },
+            // "page_context_help_panel": {
+            //     "title": "Help",
+            //     "content": "Interact with the help pane to find help topics relevant to the page and/or current task."
+            // },
             "profile_table": {
                 "title": "Profile Records",
                 "content": "Profile records list.<ol><li>Click on any component (e.g., Samples) within a profile to access any particular component's page</li><li>Use the action buttons (e.g., Select all, Add) to interact with profile records</li><li>Use the profile search control to display a filtered listing of records, based on matched terms</li></ol>"

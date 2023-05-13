@@ -18,7 +18,8 @@
     <!--[if IE]>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <![endif]-->
-    <title>COPO - Collaborative Open Plant Omics</title>
+    <title>{% block title %}{% endblock %} | COPO</title>
+
     <link href="/static/assets/css/base_styles.css" rel="stylesheet"/>
     <link rel="stylesheet" media="print" onload="this.media='all'"
           href="{% static 'copo/semantic_ui/semantic.min.css' %}">
@@ -30,6 +31,7 @@
     <script src="{% static 'copo/js/bootstrap.js' %}"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'copo/img/favicon.png' %}"/>
     <script src="{% static "assets/js/landing.js" %}"></script>
     {% block headblock %}
     {% endblock %}

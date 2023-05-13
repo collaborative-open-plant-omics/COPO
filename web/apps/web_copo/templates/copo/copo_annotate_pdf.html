@@ -3,6 +3,8 @@
 {% load static %}
 {% load web_tags %}
 
+{% block title %}PDF Annotation{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
 
@@ -21,7 +23,8 @@
             background-color: white;
             padding: 20px
         }
-        #annotation-area{
+
+        #annotation-area {
             height: 80%;
             border: 1px solid #dcdcdc;
             overflow-y: scroll;
@@ -45,15 +48,18 @@
             width: 250px;
             margin: 0 auto;
         }
-        .highlight b{
+
+        .highlight b {
             color: black !important;
             text-decoration: underline;
             font-weight: bolder;
         }
+
         .annotator-filter {
 
         }
-        #copo-global-nav{
+
+        #copo-global-nav {
             visibility: hidden;
         }
     </style>
@@ -65,7 +71,7 @@
 
 
 
-{% block title_block %} Index {% endblock %}
+{% block title_block %} COPO - PDF Annotation {% endblock %}
 
 {% block tagline_block %}
 
@@ -106,7 +112,7 @@
                 {{ html | safe }}
             </div>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-3" >
+        <div class="col-lg-3 col-md-3 col-sm-3">
             <h4 class="h4" style="margin-top:1em">Annotations</h4>
             <div id="annotation-area"></div>
         </div>
@@ -123,7 +129,8 @@
 
     <script type="text/javascript" src="{% static "copo/annotator-2.0.0-alpha.3/pkg/annotator.min.js" %}"></script>
     <script type="text/javascript" src="{% static "copo/annotator-2.0.0-alpha.3/pkg/annotator.document.js" %}"></script>
-    <script type="text/javascript" src="{% static "copo/annotator-2.0.0-alpha.3/pkg/annotator.unsupported.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "copo/annotator-2.0.0-alpha.3/pkg/annotator.unsupported.js" %}"></script>
     <script type="text/javascript" src="{% static "copo/annotator-full.min.js" %}"></script>
     <script type="text/javascript" src="{% static "copo/js/annotator_ols.js" %}"></script>
     <script type="text/javascript" src="{% static "copo/js/copo_file_level_annotations.js" %}"></script>
@@ -133,8 +140,6 @@
 
 
     <script>
-
-
 
 
     </script>

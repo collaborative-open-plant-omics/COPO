@@ -1,6 +1,8 @@
 {% extends "base1.html" %}
 {% load static %}
 
+{% block title %}Collaborative Open Plant Omics{% endblock %}
+
 {% block javascript_block %}
 
 
@@ -31,12 +33,12 @@
 
 
             <!-- include navbar html -->
-            <div style="padding:30px" class="pull-right">
+            <div class="pull-right">
                 {% include "nav_dropdown.html" %}
             </div>
-
+            <br><br><br><br><br><br><br><br><br>
             <div id="copo-icon">
-                <img src="{% static "assets/img/copo_white_800.png" %}">
+                <img src="{% static "assets/img/copo_white_800.png" %}" alt="copo_white image">
             </div>
 
             <div class="green-subtitle">
@@ -64,7 +66,7 @@
             <div class="col-md-3"></div>
             <div class="col-md-6" id="contact-sec">
                 <div>
-                    <h2>Contact Us</h2>
+                    <h2 class="big_button" style="width: fit-content">Contact Us</h2>
 
                 </div>
                 <div>
@@ -75,7 +77,7 @@
                         <div class="row">
                             <div class="col-md-6 col-sm-6">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" required="required" placeholder="Name">
+                                    <input type="text" class="form-control" required="required" placeholder="Name"/>
                                 </div>
                             </div>
                             <div class="col-md-6 col-sm-6">
@@ -101,17 +103,20 @@
                         </div>
                     </form>
                     <br/>
-                    <div id="social-icon">
-
-
-                    </div>
                 </div>
                 <div class="col-md-3"></div>
-
+            </div>
         </section>
 
 
     </div>
-
+    <br><br>
+    <footer>
+        <div class="pull-right" style="padding: 0 50px 20px 0;">
+            <a href="https://www.earlham.ac.uk/">
+                <img class="img-responsive" src="/static/assets/img/ei_white.png" alt="Earlham Institute logo">
+            </a>
+        </div>
+    </footer>
 
 {% endblock %}

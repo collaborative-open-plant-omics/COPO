@@ -1,7 +1,10 @@
 {% extends 'copo/base_1col.html' %}
 {% load static %}
+
+{% block title %}Registration{% endblock %}
+
 {% block js_block %}
-<script src="{% static 'copo/js/copo.login_view.js' %}"></script>
+    <script src="{% static 'copo/js/copo.login_view.js' %}"></script>
 {% endblock %}
 
 {% block title_block %} Register {% endblock %}
@@ -11,22 +14,22 @@
 {% block main_block %}
 
 
-<div class="generic-form">
-    <form method="post" action="copo/register/">
-        {% csrf_token %}
+    <div class="generic-form">
+        <form method="post" action="copo/register/">
+            {% csrf_token %}
 
-        <input type="text" id="frm_register_firstname" name="frm_register_firstname" placeholder="First Name"/>
-        <input type="text" id="frm_register_lastname" name="frm_register_lastname" placeholder="Last Name"/>
-        <input type="text" id="frm_register_email" name="frm_register_email" placeholder="Email Address"/>
-        <input type="text" id="frm_register_username" name="frm_register_username" placeholder="Username"/>
-        <input type="password" id="frm_register_password" name="frm_register_password" placeholder="Password"/>
-        <input type="password" id="frm_register_password_repeat" name="frm_register_password_repeat"
-               placeholder="Repeat Password"/>
+            <input type="text" id="frm_register_firstname" name="frm_register_firstname" placeholder="First Name"/>
+            <input type="text" id="frm_register_lastname" name="frm_register_lastname" placeholder="Last Name"/>
+            <input type="text" id="frm_register_email" name="frm_register_email" placeholder="Email Address"/>
+            <input type="text" id="frm_register_username" name="frm_register_username" placeholder="Username"/>
+            <input type="password" id="frm_register_password" name="frm_register_password" placeholder="Password"/>
+            <input type="password" id="frm_register_password_repeat" name="frm_register_password_repeat"
+                   placeholder="Repeat Password"/>
 
-        <button class="submit" id="frm_login_submit">Submit</button>
-    </form>
-    <span style="float: right; margin-top:10px"><a href="copo/register/">Register</a></span>
-</div>
+            <button class="submit" id="frm_login_submit">Submit</button>
+        </form>
+        <span style="float: right; margin-top:10px"><a href="copo/register/">Register</a></span>
+    </div>
 
 
 {% endblock %}

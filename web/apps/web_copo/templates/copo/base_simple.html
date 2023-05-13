@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}COPO - Collaborative Open Plant Omics{% endblock %}</title>
+    <title>{% block title %}{% endblock %} | COPO</title>
 
 
     <!-- Bootstrap -->
@@ -50,11 +50,12 @@
 </head>
 <body>
 
-<div  class="text-center" style="padding:50px">
+<div class="text-center" style="padding:50px">
     <img src="{% static 'copo/img/copo_white_800.png' %}" height="200px">
 </div>
 
-{% block content %}If you see this there is something wrong with the templates - you probably didn't overwrite the content block{% endblock %}
+{% block content %}If you see this there is something wrong with the templates - you probably didn't overwrite the
+    content block{% endblock %}
 
 </body>
 </html>

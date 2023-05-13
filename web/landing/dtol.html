@@ -18,7 +18,7 @@
     <!--[if IE]>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <![endif]-->
-    <title>COPO - Collaborative Open Plant Omics</title>
+    <title>DTOL | COPO</title>
     <!--REQUIRED STYLE SHEETS-->
     <!-- BOOTSTRAP CORE STYLE CSS -->
     <link href="/static/assets/css/bootstrap.css" rel="stylesheet"/>
@@ -31,7 +31,7 @@
     <link href="https://fonts.googleapis.com/css?family=Raleway|Slabo+27px" rel="stylesheet">
     <link rel="shortcut icon" href="{% static 'copo/img/favicon.png' %}"/>
     <!-- favicon -->
-    <link rel="icon" tye="image/png" href="{% static 'copo/img/COPO_icon.png' %}"/>
+    <link rel="icon" type="image/png" href="{% static 'copo/img/COPO_icon.png' %}"/>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -56,40 +56,43 @@
 
 
 <!-- Navigation -->
-<nav class="navbar-inverse" role="navigation">
-
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-    </div>
-    <!-- Collect the nav links for toggling -->
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav pull-right" style="font-weight: bolder ;">
-
-            <li><a href="/">Home</a>
-            </li>
-            <li><a href="/dtol">DToL</a>
-            </li>
-            <li><a href="/news">News</a>
-            </li>
-            <li><a href="/people">People</a>
-            </li>
-            <li><a href="/#contact-sec">Contact us</a>
-            </li>
-
-
-
-        </ul>
-    </div>
-    <!-- /.navbar-collapse -->
-
-    <!-- /.container -->
-
-</nav>
+<div class="pull-right">
+    {% include "nav_dropdown.html" %}
+</div>
+{#<nav class="navbar-inverse" role="navigation">#}
+{##}
+{#    <div class="navbar-header">#}
+{#        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">#}
+{#            <span class="sr-only">Toggle navigation</span>#}
+{#            <span class="icon-bar"></span>#}
+{#            <span class="icon-bar"></span>#}
+{#            <span class="icon-bar"></span>#}
+{#        </button>#}
+{#    </div>#}
+{#    <!-- Collect the nav links for toggling -->#}
+{#    <div class="collapse navbar-collapse navbar-ex1-collapse">#}
+{#        <ul class="nav navbar-nav pull-right" style="font-weight: bolder ;">#}
+{##}
+{#            <li><a href="/">Home</a>#}
+{#            </li>#}
+{#            <li><a href="/dtol">DToL</a>#}
+{#            </li>#}
+{#            <li><a href="/news">News</a>#}
+{#            </li>#}
+{#            <li><a href="/people">People</a>#}
+{#            </li>#}
+{#            <li><a href="/#contact-sec">Contact us</a>#}
+{#            </li>#}
+{##}
+{##}
+{##}
+{#        </ul>#}
+{#    </div>#}
+{#    <!-- /.navbar-collapse -->#}
+{##}
+{#    <!-- /.container -->#}
+{##}
+{#</nav>#}
 
 <!--End Navigation -->
 
@@ -132,7 +135,6 @@
 <!--End Header section  -->
 
 
-
 <section class="color-white">
     <div class="container">
         <div class="row">
@@ -140,12 +142,13 @@
                 <img class=" col-md-6 img-responsive" src="/static/assets/img/dtol_logo_alpha.png" alt="Darwin Tree of Life
                 logo representing a blue circle with green Britain and Ireland and a stylized phylogenetic tree "/>
                 <p>The Darwin Tree of Life project aims to sequence the genomes of all eukaryotic life
-                in Britain and Ireland, as part of the wider Earth BioGenome Project to sequence all complex life on
+                    in Britain and Ireland, as part of the wider Earth BioGenome Project to sequence all complex life on
                     Earth.</p><br/>
-                <p>COPO is being used by DToL collectors to describe and submit samples to ENA. As part of this submission
-                process, COPO is validating the taxonomy information provided against the NCBI database and checking
+                <p>COPO is being used by DToL collectors to describe and submit samples to ENA. As part of this
+                    submission
+                    process, COPO is validating the taxonomy information provided against the NCBI database and checking
                     manifests are compliant to
-                the SOP specifications agreed on by the Sample Working Group.</p>
+                    the SOP specifications agreed on by the Sample Working Group.</p>
                 <p>Find out more about the Darwin Tree of Life project <a href="https://www.darwintreeoflife.org/">
                     on the website.</a></p>
             </div>
@@ -154,8 +157,9 @@
     </div>
     <div class="container">
         <div class="row col-md-10 col-md-offset-1">
-        <h3>Resources for DToL collectors and submitters</h3>
-            <p><a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>Visual guide to COPO usage for submitters (PDF)</a></p>
+            <h3>Resources for DToL collectors and submitters</h3>
+            <p><a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>Visual guide to COPO usage for
+                submitters (PDF)</a></p>
             <p>Latest SOP in GitHub (<a href="https://github.com/darwintreeoflife/metadata">link</a>)</p>
         </div>
     </div>
@@ -163,35 +167,38 @@
 </section>
 
 
-
-
 <div class="for-full-back" style="background-color: rgb(64,64,64); min-height: 200px" id="footer">
 
     <div class="row">
         <div class="text-left">
-        <h4>Organisations</h4>
+            <h4>Organisations</h4>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/ei.png"/>
+            <img class="img-responsive" src="/static/assets/img/ei.png"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/oerc-logo.jpg"/>
+            <img class="img-responsive" src="/static/assets/img/oerc-logo.jpg"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/york.png"/>
+            <img class="img-responsive" src="/static/assets/img/york.png"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/ebi.png"/>
+            <img class="img-responsive" src="/static/assets/img/ebi.png"/>
         </div>
     </div>
     <div>
     <span style="float: left"><a href="https://www.jetbrains.com/pycharm/"><img style="margin-left:20px" height="40px"
-                                                                              src="/static/assets/img/icon_PyCharm.png"></a></span>
-    <span style="float: left"><a href="https://github.com/collaborative-open-plant-omics"><img style="margin-left:20px" height="40px" src="/static/copo/img/Octocat.png" /></a></span>
+                                                                                src="/static/assets/img/icon_PyCharm.png"></a></span>
+        <span style="float: left"><a href="https://github.com/collaborative-open-plant-omics"><img
+                style="margin-left:20px" height="40px" src="/static/copo/img/Octocat.png"/></a></span>
 
 
-<span style="float: right; text-align: center"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC 4.0</a></span>
-    <!--<span style="float: right"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img style="margin-top:10px" alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></span>-->
+        <span style="float: right; text-align: center"><a rel="license"
+                                                          href="http://creativecommons.org/licenses/by/4.0/"><img
+                alt="Creative Commons License" style="border-width:0"
+                src="https://i.creativecommons.org/l/by/4.0/88x31.png"/></a><br/><a rel="license"
+                                                                                    href="http://creativecommons.org/licenses/by/4.0/">CC 4.0</a></span>
+        <!--<span style="float: right"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img style="margin-top:10px" alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></span>-->
 
     </div>
 </div>

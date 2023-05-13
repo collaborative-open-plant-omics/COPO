@@ -1,5 +1,8 @@
 {% extends "base1.html" %}
 {% load static %}
+
+{% block title %}{% endblock %}
+
 {% block javascript_block %}
 
 
@@ -8,11 +11,12 @@
 
 
 {% block css_block %}
-
     .dot-color{
     color: #eaf0f0 !important;
     }
-
+    .navbar-brand > img {
+    margin-top: -10px !important;
+    }
 {% endblock %}
 
 
@@ -23,7 +27,7 @@
     <section>
         <div class="row">
 
-            <div id="main_banner" class="col-sm-8 col-md-8 col-lg-8 left-panel">
+            <div id="main_banner" class="col-sm-7 col-md-7 col-lg-7 left-panel">
                 <div class="topbanner-light">{% block topbanner %}{% endblock %}</div>
                 <div class="secondary-container">
                     {% block content %}
@@ -34,13 +38,12 @@
                 </div>
 
             </div>
-            <div class="col-sm-4 col-md-4 col-lg-4 zero-padding">
-                <div style="padding:30px" class="pull-right">
+            <div class="col-sm-5 col-md-5 col-lg-5 zero-padding">
+                <div class="pull-right">
                     {% include "nav_dropdown.html" %}
                 </div>
             </div>
         </div>
 
     </section>
-
 {% endblock %}

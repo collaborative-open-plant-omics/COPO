@@ -3,6 +3,8 @@
 {% load static %}
 {% load web_tags_orcid %}
 
+{% block title %}User Information{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
@@ -22,10 +24,10 @@
 
     <div class="orcid-div">
         <h4 class="h4">ORCiD Profile</h4>
-             <img src="{% static 'copo/img/orcid.png' %}" style="height:50px">
-            {{ orcid.orcid_identifier.path }}
+        <img src="{% static 'copo/img/orcid.png' %}" style="height:50px">
+        {{ orcid.orcid_identifier.path }}
 
-            </a>
+        </a>
 
     </div>
     <div class="repositories-div">

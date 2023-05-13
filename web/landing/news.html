@@ -18,7 +18,7 @@
     <!--[if IE]>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <![endif]-->
-    <title>COPO - Collaborative Open Plant Omics</title>
+    <title>News | COPO</title>
     <!--REQUIRED STYLE SHEETS-->
     <!-- BOOTSTRAP CORE STYLE CSS -->
     <link href="/static/assets/css/bootstrap.css" rel="stylesheet"/>
@@ -31,7 +31,7 @@
     <link href="https://fonts.googleapis.com/css?family=Raleway|Slabo+27px" rel="stylesheet">
     <link rel="shortcut icon" href="{% static 'copo/img/favicon.png' %}"/>
     <!-- favicon -->
-    <link rel="icon" tye="image/png" href="{% static 'copo/img/COPO_icon.png' %}"/>
+    <link rel="icon" type="image/png" href="{% static 'copo/img/COPO_icon.png' %}"/>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -56,40 +56,43 @@
 
 
 <!-- Navigation -->
-<nav class="navbar-inverse" role="navigation">
-
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-    </div>
-    <!-- Collect the nav links for toggling -->
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav pull-right" style="font-weight: bolder ;">
-
-            <li><a href="/">Home</a>
-            </li>
-            <li><a href="/dtol">DToL</a>
-            </li>
-            <li><a href="/news">News</a>
-            </li>
-            <li><a href="/people">People</a>
-            </li>
-            <li><a href="/#contact-sec">Contact us</a>
-            </li>
-
-
-
-        </ul>
-    </div>
-    <!-- /.navbar-collapse -->
-
-    <!-- /.container -->
-
-</nav>
+<div class="pull-right">
+    {% include "nav_dropdown.html" %}
+</div>
+{#<nav class="navbar-inverse" role="navigation">#}
+{##}
+{#    <div class="navbar-header">#}
+{#        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">#}
+{#            <span class="sr-only">Toggle navigation</span>#}
+{#            <span class="icon-bar"></span>#}
+{#            <span class="icon-bar"></span>#}
+{#            <span class="icon-bar"></span>#}
+{#        </button>#}
+{#    </div>#}
+{#    <!-- Collect the nav links for toggling -->#}
+{#    <div class="collapse navbar-collapse navbar-ex1-collapse">#}
+{#        <ul class="nav navbar-nav pull-right" style="font-weight: bolder ;">#}
+{##}
+{#            <li><a href="/">Home</a>#}
+{#            </li>#}
+{#            <li><a href="/dtol">DToL</a>#}
+{#            </li>#}
+{#            <li><a href="/news">News</a>#}
+{#            </li>#}
+{#            <li><a href="/people">People</a>#}
+{#            </li>#}
+{#            <li><a href="/#contact-sec">Contact us</a>#}
+{#            </li>#}
+{##}
+{##}
+{##}
+{#        </ul>#}
+{#    </div>#}
+{#    <!-- /.navbar-collapse -->#}
+{##}
+{#    <!-- /.container -->#}
+{##}
+{#</nav>#}
 
 <!--End Navigation -->
 
@@ -132,7 +135,6 @@
 <!--End Header section  -->
 
 
-
 <section class="color-white">
     <div class="container">
         <div class="row">
@@ -148,11 +150,14 @@
             </div>
             <div class="col-md-5" style="margin-left: 10px;">
                 <h2>Releases and new features</h2>
-                <p>You can find a full list of releases and features in <a href="https://github.com/collaborative-open-plant-omics/COPO">
+                <p>You can find a full list of releases and features in <a
+                        href="https://github.com/collaborative-open-plant-omics/COPO">
                     our GitHub repository</a></p>
                 <br/>
-                <li><strong>  Version 1.2 <span class="label label-success">NEW</span> : </strong> released DToL submission route with taxonomy validation
-                and checks for SOP 2.2 compliance</li>
+                <li><strong> Version 1.2 <span class="label label-success">NEW</span> : </strong> released DToL
+                    submission route with taxonomy validation
+                    and checks for SOP 2.2 compliance
+                </li>
             </div>
         </div>
     </div>
@@ -160,35 +165,38 @@
 </section>
 
 
-
-
 <div class="for-full-back" style="background-color: rgb(64,64,64); min-height: 200px" id="footer">
 
     <div class="row">
         <div class="text-left">
-        <h4>Organisations</h4>
+            <h4>Organisations</h4>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/ei.png"/>
+            <img class="img-responsive" src="/static/assets/img/ei.png"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/oerc-logo.jpg"/>
+            <img class="img-responsive" src="/static/assets/img/oerc-logo.jpg"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/york.png"/>
+            <img class="img-responsive" src="/static/assets/img/york.png"/>
         </div>
         <div class="col-md-2 col-md-2 col-sm-2">
-                <img class="img-responsive" src="/static/assets/img/ebi.png"/>
+            <img class="img-responsive" src="/static/assets/img/ebi.png"/>
         </div>
     </div>
     <div>
     <span style="float: left"><a href="https://www.jetbrains.com/pycharm/"><img style="margin-left:20px" height="40px"
-                                                                              src="/static/assets/img/icon_PyCharm.png"></a></span>
-    <span style="float: left"><a href="https://github.com/collaborative-open-plant-omics"><img style="margin-left:20px" height="40px" src="/static/copo/img/Octocat.png" /></a></span>
+                                                                                src="/static/assets/img/icon_PyCharm.png"></a></span>
+        <span style="float: left"><a href="https://github.com/collaborative-open-plant-omics"><img
+                style="margin-left:20px" height="40px" src="/static/copo/img/Octocat.png"/></a></span>
 
 
-<span style="float: right; text-align: center"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC 4.0</a></span>
-    <!--<span style="float: right"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img style="margin-top:10px" alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></span>-->
+        <span style="float: right; text-align: center"><a rel="license"
+                                                          href="http://creativecommons.org/licenses/by/4.0/"><img
+                alt="Creative Commons License" style="border-width:0"
+                src="https://i.creativecommons.org/l/by/4.0/88x31.png"/></a><br/><a rel="license"
+                                                                                    href="http://creativecommons.org/licenses/by/4.0/">CC 4.0</a></span>
+        <!--<span style="float: right"><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img style="margin-top:10px" alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a></span>-->
 
     </div>
 </div>

@@ -1285,27 +1285,19 @@ class Sample(DAComponent):
         return out
 
     def get_dtol_by_aggregation(self, match_dict):
-        # Get all field names
-        all_field_names = self.get_collection_handle().aggregate([
-            {"$project": {"arrayofkeyvalue": {"$objectToArray": "$$ROOT"}}},
-            {"$unwind": "$arrayofkeyvalue"},
-            {"$group": {"_id": None, "allkeys": {"$addToSet": "$arrayofkeyvalue.k"}}}
-        ]).next()["allkeys"]
-
-        # specify projection
-        query_projection = {field_name: 1 for field_name in all_field_names}
-        match_dict = json.loads(match_dict)  # Converts JSON into object
         cursor = self.get_collection_handle().aggregate(
             [
                 {
                     "$match": match_dict
                 },
-                {
-                    "$project": query_projection
-                }
-            ])
-        records = cursor_to_list_str2(cursor)
-        print('Records: ', records)
+                {"$sort":
+                     {"time_created": -1}
+                 },
+            ]
+        )
+
+        records = cursor_to_list_str(cursor)
+
         # get schema
         sc = self.get_component_schema()
         out = list()
@@ -1330,53 +1322,6 @@ class Sample(DAComponent):
                                 sam[cell] = i[cell]
             out.append(sam)
         return out
-
-    # def get_dtol_profiles_by_aggregation(self, match_dict):
-    #     # Get all field names
-    #     all_field_names = self.get_collection_handle().aggregate([
-    #         {"$project": {"arrayofkeyvalue": {"$objectToArray": "$$ROOT"}}},
-    #         {"$unwind": "$arrayofkeyvalue"},
-    #         {"$group": {"_id": None, "allkeys": {"$addToSet": "$arrayofkeyvalue.k"}}}
-    #     ]).next()["allkeys"]
-    #
-    #     # specify projection
-    #     query_projection = {field_name: 1 for field_name in all_field_names}
-    #
-    #     cursor = self.get_collection_handle().aggregate(
-    #         [
-    #             {
-    #                 "$match": match_dict
-    #             },
-    #             {
-    #                 "$project": {field_name: 1}
-    #             }
-    #         ])
-    #     records = cursor_to_list_str_and_datetime_to_string(cursor)
-    #
-    #     # get schema
-    #     sc = self.get_component_schema()
-    #     out = list()
-    #     taxon = dict()
-    #     for i in records:
-    #         if "species_list" in i:
-    #             sp_lst = i["species_list"]
-    #             for sp in sp_lst:
-    #                 # only extract target info...don't extract symnbiont info
-    #                 if sp["SYMBIONT"] == "TARGET":
-    #                     for k, v in sp.items():
-    #                         i[k] = v
-    #                 else:
-    #                     pass
-    #         sam = dict()
-    #         for cell in i:
-    #             for field in sc:
-    #
-    #                 if cell == field.get("id", "").split(".")[-1] or cell == "_id":
-    #                     if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
-    #                         if field.get("show_in_table", ""):
-    #                             sam[cell] = i[cell]
-    #         out.append(sam)
-    #     return out
 
     def mark_rejected(self, sample_id, reason="Sample rejected by curator."):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)},

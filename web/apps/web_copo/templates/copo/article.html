@@ -3,27 +3,29 @@
 {% load static %}
 {% load web_tags %}
 
-{% block stylesheet_block %}
-	<link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}">
-	<link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
-	<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-	<link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload.css' %}">
-	<link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload-ui.css' %}">
-	<link rel="stylesheet" href="{% static 'copo/css/copo/smart_table.css' %}">
-	<link rel="stylesheet" href="{% static 'copo/css/copo/article.css' %}">
-	<link rel="stylesheet" href="{% static 'copo/css/bootstrap/bootstrap-dialog.css' %}">
+{% block title %}Article{% endblock %}
 
-	<!-- CSS adjustments for browsers with JavaScript disabled -->
-	<noscript>
-		<link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload-noscript.css' %}">
-	</noscript>
-	<noscript>
-		<link rel="stylesheet" href="{% static 'copo/css/jquery.fileupload-ui-noscript.css' %}">
-	</noscript>
+{% block stylesheet_block %}
+    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}">
+    <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/smart_table.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/article.css' %}">
+    <link rel="stylesheet" href="{% static 'copo/css/bootstrap/bootstrap-dialog.css' %}">
+
+    <!-- CSS adjustments for browsers with JavaScript disabled -->
+    <noscript>
+        <link rel="stylesheet" href="{% static 'copo/css/uploader/jquery.fileupload-noscript.css' %}">
+    </noscript>
+    <noscript>
+        <link rel="stylesheet" href="{% static 'copo/css/jquery.fileupload-ui-noscript.css' %}">
+    </noscript>
 {% endblock %}
 
 
-{% block title_block %} Index {% endblock %}
+{% block title_block %} COPO - Article {% endblock %}
 
 {% block tagline_block %}
 
@@ -32,17 +34,18 @@
 
 
 {% block breadcrumb_block %}
-	<ol class="breadcrumb">
+    <ol class="breadcrumb">
 
         <li><a href="{% url 'copo:index' %}">Home</a></li>
         <li class="active"><a href="{% url 'copo:view_profile' profile_id=profile_id %}">Profile</a></li>
-        <li class="active"><a href="{% url 'copo:view_collection' collection_head_id=collection_head_id %}">Article</a></li>
+        <li class="active"><a href="{% url 'copo:view_collection' collection_head_id=collection_head_id %}">Article</a>
+        </li>
     </ol>
 
 {% endblock %}
 
 {% block browse_header_block %}
-	<div id="browse_header">
+    <div id="browse_header">
         <span class="blue_icon">
            <a><i class="fa fa-plus-circle" data-toggle="modal" data-target="#newStudyModal"></i></a>
         </span>
@@ -53,13 +56,13 @@
             <a><i class="fa fa-trash-o"></i></a>
         </span>
 
-		<div class="input-group input-group-sm">
+        <div class="input-group input-group-sm">
             <span class="input-group-addon">
                 <i class="fa fa-search"></i>
             </span>
-			<input type="search" class="form-control" placeholder="Search">
-		</div>
-	</div>
+            <input type="search" class="form-control" placeholder="Search">
+        </div>
+    </div>
 
 {% endblock %}
 
@@ -70,126 +73,127 @@
 
 
 
-	<div class="text-center">
-		<table id="files_table">
-			<thead>
-			<tr>
-				<th>File Name</th>
-				<th>Date Uploaded</th>
-				<th>Size</th>
-				<th>Delete</th>
-			</tr>
-			</thead>
-			<tbody>
+    <div class="text-center">
+        <table id="files_table">
+            <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Date Uploaded</th>
+                <th>Size</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
 
-			{% for article in articles %}
-				<tr data-article-id="{{ article|mongo_id }}">
-					<td>{{ article.original_name }}</td>
-					<td>{{ article.uploaded_on }}</td>
-					<td>{{ article.offset }}</td>
-					<td class="delete_cell text-center">
-						<span class="glyphicon glyphicon-remove-sign"></span>
-					</td>
+            {% for article in articles %}
+                <tr data-article-id="{{ article|mongo_id }}">
+                    <td>{{ article.original_name }}</td>
+                    <td>{{ article.uploaded_on }}</td>
+                    <td>{{ article.offset }}</td>
+                    <td class="delete_cell text-center">
+                        <span class="glyphicon glyphicon-remove-sign"></span>
+                    </td>
 
-				</tr>
-			{% endfor %}
+                </tr>
+            {% endfor %}
 
-			</tbody>
-		</table>
-	</div>
+            </tbody>
+        </table>
+    </div>
 
-	<div class="text-right">
-		<button type="button" id="show_file_modal_button" class="btn btn-primary" data-toggle="modal"
-				data-target="#file_upload_modal">
-			Add File
-		</button>
-	</div>
-
-
+    <div class="text-right">
+        <button type="button" id="show_file_modal_button" class="btn btn-primary" data-toggle="modal"
+                data-target="#file_upload_modal">
+            Add File
+        </button>
+    </div>
 
 
 
-	<div class="modal fade" id="file_upload_modal" tabindex="-1" role="dialog" aria-labelledby="newSampleModal"
-		 aria-hidden="false">
-	<input type="hidden" name="data_modal_id" value=""/>
-	<div class="modal-dialog" style="width:1024px">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-						class="sr-only">Close</span></button>
-				<h4 class="modal-title h2" id="myDataLabel">Add Files</h4>
-			</div>
-
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-lg-2 col-md-2"></div>
-					<div class="col-lg-8 col-md-8">
-						<form enctype="multipart/form-data" id="fileupload" action="{% url 'copo:save_article' %}"
-							  method="POST" style="margin-right:40px">
-							{% csrf_token %}
 
 
-							<br/><br/>
+    <div class="modal fade" id="file_upload_modal" tabindex="-1" role="dialog" aria-labelledby="newSampleModal"
+         aria-hidden="false">
+    <input type="hidden" name="data_modal_id" value=""/>
+    <div class="modal-dialog" style="width:1024px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title h2" id="myDataLabel">Add Files</h4>
+            </div>
 
-							<div id="progress" class="progress">
-								<div class="progress-bar progress-bar-success"></div>
-							</div>
-							<span id="upload_files_button" class="btn btn-success fileinput-button" style="margin-bottom: 40px">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-2"></div>
+                    <div class="col-lg-8 col-md-8">
+                        <form enctype="multipart/form-data" id="fileupload" action="{% url 'copo:save_article' %}"
+                              method="POST" style="margin-right:40px">
+                            {% csrf_token %}
+
+
+                            <br/><br/>
+
+                            <div id="progress" class="progress">
+                                <div class="progress-bar progress-bar-success"></div>
+                            </div>
+                            <span id="upload_files_button" class="btn btn-success fileinput-button"
+                                  style="margin-bottom: 40px">
                                 <i class="glyphicon glyphicon-plus"></i>
 								<span>Select files...</span>
                                 <input type="file" name="file" multiple/>
 						        <input type="hidden" value="figshare" name="repo"/>
                             </span>
 
-							<!-- The container for the uploaded files -->
-							<div id="files" class="files h3"></div>
+                            <!-- The container for the uploaded files -->
+                            <div id="files" class="files h3"></div>
 
-							<div class="form-group">
-								<label for="description">Description</label>
-								<input type="text" class="form-control" id="description" placeholder="Description">
-							</div>
-							<div class="form-group">
-								<label for="article_type">Article Type</label>
-								<select class="form-control" id="article_type" name="article_type">
-									<option>figure</option>
-									<option>media</option>
-									<option>dataset</option>
-									<option>fileset</option>
-									<option>poster</option>
-									<option>paper</option>
-									<option>presentation</option>
-									<option>thesis</option>
-									<option>code</option>
-								</select>
-							</div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input type="text" class="form-control" id="description" placeholder="Description">
+                            </div>
+                            <div class="form-group">
+                                <label for="article_type">Article Type</label>
+                                <select class="form-control" id="article_type" name="article_type">
+                                    <option>figure</option>
+                                    <option>media</option>
+                                    <option>dataset</option>
+                                    <option>fileset</option>
+                                    <option>poster</option>
+                                    <option>paper</option>
+                                    <option>presentation</option>
+                                    <option>thesis</option>
+                                    <option>code</option>
+                                </select>
+                            </div>
 
-							<div id="tags_input"></div>
+                            <div id="tags_input"></div>
 
-							<div class="form-group">
-								<label for="input_text">Enter Tags</label>
-								<input type="text" class="form-control" id="input_text"
-									   placeholder="Comma Delimited Keywords">
-							</div>
-
-
-						</form>
-					</div>
-					<div class="col-lg-2 col-md-2"></div>
-
-					<div class="row"></div>
-					<div class="col-lg-2 col-md-2"></div>
-					<div class="col-lg-8 col-md-8"></div>
-					<div class="col-lg-2 col-md-2">
-						<button type="button" id="btn_save_article" class="btn btn-primary">
-							Save
-						</button>
-					</div>
-				</div>
+                            <div class="form-group">
+                                <label for="input_text">Enter Tags</label>
+                                <input type="text" class="form-control" id="input_text"
+                                       placeholder="Comma Delimited Keywords">
+                            </div>
 
 
-			</div>
-		</div>
-	</div>
+                        </form>
+                    </div>
+                    <div class="col-lg-2 col-md-2"></div>
+
+                    <div class="row"></div>
+                    <div class="col-lg-2 col-md-2"></div>
+                    <div class="col-lg-8 col-md-8"></div>
+                    <div class="col-lg-2 col-md-2">
+                        <button type="button" id="btn_save_article" class="btn btn-primary">
+                            Save
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
 
 
 
@@ -201,19 +205,19 @@
 
 
 {% block js_block %}
-	<script src="{% static 'copo/js/jquery.ui.widget.js' %}"></script>
-	<script src="{% static 'copo/js/jquery.form.js' %}"></script>
-	<script src="{% static 'copo/js/bootstrapValidator.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/vendor/jquery.ui.widget.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/jquery.iframe-transport.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/vendor/jquery.ui.widget.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/jquery.iframe-transport.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/jquery.fileupload.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/jquery.fileupload-process.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/jquery.fileupload-ui.js' %}"></script>
-	<script src="{% static 'copo/js/bootstrap-dialog.js' %}"></script>
-	<script src="{% static 'copo/js/uploader_old/bootstrap_panel.js' %}"></script>
+    <script src="{% static 'copo/js/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'copo/js/jquery.form.js' %}"></script>
+    <script src="{% static 'copo/js/bootstrapValidator.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/jquery.fileupload-process.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/jquery.fileupload-ui.js' %}"></script>
+    <script src="{% static 'copo/js/bootstrap-dialog.js' %}"></script>
+    <script src="{% static 'copo/js/uploader_old/bootstrap_panel.js' %}"></script>
 
-	<script src="{% static 'copo/js/article.js' %}"></script>
+    <script src="{% static 'copo/js/article.js' %}"></script>
 
 {% endblock %}

@@ -76,6 +76,10 @@ th {
     padding: 10px 2rem 0 2rem !important;
 }
 
+.tol_inspect_card_padding {
+    padding: 21.6em 2rem 0 2rem !important;
+}
+
 /*Set cursor pointer to normal*/
 #profile_samples {
     cursor: default;

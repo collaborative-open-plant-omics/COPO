@@ -5,6 +5,8 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}People{% endblock %}
+
 {% block stylesheet_block %}
 
 {% endblock %}
@@ -45,7 +47,8 @@
                             when the profile is created. <br/><br/>To add new collaborators or people, use the
                             <button class="circular tiny ui icon primary button">
                                 <i class="icon add sign"></i>
-                            </button> or the 'Add' buttons found on the page.
+                            </button>
+                            or the 'Add' buttons found on the page.
                             <div><strong>Quick Tour: </strong>To explore the various
                                 controls available on this page, click the
                                 <button class="circular tiny ui icon orange button">
@@ -61,7 +64,8 @@
     </div>
 
     <!-- people table -->
-    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="person_table"></div> <!-- div used by the quick tour agent -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
+         data-copo-tour-id="person_table"></div> <!-- div used by the quick tour agent -->
     <div class="table-parent-div">
         <table id="person_table" class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">

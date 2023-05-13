@@ -1,6 +1,7 @@
 {% extends "secondary.html" %}
 {% load static %}
 
+{% block title %}Earth Biogenome Project Resources{% endblock %}
 
 {% block topbanner %}
 
@@ -16,21 +17,23 @@
 
 
     <div style="margin-left: 40px">
-        <li>
-            <a href="{% url 'manifests:manifests' %}">Current manifests</a>
-        </li>
-        <li>
-            <a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>Visual guide to DTOL/ASG and ERGA
-                submissions</a>:
-            the guide is referring to DToL as an example, but you can follow the very same steps for ASG and ERGA, as
-            long as you create a profile of the
-            right type at the start.
+        <ul>
+            <li>
+                <a href="{% url 'manifests:manifests' %}">Current manifests</a>
+            </li>
+            <li>
+                <a href="/static/assets/files/COPO_visual_user_documentation.pdf" download>
+                    Visual guide to DTOL/ASG and ERGA submissions
+                </a>:
+                the guide is referring to DToL as an example, but you can follow the same steps for ASG and ERGA,
+                as long as you create a profile of the right type at the start.
+            </li>
 
-
-        </li>
-        <br/>
-        Email us at EI.COPO@earlham.ac.uk if you need to be added to the user group of the subproject you are part of.
-
+            <li style="list-style: none; padding-top: 20px">
+                Email us at <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a>
+                if you need to be added to the user group of the subproject you are part of.
+            </li>
+        </ul>
     </div>
 
 

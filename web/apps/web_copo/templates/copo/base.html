@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=10">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}COPO - Collaborative Open Plant Omics{% endblock %}</title>
+    <title>{% block title %}{% endblock %} | COPO</title>
 
 
     <!-- Bootstrap -->
@@ -104,8 +104,6 @@
     <script src="{% static 'copo/js/jquery.alterclass.js' %}"></script>
 
     <script src="{% static 'copo/js/base.js' %}"></script>
-    <script src="{% static 'copo/js/base.js' %}"></script>
-
 <script>
 $(document).ready(function() {
      {% if user.is_authenticated %}
@@ -406,12 +404,12 @@ $(document).ready(function() {
 
 
 <nav id="copo-global-nav" class="navbar navbar-default navbar-fixed-top"
-     style="background: rgba(38, 38, 38, 0.95);">
+     style="background: rgba(38, 38, 38, 0.95); height: 10px !important;  min-height: 55px;">
     <div class="container-fluid" style="display:block">
         <div class="navbar-header">
             <a class="navbar-brand" href="{% url 'copo:index' %}">
-                <img style="height: 50px; margin-top: -15px;"
-                     src="{% static "copo/img/logo7-white-leaves-trans.png" %}"/>
+                <img class="icon-margin-top" style="height: 45px; margin-left: 30px; margin-top: -7px"
+                     src="{% static "copo/img/COPO_icon_white.png" %}"/>
             </a>
             <button type='button' class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="icon-bar"></span>
@@ -422,16 +420,12 @@ $(document).ready(function() {
         </div>
 
         <ul class="nav navbar-nav navbar-right collapse navbar-collapse">
-
-
-        <li class="dropdown" title="Notifications">
-                <a data-container="body" title="Current Tasks"
-                   data-placement="bottom" id="bell_notification">
-                    <span><i class="fa fa-bell" aria-hidden="true"></i></span>
-                </a>
-            </li>
-
-
+            <li class="dropdown" title="Notifications">
+                    <a data-container="body" title="Current Tasks"
+                       data-placement="bottom" id="bell_notification">
+                        <span><i class="fa fa-bell" aria-hidden="true"></i></span>
+                    </a>
+                </li>
             <li class="dropdown" style="margin-left: 15px;" title="Documentation">
                 <a id="copo-documentation" href="http://copo-project.readthedocs.io/en/latest/" target="_blank">
                         <span data-copo-tour-id="documentation_button"><i class="fa fa-book"

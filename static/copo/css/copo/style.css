@@ -1187,6 +1187,7 @@ th {
     padding: 10px 10px 0 10px; /*top right bottom left */
     border: 2px solid rgba(17, 70, 110, 0.1) !important;
     margin-bottom: 10px;
+    margin-top: 100px;
 }
 
 .profiles-legend-group {

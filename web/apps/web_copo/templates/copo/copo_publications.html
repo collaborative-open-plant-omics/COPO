@@ -4,11 +4,13 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}Publications{% endblock %}
+
 {% block stylesheet_block %}
 {% endblock %}
 
 
-{% block title_block %} COPO Publications {% endblock %}
+{% block title_block %} COPO - Publications {% endblock %}
 
 {% block tagline_block %}
 
@@ -118,7 +120,8 @@
     </div>
 
     <!-- publication_table -->
-    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="publication_table"></div> <!-- div used by the quick tour agent -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
+         data-copo-tour-id="publication_table"></div> <!-- div used by the quick tour agent -->
     <div class="table-parent-div">
         <table id="publication_table" class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">

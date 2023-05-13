@@ -74,7 +74,7 @@
             'get credit for your research objects',
             'painless data annotation',
             'easily deposit to public repositories',
-           ]
+        ]
 
         $("#myCarousel").on('slide.bs.carousel', function () {
             var count = $('#myCarousel').data('carousel_counter')
@@ -92,12 +92,28 @@
     });
 }(jQuery));
 
-$(document).ready(function(){
+$(document).ready(function () {
     var num_images = $(".carousel-inner").children().length
     var random = getRandomInt(num_images)
     $($(".carousel-inner").children()[random]).addClass("active")
+    setActiveNavItem() // Set current web page as active nav bar item in top navbar
 })
 
 function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+function setActiveNavItem() {
+    const activePage = window.location.href;
+
+    $('.nav li a').filter(function () {
+        let linkPage = `${this.href}/`;
+        // home page i.e. COPO front page URL will end with '//' so it needs to be ommitted
+        linkPage = linkPage.endsWith('//') ? this.href : linkPage;
+
+        if (activePage === linkPage) {
+            $(this).parent().addClass("active");
+            $(this).parent().append('<span class="sr-only">(current)</span>')
+        }
+    });
 }

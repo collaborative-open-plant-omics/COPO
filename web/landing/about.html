@@ -1,43 +1,283 @@
-{% extends "secondary.html" %}
+{% load static %}
+<!DOCTYPE html>
+<!--[if lt IE 7 ]>
+<html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>
+<html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>
+<html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html lang="en">
+<!--<![endif]-->
+{% block headblock %}
+    <header>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <!--[if IE]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+        <title>About | COPO</title>
+        <!--REQUIRED STYLE SHEETS-->
+        <!-- BOOTSTRAP CORE STYLE CSS -->
+        <link href="/static/assets/css/bootstrap.css" rel="stylesheet"/>
+        <!-- FONTAWESOME STYLE CSS -->
+        <link href="/static/assets/css/font-awesome.min.css" rel="stylesheet"/>
+        <!-- CUSTOM STYLE CSS -->
+        <link href="/static/assets/css/style.css" rel="stylesheet"/>
+        <!-- GOOGLE FONT -->
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Raleway|Slabo+27px" rel="stylesheet">
+        <link rel="shortcut icon" href="{% static 'copo/img/favicon.png' %}"/>
+        <!-- favicon -->
+        <link rel="icon" type="image/png" href="{% static 'copo/img/COPO_icon.png' %}"/>
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+        {% block css_block %}
+            <style>
+                {#body {#}
+                {#    background-color: rgba(179, 151, 89, 0.7);
+
+                #}
+                .navbar-brand > img {
+                    margin-top: -5px !important;
+                }
+
+                @media (max-width: 768px) {
+                    .navbar-collapse {
+                        background-color: rgba(179, 151, 89, 1);
+                    }
+
+                }
+
+            </style>
+        {% endblock %}
+    </header>
+{% endblock %}
+<body style="background-color: rgba(179, 151, 89, 0.7)">
+<!-- Carousel -->
+<div id="myCarousel" class="carousel container slide">
+    <div class="carousel-inner">
+        <div class="item one"></div>
+        <div class="item two"></div>
+        <div class="item eight"></div>
+        <div class="item three"></div>
+        <div class="item four"></div>
+        <div class="item five"></div>
+        <div class="item six"></div>
+        <div class="item nine"></div>
+        <div class="item eleven"></div>
+        <div class="item twelve"></div>
+        <div class="item thirteen"></div>
+        <div class="item fourteen"></div>
+    </div>
+</div>
+<!-- End Carousel -->
+
+<!-- include navbar html -->
+<div class="pull-right">
+    {% include "nav_dropdown.html" %}
+</div>
+<!-- End navbar html -->
+
+<!--Header section  -->
+<div class="container" id="home">
+    <div class="row text-center">
+        <div class="col-md-12 col-md-12 col-sm-12">
+            <h1>
+                <img style="margin-top: 50px" class="header-img" src="/static/assets/img/logo8_white_trans.png"
+                     alt="header image">
+            </h1>
+        </div>
+    </div>
+</div>
+<!--End Header section  -->
+
+{% block baseblock %}
+    <section class="color-white" id="work-sec">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <h2>About COPO</h2>
+                    <p>
+                        COPO is a portal for scientists to describe, store and retrieve data more easily, using
+                        community standards and public repositories that enable the open sharing of results.
+                        COPO can link your outputs to your ORCiD profile.
+                    </p>
+                    <p>
+                        By tracking unique identifiers and DOIs, COPO can provide a way to monitor usage and get
+                        credit for your work, such as source code or research data, which still are not
+                        typically cited in the majority of scientific papers.
+                    </p>
+                    <p>
+                        COPO Wizards allow metadata to be added to your research objects with guided help and
+                        natural workflows. COPO can suggest metadata that might be appropriate for your data
+                        basedbon past submissions and similar workflows.
+                    </p>
+                    <hr>
+                </div>
+
+                <br><br>
+                <div class="col-md-10 col-md-offset-1">
+                    <h2>COPO Team</h2>
+                    <p>The Collaborative Open Omics (COPO) team is part of the Data Infrastructure and Algorithms group
+                        at
+                        the Earlham Institute,
+                        Norwich.<br><br>
+                        The Data Infrastructure and Algorithms group focuses on research into understanding how best to
+                        manage, represent and analyse
+                        data for open science, as well as exploring new hardware, algorithms and methodologies to
+                        develop
+                        tools to push the boundaries of data-driven informatics in the life sciences.<br><br>
+
+                        The team applies their research expertise to develop infrastructure platforms for data and
+                        software dissemination and
+                        publication, assembly algorithms for viral and microbial metagenomics, large-scale data
+                        visualisation, and best
+                        practice and training in bioinformatics.</p> <br><br>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="col-lg-3 col-md-3 col-sm-3 person">
+                            <img class="img-circle" src="/static/assets/img/felix.jpg"
+                                 alt="Felix Sahw's portrait picture"/>
+                        </div>
+                        <div class="p_bio col-md-9 col-sm-9 col-lg-9">
+                            <h4>Felix Shaw</h4>
+                            <p class="p_position">Earlham Institute</p>
+                            Felix is a Research Software Engineer working on the COPO platform; a tool for creating,
+                            depositing and searching for bundles of research objects.<br><br>
+
+                            His PhD is in Computer Science studying facial animation, computer graphics, signal
+                            processing and machine learning. His current interests are
+                            in the fields of data science, open source and how to apply machine learning techniques in
+                            these
+                            areas to improve the tools available to researchers.
+                            <p class="p_orcid"><img src="/static/assets/img/orcid.png" alt="ORCID logo"><a
+                                    href="http://orcid.org/0000-0001-9649-5906"> orcid.org/0000-0001-9649-5906</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-offset-1 col-md-10">
+                        <div class="col-md-9 col-sm-9 col-lg-9 text-right">
+                            <h4 class="text-right">Debby Ku</h4>
+                            <p class="p_position text-right">Earlham Institute</p>
+                            Debby is a Research Software Engineer working on <a
+                                href="https://www.earlham.ac.uk/research-project/collaborative-open-omics-copo">
+                            Collaborative Open Omics</a> (COPO).<br><br>
+
+                            Prior to working at the Earlham Institute, Debby worked in Hong Kong with industrial
+                            experience
+                            in software development and system engineering. She obtained a Bachelor's Degree in Computer
+                            Engineering and MPhil degree in Computer Science from the University of Hong Kong.
+
+                            <p class="p_orcid text-right"><img src="/static/assets/img/orcid.png" alt="ORCID logo"><a
+                                    href="http://orcid.org/0000-0001-9174-3296"> orcid.org/0000-0001-9174-3296</a>
+                            </p>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3 person">
+                            <img class="img-circle" src="/static/assets/img/debby.jpg"
+                                 alt="Debby Ku's portrait picture"/>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="col-lg-3 col-md-3 col-sm-3 person">
+                                <img class="img-circle" src="/static/assets/img/aaliyah.jpg"
+                                     alt="Aaliyah Providence's portrait picture"/>
+                            </div>
+                            <div class="p_bio col-md-9 col-sm-9 col-lg-9">
+                                <h4>Aaliyah Providence</h4>
+                                <p class="p_position">Earlham Institute</p>
+                                Aaliyah is a Junior Software Developer supporting existing <a
+                                    href="https://www.earlham.ac.uk/research-project/collaborative-open-omics-copo">
+                                Collaborative Open Omics</a> (COPO) code by writing unit and integration tests. She also
+                                supports
+                                EI, national, international and COPO users in tasks like metadata annotation, addition
+                                to
+                                COPO
+                                groups and upload to different repositories.<br><br>
+
+                                In addition, Aaliyah performs quality assurance of existing and new COPO pipelines in
+                                development and she promotes COPO to the research community by producing content through
+                                the
+                                COPO project web pages.<br><br>
+
+                                Prior to joining EI, Aaliyah completed a BSc in Software Engineering Mobile Application
+                                Technologies at the University of the West Indies Mona (UWI Mona) in Jamaica. Her 4-year
+                                undergraduate tenure comprised of a 2-year study at the UWI Mona and a 2-year study at
+                                the
+                                Global Institute of Software Technology (GIST) in Suzhou, China.
 
 
+                                <p class="p_orcid"><img src="/static/assets/img/orcid.png" alt="ORCID logo"><a
+                                        href="https://orcid.org/0000-0002-4348-7387"> orcid.org/0000-0002-4348-7387</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-{% block topbanner %}
+            <div class="row">
+                <br/>
+                <div class="col-md-10 col-md-offset-1">
+                    <h3>Former Team Members and Contributors</h3>
+                    <ul class="margin-left: 10px">
+                        <li><a href="http://orcid.org/0000-0002-5589-7754">Dr. Robert Davey</a>, Earlham Institute</li>
+                        <li><a href="https://orcid.org/0000-0002-1670-1675">Alice Minotto</a>, Earlham Institute</li>
+                        <li><a href="http://orcid.org/0000-0001-8320-660X">Anthony Etuk</a>, Earlham Institute</li>
+                        <li><a href="http://orcid.org/0000-0001-5306-5690">Susanna Sansone</a>, Oxford e-Research Centre
+                        </li>
+                        <li><a href="http://orcid.org/0000-0002-2323-6847">David Johnson</a>, Oxford e-Research Centre
+                        </li>
+                        <li><a href=http://orcid.org/0000-0003-3499-8262">Alejandra Gonzalez Beltran</a>, Oxford
+                            e-Research
+                            Centre
+                        </li>
+                        <li><a href="http://orcid.org/0000-0001-9853-5668">Philippe Rocca-Serra</a>, Oxford e-Research
+                            Centre
+                        </li>
+                        <li><a href="http://orcid.org/0000-0002-7857-6814">Katherine Denby</a>, University of York</li>
+                        <li>Paul Kersey, EMBL EBI</li>
+                        <li>Ruth Bastow, Global Plant Council</li>
+                    </ul>
+                </div>
 
-    About COPO
+            </div>
 
+        </div>
+
+    </section>
 {% endblock %}
 
-{% block content %}
+<footer class="for-full-back" style="background-color: #cdcdcd;; min-height: 100px" id="footer">
+    <div class="pull-right">
+        <a href="https://www.earlham.ac.uk/">
+            <img class="img-responsive" src="/static/assets/img/ei.png" width="200" height="200" style=""
+                 alt="Earlham Institute logo"/>
+        </a>
+    </div>
+</footer>
+<!--End footer Section -->
 
-    <p>
-        COPO is a portal for scientists to describe, store and retrieve data more easily, using
-        community standards and public repositories that enable the open sharing of results.
-        COPO
-        can link your outputs to your ORCiD profile.
-    </p>
-
-    <p>
-        By tracking unique identifiers and DOIs, COPO can provide a way to monitor usage and get
-        credit for your work, such as source code or research data, which still are not
-        typically
-        cited in the majority of scientific papers.
-    </p>
-
-    <p>
-        COPO Wizards allow metadata to be added to your research objects with guided help and
-        natural workflows. COPO can suggest metadata that might be appropriate for your data
-        based
-        on past submissions and similar workflows.
-    </p>
-
-    <span class="ArticleCopy">
-        <blockquote>
-
-
-            <span class="author"> </span>
-        </blockquote>
-    </span>
-
-
+{% block js_block %}
+    <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
+    <!-- CORE JQUERY  -->
+    <script src="/static/assets/plugins/jquery-1.10.2.js"></script>
+    <!-- BOOTSTRAP CORE SCRIPT   -->
+    <script src="/static/assets/plugins/bootstrap.js"></script>
+    <!-- CUSTOM SCRIPTS -->
+    <script src="/static/assets/js/custom.js"></script>
 {% endblock %}
+</body>
+
+</html>

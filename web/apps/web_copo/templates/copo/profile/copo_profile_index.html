@@ -3,6 +3,8 @@
 {% load static %}
 {% load web_tags %}
 
+{% block title %}Profiles{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo_profile/css/copo_profile_index.css' %}">
 {% endblock %}
@@ -71,6 +73,11 @@
                     class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
                     title="Accept/Reject TOL Samples">
                 <i class="icon tasks sign"></i>
+            </button>
+            <button id="copo_dashboard_shortcut"
+                    class="big circular ui icon yellow button pull-right copo_dashboard copo-tooltip"
+                    title="View COPO Dashboard">
+                <i class="icon dashboard" style="font-size: 1.3em"></i>
             </button>
         </div>
     </div>

@@ -1,6 +1,5 @@
 from api.views.general import *
 from bson import json_util, ObjectId
-from dal import cursor_to_list_str2
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
@@ -9,6 +8,7 @@ from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import group_functions
 
+import ast
 import itertools
 import operator
 import re
@@ -166,44 +166,36 @@ def get_profile_titles_nav_tabs(request):
 
 def get_profiles_based_on_project(request):
     project = request.GET["project"]
+    getProjectTitlesForUserOnly = request.GET["getProjectTitlesForUserOnly"]
 
     if "ASG" in project:
-        profiles = Profile().get_asg_profiles_based_on_user_id()
+        profiles = Profile().get_asg_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_asg_profiles()
     elif "DTOL_EI" in project or "DTOL_ENV" in project or "DTOLENV" in project:
-        profiles = Profile().get_dtolenv_profiles_based_on_user_id()
+        profiles = Profile().get_dtolenv_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_dtolenv_profiles()
     elif "ERGA" in project:
-        profiles = Profile().get_erga_profiles_based_on_user_id()
+        profiles = Profile().get_erga_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_erga_profiles()
     elif "Stand-alone" in project:
-        profiles = Profile().get_standalone_profiles_based_on_user_id()
+        profiles = Profile().get_standalone_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_standalone_profiles()
     else:
-        profiles = Profile().get_dtol_only_profiles_based_on_user_id()
+        profiles = Profile().get_dtol_only_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_dtol_only_profiles()
 
-    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-               in profiles]
+    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile in profiles]
+    profile_samples_count = [len(sample) for sample in samples]
 
     return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
+        json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
 
 
-def get_profiles_based_on_project_by_aggregation(request):
-    project = request.GET["project"]
+def get_profiles_based_on_sample_data(request):
+    samples_dict = request.POST["samples_dict"]
+    samples_dict = ast.literal_eval(samples_dict)  # Convert string to dictionary
+    print("In Python samples dict:", samples_dict)
 
-    if "ASG" in project:
-        profiles = Profile().get_asg_profiles()
-    elif "DTOL_EI" in project or "DTOL_ENV" in project or "DTOLENV" in project:
-        profiles = Profile().get_dtolenv_profiles()
-    elif "ERGA" in project:
-        profiles = Profile().get_erga_profiles()
-    elif "Stand-alone" in project:
-        profiles = Profile().get_standalone_profiles()
-    else:
-        profiles = Profile().get_dtol_only_profiles()
-
-    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile
-               in profiles]
-
-    return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'profile_samples_count': len(samples[0])}))
+    return HttpResponse(json_util.dumps(samples_dict))
+    # samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile in profiles]
+    # profile_samples_count = [len(sample) for sample in samples]
+    # return HttpResponse(
+    #     json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
 
 
 def get_sample_details(request):
@@ -224,20 +216,9 @@ def get_sample_details(request):
 def get_samples_by_search_faceting(request):
     url = request.build_absolute_uri()
     if not ViewLock().isViewLockedCreate(url=url):
-        match_dict = request.GET["match_items"]
+        match_dict = request.POST["match_items"]
+        match_dict = ast.literal_eval(match_dict)  # Convert string to dictionary
         samples = Sample().get_dtol_by_aggregation(match_dict)
-        print("Samples: ", samples)
-        return HttpResponse(json_util.dumps(samples))
-    else:
-        return HttpResponse(json_util.dumps({"locked": True}))
-
-
-def get_samples_for_project_and_profileID(request):
-    url = request.build_absolute_uri()
-    if not ViewLock().isViewLockedCreate(url=url):
-        profile_id = request.GET["profile_id"]
-        project = request.GET["project"]
-        samples = Sample().get_dtol_from_profile_id_and_project(profile_id, project)
 
         return HttpResponse(json_util.dumps(samples))
     else:

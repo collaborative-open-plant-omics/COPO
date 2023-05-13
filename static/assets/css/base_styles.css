@@ -29,8 +29,67 @@ body {
     margin: 10px 5px 0 5px;
 }
 
+#frontpage-navbar {
+    font-size: 8px;
+    float: left !important;
+    padding-left: 20px;
+}
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+    background-color: #FFFFFF !important;
+    color: #080808 !important;
+}
+
+.navbar-inverse .navbar-nav > li > a:hover {
+    background-color: #eaf0f0 !important;
+    color: #080808 !important;
+}
+
+.navbar-nav > li > a {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    line-height: 20px !important;
+}
+
+.nav > li > a {
+    padding: 0;
+}
+
+.dropdown-menu {
+    padding: 5px 0 !important;
+    min-width: 160px !important;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    margin: 2px 0 0;
+    background-color: #101010 !important;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}
+
+.dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {
+    background-color: #d9d9d9 !important;
+    text-decoration: none;
+    color: #0a0a0a !important;
+}
+
+.dropdown-menu > li > a {
+    font-weight: bold;
+    color: white !important;
+    font-size: 14px !important;
+}
+
 #copo-icon {
-    margin-top: 50px;
     width: 800px;
     margin: 0 auto;
 }
@@ -83,7 +142,7 @@ body {
     color: #414141 !important;
     font-size: 4em;
     font-weight: bold;
-    padding: 20px 7px 7px 50px;
+    padding: 80px 7px 7px 50px;
 }
 
 .topbanner-dark {
@@ -160,74 +219,6 @@ p {
     font-size: 2em;
     margin: 60px 0 15px 0;
     padding: 0 40px 0 40px;
-}
-
-.ArticleCopy {
-    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-    width: 80%;
-    padding: 3rem;
-}
-
-.ArticleCopy p {
-    text-rendering: optimizeLegibility;
-}
-
-.ArticleCopy blockquote {
-    font-size: 1.8em !important;
-    border-radius: 3px;
-    position: relative; /*  <--- */
-    font-style: italic;
-    text-align: center;
-    padding: 1rem 1.2rem;
-    width: 60%; /* create space for the quotes */
-    color: rgba(65, 65, 65, 1);
-    margin: 1rem auto 2rem;
-    background: #eaf0f0;
-}
-
-.author {
-    position: relative;
-    display: block;
-    text-align: right;
-    margin-top: 5px;
-    color: #93d242;
-    font-size: 0.8em !important;
-}
-
-.author.i {
-    position: relative;
-    background: #eee;
-    padding-left: 5px;
-    font-style: italic;
-    z-index: 5;
-}
-
-
-/* -- create the quotation marks -- */
-.ArticleCopy blockquote:before,
-.ArticleCopy blockquote:after {
-    font-family: FontAwesome;
-    position: absolute;
-    /* -- inside the relative position of blockquote -- */
-    top: 13px;
-    color: #eaf0f0;
-    font-size: 34px;
-
-}
-
-.ArticleCopy blockquote:before {
-    content: "\f10d";
-    margin-right: 13px;
-    right: 100%;
-    top: -20px
-}
-
-.ArticleCopy blockquote:after {
-    content: "\f10e";
-    margin-left: 13px;
-    left: 100%;
-    top: auto;
-    bottom: -20px;
 }
 
 .margin-30 {

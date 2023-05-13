@@ -4,6 +4,8 @@
 {% load web_tags_orcid %}
 {% load web_tags %}
 
+{% block title %}Group{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
@@ -180,19 +182,19 @@
 
 {% block help_section %}
 
-    <div id="copo-sidebar-help" class="tab-pane fade in active  copo-sidebar-help">
-        <div class="row">
-            <div class="col-sm-12 col-md-12 col-lg-12">
-                <div class="panel panel-dtables">
-                    <div class="panel-body collapse in" id="page_context_help_panel">
-                        <table id="page-context-help" class="table hover copo-noborders-table"
-                               cellspacing="0"
-                               width="100%"></table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {#    <div id="copo-sidebar-help" class="tab-pane fade in active  copo-sidebar-help">#}
+    {#        <div class="row">#}
+    {#            <div class="col-sm-12 col-md-12 col-lg-12">#}
+    {#                <div class="panel panel-dtables">#}
+    {#                    <div class="panel-body collapse in" id="page_context_help_panel">#}
+    {#                        <table id="page-context-help" class="table hover copo-noborders-table"#}
+    {#                               cellspacing="0"#}
+    {#                               width="100%"></table>#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
 
 {% endblock %}
 

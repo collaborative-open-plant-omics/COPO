@@ -4,6 +4,8 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}Tree of Life Inspection by Genome Acquisition Labs{% endblock %}
+
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo_dashboard/css/tol_inspect_gal.css' %}"/>
     <style></style>
@@ -11,7 +13,7 @@
 
 
 
-{% block title_block %} Index {% endblock %}
+{% block title_block %} Tree of Life Inspection by Genome Acquisition Labs{% endblock %}
 
 {% block tagline_block %}{% endblock %}
 
@@ -32,7 +34,7 @@
 
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 display: inline;">
-            <h3 class="h3">Genome Acquisition Labs (GAL) Inspection
+            <h3 class="h3">Tree of Life (ToL) Inspection by Genome Acquisition Labs (GAL)
                 <button title="View TOL Inspection"
                         class="big circular ui icon green button tol_inspect1 copo-tooltip ">
                     <i class="icon clipboard list" style="font-size: 1.3em"></i>
@@ -101,6 +103,6 @@
 {% block help_section %}{% endblock %}
 
 {% block js_block %}
-    <script src="{% static 'copo_dashboard/js/tol_inspect_gal_functions.js' %}"></script>
+    <script src="{% static 'copo_dashboard/js/tol_inspect_gal.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
 {% endblock %}

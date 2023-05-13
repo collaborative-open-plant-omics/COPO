@@ -22,7 +22,7 @@ urlpatterns = [
     path('accounts/profile/', copo_profile_views.copo_profile_index),
     path('', landing_views.index, name='index'),
     path('about/', TemplateView.as_view(template_name="about.html"), name='about'),
-    path('people/', TemplateView.as_view(template_name="people.html"), name='people'),
+    # path('people/', TemplateView.as_view(template_name="people.html"), name='people'),
     path('dtol/', TemplateView.as_view(template_name="dtol.html"), name='dtol'),
     path('news/', TemplateView.as_view(template_name="news.html"), name='news'),
     path('ebp/', TemplateView.as_view(template_name="ebp_resources.html"), name="ebp")
