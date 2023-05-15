@@ -11,7 +11,7 @@ class CopoEmail:
     def __init__(self):
         self.messages = {
             "new_manifest" : "<h4>Manifest Available</h4><p>A manifest has been uploaded for approval. Please follow the link to proceed</p><h5>{} - {}</h5><p><a href='{}'>{}</a></p>".capitalize,
-            "sample_rejected" : "<h4>Following Samples Rejected</h4><h5>{} - {}</h5><ul>{}</ul>"
+            "sample_rejected" : "<h4>Following samples are rejected by ENA</h4><h5>{} - {}</h5><ul>{}</ul>"
         }
 
 
