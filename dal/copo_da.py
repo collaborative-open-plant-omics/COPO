@@ -923,7 +923,7 @@ class Sample(DAComponent):
     def delete_sample(self, sample_id):
         sample = self.get_record(sample_id)
         # check if sample has already been accepted
-        if sample["status"] in ["accepted", "processing"]:
+        if sample["status"] in ["accepted", "processing", "sending"]:
             return "Sample {} with accession {} cannot be deleted as it has already been submitted to ENA.".format(
                 sample.get("SPECIMEN_ID", ""), sample.get("biosampleAccession", "X"))
         else:
@@ -1097,7 +1097,7 @@ class Sample(DAComponent):
         if filter == "pending":
             # $nin will return where status neq to values in array, or status is absent altogether
             find_condition["status"] = {
-                "$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private"]}
+                "$nin": ["barcode_only", "rejected", "accepted", "processing", "conflicting", "private", "sending"]}
 
             # cursor = self.get_collection_handle().find(
             #    { 'profile_id': profile_id,
@@ -1144,6 +1144,10 @@ class Sample(DAComponent):
         #    {'profile_id': profile_id, "status": "processing", '$text': {'$search': search }}).count()
         # samples = list(cursor)
         # cursor = samples
+        elif filter == "processing":
+            find_condition["status"] =  {
+                "$in": ["processing", "sending"]}
+            
         else:
             find_condition["status"] = filter
             # cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
@@ -2023,6 +2027,19 @@ class Submission(DAComponent):
                                                         "accessions.assembly": {"accession": accession, "alias": alias,
                                                                                 "assembly_id": assembly_idstr}}})
         return
+
+    def reset_dtol_submission_status(self, submission_id, samples_ids):
+        doc = self.get_collection_handle().find_one({"_id": ObjectId(submission_id)})
+        l = len(doc["dtol_samples"])
+        if l > 0:
+            status = "pending"
+        else:
+            status = "complete"
+
+        Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
+        if samples_ids:
+            object_samples_ids = [ObjectId(x) for x in samples_ids]
+        Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}}, {"$set" : {"status": "processing"} })
 
 
 class DataFile(DAComponent):

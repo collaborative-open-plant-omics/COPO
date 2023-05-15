@@ -71,7 +71,7 @@ def process_pending_dtol_samples():
         public_name_list = list()
         rejected_sample = {}
         for s_id in submission["dtol_samples"]:
-            l.log("Dtol_submission : 67")
+            log_message(f"Dtol_submission : processing {s_id}", Loglvl.INFO, profile_id=profile_id)
             try:
                 sam = Sample().get_record(s_id)
                 if not sam:
@@ -89,6 +89,13 @@ def process_pending_dtol_samples():
                 #            html_id="dtol_sample_info")
                 #l.error("Dtol submission : 77 - no sample found for id " + str(s_id))
                 continue
+
+
+            if sam["status"] == "sending":
+                log_message(f"{s_id} is processing by another celery task", Loglvl.INFO, profile_id=profile_id )
+                continue
+            else:
+                Sample().add_field("status", "sending", s_id)
 
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
@@ -292,7 +299,7 @@ def process_pending_dtol_samples():
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
 
-            log_message("Adding to Sample Batch: " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
+            log_message(f"Adding to Sample {s_id} Batch: " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
             #notify_frontend(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
             #                action="info",
             #                html_id="dtol_sample_info")
@@ -803,9 +810,10 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 
     session = requests.Session()
     session.auth = (user_token, pass_word)
-    response = session.post(cmd, data={},files = {'file':open(save_path_file)})
+   
 
     try:
+        response = session.post(cmd, data={},files = {'file':open(save_path_file)})
         receipt = response.text
         l.log("ENA RECEIPT " + receipt, type=Logtype.FILE)
         print(receipt)
@@ -821,21 +829,21 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + cmd
             notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                             html_id="dtol_sample_info")
-            reset_submission_status(collection_id)
+            Submission().reset_dtol_submission_status(collection_id, sample_ids)
     except ET.ParseError as e:
         l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
         message = " Unrecognized response from ENA - " + str(
             receipt) + " Please try again later, if it persists contact admins"
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id, sample_ids)
         return False
     except Exception as e:
         l.exception(e)
         message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + cmd
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id, sample_ids)
         return False
     finally:
         os.remove(submissionfile)
@@ -845,7 +853,7 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 def handle_async_receipt(receipt, sample_ids, sub_id):
     result = json.loads(receipt)
     submission_id = result["submissionId"]
-    href = result["_links"]["poll-xml"]["href"]
+    href = result["_links"]["poll"]["href"]
     return Submission().update_submission_async(sub_id, href, sample_ids, submission_id)
 
 
@@ -968,7 +976,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
         os.remove(submissionfile)
         os.remove(samplefile)
 
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id)
         return False
         # print(message)
 
@@ -982,7 +990,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
                         html_id="dtol_sample_info")
         os.remove(submissionfile)
         os.remove(samplefile)
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id)
         return False
 
     os.remove(submissionfile)
@@ -1047,17 +1055,6 @@ def get_studyId(receipt, collection_id):
     accessions = {"bioproject_accession": bioproject_accession, "sra_study_accession": sra_study_accession,
                   "study_accession": study_accession, "status": "ok"}
     return accessions
-
-
-def reset_submission_status(submission_id):
-    doc = Submission().get_collection_handle().find_one({"_id": ObjectId(submission_id)})
-    l = len(doc["dtol_samples"])
-    if l > 0:
-        status = "pending"
-    else:
-        status = "complete"
-    Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
-
 
 def create_study(profile_id, collection_id):
     # build study XML
