@@ -279,7 +279,8 @@ class ProcessValidationQueue:
 
     def make_update_notifications(self, qm):
         sample_data = self.data
-        updates = {}
+        updates = {}          
+        permits_required = False
         for p in range(0, len(sample_data)):
             s = map_to_dict(self.data.columns, self.data.iloc[p, :])
             rack_tube = s.get("RACK_OR_PLATE_ID", "") + "/" + s["TUBE_OR_WELL_ID"]
@@ -299,6 +300,9 @@ class ProcessValidationQueue:
                             updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
                             updates[rack_tube][field]["new_value"] = s[field]
                         else:
+                            if field in ["SAMPLING_PERMITS_REQUIRED","NAGOYA_PERMITS_REQUIRED","ETHICS_PERMITS_REQUIRED"]:
+                                s[field] == "Y"
+                                permits_required = True
                             updates[rack_tube][field]["old_value"] = exsam[field]
                             updates[rack_tube][field]["new_value"] = s[field]
                     else:
@@ -327,7 +331,7 @@ class ProcessValidationQueue:
                 for idx, x in enumerate(r):
                     if x is math.nan:
                         r[idx] = ""
-                out_data.append(r)
+                out_data.append(r) 
 
             notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]),
                             action="store_validation_record_id",
@@ -336,3 +340,7 @@ class ProcessValidationQueue:
                             html_id="warning_info3")
             notify_frontend(data={"profile_id": self.profile_id}, msg=out_data, action="make_update",
                             html_id="sample_table")
+            
+        if permits_required:
+            notify_frontend(data={"profile_id": self.profile_id}, msg="", action="require_permits",
+                            html_id="")

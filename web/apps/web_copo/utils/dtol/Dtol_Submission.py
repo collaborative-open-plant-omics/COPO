@@ -23,6 +23,7 @@ from bson import ObjectId
 from django_tools.middlewares.ThreadLocal import get_current_request
 import re
 from web.apps.web_copo.lookup.copo_enums import Loglvl
+from web.apps.web_copo.copo_email import CopoEmail
 
 
 with open(settings, "r") as settings_stream:
@@ -68,8 +69,9 @@ def process_pending_dtol_samples():
         s_ids = []
         # check for public name with Sanger Name Service
         public_name_list = list()
+        rejected_sample = {}
         for s_id in submission["dtol_samples"]:
-            l.log("Dtol_submission : 67")
+            log_message(f"Dtol_submission : processing {s_id}", Loglvl.INFO, profile_id=profile_id)
             try:
                 sam = Sample().get_record(s_id)
                 if not sam:
@@ -82,10 +84,18 @@ def process_pending_dtol_samples():
             except:
                 log_message("No sample found for id " + str(s_id), Loglvl.ERROR, profile_id=profile_id)
                 Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(s_id)], submission_id=[])
+
                 #notify_frontend(data={"profile_id": profile_id}, msg="No sample found for id " + str(s_id), action="error",
                 #            html_id="dtol_sample_info")
                 #l.error("Dtol submission : 77 - no sample found for id " + str(s_id))
                 continue
+
+
+            if sam["status"] == "sending":
+                log_message(f"{s_id} is processing by another celery task", Loglvl.INFO, profile_id=profile_id )
+                continue
+            else:
+                Sample().add_field("status", "sending", s_id)
 
             issymbiont = sam["species_list"][0].get("SYMBIONT", "TARGET")
             if issymbiont == "SYMBIONT":
@@ -212,6 +222,8 @@ def process_pending_dtol_samples():
                             Sample().add_rejected_status(status, s_id)
                             s_ids.remove(s_id)
                             Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id],submission_id=[])
+                            rejected_sample[sam["rack_tube"], toliderror]
+
                             msg = "A public name request was rejected, some submissions were halted -" +toliderror
                             log_message(msg, Loglvl.ERROR, profile_id=profile_id)
                             #notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
@@ -249,6 +261,7 @@ def process_pending_dtol_samples():
                         Sample().add_rejected_status(status, s_id)
                         s_ids.remove(s_id)
                         Submission().dtol_sample_rejected(submission['_id'], sam_ids=[s_id], submission_id=[])
+                        rejected_sample[sam["rack_tube"], msg]
                         Source().get_collection_handle().remove({"_id": sour['_id']})
                         #Submission().make_dtol_status_pending(submission['_id'])
                         continue
@@ -286,7 +299,7 @@ def process_pending_dtol_samples():
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
 
-            log_message("Adding to Sample Batch: " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
+            log_message(f"Adding to Sample {s_id} Batch: " + sam["SPECIMEN_ID"], Loglvl.INFO, profile_id=profile_id)
             #notify_frontend(data={"profile_id": profile_id}, msg="Adding to Sample Batch: " + sam["SPECIMEN_ID"],
             #                action="info",
             #                html_id="dtol_sample_info")
@@ -304,6 +317,7 @@ def process_pending_dtol_samples():
                 if all(public_names[x].get("status", "") == "Rejected" for x in range(len(public_names))):
                     l.log("all missing tolid request were rejected")
                     Submission().dtol_sample_rejected(submission['_id'], sam_ids=[submission["dtol_samples"]], submission_id=[])
+                    rejected_sample["All", "all missing tolid request were rejected"]
                     tolidflag = False
                 else:
                     # change dtol_status to "awaiting_tolids"
@@ -326,6 +340,8 @@ def process_pending_dtol_samples():
                     processedids = [str(x) for x in processed]
                     #for sampleid in processedids:
                     Submission().dtol_sample_rejected(submission['_id'], sam_ids=processedids, submission_id=[])
+                    rejected_sample[name['specimen']["specimenId"], "all missing tolid request were rejected"]
+
 
             #if tolid missing for specimen skip
             if not tolidflag:
@@ -355,6 +371,10 @@ def process_pending_dtol_samples():
                 # store accessions, remove sample id from bundle and on last removal, set status of submission
                 l.log("submitting bundle xml to ENA", type=Logtype.FILE)
                 accessions = submit_biosample_v2(file_subfix+"-02", Sample(), submission['_id'],s_ids, async_send=True)
+        if rejected_sample:
+            profile = Profile().get_record(profile_id)
+            if profile:
+                CopoEmail().notify_sample_rejected_after_approval(project=get_profile_type(profile["type"]),title=profile["title"], description=profile["description"], rejected_sample=rejected_sample)   
 
 
 def query_awaiting_tolids():
@@ -362,6 +382,7 @@ def query_awaiting_tolids():
     l.log("Running awaiting tolid task ")
     sub_id_list = Submission().get_awaiting_tolids()
     for submission in sub_id_list:
+        rejected_sample={}
         public_name_list = list()
         samplelist = submission["dtol_samples"]
         l.log("samplelist to go trough is "+str(samplelist))
@@ -407,11 +428,16 @@ def query_awaiting_tolids():
                         #remove samples from submissionlist
                         print(str(rejsam["_id"]))
                         Submission().dtol_sample_rejected(submission['_id'], sam_ids=[str(rejsam["_id"])], submission_id=[])
+                        rejected_sample[name.get("specimen", "").get("specimenId", ""), toliderror]
                 else:
                     l.log("Still no tolId identified for " + str(name))
                     return
         l.log("Changing submission status from awaiting tolids to pending")
         Submission().make_dtol_status_pending(submission["_id"])
+        if rejected_sample:
+            profile = Profile().get_record(profile_id)
+            if profile:
+                CopoEmail().notify_sample_rejected_after_approval(project=get_profile_type(profile["type"]),title=profile["title"], description=profile["description"], rejected_sample=rejected_sample)   
 
 def populate_source_fields(sampleobj):
     '''populate source in db to copy most of sample fields
@@ -784,9 +810,10 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
 
     session = requests.Session()
     session.auth = (user_token, pass_word)
-    response = session.post(cmd, data={},files = {'file':open(save_path_file)})
+   
 
     try:
+        response = session.post(cmd, data={},files = {'file':open(save_path_file)})
         receipt = response.text
         l.log("ENA RECEIPT " + receipt, type=Logtype.FILE)
         print(receipt)
@@ -798,25 +825,25 @@ def submit_biosample_v2(subfix, sampleobj, collection_id, sample_ids, type="samp
                 tree = ET.fromstring(receipt)
                 return handle_submit_receipt(sampleobj,collection_id, tree, type)
         else:
-            l.log("General Error " + str(e), type=Logtype.FILE)
+            l.log("General Error " + response.status_code)
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + cmd
             notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                             html_id="dtol_sample_info")
-            reset_submission_status(collection_id)
+            Submission().reset_dtol_submission_status(collection_id, sample_ids)
     except ET.ParseError as e:
         l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
         message = " Unrecognized response from ENA - " + str(
             receipt) + " Please try again later, if it persists contact admins"
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id, sample_ids)
         return False
     except Exception as e:
-        l.log("General Error " + str(e), type=Logtype.FILE)
+        l.exception(e)
         message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + cmd
         notify_frontend(data={"profile_id": profile_id}, msg=message, action="error",
                         html_id="dtol_sample_info")
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id, sample_ids)
         return False
     finally:
         os.remove(submissionfile)
@@ -854,7 +881,7 @@ def poll_asyn_ena_submission():
                                     html_id="dtol_sample_info")
                     continue
                 except Exception as e:
-                    l.log("General Error " + str(e), type=Logtype.FILE)
+                    l.exception(e)
                     message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + sub["href"]
                     notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
                                     html_id="dtol_sample_info")
@@ -884,10 +911,12 @@ def poll_asyn_ena_submission():
 
                 notify_frontend(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
                             html_id="dtol_sample_info")
+                
 
 
 def handle_submit_receipt(sampleobj, collection_id, tree, type="sample"):
     success_status = tree.get('success')
+    rejected_sample = {}
     if success_status == 'false':
         msg = ""
         error_blocks = tree.find('MESSAGES').findall('ERROR')
@@ -897,10 +926,19 @@ def handle_submit_receipt(sampleobj, collection_id, tree, type="sample"):
             msg = "Undefined error"
         status = {"status": "error", "msg": msg}
         # print(status)
+        profile_id=""
         for child in tree.iter():
             if child.tag == 'SAMPLE':
                 sample_id = child.get('alias')
                 sampleobj.add_rejected_status(status, sample_id)
+                sam = Sample().get_record(sample_id)
+                rejected_sample[sam["rack_tube"]] = msg
+                profile_id = sam["profile_id"]
+               
+        if rejected_sample:
+            profile = Profile().get_record(profile_id)
+            if profile:
+                CopoEmail().notify_sample_rejected_after_approval(project=get_profile_type(profile["type"]),title=profile["title"], description=profile["description"], rejected_sample=rejected_sample)   
 
         # print('error')
         l.log("Success False" + str(msg), type=Logtype.FILE)
@@ -939,7 +977,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
         os.remove(submissionfile)
         os.remove(samplefile)
 
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id)
         return False
         # print(message)
 
@@ -953,7 +991,7 @@ def submit_biosample(subfix, sampleobj, collection_id, type="sample"):
                         html_id="dtol_sample_info")
         os.remove(submissionfile)
         os.remove(samplefile)
-        reset_submission_status(collection_id)
+        Submission().reset_dtol_submission_status(collection_id)
         return False
 
     os.remove(submissionfile)
@@ -1018,17 +1056,6 @@ def get_studyId(receipt, collection_id):
     accessions = {"bioproject_accession": bioproject_accession, "sra_study_accession": sra_study_accession,
                   "study_accession": study_accession, "status": "ok"}
     return accessions
-
-
-def reset_submission_status(submission_id):
-    doc = Submission().get_collection_handle().find_one({"_id": ObjectId(submission_id)})
-    l = len(doc["dtol_samples"])
-    if l > 0:
-        status = "pending"
-    else:
-        status = "complete"
-    Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
-
 
 def create_study(profile_id, collection_id):
     # build study XML
@@ -1178,3 +1205,13 @@ def log_message(msg, loglvl=Loglvl.INFO,  to_frontend=True, profile_id=profile_i
             action = "info"
         notify_frontend(data={"profile_id": profile_id}, msg=msg, action=action, html_id="dtol_sample_info")
     l.log("Dtol submission for profile " + profile_id  + " : " + msg, level=loglvl)
+
+def get_profile_type(profile_type):
+    if "ASG" in profile_type:
+        return "ASG"
+    elif "ERGA" in profile_type:
+        return "ERGA"
+    elif "DTOL_ENV" in profile_type:
+        return "DTOL_ENV"
+    else:
+        return "DTOL"

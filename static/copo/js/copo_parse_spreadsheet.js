@@ -401,7 +401,7 @@ $(document).ready(function () {
                         row = d.message[r]
                         img_tag = ""
                         if (row.specimen_id === "") {
-                            img_tag = "Sample images must be named using the same Specimen ID as the manifest"
+                            img_tag = "Sample images must be named as {Specimen_ID}-{n}.[jpg|png]"
                         } else if (row.thumbnail != "") {
                             img_tag = "<a target='_blank' href='" + row.file_name + "'> <img src='" + row.thumbnail + "' /></a>"
                         }
@@ -490,7 +490,7 @@ $(document).ready(function () {
                     $("#images_label").removeAttr("disabled")
                     $("#images_label").find("input").removeAttr("disabled")
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
-
+                        $("#finish_button").fadeOut()
                     } else {
                         $("#ena_finish_button").fadeIn()
                         $("#finish_button").fadeIn()
@@ -537,12 +537,19 @@ $(document).ready(function () {
                     $("#sample_parse_table").DataTable().draw()
                     $("#files_label, #barcode_label").removeAttr("disabled")
                     $("#files_label, #barcode_label").find("input").removeAttr("disabled")
+                    $("#files_label, #barcode_label").removeClass("disabled")
                     $("#images_label").removeAttr("disabled")
                     $("#images_label").removeClass("disabled")
                     $("#images_label").find("input").removeAttr("disabled")
                     //$("#confirm_info").fadeIn(1000)
                     $("#tabs").fadeIn()
                     $("#confirm_button").fadeIn()
+                } else if (d.action == "require_permits") {
+                    $("#confirm_button").fadeOut()
+                    $("#finish_button").fadeOut()
+                    $("#files_label").removeAttr("disabled")
+                    $("#files_label").removeClass("disabled")
+                    $("#files_label").find("input").removeAttr("disabled")
                 }
             }
         }
@@ -557,6 +564,16 @@ $(document).on("click", ".new-samples-spreadsheet-template, .new-samples-spreads
     $("#warning_info2").fadeOut("fast")
     $("#warning_info3").fadeOut("fast")
 
+    $("#images_label").addClass("disabled")
+    $("#images_label").attr("disabled", "true")
+    $("#images_label").find("input").attr("disabled", "true")
+    $("#ss_upload_spinner").fadeOut("fast")
+    $("#files_label").addClass("disabled")
+    $("#files_label").attr("disabled", "true")
+    $("#files_label").find("input").attr("disabled", "true")
+    $("#finish_button").fadeOut("fast")
+    $("#confirm_button").fadeOut("fast")
+    $("#export_errors_button").fadeOut("fast")
 })
 
 $(document).on("click", ".new-samples-spreadsheet-template-erga", function (event) {
