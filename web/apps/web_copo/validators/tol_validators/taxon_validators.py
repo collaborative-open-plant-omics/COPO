@@ -65,6 +65,7 @@ class DtolEnumerationValidator(Validator):
             while i < len(taxon_id_list):
                 window_list = taxon_id_list[i: i + 200]
                 i += 200
+                print("entering entrez")
                 handle = Entrez.efetch(db="Taxonomy", id=window_list, retmode="xml")
                 records = Entrez.read(handle)
                 for element in records:

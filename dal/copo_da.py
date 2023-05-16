@@ -57,6 +57,7 @@ ENAFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
+EnaChecklistCollection = 'EnaChecklistCollection'
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -77,7 +78,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
                    enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
                    apiValidationReport=get_collection_ref(APIValidationReport),
-                   assembly=get_collection_ref(AssemblyCollection)
+                   assembly=get_collection_ref(AssemblyCollection),
+                   enaChecklist=get_collection_ref(EnaChecklistCollection),
                    )
 
 
@@ -2766,6 +2768,9 @@ class ENAFileTransferObject(DAComponent):
     def set_complete(self, tx_id):
         self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
 
+class EnaChecklist(DAComponent):
+    def __init__(self, profile_id=None):
+        super(EnaChecklist, self).__init__(profile_id, "enaChecklist")
 
 class APIValidationReport(DAComponent):
     def __init__(self, profile_id=None):

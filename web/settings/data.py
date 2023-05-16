@@ -1,7 +1,7 @@
 # settings for services e.g. postgres, mongo, redis, irods...
 
 from django.conf import settings
-
+from exceptions_and_logging.logger import Logger
 from pymongo import MongoClient
 from tools import resolve_env
 import sys
@@ -40,8 +40,10 @@ if settings.UNIT_TESTING:
 else:
     MONGO_CLIENT = MongoClient(host=MONGO_HOST, maxPoolSize=MONGO_MAX_POOL_SIZE)[MONGO_DB]
 
+#MONGO_CLIENT.authenticate(MONGO_USER, MONGO_USER_PASSWORD, source='admin')
+Logger().log("MONGO_CLIENT: " + str(MONGO_CLIENT))
+Logger().log("connecting with credentials: " + MONGO_USER + " " + MONGO_USER_PASSWORD)
 MONGO_CLIENT.authenticate(MONGO_USER, MONGO_USER_PASSWORD, source='admin')
-
 # settings for redis
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = resolve_env.get_env('REDIS_HOST')

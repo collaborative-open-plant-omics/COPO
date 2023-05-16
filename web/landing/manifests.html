@@ -99,10 +99,36 @@
                 </td>
                 <td></td>
             </tr>
+            <tr>
+                <td>Miscellaneous</td>
+                <td></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu3"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Download
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu3">
+                            <li><a id="erga_prefilled_template_option" class="wizard-link" href="javascript:"
+                                   onclick="showWizardBasedOnManifestType('misc')"
+                                   aria-hidden="true">View</a></li>
+
+
+                        </ul>
+                    </div>
+                </td>
+            </tr>
 
             </tbody>
         </table>
     </div>
+
+    <!--
+        ENA checklist modal
+    -->
+
+
     {#  Modal wizard starts #}
     <div class="modal fade fuelux" id="modal-placeholder" data-backdrop="static" data-keyboard="false" tabindex="-1"
          role="dialog"
@@ -118,6 +144,20 @@
                 </div>
 
                 <div class="modal-body">
+
+                    <form id="ena_checklist_form">
+                        <div class="form-group">
+                            <label for="checklist_dd">Available Sample Checklists</label>
+                            <select class="form-control" id="checklist_dd"
+                                   aria-describedby="dd_help" placeholder="Select Checklist">
+                                <option value="0">Select Checklist</option>
+                            </select>
+                            <small id="dd_help" class="form-text text-muted">This list is supplied by ENA, and is not under COPO's control</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+
                     <div class="wizard" id="manifest-wizard">
                         <div class="steps-container">
                             <ul class="steps">
@@ -217,6 +257,7 @@
         </div>
     </div>
     {#  Modal wizard ends #}
+
 {% endblock %}
 
 {% block headblock %}

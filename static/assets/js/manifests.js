@@ -555,14 +555,25 @@ function showWizardBasedOnManifestType(manifest_type) {
     let manifest_wizard = $('#manifest-wizard')
     // let manifestTypeID = document.getElementById('manifestType')
     $("#modal-placeholder").modal("show");
-    manifest_wizard.wizard();
-    // Automatically navigate to step 1 when the modal is launched
-    // since step 0 is about selecting the manifest which has been done indirectly
-    manifest_wizard.wizard('selectedItem', {step: 1});
-    $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
-    document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
-    // $('.btn-prev').hide(); // Hide previous button
-    get_common_fields_handler();// Preload with the common fields dropdown list
+    if (manifest_type == "misc") {
+        $("#modalLabel").html("Available Sample Checklists")
+        $("#manifest-wizard").hide()
+        $("#ena_checklist_form").show()
+        $("#modal-body").html("Select a checklist to generate a manifest template")
+
+    } else {
+        $("#ena_checklist_form").hide()
+        $("#manifest-wizard").show()
+        manifest_wizard.wizard();
+        // Automatically navigate to step 1 when the modal is launched
+        // since step 0 is about selecting the manifest which has been done indirectly
+        manifest_wizard.wizard('selectedItem', {step: 1});
+        $("#formID .form-group").remove(); // Remove/clear all existing divs from the form
+        document.getElementById('numberOfSamples').value = 1; // Preload with default number of samples
+        // $('.btn-prev').hide(); // Hide previous button
+        get_common_fields_handler();// Preload with the common fields dropdown list
+
+    }
 }
 
 function get_current_manifest_version() {

@@ -215,7 +215,7 @@ DATAVERSE = {
     "HARVARD_LIVE_TOKEN": "10731a84-b3d3-457e-999d-21f48fe8d812"
 }
 
-UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
+UNIT_TESTING = False
 
 TEST_USER_NAME = 'aaliyah'
 

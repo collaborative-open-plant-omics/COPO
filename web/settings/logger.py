@@ -12,8 +12,11 @@ log_path = os.path.join(BASE_DIR, 'exceptions_and_logging', 'logs')
 LOGGER = Logger(logfile_path=log_path, system_level=Loglvl.INFO, log_type=Logtype.CONSOLE)
 
 def skip_static_requests(record):
-    if record.args[0].startswith('GET /static/'):  # filter whatever you want
-        return False
+    try:
+        if record.args[0].startswith('GET /static/'):  # filter whatever you want
+            return False
+    except:
+        pass
     return True
 # this code make django dev server skip all requests to /static/ dir making output easier to read
 LOGGING = {

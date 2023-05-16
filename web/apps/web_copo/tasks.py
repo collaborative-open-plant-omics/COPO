@@ -15,6 +15,7 @@ import celery
 import redis
 from functools import wraps
 from tools import resolve_env
+from web.apps.web_copo.utils import EnaSampleChecklistFunctions as ena_checklist
 
 SESSION_REDIS_HOST = resolve_env.get_env('REDIS_HOST')
 SESSION_REDIS_PORT = int(resolve_env.get_env('REDIS_PORT'))
@@ -58,31 +59,28 @@ class CopoBaseClassForTask(celery.Task):
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 def update_study_status():
-    Logger().debug("Running update_study_status")
-    Logger().debug("Running update_study_status")
+    #Logger().debug("Running update_study_status")
     enareadSubmission.EnaReads().update_study_status()
     return True
 
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 def process_ena_submission(self):
-    Logger().debug("Running process_ena_submission")
+    #Logger().debug("Running process_ena_submission")
     enareadSubmission.EnaReads().process_queue()
     return True
 
 
 @app.task(bind=True,  base=CopoBaseClassForTask)
 def process_ena_transfer(self):
-    Logger().debug("Running process_ena_transfer")
-    Logger().debug("Running process_ena_transfer")
+    #Logger().debug("Running process_ena_transfer")
     enareadSubmission.EnaReads().process_file_transfer()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 @only_one(key="biosample_submission", timeout=5)
 def process_dtol_sample_submission(self):
-    Logger().debug("Running process_dtol_sample_submission")
-    Logger().debug("Running process_dtol_sample_submission")
+    #Logger().debug("Running process_dtol_sample_submission")
     dtol.process_pending_dtol_samples()
     return True
 
@@ -90,48 +88,42 @@ def process_dtol_sample_submission(self):
 @app.task(bind=True, base=CopoBaseClassForTask)
 @only_one(key="bioimage_submission", timeout=5)
 def process_bioimage_submission(self):
-    Logger().debug("Running process_bioimage_submission")
-    Logger().debug("Running process_bioimage_submission")
+    #Logger().debug("Running process_bioimage_submission")
     dtol_bioimage.process_bioimage_pending_submission()
     return True
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
 def find_incorrectly_rejected_samples(self):
-    Logger().debug("Running find_incorrectly_rejected_samples")
-    Logger().debug("Running find_incorrectly_rejected_samples")
+    #Logger().debug("Running find_incorrectly_rejected_samples")
     Sample().find_incorrectly_rejected_samples()
     return True
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
 def update_stats(self):
-    Logger().debug("Running update_stats")
-    Logger().debug("Running update_stats")
+    #Logger().debug("Running update_stats")
     Stats().update_stats()
     return True
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
 def poll_missing_tolids(self):
-    Logger().debug("Running poll_missing_tolids")
-    Logger().debug("Running poll_missing_tolids")
+    #Logger().debug("Running poll_missing_tolids")
     dtol.query_awaiting_tolids()
     return True
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
 def poll_expired_viewlocks(self):
-    Logger().debug("Running poll_expired_viewlocks")
-    Logger().debug("Running poll_expired_viewlocks")
+    #Logger().debug("Running poll_expired_viewlocks")
     ViewLock().remove_expired_locks()
     return True
 
 
 @app.task(bind=True,  base=CopoBaseClassForTask)
 def process_tol_validations(self):
-    Logger().debug("Running process_tol_validations")
-    Logger().debug("Running process_tol_validations")
+    #Logger().debug("Running process_tol_validations")
     ProcessValidationQueue().process_validation_queue()
     return True
 
@@ -139,30 +131,31 @@ def process_tol_validations(self):
 @app.task(bind=True,   base=CopoBaseClassForTask)
 @only_one(key="pending_file_transfers", timeout=2)
 def process_pending_file_transfers(self):
-    Logger().debug("Running process_pending_file_transfers")
-    Logger().debug("Running process_pending_file_transfers")
+    #Logger().debug("Running process_pending_file_transfers")
     tx.process_pending_file_transfers()
     return True
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
 def check_for_stuck_transfers(self):
-    Logger().debug("Running check_for_stuck_transfers")
-    Logger().debug("Running check_for_stuck_transfers")
+    #Logger().debug("Running check_for_stuck_transfers")
     tx.check_for_stuck_transfers()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 def poll_asyn_ena_submission(self):
-    Logger().debug("Running poll_asyn_ena_submission")
-    Logger().debug("Running poll_asyn_ena_submission")
+    #Logger().debug("Running poll_asyn_ena_submission")
     dtol.poll_asyn_ena_submission()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
 def process_housekeeping(self):
-    Logger().debug("Running process_housekeeping")
-    Logger().debug("Running process_housekeeping")
+    #Logger().debug("Running process_housekeeping")
     Logger().housekeeping_logfile()
     dtol_bioimage.housekeeping_bioimage_archive()
     return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+def download_ena_sample_checklists(self):
+    ena_checklist.download_ena_sample_checklists()
+    Logger().debug("download ena sample checklists")

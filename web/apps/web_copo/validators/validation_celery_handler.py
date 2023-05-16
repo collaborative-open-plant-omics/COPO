@@ -14,7 +14,7 @@ import pandas
 import inspect
 import pickle
 import math
-
+from exceptions_and_logging.logger import Logger
 
 class ProcessValidationQueue:
 
@@ -160,6 +160,7 @@ class ProcessValidationQueue:
                 ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
                 return False
             except Exception as e:
+                Logger().exception(e)
                 error_message = str(e).replace("<", "").replace(">", "")
                 msg = "Server Error - " + error_message
                 notify_frontend(data={"profile_id": self.profile_id}, msg=msg,
@@ -228,6 +229,7 @@ class ProcessValidationQueue:
                     return False
 
             except Exception as e:
+                Logger().exception(e)
                 error_message = str(e).replace("<", "").replace(">", "")
                 msg = "Server Error - " + error_message,
                 notify_frontend(data={"profile_id": self.profile_id}, msg=msg,

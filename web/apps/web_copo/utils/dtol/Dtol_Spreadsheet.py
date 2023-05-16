@@ -248,6 +248,7 @@ class DtolSpreadsheet:
 
 
         except Exception as e:
+            l.exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
@@ -304,6 +305,7 @@ class DtolSpreadsheet:
                             html_id="sample_info")
             return False
         except Exception as e:
+            l.exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="error",

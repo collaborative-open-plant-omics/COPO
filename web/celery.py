@@ -68,6 +68,10 @@ app.conf.beat_schedule = {
     'poll_asyn_ena_submission': {
         'task': 'web.apps.web_copo.tasks.poll_asyn_ena_submission',
         'schedule': timedelta(seconds=10)
+    },
+    'download_ena_sample_checklists':{
+        'task': 'web.apps.web_copo.tasks.download_ena_sample_checklists',
+        'schedule': timedelta(hours=24)
     }
 }
 

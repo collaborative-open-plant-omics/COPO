@@ -3,7 +3,7 @@ aioredis==1.3.1
 alabaster==0.7.12
 amqp==2.5.1
 appnope==0.1.0
-asgiref==3.2.10
+asgiref==3.3.4
 asn1crypto==0.24.0
 astroid==2.2.5
 async-timeout==4.0.2
@@ -42,7 +42,7 @@ defusedxml==0.6.0
 Deprecated==1.2.13
 dict-toolbox==2.2.0
 dict.sorted==1.0.0
-Django==3.2.18
+#Django==3.2.18
 django-allauth==0.46.0
 django-allow-cidr==0.3.1
 django-appconf==1.0.3
@@ -114,12 +114,12 @@ netaddr==0.8.0
 networkx==2.0
 notebook==6.0.1
 numexpr==2.8.1
-numpy==1.20.0
+#numpy==1.20.0
 oauthlib==2.0.6
 openpyxl==3.0.6
 ordered-set==3.1.1
 packaging==21.3
-pandas==1.2.2
+#pandas==1.2.2
 pandocfilters==1.4.2
 parso==0.5.1
 pbr==5.8.0
