@@ -90,6 +90,8 @@ manifest_patterns = [
             name="generate_manifest_template"),
     re_path(r'validate_common_value', ajax_handlers.validate_common_value,
             name="validate_common_value"),
+    re_path(r'get_checklists', ajax_handlers.get_checklists,
+            name="get_checklists"),
     re_path(r'index', TemplateView.as_view(template_name="manifests.html"), name='manifests'),
 ]
 

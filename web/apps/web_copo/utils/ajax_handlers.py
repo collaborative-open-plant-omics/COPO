@@ -36,7 +36,7 @@ import web.apps.web_copo.templatetags.html_tags as htags
 from dal import mongo_util as util
 from dal.copo_da import Profile
 from dal.copo_da import ProfileInfo, Submission, DataFile, Sample, Source, CopoGroup, Annotation, \
-    Repository, Person, ValidationQueue
+    Repository, Person, ValidationQueue, EnaChecklist
 from dal.figshare_da import Figshare
 from dal.orcid_da import Orcid
 from submission.ckanSubmission import CkanSubmit as ckan
@@ -2185,6 +2185,9 @@ def validate_common_value(request):
         return HttpResponse(json.dumps({'response': isCommonValueValid, 'error': error_message}))
 
 
+def get_checklists(request):
+    manifest_list = EnaChecklist().get_all_checklists()
+    return HttpResponse(json_util.dumps(manifest_list))
 def test_post(request):
     notify_frontend(data={"profile_id": ""}, msg="Invalid Taxon ID found", action="info",
                     html_id="dtol_sample_info")

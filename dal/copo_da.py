@@ -2772,6 +2772,12 @@ class EnaChecklist(DAComponent):
     def __init__(self, profile_id=None):
         super(EnaChecklist, self).__init__(profile_id, "enaChecklist")
 
+    def get_checklist(self, checklist_id):
+        return self.get_collection_handle().find_one({"_id": ObjectId(checklist_id)})
+
+    def get_all_checklists(self):
+        return cursor_to_list(self.get_collection_handle().find())
+
 class APIValidationReport(DAComponent):
     def __init__(self, profile_id=None):
         super(APIValidationReport, self).__init__(profile_id, "apiValidationReport")

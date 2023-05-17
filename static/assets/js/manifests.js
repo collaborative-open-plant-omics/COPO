@@ -560,7 +560,16 @@ function showWizardBasedOnManifestType(manifest_type) {
         $("#manifest-wizard").hide()
         $("#ena_checklist_form").show()
         $("#modal-body").html("Select a checklist to generate a manifest template")
-
+        // call backend to get list of checklists
+        $.ajax({
+            type: "GET",
+            url: "copo/get_checklists/",
+            dataType: "json",
+        }).done(function (data) {
+            for(let i = 0; i < data.length; i++) {
+                $("#checklist_dd").append("<option title='" + data[i].description + "' value='" + data[i].path + "'>" + data[i].name + "</option>")
+            }
+        })
     } else {
         $("#ena_checklist_form").hide()
         $("#manifest-wizard").show()
