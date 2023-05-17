@@ -147,8 +147,9 @@
             {{ form | crispy }}
             {{ formset.management_form }}
             <table>
-                {% for form in formset %}
-                {{ form }}
+                {{ formset.management_form |crispy }}
+                {% for f in formset %}
+                {% crispy f %}
                 {% endfor %}
             </table>
 

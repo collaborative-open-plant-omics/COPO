@@ -1,5 +1,6 @@
 from django import forms
-
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout,  Row, Column
 
 class AssemblyForm(forms.Form):
 
@@ -98,6 +99,16 @@ class AnnotationFilesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AnnotationFilesForm, self).__init__(*args, **kwargs)
         self.fields['type'].initial = None
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('file', css_class='form-group col-md-8 mb-0'),
+                Column('type', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            )
+        )
+
     file = forms.CharField(label="File", required=True, widget=forms.TextInput(attrs={'placeholder': 'file name'}))
     type = forms.ChoiceField(label="TYPE", required=True,
                                      choices=[('','None'),('gff', 'gff'), ('tab', 'tab'),
