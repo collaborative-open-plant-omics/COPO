@@ -33,12 +33,12 @@ $(document).ready(function () {
             // show something on the info div
             // check info div is visible
             $("#" + d.html_id).removeClass("alert-danger").addClass("alert-info")
-            $("#" + d.html_id).html(d.message)
+            //$("#" + d.html_id).html(d.message)
             //$("#spinner").fadeOut()
         } else if (d.action === "error") {
             // check info div is visible
             $("#" + d.html_id).removeClass("alert-info").addClass("alert-danger")
-            $("#" + d.html_id).html(d.message)
+            //$("#" + d.html_id).html(d.message)
             //$("#spinner").fadeOut()
         } 
     }

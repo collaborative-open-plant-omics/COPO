@@ -22,13 +22,13 @@ $(document).ready(function () {
     }
     s3socket.onmessage = function (e) {
         d = JSON.parse(e.data)
-        if (!d && $("#" + d.html_id).is(":visible")) {
+        if (!d && !$("#" + d.html_id).is(":hidden")) {
             $("#" + d.html_id).fadeOut("50")
         }
-        else if (d && d.message && !$("#" + d.html_id).is(":visible")) {
+        else if (d && d.message && $("#" + d.html_id).is(":hidden")) {
             $("#" + d.html_id).fadeIn("50")
         }          
-        $("#" + d.html_id).html(d.message)
+        //$("#" + d.html_id).html(d.message)
         if (d.action === "info") {
             // show something on the info div
             // check info div is visible

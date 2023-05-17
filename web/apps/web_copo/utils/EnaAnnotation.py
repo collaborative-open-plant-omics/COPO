@@ -20,7 +20,6 @@ from pymongo import ReturnDocument
 import web.apps.web_copo.utils.FileTransferUtils as tx
 import xml.etree.ElementTree as ET
 import requests
-from xml.dom import minidom
 from exceptions_and_logging import logger
 import json
 from bson import ObjectId
@@ -29,22 +28,35 @@ l = logger.Logger("exceptions_and_logging/logs")
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 ena_v2_service_async = resolve_env.get_env("ENA_V2_SERVICE_ASYNC")
-session = requests.Session()
-session.auth = (user_token, pass_word)
 
-def validate_annotation(form, profile_id):
+
+def validate_annotation(form_data,formset, profile_id):
     request = ThreadLocal.get_current_request()
     bucket_name = str(request.user.id) + "_" + request.user.username
     username = request.user.username
 
-    form["profile_id"] = profile_id  
+    form_data["profile_id"] = profile_id  
     s3obj = s3()
     dt = data_utils.get_datetime()
     files = []
     file_ids = []
-    file_names = form["files"]
-    if file_names:
-        files = file_names.split(",")
+    file_types = {}
+
+    for f in formset:
+        formset_data = f.cleaned_data
+        f_name = formset_data.get("file","").strip()   
+        if f_name:
+            if f_name not in files:
+                if formset_data["type"] == "gff":
+                    if not f_name.endswith(".gff"):
+                        return {"error": f'File {f_name} should be ended with .gff'}
+                files.append( f_name)
+                file_types[f_name] = formset_data["type"]
+            else:
+                return {"error": f'File {f_name} is duplicated, please make sure file names are unique'}
+            
+    if len(files) == 0:
+        return {"error": 'At least one annotation file is required'}
 
     if s3obj.check_for_s3_bucket(bucket_name):
         # get filenames from manifest
@@ -95,13 +107,15 @@ def validate_annotation(form, profile_id):
         df["file_id"] = "NA"
         df["file_hash"] = s3_file_etags[f_name]
         df["deleted"] = data_utils.get_not_deleted_flag()
+        df["date_created"] = dt
+        df["type"] = file_types[f_name]
         inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
                                                                             {"$set": df}, upsert=True,
                                                                             return_document=ReturnDocument.AFTER)        
         tx.make_transfer_record(file_id=str(inserted["_id"]), submission_id=str(sub_id))
         file_ids.append(str(inserted["_id"]))
-    form["files"] = file_ids
-    annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form)    
+    form_data["files"] = file_ids
+    annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form_data)    
 
     #schedule annotation submission in SubmisisonCollection
 
@@ -168,7 +182,7 @@ def build_analysis_dom(seq_annotation, sub):
             if file:
                 file_elm = ET.SubElement(files, "FILE")
                 file_elm.set("filename", f'{str(sub["_id"])}/reads/{file["file_name"]}')
-                file_elm.set("filetype", "tab")
+                file_elm.set("filetype", file["type"])
                 file_elm.set("checksum_method","MD5")
                 file_elm.set("checksum", file["file_hash"])
 
@@ -192,35 +206,37 @@ def submit_ena_dtol_v2(submission_dom, analysis_dom, sub, seq_annotation):
     l.debug(xml_str)
     files = {'file': xml_str}
 
-    try:
-        response = session.post(ena_v2_service_async, data={},files = files)
-        receipt = response.text
-        l.log("ENA RECEIPT " + receipt)
-        print(receipt)
-        if response.status_code == requests.codes.ok:
-            #receipt = subprocess.check_output(curl_cmd, shell=True)
-            return handle_async_receipt(receipt, sub, seq_annotation )
-        else:
-            l.log("General Error " + requests.status_codes)
-            message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + ena_v2_service_async
+    with requests.Session() as session:    
+        session.auth = (user_token, pass_word)    
+        try:
+            response = session.post(ena_v2_service_async, data={},files = files)
+            receipt = response.text
+            l.log("ENA RECEIPT " + receipt)
+            print(receipt)
+            if response.status_code == requests.codes.ok:
+                #receipt = subprocess.check_output(curl_cmd, shell=True)
+                return handle_async_receipt(receipt, sub, seq_annotation )
+            else:
+                l.log("General Error " + requests.status_codes)
+                message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + ena_v2_service_async
+                ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
+                                html_id="annotation_info")
+                reset_seq_annotation_submission_status(sub["_id"])
+        except ET.ParseError as e:
+            l.exception(e)
+            message = " Unrecognized response from ENA - " + str(
+                receipt) + " Please try again later, if it persists contact admins"
             ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
                             html_id="annotation_info")
             reset_seq_annotation_submission_status(sub["_id"])
-    except ET.ParseError as e:
-        l.exception(e)
-        message = " Unrecognized response from ENA - " + str(
-            receipt) + " Please try again later, if it persists contact admins"
-        ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
-                        html_id="annotation_info")
-        reset_seq_annotation_submission_status(sub["_id"])
-        return False
-    except Exception as e:
-        l.exception(e)
-        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + ena_v2_service_async
-        ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
-                        html_id="annotation_info")
-        reset_seq_annotation_submission_status(sub["_id"])
-        return False
+            return False
+        except Exception as e:
+            l.exception(e)
+            message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + ena_v2_service_async
+            ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
+                            html_id="annotation_info")
+            reset_seq_annotation_submission_status(sub["_id"])
+            return False
 
 
 def handle_async_receipt(receipt, sub, seq_annotation):
@@ -253,52 +269,54 @@ def process_seq_annotation_pending_submission():
 def poll_asyn_seq_annotation_submission_receipt():
     submissions = Submission().get_async_seq_annotation_submission()
 
-    for submission in submissions:
-        for sub in submission["seq_annotation_submission"]:
-            accessions = ""
-            response = session.get(sub["href"])
-            if response.status_code == requests.codes.accepted:
-                continue
-            elif response.status_code == requests.codes.ok:
-                l.log("ENA RECEIPT " + response.text)
-                try:
-                    tree = ET.fromstring(response.text)
-                    accessions = handle_submit_receipt(  submission["_id"], tree, sub["id"])
-                except ET.ParseError as e:
-                    l.log("Unrecognized response from ENA " + str(e))
-                    message = " Unrecognized response from ENA - " + str(
-                        response.content) + " Please try again later, if it persists contact admins"
-                    ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                    html_id="annotation_info")
+    with requests.Session() as session:
+        session.auth = (user_token, pass_word)    
+        for submission in submissions:
+            for seq_annotation_sub in submission["seq_annotation_submission"]:
+                accessions = ""
+                response = session.get(seq_annotation_sub["href"])
+                if response.status_code == requests.codes.accepted:
                     continue
-                except Exception as e:
-                    l.exception(e)
-                    message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + sub["href"]
-                    ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                    html_id="annotation_info")
-                    continue
+                elif response.status_code == requests.codes.ok:
+                    l.log("ENA RECEIPT " + response.text)
+                    try:
+                        tree = ET.fromstring(response.text)
+                        accessions = handle_submit_receipt(  submission, tree, seq_annotation_sub["id"])
+                    except ET.ParseError as e:
+                        l.log("Unrecognized response from ENA " + str(e))
+                        message = " Unrecognized response from ENA - " + str(
+                            response.content) + " Please try again later, if it persists contact admins"
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
+                                        html_id="annotation_info")
+                        continue
+                    except Exception as e:
+                        l.exception(e)
+                        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + seq_annotation_sub["href"]
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
+                                        html_id="annotation_info")
+                        continue
 
-                if not accessions:
-                    ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="Error creating sample - no accessions found",
-                                    action="info",
-                                    html_id="annotation_info")
-                    continue
-                elif accessions["status"] == "ok":
-                    msg = "Last Sequence Annotation Submitted:  - Seq Annotation Access: " + ','.join(str(x["accession"]) for x in accessions["accession"])   # + " - Biosample ID: " + accessions["biosample_accession"]
-                    ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
-                                    html_id="annotation_info")
+                    if not accessions:
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="Error creating sample - no accessions found",
+                                        action="info",
+                                        html_id="annotation_info")
+                        continue
+                    elif accessions["status"] == "ok":
+                        msg = "Last Sequence Annotation Submitted:  - Seq Annotation Access: " + ','.join(str(x["accession"]) for x in accessions["accession"])   # + " - Biosample ID: " + accessions["biosample_accession"]
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
+                                        html_id="annotation_info")
 
 
-                else:
-                    msg = "Sequence Annotation Submission Rejected: <p>" + accessions["msg"] + "</p>"
-                    ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
-                                    html_id="annotation_info")
-                    Submission().update_seq_annotation_submission(sub_id=submission["_id"], submission_id=sub["id"])
+                    else:
+                        msg = "Sequence Annotation Submission Rejected: <p>" + accessions["msg"] + "</p>"
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="error",
+                                        html_id="annotation_info")
+                        Submission().update_seq_annotation_submission(sub_id=str(submission["_id"]), submission_id=seq_annotation_sub["id"])
 
-                ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
-                            html_id="annotation_info")
+                    #ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
+                    #            html_id="annotation_info")
 
-def handle_submit_receipt( sub_id, tree, submission_id):
+def handle_submit_receipt( sub, tree, seq_annotation_sub_id):
     success_status = tree.get('success')
     if success_status == 'false':
         msg = ""
@@ -309,13 +327,15 @@ def handle_submit_receipt( sub_id, tree, submission_id):
             msg = "Undefined error"
         status = {"status": "error", "msg": msg}
         # print(status)
-        Submission().update_seq_annotation_submission_error(sub_id, submission_id, msg)
+        ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=msg, action="error",
+            html_id="annotation_info")
+        Submission().update_seq_annotation_submission_error(str(sub["_id"]), seq_annotation_sub_id, msg)
         l.error(msg)
         return status
     else:
         # retrieve id and update record
         # return get_biosampleId(receipt, sample_id, collection_id)
-        return get_accession(tree, sub_id, submission_id)
+        return get_accession(tree, sub["_id"], seq_annotation_sub_id)
     
 def get_accession(tree, sub_id, submission_id):
     '''parsing ENA sample bundle accessions from receipt and
@@ -331,7 +351,7 @@ def get_accession(tree, sub_id, submission_id):
                                   
             Sequnece_annotation().add_accession(seq_annotation_id, accession)
             if accession not in annotation_accession:
-                submission_accession.append({"alais": seq_annotation_id, "accession": accession})
+                submission_accession.append({"alias": seq_annotation_id, "accession": accession})
     if submission_accession:
         Submission().add_annotation_accessions(sub_id, submission_accession)
         Submission().update_seq_annotation_submission(sub_id, submission_id=submission_id)

@@ -145,6 +145,13 @@
             <fieldset class="ena_annotation_form">      
 
             {{ form | crispy }}
+            {{ formset.management_form }}
+            <table>
+                {% for form in formset %}
+                {{ form }}
+                {% endfor %}
+            </table>
+
             <input id="submit_annotation_button" type="submit" value="Submit Annotation"  onclick="doPost()"
                    class="ui blue button" ">
             </fieldset>

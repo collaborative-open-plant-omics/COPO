@@ -92,5 +92,15 @@ class AnnotationForm(forms.Form):
     description = forms.CharField(label="DESCRIPTION", required=False,
                                   widget=forms.Textarea(attrs={'placeholder': 'Free text description of the sequence annotation'
                                                                               'annotation'}))    
-    files = forms.CharField(label="FILES", required=True, widget=forms.Textarea(attrs={'placeholder': 'Comma separated list of file names'}))
+    #files = forms.CharField(label="FILES", required=True, widget=forms.Textarea(attrs={'placeholder': 'Comma separated list of file names'}))
+    
+class AnnotationFilesForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(AnnotationFilesForm, self).__init__(*args, **kwargs)
+        self.fields['type'].initial = None
+    file = forms.CharField(label="File", required=True, widget=forms.TextInput(attrs={'placeholder': 'file name'}))
+    type = forms.ChoiceField(label="TYPE", required=True,
+                                     choices=[('','None'),('gff', 'gff'), ('tab', 'tab'),
+                                              ("fasta", "fasta"), ("bed", "bed")])
+
  
