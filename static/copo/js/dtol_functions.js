@@ -309,11 +309,26 @@ function row_select(ev) {
     var profile_id = $(row).find("td").data("profile_id")
     $("#profile_id").val(profile_id)
     $("#spinner").show()
-    sample_table.ajax.reload()
+    sample_table.ajax.reload(function () { 
+        if (sample_table.data().length == 0) {
+            var header = $("<h4/>", {
+                html: "No Samples Found"
+            })
+            $("#sample_panel").find(".labelling").empty().append(header)
+            $('#profile_samples_wrapper').hide()
+        } else {
+            var header = $("<h4/>", {
+                html: "Samples"
+            })
+            $("#sample_panel").find(".labelling").empty().append(header)
+            $('#profile_samples_wrapper').show()
+        }
+    })
+
     $("#spinner").fadeOut("fast")
 /*
     $.ajax({
-        url: "/copo/get_samples_for_profile",
+        url: "/copo/update_pending_samples_table",
         data: d,
         method: "GET",
         dataType: "json"

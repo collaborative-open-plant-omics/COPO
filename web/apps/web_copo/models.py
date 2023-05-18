@@ -10,6 +10,8 @@ from django_tools.middlewares.ThreadLocal import get_current_user
 from web.settings.base import VIEWLOCK_TIMEOUT
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
+from asgiref.sync import sync_to_async
+
 
 class UserDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -133,9 +135,10 @@ class ViewLock(models.Model):
                 # view is locked
                 return True
 
+    @sync_to_async
     def remove_expired_locks(self):
         time_threshold = timezone.now() - VIEWLOCK_TIMEOUT
-        locks = ViewLock.objects.filter(timeLocked__lte=time_threshold)
+        locks =  ViewLock.objects.filter(timeLocked__lte=time_threshold)
         for l in locks:
             l.delete()
         print(locks)
