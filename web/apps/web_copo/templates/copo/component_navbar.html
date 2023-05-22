@@ -16,6 +16,10 @@
            id="repository_url"/>
     <input type="hidden" value="{% url 'copo:groups' %}" name="group_url"
            id="group_url"/>
+    <input type="hidden" value="{% url 'copo:copo_seq_annotation' profile_id=profile_id %}" name="seqannotation_url"
+           id="publication_url"/>
+    <input type="hidden" value="{% url 'copo:copo_assembly' profile_id=profile_id %}" name="assembly_url"
+           id="assembly_url"/>
 </div>
 
 <div class="row" style="margin-bottom:40px;">

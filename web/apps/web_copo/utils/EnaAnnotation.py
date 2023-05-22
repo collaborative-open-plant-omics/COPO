@@ -115,6 +115,7 @@ def validate_annotation(form_data,formset, profile_id):
         tx.make_transfer_record(file_id=str(inserted["_id"]), submission_id=str(sub_id))
         file_ids.append(str(inserted["_id"]))
     form_data["files"] = file_ids
+    form_data["filenames"] = files
     annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form_data)    
 
     #schedule annotation submission in SubmisisonCollection
@@ -318,8 +319,13 @@ def poll_asyn_seq_annotation_submission_receipt():
 
 def handle_submit_receipt( sub, tree, seq_annotation_sub_id):
     success_status = tree.get('success')
+    seq_annotation_ids = []
     if success_status == 'false':
         msg = ""
+        for child in tree.iter():
+            if child.tag == 'ANALYSIS':
+                seq_annotation_ids.append(child.get('alias'))
+            
         error_blocks = tree.find('MESSAGES').findall('ERROR')
         for error in error_blocks:
             msg += error.text + "<br>"
@@ -330,6 +336,7 @@ def handle_submit_receipt( sub, tree, seq_annotation_sub_id):
         ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=msg, action="error",
             html_id="annotation_info")
         Submission().update_seq_annotation_submission_error(str(sub["_id"]), seq_annotation_sub_id, msg)
+        Sequnece_annotation().update_seq_annotation_error(seq_annotation_ids, msg)
         l.error(msg)
         return status
     else:
@@ -380,3 +387,18 @@ def update_seq_annotation_submission_pending():
 
     if all_uploaded_sub_ids:
         Submission().update_seq_annotation_submission_pending(all_uploaded_sub_ids)
+
+def submit_seq_annotation(profile_id, target_ids,  target_id):
+    sub_id = None
+    if profile_id:
+        submissions = Submission().get_records_by_field("profile_id", profile_id)
+        if submissions and len(submissions) > 0:
+            sub_id = str(submissions[0]["_id"])
+            if target_ids:
+                return Submission().make_seq_annotation_submission_uploading(sub_id, target_ids)
+            elif target_id:
+                return Submission().make_seq_annotation_submission_uploading(sub_id, [target_id])
+
+    return dict(status='error', message="System error. Sequence annotation submission has not been scheduled! Please contact system administrator.")        
+
+    

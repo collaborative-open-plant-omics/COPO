@@ -42,7 +42,10 @@
 
     <input type="hidden" id="update_counts_url" value="{% url 'copo:update_counts' %}"/>
     <input type="hidden" id="get_source_count" value="{% url 'copo:get_source_count' %}"/>
-
+    <input type="hidden" value="{% url 'copo:copo_seq_annotation' profile_id=p_id %}" name="seqannotation_url"
+    id="seqannotation_url"/>
+    <input type="hidden" value="{% url 'copo:copo_assembly' profile_id=p_id %}" name="assembly_url"
+    id="assembly_url"/>
     <div class="wrapper">
 
         <div class="pricing-table group">

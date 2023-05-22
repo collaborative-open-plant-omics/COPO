@@ -103,7 +103,9 @@ class ProfileInfo:
                         num_sample="sample",
                         num_submission="submission",
                         num_annotation="annotation",
-                        num_temp="metadata_template"
+                        num_temp="metadata_template",
+                        num_seqannotation="seqannotation",
+                        num_assembly="assembly"
                         )
 
         status = dict()
@@ -1551,7 +1553,7 @@ class Submission(DAComponent):
 
         return super(Submission, self).save_record(auto_fields, **kwargs)
 
-    def validate_and_delete(self, target_id=str()):
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
         """
         function deletes a submission record, but first checks for dependencies
         :param target_id:
@@ -2030,12 +2032,22 @@ class Submission(DAComponent):
         # todo if it's decided to have multiple assemblies per profile add accessions.annotation.sample to be able to cross
         # reference annotation and sample
         self.get_collection_handle().update_one(
-            {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}})
+            {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}, "$pull" : {"seq_annotation_submission_error": {"seq_annotation_id": accession[0]["alias"]}}}) 
         
-    def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_id ):
+    def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_ids ):
         sub_handle = self.get_collection_handle()
-        sub_handle.update_one({"_id": sub_id}, {"$set": {"seq_annotation_status": "uploading", "date_modified":
-                                                       data_utils.get_datetime()}, "$push": {"seq_annotations": seq_annotation_id }})
+        submission = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"seq_annotation_status": 1})
+
+        if not submission:
+            return dict(status='error', message="System Error! Please contact the administrator.")
+
+        if submission["seq_annotation_status"] == "pending":
+            return dict(status='error', message="Sequence annotation submission is in process, please try again later!")
+        
+        sub_handle.update_one({"_id": ObjectId(sub_id)}, {"$set": {"seq_annotation_status": "uploading", "date_modified":
+                                                       data_utils.get_datetime()}, "$addToSet": {"seq_annotations": {"$each" : seq_annotation_ids} }})
+        return dict(status='success', message="Sequence annotation submission has been scheduled!")
+
 
     def update_seq_annotation_submission(self, sub_id, seq_annotation_id=[], submission_id=[]):
         # when dtol sample has been processed, pull id from submission and check if there are remaining
@@ -2103,13 +2115,13 @@ class Submission(DAComponent):
     def update_seq_annotation_submission_error(self, sub_id, seq_annotation_submission_id, error):
 
         sub_handle = self.get_collection_handle()
-        sub = sub_handle.find_one({"_id": ObjectId(sub_id), "seq_annotation_submission.id": seq_annotation_submission_id}, {"seq_annotation_submission.$.seq_annotation_id": 1})
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id), "seq_annotation_submission.id": seq_annotation_submission_id}, {"seq_annotation_submission.seq_annotation_id": 1})
         seq_annotation_id = sub["seq_annotation_submission"][0]["seq_annotation_id"]
         for id in seq_annotation_id:    
             count = sub_handle.find({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id}).count()
             if count == 0:
                 sub_handle.update_one({"_id": ObjectId(sub_id)},
-                            {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission_error": {"seq_annotion_id": id, "error": error}}})
+                            {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission_error": {"seq_annotation_id": id, "error": error}}})
             else:
                 sub_handle.update_one({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id},
                             {"$set": {"date_modified": datetime.now(), "seq_annotation_submission_error.$.error": error}})
@@ -2593,7 +2605,7 @@ class Repository(DAComponent):
         doc = self.get_collection_handle().remove({"_id": ObjectId(repo_id)})
         return doc
 
-    def validate_and_delete(self, target_id=str()):
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
         """
         function deletes repository only if there are no dependent records
         :param target_id:
@@ -2879,7 +2891,23 @@ class Sequnece_annotation(DAComponent):
 
     def add_accession(self, id, accession):
         self.get_collection_handle().update({"_id": ObjectId(id)},
-                                                 {"$set": {"accession": accession}})
+                                                 {"$set": {"accession": accession, "error": []}})
+    def update_seq_annotation_error(self, seq_annotation_ids, msg):
+        seq_annotation_obj_ids = [ ObjectId(id) for id in seq_annotation_ids ]
+        self.get_collection_handle().update_many({"_id": {"$in":   seq_annotation_obj_ids}},
+                                            {"$set": {"error":  msg}})
+        
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
+        seq_annotation_obj_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
+        if result:
+           return dict(status='error', message="One or more sequence annotation record/s have been accessed!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   seq_annotation_obj_ids}})
+        return dict(status='success', message="Sequence annotation record/s have been deleted!")
+
+
+
 class EnaFileTransfer(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "enafileTransfer")                                        

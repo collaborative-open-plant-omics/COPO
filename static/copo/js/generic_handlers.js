@@ -2477,7 +2477,7 @@ function get_profile_components() {
         },
         {
             component: 'person',
-            title: 'People',
+            title: 'Sequence Annotations',
             iconClass: "fa fa-users",
             semanticIcon: "users",
             countsKey: "num_person",
@@ -2489,7 +2489,23 @@ function get_profile_components() {
             profile_component: true,
             recordActions: ["add_record_all", "edit_record_single"],
             visibleColumns: 5
-        },/*
+        },        
+        {
+            component: 'seqannotation',
+            title: 'Sequence Annotations',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_seqannotation",
+            buttons: [],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "data_color",
+            color: "yellow",
+            tableID: 'seqannotation_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_annotation_multi"],
+            visibleColumns: 5
+        },
+        /*
         {
             component: 'annotation',
             title: 'Generic Annotations',
@@ -2518,6 +2534,21 @@ function get_profile_components() {
             recordActions: ["delete_record_multi"],
             visibleColumns: 10000
         }*/
+        {
+            component: 'assembly',
+            title: 'Assembly',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_assembly",
+            buttons: [],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "assembly_color",
+            color: "green",
+            tableID: 'assembly_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_assembly_multi"],
+            visibleColumns: 5
+        }
     ];
 
     return componentProperties

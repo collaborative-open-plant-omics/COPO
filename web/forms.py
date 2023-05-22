@@ -109,7 +109,7 @@ class AnnotationFilesForm(forms.Form):
             )
         )
 
-    file = forms.CharField(label="File", required=True, widget=forms.TextInput(attrs={'placeholder': 'file name'}))
+    file = forms.CharField(label="FILE", required=True, widget=forms.TextInput(attrs={'placeholder': 'file name'}))
     type = forms.ChoiceField(label="TYPE", required=True,
                                      choices=[('','None'),('gff', 'gff'), ('tab', 'tab'),
                                               ("fasta", "fasta"), ("bed", "bed")])

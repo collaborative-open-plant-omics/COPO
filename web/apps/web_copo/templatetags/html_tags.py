@@ -453,8 +453,8 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     else:
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
-            if (x.get("show_in_table", True) and ("biosample" in x.get("specifications", []) or "isasample" in x.get(
-                    "specifications", []))):
+            if (x.get("show_in_table", True) and (component != 'sample' or component == 'sample' and ("biosample" in x.get("specifications", []) or "isasample" in x.get(
+                    "specifications", [])))):
                 schema.append(x)
 
     # build db column projection
@@ -758,9 +758,12 @@ def generate_copo_table_data(profile_id=str(), component=str()):
                             row_btns=[button_templates['info_row'], button_templates['describe_row'],
                                       button_templates['delete_row']],
                             global_btns=[button_templates['describe_global'],
-                                         button_templates['undescribe_global']])
+                                         button_templates['undescribe_global']]),
+                        assembly=common_btn_dict,
+                        seqannotation=common_btn_dict
                         )
 
+    
     action_buttons = dict(row_btns=buttons_dict.get(component).get("row_btns"),
                           global_btns=buttons_dict.get(component).get("global_btns")
                           )

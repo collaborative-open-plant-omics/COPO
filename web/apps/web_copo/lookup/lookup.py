@@ -863,7 +863,19 @@ BUTTON_TEMPLATES = {
             "className": "copo-dt btn btn-danger",
             "iconClass": "fa fa-tags",
             "btnAction": "undescribe"
-        }
+        },
+        "submit_assembly_multi": {
+            "text": "Submit",
+            "className": "copo-dt btn btn-danger",
+            "iconClass": "fa fa-tags",
+            "btnAction": "submit_assembly"
+        },        
+        "submit_annotation_multi": {
+            "text": "Submit",
+            "className": "copo-dt btn btn-danger",
+            "iconClass": "fa fa-tags",
+            "btnAction": "submit_annotation"
+        },            
     }
 }
 REPO_NAME_LOOKUP = {

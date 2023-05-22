@@ -10,10 +10,11 @@ from dal import cursor_to_list_str
 import web.apps.web_copo.templatetags.html_tags as htags
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_da import Profile, Publication, Source, Person, Repository, Sample, Submission, DataFile, DAComponent, \
-    Annotation, Description, CGCore, MetadataTemplate
+    Annotation, Description, CGCore, MetadataTemplate, Assembly, Sequnece_annotation
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.schemas.utils.metadata_rater import MetadataRater
 from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.utils import EnaAnnotation, EnaAssembly
 
 
 class BrokerDA:
@@ -42,7 +43,9 @@ class BrokerDA:
             annotation=Annotation,
             cgcore=CGCore,
             metadata_template=MetadataTemplate,
-            repository=Repository
+            repository=Repository,
+            seqannotation=Sequnece_annotation,
+            assembly=Assembly
         )
 
         if self.component in da_dict:
@@ -203,7 +206,14 @@ class BrokerDA:
         if not callable(validate_delete_method):
             return self.context
 
-        return self.da_object.validate_and_delete(target_id=self.param_dict.get("target_id", str()))
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+        result = self.da_object.validate_and_delete(target_id=target_id, target_ids= target_ids)
+        if result.get("status", "") == "success":
+            self.context = self.broker_visuals.do_table_data()
+        self.context["action_feedback"] = result
+        return self.context
+
 
     def do_delete(self):
         target_ids = [ObjectId(i) for i in self.param_dict.get("target_ids")]
@@ -417,6 +427,44 @@ class BrokerDA:
         return self.context
 
 
+    def do_submit_assembly(self):
+        """
+        function handles the delete of a record for those components
+        that have provided a way of first validating (dependencies checks etc.) this action
+        :return:
+        """
+
+        submit_assembly = getattr(self.da_object, "submit_assembly", None)
+
+        if submit_assembly is None:
+            return self.context
+
+        if not callable(submit_assembly):
+            return self.context
+
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+        return EnaAssembly.submit_assembly(target_id=target_id, target_ids= target_ids)
+    
+    def do_submit_annotation(self):
+        """
+        function handles the delete of a record for those components
+        that have provided a way of first validating (dependencies checks etc.) this action
+        :return:
+        """
+
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+
+        result = EnaAnnotation.submit_seq_annotation(self.profile_id, target_ids, target_id)
+        report_metadata = dict()
+        report_metadata["status"] = result.get("status","success")
+        report_metadata["message"] = result.get("message", "success")
+        self.context["action_feedback"] = report_metadata
+        return self.context
+
+
+
 class BrokerVisuals:
     def __init__(self, **kwargs):
         self.param_dict = kwargs
@@ -442,6 +490,8 @@ class BrokerVisuals:
                 htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             profile=(htags.generate_copo_profiles_data, dict(profiles=Profile().get_all_profiles())),
             submission=(htags.generate_submissions_records, dict(profile_id=self.profile_id, component=self.component)),
+            seqannotation=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
+            assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments
@@ -671,3 +721,5 @@ class BrokerVisuals:
         self.context["component_info"] = "welcome to " + self.component
 
         return self.context
+
+

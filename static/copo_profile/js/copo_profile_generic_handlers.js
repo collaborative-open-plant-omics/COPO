@@ -244,7 +244,39 @@ function get_copo_profile_components() {
             profile_component: true,
             recordActions: ["add_record_all", "edit_record_single"],
             visibleColumns: 5
-        },/*
+        },
+        {
+            component: 'assembly',
+            title: 'Assembly',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_assembly",
+            buttons: [],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "assembly_color",
+            color: "blue",
+            tableID: 'assembly_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single"],
+            visibleColumns: 5
+        },
+        {
+            component: 'seqannotation',
+            title: 'Sequence Annotation',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_seqannotation",
+            buttons: [],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "data_color",
+            color: "red",
+            tableID: 'seqannotation_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single"],
+            visibleColumns: 5
+        }               
+        
+        /*
         {
             component: 'annotation',
             title: 'Generic Annotations',
