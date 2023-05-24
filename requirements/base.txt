@@ -143,7 +143,7 @@ rauth==0.7.3
 rcssmin==1.0.6
 rdflib==4.2.1
 redis
-requests==2.20.0
+requests==2.31.0
 requests-oauthlib==0.7.0
 rjsmin==1.1.0
 rsa==3.4.2
