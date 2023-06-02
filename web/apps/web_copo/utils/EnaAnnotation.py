@@ -23,6 +23,7 @@ import requests
 from exceptions_and_logging import logger
 import json
 from bson import ObjectId
+import web.apps.web_copo.templatetags.html_tags as htags
 
 l = logger.Logger("exceptions_and_logging/logs") 
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
@@ -30,10 +31,9 @@ user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 ena_v2_service_async = resolve_env.get_env("ENA_V2_SERVICE_ASYNC")
 
 
-def validate_annotation(form_data,formset, profile_id):
+def validate_annotation(form_data,formset, profile_id, seq_annotation_id=None):
     request = ThreadLocal.get_current_request()
     bucket_name = str(request.user.id) + "_" + request.user.username
-    username = request.user.username
 
     form_data["profile_id"] = profile_id  
     s3obj = s3()
@@ -41,17 +41,19 @@ def validate_annotation(form_data,formset, profile_id):
     files = []
     file_ids = []
     file_types = {}
-
+    files_type_list = []
     for f in formset:
         formset_data = f.cleaned_data
         f_name = formset_data.get("file","").strip()   
         if f_name:
             if f_name not in files:
-                if formset_data["type"] == "gff":
+                type = formset_data.get("type", "")
+                if type == "gff":
                     if not f_name.endswith(".gff"):
                         return {"error": f'File {f_name} should be ended with .gff'}
                 files.append( f_name)
-                file_types[f_name] = formset_data["type"]
+                files_type_list.append(type)
+                file_types[f_name] = type
             else:
                 return {"error": f'File {f_name} is duplicated, please make sure file names are unique'}
             
@@ -98,10 +100,15 @@ def validate_annotation(form_data,formset, profile_id):
         sub_id = sub["_id"]   
 
     for f_name in files:
+        file_location = str(request.user.id) + "_" + request.user.username + "/" + f_name
+        df = DataFile().get_collection_handle().find_one({"file_location": file_location, "deleted": {"$ne": data_utils.get_deleted_flag()}})
+        if df and df["file_hash"] == s3_file_etags[f_name]:
+            file_ids.append(str(df["_id"]))
+            continue
+
         df = dict()
         df["file_name"] = f_name
         df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
-        file_location = join(settings.UPLOAD_PATH, username, f_name)
         df["file_location"] = file_location
         df["name"] = f_name
         df["file_id"] = "NA"
@@ -116,14 +123,29 @@ def validate_annotation(form_data,formset, profile_id):
         file_ids.append(str(inserted["_id"]))
     form_data["files"] = file_ids
     form_data["filenames"] = files
-    annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form_data)    
+    form_data["filetypes"] = files_type_list
+
+    
+    form_data.pop("id", None)
+    annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form_data, target_id=seq_annotation_id)    
+
+    '''
+    if seq_annotation_id:
+        form_data["seq_annotation_id"] = seq_annotation_id
+        form_data["date_modified"] = dt
+        annotation_rec = Sequnece_annotation().get_collection_handle().find_one_and_update({"_id": ObjectId(seq_annotation_id)},
+                                                                            {"$set": form_data},
+                                                                            return_document=ReturnDocument.AFTER)
+    else:
+        annotation_rec = Sequnece_annotation().save_record(auto_fields={},**form_data, target_id=seq_annotation_id)    
+    '''    
 
     #schedule annotation submission in SubmisisonCollection
+    Submission().make_seq_annotation_submission_uploading(sub_id, [str(annotation_rec["_id"])])
+    table_data = htags.generate_table_records(profile_id, "seqannotation", None)
+    return {"success": "Annotation submission has been scheduled, you will be notified when it is complete", "table_data": table_data, "component": "seqannotation"}
 
-    Submission().make_seq_annotation_submission_uploading(sub_id, str(annotation_rec["_id"]))
-    return {"success": "Annotation has been scheduled, you will be notified when it is complete"}
-
-def build_submission_dom(seq_annotation):
+def build_submission_dom(is_new=True):
     """
     <SUBMISSION_SET>
     <SUBMISSION>
@@ -136,7 +158,7 @@ def build_submission_dom(seq_annotation):
     </SUBMISSION_SET>
     """
     action_str = "ADD"
-    if seq_annotation.get("accessions",""):
+    if not is_new:
         action_str = "MODIFY"
     submission_set = ET.Element("SUBMISSION_SET")
     submission = ET.SubElement(submission_set, "SUBMISSION")
@@ -165,8 +187,8 @@ def build_analysis_dom(seq_annotation, sub):
 </ANALYSIS_SET>
     """
     if seq_annotation:
-        analysis_set = ET.Element("ANALYSIS_SET")
-        analysis = ET.SubElement(analysis_set, "ANALYSIS", alias=str(seq_annotation["_id"]))
+        #analysis_set = ET.Element("ANALYSIS_SET")
+        analysis = ET.Element("ANALYSIS", alias=str(seq_annotation["_id"]))
         ET.SubElement(analysis, "TITLE").text = seq_annotation["title"]
         ET.SubElement(analysis, "DESCRIPTION").text = seq_annotation["description"]
         ET.SubElement(analysis, "STUDY_REF").set("accession", seq_annotation["study"])
@@ -187,7 +209,7 @@ def build_analysis_dom(seq_annotation, sub):
                 file_elm.set("checksum_method","MD5")
                 file_elm.set("checksum", file["file_hash"])
 
-        return  analysis_set
+        return  analysis
 
 
 def reset_seq_annotation_submission_status(sub_id):
@@ -199,7 +221,7 @@ def reset_seq_annotation_submission_status(sub_id):
         status = "complete"
     Submission().get_collection_handle().update({"_id": sub_id}, {"$set": {"seq_annotation_status": status}})
 
-def submit_ena_dtol_v2(submission_dom, analysis_dom, sub, seq_annotation):
+def submit_ena_dtol_v2(submission_dom, analysis_dom, sub, seq_annotation_ids):
     webin = ET.Element("WEBIN")
     webin.append(submission_dom)
     webin.append(analysis_dom)
@@ -216,7 +238,7 @@ def submit_ena_dtol_v2(submission_dom, analysis_dom, sub, seq_annotation):
             print(receipt)
             if response.status_code == requests.codes.ok:
                 #receipt = subprocess.check_output(curl_cmd, shell=True)
-                return handle_async_receipt(receipt, sub, seq_annotation )
+                return handle_async_receipt(receipt, sub, seq_annotation_ids )
             else:
                 l.log("General Error " + requests.status_codes)
                 message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + ena_v2_service_async
@@ -240,11 +262,11 @@ def submit_ena_dtol_v2(submission_dom, analysis_dom, sub, seq_annotation):
             return False
 
 
-def handle_async_receipt(receipt, sub, seq_annotation):
+def handle_async_receipt(receipt, sub, seq_annotation_ids):
     result = json.loads(receipt)
     submission_id = result["submissionId"]
     href = result["_links"]["poll"]["href"]
-    return Submission().update_seq_annotation_submission_async(sub["_id"], href, [str(seq_annotation["_id"])], submission_id)
+    return Submission().update_seq_annotation_submission_async(sub["_id"], href, seq_annotation_ids, submission_id)
 
 
 def process_seq_annotation_pending_submission():
@@ -260,11 +282,32 @@ def process_seq_annotation_pending_submission():
                 action="info",
                 html_id="annotation_info")
         #sub_ids.append(sub["_id"])
+        analysis_set_dom_new = ET.Element("ANALYSIS_SET")
+        analysis_set_dom_edit = ET.Element("ANALYSIS_SET")
+        seq_annotation_id_new = []
+        seq_annotation_id_edit = []
         for seq_annotation_id in sub["seq_annotations"]:
             seq_annotation = Sequnece_annotation().get_record(seq_annotation_id)
-            submission_dom = build_submission_dom(seq_annotation)
+            if not seq_annotation:
+                l.log("Seq annotation not found " + seq_annotation_id)
+                message = " Seq annotation not found " + seq_annotation_id
+                ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
+                                html_id="annotation_info")                
+                continue
             analysis_dom = build_analysis_dom(seq_annotation, sub)
-            submit_ena_dtol_v2(submission_dom,  analysis_dom, sub, seq_annotation)
+            if seq_annotation.get("accession",""):
+                analysis_set_dom_edit.append(analysis_dom)
+                seq_annotation_id_edit.append(seq_annotation_id)
+            else:
+                analysis_set_dom_new.append(analysis_dom)
+                seq_annotation_id_new.append(seq_annotation_id)
+                    
+        if analysis_set_dom_new:
+            submission_dom = build_submission_dom(is_new=True)
+            submit_ena_dtol_v2(submission_dom,  analysis_set_dom_new, sub, seq_annotation_id_new)
+        if analysis_set_dom_edit:
+            submission_dom = build_submission_dom(is_new=False)
+            submit_ena_dtol_v2(submission_dom,  analysis_set_dom_edit, sub, seq_annotation_id_edit)
 
 
 def poll_asyn_seq_annotation_submission_receipt():
@@ -298,7 +341,7 @@ def poll_asyn_seq_annotation_submission_receipt():
                         continue
 
                     if not accessions:
-                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="Error creating sample - no accessions found",
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg="Error submitting annotation - no accessions found",
                                         action="info",
                                         html_id="annotation_info")
                         continue
@@ -306,7 +349,6 @@ def poll_asyn_seq_annotation_submission_receipt():
                         msg = "Last Sequence Annotation Submitted:  - Seq Annotation Access: " + ','.join(str(x["accession"]) for x in accessions["accession"])   # + " - Biosample ID: " + accessions["biosample_accession"]
                         ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
                                         html_id="annotation_info")
-
 
                     else:
                         msg = "Sequence Annotation Submission Rejected: <p>" + accessions["msg"] + "</p>"
@@ -335,8 +377,8 @@ def handle_submit_receipt( sub, tree, seq_annotation_sub_id):
         # print(status)
         ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=msg, action="error",
             html_id="annotation_info")
-        Submission().update_seq_annotation_submission_error(str(sub["_id"]), seq_annotation_sub_id, msg)
-        Sequnece_annotation().update_seq_annotation_error(seq_annotation_ids, msg)
+        #Submission().update_seq_annotation_submission_error(str(sub["_id"]), seq_annotation_sub_id, msg)
+        Sequnece_annotation().update_seq_annotation_error(seq_annotation_ids, seq_annotation_sub_id, msg)
         l.error(msg)
         return status
     else:

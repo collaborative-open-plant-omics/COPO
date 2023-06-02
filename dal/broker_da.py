@@ -14,7 +14,7 @@ from dal.copo_da import Profile, Publication, Source, Person, Repository, Sample
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.schemas.utils.metadata_rater import MetadataRater
 from web.apps.web_copo.schemas.utils import data_utils
-from web.apps.web_copo.utils import EnaAnnotation, EnaAssembly
+from web.apps.web_copo.utils import EnaAnnotation, EnaAssembly, EnaSpreadsheetParse
 
 
 class BrokerDA:
@@ -456,14 +456,52 @@ class BrokerDA:
         target_id = self.param_dict.get("target_id", str())
         target_ids  = self.param_dict.get("target_ids", [])
 
-        result = EnaAnnotation.submit_seq_annotation(self.profile_id, target_ids, target_id)
+        result = EnaAnnotation.submit_seq_annotation(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
         report_metadata = dict()
         report_metadata["status"] = result.get("status","success")
         report_metadata["message"] = result.get("message", "success")
         self.context["action_feedback"] = report_metadata
+
         return self.context
 
+    def do_submit_read(self):
+        """
+        function handles the delete of a record for those components
+        that have provided a way of first validating (dependencies checks etc.) this action
+        :return:
+        """
 
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+
+        result = EnaAnnotation.submit_seq_annotation(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        report_metadata = dict()
+        report_metadata["status"] = result.get("status","success")
+        report_metadata["message"] = result.get("message", "success")
+        self.context["action_feedback"] = report_metadata       
+        return self.context
+
+    def do_delete_read(self):
+        """
+        function handles the delete of a record for those components
+        that have provided a way of first validating (dependencies checks etc.) this action
+        :return:
+        """
+
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+
+        result = EnaSpreadsheetParse.delete_ena_records(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        report_metadata = dict()
+        report_metadata["status"] = result.get("status","success")
+        report_metadata["message"] = result.get("message", "success")
+
+        if result.get("status","success") == "success":
+            self.context["table_data"] = htags.generate_table_records(profile_id=self.profile_id, component="sample")
+            self.context["component"] = "read"
+
+        self.context["action_feedback"] = report_metadata
+        return self.context
 
 class BrokerVisuals:
     def __init__(self, **kwargs):
@@ -492,6 +530,7 @@ class BrokerVisuals:
             submission=(htags.generate_submissions_records, dict(profile_id=self.profile_id, component=self.component)),
             seqannotation=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
+            read = (htags.generate_table_records, dict(profile_id=self.profile_id, component="sample")),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments
@@ -613,7 +652,7 @@ class BrokerVisuals:
 
         if data_source:
             option_values = COPOLookup(accession=[target_id],
-                                       data_source=data_source).broker_component_search()['result']
+                                       data_source=data_source, profile_id=self.profile_id).broker_component_search()['result']
 
         self.context["option_values"] = option_values
         self.context["created_record_id"] = target_id

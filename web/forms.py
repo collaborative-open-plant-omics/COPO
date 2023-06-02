@@ -4,11 +4,12 @@ from crispy_forms.layout import Layout,  Row, Column
 
 class AssemblyForm(forms.Form):
 
-    def __init__(self, *args, sample_accession=None, study_accession=None, **kwargs):
-        super(AssemblyForm, self).__init__(*args, **kwargs)
-        if study_accession:
+    def __init__(self, *args, sample_accession=None, study_accession=None, assembly=None, **kwargs):
+        super(AssemblyForm, self).__init__(initial=assembly, *args, **kwargs)
+
+        self.fields['study'].widget.attrs['readonly'] = True
+        if study_accession and not assembly:
             self.fields['study'].initial = study_accession
-            self.fields['study'].widget.attrs['readonly'] = True
         if sample_accession:
             tuplelist = []
             for x in sample_accession:
@@ -25,6 +26,13 @@ class AssemblyForm(forms.Form):
             # self.fields['sample'].hidden = True
             # self.fields['sample'].label = ''
             # self.fields['sample'].required = False
+
+        if assembly:
+            self.fields["study"].disabled = True
+            self.fields["sample"].disabled = True
+            self.fields["id"].initial =  str(assembly["_id"])
+
+
 
     # fields from ENA assembly documentation
     study = forms.CharField(label="STUDY",
@@ -61,12 +69,13 @@ class AssemblyForm(forms.Form):
     agp = forms.FileField(label="AGP", required=False)
     chromosome_list = forms.FileField(label="CHROMOSOME_LIST", required=False)
     unlocalised_list = forms.FileField(label="UNLOCALISED_LIST", required=False)
+    id = forms.CharField(label="ID", required=False, widget=forms.HiddenInput)
 
 
 class AnnotationForm(forms.Form):
 
-    def __init__(self, *args, sample_accession=None, study_accession=None, run_accession=None, experiment_accession=None, **kwargs):
-        super(AnnotationForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, sample_accession=None, study_accession=None, run_accession=None, experiment_accession=None, seq_annotation=None,  **kwargs):
+        super(AnnotationForm, self).__init__(initial=seq_annotation, *args, **kwargs)
         if study_accession:
             self.fields['study'].initial = study_accession
             self.fields['study'].widget.attrs['readonly'] = True
@@ -79,7 +88,18 @@ class AnnotationForm(forms.Form):
         if sample_accession:
             self.fields['sample'].widget.attrs['readonly'] = True
             self.fields['sample'].choices = [(x,x) for x in sample_accession]
+        if kwargs.get('id', ""):
+            self.fields['id'].initial = kwargs.get('id', "")
+            self.fields['id'].widget.attrs['readonly'] = True
 
+        if seq_annotation:
+            #self.fields["study"].initial = seq_annotation.get("study", "")
+            #self.fields["sample"].initial = seq_annotation.get("sample", "")
+            #self.fields["run"].initial = seq_annotation.get("run", "")
+            #self.fields["experiment"].initial = seq_annotation.get("experiment", "")
+            #self.fields["title"].initial = seq_annotation.get("title", "")
+            #self.fields["description"].initial = seq_annotation.get("description", "")
+            self.fields["id"].initial =  str(seq_annotation["_id"])
 
     # fields from ENA annotation documentation
     study = forms.CharField(label="STUDY",
@@ -93,10 +113,11 @@ class AnnotationForm(forms.Form):
     description = forms.CharField(label="DESCRIPTION", required=False,
                                   widget=forms.Textarea(attrs={'placeholder': 'Free text description of the sequence annotation'
                                                                               'annotation'}))    
+    id = forms.CharField(label="ID", required=False, widget=forms.HiddenInput)
     #files = forms.CharField(label="FILES", required=True, widget=forms.Textarea(attrs={'placeholder': 'Comma separated list of file names'}))
     
 class AnnotationFilesForm(forms.Form):
-    def __init__(self, *args, **kwargs):
+    def __init__(self,  *args, **kwargs):
         super(AnnotationFilesForm, self).__init__(*args, **kwargs)
         self.fields['type'].initial = None
 
@@ -104,7 +125,7 @@ class AnnotationFilesForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column('file', css_class='form-group col-md-8 mb-0'),
-                Column('type', css_class='form-group col-md-3 mb-0'),
+                Column('type', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             )
         )

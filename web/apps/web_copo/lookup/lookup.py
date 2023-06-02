@@ -875,7 +875,21 @@ BUTTON_TEMPLATES = {
             "className": "copo-dt btn btn-danger",
             "iconClass": "fa fa-tags",
             "btnAction": "submit_annotation"
-        },            
+        },   
+        "submit_read_multi": {
+            "text": "Submit",
+            "className": "copo-dt btn btn-danger",
+            "iconClass": "fa fa-tags",
+            "btnAction": "submit_read"
+        },    
+        "delete_read_multi": {
+            "text": "Delete",
+            "className": " red button copo-dt",
+            "iconClass": "fa fa-trash-o",
+            "btnAction": "delete",
+            "btnType": "multi",
+            "btnMessage": "Delete selected"
+        },      
     }
 }
 REPO_NAME_LOOKUP = {

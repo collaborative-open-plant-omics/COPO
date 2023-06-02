@@ -211,6 +211,21 @@ class assemblyConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    async def msg(self, event):
+        # send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': event["message"],
+            'action': event["action"],
+            'html_id': event["html_id"],
+            'data': event["data"]
+        }))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
 class annotationConsumer(AsyncWebsocketConsumer):
     """
     Class to communicate annotation information. To target this, use annotation_ as suffix for group name

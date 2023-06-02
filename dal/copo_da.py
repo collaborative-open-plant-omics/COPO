@@ -76,7 +76,7 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    test=get_collection_ref(TestCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
-                   enaFileTransferObject=get_collection_ref(ENAFileTransferCollection),
+                   enaFileTransfer=get_collection_ref(ENAFileTransferCollection),
                    apiValidationReport=get_collection_ref(APIValidationReport),
                    assembly=get_collection_ref(AssemblyCollection),
                    seqannotation=get_collection_ref(AnnotationCollection)
@@ -105,7 +105,8 @@ class ProfileInfo:
                         num_annotation="annotation",
                         num_temp="metadata_template",
                         num_seqannotation="seqannotation",
-                        num_assembly="assembly"
+                        num_assembly="assembly",
+                        num_read="sample"
                         )
 
         status = dict()
@@ -2031,8 +2032,9 @@ class Submission(DAComponent):
     def add_annotation_accessions(self, s_id, accession):
         # todo if it's decided to have multiple assemblies per profile add accessions.annotation.sample to be able to cross
         # reference annotation and sample
-        self.get_collection_handle().update_one(
-            {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}, "$pull" : {"seq_annotation_submission_error": {"seq_annotation_id": accession[0]["alias"]}}}) 
+        #self.get_collection_handle().update_one(
+        #    {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}, "$pull" : {"seq_annotation_submission_error": {"seq_annotation_id": accession[0]["alias"]}}}) 
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}}) 
         
     def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_ids ):
         sub_handle = self.get_collection_handle()
@@ -2099,12 +2101,12 @@ class Submission(DAComponent):
             {"seq_annotations": 1, "profile_id": 1, "date_modified": 1})
         return cursor_to_list(subs)
 
-    def update_seq_annotation_submission_async(self, sub_id, href, seq_annotation_id, submission_id):
+    def update_seq_annotation_submission_async(self, sub_id, href, seq_annotation_ids, submission_id):
         sub_handle = self.get_collection_handle()
-        submission = {'id': submission_id, 'seq_annotation_id': seq_annotation_id, 'href': href}
+        submission = {'id': submission_id, 'seq_annotation_id': seq_annotation_ids, 'href': href}
         sub_handle.update({"_id": ObjectId(sub_id)},
                           {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission": submission},
-                           "$pull": {"seq_annotations": {"$in": seq_annotation_id}}})
+                           "$pull": {"seq_annotations": {"$in": seq_annotation_ids}}})
         
     def get_async_seq_annotation_submission(self):
         sub_handle = self.get_collection_handle()
@@ -2112,12 +2114,13 @@ class Submission(DAComponent):
                               {"_id": 1, "seq_annotation_submission": 1, "profile_id": 1})
         return cursor_to_list(subs)
 
-    def update_seq_annotation_submission_error(self, sub_id, seq_annotation_submission_id, error):
+    '''
+    def update_seq_annotation_submission_error(self, sub_id, seq_annotation_ids, error):
 
         sub_handle = self.get_collection_handle()
         sub = sub_handle.find_one({"_id": ObjectId(sub_id), "seq_annotation_submission.id": seq_annotation_submission_id}, {"seq_annotation_submission.seq_annotation_id": 1})
-        seq_annotation_id = sub["seq_annotation_submission"][0]["seq_annotation_id"]
-        for id in seq_annotation_id:    
+        seq_annotation_ids = sub["seq_annotation_submission"][0]["seq_annotation_id"]
+        for id in seq_annotation_ids:    
             count = sub_handle.find({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id}).count()
             if count == 0:
                 sub_handle.update_one({"_id": ObjectId(sub_id)},
@@ -2125,7 +2128,7 @@ class Submission(DAComponent):
             else:
                 sub_handle.update_one({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id},
                             {"$set": {"date_modified": datetime.now(), "seq_annotation_submission_error.$.error": error}})
-
+    '''
     def update_seq_annotation_submission_pending(self, sub_ids):
         Submission().get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
 
@@ -2885,6 +2888,26 @@ class Assembly(DAComponent):
     def __init__(self, profile_id=None):
         super(Assembly, self).__init__(profile_id, "assembly")
 
+    def add_accession(self, id, accession):
+        self.get_collection_handle().update({"_id": ObjectId(id)},
+                                                 {"$set": {"accession": accession, "error": []}})        
+
+    def update_assembly_error(self, assembly_ids, msg):
+        seq_annotation_obj_ids = [ ObjectId(id) for id in assembly_ids ]
+        self.get_collection_handle().update_many({"_id": {"$in":   assembly_ids}},
+                                            {"$set": {"error":  msg}})
+
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
+        assembly_obj_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": assembly_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
+        if result:
+           return dict(status='error', message="One or more assembly record/s have been accessed!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   assembly_obj_ids}})
+        return dict(status='success', message="Assembly record/s have been deleted!")
+
+
 class Sequnece_annotation(DAComponent):
     def __init__(self, profile_id=None):
         super(Sequnece_annotation, self).__init__(profile_id, "seqannotation")
@@ -2892,10 +2915,22 @@ class Sequnece_annotation(DAComponent):
     def add_accession(self, id, accession):
         self.get_collection_handle().update({"_id": ObjectId(id)},
                                                  {"$set": {"accession": accession, "error": []}})
-    def update_seq_annotation_error(self, seq_annotation_ids, msg):
-        seq_annotation_obj_ids = [ ObjectId(id) for id in seq_annotation_ids ]
-        self.get_collection_handle().update_many({"_id": {"$in":   seq_annotation_obj_ids}},
+    def update_seq_annotation_error(self, seq_annotation_ids, seq_annotation_sub_id, msg):
+        seq_annotation_obj_ids = None
+
+        if seq_annotation_ids:
+            seq_annotation_obj_ids = [ ObjectId(id) for id in seq_annotation_ids ]
+        
+        elif seq_annotation_sub_id:
+            result = Submission().get_collection_handle().find({"seq_annotation_submission.id": seq_annotation_sub_id},{"seq_annotation_submission.$": 1})
+            if result:
+                records = cursor_to_list(result)
+                seq_annotation_obj_ids = [ ObjectId(id) for id in records[0]['seq_annotation_submission'][0]['seq_annotation_id'] ]
+    
+        if seq_annotation_obj_ids:
+            self.get_collection_handle().update_many({"_id": {"$in":   seq_annotation_obj_ids}},
                                             {"$set": {"error":  msg}})
+
         
     def validate_and_delete(self, target_id=str(), target_ids=list()):
         seq_annotation_obj_ids = [ ObjectId(id) for id in target_ids ]
@@ -2910,7 +2945,7 @@ class Sequnece_annotation(DAComponent):
 
 class EnaFileTransfer(DAComponent):
     def __init__(self, profile_id=None):
-        super(Assembly, self).__init__(profile_id, "enafileTransfer")                                        
+        super(EnaFileTransfer, self).__init__(profile_id, "enaFileTransfer")                                        
                                     
 
 def is_number(s):

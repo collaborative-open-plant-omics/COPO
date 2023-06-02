@@ -97,7 +97,7 @@ $(document).ready(function () {
     //var groups = $("#groups").val().split(",")
     if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
         $(".new-samples-spreadsheet-template").show()
-        $(".new-samples-spreadsheet-template").show()
+       // $(".new-samples-spreadsheet-template").show()
         $(".new-samples-template").hide()
 
         $("#help_add_button").removeClass("primary").addClass("green")

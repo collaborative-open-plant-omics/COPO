@@ -6,11 +6,14 @@
 
 {% block stylesheet_block %}
 <style>
-    .highlight {
-        background-color:  #d9e8d9 !important;
+    .highlight_accession {
+        background-color: #d9e8d9 !important;
     }
-  
+    .highlight_no_accession {
+        background-color: pink !important;
+    }
 </style>  
+ 
 {% endblock %}
 
 
@@ -37,37 +40,6 @@
 
 
 {% block content %}
-    <!-- publication entry options -->
-    <div id="pub_options" class="row collapse" style="margin-bottom: 20px;">
-        <div class="col-sm-3 col-md-3 col-lg-3">
-            <button type="button" style="background-image:none;"
-                    class="btn btn-sm btn-primary new-form-call"
-                    data-component="publication">Publication Form (Manual Entry)
-            </button>
-        </div>
-        <div class="col-sm-3 col-md-3 col-lg-3">
-            <div class="input-group">
-                <input type="text" class="form-control input-sm resolver-data" data-resolver="doi"
-                       placeholder="Enter a DOI">
-                <span class="input-group-btn">
-                            <button class="btn btn-sm btn-primary resolver-submit" type="button"
-                                    style="background-image:none;">Resolve</button>
-                        </span>
-            </div>
-        </div>
-        <div class="col-sm-3 col-md-3 col-lg-3">
-            <div class="input-group">
-                <input type="text" class="form-control input-sm resolver-data" data-resolver="pmid"
-                       placeholder="Enter a PubMed ID">
-                <span class="input-group-btn">
-                            <button class="btn btn-sm btn-primary resolver-submit"
-                                    type="button"
-                                    style="background-image:none;">Resolve</button>
-                        </span>
-            </div>
-        </div>
-        <div class="col-sm-3 col-md-3 col-lg-3"></div>
-    </div>
 
     <!-- getting started section -->
     <div class="row">
@@ -134,10 +106,13 @@
 {% endblock %}
 
 {% block help_section %}
-
-
 {% endblock %}
 
+
+{% block seqannotation_info %}
+<div style="display:none; margin-top: 30px; " id="assembly_info" class="alert alert-info"
+role="alert"></div>
+{% endblock %}
 
 {% block js_block %}
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>

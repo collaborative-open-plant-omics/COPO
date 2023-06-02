@@ -175,6 +175,27 @@
     },    
     {
       "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "filetypes"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.filetypes",
+      "label": "TYPE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": false,
+      "control": "text"
+    },        
+    {
+      "help_tip": "",
       "required": "true",
       "default_value": "",
       "control_meta": {},

@@ -363,6 +363,27 @@
             <span class="action-label" style="padding-left: 3px;">Submit</span>
         </div>        
 
+        <div class="submit_read_multi tiny ui basic dtables-dbuttons  teal button copo-dt copo-tooltip"
+            data-container="body"
+            data-action="submit_read"
+            data-error-message="Please select one or more record to submit"
+            data-btntype="multi"
+            title="Submit Read"
+            tabindex="0">
+            <i class=" fa fa-info"></i>
+            <span class="action-label" style="padding-left: 3px;">Submit</span>
+        </div>        
+
+        <div class="delete_read_multi tiny ui basic dtables-dbuttons  teal button copo-dt copo-tooltip"
+            data-container="body"
+            data-action="delete_read"
+            data-error-message="Please select one or more record to delete"
+            data-btntype="multi"
+            title="Delete Read"
+            tabindex="0">
+            <i class=" fa fa-trash-o"></i>
+            <span class="action-label" style="padding-left: 3px;">Delete</span>
+        </div>        
     </div>
 
     <div id="dataverse-table-template">
@@ -473,6 +494,12 @@
     <!-- button to upload spreadsheet for dtol users -->
     <button style="display: none" title="Add Sample(s) from DTOL Spreadsheet"
             class="big circular ui icon green button new-samples-spreadsheet-template copo-tooltip">
+        <i class="icon table sign"></i>
+    </button>
+
+    <!-- button to upload spreadsheet for dtol users -->
+    <button style="display: inline" title="Add Read(s) from Read Spreadsheet"
+            class="big circular ui icon green button new-reads-spreadsheet-template copo-tooltip">
         <i class="icon table sign"></i>
     </button>
 

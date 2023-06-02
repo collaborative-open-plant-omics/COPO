@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from bson import ObjectId
 from dal import cursor_to_list
-from dal.copo_da import Sample, Source, CGCore
+from dal.copo_da import Sample, Source, CGCore, Submission
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.resolver import RESOLVER
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -38,7 +38,11 @@ class COPOLookup:
             'cg_dependency_lookup': self.cg_dependency_lookup,
             'isa_samples_lookup': self.get_isasamples,
             'sample_source_lookup': self.get_samplesource,
-            'all_samples_lookup': self.get_allsamples
+            'all_samples_lookup': self.get_allsamples,
+            'run_lookup': self.get_runs,
+            'study_lookup': self.get_studies,
+            'experiment_lookup': self.get_experiments,
+            'sample_lookup': self.get_samples
         }
 
         result = []
@@ -377,3 +381,101 @@ class COPOLookup:
         html += "</table>"
 
         return html
+
+    def get_runs(self):
+        existing_sub = Submission().get_records_by_field("profile_id", self.profile_id)
+        df = pd.DataFrame()
+
+
+        existing_accessions = ""
+        accession_set = []
+        if existing_sub:
+            existing_accessions = existing_sub[0].get("accessions", "")
+        if  existing_accessions:
+            runs = existing_accessions.get("run", "")
+            if runs:
+                for run in runs:
+                    if run.get("accession", ""):
+                       accession_set.append(run.get("accession", ""))
+                        
+        if accession_set:
+            df = pd.DataFrame(accession_set)
+            df['accession'] = accession_set
+            df['label'] = accession_set
+            df['description'] = ''
+            df['server-side'] = False  # ...to request callback to server for resolving item description
+
+        result = df.to_dict('records')
+        return result
+
+
+    def get_studies(self):
+        existing_sub = Submission().get_records_by_field("profile_id", self.profile_id)
+        df = pd.DataFrame()
+
+        existing_accessions = ""
+        accession_set = []
+        study_accession = ""
+        if existing_sub:
+            existing_accessions = existing_sub[0].get("accessions", "")
+        if  existing_accessions:
+            study = existing_accessions.get("project", "")
+            if study:
+                if isinstance(study, dict):
+                    study_accession = study.get("accession", "")
+                elif isinstance(study, list):
+                    study_accession = study[0].get("accession", "")          
+        accession_set.append(study_accession)                
+        if accession_set:
+            df = pd.DataFrame(accession_set)
+            df['label'] = df["accession"]
+            df['description'] = ''
+            df['server-side'] = False  # ...to request callback to server for resolving item description
+
+        result = df.to_dict('records')
+        return result
+    
+    def get_experiments(self):
+        existing_sub = Submission().get_records_by_field("profile_id", self.profile_id)
+        df = pd.DataFrame()
+        existing_accessions = ""
+        accession_set = []
+        if existing_sub:
+            existing_accessions = existing_sub[0].get("accessions", "")
+        if  existing_accessions:
+            experiments = existing_accessions.get("experiment", "")
+            if experiments:
+                for experiment in experiments:
+                    if experiment.get("accession", ""):
+                       accession_set.append(experiment.get("accession", ""))
+                        
+        if accession_set:
+            df = pd.DataFrame(accession_set)
+            df['label'] = df["accession"]
+            df['description'] = ''
+            df['server-side'] = False  # ...to request callback to server for resolving item description
+
+        result = df.to_dict('records')
+        return result
+
+    def get_samples(self):
+        existing_sub = Submission().get_records_by_field("profile_id", self.profile_id)
+        df = pd.DataFrame()
+
+        existing_accessions = ""
+        accession_set = []
+        if existing_sub:
+            samples = existing_accessions.get("sample", "")
+            if samples:
+                for sample in samples:
+                    if sample.get("sample_accession", ""):
+                        accession_set.append(sample.get("sample_accession", ""))
+                        
+        if accession_set:
+            df = pd.DataFrame(accession_set)
+            df['label'] = df["accession"]
+            df['description'] = ''
+            df['server-side'] = False  # ...to request callback to server for resolving item description
+
+        result = df.to_dict('records')
+        return result

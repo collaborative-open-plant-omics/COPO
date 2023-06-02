@@ -2,6 +2,8 @@ $(document).ready(function () {
     var uid = document.location.href
     uid = uid.split("/")
     uid = uid[uid.length - 1]
+
+    /*
     var wsprotocol = 'ws://';
     var s3socket
     $('#copy_urls_button').fadeOut()
@@ -45,7 +47,10 @@ $(document).ready(function () {
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()
     });
+*/
+
     }
+    
 )
 
 function submit() {

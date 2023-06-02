@@ -31,11 +31,11 @@ $(document).ready(function () {
             if (action_type === "dtol" || action_type === "erga") {
                 url = "/copo/copo_samples/" + id + "/view"
             } else if (action_type === "reads") {
-                url = "/copo/ena_read_manifest_validate/" + id
+                url = "/copo/copo_reads/" + id + "/view"
             } else if (action_type === "assembly") {
-                url = "/copo/ena_assembly/" + id
+                url = "/copo/copo_assembly/" + id + "/view"
             } else if (action_type === "annotation") {
-                url = "/copo/ena_annotation/" + id
+                url = "/copo/copo_seq_annotation/" + id + "/view"
             document.location = url
         }
     })

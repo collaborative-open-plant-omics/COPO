@@ -96,7 +96,7 @@ def generate_ui_labels(field_id):
     return label
 
 
-def get_control_options(f):
+def get_control_options(f, profile_id=None):
     # option values are typically defined as a list,
     # or in some cases (e.g., 'copo-multi-search'),
     # as a dictionary. However, option values could also be resolved or generated dynamically
@@ -106,7 +106,7 @@ def get_control_options(f):
 
     if f.get("control", "text") in ["copo-lookup", "copo-lookup2"]:
         return COPOLookup(accession=f.get('data', str()),
-                          data_source=f.get('data_source', str())).broker_component_search()['result']
+                          data_source=f.get('data_source', str()),  profile_id=profile_id).broker_component_search()['result']
 
     if "option_values" not in f:  # you shouldn't be here
         return option_values
@@ -117,7 +117,7 @@ def get_control_options(f):
 
     # resolve option values from a data source
     if f.get("data_source", str()):
-        return COPOLookup(data_source=f.get('data_source', str())).broker_data_source()
+        return COPOLookup(data_source=f.get('data_source', str()), profile_id=profile_id).broker_data_source()
 
     if isinstance(f["option_values"], dict):
         if f.get("option_values", dict()).get("callback", dict()).get("function", str()):
@@ -158,7 +158,7 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
             # i.e., if a callback is defined on the 'option_values' field
             if "option_values" in f or f.get("control", "text") in ["copo-lookup", "copo-lookup2"]:
                 f['data'] = form_value.get(f["id"].split(".")[-1], str())
-                f["option_values"] = get_control_options(f)
+                f["option_values"] = get_control_options(f, profile_id)
 
             # resolve values for unique items...
             # if a list of unique items is provided with the schema, use it, else dynamically
@@ -1648,7 +1648,7 @@ def resolve_copo_lookup2_data(data, elem):
     resolved_value = str()
 
     elem['data'] = data
-    option_values = get_control_options(elem)
+    option_values = get_control_options(elem, profile_id=None)
 
     if option_values:
         resolved_value = [x[

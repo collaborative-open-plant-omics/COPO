@@ -4,9 +4,9 @@ $(document).ready(function () {
     const copoProfileIndexURL = "/copo/";
     const copoAcceptRejectURL = "/copo/accept_reject_sample"
     const copoSamplesURL = "/copo/copo_samples/"
-    const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
-    const copoENAAssemblyURL = "/copo/ena_assembly/"
-    const copoENAAnnotationURL = "/copo/ena_annotation/"
+    const copoENAReadManifestValidateURL = "/copo/copo_reads/"
+    const copoENAAssemblyURL = "/copo/copo_assembly/"
+    const copoENAAnnotationURL = "/copo/copo_seq_annotation/"
     const copoVisualsURL = "/copo/copo_profile_visualise/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
     const componentMeta = get_profile_component_meta(component);
@@ -131,11 +131,11 @@ $(document).ready(function () {
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
             } else if (action_type === "reads") {
-                url = copoENAReadManifestValidateURL + id
+                url = copoENAReadManifestValidateURL + id + "/view"
             } else if (action_type === "assembly") {
-                url = copoENAAssemblyURL + id
+                url = copoENAAssemblyURL + id + "/view"
             } else if (action_type === "annotation") {
-                url = copoENAAnnotationURL + id
+                url = copoENAAnnotationURL + id + "/view"
             }
             document.location = url
         }
@@ -290,13 +290,16 @@ $(document).ready(function () {
 function appendRecordComponents(grids) {
     // loop through each grid
     grids.each(function () {
-        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');
-
+        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');  
+        let profile_type = $(this).closest('.grid').find('.copo-records-panel').attr('profile_type');
+        if (profile_type) {
+            profile_type = profile_type.toLowerCase().trim();
+        }
         // Add component buttons to the menu for each profile record
         let menu = $(this).closest('.grid').find('#expanding_menu')
         let component_buttons;
         $(menu).attr("id", "menu_" + record_id)
-        component_buttons = append_component_buttons(record_id)
+        component_buttons = append_component_buttons(record_id, profile_type)
         $(menu).find(".comp").append(component_buttons)
     });
 
@@ -511,7 +514,7 @@ function update_counts(copoVisualsURL, csrftoken, component) {
     });
 }
 
-function append_component_buttons(record_id) {
+function append_component_buttons(record_id, profile_type) {
     //components row
     const components = get_copo_profile_components();
     const componentsDIV = $('<div/>', {
@@ -521,6 +524,10 @@ function append_component_buttons(record_id) {
     components.forEach(function (item) {
         //  skip profile entry metadata
         if (item.component === "profile") {
+            return false;
+        }
+
+        if (!item.hasOwnProperty("profile_component") || (profile_type =="stand-alone" && item.profile_component != "stand-alone") || (profile_type !="stand-alone" && item.profile_component == "stand-alone")) {
             return false;
         }
 

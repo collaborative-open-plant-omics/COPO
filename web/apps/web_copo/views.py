@@ -21,8 +21,7 @@ from api.views.general import *
 from dal import cursor_to_list
 from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals
-from dal.copo_da import DataFile
-from dal.copo_da import ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate
+from dal.copo_da import DataFile, ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate, Sequnece_annotation, Assembly
 from web.apps.web_copo.decorators import user_is_staff
 from web.apps.web_copo.lookup.lookup import REPO_NAME_LOOKUP
 from web.apps.web_copo.models import banner_view
@@ -38,7 +37,7 @@ LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
 from web.forms import AssemblyForm, AnnotationForm, AnnotationFilesForm
 from django.forms import formset_factory
-from django.http import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse,  HttpResponseBadRequest
 from web.apps.web_copo.utils import EnaAssembly, EnaAnnotation
 from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
 from django.contrib import messages
@@ -104,11 +103,14 @@ def ena_annotation_list(request, profile_id):
     request.session["profile_id"] = profile_id
     return render(request, "copo/ena_annotation_list.html", {"profile_id": profile_id})
 
-@login_required()
-def ena_annotation(request, profile_id):
+'''
+def ena_annotation_view(request, profile_id, seq_annotation_id):
     request.session["profile_id"] = profile_id
-    is_error = False
-    request.session["profile_id"] = profile_id
+
+    seq_annotation = Sequnece_annotation().get_record(seq_annotation_id)
+    if not seq_annotation:
+        return HttpResponse(content="Sequence Annotation not exists", status=400)
+    
     study_accession = ""
     sample_accession = []
     run_accession=[]
@@ -141,9 +143,63 @@ def ena_annotation(request, profile_id):
                     sample_accession.append(sample.get("sample_accession", ""))
 
     AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
-    if request.method == 'POST':
+    formset = AnnotationFilesFormSet(prefix="annotation_files")
+    filenames = seq_annotation.get("filenames", "")
+    filetypes = seq_annotation.get("filetypes", "")
+    formset = AnnotationFilesFormSet(prefix="annotation_files", initial= [{'file': filenames[i], 'type': filetypes[i]} for i in range(len(filenames))])
+
+    form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession, seq_annotation=seq_annotation)
+
+
+    return render(request, "copo/ena_annotation_form.html", {"profile_id": profile_id, "form": form, "formset": formset, "hide_form": False})
+'''
+
+@login_required()
+def ena_annotation(request, profile_id, seq_annotation_id=None):
+    request.session["profile_id"] = profile_id
+    is_error = False
+    seq_annotation = None
+
+    if seq_annotation_id:
+        seq_annotation = Sequnece_annotation().get_record(seq_annotation_id)
+        if not seq_annotation:
+            return HttpResponse(content="Sequence Annotation not exists", status=400)
+
+    study_accession = ""
+    sample_accession = []
+    run_accession=[]
+    experiment_accession=[]
+    existing_sub = Submission().get_records_by_field("profile_id", profile_id)
+    existing_accessions = ""
+    if existing_sub:
+        existing_accessions = existing_sub[0].get("accessions", "")
+    if  existing_accessions:
+        study = existing_accessions.get("project", "")
+        if study:
+            if isinstance(study, dict):
+                study_accession = study.get("accession", "")
+            elif isinstance(study, list):
+                study_accession = study[0].get("accession", "")          
+        runs = existing_accessions.get("run", "")
+        if runs:
+            for run in runs:
+                if run.get("accession", ""):
+                    run_accession.append(run.get("accession", ""))
+        experiments = existing_accessions.get("experiment", "")
+        if experiments:
+            for experiment in experiments:
+                if experiment.get("accession", ""):
+                    experiment_accession.append(experiment.get("accession", ""))            
+        samples = existing_accessions.get("sample", "")
+        if samples:
+            for sample in samples:
+                if sample.get("sample_accession", ""):
+                    sample_accession.append(sample.get("sample_accession", ""))
+
+    AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
+    if request.method == 'POST' or request.method == 'PUT':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
-        form = AnnotationForm(request.POST, request.FILES, sample_accession=sample_accession, study_accession=study_accession, run_accession=run_accession, experiment_accession=experiment_accession)
+        form = AnnotationForm(request.POST, request.FILES, sample_accession=sample_accession, study_accession=study_accession, run_accession=run_accession, experiment_accession=experiment_accession, seq_annotation=seq_annotation)
         formset = AnnotationFilesFormSet(request.POST,request.FILES,prefix="annotation_files")
         if form.is_valid() and formset.is_valid():
             ghlper.notify_annotation_status(data={"profile_id": profile_id},
@@ -152,22 +208,20 @@ def ena_annotation(request, profile_id):
                             html_id="annotation_info")
             # this is a dict
             formdata = form.cleaned_data
+            seq_annotation_id = request.POST.get("seq_annotation_id", "")
  
-            sub_result = EnaAnnotation.validate_annotation(formdata, formset,  profile_id)
+            sub_result = EnaAnnotation.validate_annotation(formdata, formset,  profile_id, seq_annotation_id)
             if sub_result.get("error", ""):
                 ghlper.notify_annotation_status(data={"profile_id": profile_id},
                                                 msg=sub_result.get("error", ""),
                                                 action="error",
                                                 html_id="annotation_info")
-                is_error = True
-                # messages.error(request,sub_result)
             else:
                 ghlper.notify_annotation_status(data={"profile_id": profile_id},
-                                                msg="The sequence annotation has been created and waiting for submission ",
+                                                msg=sub_result.get("success", ""),
                                                 action="info",
                                                 html_id="annotation_info")
-            # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
-            # return HttpResponse()
+                return JsonResponse(status=201,  data=sub_result)
 
         else:
             msg = ""
@@ -181,24 +235,32 @@ def ena_annotation(request, profile_id):
                                           msg=msg,
                                           action="error",
                                           html_id="annotation_info")
-            is_error = True
-            # messages.error(request, form.errors)
-        if is_error:
-            return HttpResponse(content="Validation Error", status=400)
-        return HttpResponse(status=200)
+        return HttpResponse(content="Validation Error", status=400)
 
     else:
 
-        form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession)
+        form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession, seq_annotation=seq_annotation)
+        AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
         formset = AnnotationFilesFormSet(prefix="annotation_files")
-        return render(request, "copo/ena_annotation.html", {"profile_id": profile_id, "form": form, "formset": formset, "hide_form": False})
+        if seq_annotation:
+            filenames = seq_annotation.get("filenames", "")
+            filetypes = seq_annotation.get("filetypes", "")
+            formset = AnnotationFilesFormSet(prefix="annotation_files", initial= [{'file': filenames[i], 'type': filetypes[i]} for i in range(len(filenames))])
 
- 
+        return render(request, "copo/ena_annotation_form.html", {"profile_id": profile_id, "form": form, "formset": formset, "hide_form": False})
+
 
 @login_required()
-def ena_assembly(request, profile_id):
+def ena_assembly(request, profile_id, assembly_id=None):
     is_error = False
     request.session["profile_id"] = profile_id
+    assembly = None
+
+    if assembly_id:
+        assembly = Assembly().get_record(assembly_id)
+        if not assembly:
+            return HttpResponse(content="Assembly not exists", status=400)
+
     study_accession = ""
     sample_accession = []
 
@@ -221,9 +283,9 @@ def ena_assembly(request, profile_id):
                 if sample.get("sample_accession", ""):
                     sample_accession.append(sample.get("sample_accession", ""))
 
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'PUT':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
-        form = AssemblyForm(request.POST,sample_accession=sample_accession)
+        form = AssemblyForm(request.POST,sample_accession=sample_accession, assembly=assembly)
         if form.is_valid():
             notify_frontend(data={"profile_id": profile_id},
                             msg="Intitialising Assembly Submission",
@@ -243,12 +305,14 @@ def ena_assembly(request, profile_id):
                 notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
                                 html_id="loading_span")
                 EnaAssembly.upload_assembly_files(files)
-                sub_result = EnaAssembly.validate_assembly(formdata, profile_id)
+                assembly_id = request.POST.get("assembly_id", "")
+
+                sub_result = EnaAssembly.validate_assembly(formdata, profile_id,assembly_id)
                 if sub_result.get("error", ""):
                     ghlper.notify_assembly_status(data={"profile_id": profile_id},
                                                   msg=sub_result.get("error", ""),
                                                   action="error",
-                                                  html_id="assembl_info")
+                                                  html_id="assembly_info")
                     is_error = True
                     # messages.error(request,sub_result)
                 else:
@@ -276,11 +340,11 @@ def ena_assembly(request, profile_id):
         #
         # pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         # set authomatically and cannot be changed by the user
-        form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession,
+        form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession, assembly=assembly
                             # initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
                             #         "description": "jfksjkdlfs"}
                             )
-        return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": form, "hide_form": False})
+        return render(request, "copo/ena_assembly_form.html", {"profile_id": profile_id, "form": form, "hide_form": False})
     if is_error:
         return HttpResponse(content="Validation Error", status=400)
     return HttpResponse(status=200)
@@ -542,6 +606,8 @@ def copo_forms(request):
                      lift_submission_embargo=broker_da.do_lift_submission_embargo,
                      submit_assembly=broker_da.do_submit_assembly,
                      submit_annotation=broker_da.do_submit_annotation,
+                     submit_read=broker_da.do_submit_read,
+                     delete_read=broker_da.do_delete_read,
                      )
 
     if task in task_dict:
@@ -806,3 +872,10 @@ def copo_assembly(request, profile_id):
     request.session["profile_id"] = profile_id
     profile = Profile().get_record(profile_id)
     return render(request, 'copo/copo_assembly.html', {'profile_id': profile_id, 'profile': profile})
+
+@login_required
+def copo_reads(request, profile_id):
+    request.session["profile_id"] = profile_id
+    profile = Profile().get_record(profile_id)
+    groups = group_functions.get_group_membership_asString()
+    return render(request, 'copo/copo_read.html', {'profile_id': profile_id, 'profile': profile, 'groups': groups})

@@ -16,6 +16,8 @@ from exceptions_and_logging.logger import Logger
 from django.contrib import messages
 import glob
 from submission.helpers import generic_helper as ghlper
+from bson import ObjectId
+import web.apps.web_copo.templatetags.html_tags as htags
 
 
 # other types of assemblies (not individualss or cultured isolates):
@@ -62,10 +64,14 @@ def upload_assembly_files(files):
     output = "done"
     return output
 
-def validate_assembly(form, profile_id):
+def validate_assembly(form, profile_id, assembly_id):
     #check assemblyname unique
     form["assemblyname"] = '_'.join(form["assemblyname"].split())
-    ass = Assembly(profile_id = profile_id).execute_query({"assemblyname" : form["assemblyname"] })
+    conditions = {"assemblyname" : form["assemblyname"]}
+    if assembly_id:
+        conditions["_id"] = {"$ne" : ObjectId(assembly_id)}
+    ass = Assembly(profile_id = profile_id).execute_query(conditions)
+
     if len(ass) > 0:
         msg = "AssemblyName " + form["assemblyname"] + " already exists "
         return {"error": msg}
@@ -124,8 +130,10 @@ def validate_assembly(form, profile_id):
             if f in file_fields:
                 form[f] = str(form[f])
         form["profile_id"] = profile_id  
-        assembly_rec = Assembly().save_record(auto_fields={},**form)
         accession = re.search( "ERZ\d*\w" , output).group(0).strip()
+        form["accession"] = accession
+        assembly_rec = Assembly().save_record(auto_fields={},**form, target_id=assembly_id)
+        
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
@@ -152,7 +160,10 @@ def validate_assembly(form, profile_id):
             return {"error": error}
         else:
             return {"error": output}
-    return {"accession": accession}
+        
+    table_data = htags.generate_table_records(profile_id, "assembly", None)
+    return {"success": "Annotation submission has been scheduled, you will be notified when it is complete", "table_data": table_data, "component": "seqannotation"}        
+    
 
 
 def submit_assembly(file_path, profile_id):

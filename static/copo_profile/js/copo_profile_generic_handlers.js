@@ -165,11 +165,26 @@ function get_copo_profile_components() {
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",
-            profile_component: true,
+            profile_component: "dtol",
             tableID: 'sample_table',
             recordActions: ["show_sample_source", "describe_record_all", "edit_record_single"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },
+        {
+            component: 'read',
+            title: 'Reads',
+            iconClass: "fa fa-filter",
+            semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_read",
+            buttons: ["new-reads-spreadsheet-template", "update-reads-template"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "samples_color",
+            color: "olive",
+            profile_component: "stand-alone",
+            tableID: 'sample_table',
+            recordActions: ["delete_read_multi", "submit_read_multi"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },         
         {
             component: 'datafile',
             title: 'Datafiles',
@@ -181,7 +196,7 @@ function get_copo_profile_components() {
             buttons: ["quick-tour-template"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             tableID: 'datafile_table',
-            profile_component: true,
+            //profile_component: true,
             // recordActions: ["describe_record_multi", "unbundle_record_multi", "undescribe_record_multi"],
             recordActions: [],
             visibleColumns: 3
@@ -197,7 +212,7 @@ function get_copo_profile_components() {
             colorClass: "submissions_color",
             color: "green",
             tableID: 'submission_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: [],
             visibleColumns: 3
         },
@@ -212,7 +227,7 @@ function get_copo_profile_components() {
             colorClass: "pubs_color",
             color: "orange",
             tableID: 'publication_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"],
             visibleColumns: 4
         },
@@ -241,7 +256,7 @@ function get_copo_profile_components() {
             colorClass: "people_color",
             color: "red",
             tableID: 'person_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: ["add_record_all", "edit_record_single"],
             visibleColumns: 5
         },
@@ -251,30 +266,30 @@ function get_copo_profile_components() {
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey: "num_assembly",
-            buttons: [],
+            buttons: ["quick-tour-template", "new-component-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "assembly_color",
-            color: "blue",
+            color: "violet",
             tableID: 'assembly_table',
-            profile_component: true,
-            recordActions: ["add_record_all", "edit_record_single"],
+            profile_component: "stand-alone",
+            recordActions: ["add_record_all", "edit_record_single" ],   // "delete_record_multi, submit_assembly_multi
             visibleColumns: 5
         },
         {
             component: 'seqannotation',
-            title: 'Sequence Annotation',
+            title: 'Sequence Annotations',
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey: "num_seqannotation",
-            buttons: [],
+            buttons: ["quick-tour-template", "new-component-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "data_color",
-            color: "red",
+            color: "yellow",
             tableID: 'seqannotation_table',
-            profile_component: true,
-            recordActions: ["add_record_all", "edit_record_single"],
+            profile_component: "stand-alone",
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_annotation_multi"],
             visibleColumns: 5
-        }               
+        }   
         
         /*
         {
