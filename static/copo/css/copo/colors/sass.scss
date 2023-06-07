@@ -2,6 +2,7 @@
 
 $data_color: #1f2e2e;
 $samples_color: #bfbb11;
+$accessions_color: #e03997;
 $submissions_color: #194d19;
 $pubs_color: #e88801;
 $people_color: #c93c00;
@@ -14,7 +15,7 @@ $annotations_color: #6871C9;
 }
 
 .data_color_icon {
-    color: $data_color;
+  color: $data_color;
 }
 
 .pubs_color {
@@ -24,7 +25,7 @@ $annotations_color: #6871C9;
 }
 
 .pubs_color_icon {
-    color: $pubs_color;
+  color: $pubs_color;
 }
 
 .samples_color {
@@ -34,7 +35,16 @@ $annotations_color: #6871C9;
 }
 
 .samples_color_icon {
-    color: $samples_color;
+  color: $samples_color;
+}
+
+.accessions_color {
+  background-color: $accessions_color;
+  border-color: $accessions_color;
+}
+
+.accessions_color_icon {
+  color: $accessions_color;
 }
 
 .submissions_color {
@@ -44,7 +54,7 @@ $annotations_color: #6871C9;
 }
 
 .submissions_color_icon {
-    color: $submissions_color;
+  color: $submissions_color;
 }
 
 .people_color {
@@ -54,14 +64,14 @@ $annotations_color: #6871C9;
 }
 
 .people_color_icon {
-    color: $people_color;
+  color: $people_color;
 }
 
-.annotations_color{
+.annotations_color {
   background-color: $annotations_color;
   border-color: $annotations_color;
 }
 
 .annotations_color_icon {
-    color: $annotations_color;
+  color: $annotations_color;
 }

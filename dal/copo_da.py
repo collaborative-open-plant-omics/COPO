@@ -93,13 +93,14 @@ class ProfileInfo:
     def get_counts(self):
         """
         Method to return current numbers of Publication, Person, Data,
-        Sample and Submission objects in the given profile
+        Sample, Accessions and Submission objects in the given profile
         :return: Dictionary containing the data
         """
         num_dict = dict(num_pub="publication",
                         num_person="person",
                         num_data="datafile",
                         num_sample="sample",
+                        num_accessions="accessions",
                         num_submission="submission",
                         num_annotation="annotation",
                         num_temp="metadata_template"
@@ -176,6 +177,7 @@ class DAComponent:
             person="copo.person",
             datafile="copo.datafile",
             sample="copo.sample",
+            accessions="copo.accessions",
             source="copo.source",
             profile="copo.profile",
             submission="copo.submission",
@@ -1017,6 +1019,64 @@ class Sample(DAComponent):
 
         })
 
+    def get_number_of_accessions(self):
+        return self.get_collection_handle().count({"biosampleAccession": {"$exists": True, "$ne": ""}})
+
+    def get_profileID_by_sampleID(self, sample_id):
+        cursor = self.get_collection_handle().find({"_id": ObjectId(sample_id)},
+                                                   {"profile_id": 1})
+        return cursor_to_list(cursor)[0].get("profile_id", "")
+
+    def get_accessions(self, profile_id, isSampleProfileTypeStandalone=False, isCurrentUser=True):
+        if isSampleProfileTypeStandalone:
+            current_profile_sample_accessions = self.get_collection_handle().find(
+                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"biosampleAccession": 1, "sraAccession": 1,
+                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
+                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "manifest_id": 1})
+
+            all_profile_sample_accessions = self.get_collection_handle().find(
+                {"biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"biosampleAccession": 1, "sraAccession": 1,
+                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
+                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "manifest_id": 1})
+        else:
+            current_profile_sample_accessions = self.get_collection_handle().find(
+                {"profile_id": profile_id, "accession": {"$exists": True, "$ne": ""}},
+                {"accession": 1, "alias": 1})
+
+            all_profile_sample_accessions = self.get_collection_handle().find(
+                {"accession": {"$exists": True, "$ne": ""}},
+                {"accession": 1, "alias": 1})
+
+        cursor = current_profile_sample_accessions if isCurrentUser else all_profile_sample_accessions
+
+        return cursor_to_list_str(cursor)
+        # #  get schema
+        # sc = self.get_component_schema()
+        # out = list()
+        # taxon = dict()
+        # for i in list(cursor):
+        #     if "species_list" in i:
+        #         sp_lst = i["species_list"]
+        #         for sp in sp_lst:
+        #             # only extract target info...don't extract symnbiont info
+        #             if sp["SYMBIONT"] == "TARGET":
+        #                 for k, v in sp.items():
+        #                     i[k] = v
+        #             else:
+        #                 pass
+        #     sam = dict()
+        #     for cell in i:
+        #         for field in sc:
+        #
+        #             if cell == field.get("id", "").split(".")[-1] or cell == "_id":
+        #                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
+        #                     if field.get("show_in_table", ""):
+        #                         sam[cell] = i[cell]
+        #     out.append(sam)
+        # return out
+
     def get_dtol_type(self, id):
         return self.get_collection_handle().find_one(
             {"$or": [{"biosampleAccession": id}, {"sraAccession": id}, {"biosampleAccession": id}]})
@@ -1189,9 +1249,9 @@ class Sample(DAComponent):
         # samples = list(cursor)
         # cursor = samples
         elif filter == "processing":
-            find_condition["status"] =  {
+            find_condition["status"] = {
                 "$in": ["processing", "sending"]}
-            
+
         else:
             find_condition["status"] = filter
             # cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
@@ -1342,6 +1402,11 @@ class Sample(DAComponent):
         for s in samples:
             s["copo_profile_title"] = Profile().get_name(s["profile_id"])
         return samples
+
+    def get_profileID_by_project_and_manifest_id(self, projects, manifest_ids):
+        return cursor_to_list(self.get_collection_handle().aggregate(
+            [{"$match": {"tol_project": {"$in": projects}, "manifest_id": {"$in": manifest_ids}}},
+             {"$project": {"profile_id": 1}}]))
 
     def get_statuses_by_manifest_id(self, manifest_id):
         return cursor_to_list(self.get_collection_handle().find({"manifest_id": manifest_id},
@@ -2150,7 +2215,8 @@ class Submission(DAComponent):
         Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
         if samples_ids:
             object_samples_ids = [ObjectId(x) for x in samples_ids]
-        Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}}, {"$set" : {"status": "processing"} })
+        Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}},
+                                                     {"$set": {"status": "processing"}})
 
 
 class DataFile(DAComponent):
@@ -2392,31 +2458,9 @@ class Profile(DAComponent):
             pymongo.DESCENDING)
         return cursor_to_list(p)
 
-    def get_dtol_only_profiles(self):
-        p = self.get_collection_handle().find(
-            {"type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
-
-    def get_dtol_only_profiles_based_on_user_id(self):
-        owner_id = data_utils.get_user_id()
-        p = self.get_collection_handle().find(
-            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life (DTOL)"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
-
     def get_erga_profiles(self):
         p = self.get_collection_handle().find(
             {"type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created", pymongo.DESCENDING)
-        return cursor_to_list(p)
-
-    def get_erga_profiles_based_on_user_id(self):
-        owner_id = data_utils.get_user_id()
-        p = self.get_collection_handle().find(
-            {"user_id": owner_id, "type": {"$in": ["European Reference Genome Atlas (ERGA)"]}}).sort("date_created",
-                                                                                                     pymongo.DESCENDING)
         return cursor_to_list(p)
 
     def get_dtolenv_profiles(self):
@@ -2425,43 +2469,36 @@ class Profile(DAComponent):
                                                                                               pymongo.DESCENDING)
         return cursor_to_list(p)
 
-    def get_dtolenv_profiles_based_on_user_id(self):
+    def get_profiles_by_aggregation(self, data, currentUser=True):
+        p = None
         owner_id = data_utils.get_user_id()
-        p = self.get_collection_handle().find(
-            {"user_id": owner_id, "type": {"$in": ["Darwin Tree of Life Environmental Samples (DTOL_ENV)"]}}).sort(
-            "date_modified",
-            pymongo.DESCENDING)
+
+        if type(data) == str:
+            if currentUser:
+                p = self.get_collection_handle().find(
+                    {"user_id": owner_id, "type": {"$regex": data, "$options": "i"}}).sort(
+                    "date_created", pymongo.DESCENDING)
+            else:
+                print("All user profiles by project")
+                p = self.get_collection_handle().aggregate(
+                    {"type": {"$regex": data, "$options": "i"}}).sort("date_created", pymongo.DESCENDING)
+        else:
+            # p = self.get_collection_handle().aggregate(
+            #     [{"$match": {"type": {"$in": projects}, "manifest_id": {"$in": manifest_ids}}},
+            #      {"$project": {"profile_id": 1}}])
+            #
+            #
+            print("Data type is not string")
         return cursor_to_list(p)
 
-    def get_asg_profiles(self):
-        p = self.get_collection_handle().find(
-            {"type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
+    def get_profiles_based_on_sample_data(self, projects, manifest_ids):
+        profile_ids = Sample().get_profileID_by_project_and_manifest_id(projects, manifest_ids)
+        profile_ids = [ObjectId(x.get("profile_id", "")) for x in profile_ids]  # Convert string profileID to ObjectId
 
-    def get_asg_profiles_based_on_user_id(self):
-        owner_id = data_utils.get_user_id()
         p = self.get_collection_handle().find(
-            {"user_id": owner_id, "type": {"$in": ["Aquatic Symbiosis Genomics (ASG)"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
+            {"_id": {"$in": profile_ids}}).sort("date_created", pymongo.DESCENDING)
 
-    def get_standalone_profiles(self):
-        p = self.get_collection_handle().find(
-            {"type": {"$in": ["Stand-alone"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
-
-    def get_standalone_profiles_based_on_user_id(self):
-        owner_id = data_utils.get_user_id()
-        p = self.get_collection_handle().find(
-            {"user_id": owner_id, "type": {"$in": ["Stand-alone"]}}).sort(
-            "date_created",
-            pymongo.DESCENDING)
-        return cursor_to_list(p)
+        return cursor_to_list_str(p)
 
     def get_name(self, profile_id):
         p = self.get_record(ObjectId(profile_id))

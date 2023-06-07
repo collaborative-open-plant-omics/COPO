@@ -10,10 +10,13 @@ from web.apps.web_copo.utils import group_functions
 
 import ast
 import itertools
+import json
 import operator
 import re
 
 LOGGER = settings.LOGGER
+required_member_groups = ['dtol_users', 'dtol_sample_managers', 'dtolenv_users', 'dtolenv_sample_managers',
+                          'erga_users', 'erga_sample_managers']
 
 
 def convert_string_to_titlecase(txt):
@@ -47,7 +50,6 @@ def convert_string_to_titlecase(txt):
 def copo_dashboard(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
-    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
 
     if any(item in member_groups for item in required_member_groups):
         return render(request, 'copo/dashboard/copo_dashboard.html', {})
@@ -59,7 +61,6 @@ def copo_dashboard(request):
 def copo_tol_inspect(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
-    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
 
     if any(item in member_groups for item in required_member_groups):
         return render(request, 'copo/dashboard/copo_tol_inspect.html', {})
@@ -71,7 +72,6 @@ def copo_tol_inspect(request):
 def copo_tol_inspect_gal(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
-    required_member_groups = ['dtol_users', 'dtol_sample_managers', 'erga_users', 'erga_sample_managers']
 
     if any(item in member_groups for item in required_member_groups):
         return render(request, 'copo/dashboard/copo_tol_inspect_gal.html', {})
@@ -164,38 +164,48 @@ def get_profile_titles_nav_tabs(request):
     return HttpResponse(json_util.dumps(profile_types))
 
 
-def get_profiles_based_on_project(request):
-    project = request.GET["project"]
-    getProjectTitlesForUserOnly = request.GET["getProjectTitlesForUserOnly"]
+def get_profiles_for_tol_inspection(request):
+    data = request.POST["data"]  # "project" or "samples_data"
+    searchByFaceting = request.POST["searchByFaceting"]
+    getProjectTitlesForUserOnly = request.POST["getProjectTitlesForUserOnly"]
 
-    if "ASG" in project:
-        profiles = Profile().get_asg_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_asg_profiles()
-    elif "DTOL_EI" in project or "DTOL_ENV" in project or "DTOLENV" in project:
-        profiles = Profile().get_dtolenv_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_dtolenv_profiles()
-    elif "ERGA" in project:
-        profiles = Profile().get_erga_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_erga_profiles()
-    elif "Stand-alone" in project:
-        profiles = Profile().get_standalone_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_standalone_profiles()
+    if searchByFaceting == "true":
+        # Get profiles by project type with search faceting
+        match_dict = ast.literal_eval(data)  # Convert string to dictionary
+        samples = Sample().get_dtol_by_aggregation(match_dict)
+        projects = list(set([sample.get("tol_project", "") for sample in samples]))  # Get unique project types
+        projects.sort()  # Sort list in ascending order
+        manifest_ids = [sample.get("manifest_id", "") for sample in samples if
+                        sample.get("tol_project", "") == projects[0]]
+        profile_samples_count = [len(manifest_ids)]
+        manifest_ids = list(set(manifest_ids))  # Get unique manifest IDs
+        profiles = Profile().get_profiles_based_on_sample_data(projects, manifest_ids)
+
+        out = {'profiles': profiles, 'profile_samples_count': profile_samples_count, 'projects': projects}
+
     else:
-        profiles = Profile().get_dtol_only_profiles_based_on_user_id() if getProjectTitlesForUserOnly else Profile().get_dtol_only_profiles()
+        # Get profiles by project type without search faceting
+        profiles = Profile().get_profiles_by_aggregation(data, currentUser=getProjectTitlesForUserOnly)
+        samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), data) for profile in profiles]
+        profile_samples_count = [len(sample) for sample in samples]
 
-    samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile in profiles]
-    profile_samples_count = [len(sample) for sample in samples]
+        out = {'profiles': profiles, 'profile_samples_count': profile_samples_count}
 
-    return HttpResponse(
-        json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
+    return HttpResponse(json_util.dumps(out))
 
 
 def get_profiles_based_on_sample_data(request):
-    samples_dict = request.POST["samples_dict"]
-    samples_dict = ast.literal_eval(samples_dict)  # Convert string to dictionary
-    print("In Python samples dict:", samples_dict)
+    samples_data = request.POST["samples_data"]
+    samples_data = json.loads(samples_data)  # Convert string array to a list of dictionaries
 
-    return HttpResponse(json_util.dumps(samples_dict))
-    # samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), project) for profile in profiles]
-    # profile_samples_count = [len(sample) for sample in samples]
-    # return HttpResponse(
-    #     json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
+    projects = [x.get("project", "") for x in samples_data]
+    manifest_ids = [x.get("sample_manifest_IDs", "")[0] for x in samples_data]
+    profile_samples_count = [x.get("profile_samples_count", "") for x in samples_data]  # Number of samples per profile
+
+    profiles = Profile().get_profiles_based_on_sample_data(projects, manifest_ids)
+
+    return HttpResponse(
+        json_util.dumps({'profiles': profiles, 'profile_samples_count': profile_samples_count}))
 
 
 def get_sample_details(request):
@@ -215,6 +225,7 @@ def get_sample_details(request):
 
 def get_samples_by_search_faceting(request):
     url = request.build_absolute_uri()
+
     if not ViewLock().isViewLockedCreate(url=url):
         match_dict = request.POST["match_items"]
         match_dict = ast.literal_eval(match_dict)  # Convert string to dictionary

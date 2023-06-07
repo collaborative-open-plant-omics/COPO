@@ -1,0 +1,17 @@
+.sample_attributes_div > div {
+    margin: 5px;
+}
+
+hr {
+    margin: 10px 0 10px 0;
+}
+
+.char_factor{
+    margin: 10px 0 10px 10px;
+}
+
+.autocomplete {
+    z-index: 10;
+    margin-left: -170px;
+    margin-top: 0px
+}

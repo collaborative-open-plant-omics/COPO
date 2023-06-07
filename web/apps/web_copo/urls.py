@@ -5,7 +5,7 @@ from django.urls import path, re_path
 
 from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
-from . import views, copo_dashboard_views, copo_profile_views
+from . import views, copo_dashboard_views, copo_profile_views, copo_accessions_views
 
 app_name = 'web_copo'
 
@@ -41,6 +41,9 @@ urlpatterns = [
             name='copo_data'),
     re_path(r'^copo_samples/(?P<profile_id>[a-z0-9]+)/view', views.copo_samples,
             name='copo_samples'),
+    re_path(r'^copo_accessions/(?P<profile_id>[a-z0-9]+)/view',
+            copo_accessions_views.copo_accessions,
+            name='copo_accessions'),
     re_path(r'^copo_submissions/(?P<profile_id>[a-z0-9]+)/view', views.copo_submissions,
             name='copo_submissions'),
     re_path(r'^copo_people/(?P<profile_id>[a-z0-9]+)/view', views.copo_people,
@@ -68,6 +71,8 @@ urlpatterns = [
     path('delete_profile/', copo_profile_views.delete_profile, name="delete_profile"),
     path('copo_visualize/', views.copo_visualize, name="copo_visualize"),
     path('copo_profile_visualise/', copo_profile_views.copo_profile_visualise, name="copo_profile_visualise"),
+    path('copo_accessions_visualise/', copo_accessions_views.copo_accessions_visualise,
+         name="copo_accessions_visualise"),
     path('authenticate_figshare/', views.authenticate_figshare, name='authenticate_figshare'),
     path('publish_figshare/', ajax_handlers.publish_figshare, name='publish_figshare'),
     path('view_oauth_tokens/', views.view_oauth_tokens, name='view_oauth_tokens'),
@@ -200,9 +205,9 @@ urlpatterns = [
          name="update_spreadsheet_samples"),
     path('update_pending_samples_table/', ajax_handlers.update_pending_samples_table,
          name="update_pending_samples_table"),
-    path('get_profiles_based_on_project/',
-         copo_dashboard_views.get_profiles_based_on_project,
-         name="get_profiles_based_on_project"),
+    path('get_profiles_for_tol_inspection/',
+         copo_dashboard_views.get_profiles_for_tol_inspection,
+         name="get_profiles_for_tol_inspection"),
     path('get_profiles_based_on_sample_data/',
          copo_dashboard_views.get_profiles_based_on_sample_data,
          name="get_profiles_based_on_sample_data"),

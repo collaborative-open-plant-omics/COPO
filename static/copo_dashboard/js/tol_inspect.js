@@ -24,6 +24,8 @@ $(document).ready(function () {
     $(document).data("areAllSampleModalFieldsShown", false)
     $(document).data("showAllTableFieldsCheckBox", false);
     $(document).data("queryUserProfileRecordsCheckBox", true);
+    $(document).data("searchByFaceting", false);
+    $(document).data("selectedProfileID", "");
     $(document).data("navBarItems", [])
     $(document).data("searchQueryInUserProfile", {})
     $(document).data("searchQuery", {})
@@ -64,54 +66,35 @@ $(document).ready(function () {
     })
 
     $(document).on("click", ".fieldID", function () {
-        console.log("I am here")
         let preNavItem = $("#tolInspectNavBar li.active")
         let breadcrumb = $(".breadcrumb")
         let navBarItems = $(document).data("navBarItems")
+        let searchQueryDict = $(document).data("searchQuery")
 
         //  Ensure that duplicate fields are not included in the top navigation menu
         if (!navBarItems.includes(this.innerHTML)) {
-            // Clone "tol_inspect" web page table body so that it can be referenced when the
-            // different nav items are clicked
-            let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox") ?? false
-            let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox") ?? true
-            let navItem = preNavItem.text()
-            // let navItemView = $("#sample_panel_tol_inspect").clone()
-            let searchQueryDictUserProfile = $(document).data("searchQueryInUserProfile")
-            let searchQueryDict = $(document).data("searchQuery")
-            let field_value = $(this).next('.field_valueDiv').find('#field_valueID').val()
+            searchQueryDict[this.innerHTML] = $(this).next('.field_valueDiv').find('#field_valueID').val()
 
-            // if ((queryUserProfileRecordsCheckBox && queryCOPORecordsCheckBox) || (queryCOPORecordsCheckBox && !queryUserProfileRecordsCheckBox)) {
-            //     // Get samples by field and field value
-            //     // searchQueryDict["field"] = this.innerHTML;
-            //     // searchQueryDict["field_value"] = field_value;
-            //     searchQueryDict[this.innerHTML] = field_value
-            //     searchQueryDict = !$.isEmptyObject(searchQueryDictUserProfile) ? {...searchQueryDictUserProfile, ...searchQueryDict} : searchQueryDict
-            //
-            // } else {
-            //     // Get samples by field, field value and project
-            //     searchQueryDictUserProfile[this.innerHTML] = field_value;
+            // Remove 'tol_project' field/key from searchQueryDict so
+            // that the aggregation is not inlude querying by project
+            // if (Object.keys(searchQueryDict).includes("tol_project")) {
+            //     delete searchQueryDict["tol_project"]
             // }
-            searchQueryDict[this.innerHTML] = field_value
-
-            // Remove 'tol_project' field/key from searchQueryDict so that the aggregation is not inlude querying by project
-            if (Object.keys(searchQueryDict).includes("tol_project")) {
-                delete searchQueryDict["tol_project"]
-            }
 
             preNavItem.removeClass("active")
             // new/current nav item
             const listItem = $("<li/>", {});
             listItem.addClass("active")
             listItem.text(this.innerHTML)
+            listItem.attr("title", `Query for: ${$(this).next('.field_valueDiv').find('#field_valueID').val()}`)
             breadcrumb.append(listItem)
 
-            $("#tolInspectNavBar li.active").prev('li').html('<a href="">' + preNavItem.text() + '</a>')
+            $("#tolInspectNavBar li.active").prev('li').html('<a href="#">' + preNavItem.text() + '</a>')
             navBarItems.push(this.innerHTML)
 
-            $('#profile_types_filter').css("display", "none") // Hide profile types filter navbar tabs
+            $(document).data("searchByFaceting", true);
 
-            get_profile_titles_all(searchQueryDict) // Get all profile titles
+            get_profile_titles(searchQueryDict)
 
             $('.modal').modal('hide'); // Close the Bootstrap dialog
         } else {
@@ -124,8 +107,67 @@ $(document).ready(function () {
 
     $(document).on("click", ".profile_title_selectable_row, .hot_tab", populate_samples_table_based_on_profile_title)
 
+    $(document).on("click", ".breadcrumb li a", function (e) {
+        let clicked_nav_menu_item = $(this).text()
+        let searchQueryDict = $(document).data("searchQuery")
+        let current_profileID = $('td').data("profile_id")
+        let breadcrumb_liTag = $('.breadcrumb li')
+        let profile_titlesID = $("#profile_titles")
+
+        const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+        const profile_titles_row = $("#profile_titles tr")
+
+        $(document).data("selectedProfileID", current_profileID);
+        $(document).data("clicked_nav_menu_item", clicked_nav_menu_item);
+
+
+        //Remove active navbar menu item
+        $('#tolInspectNavBar li.active').removeClass('active').remove()
+
+        // Set clicked navbar menu item as active
+        $(this).closest('li').addClass('active').text(clicked_nav_menu_item)
+        $(this).closest('a').remove() // Remove the anchor tag
+
+        // If "SAMPLES" is clicked in the navbar menu then, revert to the initial view of web page
+        // when a profile that has samples was clicked
+        if (clicked_nav_menu_item === "SAMPLES") {
+            $(document).data("selectedProfileID", current_profileID)
+            // get_profile_titles(project) // Get all profile titles
+            // $(document).data("searchByFaceting", false);
+            get_profile_titles_nav_tabs() // Get profile types
+            highlight_empty_cells_in_selected_row()
+            const profile_titles_row = $("#profile_titles tr")
+            const profile_titles_row_count = profile_titles_row.length - 1
+
+            // Select profile title based on the index of the selected profile ID
+            let profile_title_row_index = $(document).data("selectedProfileID") && $(document).data("searchByFaceting")
+                ? $('td[data-profile_id*=' + $(document).data("selectedProfileID") + ']').index($(this).closest('tr'))
+                : 1
+
+            // '-1' is not recognised as the last index in the profile_titles_row array
+            // so set the last index to be the length of the array
+            profile_title_row_index = profile_title_row_index === -1 ? profile_titles_row_count : profile_title_row_index
+
+            profile_titlesID.find(".selected").removeClass("selected")
+
+            $(profile_titles_row[profile_title_row_index]).addClass("selected") // Add the selected class to the first profile displayed
+
+            $(profile_titles_row[profile_title_row_index]).click() // Click on the selected profile title
+
+        } else {
+            // Get samples based on the selected nav menu item
+            // Clear/empty the 'profile_samples' table is any samples are displayed
+            if ($.fn.DataTable.isDataTable('#profile_samples')) {
+                $("#profile_samples").DataTable().clear().destroy();
+
+            }
+            get_samples(profile_titles_row[1], project)
+        }
+    });
+
     // Get active manifest type tab on tab change
     $('#profile_types_filter').bind('click', function (e) {
+        $(document).data("selectedProfileID", "") //  Reset the selected profile ID
         let project = $(e.target).attr("href")
         get_profile_titles(project)
     });
@@ -137,6 +179,9 @@ function get_profile_titles_nav_tabs() {
     // check profiles
     let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox") ?? true
     let profile_titles_nav_bar = $("#profile_types_filter")
+    let profile_titles_liTag = $('#profile_types_filter li')
+    let profile_titlesID = $("#profile_titles")
+    let profile_titles_row = $("#profile_titles tr")
 
 
     $.ajax({
@@ -158,10 +203,38 @@ function get_profile_titles_nav_tabs() {
 
             const a = $("<a/>", {});
 
-            //  Set the first profile type (in alphabetical order) to be the first tab to be displayed
-            if (index === 0) {
-                $(li).addClass("active")
-                get_profile_titles(profile_type) // Get the profile titles for the first profile type
+
+            if ($(document).data("selectedProfileID")) {
+                //  Set the profile type of the selected profile to be the first tab to be displayed
+                const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+
+                if (profile_type === project) {
+                    // If data exists within the 'profile_types_filter' ul tag, remove it
+                    if (profile_titles_liTag.length > 0) $('#profile_types_filter li').remove();
+                    $(li).addClass("active")
+                    get_profile_titles(project) // Get the profile titles for the first profile type
+
+                    let profile_titles_row_count = $("#profile_titles tr").length - 1
+                    // Highlight the selected profile title
+                    $(document).data("searchByFaceting", false)
+                    let profile_title_row_index = $(document).data("selectedProfileID")
+                        ? $('td[data-profile_id*=' + $(document).data("selectedProfileID") + ']').index($(this).closest('tr'))
+                        : 1
+                    profile_titlesID.find(".selected").removeClass("selected")
+
+                    // '-1' is not recognised as the last index in the profile_titles_row array
+                    // so set the last index to be the length of the array
+                    profile_title_row_index = profile_title_row_index === -1 ? profile_titles_row_count : profile_title_row_index
+
+                    $(profile_titles_row[profile_title_row_index]).addClass("selected") // Add the selected class to the first profile displayed
+
+                }
+            } else {
+                //  Set the first profile type (in alphabetical order) to be the first tab to be displayed
+                if (index === 0) {
+                    $(li).addClass("active")
+                    get_profile_titles(profile_type) // Get the profile titles for the first profile type
+                }
             }
 
             a.attr("data-toggle", "tab");
@@ -401,6 +474,13 @@ function json2HtmlForm_SampleDetails(data) {
         animate: true,
         draggable: true,
         onhide: function () {
+            // Unhighlight the selected/clicked sample table row
+            $('#profile_samples').find('.selected_row').removeClass('selected_row');
+
+            // Highlight first profile title displayed in the profile titles table row....
+            // this becomes unhighlighted for some strange reason so highlight it again
+            $("#profile_titles").find(".selected").removeClass("selected")
+            $($("#profile_titles tr")[1]).addClass("selected")
         },
         onshown: function () {
 
@@ -412,7 +492,7 @@ function json2HtmlForm_SampleDetails(data) {
                 }
             });
 
-            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            const event = jQuery.Event("postformload"); // Individual components can trap and handle this event as they so wish
             $('body').trigger(event);
 
             document.querySelector("#sampleModalFieldsID").onchange = (e) => {
@@ -492,15 +572,15 @@ function get_profile_titles_on_queryCOPORecordsCheckBoxID() {
 function get_samples(row, project) {
     let profile_id = $(row).find("td").data("profile_id")
     let s;
-
+    let searchByFaceting = $(document).data("searchByFaceting")
     s = determine_sample_request_data(row, profile_id, project)
 
     $("#profile_id").val(profile_id)
     $("#spinner").show()
 
-
     $.ajax(s).done(function (data) {
             let sample_panel_tol_inspect = $("#sample_panel_tol_inspect")
+
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
                 $("#profile_samples").DataTable().clear().destroy();
 
@@ -513,23 +593,27 @@ function get_samples(row, project) {
             data = window.location.href.includes('dashboard') ? data.slice(0, 12) : data
 
             if (data.length) {
-                const header = $("<h4/>", {
-                    html: "Samples"
-                });
-                sample_panel_tol_inspect.find(".labelling").empty().append(header)
+                // If the search is not by faceting then, display the 'Samples' header as the active header
+                if (!searchByFaceting) {
+                    const header = $("<h4/>", {
+                        html: "Samples"
+                    });
 
-                // Create page top navigation
-                const navMenu = $("<li/>", {
-                    class: "active"
-                });
+                    sample_panel_tol_inspect.find(".labelling").empty().append(header)
 
-                navMenu.text("SAMPLES")
+                    // Create page top navigation
+                    const navMenu = $("<li/>", {
+                        class: "active"
+                    });
 
-                // Add 'SAMPLES' to the global navBarItems list
-                $(document).data("navBarItems", [])
-                $(document).data("navBarItems").push('SAMPLES')
+                    navMenu.text("SAMPLES")
 
-                $("#tolInspectNavBar").find(".breadcrumb").empty().append(navMenu)
+                    // Add 'SAMPLES' to the global navBarItems list
+                    $(document).data("navBarItems", [])
+                    $(document).data("navBarItems").push('SAMPLES')
+
+                    $("#tolInspectNavBar").find(".breadcrumb").empty().append(navMenu)
+                }
 
                 // Show the breadcrumb/ navigation bar is samples exist on tol_inspect web page
                 if (!window.location.href.includes('dashboard')) $("#tolInspectNavBar").find(".breadcrumb").show()
@@ -639,7 +723,6 @@ function get_samples(row, project) {
                     let filterByCOPODatabaseIDCheckbox_html = '<label style="padding-right: 30px"> Query in<span class="font-weight-bold ms-1"> COPO </span>record:<input id="queryCOPORecordsCheckBoxID" onclick="get_profile_titles_on_queryCOPORecordsCheckBoxID(this)" style="padding-right:20px; margin-right:8px" type="checkbox"">' +
                         '                                     </label>'
 
-                    //$("#profile_samples_filter").prepend('<label style="padding-right: 40px"> Show all fields: <input id="showAllTableFieldsCheckBoxID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>');
                     // Create a div that has checkboxes on the same row
                     let profileSamplesTable_checkBoxesDiv = $('<div id="profileSamplesTable_checkBoxesDiv" style="display: inline;"> </div>')
                     profileSamplesTable_checkBoxesDiv.append(showAllTableFieldsCheckbox_html)
@@ -748,35 +831,115 @@ function populate_samples_table_based_on_profile_title(ev) {
     get_samples(row, project)
 }
 
-function get_profile_titles(project) {
+function get_profile_titles(data) {
     // get profiles with samples needing looked at and populate left hand column
     let searchQueryDict = $(document).data("searchQuery")
+    let match_items = JSON.stringify(data)
     let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox")
     let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox") ?? false
     let getProjectTitlesForUserOnly = !!($.isEmptyObject(searchQueryDict) && queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox)
+    let searchByFaceting = typeof (data) !== 'string'
+    let profile_titles_nav_bar = $("#profile_types_filter")
+
+    $(document).data("searchByFaceting", searchByFaceting);
+
+    // If data is of type 'string' i.e. the value of data is 'project type', search by faceting is not required
+    // else if data is of type 'object' (dictionary) i.e. the value of data is 'match_items' data,
+    // search by faceting is required
+    data = searchByFaceting ? match_items : data
 
     $.ajax({
-        url: "/copo/get_profiles_based_on_project",
-        method: "GET",
+        url: "/copo/get_profiles_for_tol_inspection/",
+        headers: {'X-CSRFToken': $.cookie('csrftoken')},
+        method: "POST",
         dataType: "json",
         data: {
-            "project": project,
-            "getProjectTitlesForUserOnly": getProjectTitlesForUserOnly,
+            "data": data,
+            "searchByFaceting": searchByFaceting,
+            "getProjectTitlesForUserOnly": getProjectTitlesForUserOnly
         }
     }).error(function (e) {
         console.error(e)
     }).done(function (data) {
         let profile_titlesID = $("#profile_titles")
+        let profile_titles_liTag = $('#profile_types_filter li')
+
         // Clear existing data in the profile titles' table
         if ($.fn.DataTable.isDataTable('#profile_titles')) {
             profile_titlesID.DataTable().clear().destroy();
         }
+
+        // Populate the nav bar/tab of the profile titles table
+        // on the left of the web page with profile titles
+        if (Object.hasOwn(data, "projects")) {
+            // Get get_profile_titles_nav_tabs
+            // If data exists within the ul tag, remove it
+            if (profile_titles_liTag.length > 0) $('#profile_types_filter li').remove();
+            data["projects"].forEach(function (profile_type, index) {
+                // Set Profile titles nav tab
+                const li = $("<li/>", {
+                    class: "hot_tab in"
+                });
+
+                const a = $("<a/>", {});
+
+                //  Set the first profile type (in alphabetical order) to be the first tab to be displayed
+                if (index === 0) {
+                    $(li).addClass("active")
+                }
+
+                a.attr("data-toggle", "tab");
+                a.attr("data-type", "tab");
+                a.attr("href", profile_type);
+                a.text(profile_type);
+
+                li.append(a);
+
+                profile_titles_nav_bar.append(li);
+            })
+        }
+
+        // Set profile titles
         $(data['profiles']).each(function (d) {
             let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
-            profile_titlesID.find("tbody").append("<tr class='profile_title_selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'][d] + "</td></tr>")
+            let profile_id = searchByFaceting ? data['profiles'][d]._id : data['profiles'][d]._id.$oid
+
+            profile_titlesID.find("tbody").append("<tr class='profile_title_selectable_row'><td style='max-width: 10px' data-profile_id='" + profile_id + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'][d] + "</td></tr>")
 
         })
-        $($("#profile_titles tr")[1]).click()
+
+        const profile_titles_row = $("#profile_titles tr")
+        const profile_titles_row_count = profile_titles_row.length - 1
+
+        console.log("selectedProfileID:", $(document).data("selectedProfileID"))
+
+        let profile_title_row_index = $(document).data("selectedProfileID")
+            ? $('td[data-profile_id*=' + $(document).data("selectedProfileID") + ']').index($(this).closest('tr'))
+            : 1
+
+        // '-1' is not recognised as the last index in the profile_titles_row array
+        // so set the last index to be the length of the array
+        profile_title_row_index = profile_title_row_index === -1 ? profile_titles_row_count : profile_title_row_index
+
+        if (searchByFaceting) {
+            profile_titlesID.find(".selected").removeClass("selected")
+
+
+            $(profile_titles_row[profile_title_row_index]).addClass("selected") // Add the selected class to the first profile displayed
+
+            // Clear/empty the 'profile_samples' table if any samples are displayed
+            if ($.fn.DataTable.isDataTable('#profile_samples')) {
+                $("#profile_samples").DataTable().clear().destroy();
+            }
+
+            // Get active project/profile type
+            const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+
+            // Get samples for active profile type
+            get_samples(profile_titles_row[profile_title_row_index], project) // Populate samples table with samples from the first profile displayed
+        } else {
+            $(profile_titles_row[profile_title_row_index]).click()
+        }
 
 
         $.fn.dataTable.moment('DD/MM/YYYY');
@@ -790,82 +953,6 @@ function get_profile_titles(project) {
         })
 
     })
-}
-
-function get_profile_titles_all(searchQueryDict) {
-    // get all profiles with samples needing looked at and populate left hand column
-    //let searchQueryDict = $(document).data("searchQuery")
-    console.log(searchQueryDict)
-    let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox")
-    let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox") ?? false
-    let getProjectTitlesForUserOnly = !!($.isEmptyObject(searchQueryDict) && queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox)
-
-    let match_items = JSON.stringify(searchQueryDict)
-    console.log("Match items: ", match_items)
-    const samples_dict = []
-    // Get samples data  by search faceting
-    $.ajax({
-        url: "/copo/get_samples_by_search_faceting/",
-        data: {"match_items": match_items},
-        headers: {'X-CSRFToken': $.cookie('csrftoken')},
-        method: "POST",
-        dataType: "json"
-    }).error(function (e) {
-        console.error(e)
-    }).done(function (data) {
-
-        const projects = [...new Set(data.map(x => x.tol_project))]; // Remove duplicates with Set()
-
-        $(projects).each(function (index, project) {
-            const sampleIDs = data.map(function (item) {
-                if (item.tol_project === project) {
-                    return item._id
-                }
-            });
-            const samples_count = sampleIDs.length
-
-            samples_dict.push({"project": project, "profile_samples_count": samples_count, "sample_IDs": sampleIDs})
-        })
-
-        // Get profiles based on sample information
-        console.log("Samples dict2: ", samples_dict)
-        $.ajax({
-            url: "/copo/get_profiles_based_on_sample_data/",
-            data: {"samples_dict": samples_dict},
-            headers: {'X-CSRFToken': $.cookie('csrftoken')},
-            method: "POST",
-            dataType: "json"
-        }).error(function (e) {
-            console.log(`Error: ${e.message}`)
-        }).done(function (data) {
-        })
-    })
-
-
-    // let profile_titlesID = $("#profile_titles")
-    // // Clear existing data in the profile titles' table
-    // if ($.fn.DataTable.isDataTable('#profile_titles')) {
-    //     profile_titlesID.DataTable().clear().destroy();
-    // }
-    // $(profileID_lst).each(function (d) {
-    //     let date = new Date(data['profiles'][d].date_created.$date).toLocaleDateString('en-GB', {timeZone: 'UTC'})
-    //     profile_titlesID.find("tbody").append("<tr class='profile_title_selectable_row'><td style='max-width: 10px' data-profile_id='" + data['profiles'][d]._id.$oid + "'>" + data['profiles'][d].title + "</td><td style='text-align: center'>" + date + "</td><td style='text-align: center'>" + data['profile_samples_count'][d] + "</td></tr>")
-    //
-    // })
-    // $($("#profile_titles tr")[1]).click()
-    //
-    //
-    // $.fn.dataTable.moment('DD/MM/YYYY');
-    // profile_titlesID.DataTable({
-    //     responsive: true,
-    //     paging: false,
-    //     destroy: true,
-    //     dom: '<"top"f>rt<"bottom"lp><"clear">',
-    //     "order": [[1, "desc"]],
-    //
-    // })
-
-
 }
 
 function highlight_empty_cells_in_selected_row() {
@@ -893,15 +980,45 @@ function highlight_empty_cells_in_selected_row() {
     })
 }
 
-function determine_sample_request_data(row, profile_id, project) {
-    let project_field_name = "tol_project"
 
+function determine_sample_request_data(row, profile_id, project) {
+    let match_items;
+    let searchQueryDict_with_profileID;
+    let project_field_name = "tol_project"
     let searchQueryDict = $(document).data("searchQuery") ?? {}
+    let clicked_nav_menu_item = $(document).data("clicked_nav_menu_item") ?? null
+    let navBarItems = $(document).data("navBarItems")
+
     searchQueryDict[project_field_name] = project
 
-    let searchQueryDict_with_profileID = {...{"profile_id": profile_id}, ...searchQueryDict}
+    // If nav menu item is clicked, get samples based on the nav menu item clicked
+    // i.e. get match_items based on the nav menu item clicked
+    // Else, get active nav menu item and get samples based on the active nav menu item
+    if (clicked_nav_menu_item) {
+        // Get match_items based on the nav menu item clicked
+        let all_object_keys = Object.keys(searchQueryDict)
+        let clicked_nav_menu_item_index = all_object_keys.indexOf(clicked_nav_menu_item)
 
-    let match_items = JSON.stringify(searchQueryDict_with_profileID)
+        let searchQueryDict_based_on_clickedNavItem = all_object_keys.slice(0, clicked_nav_menu_item_index + 1).reduce((result, key) => {
+            result[key] = searchQueryDict[key];
+            return result;
+        }, {});
+
+        // Set navBarItems according to the clicked nav menu item
+        navBarItems = navBarItems.slice(0, clicked_nav_menu_item_index + 1)
+        $(document).data("navBarItems", navBarItems)
+
+        // Set searchQueryDict according to the clicked nav menu item
+        searchQueryDict = $(document).data("searchQuery", searchQueryDict_based_on_clickedNavItem)
+
+        // Include the active profile ID to perform the MongoDB match aggregation query
+        searchQueryDict_with_profileID = {...{"profile_id": profile_id}, ...searchQueryDict_based_on_clickedNavItem}
+    } else {
+        // Include the active profile ID to perform the MongoDB match aggregation query
+        searchQueryDict_with_profileID = {...{"profile_id": profile_id}, ...searchQueryDict}
+    }
+
+    match_items = JSON.stringify(searchQueryDict_with_profileID)
 
     return {
         url: "/copo/get_samples_by_search_faceting/",

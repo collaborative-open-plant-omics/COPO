@@ -77,11 +77,13 @@ $(document).ready(function () {
     grid_count.text(profiles.length); // Number of profile records visible
     grid_total.text(profiles_total); //  Total number of profile records for the user
 
-    appendRecordComponents($('div.grid'))
+    let div_grid = $('div.grid')
+
+    appendRecordComponents(div_grid)
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
 
-    set_profile_grid_heading($('div.grid')) // Set profile grid heading
+    set_profile_grid_heading(div_grid) // Set profile grid heading
 
     // Adjust margin-bottom for associated types when profile description appears on 2 lines
     set_associated_types_marginBottom()
