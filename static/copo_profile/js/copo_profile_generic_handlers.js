@@ -171,6 +171,21 @@ function get_copo_profile_components() {
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },
         {
+            component: 'accessions',
+            title: 'Accessions',
+            iconClass: "fa fa-barcode",
+            semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_accessions",
+            buttons: ["accept_reject_samples", "tol_inspect"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "accessions_color",
+            color: "pink",
+            profile_component: true,
+            tableID: 'accessions_table',
+            recordActions: ["btn-toggle"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
             component: 'datafile',
             title: 'Datafiles',
             iconClass: "fa fa-database",

@@ -97,7 +97,9 @@ from submission.helpers import generic_helper as ghlper
 @login_required
 def copo_accessions(request, profile_id):
     # The input parameter, 'profile_id' is actually 'sample_id'
-    profile_id = Sample().get_profileID_by_sampleID(profile_id)
+    print("Profile ID 1: ", profile_id)
+    # profile_id = Sample().get_profileID_by_sampleID(profile_id)
+    # print("Profile ID 2: ", profile_id)
     request.session["profile_id"] = profile_id
     profile = Profile().get_record(profile_id)
     groups = group_functions.get_group_membership_asString()
@@ -107,17 +109,17 @@ def copo_accessions(request, profile_id):
 
 @login_required
 def copo_accessions_visualise(request):
-    isUserProfileToggled = request.POST.get("isUserProfileToggled", False)
+    isUserProfileActive = request.POST.get("isUserProfileActive", True)
     profile_id = request.session.get("profile_id", str())
     isSampleProfileTypeStandalone = request.POST.get("isSampleProfileTypeStandalone", False)
 
     print("Is project type standalone: ", isSampleProfileTypeStandalone)
 
     samples = Sample().get_accessions(profile_id, isSampleProfileTypeStandalone=isSampleProfileTypeStandalone,
-                                      isCurrentUser=isUserProfileToggled)
+                                      isUserProfileActive=isUserProfileActive)
 
     return HttpResponse(json_util.dumps(samples))
-    
+
     # context = dict()
     #
     # task = request.POST.get("task", str())

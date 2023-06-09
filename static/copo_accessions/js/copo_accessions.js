@@ -4,7 +4,7 @@ var sampleTableInstance = null;
 
 $(document).ready(function () {
     $(document).data("isSampleProfileTypeStandalone", false)
-    $(document).data("isUserProfileToggled", false)
+    $(document).data("isUserProfileActive", true)
     //****************************** Event Handlers Block *************************//
 
     // test begins
@@ -49,77 +49,77 @@ $(document).ready(function () {
     });
 
     //add new component button
-    $(document).on("click", ".new-samples-template", function (event) {
-        initiate_description({});
-    });
+    // $(document).on("click", ".new-samples-template", function (event) {
+    //     initiate_description({});
+    // });
 
-    $(document).on("show.bs.modal", "#sample_spreadsheet_modal", function (event) {
-        $("#sample_spreadsheet_modal").css("overflow-y", "scroll")
-        $("#upload_label").show()
-        $("#tabs").hide()
-        $("#sample_info").hide()
-        if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
-            $("#sample_parse_table").DataTable().clear().destroy();
-        }
-        $("#sample_spreadsheet_modal").find("thead").empty()
-        $("#sample_spreadsheet_modal").find("tbody").empty()
-
-    })
-
-    //details button hover
-    $(document).on("mouseover", ".detail-hover-message", function (event) {
-        $(this).prop('title', 'Click to view ' + component + ' details');
-    });
+    // $(document).on("show.bs.modal", "#sample_spreadsheet_modal", function (event) {
+    //     $("#sample_spreadsheet_modal").css("overflow-y", "scroll")
+    //     $("#upload_label").show()
+    //     $("#tabs").hide()
+    //     $("#sample_info").hide()
+    //     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
+    //         $("#sample_parse_table").DataTable().clear().destroy();
+    //     }
+    //     $("#sample_spreadsheet_modal").find("thead").empty()
+    //     $("#sample_spreadsheet_modal").find("tbody").empty()
+    //
+    // })
+    //
+    // //details button hover
+    // $(document).on("mouseover", ".detail-hover-message", function (event) {
+    //     $(this).prop('title', 'Click to view ' + component + ' details');
+    // });
 
 
     //avoid enter key to submit wizard forms
-    $(document).on("keyup keypress", ".wizard-dynamic-form", function (event) {
-        var keyCode = event.keyCode || event.which;
-        if (keyCode === 13) {
-            event.preventDefault();
-            return false;
-        }
-    });
-
-    //delete an incomplete description
-    $(document).on("click", ".delete-description-i", function (event) {
-        event.preventDefault();
-        // delete_incomplete_description($(this), $(this).attr("data-target"));
-    });
+    // $(document).on("keyup keypress", ".wizard-dynamic-form", function (event) {
+    //     var keyCode = event.keyCode || event.which;
+    //     if (keyCode === 13) {
+    //         event.preventDefault();
+    //         return false;
+    //     }
+    // });
+    //
+    // //delete an incomplete description
+    // $(document).on("click", ".delete-description-i", function (event) {
+    //     event.preventDefault();
+    //     // delete_incomplete_description($(this), $(this).attr("data-target"));
+    // });
 
     //reload an incomplete description
-    $(document).on("click", ".reload-description-i", function (event) {
-        event.preventDefault();
-        var parameters = {'description_token': $(this).attr("data-target"), 'info_object': $(this)};
-        initiate_description(parameters);
-    });
-
-    $(document).on('click', '.wiz-btn-next', function (event) {
-        wizardElement.wizard('next');
-    });
-
-    $(document).on('click', '.wiz-btn-prev', function (event) {
-        wizardElement.wizard('previous');
-    });
+    // $(document).on("click", ".reload-description-i", function (event) {
+    //     event.preventDefault();
+    //     var parameters = {'description_token': $(this).attr("data-target"), 'info_object': $(this)};
+    //     initiate_description(parameters);
+    // });
+    //
+    // $(document).on('click', '.wiz-btn-next', function (event) {
+    //     wizardElement.wizard('next');
+    // });
+    //
+    // $(document).on('click', '.wiz-btn-prev', function (event) {
+    //     wizardElement.wizard('previous');
+    // });
 
     //var groups = $("#groups").val().split(",")
-    if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
-        $(".new-samples-spreadsheet-template").show()
-        $(".new-samples-spreadsheet-template").show()
-        $(".new-samples-template").hide()
+    // if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
+    //     $(".new-samples-spreadsheet-template").show()
+    //     $(".new-samples-spreadsheet-template").show()
+    //     $(".new-samples-template").hide()
+    //
+    //     $("#help_add_button").removeClass("primary").addClass("green")
+    //     $("#help_add_button").children("i").removeClass("add").addClass("table")
+    // }
 
-        $("#help_add_button").removeClass("primary").addClass("green")
-        $("#help_add_button").children("i").removeClass("add").addClass("table")
-    }
-
-    if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
-        $(".new-samples-spreadsheet-template-erga").show()
-
-        $(".new-samples-template").hide()
-
-        $("#help_add_button").removeClass("primary").addClass("green")
-        $("#help_add_button").children("i").removeClass("add").addClass("table")
-    }
+    // if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
+    //     $(".new-samples-spreadsheet-template-erga").show()
+    //
+    //     $(".new-samples-template").hide()
+    //
+    //     $("#help_add_button").removeClass("primary").addClass("green")
+    //     $("#help_add_button").children("i").removeClass("add").addClass("table")
+    // }
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
         $(".accept_reject_samples").show()
     }
@@ -136,431 +136,431 @@ $(document).ready(function () {
         document.location = "/copo/tol_inspect"
     })
 
-    $(document).on("change", "#number_of_samples", function (evt) {
-        let count = parseInt($(evt.currentTarget).val())
-        disable_rack_id(count)
-    })
+    // $(document).on("change", "#number_of_samples", function (evt) {
+    //     let count = parseInt($(evt.currentTarget).val())
+    //     disable_rack_id(count)
+    // })
 
 
-    function disable_rack_id(count) {
-        if (count > 1) {
-            $("#rack_id").removeAttr("disabled")
-        } else {
-            $("#rack_id").attr("disabled", "disabled")
-        }
-    }
+    // function disable_rack_id(count) {
+    //     if (count > 1) {
+    //         $("#rack_id").removeAttr("disabled")
+    //     } else {
+    //         $("#rack_id").attr("disabled", "disabled")
+    //     }
+    // }
 
 
     //custom stage renderers
-    var dispatchStageRenderer = {
-        perform_sample_generation: function (stage) {
-            generate_sample_edit_table(stage);
-        },
-        generate_dtol_stage: function (stage) {
-            generate_dtol_stage(stage);
-        }
-    }; //end of dispatchStageCallback
+    // var dispatchStageRenderer = {
+    //     perform_sample_generation: function (stage) {
+    //         generate_sample_edit_table(stage);
+    //     },
+    //     generate_dtol_stage: function (stage) {
+    //         generate_dtol_stage(stage);
+    //     }
+    // }; //end of dispatchStageCallback
 
     //Enter-key event for table cell update...
-    $(document).on('keypress', '.cell-edit-panel', function (event) {
-        var keyCode = event.keyCode || event.which;
-        if (keyCode === 13) {
-            event.preventDefault();
-
-            var cells = sampleTableInstance.cells('.focus');
-
-            if (cells && cells[0].length > 0) {
-                $(document).find(".copo-form-group").webuiPopover('destroy');
-
-                var cell = cells[0];
-                var targetCell = sampleTableInstance.cell(cell[0].row, cell[0].column);
-
-                manage_cell_edit(sampleTableInstance, targetCell);
-            }
-
-            return false;
-        }
-    });
-
-    //handle file description file upload
-    $(document).on('change', '#description_file', function (e) {
-        if ($(this).prop('files').length > 0) {
-            var file = this.files[0];
-            var file_type = file.type;
-
-            var permitted_types = ["text/csv"];
-
-            if (permitted_types.indexOf(file_type) > -1) {
-                formdata = new FormData();
-                formdata.append("csv", file);
-                formdata.append("request_action", "description_csv");
-                formdata.append("description_token", sampleDescriptionToken + "");
-                var dialog = null;
-
-                $.ajax({
-                    type: 'POST',
-                    url: wizardURL,
-                    headers: {
-                        'X-CSRFToken': csrftoken
-                    },
-                    data: formdata,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    beforeSend: function () {
-                        dialog = trigger_csv_upload();
-                        dialog.realize();
-                        dialog.open();
-                        $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<div>Processing <strong>" + file.name + "</strong></div><div style='margin-top: 5px;'>Please wait...</div>");
-                    },
-                    success: function (data) {
-                        var result = data.result;
-                        if (result.hasOwnProperty("status") && result.status == "success") {
-                            dialog.setType(BootstrapDialog.TYPE_SUCCESS);
-                            $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<span class='text-success'>Successfully ingested metadata from " + file.name + "</span>");
-                            $($(dialog.getModalFooter()).find("#btn-cancel-process")[0])
-                                .addClass('green')
-                                .html('Refresh table');
-                        } else if (result.hasOwnProperty("status") && result.status == "error") {
-                            dialog.setType(BootstrapDialog.TYPE_DANGER);
-                            $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<span class='text-danger'>" + result.message + "</span>");
-                            $($(dialog.getModalFooter()).find("#btn-cancel-process")[0])
-                                .addClass('red')
-                                .html('Abort');
-                        }
-                    }
-                });
-
-            } else {
-                BootstrapDialog.show({
-                    title: "File Type Error",
-                    message: "Please select a valid CSV file",
-                    cssClass: 'copo-modal3',
-                    closable: false,
-                    animate: true,
-                    type: BootstrapDialog.TYPE_DANGER,
-                    buttons: [{
-                        label: 'OK',
-                        cssClass: 'tiny ui basic red button',
-                        action: function (dialogRef) {
-                            dialogRef.close();
-                        }
-                    }]
-                });
-                $(this).val('');
-                return false;
-            }
-        }
-
-    });
+    // $(document).on('keypress', '.cell-edit-panel', function (event) {
+    //     var keyCode = event.keyCode || event.which;
+    //     if (keyCode === 13) {
+    //         event.preventDefault();
+    //
+    //         var cells = sampleTableInstance.cells('.focus');
+    //
+    //         if (cells && cells[0].length > 0) {
+    //             $(document).find(".copo-form-group").webuiPopover('destroy');
+    //
+    //             var cell = cells[0];
+    //             var targetCell = sampleTableInstance.cell(cell[0].row, cell[0].column);
+    //
+    //             manage_cell_edit(sampleTableInstance, targetCell);
+    //         }
+    //
+    //         return false;
+    //     }
+    // });
+    //
+    // //handle file description file upload
+    // $(document).on('change', '#description_file', function (e) {
+    //     if ($(this).prop('files').length > 0) {
+    //         var file = this.files[0];
+    //         var file_type = file.type;
+    //
+    //         var permitted_types = ["text/csv"];
+    //
+    //         if (permitted_types.indexOf(file_type) > -1) {
+    //             formdata = new FormData();
+    //             formdata.append("csv", file);
+    //             formdata.append("request_action", "description_csv");
+    //             formdata.append("description_token", sampleDescriptionToken + "");
+    //             var dialog = null;
+    //
+    //             $.ajax({
+    //                 type: 'POST',
+    //                 url: wizardURL,
+    //                 headers: {
+    //                     'X-CSRFToken': csrftoken
+    //                 },
+    //                 data: formdata,
+    //                 contentType: false,
+    //                 cache: false,
+    //                 processData: false,
+    //                 beforeSend: function () {
+    //                     dialog = trigger_csv_upload();
+    //                     dialog.realize();
+    //                     dialog.open();
+    //                     $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<div>Processing <strong>" + file.name + "</strong></div><div style='margin-top: 5px;'>Please wait...</div>");
+    //                 },
+    //                 success: function (data) {
+    //                     var result = data.result;
+    //                     if (result.hasOwnProperty("status") && result.status == "success") {
+    //                         dialog.setType(BootstrapDialog.TYPE_SUCCESS);
+    //                         $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<span class='text-success'>Successfully ingested metadata from " + file.name + "</span>");
+    //                         $($(dialog.getModalFooter()).find("#btn-cancel-process")[0])
+    //                             .addClass('green')
+    //                             .html('Refresh table');
+    //                     } else if (result.hasOwnProperty("status") && result.status == "error") {
+    //                         dialog.setType(BootstrapDialog.TYPE_DANGER);
+    //                         $(dialog.getModalBody()).find(".feedbackrow").find(".feedbackcol").html("<span class='text-danger'>" + result.message + "</span>");
+    //                         $($(dialog.getModalFooter()).find("#btn-cancel-process")[0])
+    //                             .addClass('red')
+    //                             .html('Abort');
+    //                     }
+    //                 }
+    //             });
+    //
+    //         } else {
+    //             BootstrapDialog.show({
+    //                 title: "File Type Error",
+    //                 message: "Please select a valid CSV file",
+    //                 cssClass: 'copo-modal3',
+    //                 closable: false,
+    //                 animate: true,
+    //                 type: BootstrapDialog.TYPE_DANGER,
+    //                 buttons: [{
+    //                     label: 'OK',
+    //                     cssClass: 'tiny ui basic red button',
+    //                     action: function (dialogRef) {
+    //                         dialogRef.close();
+    //                     }
+    //                 }]
+    //             });
+    //             $(this).val('');
+    //             return false;
+    //         }
+    //     }
+    //
+    // });
 
 
     //---------------------
 
-    $(document).on("click", ".btn-toggle", toggle_accessions_view)
+    $(document).on("click", ".btn-toggle1 .btn-toggle2", toggle_accessions_view)
 
     //******************************* wizard events *******************************//
 
     //handle event for saving description for later...
-    $('#reload_act').on('click', function (event) {
-        window.location.reload();
-    });
+    // $('#reload_act').on('click', function (event) {
+    //     window.location.reload();
+    // });
 
     //handle event for discarding current description...
-    $('#remove_act').on('click', function (event) {
-        //confirm user decision
-        BootstrapDialog.show({
-            title: "Discard description",
-            message: "Are you sure you want to discard the current description?",
-            cssClass: 'copo-modal3',
-            closable: false,
-            animate: true,
-            type: BootstrapDialog.TYPE_DANGER,
-            buttons: [
-                {
-                    label: 'Cancel',
-                    cssClass: 'tiny ui basic button',
-                    action: function (dialogRef) {
-                        dialogRef.close();
-                    }
-                },
-                {
-                    label: '<i class="copo-components-icons fa fa-times"></i> Discard',
-                    cssClass: 'tiny ui basic red button',
-                    action: function (dialogRef) {
-                        if (sampleDescriptionToken == '') {
-                            dialogRef.close();
-                            window.location.reload();
-                        } else {
-                            $.ajax({
-                                url: wizardURL,
-                                type: "POST",
-                                headers: {
-                                    'X-CSRFToken': csrftoken
-                                },
-                                data: {
-                                    'request_action': "discard_description",
-                                    'description_token': sampleDescriptionToken
-
-                                },
-                                success: function (data) {
-                                    dialogRef.close();
-                                    window.location.reload();
-
-                                },
-                                error: function () {
-                                    alert("An error occurred!");
-                                }
-                            });
-                        }
-                    }
-                }
-            ]
-        });
-
-    });
-
-    $('.wiz-showme').on('click', function (e) {
-        e.preventDefault();
-
-        var target = $(this).attr("data-target");
-        var label = $(this).attr("data-label");
-        var item = null;
-
-        if ($("#" + target).length) {
-            item = $("#" + target);
-        } else if ($("." + target).length) {
-            item = $("." + target)[0];
-        }
-
-        if (item) {
-            item.webuiPopover('destroy');
-            item.webuiPopover({
-                title: label,
-                content: '<div class="webpop-content-div">Click x to dismiss</div>',
-                trigger: 'sticky',
-                width: 200,
-                arrow: true,
-                closeable: true,
-                backdrop: true
-            });
-        }
-    });
-
-
-    //handle events for step change
-    wizardElement.on('actionclicked.fu.wizard', function (evt, data) {
-        $(self).data('step', data.step);
-
-        stage_navigate(evt, data);
-    });
-
-    //handle events for step change
-    wizardElement.on('changed.fu.wizard', function (evt, data) {
-        //form controls help tip
-        refresh_accessions_tool_tips();
-        var activeStageIndx = wizardElement.wizard('selectedItem').step;
-
-        //set up validator
-        set_up_validator($("#wizard_form_" + activeStageIndx));
-    });
-
-    //sample accession resolution
-    $(document).on("click", ".resolver-submit", function (event) {
-        event.preventDefault();
-
-        var parentElem = $(this).closest(".copo-form-group");
-        var dataElem = parentElem.find(".resolver-data");
-        var resolverValue = dataElem.val().replace(/^\s+|\s+$/g, '');
-
-
-        if (resolverValue.length == 0) {
-            return false;
-        }
-
-        var spinnerElem = $('<button/>',
-            {
-                type: "button",
-                class: "btn btn-default",
-                html: '<i class="fa fa-spinner fa-pulse fa-1x"></i>'
-            });
-
-        spinnerElem.insertBefore($(this));
-
-        //get resolver uri
-        var resolverURL = dataElem.attr("data-resolve-uri") + resolverValue;
-
-        //get resolver component
-        var resolverComponent = dataElem.attr("data-resolve-component");
-
-        if (resolverComponent.toLowerCase() == "biosample") {
-            $.ajax({
-                url: wizardURL,
-                type: "POST",
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                data: {
-                    'request_action': "resolve_uri",
-                    'resolver_uri': resolverURL
-
-                },
-                success: function (data) {
-                    spinnerElem.remove();
-                    if (data.resolved_output.status == 'success') {
-                        //set hidden value, and display result to user
-                        parentElem.removeClass("has-error has-danger");
-                        parentElem.find(".help-block").html("Successfully resolved accession. Resolved sample has been registered, and also displayed below. Click 'Next' to proceed.");
-                        $('#' + dataElem.attr('id') + "_hidden").val(JSON.stringify(data.resolved_output.value));
-                        parentElem.find(".feedback-element").html(JSON.stringify(data.resolved_output.value));
-                    } else {
-                        $('#' + dataElem.attr('id') + "_hidden").val('');
-                        parentElem.find(".feedback-element").html('');
-                        parentElem.addClass("has-error has-danger");
-                        parentElem.find(".help-block").html("Couldn't resolve " + resolverValue + "!");
-                    }
-                },
-                error: function () {
-                    alert("Error while attempting to resolve accession!");
-                }
-            });
-        }
-    });
-
-    $(document).on("change", ".copo-input-data", function () {
-        if (["provided_names", "bundle_name"].indexOf(this.id) > -1) {
-            var shownValue = $(this).val().trim();
-            var hiddenValue = $('#' + this.id + "_hidden").val().trim();
-
-            if (shownValue != hiddenValue) {
-                $(this).closest(".copo-form-group").find(".help-block").html('');
-                $('#' + this.id + "_hidden").val('');
-                return false;
-            }
-        }
-    });
-
-    //copo-trigger-submit control handling
-    $(document).on("click", ".copo-trigger-submit", function (event) {
-        event.preventDefault();
-
-        var parentElem = $(this).closest(".copo-form-group");
-        var triggerTarget = $(this).attr("data-target");
-        var dataElem = parentElem.find(".copo-input-data");
-        var inputValue = dataElem.val().replace(/^\s+|\s+$/g, '');
-
-
-        if (inputValue.length == 0) {
-            parentElem.find(".feedback-element").html('');
-            parentElem.addClass("has-error has-danger");
-            parentElem.find(".help-block").html('');
-            parentElem.find(".help-block").eq(0).html("Please enter a value for " + parentElem.find("label").html() + "!");
-            return false;
-        }
-
-        parentElem.find(".spinner-element").remove();
-
-        var spinnerElem = $('<button/>',
-            {
-                type: "button",
-                class: "btn btn-default spinner-element",
-                html: '<i class="fa fa-spinner fa-pulse fa-1x"></i>'
-            });
-
-        spinnerElem.insertBefore($(this));
-
-
-        if (triggerTarget == "provided_names") {
-            $.ajax({
-                url: wizardURL,
-                type: "POST",
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                data: {
-                    'request_action': "validate_sample_names",
-                    'sample_names': inputValue,
-                    'description_token': sampleDescriptionToken
-
-                },
-                success: function (data) {
-                    spinnerElem.remove();
-                    if (data.validation_result.status == "success") {
-                        //set hidden value, and give all clear signal
-                        parentElem.find(".help-block").html('');
-                        parentElem.removeClass("has-error has-danger");
-                        parentElem.find(".help-block").eq(0).html("Supplied names are valid and have been registered! Click 'Next' to proceed.");
-                        $('#' + dataElem.attr('id') + "_hidden").val(inputValue);
-                        parentElem.find(".feedback-element").html('');
-                        dataElem.trigger('change'); //this was needed to properly propagate error reporting
-                    } else {
-                        parentElem.find(".help-block").html('');
-                        $('#' + dataElem.attr('id') + "_hidden").val('');
-                        parentElem.find(".feedback-element").html('');
-                        parentElem.addClass("has-error has-danger");
-                        parentElem.find(".help-block").eq(0).html("Validation error! Please see below for details.");
-
-                        var tbl = $('<table/>',
-                            {
-                                id: "feedback_provided_names",
-                                "class": "ui celled table hover copo-noborders-table",
-                                cellspacing: "0",
-                                width: "100%"
-                            });
-
-                        var dataSet = data.validation_result.errors;
-
-                        parentElem.find(".feedback-element").append(tbl);
-
-
-                        $('#feedback_provided_names').DataTable({
-                            data: dataSet,
-                            "paging": false,
-                            "lengthChange": false,
-                            "searching": false,
-                            columns: data.validation_result.error_columns
-                        });
-                    }
-                },
-                error: function () {
-                    alert("Error while attempting to validate sample names!");
-                }
-            });
-        } else if (triggerTarget == "bundle_name") {
-            $.ajax({
-                url: wizardURL,
-                type: "POST",
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                data: {
-                    'request_action': "validate_bundle_name",
-                    'bundle_name': inputValue,
-                    'description_token': sampleDescriptionToken
-
-                },
-                success: function (data) {
-                    spinnerElem.remove();
-                    if (data.validation_status == "success") {
-                        //set hidden value, and give all clear signal
-                        parentElem.find(".help-block").html('');
-                        parentElem.removeClass("has-error has-danger");
-                        parentElem.find(".help-block").eq(0).html("Bundle name is valid and will be used to generate sample names of the form: " + inputValue + "_1, " + inputValue + "_2,...! " + " Click 'Next' to proceed.");
-                        $('#' + dataElem.attr('id') + "_hidden").val(inputValue);
-                        dataElem.trigger('change'); //this was needed to properly propagate error reporting
-                    } else {
-                        parentElem.find(".help-block").html('');
-                        $('#' + dataElem.attr('id') + "_hidden").val('');
-                        parentElem.addClass("has-error has-danger");
-                        parentElem.find(".help-block").eq(0).html("Generating sample names from bundle name will violate unique constraint! Please enter another bundle name and click 'Validate!'");
-                    }
-                },
-                error: function () {
-                    alert("Error while attempting to validate bundle name!");
-                }
-            });
-        }
-    });
+    // $('#remove_act').on('click', function (event) {
+    //     //confirm user decision
+    //     BootstrapDialog.show({
+    //         title: "Discard description",
+    //         message: "Are you sure you want to discard the current description?",
+    //         cssClass: 'copo-modal3',
+    //         closable: false,
+    //         animate: true,
+    //         type: BootstrapDialog.TYPE_DANGER,
+    //         buttons: [
+    //             {
+    //                 label: 'Cancel',
+    //                 cssClass: 'tiny ui basic button',
+    //                 action: function (dialogRef) {
+    //                     dialogRef.close();
+    //                 }
+    //             },
+    //             {
+    //                 label: '<i class="copo-components-icons fa fa-times"></i> Discard',
+    //                 cssClass: 'tiny ui basic red button',
+    //                 action: function (dialogRef) {
+    //                     if (sampleDescriptionToken == '') {
+    //                         dialogRef.close();
+    //                         window.location.reload();
+    //                     } else {
+    //                         $.ajax({
+    //                             url: wizardURL,
+    //                             type: "POST",
+    //                             headers: {
+    //                                 'X-CSRFToken': csrftoken
+    //                             },
+    //                             data: {
+    //                                 'request_action': "discard_description",
+    //                                 'description_token': sampleDescriptionToken
+    //
+    //                             },
+    //                             success: function (data) {
+    //                                 dialogRef.close();
+    //                                 window.location.reload();
+    //
+    //                             },
+    //                             error: function () {
+    //                                 alert("An error occurred!");
+    //                             }
+    //                         });
+    //                     }
+    //                 }
+    //             }
+    //         ]
+    //     });
+    //
+    // });
+    //
+    // $('.wiz-showme').on('click', function (e) {
+    //     e.preventDefault();
+    //
+    //     var target = $(this).attr("data-target");
+    //     var label = $(this).attr("data-label");
+    //     var item = null;
+    //
+    //     if ($("#" + target).length) {
+    //         item = $("#" + target);
+    //     } else if ($("." + target).length) {
+    //         item = $("." + target)[0];
+    //     }
+    //
+    //     if (item) {
+    //         item.webuiPopover('destroy');
+    //         item.webuiPopover({
+    //             title: label,
+    //             content: '<div class="webpop-content-div">Click x to dismiss</div>',
+    //             trigger: 'sticky',
+    //             width: 200,
+    //             arrow: true,
+    //             closeable: true,
+    //             backdrop: true
+    //         });
+    //     }
+    // });
+    //
+    //
+    // //handle events for step change
+    // wizardElement.on('actionclicked.fu.wizard', function (evt, data) {
+    //     $(self).data('step', data.step);
+    //
+    //     stage_navigate(evt, data);
+    // });
+    //
+    // //handle events for step change
+    // wizardElement.on('changed.fu.wizard', function (evt, data) {
+    //     //form controls help tip
+    //     refresh_accessions_tool_tips();
+    //     var activeStageIndx = wizardElement.wizard('selectedItem').step;
+    //
+    //     //set up validator
+    //     set_up_validator($("#wizard_form_" + activeStageIndx));
+    // });
+    //
+    // //sample accession resolution
+    // $(document).on("click", ".resolver-submit", function (event) {
+    //     event.preventDefault();
+    //
+    //     var parentElem = $(this).closest(".copo-form-group");
+    //     var dataElem = parentElem.find(".resolver-data");
+    //     var resolverValue = dataElem.val().replace(/^\s+|\s+$/g, '');
+    //
+    //
+    //     if (resolverValue.length == 0) {
+    //         return false;
+    //     }
+    //
+    //     var spinnerElem = $('<button/>',
+    //         {
+    //             type: "button",
+    //             class: "btn btn-default",
+    //             html: '<i class="fa fa-spinner fa-pulse fa-1x"></i>'
+    //         });
+    //
+    //     spinnerElem.insertBefore($(this));
+    //
+    //     //get resolver uri
+    //     var resolverURL = dataElem.attr("data-resolve-uri") + resolverValue;
+    //
+    //     //get resolver component
+    //     var resolverComponent = dataElem.attr("data-resolve-component");
+    //
+    //     if (resolverComponent.toLowerCase() == "biosample") {
+    //         $.ajax({
+    //             url: wizardURL,
+    //             type: "POST",
+    //             headers: {
+    //                 'X-CSRFToken': csrftoken
+    //             },
+    //             data: {
+    //                 'request_action': "resolve_uri",
+    //                 'resolver_uri': resolverURL
+    //
+    //             },
+    //             success: function (data) {
+    //                 spinnerElem.remove();
+    //                 if (data.resolved_output.status == 'success') {
+    //                     //set hidden value, and display result to user
+    //                     parentElem.removeClass("has-error has-danger");
+    //                     parentElem.find(".help-block").html("Successfully resolved accession. Resolved sample has been registered, and also displayed below. Click 'Next' to proceed.");
+    //                     $('#' + dataElem.attr('id') + "_hidden").val(JSON.stringify(data.resolved_output.value));
+    //                     parentElem.find(".feedback-element").html(JSON.stringify(data.resolved_output.value));
+    //                 } else {
+    //                     $('#' + dataElem.attr('id') + "_hidden").val('');
+    //                     parentElem.find(".feedback-element").html('');
+    //                     parentElem.addClass("has-error has-danger");
+    //                     parentElem.find(".help-block").html("Couldn't resolve " + resolverValue + "!");
+    //                 }
+    //             },
+    //             error: function () {
+    //                 alert("Error while attempting to resolve accession!");
+    //             }
+    //         });
+    //     }
+    // });
+    //
+    // $(document).on("change", ".copo-input-data", function () {
+    //     if (["provided_names", "bundle_name"].indexOf(this.id) > -1) {
+    //         var shownValue = $(this).val().trim();
+    //         var hiddenValue = $('#' + this.id + "_hidden").val().trim();
+    //
+    //         if (shownValue != hiddenValue) {
+    //             $(this).closest(".copo-form-group").find(".help-block").html('');
+    //             $('#' + this.id + "_hidden").val('');
+    //             return false;
+    //         }
+    //     }
+    // });
+    //
+    // //copo-trigger-submit control handling
+    // $(document).on("click", ".copo-trigger-submit", function (event) {
+    //     event.preventDefault();
+    //
+    //     var parentElem = $(this).closest(".copo-form-group");
+    //     var triggerTarget = $(this).attr("data-target");
+    //     var dataElem = parentElem.find(".copo-input-data");
+    //     var inputValue = dataElem.val().replace(/^\s+|\s+$/g, '');
+    //
+    //
+    //     if (inputValue.length == 0) {
+    //         parentElem.find(".feedback-element").html('');
+    //         parentElem.addClass("has-error has-danger");
+    //         parentElem.find(".help-block").html('');
+    //         parentElem.find(".help-block").eq(0).html("Please enter a value for " + parentElem.find("label").html() + "!");
+    //         return false;
+    //     }
+    //
+    //     parentElem.find(".spinner-element").remove();
+    //
+    //     var spinnerElem = $('<button/>',
+    //         {
+    //             type: "button",
+    //             class: "btn btn-default spinner-element",
+    //             html: '<i class="fa fa-spinner fa-pulse fa-1x"></i>'
+    //         });
+    //
+    //     spinnerElem.insertBefore($(this));
+    //
+    //
+    //     if (triggerTarget == "provided_names") {
+    //         $.ajax({
+    //             url: wizardURL,
+    //             type: "POST",
+    //             headers: {
+    //                 'X-CSRFToken': csrftoken
+    //             },
+    //             data: {
+    //                 'request_action': "validate_sample_names",
+    //                 'sample_names': inputValue,
+    //                 'description_token': sampleDescriptionToken
+    //
+    //             },
+    //             success: function (data) {
+    //                 spinnerElem.remove();
+    //                 if (data.validation_result.status == "success") {
+    //                     //set hidden value, and give all clear signal
+    //                     parentElem.find(".help-block").html('');
+    //                     parentElem.removeClass("has-error has-danger");
+    //                     parentElem.find(".help-block").eq(0).html("Supplied names are valid and have been registered! Click 'Next' to proceed.");
+    //                     $('#' + dataElem.attr('id') + "_hidden").val(inputValue);
+    //                     parentElem.find(".feedback-element").html('');
+    //                     dataElem.trigger('change'); //this was needed to properly propagate error reporting
+    //                 } else {
+    //                     parentElem.find(".help-block").html('');
+    //                     $('#' + dataElem.attr('id') + "_hidden").val('');
+    //                     parentElem.find(".feedback-element").html('');
+    //                     parentElem.addClass("has-error has-danger");
+    //                     parentElem.find(".help-block").eq(0).html("Validation error! Please see below for details.");
+    //
+    //                     var tbl = $('<table/>',
+    //                         {
+    //                             id: "feedback_provided_names",
+    //                             "class": "ui celled table hover copo-noborders-table",
+    //                             cellspacing: "0",
+    //                             width: "100%"
+    //                         });
+    //
+    //                     var dataSet = data.validation_result.errors;
+    //
+    //                     parentElem.find(".feedback-element").append(tbl);
+    //
+    //
+    //                     $('#feedback_provided_names').DataTable({
+    //                         data: dataSet,
+    //                         "paging": false,
+    //                         "lengthChange": false,
+    //                         "searching": false,
+    //                         columns: data.validation_result.error_columns
+    //                     });
+    //                 }
+    //             },
+    //             error: function () {
+    //                 alert("Error while attempting to validate sample names!");
+    //             }
+    //         });
+    //     } else if (triggerTarget == "bundle_name") {
+    //         $.ajax({
+    //             url: wizardURL,
+    //             type: "POST",
+    //             headers: {
+    //                 'X-CSRFToken': csrftoken
+    //             },
+    //             data: {
+    //                 'request_action': "validate_bundle_name",
+    //                 'bundle_name': inputValue,
+    //                 'description_token': sampleDescriptionToken
+    //
+    //             },
+    //             success: function (data) {
+    //                 spinnerElem.remove();
+    //                 if (data.validation_status == "success") {
+    //                     //set hidden value, and give all clear signal
+    //                     parentElem.find(".help-block").html('');
+    //                     parentElem.removeClass("has-error has-danger");
+    //                     parentElem.find(".help-block").eq(0).html("Bundle name is valid and will be used to generate sample names of the form: " + inputValue + "_1, " + inputValue + "_2,...! " + " Click 'Next' to proceed.");
+    //                     $('#' + dataElem.attr('id') + "_hidden").val(inputValue);
+    //                     dataElem.trigger('change'); //this was needed to properly propagate error reporting
+    //                 } else {
+    //                     parentElem.find(".help-block").html('');
+    //                     $('#' + dataElem.attr('id') + "_hidden").val('');
+    //                     parentElem.addClass("has-error has-danger");
+    //                     parentElem.find(".help-block").eq(0).html("Generating sample names from bundle name will violate unique constraint! Please enter another bundle name and click 'Validate!'");
+    //                 }
+    //             },
+    //             error: function () {
+    //                 alert("Error while attempting to validate bundle name!");
+    //             }
+    //         });
+    //     }
+    // });
 
 
     //instantiate/refresh tooltips
@@ -635,166 +635,166 @@ $(document).ready(function () {
         });
     }
 
-    function stage_navigate(evt, data) {
-        if (data.direction == 'next') {
+    // function stage_navigate(evt, data) {
+    //     if (data.direction == 'next') {
+    //
+    //         evt.preventDefault();
+    //
+    //         //end of wizard intercept
+    //         // call this if we are on the last stage....
+    //         if (wizardElement.find('.steps li.active:first').attr('data-name') == 'review') {
+    //             finalise_description();
+    //             return false;
+    //         }
+    //
+    //         //get referenced stage
+    //         var activeStageIndx = wizardElement.wizard('selectedItem').step;
+    //
+    //         // get form inputs
+    //         var form_values = {};
+    //
+    //         //trigger form validation
+    //         var stageForm = $("#wizard_form_" + activeStageIndx);
+    //         if (stageForm.length) {
+    //             stageForm.trigger('submit');
+    //
+    //             if (stageForm.find("#bcopovalidator").val() == "false") {
+    //                 stageForm.find("#bcopovalidator").val("true");
+    //                 return false;
+    //             }
+    //
+    //             $('#wizard_form_' + activeStageIndx).find(":input").each(function () {
+    //                 form_values[this.id] = $(this).val();
+    //             });
+    //         }
+    //
+    //         //call to load next stage
+    //
+    //         add_step(JSON.stringify(form_values));
+    //         toggle_disable_next();
+    //
+    //     } else if (data.direction == 'previous') {
+    //         // get the proposed or intended state, for which action is intercepted
+    //         evt.preventDefault();
+    //
+    //         set_wizard_stage(data.step - 1);
+    //
+    //         //re-enable stage navigation button
+    //         var elem = $(".btn-next");
+    //         if (elem.hasClass("loading")) {
+    //             elem.removeClass("loading");
+    //             elem.prop('disabled', false);
+    //         }
+    //     }
+    //
+    // }
 
-            evt.preventDefault();
-
-            //end of wizard intercept
-            // call this if we are on the last stage....
-            if (wizardElement.find('.steps li.active:first').attr('data-name') == 'review') {
-                finalise_description();
-                return false;
-            }
-
-            //get referenced stage
-            var activeStageIndx = wizardElement.wizard('selectedItem').step;
-
-            // get form inputs
-            var form_values = {};
-
-            //trigger form validation
-            var stageForm = $("#wizard_form_" + activeStageIndx);
-            if (stageForm.length) {
-                stageForm.trigger('submit');
-
-                if (stageForm.find("#bcopovalidator").val() == "false") {
-                    stageForm.find("#bcopovalidator").val("true");
-                    return false;
-                }
-
-                $('#wizard_form_' + activeStageIndx).find(":input").each(function () {
-                    form_values[this.id] = $(this).val();
-                });
-            }
-
-            //call to load next stage
-
-            add_step(JSON.stringify(form_values));
-            toggle_disable_next();
-
-        } else if (data.direction == 'previous') {
-            // get the proposed or intended state, for which action is intercepted
-            evt.preventDefault();
-
-            set_wizard_stage(data.step - 1);
-
-            //re-enable stage navigation button
-            var elem = $(".btn-next");
-            if (elem.hasClass("loading")) {
-                elem.removeClass("loading");
-                elem.prop('disabled', false);
-            }
-        }
-
-    }
-
-    function set_wizard_stage(proposedState) {
-        wizardElement.wizard('selectedItem', {
-            step: proposedState
-        });
-
-        toggle_disable_next();
-    }
-
-    function refresh_wizard() {
-        //get referenced stage
-        var activeStageIndx = wizardElement.wizard('selectedItem').step;
-
-        //remove steps from wizard to start from current step
-        var numSteps = wizardElement.find('.steps li').length;
-        var stepIndex = activeStageIndx + 1;
-        var howMany = numSteps - stepIndex;
-
-        wizardElement.wizard('removeSteps', stepIndex, howMany);
-        wizardElement.find('.steps li:last-child').hide();
-    }
-
-
-    function process_wizard_stage(stage) {
-        // get next step index
-        var numSteps = wizardElement.find('.steps li').length;
-
-
-        if (!stage.hasOwnProperty("ref")) {
-            //no stage returned, signalling last stage
-            wizardElement.find('.steps li:last-child').show();
-            set_wizard_stage(numSteps);
-
-            return false;
-        }
-
-        //check stage has not been rendered already
-        var foundStage = false;
-
-        wizardElement.find('.steps li').each(function () {
-            if ($(this).find(".wiz-title").attr("data-stage") == stage.ref) {
-                foundStage = true;
-                return false;
-            }
-        });
-
-        if (foundStage) {
-            set_wizard_stage(wizardElement.wizard('selectedItem').step + 1);
-            return false;
-        }
-
-
-        //generate stage content
-        var stage_pane = '<div id="custom-renderer_' + stage.ref + '"></div>';
-
-        if (!stage.hasOwnProperty("renderer")) {
-            stage_pane = get_pane_content(wizardStagesForms(stage), numSteps, stage.message);
-        }
-
-        wizardElement.wizard('addSteps', numSteps, [
-            {
-                label: '<span data-stage="' + stage.ref + '" class=wiz-title>' + stage.title + '</span>',
-                pane: stage_pane
-            }
-        ]);
-
-
-        //set focus to the currently added stage
-        set_wizard_stage(numSteps);
-
-        //get custom renderer
-        if (stage.hasOwnProperty("renderer")) {
-            toggle_disable_next();
-            //custom content will sit here...
-
-            $('#custom-renderer_' + stage.ref).append('<div class="stage-content"></div>');
-
-            //add form to stage to capture current_stage and other required properties
-            var formDiv = $('<div/>');
-            var hiddenCtrl = $('<input/>',
-                {
-                    type: "hidden",
-                    id: "current_stage",
-                    name: "current_stage",
-                    value: stage.ref
-                });
-
-            //append to this form, if need be, within a renderer
-
-            var formCtrl = $('<form/>',
-                {
-                    id: "wizard_form_" + numSteps,
-                    class: "wizard-dynamic-form"
-                });
-
-            formCtrl.append(hiddenCtrl);
-
-            formDiv.append(formCtrl);
-            $('#custom-renderer_' + stage.ref).append(formDiv);
-
-            dispatchStageRenderer[stage.renderer](stage);
-
-            set_up_validator($("#wizard_form_" + numSteps)); //needed here to account for delay in content display
-            toggle_disable_next();
-        }
-
-    } //end of func
+    // function set_wizard_stage(proposedState) {
+    //     wizardElement.wizard('selectedItem', {
+    //         step: proposedState
+    //     });
+    //
+    //     toggle_disable_next();
+    // }
+    //
+    // function refresh_wizard() {
+    //     //get referenced stage
+    //     var activeStageIndx = wizardElement.wizard('selectedItem').step;
+    //
+    //     //remove steps from wizard to start from current step
+    //     var numSteps = wizardElement.find('.steps li').length;
+    //     var stepIndex = activeStageIndx + 1;
+    //     var howMany = numSteps - stepIndex;
+    //
+    //     wizardElement.wizard('removeSteps', stepIndex, howMany);
+    //     wizardElement.find('.steps li:last-child').hide();
+    // }
+    //
+    //
+    // function process_wizard_stage(stage) {
+    //     // get next step index
+    //     var numSteps = wizardElement.find('.steps li').length;
+    //
+    //
+    //     if (!stage.hasOwnProperty("ref")) {
+    //         //no stage returned, signalling last stage
+    //         wizardElement.find('.steps li:last-child').show();
+    //         set_wizard_stage(numSteps);
+    //
+    //         return false;
+    //     }
+    //
+    //     //check stage has not been rendered already
+    //     var foundStage = false;
+    //
+    //     wizardElement.find('.steps li').each(function () {
+    //         if ($(this).find(".wiz-title").attr("data-stage") == stage.ref) {
+    //             foundStage = true;
+    //             return false;
+    //         }
+    //     });
+    //
+    //     if (foundStage) {
+    //         set_wizard_stage(wizardElement.wizard('selectedItem').step + 1);
+    //         return false;
+    //     }
+    //
+    //
+    //     //generate stage content
+    //     var stage_pane = '<div id="custom-renderer_' + stage.ref + '"></div>';
+    //
+    //     if (!stage.hasOwnProperty("renderer")) {
+    //         stage_pane = get_pane_content(wizardStagesForms(stage), numSteps, stage.message);
+    //     }
+    //
+    //     wizardElement.wizard('addSteps', numSteps, [
+    //         {
+    //             label: '<span data-stage="' + stage.ref + '" class=wiz-title>' + stage.title + '</span>',
+    //             pane: stage_pane
+    //         }
+    //     ]);
+    //
+    //
+    //     //set focus to the currently added stage
+    //     set_wizard_stage(numSteps);
+    //
+    //     //get custom renderer
+    //     if (stage.hasOwnProperty("renderer")) {
+    //         toggle_disable_next();
+    //         //custom content will sit here...
+    //
+    //         $('#custom-renderer_' + stage.ref).append('<div class="stage-content"></div>');
+    //
+    //         //add form to stage to capture current_stage and other required properties
+    //         var formDiv = $('<div/>');
+    //         var hiddenCtrl = $('<input/>',
+    //             {
+    //                 type: "hidden",
+    //                 id: "current_stage",
+    //                 name: "current_stage",
+    //                 value: stage.ref
+    //             });
+    //
+    //         //append to this form, if need be, within a renderer
+    //
+    //         var formCtrl = $('<form/>',
+    //             {
+    //                 id: "wizard_form_" + numSteps,
+    //                 class: "wizard-dynamic-form"
+    //             });
+    //
+    //         formCtrl.append(hiddenCtrl);
+    //
+    //         formDiv.append(formCtrl);
+    //         $('#custom-renderer_' + stage.ref).append(formDiv);
+    //
+    //         dispatchStageRenderer[stage.renderer](stage);
+    //
+    //         set_up_validator($("#wizard_form_" + numSteps)); //needed here to account for delay in content display
+    //         toggle_disable_next();
+    //     }
+    //
+    // } //end of func
 
 
     function set_up_validator(theForm) {
@@ -918,288 +918,288 @@ $(document).ready(function () {
         return row;
     }
 
-    function initiate_description(parameters) {
-        $('[data-toggle="tooltip"]').tooltip('destroy');
-
-        if (!$("#wizard_toggle").is(":visible")) {
-            var $dialogContent = $('<div/>');
-            var notice_div = $('<div/>').html("Initiating description...");
-            var spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
-
-            var description_token = '';
-            if (parameters.hasOwnProperty('description_token')) {
-                description_token = parameters.description_token;
-            }
-
-            var dialog = new BootstrapDialog({
-                type: BootstrapDialog.TYPE_PRIMARY,
-                size: BootstrapDialog.SIZE_NORMAL,
-                title: function () {
-                    return $('<span>Samples description</span>');
-                },
-                closable: false,
-                animate: true,
-                draggable: false,
-                onhide: function (dialogRef) {
-                    //nothing to do for now
-                },
-                onshown: function (dialogRef) {
-                    $.ajax({
-                        url: wizardURL,
-                        type: "POST",
-                        headers: {
-                            'X-CSRFToken': csrftoken
-                        },
-                        data: {
-                            'request_action': "initiate_description",
-                            'description_token': description_token,
-                            'profile_id': $('#profile_id').val()
-                        },
-                        success: function (data) {
-                            if (data.result.status == 'success') {
-                                //set description token
-                                sampleDescriptionToken = data.result.description_token;
-
-                                //set wizard messages
-                                wizardMessages = data.result.wiz_message;
-
-                                //display wizard
-                                $("#wizard_toggle").collapse("toggle");
-
-                                //hide the review stage -- to be redisplayed when all the dynamic stages are displayed
-                                wizardElement.find('.steps li:last-child').hide();
-
-                                //remove sample incomplete description object from info pane
-                                if (parameters.hasOwnProperty('info_object')) {
-                                    parameters.info_object.closest(".inc-desc-badge").remove();
-                                }
-
-                                set_up_validator($("#wizard_form_1"));
-
-                                dialogRef.close();
-
-                            } else {
-                                var $feeback = $('<div/>', {
-                                    "class": "webpop-content-div",
-                                    style: "padding-bottom: 15px;"
-                                }).html("Please resolve the following issue to proceed with your description.<div style='margin-top: 10px; margin-bottom: 15px;'>" + data.result.message + "</div>");
-                                var $button = $('<div class="tiny ui basic red button">Resolve issue</div>');
-                                $button.on('click', {dialogRef: dialogRef}, function (event) {
-                                    event.data.dialogRef.close();
-                                });
-
-                                dialog.setType(BootstrapDialog.TYPE_DANGER);
-                                dialog.getModalBody().html('').append($feeback).append($button);
-                            }
-
-                        },
-                        error: function () {
-                            alert("Error instantiating description!");
-                        }
-                    });
-                },
-                buttons: []
-            });
-
-
-            $dialogContent.append(notice_div).append(spinner_div);
-            dialog.realize();
-            dialog.setMessage($dialogContent);
-            dialog.open();
-
-        } else {//wizard is already visible
-            var message = "<div class='webpop-content-div'>There's an ongoing description. Terminate the current description, before attempting to initiate a new description or reload a previous one.</div>";
-
-            BootstrapDialog.show({
-                title: 'Description instantiation',
-                message: message,
-                // cssClass: 'copo-modal3',
-                closable: false,
-                animate: true,
-                type: BootstrapDialog.TYPE_WARNING,
-                buttons: [
-                    {
-                        label: 'OK',
-                        cssClass: 'tiny ui basic orange button',
-                        action: function (dialogRef) {
-                            dialogRef.close();
-                        }
-                    }
-                ]
-            });
-        }
-
-        $("[data-toggle='tooltip']").tooltip();
-    }
-
-
-    function show_sample_source() {
-        //show description bundle
-
-        var tableID = 'sample_source_view_tbl';
-        var tbl = $('<table/>',
-            {
-                id: tableID,
-                "class": "ui celled table hover copo-noborders-table",
-                cellspacing: "0",
-                width: "100%"
-            });
-
-        var $dialogContent = $('<div/>');
-        var table_div = $('<div/>').append(tbl);
-        var spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
-
-        var dialog = new BootstrapDialog({
-            type: BootstrapDialog.TYPE_PRIMARY,
-            size: BootstrapDialog.SIZE_NORMAL,
-            title: function () {
-                return $('<span>Sample source</span>');
-            },
-            closable: false,
-            animate: true,
-            draggable: false,
-            onhide: function (dialogRef) {
-                //nothing to do for now
-            },
-            onshown: function (dialogRef) {
-                $.ajax({
-                    url: copoVisualsURL,
-                    type: "POST",
-                    headers: {
-                        'X-CSRFToken': csrftoken
-                    },
-                    data: {
-                        'task': "table_data",
-                        'component': "source"
-                    },
-                    success: function (data) {
-                        var dataSet = data.table_data.dataSet;
-                        var cols = data.table_data.columns;
-                        spinner_div.remove();
-
-                        var dtd = dataSet;
-                        var cols = cols;
-
-                        var table = null;
-
-                        table = $('#' + tableID).DataTable({
-                            data: dtd,
-                            searchHighlight: true,
-                            "lengthChange": false,
-                            order: [
-                                [1, "asc"]
-                            ],
-                            scrollY: "300px",
-                            scrollX: true,
-                            scrollCollapse: true,
-                            paging: false,
-                            language: {
-                                "info": " _START_ to _END_ of _TOTAL_ sources",
-                                "search": " "
-                            },
-                            select: {
-                                style: 'multi',
-                                selector: 'td:first-child'
-                            },
-                            columns: cols,
-                            dom: 'lfit<"row">rp'
-                        });
-
-                        $('#' + tableID + '_wrapper')
-                            .find(".dataTables_filter")
-                            .find("input")
-                            .removeClass("input-sm")
-                            .attr("placeholder", "Search sample source");
-
-                        //handle event for table details
-                        $('#' + tableID + ' tbody')
-                            .off('click', 'td.summary-details-control')
-                            .on('click', 'td.summary-details-control', function (event) {
-                                event.preventDefault();
-
-                                var event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
-                                $('body').trigger(event);
-
-                                var tr = $(this).closest('tr');
-                                var row = table.row(tr);
-                                tr.addClass('showing');
-
-                                if (row.child.isShown()) {
-                                    // This row is already open - close it
-                                    row.child('');
-                                    row.child.hide();
-                                    tr.removeClass('showing');
-                                    tr.removeClass('shown');
-                                } else {
-                                    $.ajax({
-                                        url: copoVisualsURL,
-                                        type: "POST",
-                                        headers: {
-                                            'X-CSRFToken': csrftoken
-                                        },
-                                        data: {
-                                            'task': "attributes_display",
-                                            'component': "source",
-                                            'target_id': row.data().record_id
-                                        },
-                                        success: function (data) {
-                                            if (data.component_attributes.columns) {
-                                                // expand row
-
-                                                var contentHtml = $('<table/>', {
-                                                    // cellpadding: "5",
-                                                    cellspacing: "0",
-                                                    border: "0",
-                                                    // style: "padding-left:50px;"
-                                                });
-
-                                                for (var i = 0; i < data.component_attributes.columns.length; ++i) {
-                                                    var colVal = data.component_attributes.columns[i];
-
-                                                    var colTR = $('<tr/>');
-                                                    contentHtml.append(colTR);
-
-                                                    colTR
-                                                        .append($('<td/>').append(colVal.title))
-                                                        .append($('<td/>').append(data.component_attributes.data_set[colVal.data]));
-
-                                                }
-
-                                                row.child($('<div></div>').append(contentHtml).html()).show();
-                                                tr.removeClass('showing');
-                                                tr.addClass('shown');
-                                            }
-                                        },
-                                        error: function () {
-                                            alert("Couldn't retrieve " + component + " attributes!");
-                                            return '';
-                                        }
-                                    });
-                                }
-                            });
-
-                    },
-                    error: function () {
-                        alert("Couldn't sample source!");
-                        dialogRef.close();
-                    }
-                });
-            },
-            buttons: [{
-                label: 'OK',
-                cssClass: 'tiny ui basic primary button',
-                action: function (dialogRef) {
-                    dialogRef.close();
-                }
-            }]
-        });
+    // function initiate_description(parameters) {
+    //     $('[data-toggle="tooltip"]').tooltip('destroy');
+    //
+    //     if (!$("#wizard_toggle").is(":visible")) {
+    //         var $dialogContent = $('<div/>');
+    //         var notice_div = $('<div/>').html("Initiating description...");
+    //         var spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
+    //
+    //         var description_token = '';
+    //         if (parameters.hasOwnProperty('description_token')) {
+    //             description_token = parameters.description_token;
+    //         }
+    //
+    //         var dialog = new BootstrapDialog({
+    //             type: BootstrapDialog.TYPE_PRIMARY,
+    //             size: BootstrapDialog.SIZE_NORMAL,
+    //             title: function () {
+    //                 return $('<span>Samples description</span>');
+    //             },
+    //             closable: false,
+    //             animate: true,
+    //             draggable: false,
+    //             onhide: function (dialogRef) {
+    //                 //nothing to do for now
+    //             },
+    //             onshown: function (dialogRef) {
+    //                 $.ajax({
+    //                     url: wizardURL,
+    //                     type: "POST",
+    //                     headers: {
+    //                         'X-CSRFToken': csrftoken
+    //                     },
+    //                     data: {
+    //                         'request_action': "initiate_description",
+    //                         'description_token': description_token,
+    //                         'profile_id': $('#profile_id').val()
+    //                     },
+    //                     success: function (data) {
+    //                         if (data.result.status == 'success') {
+    //                             //set description token
+    //                             sampleDescriptionToken = data.result.description_token;
+    //
+    //                             //set wizard messages
+    //                             wizardMessages = data.result.wiz_message;
+    //
+    //                             //display wizard
+    //                             $("#wizard_toggle").collapse("toggle");
+    //
+    //                             //hide the review stage -- to be redisplayed when all the dynamic stages are displayed
+    //                             wizardElement.find('.steps li:last-child').hide();
+    //
+    //                             //remove sample incomplete description object from info pane
+    //                             if (parameters.hasOwnProperty('info_object')) {
+    //                                 parameters.info_object.closest(".inc-desc-badge").remove();
+    //                             }
+    //
+    //                             set_up_validator($("#wizard_form_1"));
+    //
+    //                             dialogRef.close();
+    //
+    //                         } else {
+    //                             var $feeback = $('<div/>', {
+    //                                 "class": "webpop-content-div",
+    //                                 style: "padding-bottom: 15px;"
+    //                             }).html("Please resolve the following issue to proceed with your description.<div style='margin-top: 10px; margin-bottom: 15px;'>" + data.result.message + "</div>");
+    //                             var $button = $('<div class="tiny ui basic red button">Resolve issue</div>');
+    //                             $button.on('click', {dialogRef: dialogRef}, function (event) {
+    //                                 event.data.dialogRef.close();
+    //                             });
+    //
+    //                             dialog.setType(BootstrapDialog.TYPE_DANGER);
+    //                             dialog.getModalBody().html('').append($feeback).append($button);
+    //                         }
+    //
+    //                     },
+    //                     error: function () {
+    //                         alert("Error instantiating description!");
+    //                     }
+    //                 });
+    //             },
+    //             buttons: []
+    //         });
+    //
+    //
+    //         $dialogContent.append(notice_div).append(spinner_div);
+    //         dialog.realize();
+    //         dialog.setMessage($dialogContent);
+    //         dialog.open();
+    //
+    //     } else {//wizard is already visible
+    //         var message = "<div class='webpop-content-div'>There's an ongoing description. Terminate the current description, before attempting to initiate a new description or reload a previous one.</div>";
+    //
+    //         BootstrapDialog.show({
+    //             title: 'Description instantiation',
+    //             message: message,
+    //             // cssClass: 'copo-modal3',
+    //             closable: false,
+    //             animate: true,
+    //             type: BootstrapDialog.TYPE_WARNING,
+    //             buttons: [
+    //                 {
+    //                     label: 'OK',
+    //                     cssClass: 'tiny ui basic orange button',
+    //                     action: function (dialogRef) {
+    //                         dialogRef.close();
+    //                     }
+    //                 }
+    //             ]
+    //         });
+    //     }
+    //
+    //     $("[data-toggle='tooltip']").tooltip();
+    // }
 
 
-        $dialogContent.append(table_div).append(spinner_div);
-        dialog.realize();
-        dialog.setMessage($dialogContent);
-        dialog.open();
-    } // end of function
+    // function show_sample_source() {
+    //     //show description bundle
+    //
+    //     var tableID = 'sample_source_view_tbl';
+    //     var tbl = $('<table/>',
+    //         {
+    //             id: tableID,
+    //             "class": "ui celled table hover copo-noborders-table",
+    //             cellspacing: "0",
+    //             width: "100%"
+    //         });
+    //
+    //     var $dialogContent = $('<div/>');
+    //     var table_div = $('<div/>').append(tbl);
+    //     var spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
+    //
+    //     var dialog = new BootstrapDialog({
+    //         type: BootstrapDialog.TYPE_PRIMARY,
+    //         size: BootstrapDialog.SIZE_NORMAL,
+    //         title: function () {
+    //             return $('<span>Sample source</span>');
+    //         },
+    //         closable: false,
+    //         animate: true,
+    //         draggable: false,
+    //         onhide: function (dialogRef) {
+    //             //nothing to do for now
+    //         },
+    //         onshown: function (dialogRef) {
+    //             $.ajax({
+    //                 url: copoVisualsURL,
+    //                 type: "POST",
+    //                 headers: {
+    //                     'X-CSRFToken': csrftoken
+    //                 },
+    //                 data: {
+    //                     'task': "table_data",
+    //                     'component': "source"
+    //                 },
+    //                 success: function (data) {
+    //                     var dataSet = data.table_data.dataSet;
+    //                     var cols = data.table_data.columns;
+    //                     spinner_div.remove();
+    //
+    //                     var dtd = dataSet;
+    //                     var cols = cols;
+    //
+    //                     var table = null;
+    //
+    //                     table = $('#' + tableID).DataTable({
+    //                         data: dtd,
+    //                         searchHighlight: true,
+    //                         "lengthChange": false,
+    //                         order: [
+    //                             [1, "asc"]
+    //                         ],
+    //                         scrollY: "300px",
+    //                         scrollX: true,
+    //                         scrollCollapse: true,
+    //                         paging: false,
+    //                         language: {
+    //                             "info": " _START_ to _END_ of _TOTAL_ sources",
+    //                             "search": " "
+    //                         },
+    //                         select: {
+    //                             style: 'multi',
+    //                             selector: 'td:first-child'
+    //                         },
+    //                         columns: cols,
+    //                         dom: 'lfit<"row">rp'
+    //                     });
+    //
+    //                     $('#' + tableID + '_wrapper')
+    //                         .find(".dataTables_filter")
+    //                         .find("input")
+    //                         .removeClass("input-sm")
+    //                         .attr("placeholder", "Search sample source");
+    //
+    //                     //handle event for table details
+    //                     $('#' + tableID + ' tbody')
+    //                         .off('click', 'td.summary-details-control')
+    //                         .on('click', 'td.summary-details-control', function (event) {
+    //                             event.preventDefault();
+    //
+    //                             var event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
+    //                             $('body').trigger(event);
+    //
+    //                             var tr = $(this).closest('tr');
+    //                             var row = table.row(tr);
+    //                             tr.addClass('showing');
+    //
+    //                             if (row.child.isShown()) {
+    //                                 // This row is already open - close it
+    //                                 row.child('');
+    //                                 row.child.hide();
+    //                                 tr.removeClass('showing');
+    //                                 tr.removeClass('shown');
+    //                             } else {
+    //                                 $.ajax({
+    //                                     url: copoVisualsURL,
+    //                                     type: "POST",
+    //                                     headers: {
+    //                                         'X-CSRFToken': csrftoken
+    //                                     },
+    //                                     data: {
+    //                                         'task': "attributes_display",
+    //                                         'component': "source",
+    //                                         'target_id': row.data().record_id
+    //                                     },
+    //                                     success: function (data) {
+    //                                         if (data.component_attributes.columns) {
+    //                                             // expand row
+    //
+    //                                             var contentHtml = $('<table/>', {
+    //                                                 // cellpadding: "5",
+    //                                                 cellspacing: "0",
+    //                                                 border: "0",
+    //                                                 // style: "padding-left:50px;"
+    //                                             });
+    //
+    //                                             for (var i = 0; i < data.component_attributes.columns.length; ++i) {
+    //                                                 var colVal = data.component_attributes.columns[i];
+    //
+    //                                                 var colTR = $('<tr/>');
+    //                                                 contentHtml.append(colTR);
+    //
+    //                                                 colTR
+    //                                                     .append($('<td/>').append(colVal.title))
+    //                                                     .append($('<td/>').append(data.component_attributes.data_set[colVal.data]));
+    //
+    //                                             }
+    //
+    //                                             row.child($('<div></div>').append(contentHtml).html()).show();
+    //                                             tr.removeClass('showing');
+    //                                             tr.addClass('shown');
+    //                                         }
+    //                                     },
+    //                                     error: function () {
+    //                                         alert("Couldn't retrieve " + component + " attributes!");
+    //                                         return '';
+    //                                     }
+    //                                 });
+    //                             }
+    //                         });
+    //
+    //                 },
+    //                 error: function () {
+    //                     alert("Couldn't sample source!");
+    //                     dialogRef.close();
+    //                 }
+    //             });
+    //         },
+    //         buttons: [{
+    //             label: 'OK',
+    //             cssClass: 'tiny ui basic primary button',
+    //             action: function (dialogRef) {
+    //                 dialogRef.close();
+    //             }
+    //         }]
+    //     });
+    //
+    //
+    //     $dialogContent.append(table_div).append(spinner_div);
+    //     dialog.realize();
+    //     dialog.setMessage($dialogContent);
+    //     dialog.open();
+    // } // end of function
 
     //handles button events on a record or group of records
     function do_record_task(event) {
@@ -1453,574 +1453,574 @@ $(document).ready(function () {
         return $('<div>').append(attributesPanel).append(loaderObject);
     }
 
-    function generate_dtol_stage(stage) {
-        $('#custom-renderer_' + stage.ref).find(".stage-content").html('');
-        var formValue = stage.data;
-
-        var stagearea = $('#custom-renderer_' + stage.ref).find("form")
-
-        // firstly add a dropdown to select type of dtol sample
-        var label = '<label for="dtol_type_select">Select Sample Sub Type</label>'
-        var dd = $("<select/>", {
-            id: "dtol_type_select",
-            class: "form-control",
-            "style": "margin-bottom:30px"
-        })
-        // the values of these options point to json files in wizards/sample/dtol_manifests
-        $(dd).append($("<option></option>"))
-        $(dd).append($("<option value='dtol_aquatic'>aquatic</option>"))
-        $(dd).append($("<option value='dtol_protist'>protist</option>"))
-        $(dd).append($("<option value=''dtol_other'>other</option>"))
-        $(stagearea).append(label).append(dd)
-
-        // get the fields into the right order according to the groupings in stage.field_groupings
-        var grouped_fields = new Object()
-        for (var group_idx in stage.field_groupings) {
-            group = stage.field_groupings[group_idx]
-            group_name = group.group_name
-            var fieldset = new Array()
-            for (var order_idx in group.fields) {
-                order_name = group.fields[order_idx]
-                //now look for order_name in stage.items
-                for (field in stage.items) {
-                    item = stage.items[field]
-                    if (item.id == order_name) {
-                        fieldset.push(item)
-                    }
-                }
-            }
-            grouped_fields[group_name] = fieldset
-        }
-        // grouped fields now contains all the fields required split into categories
-        // each of these groups should be rendered as an accordion panel
-        var accordion_head = '<div hidden class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">'
-
-
-        for (var title in grouped_fields) {
-            var header = '<hr/><div hidden class="panel panel-default" id="section_' + title.replace(" ", "_") + '">' +
-                '<div class="panel-heading" role="tab" id="heading_' + title.replace(" ", "_") + '">' +
-                '<h4 class="panel-title">' +
-                '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#' + title.replace(" ", "_") + '" aria-expanded="true" aria-controls="' + title.replace(" ", "_") + '">' + title + '</a></h4></div>'
-            var body = '<div id="' + title.replace(" ", "_") + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_"' + title.replace(" ", "_") + '>' +
-                '<div class="panel-body">'
-            for (var control in grouped_fields[title]) {
-                var formElem = grouped_fields[title][control]
-                var elemValue = null;
-                if (formValue) {
-                    var elem = formElem.id.split(".").slice(-1)[0];
-                    if (formValue[elem]) {
-                        elemValue = formValue[elem];
-                    }
-                }
-                //set default values
-                if (formElem.default_value) {
-                    elemValue = formElem.default_value;
-                } else {
-                    elemValue = "";
-                }
-                var htmlCtrl = dispatchFormControl[controlsMapping[formElem.control.toLowerCase()]](formElem, elemValue);
-                body = body + $(htmlCtrl).prop('outerHTML')
-            }
-            body = body + '</div></div></div>'
-            var content = header + body
-            accordion_head = accordion_head + content
-        }
-        $(accordion_head).appendTo(stagearea);
-        refresh_accessions_tool_tips();
-    }
-
-    function generate_sample_edit_table(stage) {
-        //function provides stage information for sample attribute editing
-        var btnNext = $(".btn-next");
-        btnNext.addClass("loading");
-        btnNext.prop('disabled', true);
-
-        var tableID = stage.ref + "_table";
-        var stageHTML = $('<div/>', {"class": "alert alert-default"});
-
-
-        var messageDiv = $('<a/>',
-            {
-                html: '<i class="fa fa-2x fa-info-circle text-info"></i><span class="action-label" style="padding-left: 8px;">Attributes editing tips...</span>',
-                class: "text-info",
-                style: "line-height: 150%; display:none;",
-                href: "#attributes-edit",
-                "data-toggle": "collapse"
-            });
-
-        //add info for user
-        var message = $('<div/>', {class: "webpop-content-div"});
-        message.append(stage.message);
-
-        var panel = get_panel('info');
-        panel.addClass('edit-sample-badge');
-        panel.find('.panel-body').append(message);
-        panel.find('.panel-heading').remove();
-        panel.find(".panel-footer").remove();
-
-        var messageDivContent = $('<div/>',
-            {
-                class: "collapse",
-                id: "attributes-edit"
-            }
-        );
-
-        messageDivContent.append(panel);
-
-
-        // refresh dynamic content
-        $('#custom-renderer_' + stage.ref).find(".stage-content").html('');
-        $('#custom-renderer_' + stage.ref).find(".stage-content").append(stageHTML);
-
-        stageHTML.append($('<div/>', {style: "margin-bottom: 10px;"}).append(messageDiv));
-        stageHTML.append(messageDivContent);
-
-        //table element
-        var tableDiv = $('<div/>');
-        stageHTML.append(tableDiv);
-
-        var tbl = $('<table/>',
-            {
-                id: tableID,
-                "class": "ui celled table hover copo-noborders-table",
-                cellspacing: "0",
-                width: "100%"
-            });
-
-        tableDiv.append(tbl);
-
-        //loader element
-        var loaderHTML = $('<div/>');
-        var loaderMessage = $('<div/>', {
-            class: "text-primary",
-            style: "margin-top: 5px; font-weight:bold;",
-            html: "Generating samples..."
-        });
-
-        loaderHTML.append(loaderMessage);
-        loaderHTML.append(get_spinner_image());
-        stageHTML.append(loaderHTML);
-
-        $.ajax({
-            url: wizardURL,
-            type: "POST",
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            data: {
-                'request_action': "get_discrete_attributes",
-                'description_token': sampleDescriptionToken
-
-            },
-            success: function (data) {
-                loaderHTML.remove();
-                messageDiv.show();
-
-                dtColumns = data.table_data.columns;
-                dtRows = data.table_data.rows;
-
-                var table = $('#' + tableID).DataTable({
-                    data: dtRows,
-                    dom: 'Bfr<"row"><"row info-rw" i>tlp',
-                    "bSortClasses": false,
-                    searchHighlight: true,
-                    lengthChange: true,
-                    "lengthMenu": [100000],
-                    select: {
-                        style: 'os',
-                        selector: 'td:first-child'
-                    },
-                    order: [[0, 'asc']],
-                    buttons: [
-                        'selectAll',
-                        {
-                            text: 'Select filtered',
-                            action: function (e, dt, node, config) {
-                                var filteredRows = dt.rows({order: 'index', search: 'applied'});
-                                if (filteredRows.count() > 0) {
-                                    dt.rows().deselect();
-                                    filteredRows.select();
-                                }
-                            }
-                        },
-                        'selectNone',
-                        {
-                            extend: 'csv',
-                            text: 'Export CSV',
-                            title: null,
-                            filename: "copo_samples_" + get_timestamp()
-                        }
-                    ],
-                    language: {
-                        "info": " _START_ to _END_ of _TOTAL_ samples",
-                        buttons: {
-                            selectAll: "Select all",
-                            selectNone: "Select none",
-                        },
-                        select: {
-                            rows: {
-                                _: "%d selected records can be <strong>batch-updated using focused cell value</strong><span class='focused-table-info'></span>",
-                                0: "<span>Select one or more records to batch-update</span><span class='focused-table-info'></span>",
-                                1: "%d selected record can be updated using focused cell value<span class='focused-table-info'></span>"
-                            }
-                        }
-                    },
-                    keys: {
-                        columns: ':not(:first-child)',
-                        focus: ':eq(1)', // cell that will receive focus when the table is initialised, set to the first editable cell defined
-                        keys: [9, 13, 37, 39, 38, 40],
-                        blurable: false
-                    },
-                    scrollX: true,
-                    // scroller: true,
-                    // scrollY: 300,
-                    columns: dtColumns
-                });
-
-                sampleTableInstance = table;
-
-                table
-                    .buttons()
-                    .nodes()
-                    .each(function (value) {
-                        $(this)
-                            .removeClass("btn btn-default")
-                            .addClass('tiny ui basic button');
-                    });
-
-                //add custom buttons
-
-                var customButtons = $('<span/>', {
-                    style: "padding-left: 15px;",
-                    class: "copo-table-cbuttons"
-                });
-
-
-                $(table.buttons().container()).append(customButtons);
-
-                //apply to selected rows button
-                var applyButton = $('<button/>',
-                    {
-                        class: "tiny ui basic primary button",
-                        id: "updating_cell_button",
-                        type: "button",
-                        html: '<span>Update selected records</span>',
-                        click: function (event) {
-                            event.preventDefault();
-
-                            if (!$(this).hasClass('updating')) {
-                                $(this).addClass('updating');
-                                batch_update_records(table);
-                            }
-                        }
-                    });
-
-
-                customButtons.append(applyButton);
-
-                var applyCsvButton = $('<button/>',
-                    {
-                        class: "tiny ui basic primary button",
-                        id: "updating_column_button",
-                        type: "button",
-                        html: '<span>Update column from CSV</span>',
-                        click: function (event) {
-                            event.preventDefault();
-
-                            handle_csv_button_click(table)
-                        }
-                    });
-                customButtons.append(applyCsvButton);
-
-                refresh_accessions_tool_tips();
-
-                //add event for enter key press and cell double-click
-                table
-                    .on('dblclick', 'td', function () {
-                        var cell = table.cell($(this));
-                        manage_cell_edit(table, cell);
-                    });
-
-                table
-                    .on('key', function (e, datatable, key, cell, originalEvent) {
-                        if (key == 13) {//trap enter key for editing a cell
-                            manage_cell_edit(table, cell);
-                        }
-                    });
-
-                //add event for cell focus
-                table
-                    .on('key-focus', function (e, datatable, cell, originalEvent) {
-                        var rowIndx = cell.index().row + 1;
-                        $('.focused-table-info').html($('<span style="margin-left: 5px; padding: 5px; font-size: 14px;"> Focused cell in row ' + rowIndx + '</span>'));
-                    })
-                    .on('key-blur', function (e, datatable, cell) {
-                        //;
-                    });
-
-                //add event for column highlighting and tooltip
-                $('#' + tableID + ' tbody')
-                    .on('mouseenter', 'td', function () {
-                        var colIdx = table.cell(this).index().column;
-
-                        $(this).prop("title", "[" + dtRows[table.cell(this).index().row].name + ", " + dtColumns[colIdx].title + "" + "]");
-
-                        $(table.cells().nodes()).removeClass('copo-higlighted-column');
-                        $(table.column(colIdx).nodes()).addClass('copo-higlighted-column');
-                    });
-
-
-                btnNext.removeClass("loading");
-                btnNext.prop('disabled', false);
-            },
-            error: function () {
-                alert("Couldn't generate samples!");
-            }
-        });
-    }
-
-
-    function batch_update_records(table) {
-        //function uses value from focused cell to update selected records
-        var cells = table.cells('.focus');
-        var cell = null;
-
-        //get referenced cell
-        if (cells && cells[0].length > 0) {
-            cell = cells[0];
-            cell = table.cell(cell[0].row, cell[0].column);
-        } else {
-            $("#updating_cell_button").removeClass('updating');
-            return false;
-        }
-
-        //var node = cell.node();
-
-        //get record id of target cell
-        var recordID = table.row(cell.index().row).id().split("row_")[1];
-
-        //get selected rows ids for batch update
-        var target_rows = table.rows('.selected').ids().toArray();
-
-
-        if (target_rows.length == 0) {
-            BootstrapDialog.show({
-                title: "Batch update action",
-                message: "Select one or more records to update corresponding cells",
-                cssClass: 'copo-modal3',
-                closable: false,
-                animate: true,
-                type: BootstrapDialog.TYPE_WARNING,
-                buttons: [{
-                    label: 'OK',
-                    cssClass: 'tiny ui basic orange button',
-                    action: function (dialogRef) {
-                        dialogRef.close();
-                        $("#updating_cell_button").removeClass('updating');
-                        return false;
-                    }
-                }]
-            });
-
-            $("#updating_cell_button").removeClass('updating');
-            return false;
-        }
-
-        //ask user confirmation
-        if (target_rows.length > 0) {
-            BootstrapDialog.show({
-                title: "Confirm batch update",
-                message: "Corresponding cells in column <span style='color: #ff0000;'>" + dtColumns[cell.index().column].title + "</span> for the selected records will be assigned the value: <span style='color: #ff0000;'>" + dtRows[cell.index().row][dtColumns[cell.index().column].data] + "</span>.<div style='margin-top: 10px;'>Do you want to continue?</div>",
-                // cssClass: 'copo-modal3',
-                closable: false,
-                animate: true,
-                type: BootstrapDialog.TYPE_WARNING,
-                buttons: [
-                    {
-                        label: 'Cancel',
-                        cssClass: 'tiny ui basic button',
-                        action: function (dialogRef) {
-                            table.rows().deselect();
-                            $("#updating_cell_button").removeClass('updating');
-                            dialogRef.close();
-                            return false;
-                        }
-                    },
-                    {
-                        label: 'Continue',
-                        cssClass: 'tiny ui basic orange button',
-                        action: function (dialogRef) {
-                            dialogRef.close();
-
-                            //disable table navigation keys
-                            table.keys.disable();
-
-                            var loaderObject = $('<div>', {
-                                style: 'text-align: center; margin-top: 3px;',
-                                html: "<span class='fa fa-spinner fa-pulse fa-2x'></span>"
-                            });
-
-                            $("#updating_cell_button").html("");
-                            $("#updating_cell_button").append("<span>Updating records, please wait</span>");
-                            $("#updating_cell_button").append(loaderObject);
-
-
-                            $.ajax({
-                                url: wizardURL,
-                                type: "POST",
-                                headers: {
-                                    'X-CSRFToken': csrftoken
-                                },
-                                data: {
-                                    'request_action': "batch_update",
-                                    'cell_reference': dtColumns[cell.index().column].data,
-                                    'target_id': recordID,
-                                    'target_rows': JSON.stringify(target_rows),
-                                    'description_token': sampleDescriptionToken
-
-                                },
-                                success: function (data) {
-                                    if (data.batch_update) {
-                                        if (data.batch_update.status == "success") {
-                                            if (data.batch_update.data_set) {
-                                                dtRows = data.batch_update.data_set;
-
-                                                table.rows().deselect();
-
-                                                table
-                                                    .clear()
-                                                    .draw();
-                                                table
-                                                    .rows
-                                                    .add(dtRows);
-                                                table
-                                                    .columns
-                                                    .adjust()
-                                                    .draw();
-                                                table
-                                                    .search('')
-                                                    .columns()
-                                                    .search('')
-                                                    .draw();
-                                            } else {
-                                                //get selected rows indexes for batch update
-
-                                                var rowIndexes = table.rows('.selected').indexes().toArray(); //get selected rows index
-
-                                                var cellNodes = table.cells(rowIndexes, cell.index().column).nodes(); //get target cells node
-                                                $(cellNodes).html(data.batch_update.value); //batch update cells display with new value
-
-                                                var col = dtColumns[cell.index().column].data; //get target column
-
-                                                for (var i = 0; i < rowIndexes.length; ++i) { //update data-source
-                                                    dtRows[rowIndexes[i]][col] = data.batch_update.value;
-                                                }
-
-                                                table.rows().deselect();
-
-                                                table
-                                                    .rows()
-                                                    .invalidate()
-                                                    .draw();
-
-                                                //refresh search box
-                                                table
-                                                    .search('')
-                                                    .draw();
-                                            }
-
-                                            table.cell(cell.index().row, cell.index().column).focus();
-
-                                        } else {
-                                            alert(data.batch_update.message);
-                                        }
-
-                                        table.keys.enable();
-
-                                        $("#updating_cell_button").html("");
-                                        $("#updating_cell_button").append("<span>Update selected records</span>");
-
-                                    }
-
-                                    $("#updating_cell_button").removeClass('updating');
-                                },
-                                error: function () {
-                                    alert("Batch update error!");
-                                    table.keys.enable();
-
-                                    $("#updating_cell_button").html("");
-                                    $("#updating_cell_button").append("<span>Update selected records</span>");
-                                    $("#updating_cell_button").removeClass('updating');
-                                }
-                            });
-                        }
-                    }
-                ]
-            });
-        }
-    }
-
-    function finalise_description() {
-        const $dialogContent = $('<div/>');
-        const notice_div = $('<div/>').html("Finalising description...");
-        const spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
-
-        const dialog = new BootstrapDialog({
-            type: BootstrapDialog.TYPE_PRIMARY,
-            size: BootstrapDialog.SIZE_NORMAL,
-            title: function () {
-                return $('<span>Sample description</span>');
-            },
-            closable: false,
-            animate: true,
-            draggable: false,
-            onhide: function (dialogRef) {
-                //nothing to do for now
-            },
-            onshown: function (dialogRef) {
-                $.ajax({
-                    url: wizardURL,
-                    type: "POST",
-                    headers: {
-                        'X-CSRFToken': csrftoken
-                    },
-                    data: {
-                        'request_action': "finalise_description",
-                        'description_token': sampleDescriptionToken
-
-                    },
-                    success: function (data) {
-                        if (data.finalise_result.status === 'success') {
-                            window.location.reload();
-                        } else {
-                            var $feeback = $('<div/>', {
-                                "class": "webpop-content-div",
-                                style: "padding-bottom: 15px;"
-                            }).html("The following error was encountered while finalising description! Please click the review button to effect changes.");
-                            var $button = $('<div class="tiny ui red button">Review description</div>');
-                            $button.on('click', {dialogRef: dialogRef}, function (event) {
-                                event.data.dialogRef.close();
-                            });
-
-                            dialog.setType(BootstrapDialog.TYPE_DANGER);
-                            dialog.getModalBody().html('').append($feeback).append($button);
-                        }
-
-                    },
-                    error: function () {
-                        alert("Error finalising description!");
-                    }
-                });
-            },
-            buttons: []
-        });
-
-
-        $dialogContent.append(notice_div).append(spinner_div);
-        dialog.realize();
-        dialog.setMessage($dialogContent);
-        dialog.open();
-    }
+    // function generate_dtol_stage(stage) {
+    //     $('#custom-renderer_' + stage.ref).find(".stage-content").html('');
+    //     var formValue = stage.data;
+    //
+    //     var stagearea = $('#custom-renderer_' + stage.ref).find("form")
+    //
+    //     // firstly add a dropdown to select type of dtol sample
+    //     var label = '<label for="dtol_type_select">Select Sample Sub Type</label>'
+    //     var dd = $("<select/>", {
+    //         id: "dtol_type_select",
+    //         class: "form-control",
+    //         "style": "margin-bottom:30px"
+    //     })
+    //     // the values of these options point to json files in wizards/sample/dtol_manifests
+    //     $(dd).append($("<option></option>"))
+    //     $(dd).append($("<option value='dtol_aquatic'>aquatic</option>"))
+    //     $(dd).append($("<option value='dtol_protist'>protist</option>"))
+    //     $(dd).append($("<option value=''dtol_other'>other</option>"))
+    //     $(stagearea).append(label).append(dd)
+    //
+    //     // get the fields into the right order according to the groupings in stage.field_groupings
+    //     var grouped_fields = new Object()
+    //     for (var group_idx in stage.field_groupings) {
+    //         group = stage.field_groupings[group_idx]
+    //         group_name = group.group_name
+    //         var fieldset = new Array()
+    //         for (var order_idx in group.fields) {
+    //             order_name = group.fields[order_idx]
+    //             //now look for order_name in stage.items
+    //             for (field in stage.items) {
+    //                 item = stage.items[field]
+    //                 if (item.id == order_name) {
+    //                     fieldset.push(item)
+    //                 }
+    //             }
+    //         }
+    //         grouped_fields[group_name] = fieldset
+    //     }
+    //     // grouped fields now contains all the fields required split into categories
+    //     // each of these groups should be rendered as an accordion panel
+    //     var accordion_head = '<div hidden class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">'
+    //
+    //
+    //     for (var title in grouped_fields) {
+    //         var header = '<hr/><div hidden class="panel panel-default" id="section_' + title.replace(" ", "_") + '">' +
+    //             '<div class="panel-heading" role="tab" id="heading_' + title.replace(" ", "_") + '">' +
+    //             '<h4 class="panel-title">' +
+    //             '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#' + title.replace(" ", "_") + '" aria-expanded="true" aria-controls="' + title.replace(" ", "_") + '">' + title + '</a></h4></div>'
+    //         var body = '<div id="' + title.replace(" ", "_") + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_"' + title.replace(" ", "_") + '>' +
+    //             '<div class="panel-body">'
+    //         for (var control in grouped_fields[title]) {
+    //             var formElem = grouped_fields[title][control]
+    //             var elemValue = null;
+    //             if (formValue) {
+    //                 var elem = formElem.id.split(".").slice(-1)[0];
+    //                 if (formValue[elem]) {
+    //                     elemValue = formValue[elem];
+    //                 }
+    //             }
+    //             //set default values
+    //             if (formElem.default_value) {
+    //                 elemValue = formElem.default_value;
+    //             } else {
+    //                 elemValue = "";
+    //             }
+    //             var htmlCtrl = dispatchFormControl[controlsMapping[formElem.control.toLowerCase()]](formElem, elemValue);
+    //             body = body + $(htmlCtrl).prop('outerHTML')
+    //         }
+    //         body = body + '</div></div></div>'
+    //         var content = header + body
+    //         accordion_head = accordion_head + content
+    //     }
+    //     $(accordion_head).appendTo(stagearea);
+    //     refresh_accessions_tool_tips();
+    // }
+
+    // function generate_sample_edit_table(stage) {
+    //     //function provides stage information for sample attribute editing
+    //     var btnNext = $(".btn-next");
+    //     btnNext.addClass("loading");
+    //     btnNext.prop('disabled', true);
+    //
+    //     var tableID = stage.ref + "_table";
+    //     var stageHTML = $('<div/>', {"class": "alert alert-default"});
+    //
+    //
+    //     var messageDiv = $('<a/>',
+    //         {
+    //             html: '<i class="fa fa-2x fa-info-circle text-info"></i><span class="action-label" style="padding-left: 8px;">Attributes editing tips...</span>',
+    //             class: "text-info",
+    //             style: "line-height: 150%; display:none;",
+    //             href: "#attributes-edit",
+    //             "data-toggle": "collapse"
+    //         });
+    //
+    //     //add info for user
+    //     var message = $('<div/>', {class: "webpop-content-div"});
+    //     message.append(stage.message);
+    //
+    //     var panel = get_panel('info');
+    //     panel.addClass('edit-sample-badge');
+    //     panel.find('.panel-body').append(message);
+    //     panel.find('.panel-heading').remove();
+    //     panel.find(".panel-footer").remove();
+    //
+    //     var messageDivContent = $('<div/>',
+    //         {
+    //             class: "collapse",
+    //             id: "attributes-edit"
+    //         }
+    //     );
+    //
+    //     messageDivContent.append(panel);
+    //
+    //
+    //     // refresh dynamic content
+    //     $('#custom-renderer_' + stage.ref).find(".stage-content").html('');
+    //     $('#custom-renderer_' + stage.ref).find(".stage-content").append(stageHTML);
+    //
+    //     stageHTML.append($('<div/>', {style: "margin-bottom: 10px;"}).append(messageDiv));
+    //     stageHTML.append(messageDivContent);
+    //
+    //     //table element
+    //     var tableDiv = $('<div/>');
+    //     stageHTML.append(tableDiv);
+    //
+    //     var tbl = $('<table/>',
+    //         {
+    //             id: tableID,
+    //             "class": "ui celled table hover copo-noborders-table",
+    //             cellspacing: "0",
+    //             width: "100%"
+    //         });
+    //
+    //     tableDiv.append(tbl);
+    //
+    //     //loader element
+    //     var loaderHTML = $('<div/>');
+    //     var loaderMessage = $('<div/>', {
+    //         class: "text-primary",
+    //         style: "margin-top: 5px; font-weight:bold;",
+    //         html: "Generating samples..."
+    //     });
+    //
+    //     loaderHTML.append(loaderMessage);
+    //     loaderHTML.append(get_spinner_image());
+    //     stageHTML.append(loaderHTML);
+    //
+    //     $.ajax({
+    //         url: wizardURL,
+    //         type: "POST",
+    //         headers: {
+    //             'X-CSRFToken': csrftoken
+    //         },
+    //         data: {
+    //             'request_action': "get_discrete_attributes",
+    //             'description_token': sampleDescriptionToken
+    //
+    //         },
+    //         success: function (data) {
+    //             loaderHTML.remove();
+    //             messageDiv.show();
+    //
+    //             dtColumns = data.table_data.columns;
+    //             dtRows = data.table_data.rows;
+    //
+    //             var table = $('#' + tableID).DataTable({
+    //                 data: dtRows,
+    //                 dom: 'Bfr<"row"><"row info-rw" i>tlp',
+    //                 "bSortClasses": false,
+    //                 searchHighlight: true,
+    //                 lengthChange: true,
+    //                 "lengthMenu": [100000],
+    //                 select: {
+    //                     style: 'os',
+    //                     selector: 'td:first-child'
+    //                 },
+    //                 order: [[0, 'asc']],
+    //                 buttons: [
+    //                     'selectAll',
+    //                     {
+    //                         text: 'Select filtered',
+    //                         action: function (e, dt, node, config) {
+    //                             var filteredRows = dt.rows({order: 'index', search: 'applied'});
+    //                             if (filteredRows.count() > 0) {
+    //                                 dt.rows().deselect();
+    //                                 filteredRows.select();
+    //                             }
+    //                         }
+    //                     },
+    //                     'selectNone',
+    //                     {
+    //                         extend: 'csv',
+    //                         text: 'Export CSV',
+    //                         title: null,
+    //                         filename: "copo_samples_" + get_timestamp()
+    //                     }
+    //                 ],
+    //                 language: {
+    //                     "info": " _START_ to _END_ of _TOTAL_ samples",
+    //                     buttons: {
+    //                         selectAll: "Select all",
+    //                         selectNone: "Select none",
+    //                     },
+    //                     select: {
+    //                         rows: {
+    //                             _: "%d selected records can be <strong>batch-updated using focused cell value</strong><span class='focused-table-info'></span>",
+    //                             0: "<span>Select one or more records to batch-update</span><span class='focused-table-info'></span>",
+    //                             1: "%d selected record can be updated using focused cell value<span class='focused-table-info'></span>"
+    //                         }
+    //                     }
+    //                 },
+    //                 keys: {
+    //                     columns: ':not(:first-child)',
+    //                     focus: ':eq(1)', // cell that will receive focus when the table is initialised, set to the first editable cell defined
+    //                     keys: [9, 13, 37, 39, 38, 40],
+    //                     blurable: false
+    //                 },
+    //                 scrollX: true,
+    //                 // scroller: true,
+    //                 // scrollY: 300,
+    //                 columns: dtColumns
+    //             });
+    //
+    //             sampleTableInstance = table;
+    //
+    //             table
+    //                 .buttons()
+    //                 .nodes()
+    //                 .each(function (value) {
+    //                     $(this)
+    //                         .removeClass("btn btn-default")
+    //                         .addClass('tiny ui basic button');
+    //                 });
+    //
+    //             //add custom buttons
+    //
+    //             var customButtons = $('<span/>', {
+    //                 style: "padding-left: 15px;",
+    //                 class: "copo-table-cbuttons"
+    //             });
+    //
+    //
+    //             $(table.buttons().container()).append(customButtons);
+    //
+    //             //apply to selected rows button
+    //             var applyButton = $('<button/>',
+    //                 {
+    //                     class: "tiny ui basic primary button",
+    //                     id: "updating_cell_button",
+    //                     type: "button",
+    //                     html: '<span>Update selected records</span>',
+    //                     click: function (event) {
+    //                         event.preventDefault();
+    //
+    //                         if (!$(this).hasClass('updating')) {
+    //                             $(this).addClass('updating');
+    //                             batch_update_records(table);
+    //                         }
+    //                     }
+    //                 });
+    //
+    //
+    //             customButtons.append(applyButton);
+    //
+    //             var applyCsvButton = $('<button/>',
+    //                 {
+    //                     class: "tiny ui basic primary button",
+    //                     id: "updating_column_button",
+    //                     type: "button",
+    //                     html: '<span>Update column from CSV</span>',
+    //                     click: function (event) {
+    //                         event.preventDefault();
+    //
+    //                         handle_csv_button_click(table)
+    //                     }
+    //                 });
+    //             customButtons.append(applyCsvButton);
+    //
+    //             refresh_accessions_tool_tips();
+    //
+    //             //add event for enter key press and cell double-click
+    //             table
+    //                 .on('dblclick', 'td', function () {
+    //                     var cell = table.cell($(this));
+    //                     manage_cell_edit(table, cell);
+    //                 });
+    //
+    //             table
+    //                 .on('key', function (e, datatable, key, cell, originalEvent) {
+    //                     if (key === 13) {//trap enter key for editing a cell
+    //                         manage_cell_edit(table, cell);
+    //                     }
+    //                 });
+    //
+    //             //add event for cell focus
+    //             table
+    //                 .on('key-focus', function (e, datatable, cell, originalEvent) {
+    //                     var rowIndx = cell.index().row + 1;
+    //                     $('.focused-table-info').html($('<span style="margin-left: 5px; padding: 5px; font-size: 14px;"> Focused cell in row ' + rowIndx + '</span>'));
+    //                 })
+    //                 .on('key-blur', function (e, datatable, cell) {
+    //                     //;
+    //                 });
+    //
+    //             //add event for column highlighting and tooltip
+    //             $('#' + tableID + ' tbody')
+    //                 .on('mouseenter', 'td', function () {
+    //                     var colIdx = table.cell(this).index().column;
+    //
+    //                     $(this).prop("title", "[" + dtRows[table.cell(this).index().row].name + ", " + dtColumns[colIdx].title + "" + "]");
+    //
+    //                     $(table.cells().nodes()).removeClass('copo-higlighted-column');
+    //                     $(table.column(colIdx).nodes()).addClass('copo-higlighted-column');
+    //                 });
+    //
+    //
+    //             btnNext.removeClass("loading");
+    //             btnNext.prop('disabled', false);
+    //         },
+    //         error: function () {
+    //             alert("Couldn't generate samples!");
+    //         }
+    //     });
+    // }
+    //
+    //
+    // function batch_update_records(table) {
+    //     //function uses value from focused cell to update selected records
+    //     var cells = table.cells('.focus');
+    //     var cell = null;
+    //
+    //     //get referenced cell
+    //     if (cells && cells[0].length > 0) {
+    //         cell = cells[0];
+    //         cell = table.cell(cell[0].row, cell[0].column);
+    //     } else {
+    //         $("#updating_cell_button").removeClass('updating');
+    //         return false;
+    //     }
+    //
+    //     //var node = cell.node();
+    //
+    //     //get record id of target cell
+    //     var recordID = table.row(cell.index().row).id().split("row_")[1];
+    //
+    //     //get selected rows ids for batch update
+    //     var target_rows = table.rows('.selected').ids().toArray();
+    //
+    //
+    //     if (target_rows.length == 0) {
+    //         BootstrapDialog.show({
+    //             title: "Batch update action",
+    //             message: "Select one or more records to update corresponding cells",
+    //             cssClass: 'copo-modal3',
+    //             closable: false,
+    //             animate: true,
+    //             type: BootstrapDialog.TYPE_WARNING,
+    //             buttons: [{
+    //                 label: 'OK',
+    //                 cssClass: 'tiny ui basic orange button',
+    //                 action: function (dialogRef) {
+    //                     dialogRef.close();
+    //                     $("#updating_cell_button").removeClass('updating');
+    //                     return false;
+    //                 }
+    //             }]
+    //         });
+    //
+    //         $("#updating_cell_button").removeClass('updating');
+    //         return false;
+    //     }
+    //
+    //     //ask user confirmation
+    //     if (target_rows.length > 0) {
+    //         BootstrapDialog.show({
+    //             title: "Confirm batch update",
+    //             message: "Corresponding cells in column <span style='color: #ff0000;'>" + dtColumns[cell.index().column].title + "</span> for the selected records will be assigned the value: <span style='color: #ff0000;'>" + dtRows[cell.index().row][dtColumns[cell.index().column].data] + "</span>.<div style='margin-top: 10px;'>Do you want to continue?</div>",
+    //             // cssClass: 'copo-modal3',
+    //             closable: false,
+    //             animate: true,
+    //             type: BootstrapDialog.TYPE_WARNING,
+    //             buttons: [
+    //                 {
+    //                     label: 'Cancel',
+    //                     cssClass: 'tiny ui basic button',
+    //                     action: function (dialogRef) {
+    //                         table.rows().deselect();
+    //                         $("#updating_cell_button").removeClass('updating');
+    //                         dialogRef.close();
+    //                         return false;
+    //                     }
+    //                 },
+    //                 {
+    //                     label: 'Continue',
+    //                     cssClass: 'tiny ui basic orange button',
+    //                     action: function (dialogRef) {
+    //                         dialogRef.close();
+    //
+    //                         //disable table navigation keys
+    //                         table.keys.disable();
+    //
+    //                         var loaderObject = $('<div>', {
+    //                             style: 'text-align: center; margin-top: 3px;',
+    //                             html: "<span class='fa fa-spinner fa-pulse fa-2x'></span>"
+    //                         });
+    //
+    //                         $("#updating_cell_button").html("");
+    //                         $("#updating_cell_button").append("<span>Updating records, please wait</span>");
+    //                         $("#updating_cell_button").append(loaderObject);
+    //
+    //
+    //                         $.ajax({
+    //                             url: wizardURL,
+    //                             type: "POST",
+    //                             headers: {
+    //                                 'X-CSRFToken': csrftoken
+    //                             },
+    //                             data: {
+    //                                 'request_action': "batch_update",
+    //                                 'cell_reference': dtColumns[cell.index().column].data,
+    //                                 'target_id': recordID,
+    //                                 'target_rows': JSON.stringify(target_rows),
+    //                                 'description_token': sampleDescriptionToken
+    //
+    //                             },
+    //                             success: function (data) {
+    //                                 if (data.batch_update) {
+    //                                     if (data.batch_update.status == "success") {
+    //                                         if (data.batch_update.data_set) {
+    //                                             dtRows = data.batch_update.data_set;
+    //
+    //                                             table.rows().deselect();
+    //
+    //                                             table
+    //                                                 .clear()
+    //                                                 .draw();
+    //                                             table
+    //                                                 .rows
+    //                                                 .add(dtRows);
+    //                                             table
+    //                                                 .columns
+    //                                                 .adjust()
+    //                                                 .draw();
+    //                                             table
+    //                                                 .search('')
+    //                                                 .columns()
+    //                                                 .search('')
+    //                                                 .draw();
+    //                                         } else {
+    //                                             //get selected rows indexes for batch update
+    //
+    //                                             var rowIndexes = table.rows('.selected').indexes().toArray(); //get selected rows index
+    //
+    //                                             var cellNodes = table.cells(rowIndexes, cell.index().column).nodes(); //get target cells node
+    //                                             $(cellNodes).html(data.batch_update.value); //batch update cells display with new value
+    //
+    //                                             var col = dtColumns[cell.index().column].data; //get target column
+    //
+    //                                             for (var i = 0; i < rowIndexes.length; ++i) { //update data-source
+    //                                                 dtRows[rowIndexes[i]][col] = data.batch_update.value;
+    //                                             }
+    //
+    //                                             table.rows().deselect();
+    //
+    //                                             table
+    //                                                 .rows()
+    //                                                 .invalidate()
+    //                                                 .draw();
+    //
+    //                                             //refresh search box
+    //                                             table
+    //                                                 .search('')
+    //                                                 .draw();
+    //                                         }
+    //
+    //                                         table.cell(cell.index().row, cell.index().column).focus();
+    //
+    //                                     } else {
+    //                                         alert(data.batch_update.message);
+    //                                     }
+    //
+    //                                     table.keys.enable();
+    //
+    //                                     $("#updating_cell_button").html("");
+    //                                     $("#updating_cell_button").append("<span>Update selected records</span>");
+    //
+    //                                 }
+    //
+    //                                 $("#updating_cell_button").removeClass('updating');
+    //                             },
+    //                             error: function () {
+    //                                 alert("Batch update error!");
+    //                                 table.keys.enable();
+    //
+    //                                 $("#updating_cell_button").html("");
+    //                                 $("#updating_cell_button").append("<span>Update selected records</span>");
+    //                                 $("#updating_cell_button").removeClass('updating');
+    //                             }
+    //                         });
+    //                     }
+    //                 }
+    //             ]
+    //         });
+    //     }
+    // }
+    //
+    // function finalise_description() {
+    //     const $dialogContent = $('<div/>');
+    //     const notice_div = $('<div/>').html("Finalising description...");
+    //     const spinner_div = $('<div/>', {style: "margin-left: 40%; padding-top: 15px; padding-bottom: 15px;"}).append($('<div class="copo-i-loader"></div>'));
+    //
+    //     const dialog = new BootstrapDialog({
+    //         type: BootstrapDialog.TYPE_PRIMARY,
+    //         size: BootstrapDialog.SIZE_NORMAL,
+    //         title: function () {
+    //             return $('<span>Sample description</span>');
+    //         },
+    //         closable: false,
+    //         animate: true,
+    //         draggable: false,
+    //         onhide: function (dialogRef) {
+    //             //nothing to do for now
+    //         },
+    //         onshown: function (dialogRef) {
+    //             $.ajax({
+    //                 url: wizardURL,
+    //                 type: "POST",
+    //                 headers: {
+    //                     'X-CSRFToken': csrftoken
+    //                 },
+    //                 data: {
+    //                     'request_action': "finalise_description",
+    //                     'description_token': sampleDescriptionToken
+    //
+    //                 },
+    //                 success: function (data) {
+    //                     if (data.finalise_result.status === 'success') {
+    //                         window.location.reload();
+    //                     } else {
+    //                         var $feeback = $('<div/>', {
+    //                             "class": "webpop-content-div",
+    //                             style: "padding-bottom: 15px;"
+    //                         }).html("The following error was encountered while finalising description! Please click the review button to effect changes.");
+    //                         var $button = $('<div class="tiny ui red button">Review description</div>');
+    //                         $button.on('click', {dialogRef: dialogRef}, function (event) {
+    //                             event.data.dialogRef.close();
+    //                         });
+    //
+    //                         dialog.setType(BootstrapDialog.TYPE_DANGER);
+    //                         dialog.getModalBody().html('').append($feeback).append($button);
+    //                     }
+    //
+    //                 },
+    //                 error: function () {
+    //                     alert("Error finalising description!");
+    //                 }
+    //             });
+    //         },
+    //         buttons: []
+    //     });
+    //
+    //
+    //     $dialogContent.append(notice_div).append(spinner_div);
+    //     dialog.realize();
+    //     dialog.setMessage($dialogContent);
+    //     dialog.open();
+    // }
 
     // function pending_sample_description() {
     //     $.ajax({
@@ -2186,13 +2186,13 @@ function get_copo_accessions_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["view-samples", "view-samples-erga", "accept_reject_samples"],
+            buttons: ["accept_reject_samples", "tol_inspect"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "accessions_color",
             color: "pink",
             profile_component: true,
             tableID: 'accessions_table',
-            recordActions: ["btn-toggle"],
+            recordActions: ["btn-toggle1", "btn-toggle2"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },
         {
@@ -2397,7 +2397,7 @@ function do_table_buttons_events() {
     });
 }
 
-function place_accessions_task_buttons(componentMeta) {
+function place_accessions_task_buttons1(componentMeta, class_name) {
     //place custom buttons on table
 
     if (!componentMeta.recordActions.length) {
@@ -2411,18 +2411,50 @@ function place_accessions_task_buttons(componentMeta) {
         class: "copo-table-cbuttons"
     });
 
-    $(table.buttons().container()).append(customButtons);
+    if (class_name === "btn-toggle1") {
+        $(table.buttons().container()).append(customButtons);
+    }
 
+    // if (class_name === "btn-toggle2") {
+    //     console.log(class_name)
+    //     $(table.buttons()).append(customButtons);
+    //     let all_accessions_options = $(table.buttons().container()).clone() //$(".dt-buttons ").clone()
+    //
+    //     // // all_accessions_options.previousSibling.remove()
+    //     // all_accessions_options.prev("br").remove();
+    //     // console.log("previousSibling: ", all_accessions_options.prev())
+    //
+    //     all_accessions_options.find('.buttons-csv').remove()
+    //
+    //     // all_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
+    //
+    //     all_accessions_options.append(customButtons);
+    //     //     .find('.active').text('Other Projects\' Accessions')
+    //     //
+    //     // all_accessions_options.find('.btn-default').text('Stand-alone Pr
+    // }
 
-    componentMeta.recordActions.forEach(function (item) {
-        const actionBTN = $(".accessions-record-action-templates").find("." + item).clone();
+    // componentMeta.recordActions.forEach(function (item) {
+    //     if (item === class_name) {
+    const actionBTN = $(".accessions-record-action-templates").find("." + class_name).clone();
 
-        // If record action CSS class does not contain "1btn_toggle", remove all other CSS classes
-        if (item !== "btn-toggle") actionBTN.removeClass(item);
+    // If record action CSS class does not contain "1btn_toggle", remove all other CSS classes
+    // if (item !== class_name) actionBTN.removeClass(class_name);
+    // if (item !== "btn-toggle2") actionBTN.removeClass(item);
 
-        actionBTN.attr("data-table", componentMeta.tableID);
-        customButtons.append(actionBTN);
-    });
+    actionBTN.attr("data-table", componentMeta.tableID);
+    customButtons.append(actionBTN);
+    // }
+    // });
+// "..."
+    // Truncate profile title if it is too long
+    let profile_title = $("#profile_title")
+    let truncated_profile_title = profile_title.val().length > 10 ?
+        jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
+        : profile_title.val()
+
+    // Add profile title to the active toggle button
+    $(".btn-toggle1").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
 
     refresh_accessions_tool_tips();
 
@@ -2430,16 +2462,85 @@ function place_accessions_task_buttons(componentMeta) {
     do_table_buttons_events();
 }
 
-function render_accessions_table(data, componentMeta) {
+// function place_accessions_task_buttons2(componentMeta) {
+//     //place custom buttons on table
+//
+//     if (!componentMeta.recordActions.length) {
+//         return;
+//     }
+//
+//     const table = $('#' + componentMeta.tableID).DataTable();
+//
+//     const customButtons = $('<span/>', {
+//         style: "padding-left: 15px;",
+//         class: "copo-table-cbuttons"
+//     });
+//
+//     $(table.buttons().container()).append(customButtons);
+//
+//
+//     componentMeta.recordActions.forEach(function (item) {
+//         const actionBTN = $(".accessions-record-action-templates").find("." + item).clone();
+//
+//         // If record action CSS class does not contain "1btn_toggle", remove all other CSS classes
+//         if (item !== "btn-toggle") actionBTN.removeClass(item);
+//
+//         actionBTN.attr("data-table", componentMeta.tableID);
+//         customButtons.append(actionBTN);
+//     });
+// // "..."
+//     // Truncate profile title if it is too long
+//     let profile_title = $("#profile_title")
+//     let truncated_profile_title = profile_title.val().length > 10 ?
+//         jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
+//         : profile_title.val()
+//
+//     // Add profile title to the active toggle button
+//     $(".btn-toggle").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
+//
+//     refresh_accessions_tool_tips();
+//
+//     //table action buttons
+//     do_table_buttons_events();
+// }
+
+function render_accessions_table(data, cols, dataSet, componentMeta) {
+    // console.log("Data: ", data)
     const tableID = componentMeta.tableID;
-    let dataSet = [data.flatMap(Object.values)]
-    const cols_lst = data.flatMap(Object.keys); //data.table_data.columns;// Build column names for the table
-    const cols = []
-    cols_lst.forEach(item => {
-        let title;
-        title = convertStringToTitleCase(item)
-        cols.push({title: title, value: item});
-    })
+    //let dataSet = [Object.values(data)] //[data.flatMap(Object.values)]
+    const dataSetLst = []
+    //const cols_lst = []//Object.keys(data) //data.flatMap(Object.keys); //data.table_data.columns;// Build column names for the table
+    // console.log(typeof data)
+
+    // for (let i in data) {
+    //     console.log('i', i)
+    // }
+    // data.forEach(item => {
+    //     cols_lst.push(Object.keys(item))
+    //     dataSetLst.push(Object.values(item))
+    //     // if (o.name === 'John') {
+    //     //     console.log(o);
+    //     // }
+    // });
+
+    // $.each(data, function (index, item) {
+    //     console.log("Item: ", item)
+    //     cols_lst.push(Object.keys(item))
+    //     dataSetLst.push(Object.values(item))
+    // });
+
+    // let dataSet = [dataSetLst]
+    //
+    // console.log("Cols: ", cols_lst)
+    // console.log("Values: ", dataSet)
+    // const cols = []
+    // cols_lst.forEach(item => {
+    //     let title;
+    //     title = convertStringToTitleCase(item)
+    //     title.replace("_id", " ID")
+    //     title.replace("accession", " Accession")
+    //     cols.push({title: title, value: item});
+    // })
 
     set_empty_accessions_component_message(dataSet.length); //display empty component message when there's no record
 
@@ -2543,14 +2644,26 @@ function render_accessions_table(data, componentMeta) {
             columns: cols,
 
             "columnDefs": [
-
                 {
-                    'visible': false,
-                    'targets': [0],   //hide the first column
+                    "targets": "_all", // all fields
                     "createdCell": function (td, cellData, rowData, row, col) {
                         if (cellData === "") {
                             $(td).addClass("cell-no-content")
                         }
+                    }
+                },
+                {
+                    'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
+                    'render': function (data, type, full, meta) {
+                        let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
+                        return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
+                    }
+                },
+                {
+                    'targets': [4], // 'manifest_id' column
+                    'render': function (data, type, full, meta) {
+                        let get_samples_by_manifestID_url = `/api/manifest/${data}`
+                        return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
                     }
                 }
                 // {
@@ -2589,7 +2702,8 @@ function render_accessions_table(data, componentMeta) {
                     .addClass('tiny ui basic button');
             });
 
-        place_accessions_task_buttons(componentMeta); //this will place custom buttons on the table for executing tasks on records
+        place_accessions_task_buttons1(componentMeta, "btn-toggle1"); //this will place custom buttons on the table for executing tasks on records
+        // place_accessions_task_buttons1(componentMeta, "btn-toggle2");
     }
     let table_wrapper = $('#' + tableID + '_wrapper')
 
@@ -2603,12 +2717,24 @@ function render_accessions_table(data, componentMeta) {
 
     // Add css to align the buttons to the right
     table_wrapper.find(".dt-buttons").addClass("pull-right")
+    table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
 
     // Insert breakpoints after the toggle button
-    $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
+    const actionBTN2 = $(".accessions-record-action-templates").find("." + "groupBtn2").clone();
+    table_wrapper.find(".dt-buttons").append($("<br><br>")).append(actionBTN2).append($("<br><br>"))
+    // $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons")).append(actionBTN2)
+
+    // If alll is toggled, show all records
+    // table_wrapper.find(".dt-buttons").clone().append(table_wrapper.find(".dt-buttons"))
+
+    //     .find("button").each(function () {
+    // })
 
     // Set height of table to fit the content in the table
     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
+
+    // Add padding between table and show records filter
+    table_wrapper.find(".dataTables_length").css("padding-top", "20px")
 
     //handle event for table details
     $('#' + tableID + ' tbody')
@@ -2699,18 +2825,37 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
         data: {
             // "sample_id": $('#profile_id').val(),
             "isSampleProfileTypeStandalone": $(document).data("isSampleProfileTypeStandalone"),
-            "isUserProfileToggled": $(document).data("isUserProfileToggled")
+            "isUserProfileActive": $(document).data("isUserProfileActive")
             // 'task': 'table_data',
             // 'component': componentMeta.component
         },
         dataType: "json",
         success: function (data) {
-            render_accessions_table(data, componentMeta);
+            let cols = [];
+            let dataSet = []
+
+            // Sort data by key
+            $.each(data, function (index, item) {
+                // Remove "_id" from key-value pair from the original object
+                if (item.hasOwnProperty("_id")) delete data[index]["_id"];
+
+                // Sort element dictionary by key
+                data[index] = Object.keys(data[index]).sort().reduce((a, c) => (a[c] = data[index][c], a), {})
+                dataSet.push(Object.values(item))
+            });
+
+            // Get element keys
+            // If there exists at least one element, the keys will remain the same so just get the
+            // keys from the first element
+            Object.keys(data[0]).forEach(item => {
+                cols.push({title: convertStringToTitleCase(item), value: item});
+            })
+
+            render_accessions_table(data, cols, dataSet, componentMeta);
 
             //remove loader
-            if (tableLoader) {
-                tableLoader.remove();
-            }
+            if (tableLoader) tableLoader.remove();
+
         },
         error: function () {
             alert("Couldn't retrieve " + componentMeta.component + " data!");
@@ -2749,6 +2894,10 @@ function refresh_accessions_tool_tips() {
 } //end of func
 
 function toggle_accessions_view() {
+    const component = "accessions";
+    const copoVisualsURL = "/copo/copo_accessions_visualise/";
+    const componentMeta = get_component_meta(component);
+
     $('.btn-toggle').click(function () {
         $(this).find('.btn').toggleClass('active');
 
@@ -2767,6 +2916,30 @@ function toggle_accessions_view() {
 
         $(this).find('.btn').toggleClass('btn-default');
 
+        // Show all accessions
+        if ($(this).find('.active').text().includes("All COPO Accessions")) {
+            $(".page-title-custom").find("[title='Profile title']").hide() // Hide profile title
+            $(document).data("isUserProfileActive", false)
+            load_accessions_records(componentMeta, copoVisualsURL)
+
+            // let all_accessions_options = $(".dt-buttons ").clone()
+            //
+            // // Remove breakpoints before the toggle button
+            // // all_accessions_options.previousSibling.remove()
+            // all_accessions_options.prev("br").remove();
+            // console.log("previousSibling: ", all_accessions_options.prev())
+            //
+            // all_accessions_options.find('.buttons-csv').remove()
+            //
+            // all_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
+            //     .find('.active').text('Other Projects\' Accessions')
+            //
+            // all_accessions_options.find('.btn-default').text('Stand-alone Projects\' Accessions')
+        } else {
+            $(".page-title-custom").find("[title='Profile title']").show()
+            $(document).data("isUserProfileActive", true)
+            load_accessions_records(componentMeta, copoVisualsURL)
+        }
     });
 }
 
@@ -2888,11 +3061,17 @@ function generate_component_control(component) {
     refresh_accessions_tool_tips();
 }
 
+//#------------- Helpers -----------------#
 function convertStringToTitleCase(str) {
     return str.replace(
         /\w\S*/g,
         function (txt) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }
-    );
+    ).replace("_id", " ID")
+        .replace("_name", " Name")
+        .replace("accession", " Accession")
+        .replace("Sra", "SRA")
+
+
 }

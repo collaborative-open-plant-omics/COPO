@@ -62,6 +62,7 @@ AssemblyCollection = 'AssemblyCollection'
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
                    sample=get_collection_ref(SampleCollection),
+                   accessions=get_collection_ref(SampleCollection),
                    source=get_collection_ref(SourceCollection),
                    profile=get_collection_ref(ProfileCollection),
                    submission=get_collection_ref(SubmissionCollection),
@@ -110,8 +111,12 @@ class ProfileInfo:
 
         for k, v in num_dict.items():
             if handle_dict.get(v, None):
-                status[k] = handle_dict.get(v).count(
-                    {'profile_id': self.profile_id})
+                if v == "accessions":
+                    status[k] = handle_dict.get(v).count(
+                        {'profile_id': self.profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}})
+                else:
+                    status[k] = handle_dict.get(v).count(
+                        {'profile_id': self.profile_id})
 
         return status
 
@@ -1019,15 +1024,12 @@ class Sample(DAComponent):
 
         })
 
-    def get_number_of_accessions(self):
-        return self.get_collection_handle().count({"biosampleAccession": {"$exists": True, "$ne": ""}})
+    # def get_profileID_by_sampleID(self, sample_id):
+    #     cursor = self.get_collection_handle().find({"_id": ObjectId(sample_id)},
+    #                                                {"profile_id": 1})
+    #     return cursor_to_list(cursor)[0].get("profile_id", "")
 
-    def get_profileID_by_sampleID(self, sample_id):
-        cursor = self.get_collection_handle().find({"_id": ObjectId(sample_id)},
-                                                   {"profile_id": 1})
-        return cursor_to_list(cursor)[0].get("profile_id", "")
-
-    def get_accessions(self, profile_id, isSampleProfileTypeStandalone=False, isCurrentUser=True):
+    def get_accessions(self, profile_id, isSampleProfileTypeStandalone=False, isUserProfileActive=True):
         if isSampleProfileTypeStandalone:
             current_profile_sample_accessions = self.get_collection_handle().find(
                 {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
@@ -1049,7 +1051,7 @@ class Sample(DAComponent):
                 {"accession": {"$exists": True, "$ne": ""}},
                 {"accession": 1, "alias": 1})
 
-        cursor = current_profile_sample_accessions if isCurrentUser else all_profile_sample_accessions
+        cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
 
         return cursor_to_list_str(cursor)
         # #  get schema
