@@ -44,9 +44,11 @@ ena_report = resolve_env.get_env('ENA_ENDPOINT_REPORT')
 pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
 user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
 
+sample_permits_directory_path = Path(django_settings.MEDIA_ROOT) / "sample_permits"
+b2drop_permits_directory_path = resolve_env.get_env('B2DROP_PERMITS')
+
 submission_id = ""
 profile_id = ""
-sample_permits_directory_path = Path(django_settings.MEDIA_ROOT) / "sample_permits"
 
 
 def process_pending_dtol_samples():
@@ -280,17 +282,14 @@ def process_pending_dtol_samples():
                         continue
                 specimen_accession = Source().get_specimen_biosample(sam["SPECIMEN_ID"])[0].get("biosampleAccession",
                                                                                                 "")
-
                 # Transfer permit files to b2drop
                 sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
 
                 if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
                     for permit_file in os.listdir(sample_permits_directory):
                         if permit_file.endswith(".pdf") and permit_file.startswith(sam["SPECIMEN_ID"] + "_"):
-                            # Transfer permit file to b2drop from COPO media local directory
                             permit_file_path = os.path.join(sample_permits_directory, permit_file)
-                            os.rename(permit_file_path,
-                                      Path(django_settings.B2DROP_PERMIT_FILE_FOLDER) / permit_file_path)
+                            os.rename(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
 
             if not specimen_accession:
                 l.log("no accession found, set submission to pending")
