@@ -6,14 +6,14 @@ import web.settings.email as email_settings
 from web.apps.web_copo.models import User
 from django.conf import settings
 
+
 class CopoEmail:
 
     def __init__(self):
         self.messages = {
-            "new_manifest" : "<h4>Manifest Available</h4><p>A manifest has been uploaded for approval. Please follow the link to proceed</p><h5>{} - {}</h5><p><a href='{}'>{}</a></p>".capitalize,
-            "sample_rejected" : "<h4>Following samples are rejected by ENA</h4><h5>{} - {}</h5><ul>{}</ul>"
+            "new_manifest": "<h4>Manifest Available</h4><p>A manifest has been uploaded for approval. Please follow the link to proceed</p><h5>{} - {}</h5><p><a href='{}'>{}</a></p>".capitalize(),
+            "sample_rejected": "<h4>Following samples are rejected by ENA</h4><h5>{} - {}</h5><ul>{}</ul>"
         }
-
 
     def send(self, to, sub, content, html=False):
         msg = MIMEMultipart()
@@ -55,12 +55,12 @@ class CopoEmail:
             is_new = "New "
             if "demo" in data:
                 demo_notification = "DEMO SERVER NOTIFICATION: "
-            if not kwargs.get("is_new", True) :            
+            if not kwargs.get("is_new", True):
                 is_new = "Modified "
-            msg = self.messages["new_manifest"].format(kwargs["title"], demo_notification + kwargs["description"], data, data)
+            msg = self.messages["new_manifest"].format(kwargs["title"], demo_notification + kwargs["description"], data,
+                                                       data)
             sub = demo_notification + is_new + kwargs["project"] + " Manifest - " + kwargs["title"]
             self.send(to=email_addresses, sub=sub, content=msg, html=True)
-
 
     def notify_sample_rejected_after_approval(self, **kwargs):
         # get users in group
@@ -74,14 +74,16 @@ class CopoEmail:
             users = []
         email_addresses = list()
         sub = ""
-        samples = kwargs["rejected_sample"] 
+        samples = kwargs["rejected_sample"]
         sample_arr = [f"<li>{key} : {samples[key]}</li>" for key in samples.keys()]
         sample_str = ' '.join(sample_arr)
 
         if len(users) > 0:
             for u in users:
                 email_addresses.append(u.email)
-            
-            msg = self.messages["sample_rejected"].format(kwargs.get("title"," ") , kwargs.get("description"," "), sample_str)
-            sub = settings.ENVIRONMENT_TYPE + " " + kwargs.get("project"," ") + " Manifest - " + kwargs.get("title"," ")
+
+            msg = self.messages["sample_rejected"].format(kwargs.get("title", " "), kwargs.get("description", " "),
+                                                          sample_str)
+            sub = settings.ENVIRONMENT_TYPE + " " + kwargs.get("project", " ") + " Manifest - " + kwargs.get("title",
+                                                                                                             " ")
             self.send(to=email_addresses, sub=sub, content=msg, html=True)

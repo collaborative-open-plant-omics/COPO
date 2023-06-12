@@ -282,14 +282,6 @@ def process_pending_dtol_samples():
                         continue
                 specimen_accession = Source().get_specimen_biosample(sam["SPECIMEN_ID"])[0].get("biosampleAccession",
                                                                                                 "")
-                # Transfer permit files to b2drop
-                sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
-
-                if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
-                    for permit_file in os.listdir(sample_permits_directory):
-                        if permit_file.endswith(".pdf") and permit_file.startswith(sam["SPECIMEN_ID"] + "_"):
-                            permit_file_path = os.path.join(sample_permits_directory, permit_file)
-                            os.rename(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
 
             if not specimen_accession:
                 l.log("no accession found, set submission to pending")
@@ -300,6 +292,16 @@ def process_pending_dtol_samples():
                 #                html_id="dtol_sample_info")
                 Submission().make_dtol_status_pending(submission['_id'])
                 break
+
+            # Transfer permit files to b2drop
+            sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
+
+            if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
+                for permit_file in os.listdir(sample_permits_directory):
+                    if permit_file.endswith(".pdf") and permit_file.startswith(sam["SPECIMEN_ID"] + "_"):
+                        permit_file_path = os.path.join(sample_permits_directory, permit_file)
+                        os.rename(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
+
             # set appropriate relationship to specimen level sample
             l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"])
             if issymbiont == "SYMBIONT":
