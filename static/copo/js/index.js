@@ -30,12 +30,17 @@ $(document).ready(function () {
             id = id.split("_")[1]
             if (action_type === "dtol" || action_type === "erga") {
                 url = "/copo/copo_samples/" + id + "/view"
-            } else if (action_type === "reads") {
+            } /*else if (action_type === "reads") {
                 url = "/copo/copo_reads/" + id + "/view"
             } else if (action_type === "assembly") {
                 url = "/copo/copo_assembly/" + id + "/view"
-            } else if (action_type === "annotation") {
+            } else if (action_type === "seq_annotation") {
                 url = "/copo/copo_seq_annotation/" + id + "/view"
+            } else if (action_type === "files") {
+                url = "/copo/copo_files/" + id + "/view"
+            } */ else {
+                url = "/copo/copo_" + action_type  + "/" + id + "/view"
+            }
             document.location = url
         }
     })
@@ -469,18 +474,21 @@ $(document).ready(function () {
         $(".copo-records-panel").each(function (idx, el) {
             const t = $(el).attr("profile_type");
             if (t.includes("ERGA")) {
-                $(el).find("a[anchor_type='reads']").hide()
-                $(el).find("a[anchor_type='assembly']").hide()
-                $(el).find("a[anchor_type='annotation']").hide()
-                $(el).find("a[anchor_type='dtol_option']").hide()
+                $(el).find("a[profile_component='stand-alone']").hide()
+                //$(el).find("a[anchor_type='reads']").hide()
+                //$(el).find("a[anchor_type='assembly']").hide()
+                //$(el).find("a[anchor_type='annotation']").hide()
+                //$(el).find("a[anchor_type='dtol_option']").hide()
             } else if (t.includes("DTOL") || t.includes("ASG")) {
-                $(el).find("a[anchor_type='reads']").hide()
-                $(el).find("a[anchor_type='assembly']").hide()
-                $(el).find("a[anchor_type='annotation']").hide()
-                $(el).find("a[anchor_type='erga_option']").hide()
+                $(el).find("a[profile_component='stand-alone']").hide()
+                //$(el).find("a[anchor_type='reads']").hide()
+                //$(el).find("a[anchor_type='assembly']").hide()
+                //$(el).find("a[anchor_type='annotation']").hide()
+                //$(el).find("a[anchor_type='erga_option']").hide()
             } else if (t.includes("Stand-alone")) {
-                $(el).find("a[anchor_type='dtol_option']").hide()
-                $(el).find("a[anchor_type='erga_option']").hide()
+                $(el).find("a[profile_component='dtol']").hide()
+                //$(el).find("a[anchor_type='dtol_option']").hide()
+                //$(el).find("a[anchor_type='erga_option']").hide()
             }
         })
     }

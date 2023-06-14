@@ -7,7 +7,7 @@ from django_tools.middlewares import ThreadLocal
 
 from tools import resolve_env
 
-from dal.copo_da import Sequnece_annotation, Submission, DataFile, ENAFileTransferObject
+from dal.copo_da import Sequnece_annotation, Submission, DataFile, EnaFileTransfer
 from exceptions_and_logging.logger import Logger
 from django.contrib import messages
 import glob
@@ -100,7 +100,7 @@ def validate_annotation(form_data,formset, profile_id, seq_annotation_id=None):
         sub_id = sub["_id"]   
 
     for f_name in files:
-        file_location = str(request.user.id) + "_" + request.user.username + "/" + f_name
+        file_location = join(settings.UPLOAD_PATH, request.user.username, f_name)
         df = DataFile().get_collection_handle().find_one({"file_location": file_location, "deleted": {"$ne": data_utils.get_deleted_flag()}})
         if df and df["file_hash"] == s3_file_etags[f_name]:
             file_ids.append(str(df["_id"]))
@@ -292,7 +292,8 @@ def process_seq_annotation_pending_submission():
                 l.log("Seq annotation not found " + seq_annotation_id)
                 message = " Seq annotation not found " + seq_annotation_id
                 ghlper.notify_annotation_status(data={"profile_id": sub["profile_id"]}, msg=message, action="error",
-                                html_id="annotation_info")                
+                                html_id="annotation_info")   
+                Submission().update_seq_annotation_submission(sub_id=str(sub["_id"]),  seq_annotation_id=seq_annotation_id)             
                 continue
             analysis_dom = build_analysis_dom(seq_annotation, sub)
             if seq_annotation.get("accession",""):
@@ -415,11 +416,14 @@ def update_seq_annotation_submission_pending():
         all_file_uploaded = True
         for seq_annotation_id in sub["seq_annotations"]:
             seq_annotation = Sequnece_annotation().get_record(seq_annotation_id)
+            if not seq_annotation:
+                Submission().update_seq_annotation_submission(sub_id=str(sub["_id"]), seq_annotation_id= seq_annotation_id)
+                continue
             for f in seq_annotation["files"]:
-                enaFile = ENAFileTransferObject().get_collection_handle().find_one({"file_id": ObjectId(f), "profile_id": sub["profile_id"]})
+                enaFile = EnaFileTransfer().get_collection_handle().find_one({"file_id": ObjectId(f), "profile_id": sub["profile_id"]})
                 if enaFile:
                     if enaFile["status"] != "complete":
-                        all_file_upload = False
+                        all_file_uploaded = False
                         break
                 else:
                     """it should not happen"""    

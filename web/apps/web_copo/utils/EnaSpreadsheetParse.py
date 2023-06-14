@@ -8,20 +8,17 @@ import pandas
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Source, Submission, EnaFileTransfer
-from submission.helpers.generic_helper import notify_frontend
+from dal.copo_da import Sample, DataFile, Profile, Source, Submission, EnaFileTransfer, SubmissionQueue, Sequnece_annotation
+from submission.helpers.generic_helper import notify_read_status
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
-from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
+from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype, get_datetime, get_not_deleted_flag
 from django.http import HttpResponse, JsonResponse
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.ena_validators import ena_seq_validators as required_validators
-import datetime
-import importlib
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from pymongo import ReturnDocument
 import web.apps.web_copo.utils.FileTransferUtils as tx
-from web.apps.web_copo.schemas.utils import data_utils
 from django.conf import settings
 from os.path import join
 from pathlib import Path
@@ -35,10 +32,9 @@ l = logger.Logger("exceptions_and_logging/logs")
 def parse_ena_spreadsheet(request):
     username = request.user.username
     profile_id = request.session["profile_id"]
-    channels_group_name = "s3_" + profile_id
-    notify_frontend(data={"profile_id": profile_id},
+    notify_read_status(data={"profile_id": profile_id},
                     msg='', action="info",
-                    html_id="sample_info", group_name=channels_group_name)
+                    html_id="sample_info")
     # method called by rest
     file = request.FILES["file"]
     name = file.name
@@ -56,10 +52,10 @@ def parse_ena_spreadsheet(request):
             # check s3 for bucket and files files
             bucket_name = str(request.user.id) + "_" + request.user.username
             # bucket_name = request.user.username
+            file_names = ena.get_filenames_from_manifest()
 
             if s3obj.check_for_s3_bucket(bucket_name):
                 # get filenames from manifest
-                file_names = ena.get_filenames_from_manifest()
                 # check for files
                 if not s3obj.check_s3_bucket_for_files(bucket_name=bucket_name, file_list=file_names):
                     # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
@@ -75,20 +71,24 @@ def parse_ena_spreadsheet(request):
                 #    return HttpResponse(content="Please submit the samples before upload , it cannot be updated", status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
-                notify_frontend(data={"profile_id": profile_id},
+                notify_read_status(data={"profile_id": profile_id},
                                 msg='s3 bucket not found, creating it', action="info",
-                                html_id="sample_info", group_name=channels_group_name)
+                                html_id="sample_info")
                 s3obj.make_s3_bucket(bucket_name=bucket_name)
-                notify_frontend(data={"profile_id": profile_id},
+                notify_read_status(data={"profile_id": profile_id},
                                 msg='Files not found, please click "Upload Data into COPO" and follow the '
                                     'instructions.', action="info",
-                                html_id="sample_info", group_name=channels_group_name)
-                return HttpResponse()
+                                html_id="sample_info")
+                return HttpResponse(status=400)
 
+            # check if the file_names are in the sample and waiting for submission
+            # if so, then reject the upload
+             
             # iff all above have passed, then run collect
             ena.collect()
-
-    return HttpResponse()
+            return HttpResponse()
+        return HttpResponse(status=400)
+    return HttpResponse(status=400)
 
 
 def save_ena_records(request):
@@ -106,18 +106,20 @@ def save_ena_records(request):
     existing_bundle = list()
     existing_bundle_meta = list()
     sub = Submission().get_collection_handle().find_one(
-        {"profile_id": profile_id, "deleted": data_utils.get_not_deleted_flag()})
+        {"profile_id": profile_id, "deleted": get_not_deleted_flag()})
     # override the bundle files for every manifest upload
     # if sub:
     #    existing_bundle = sub["bundle"]
     #    existing_bundle_meta = sub["bundle_meta"]
-    dt = datetime.datetime.utcnow()
+    dt = get_datetime()
+    project_release_date = None
 
     for p in range(1, len(sample_data)):
         # for each row in the manifest
 
         s = (map_to_dict(sample_data[0], sample_data[p]))
 
+        project_release_date = s["release_date"]
         df = dict()
         p = Profile().get_record(profile_id)
         attributes = dict()
@@ -179,13 +181,17 @@ def save_ena_records(request):
             sample["date_modified"] = dt 
             sample["deleted"] = "0"
             sample["status"] = "pending"    
-            sample["description"] = {"attributes": attributes["library_preparation"], "file_name": s["file_name"] }
+            #sample["read"] = {"file_name": [s["file_name"]] }
+            sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
+            sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
+
             sample = Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample},
                                                                      upsert=True,
                                                                      return_document=ReturnDocument.AFTER)
         else:
-            sample["description"] = {"attributes": attributes["library_preparation"], "file_name": s["file_name"] }
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": {"description": sample["description"],"date_modified" : dt }} )
+            sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
+            sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"] 
+            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": { "DATE_OF_COLLECTION":sample["DATE_OF_COLLECTION"], "COLLECTION_LOCATION": sample["COLLECTION_LOCATION"], "date_modified" : dt }} )  #, "$addToSet": {"read.file_name" : s["file_name"] }
         sample_id = str(sample["_id"])
        
 
@@ -203,8 +209,8 @@ def save_ena_records(request):
         # create local location
         Path(join(settings.UPLOAD_PATH, username)).mkdir(parents=True, exist_ok=True)
         nserted = None
+        f_meta = None
         # check if there are two files or one
-        f_metas = list()
         if s["library_layout"] == "SINGLE":
             # create single record
             f_name = s["file_name"]
@@ -216,7 +222,7 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].strip()
-            df["deleted"] = data_utils.get_not_deleted_flag()
+            df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
             if datafile:
@@ -230,15 +236,12 @@ def save_ena_records(request):
             if file_changed:
                 datafile_list.append(file_id)
 
-            f_meta = {"file_id": file_id, "file_location": file_location, "upload_status": False}
-            f_metas.append(f_meta)
-            if file_id not in existing_bundle:
-                existing_bundle.append(file_id)
-                existing_bundle_meta.append(f_meta)
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$set": {"description.file":  f_metas}}) 
+            f_meta = {"file_id": file_id, "file_name": f_name , "status": "pending"}
+            #Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$addToSet": {"read": f_meta}}) 
         else:
+            file_id1 = None
+            file_id2 = None
             # create record for left
-            f_metas = list()
             tmp_pairing = dict()
             file_names = s["file_name"].split(",")
             f_name = file_names[0].strip()
@@ -250,7 +253,7 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[0].strip()
-            df["deleted"] = data_utils.get_not_deleted_flag()
+            df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
             if datafile:
@@ -262,15 +265,9 @@ def save_ena_records(request):
             if result.upserted_id:
                 file_id = str(result.upserted_id)
             if file_changed:
-                datafile_list.append(file_id)
-                
-            f_meta = {"file_id": file_id, "file_location": file_location, "upload_status": False}
-            f_metas.append(f_meta)
-            if file_id not in existing_bundle:
-                existing_bundle.append(file_id)
-                existing_bundle_meta.append(f_meta)
-            # bundle.append(str(inserted["_id"]))
-            # f_meta = {"file_id": str(inserted["_id"]), "file_location": file_location, "upload_status": False}
+                datafile_list.append(file_id)               
+            file_id1 = file_id
+
             # create record for right
             tmp_pairing["_id"] = file_id
             # bundle_meta.append(f_meta)
@@ -284,7 +281,7 @@ def save_ena_records(request):
             df["name"] = f_name
             df["file_id"] = "NA"
             df["file_hash"] = s["md5"].split(",")[1].strip()
-            df["deleted"] = data_utils.get_not_deleted_flag()
+            df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
             if datafile:
@@ -292,23 +289,25 @@ def save_ena_records(request):
                     file_changed = False
                 file_id = str(datafile["_id"])    
 
-            result = DataFile().get_collection_handle().update_one({"file_location": file_location},                                                                              {"$set": df}, upsert=True)
+            result = DataFile().get_collection_handle().update_one({"file_location": file_location},{"$set": df}, upsert=True)
             if result.upserted_id:
                 file_id = str(result.upserted_id)
             if file_changed:
                 datafile_list.append(file_id)
 
-            bundle.append(file_id)
-            f_meta = {"file_id": file_id, "file_location": file_location,"upload_status": False} 
-            f_metas.append(f_meta)
-            if file_id not in existing_bundle:
-                existing_bundle.append(file_id)
-                existing_bundle_meta.append(f_meta)
-
+            file_id2 = file_id
+            f_meta = {"file_id": f"{file_id1},{file_id2}", "file_name": s["file_name"], "status": "pending"}
             tmp_pairing["_id2"] = file_id
             pairing.append(tmp_pairing)
-            # bundle_meta.append(f_meta)
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$set": {"description.file_id":  f_metas}} )
+            #Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$addToSet": {"read": f_meta }} )
+ 
+        is_found = False
+        for read in sample.get("read",[]):
+            if set(read["file_name"].split(",")) == set(f_meta["file_name"].split(",")):
+                is_found = True
+                break
+        if not is_found:
+            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$addToSet": {"read": f_meta }} )
 
     attributes["datafiles_pairing"] = pairing
 
@@ -319,17 +318,18 @@ def save_ena_records(request):
 
     if not sub:
         sub = dict()
-        sub["date_created"] = datetime.datetime.utcnow()
+        sub["date_created"] = dt
         sub["repository"] = "ena"
         sub["accessions"] = dict()
         sub["profile_id"] = profile_id
-
+        
     sub["complete"] = "false"
     sub["user_id"] = uid
     #sub["bundle_meta"] = existing_bundle_meta
     #sub["bundle"] = existing_bundle
     sub["manifest_submission"] = 1
-    sub["deleted"] = data_utils.get_not_deleted_flag()
+    sub["deleted"] = get_not_deleted_flag()
+    sub["project_release_date"] = project_release_date
 
     # make description records and submissions record
     #dr = Description().create_description(attributes=attributes, profile_id=profile_id, component='datafile',
@@ -342,102 +342,122 @@ def save_ena_records(request):
     else:
         sub_id = Submission().get_collection_handle().insert_one(sub).inserted_id
 
-    '''
-    duplicates = list()
-    update_ids = list()
-    if subs:
-        for s in subs:
-            for s_bm in s.get("bundle_meta", ""):
-                for bm in submission1.get("bundle_meta", ""):
-                    if s_bm.get("file_location") == bm.get("file_location", ""):
-                        # we have an existing submission with at least one of these file locations so update existing submission record
-
-                        duplicates.append(s_bm.get("file_location"))
-                        update_ids.append(s["_id"])
-        if len(duplicates) > 0:
-            submission1.pop("accessions")
-            Submission().get_collection_handle().update_one({"_id": update_ids[0]}, {"$set": submission1})
-            sub_id = update_ids[0]
-        else:
-            sub_id = Submission().get_collection_handle().insert_one(submission1)
-    else:
-        sub = Submission().get_collection_handle().insert_one(submission1)
-        sub_id = str(sub.inserted_id)
-    '''
 
     for f in datafile_list:
         tx.make_transfer_record(file_id=str(f), submission_id=str(sub_id))
 
-    table_data = htags.generate_table_records(profile_id, "sample", None)
+    table_data = htags.generate_read_record(profile_id=profile_id)
     result = {"table_data": table_data, "component": "read"}
     return JsonResponse(status=200,  data=result)
 
 
+def submit_read(profile_id,  target_ids=list(), target_id=None):
+
+    if target_id:
+        target_ids = [ target_id ]
+
+    if not target_ids:
+        return dict(status='error', message="Please select one or more records to submit!")
+
+    dt = get_datetime()
+    file_ids = [ file_id for id in target_ids for file_id in id.split("_")[1].split(",") ]
+    sample_obj_ids =  [ ObjectId(id.split("_")[0]) for id in target_ids ]
+    paired_file_ids = [ id.split("_")[1] for id in target_ids ]
+
+    sub = Submission().get_collection_handle().find_one(
+        {"profile_id": profile_id, "deleted": get_not_deleted_flag()})
+    
+    if not sub:
+        return dict(status='error', message="Please contact System Support Error 10211!")
+    
+    doc = SubmissionQueue(profile_id=profile_id).execute_query({"submission_id": str(sub["_id"])})
+    if doc and doc[0].get("processing_status","pending") != 'pending':
+        context = dict(status='error', message='Submission is already in the processing queue. Please try it later')
+        return context
+
+    Submission(profile_id=profile_id).get_collection_handle().update_one({"_id": sub["_id"]}, { "$addToSet": {"bundle": {"$each" : paired_file_ids}}, "$set": {"complete": "false", "date_modified": dt}})
+
+    for id in paired_file_ids:
+        Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": {"$in": sample_obj_ids}, "read.file_id" : id, "read.status": "pending" }, {"$set": {"read.$.status": "processing", "date_modified": dt}})
+
+    if not doc:  # submission not in queue, add to queue
+        fields = dict(
+            submission_id=str(sub["_id"]),
+            date_modified=dt,
+            date_created=dt,
+            repository=sub["repository"],
+            processing_status='pending',
+            profile_id=profile_id,
+        )
+        result = SubmissionQueue(profile_id=profile_id).get_collection_handle().insert_one(fields)
+    return dict(status='success', message="Submission has been added to the processing queue. Status update will be provided.")
+
 
 def delete_ena_records(profile_id,  target_ids=list(), target_id=None):
-    if target_ids:
-        seq_sample_obj_ids = [ ObjectId(id) for id in target_ids ]
-    else:
-        seq_sample_obj_ids = [ ObjectId(target_id) ]
-    result = Sample(profile_id=profile_id).get_all_records_columns(filter_by={"_id": {"$in": seq_sample_obj_ids}}, projection={"status":1, "biosampleAccession":1, "description.file_id":1, "derivesFrom":1})
-    delete_sample_with_source_mapping = {}
-    delete_sample_with_file_mapping = {}
-    existing_sample_with_source_mapping = {}
-    existing_sample_with_file_mapping = {}
-    if result:
-        for r in result:
-            if r.get("biosampleAccession", ""):
-                return dict(status='error', message="One or more read record/s have been submitted to ENA!")
+    if target_id:
+        target_ids = [ target_id ]
+
+    if not target_ids:
+        return dict(status='error', message="Please select one or more records to delete!")
+
+    dt = get_datetime()
+    existing_sample_with_file = []
+    delete_samples=[]
+    delete_sources=[]
+
+    file_ids = [ file_id for id in target_ids for file_id in id.split("_")[1].split(",") ]
+    sample_obj_ids =  [ ObjectId(id.split("_")[0]) for id in target_ids ]
+    file_regex_ids = "|".join([ file_id for id in target_ids for file_id in id.split("_")[1].split(",") ])
+
+    # check if any of the selected file records have been submitted to ENA
+    result = Sample(profile_id=profile_id).get_all_records_columns(filter_by={"_id": {"$in": sample_obj_ids}, "read.file_id": {"$regex": file_regex_ids}}, projection={"status":1, "biosampleAccession":1, "read.$":1, "derivesFrom":1})
+    for r in result:
+        for file in r.get("read", []):
+            if file["file_id"] not in file_ids:
+                continue
+            if file.get("status", "pending") == "accepted":
+                return dict(status='error', message="one or more record/s have been submitted to ENA!")
+            elif file.get("status", "pending") == "processing":
+                return dict(status='error', message="one or more record/s have been scheduled to submit to ENA!")
             
-            if r.get("status","") != "pending":
-                return dict(status='error', message="One or more read record/s have been scheduled to submit to ENA!")
+    #check if any of the selected file records have been used by other samples        
+      
 
-            if r["derivesFrom"] in delete_sample_with_source_mapping:
-                delete_sample_with_source_mapping[r["derivesFrom"]] = delete_sample_with_source_mapping[r["derivesFrom"]].append(r["_id"])
-            else:
-                delete_sample_with_source_mapping[r["derivesFrom"]] = [r["_id"]]
+    #remove file_id from samples
+    Sample().get_collection_handle().update_many({"_id": {"$in": sample_obj_ids}}, {"$pull": {"read": {"file_id": {"$regex": file_regex_ids}}}})
 
-            for f in r["description"]["file_id"]:
-                if f["file_id"] in delete_sample_with_file_mapping:
-                    delete_sample_with_file_mapping[f["file_id"]] = delete_sample_with_file_mapping[f["file_id"]].append(r["_id"])
-                else:
-                    delete_sample_with_file_mapping[f["file_id"]] = [r["_id"]]
-            
-        source_ids = [x["derivesFrom"] for x in result if x["derivesFrom"]]
-        file_ids = [ i["file_id"] for x in result for i in  x["description"]["file_id"] ]
-        if source_ids:
-            samples_with_same_source = cursor_to_list(Sample(profile_id=profile_id).get_collection_handle().find({ "_id": {"$nin": seq_sample_obj_ids  }, "derivesFrom": {"$in": [ObjectId(i) for i in source_ids]}}, {"_id":1, "derivesFrom":1}))
-            for s in samples_with_same_source:
-                if s["derivesFrom"] in existing_sample_with_source_mapping:
-                    existing_sample_with_source_mapping[s["derivesFrom"]] = existing_sample_with_source_mapping[s["derivesFrom"]].append(s["_id"])
-                else:
-                    existing_sample_with_source_mapping[s["derivesFrom"]] = [s["_id"]]
-         
-        if file_ids:
-            samples_with_same_file = cursor_to_list(Sample(profile_id=profile_id).get_collection_handle().find({ "_id": {"$nin": seq_sample_obj_ids  }, "description.file_id.file_id": {"$in": file_ids}}, {"_id":1, "description.file_id":1}))
-            for s in samples_with_same_file:
-                for f in s["description"]["file_id"]:
-                    if f["file_id"] in existing_sample_with_file_mapping:
-                        existing_sample_with_file_mapping[f["file_id"]] = existing_sample_with_file_mapping[f["file_id"]].append(s["_id"])
-                    else:
-                        existing_sample_with_file_mapping[f["file_id"]] = [s["_id"]]
+    #remove datafile records if no sample is using it
+    other_samples_with_same_file = cursor_to_list(Sample(profile_id=profile_id).get_collection_handle().find({ "_id": {"$nin": sample_obj_ids  }, "read.file_id": {"$regex": file_regex_ids}}, {"_id":1, "read.$":1}))
+    other_annotation_with_same_file = cursor_to_list(Sequnece_annotation(profile_id=profile_id).get_collection_handle().find ({"files": {"$in": file_ids}}, {"_id":1, "files":1}))
+    for s in other_samples_with_same_file:
+        for f in s.get("read", []):
+            for file_id in f["file_id"].split(","):
+                file_ids.remove(file_id) if file_id in file_ids else None
 
-    for k in delete_sample_with_source_mapping.keys():
-        if k in existing_sample_with_source_mapping:
-            delete_sample_with_source_mapping.pop(k, None)
+    for a in other_annotation_with_same_file:
+        file_ids.remove(a["file_id"]) if a["file_id"] in file_ids else None
 
-    for k in delete_sample_with_file_mapping.keys():
-        if k in existing_sample_with_file_mapping:
-            delete_sample_with_file_mapping.pop(k, None)
+    if file_ids:
+        DataFile(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(f) for f in file_ids]}}, multi=True)
+        EnaFileTransfer(profile_id=profile_id).get_collection_handle().remove({"file_id": {"$in": file_ids}}, multi=True)
 
-    if delete_sample_with_source_mapping:
-        Source(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(x) for x in delete_sample_with_source_mapping.keys()]}}, multi=True)
+    #remove sample records if no file inside
 
-    if delete_sample_with_file_mapping:
-        DataFile(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(x) for x in delete_sample_with_file_mapping.keys()]}}, multi=True)
-        EnaFileTransfer(profile_id=profile_id).get_collection_handle().remove({"file_id": {"$in": [x for x in delete_sample_with_file_mapping.keys()]}}, multi=True)
+    samples = Sample(profile_id=profile_id).get_all_records_columns(filter_by={"_id": {"$in": sample_obj_ids}}, projection={"biosampleAccession":1, "read":1, "derivesFrom":1})
+   
+    for sample in samples:
+        if not sample.get("read",[]) and not sample.get("biosampleAccession", ""):
+            delete_sources.append(sample["derivesFrom"])
+            delete_samples.append(sample["_id"])
 
-    Sample(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in":  seq_sample_obj_ids}})
+    if delete_sources:
+        other_samples_with_same_source = cursor_to_list(Sample(profile_id=profile_id).get_collection_handle().find({ "_id": {"$nin": delete_samples }, "derivesFrom": {"$in": delete_sources}}, {"derivesFrom":1}))
+        for s in other_samples_with_same_source:
+            delete_sources.remove(s["derivesFrom"])
+        Source(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(s) for s in delete_sources]}})
+
+    if delete_samples:
+        Sample(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in":  delete_samples}})
 
     return dict(status='success', message="Read record/s have been deleted!")
 
@@ -480,8 +500,8 @@ class ENASpreadsheet:
     def loadManifest(self, m_format):
 
         if self.profile_id is not None:
-            notify_frontend(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
-                            html_id="sample_info", group_name=self.channels_group_name)
+            notify_read_status(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
+                            html_id="sample_info")
 
             try:
                 # read excel and convert all to string
@@ -497,9 +517,9 @@ class ENASpreadsheet:
                 self.data.columns = self.data.columns.str.replace(" ", "")
             except Exception as e:
                 # if error notify via web socket
-                notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
+                notify_read_status(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
                                 action="info",
-                                html_id="sample_info", group_name=self.channels_group_name)
+                                html_id="sample_info")
                 return False
             return True
 
@@ -525,38 +545,37 @@ class ENASpreadsheet:
 
             # send warnings
             if warnings:
-                notify_frontend(data={"profile_id": self.profile_id},
+                notify_read_status(data={"profile_id": self.profile_id},
                                 msg="<br>".join(warnings),
                                 action="warning",
-                                html_id="warning_info2", group_name=self.channels_group_name)
+                                html_id="warning_info2")
             # if flag is false, compile list of errors
             if not flag:
                 errors = list(map(lambda x: "<li>" + x + "</li>", errors))
                 errors = "".join(errors)
 
-                notify_frontend(data={"profile_id": self.profile_id},
+                notify_read_status(data={"profile_id": self.profile_id},
                                 msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
                                 action="error",
-                                html_id="sample_info", group_name=self.channels_group_name)
+                                html_id="sample_info")
                 return False
 
 
 
         except Exception as e:
+            l.exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
-            notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
+            notify_read_status(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
-                            html_id="sample_info", group_name=self.channels_group_name)
+                            html_id="sample_info")
 
             return False
 
         # if we get here we have a valid spreadsheet
-        notify_frontend(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
-                        html_id="sample_info", group_name=self.channels_group_name)
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls",
-                        group_name=self.channels_group_name)
-        notify_frontend(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info",
-                        group_name=self.channels_group_name)
+        notify_read_status(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
+                        html_id="sample_info")
+        notify_read_status(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
+        notify_read_status(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="sample_info")
 
         return True
 
@@ -576,5 +595,5 @@ class ENASpreadsheet:
         # store sample data in the session to be used to create mongo objects
         self.req.session["sample_data"] = sample_data
 
-        notify_frontend(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                        html_id="sample_table", group_name=self.channels_group_name)
+        notify_read_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
+                        html_id="sample_table")

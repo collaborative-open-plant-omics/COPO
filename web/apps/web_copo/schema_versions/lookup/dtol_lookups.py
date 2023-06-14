@@ -1655,7 +1655,7 @@ BLANK_VALS = ['NOT_APPLICABLE', 'NOT_COLLECTED', 'NOT_PROVIDED']
 DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 
 NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL',
-           'NaN', 'n/a', 'nan']
+           'NaN', 'n/a', 'nan', 'NaT']
 
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
 

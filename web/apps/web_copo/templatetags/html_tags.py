@@ -17,13 +17,14 @@ import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_base_da import DataSchemas
 from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publication, Source, Person, Sample, \
-    Submission, \
+    Submission, EnaFileTransfer, \
     DataFile, DAComponent, Annotation, CGCore, MetadataTemplate
 from allauth.socialaccount import providers
 from hurry.filesize import size as hurrysize
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging.logger import Logger
 from django.conf import settings
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 
 register = template.Library()
 
@@ -121,7 +122,8 @@ def get_control_options(f, profile_id=None):
 
     if isinstance(f["option_values"], dict):
         if f.get("option_values", dict()).get("callback", dict()).get("function", str()):
-            call_back_function = f.get("option_values", dict()).get("callback", dict()).get("function", str())
+            call_back_function = f.get("option_values", dict()).get(
+                "callback", dict()).get("function", str())
             option_values = getattr(d_utils, call_back_function)()
         else:
             # e.g., multi-search has this format
@@ -195,7 +197,8 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
         form_value = str()
 
     return dict(component_name=component,
-                form_label=label_dict.get(component, dict()).get("label", str()),
+                form_label=label_dict.get(
+                    component, dict()).get("label", str()),
                 form_value=form_value,
                 target_id=target_id,
                 form_schema=form_schema,
@@ -255,7 +258,8 @@ def generate_component_records(component=str(), profile_id=str(), label_key=str(
         label_key = schema[0]["id"].split(".")[-1] if schema else ''
 
     for record in da_object.get_all_records(**kwargs):
-        option = dict(value=str(record["_id"]), label=record.get(label_key, "N/A"))
+        option = dict(value=str(record["_id"]),
+                      label=record.get(label_key, "N/A"))
         component_records.append(option)
 
     return component_records
@@ -272,7 +276,8 @@ def generate_unique_items(component=str(), profile_id=str(), elem_id=str(), reco
     if action_type == "cloning":
         component_records = [x[elem_id] for x in all_records if elem_id in x]
     else:
-        component_records = [x[elem_id] for x in all_records if elem_id in x and not str(x["_id"]) == record_id]
+        component_records = [
+            x[elem_id] for x in all_records if elem_id in x and not str(x["_id"]) == record_id]
 
     return component_records
 
@@ -282,7 +287,8 @@ def generate_table_columns(component=str()):
     da_object = DAComponent(component=component)
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    schema = [x for x in da_object.get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
 
     columns = list()
     columns.append(dict(data="record_id", visible=False))
@@ -327,7 +333,8 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
     data_set = list()
 
-    n_size = int(request.get("length", 10))  # assumes 10 records per page if length not set
+    # assumes 10 records per page if length not set
+    n_size = int(request.get("length", 10))
     draw = int(request.get("draw", 1))
     start = int(request.get("start", 0))
 
@@ -360,7 +367,8 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
             {"description_token": {"$nin": existing_bundles}}]}
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    schema = [x for x in da_object.get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -377,7 +385,8 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
     search_term = request.get('search[value]', '').strip()
 
     records = da_object.get_all_records_columns_server(sort_by=sort_by, sort_direction=sort_direction,
-                                                       search_term=search_term, projection=dict(projection),
+                                                       search_term=search_term, projection=dict(
+                                                           projection),
                                                        limit=n_size, skip=start, filter_by=filter_by)
 
     records_filtered = records_total
@@ -397,7 +406,8 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
         for x in schema:
             x["id"] = x["id"].split(".")[-1]
-            df[x["id"]] = df[x["id"]].apply(resolve_control_output_apply, args=(x,)).astype(str)
+            df[x["id"]] = df[x["id"]].apply(
+                resolve_control_output_apply, args=(x,)).astype(str)
 
         data_set = df.to_dict('records')
 
@@ -405,6 +415,125 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
     return_dict["records_filtered"] = records_filtered
     return_dict["data_set"] = data_set
     return_dict["draw"] = draw
+
+    return return_dict
+
+
+@register.filter("generate_read_record")
+def generate_read_record(profile_id=str()):
+    label = ['name', 'DATE_OF_COLLECTION', 'COLLECTION_LOCATION', 'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source',
+             'library_selection', 'library_description', "file_name", "file_md5", "biosampleAccession", "sraAccession", "submission_status",  "ena_file_upload_status"]
+    data_set = []
+    columns = []
+    columns.append(dict(data="record_id", visible=False))
+    columns.append(dict(data="DT_RowId", visible=False))
+
+    detail_dict = dict( orderable=False, data=None,
+                       title='', defaultContent='', width="5%")
+
+    columns.insert(0, detail_dict)
+    for x in label:
+        columns.append(dict(data=x, title=x.upper().replace("_", " ")))
+
+    samples = Sample().execute_query({"profile_id": profile_id})
+    for sample in samples:
+        for read in sample.get("read", []):
+            row_data = dict()
+            row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
+            row_data["name"] = sample["name"]
+            row_data["DATE_OF_COLLECTION"] = sample["DATE_OF_COLLECTION"]
+            row_data["COLLECTION_LOCATION"] = sample["COLLECTION_LOCATION"]
+            row_data["file_name"] = read["file_name"]
+            row_data["biosampleAccession"] = sample.get(
+                "biosampleAccession", str())
+            row_data["sraAccession"] = sample.get("sraAccession", str())
+            file_id_str = read.get("file_id", str())
+            file_ids = file_id_str.split(",")
+            if file_ids:
+                row_data["submission_status"] = read.get("status", "pending")
+                row_data["accession"] = read.get("readAccession", str())
+                files = DataFile().get_records(file_ids)
+                if files:
+                    row_data["DT_RowId"] = "row_" + \
+                        read["file_id"].replace(",", "_")
+                    row_data["file_md5"] = files[0]["file_hash"]
+                    if len(files) > 1:
+                        row_data["file_md5"] = row_data["file_md5"] + \
+                            " , " + files[1]["file_hash"]
+                    attribute = files[0].get(
+                        "description", dict()).get("attributes", dict())
+                    library_preparation = attribute.get(
+                        "library_preparation", dict())
+                    row_data["library_layout"] = library_preparation.get(
+                        "library_layout", str())
+                    row_data["library_strategy"] = library_preparation.get(
+                        "library_strategy", str())
+                    row_data["library_source"] = library_preparation.get(
+                        "library_source", str())
+                    row_data["library_selection"] = library_preparation.get(
+                        "library_selection", str())
+                    row_data["library_description"] = library_preparation.get(
+                        "library_description", str())
+                    row_data["sequencing_instrument"] = attribute.get(
+                        "nucleic_acid_sequencing", dict()).get("sequencing_instrument", str())
+                    row_data["ena_file_upload_status"] = "unknown"
+                    ena_file_transfer = EnaFileTransfer(profile_id=profile_id).execute_query({
+                        "file_id": {"$in": file_ids}})
+                    if ena_file_transfer:
+                        row_data["ena_file_upload_status"] = ena_file_transfer[0].get(
+                            "status", str())
+                        if len(ena_file_transfer) > 1:
+                            row_data["ena_file_upload_status"] = row_data["ena_file_upload_status"] + \
+                                " | " + \
+                                ena_file_transfer[1].get("status", str())
+
+            data_set.append(row_data)
+
+    return_dict = dict(dataSet=data_set,
+                       columns=columns,
+                       )
+
+    return return_dict
+
+
+@register.filter("generate_files_record")
+def generate_files_record(user_id=str()):
+    label = ['file_name', "file_md5", "last_uploaded", "size"]
+    data_set = []
+    columns = []
+    columns.append(dict(data="record_id", visible=False))
+    columns.append(dict(data="DT_RowId", visible=False))
+
+    detail_dict = dict(  orderable=False, data=None,
+                       title='', defaultContent='', width="5%")
+
+    columns.insert(0, detail_dict)
+    for x in label:
+        columns.append(dict(data=x, title=x.upper().replace("_", " ")))
+
+    s3obj = s3()
+    user = User.objects.get(pk=user_id)
+    if not user:
+        return dict(dataSet=data_set,
+                    columns=columns,
+                    )
+    bucket_name = str(user_id) + "_" + user.username
+    if s3obj.check_for_s3_bucket(bucket_name):
+        files = s3obj.list_objects(bucket_name)
+        if files:
+            for file in files:
+                row_data = dict()
+                row_data["record_id"] = file["Key"].replace("/", "_")
+                row_data["file_name"] = file["Key"].replace("/", "_")
+                row_data["DT_RowId"] = "row_" + file["Key"].replace("/", "_")
+                row_data["size"] = file["Size"]
+                row_data["last_uploaded"] = file["LastModified"]
+                row_data["file_md5"] = file["ETag"].replace('"', '')
+                data_set.append(row_data)
+
+    return_dict = dict(dataSet=data_set,
+                       columns=columns,
+                       )
 
     return return_dict
 
@@ -427,7 +556,7 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
         current_schema_version = settings.CURRENT_ASG_VERSION
 
     elif "dtol_env" in profile_type:
-        profile_type = "dotl_env"    
+        profile_type = "dotl_env"
         current_schema_version = settings.CURRENT_DTOLENV_VERSION
 
     elif "dtol" in profile_type:
@@ -435,7 +564,7 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
         current_schema_version = settings.CURRENT_DTOL_VERSION
 
     elif "erga" in profile_type:
-        profile_type = "erga"    
+        profile_type = "erga"
         current_schema_version = settings.CURRENT_ERGA_VERSION
 
     get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
@@ -446,7 +575,7 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
             if x.get("show_in_table", True) and profile_type in x.get("specifications", []) and current_schema_version in x.get("manifest_version", ""):
-                    #("asg" in x.get("specifications", []) or
+                    # ("asg" in x.get("specifications", []) or
                     # "dtol" in x.get("specifications", []) or
                     # "erga" in x.get("specifications", []))):
                 schema.append(x)
@@ -493,7 +622,8 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
             df[x["id"]] = df[x["id"]].fillna('')
 
             if "dtol" not in x.get("specifications", []) or "asg" not in x.get("specifications", []):
-                df[x["id"]] = df[x["id"]].apply(resolve_control_output_apply, args=(x,))
+                df[x["id"]] = df[x["id"]].apply(
+                    resolve_control_output_apply, args=(x,))
 
         data_set = df.to_dict('records')
 
@@ -513,7 +643,8 @@ def generate_submissions_records(profile_id=str(), component=str(), record_id=st
     data_set = list()
 
     # build db column projection
-    submission_projection = [('date_modified', 1), ('complete', 1), ('deleted', 1)]
+    submission_projection = [('date_modified', 1),
+                             ('complete', 1), ('deleted', 1)]
     repository_projection = [('name', 1), ('type', 1)]
 
     schema = [x for x in Submission().get_schema().get("schema_dict") if
@@ -603,7 +734,8 @@ def generate_submissions_records(profile_id=str(), component=str(), record_id=st
         new_data["DT_RowId"] = "row_" + str(rec["_id"])
 
         try:
-            new_data["bundle_name"] = rec['description_docs'][0].get('name', str())
+            new_data["bundle_name"] = rec['description_docs'][0].get(
+                'name', str())
         except (IndexError, AttributeError) as error:
             new_data["bundle_name"] = str()
 
@@ -614,7 +746,8 @@ def generate_submissions_records(profile_id=str(), component=str(), record_id=st
 
         for f in repository_schema:
             f_id = f["id"].split(".")[-1]
-            new_data["repository_" + f_id] = resolve_control_output(repository_record, f)
+            new_data["repository_" +
+                     f_id] = resolve_control_output(repository_record, f)
 
         data_set.append(new_data)
 
@@ -630,7 +763,8 @@ def generate_repositories_records(component=str(), record_id=str()):
     data_set = list()
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in Repository().get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    schema = [x for x in Repository().get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -669,7 +803,8 @@ def generate_managed_repositories(component=str(), user_id=str()):
     records = list()
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in Repository().get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    schema = [x for x in Repository().get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -685,7 +820,8 @@ def generate_managed_repositories(component=str(), user_id=str()):
 
         # retrieve and process records
         records = Repository().get_all_records_columns(sort_by="date_modified", sort_direction=1,
-                                                       projection=dict(projection),
+                                                       projection=dict(
+                                                           projection),
                                                        filter_by=filter_by)
 
     for indx, rec in enumerate(records):
@@ -724,7 +860,8 @@ def generate_copo_table_data(profile_id=str(), component=str()):
             displayable_fields.append(f)
             columns.append(dict(title=f["label"]))
 
-    columns.append(dict(title=str()))  # extra 'blank' header for record actions column
+    # extra 'blank' header for record actions column
+    columns.append(dict(title=str()))
 
     # data
     for rec in records:
@@ -732,7 +869,8 @@ def generate_copo_table_data(profile_id=str(), component=str()):
         for df in displayable_fields:
             row.append(resolve_control_output(rec, df))
 
-        row.append(str(rec["_id"]))  # last element in a row exposes the id of the record
+        # last element in a row exposes the id of the record
+        row.append(str(rec["_id"]))
         dataSet.append(row)
 
     # define action buttons
@@ -763,9 +901,9 @@ def generate_copo_table_data(profile_id=str(), component=str()):
                         seqannotation=common_btn_dict
                         )
 
-    
     action_buttons = dict(row_btns=buttons_dict.get(component).get("row_btns"),
-                          global_btns=buttons_dict.get(component).get("global_btns")
+                          global_btns=buttons_dict.get(
+                              component).get("global_btns")
                           )
 
     return_dict = dict(columns=columns,
@@ -791,7 +929,8 @@ def get_record_data(record_object=dict(), component=str()):
             else:
                 row.append(resolve_control_output(record_object, f))
 
-    row.append(str(record_object["_id"]))  # last element in a row exposes the id of the record
+    # last element in a row exposes the id of the record
+    row.append(str(record_object["_id"]))
 
     return_dict = dict(row_data=row,
                        table_id=table_id_dict.get(component, str())
@@ -854,7 +993,8 @@ def get_repo_stats(repository_id=str()):
 
     result = list()
 
-    schema = [x for x in Repository().get_schema().get("schema_dict") if x.get("show_in_table", True)]
+    schema = [x for x in Repository().get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -868,7 +1008,8 @@ def get_repo_stats(repository_id=str()):
 
     if records:
         for f in schema:
-            result.append(dict(label=f["label"], value=resolve_control_output(records[0], f)))
+            result.append(
+                dict(label=f["label"], value=resolve_control_output(records[0], f)))
 
     return result
 
@@ -881,7 +1022,8 @@ def get_submission_remote_url(submission_id=str()):
     :return:
     """
 
-    result = dict(status='info', urls=list(), message="Remote identifiers not found or unspecified procedure.")
+    result = dict(status='info', urls=list(
+    ), message="Remote identifiers not found or unspecified procedure.")
 
     # get repository type, and use this to decide what to return
 
@@ -902,7 +1044,8 @@ def get_submission_remote_url(submission_id=str()):
 
         prj = doc.get('accessions', dict()).get('project', list())
         if prj:
-            result["urls"].append("https://www.ebi.ac.uk/ena/data/view/" + prj[0].get("accession", str()))
+            result["urls"].append(
+                "https://www.ebi.ac.uk/ena/data/view/" + prj[0].get("accession", str()))
 
     # generate for other repository types here
 
@@ -980,7 +1123,8 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
         ])
 
     records = cursor_to_list(doc)
-    submission_record = Submission().get_collection_handle().find_one({"_id": ObjectId(records[0]["_id"])})
+    submission_record = Submission().get_collection_handle().find_one({
+        "_id": ObjectId(records[0]["_id"])})
     if not records:
         result['status'] = "error"
         result['message'] = "Couldn't find submission record!"
@@ -995,8 +1139,10 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
 
     # get description template
     attributes = description_record.get("attributes", dict())
-    dt_value = attributes.get("target_repository", dict()).get("deposition_context", str())
-    dt_label = [x['label'] for x in d_utils.get_repository_options() if x['value'].lower() == dt_value.lower()]
+    dt_value = attributes.get("target_repository", dict()).get(
+        "deposition_context", str())
+    dt_label = [x['label'] for x in d_utils.get_repository_options(
+    ) if x['value'].lower() == dt_value.lower()]
 
     if not dt_label:
         result['status'] = "error"
@@ -1011,7 +1157,8 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
     except (IndexError, AttributeError) as error:
         repository_record = dict()
 
-    result["destination_repository_id"] = str(repository_record.get("_id", str()))
+    result["destination_repository_id"] = str(
+        repository_record.get("_id", str()))
 
     # get relevant user repositories given metadata template
     user = User.objects.get(pk=user_id)
@@ -1021,7 +1168,8 @@ def get_submission_meta_repo(submission_id=str(), user_id=str()):
     else:
         user_repo_ids = {ObjectId(x) for x in list(user_repo_ids) if x}
 
-    repository_projection = [('name', 1), ('type', 1), ('templates', 1), ('url', 1)]
+    repository_projection = [('name', 1), ('type', 1),
+                             ('templates', 1), ('url', 1)]
     repository_schema = [x for x in Repository().get_schema().get("schema_dict") if
                          x["id"].split(".")[-1] in [y[0] for y in repository_projection]]
 
@@ -1066,14 +1214,17 @@ def get_destination_repo(submission_id=str()):
 
     result = list()
 
-    repository_schema = [x for x in Repository().get_schema().get("schema_dict") if x.get("show_in_table", True)]
-    repository_projection = [(x["id"].split(".")[-1], 1) for x in repository_schema]
+    repository_schema = [x for x in Repository().get_schema().get(
+        "schema_dict") if x.get("show_in_table", True)]
+    repository_projection = [(x["id"].split(".")[-1], 1)
+                             for x in repository_schema]
 
     # specify filtering
     filter_by = dict(_id=ObjectId(str(submission_id)))
 
     # specify projection
-    query_projection = {'repository_docs.' + x[0]: x[1] for x in repository_projection}
+    query_projection = {'repository_docs.' +
+                        x[0]: x[1] for x in repository_projection}
     query_projection['_id'] = 1
 
     doc = Submission().get_collection_handle().aggregate(
@@ -1116,7 +1267,8 @@ def get_destination_repo(submission_id=str()):
         return result
     else:
         for f in repository_schema:
-            result.append(dict(label=f["label"], value=resolve_control_output(repository_record, f)))
+            result.append(
+                dict(label=f["label"], value=resolve_control_output(repository_record, f)))
 
     return result
 
@@ -1206,25 +1358,31 @@ def generate_submission_accessions_data(submission_id=str()):
     if accessions:
         # -----------COLLATE ACCESSIONS FOR ENA SEQUENCE READS----------
         if repository == "ena":
-            columns = [{"title": "Accession"}, {"title": "Alias"}, {"title": "Comment"}, {"title": "Type"}]
+            columns = [{"title": "Accession"}, {"title": "Alias"},
+                       {"title": "Comment"}, {"title": "Type"}]
 
             for key, value in accessions.items():
                 if isinstance(value, dict):  # single accession instance expected
-                    data_set.append([value["accession"], value["alias"], str(), key])
+                    data_set.append(
+                        [value["accession"], value["alias"], str(), key])
                 elif isinstance(value, list):  # multiple accession instances expected
                     for v in value:
                         if key == "sample":
-                            data_set.append([v["sample_accession"], v["sample_alias"], v["biosample_accession"], key])
+                            data_set.append(
+                                [v["sample_accession"], v["sample_alias"], v["biosample_accession"], key])
                         else:
-                            data_set.append([v["accession"], v["alias"], str(), key])
+                            data_set.append(
+                                [v["accession"], v["alias"], str(), key])
 
         elif repository == "ena-ant":
             # -----------COLLATE ACCESSIONS FOR ENA ANNOTATIONS----------
-            columns = [{"title": "Accession"}, {"title": "Alias"}, {"title": "Comment"}, {"title": "Type"}]
+            columns = [{"title": "Accession"}, {"title": "Alias"},
+                       {"title": "Comment"}, {"title": "Type"}]
 
             for key, value in accessions.items():
                 if isinstance(value, dict):  # single accession instance expected
-                    data_set.append([value["accession"], value["alias"], str(), key])
+                    data_set.append(
+                        [value["accession"], value["alias"], str(), key])
                 elif isinstance(value, list):  # multiple accession instances expected
                     for v in value:
                         if key == "sample":
@@ -1235,16 +1393,19 @@ def generate_submission_accessions_data(submission_id=str()):
                                 pass
                         else:
                             try:
-                                data_set.append([v["accession"], v["alias"], str(), key])
+                                data_set.append(
+                                    [v["accession"], v["alias"], str(), key])
                             except:
                                 pass
 
         elif repository == "figshare":
             # -----------COLLATE ACCESSIONS FOR FIGSHARE REPO----------
-            columns = [{"title": "Accession"}, {"title": "Alias"}, {"title": "Comment"}, {"title": "Type"}]
+            columns = [{"title": "Accession"}, {"title": "Alias"},
+                       {"title": "Comment"}, {"title": "Type"}]
 
             for idx, value in enumerate(accessions):
-                data_set.append([value, "Figshare File: " + str(idx + 1), str(), str()])
+                data_set.append([value, "Figshare File: " +
+                                 str(idx + 1), str(), str()])
 
         elif repository == "dataverse":
             # -----------COLLATE ACCESSIONS FOR DATAVERSE REPO----------
@@ -1262,7 +1423,8 @@ def generate_submission_accessions_data(submission_id=str()):
                        {"title": "Metadata Link"}]
             for a in accessions:
                 link_ref = a["dspace_instance"] + a["link"]
-                meta_link = '<a target="_blank" href="' + a["meta_url"] + '">' + a["meta_url"] + '</a>'
+                meta_link = '<a target="_blank" href="' + \
+                    a["meta_url"] + '">' + a["meta_url"] + '</a>'
                 retrieve_link = '<a href="' + link_ref + '/retrieve">' + link_ref + '</a>'
                 data_set.append(
                     [a["description"], a["format"], (hurrysize(a["sizeBytes"])),
@@ -1271,13 +1433,15 @@ def generate_submission_accessions_data(submission_id=str()):
                 )
 
         elif repository == "ckan":
-            columns = [{"title": "Title"}, {"title": "Metadata Link"}, {"title": "Resource Link"}, {"title": "Name"}]
+            columns = [{"title": "Title"}, {"title": "Metadata Link"}, {
+                "title": "Resource Link"}, {"title": "Name"}]
             retrieve_link = '<a target="_blank" href="' + accessions["url"] + '/dataset/' + accessions[
                 "dataset_name"] + '">' + accessions["url"] + '/dataset/' + accessions["dataset_name"] + '</a>'
             meta_link = '<a target="_blank" href="' + accessions["repo_url"] + 'package_show?id=' + accessions[
                 'dataset_id'] + '">' + 'Show Metadata' + '</a>'
             data_set.append(
-                [accessions["dataset_title"], meta_link, retrieve_link, accessions["dataset_name"]]
+                [accessions["dataset_title"], meta_link,
+                    retrieve_link, accessions["dataset_name"]]
             )
 
     return_dict = dict(dataSet=data_set,
@@ -1296,7 +1460,8 @@ def generate_attributes(component, target_id):
         da_object = da_dict[component]()
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get("schema_dict") if x.get("show_as_attribute", False)]
+    schema = [x for x in da_object.get_schema().get(
+        "schema_dict") if x.get("show_as_attribute", False)]
 
     # build db column projection
     projection = [(x["id"].split(".")[-1], 1) for x in schema]
@@ -1306,7 +1471,8 @@ def generate_attributes(component, target_id):
         projection.append(('description', 1))
 
     filter_by = dict(_id=ObjectId(target_id))
-    record = da_object.get_all_records_columns(projection=dict(projection), filter_by=filter_by)
+    record = da_object.get_all_records_columns(
+        projection=dict(projection), filter_by=filter_by)
 
     result = dict()
 
@@ -1314,16 +1480,19 @@ def generate_attributes(component, target_id):
         record = record[0]
 
         if component == "sample":  # filter based on sample type
-            sample_types = [s_t['value'] for s_t in d_utils.get_sample_type_options()]
+            sample_types = [s_t['value']
+                            for s_t in d_utils.get_sample_type_options()]
             sample_type = record.get("sample_type", str())
-            schema = [x for x in schema if sample_type in x.get("specifications", sample_types)]
+            schema = [x for x in schema if sample_type in x.get(
+                "specifications", sample_types)]
 
         for x in schema:
             x['id'] = x["id"].split(".")[-1]
 
         if component == "datafile":
             key_split = "___0___"
-            attributes = record.get("description", dict()).get("attributes", dict())
+            attributes = record.get("description", dict()).get(
+                "attributes", dict())
             stages = record.get("description", dict()).get("stages", list())
 
             datafile_attributes = dict()
@@ -1332,7 +1501,8 @@ def generate_attributes(component, target_id):
             for st in stages:
                 for item in st.get("items", list()):
                     if str(item.get("hidden", False)).lower() == "false":
-                        atrib_val = attributes.get(st["ref"], dict()).get(item["id"], str())
+                        atrib_val = attributes.get(
+                            st["ref"], dict()).get(item["id"], str())
                         item["id"] = st["ref"] + key_split + item["id"]
                         datafile_attributes[item["id"]] = atrib_val
                         datafile_items.append(item)
@@ -1439,17 +1609,21 @@ def resolve_display_data(datafile_items, datafile_attributes):
     schema_df = pd.DataFrame(datafile_items)
 
     for index, row in schema_df.iterrows():
-        resolved_data = resolve_control_output(datafile_attributes, dict(row.dropna()))
+        resolved_data = resolve_control_output(
+            datafile_attributes, dict(row.dropna()))
         label = row["label"]
 
         if row['control'] in object_controls.keys():
             # get object-type-control schema
             control_df = pd.DataFrame(object_controls[row['control']])
-            control_df['id2'] = control_df['id'].apply(lambda x: x.split(".")[-1])
+            control_df['id2'] = control_df['id'].apply(
+                lambda x: x.split(".")[-1])
 
             if resolved_data:
-                object_array_keys = [list(x.keys())[0] for x in resolved_data[0]]
-                object_array_df = pd.DataFrame([dict(pair for d in k for pair in d.items()) for k in resolved_data])
+                object_array_keys = [list(x.keys())[0]
+                                     for x in resolved_data[0]]
+                object_array_df = pd.DataFrame(
+                    [dict(pair for d in k for pair in d.items()) for k in resolved_data])
 
                 for o_indx, o_row in object_array_df.iterrows():
                     # add primary header/value - first element in object_array_keys taken as header, second value
@@ -1457,15 +1631,19 @@ def resolve_display_data(datafile_items, datafile_attributes):
                     # a slightly different implementation will be needed for an object-type-control
                     # that require a different display structure
 
-                    class_name = key_split.join((row.id, str(o_indx), object_array_keys[1]))
-                    columns.append(dict(title=label + " [{0}]".format(o_row[object_array_keys[0]]), data=class_name))
+                    class_name = key_split.join(
+                        (row.id, str(o_indx), object_array_keys[1]))
+                    columns.append(dict(
+                        title=label + " [{0}]".format(o_row[object_array_keys[0]]), data=class_name))
                     data.append({class_name: o_row[object_array_keys[1]]})
 
                     # add other headers/values e.g., unit in material_attribute_value schema
                     for subitem in object_array_keys[2:]:
-                        class_name = key_split.join((row.id, str(o_indx), subitem))
+                        class_name = key_split.join(
+                            (row.id, str(o_indx), subitem))
                         columns.append(dict(
-                            title=control_df[control_df.id2.str.lower() == subitem.lower()].iloc[0].label,
+                            title=control_df[control_df.id2.str.lower(
+                            ) == subitem.lower()].iloc[0].label,
                             data=class_name))
                         data.append({class_name: o_row[subitem]})
         else:
@@ -1516,7 +1694,8 @@ def resolve_description_data(data, elem):
         attributes[st["ref"]] = attributes.get(st["ref"], dict())
         for item in st.get("items", list()):
             if str(item.get("hidden", False)).lower() == "false":
-                atrib_val = attributes.get(st["ref"], dict()).get(item["id"], str())
+                atrib_val = attributes.get(
+                    st["ref"], dict()).get(item["id"], str())
                 item["id"] = st["ref"] + key_split + item["id"]
                 datafile_attributes[item["id"]] = atrib_val
                 datafile_items.append(item)
@@ -1533,7 +1712,8 @@ def resolve_copo_characteristics_data(data, elem):
         if f.get("show_in_table", True):
             a = dict()
             if f["id"].split(".")[-1] in data:
-                a[f["id"].split(".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
+                a[f["id"].split(
+                    ".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
                 resolved_data.append(a)
 
     return resolved_data
@@ -1548,7 +1728,8 @@ def resolve_environmental_characteristics_data(data, elem):
         if f.get("show_in_table", True):
             a = dict()
             if f["id"].split(".")[-1] in data:
-                a[f["id"].split(".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
+                a[f["id"].split(
+                    ".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
                 resolved_data.append(a)
 
     return resolved_data  # turn this casting off after merge
@@ -1563,7 +1744,8 @@ def resolve_phenotypic_characteristics_data(data, elem):
         if f.get("show_in_table", True):
             a = dict()
             if f["id"].split(".")[-1] in data:
-                a[f["id"].split(".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
+                a[f["id"].split(
+                    ".")[-1]] = resolve_ontology_term_data(data[f["id"].split(".")[-1]], elem)
                 resolved_data.append(a)
 
     return resolved_data  # turn this casting off after merge
@@ -1652,13 +1834,13 @@ def resolve_copo_lookup2_data(data, elem):
 
     if option_values:
         resolved_value = [x[
-                              'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{" \
-                                         "data_source}' data-accession='{data_accession}' >" \
-                                         "<i title='click for related information' style='cursor: pointer;' class='fa " \
-                                         "" \
-                                         "" \
-                                         "" \
-                                         "fa-info-circle'></i></span>".format(
+            'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{"
+            "data_source}' data-accession='{data_accession}' >"
+            "<i title='click for related information' style='cursor: pointer;' class='fa "
+            ""
+            ""
+            ""
+            "fa-info-circle'></i></span>".format(
             data_source=elem['data_source'], data_accession=x['accession']) for x in option_values]
 
     return resolved_value
@@ -1686,7 +1868,8 @@ def resolve_select_data(data, elem):
 
 
 def resolve_ontology_term_data(data, elem):
-    schema = DataSchemas("COPO").get_ui_template().get("copo").get("ontology_annotation").get("fields")
+    schema = DataSchemas("COPO").get_ui_template().get(
+        "copo").get("ontology_annotation").get("fields")
 
     resolved_data = list()
 
@@ -1712,7 +1895,8 @@ def resolve_datetime_data(data, elem):
     if data:
         if data.date:
             try:
-                resolved_value = time.strftime('%a, %d %b %Y %H:%M', data.timetuple())
+                resolved_value = time.strftime(
+                    '%a, %d %b %Y %H:%M', data.timetuple())
             except ValueError:
                 pass
     return resolved_value
@@ -1735,7 +1919,8 @@ def resolve_copo_duration_data(data, elem):
             # a = dict()
             if f["id"].split(".")[-1] in data:
                 # a[f["label"]] = data[f["id"].split(".")[-1]]
-                resolved_data.append(f["label"] + ": " + data[f["id"].split(".")[-1]])
+                resolved_data.append(
+                    f["label"] + ": " + data[f["id"].split(".")[-1]])
 
     return resolved_data
 
@@ -1762,7 +1947,8 @@ def generate_copo_profiles_counts(profiles=list()):
     data_set = list()
 
     for pr in profiles:
-        data_set.append(dict(profile_id=str(pr["_id"]), counts=ProfileInfo(str(pr["_id"])).get_counts()))
+        data_set.append(dict(profile_id=str(
+            pr["_id"]), counts=ProfileInfo(str(pr["_id"])).get_counts()))
     return data_set
 
 
@@ -1851,7 +2037,8 @@ def do_tag(the_elem, default_value=None):
                     selected = "selected"
                 elif elem_control == "copo-multi-select" and sv in elem_value.split(","):
                     selected = "selected"
-            option_values += "<option value='{sv!s}' {selected!s}>{sl!s}</option>".format(**locals())
+            option_values += "<option value='{sv!s}' {selected!s}>{sl!s}</option>".format(
+                **locals())
 
     if elem_control == "copo-multi-search" and the_elem["elem_json"]:
         elem_json = json.dumps(the_elem["elem_json"])

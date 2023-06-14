@@ -9,6 +9,8 @@ websocket_urlpatterns = [
     path('ws/dtol_status', consumers.DtolConsumer),
     path('ws/s3_status/<str:uid>', consumers.s3Consumer),
     path('ws/assembly_status/<str:profile_id>', consumers.assemblyConsumer),
-    path('ws/annotation_status/<str:profile_id>', consumers.annotationConsumer)
+    path('ws/annotation_status/<str:profile_id>', consumers.annotationConsumer),
+    path('ws/read_status/<str:uid>', consumers.readConsumer),
+
 
 ]

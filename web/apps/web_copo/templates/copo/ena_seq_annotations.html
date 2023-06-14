@@ -1,0 +1,16 @@
+{% extends 'copo/base_2col.html' %}
+
+{% block content %}
+  <h1>Sequence Annotation List</h1>
+  {% if seq_annotations %}
+    <ul>
+      {% for annotation in seq_annotations %}
+      <li>
+        ({{annotation.title}})
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>There are no sequence annotation in the profile.</p>
+  {% endif %}
+{% endblock %}

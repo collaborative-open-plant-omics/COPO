@@ -7,7 +7,7 @@ from smart_open import open as s_open
 from django_tools.middlewares.ThreadLocal import get_current_request
 import time
 from os import path
-from submission.helpers.generic_helper import notify_frontend
+from submission.helpers.generic_helper import notify_read_status
 from exceptions_and_logging.logger import Logger
 from boto3.s3.transfer import TransferConfig
 import logging
@@ -119,7 +119,7 @@ class S3Connection():
                 profile_id = get_current_request().session["profile_id"]
             except AttributeError:
                 profile_id = "xxxx"
-            channels_group_name = "s3_" + profile_id
+            #channels_group_name = "read_status_" + profile_id
 
             missing_files = list()
             etags = dict()
@@ -128,8 +128,8 @@ class S3Connection():
             
             if not bucket_files:
                 msg = "Bucket not found: " + bucket_name
-                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="sample_info", group_name=channels_group_name)
+                notify_read_status(data={"profile_id": profile_id}, msg=msg, action="info",
+                                html_id="sample_info")
                 return False
             
             for f in file_list:
@@ -141,8 +141,8 @@ class S3Connection():
                     print("Looking for", file)
                     file = file.strip()
 
-                    notify_frontend(data={"profile_id": profile_id}, msg="Searching for: " + file, action="info",
-                                    html_id="sample_info", group_name=channels_group_name)
+                    notify_read_status(data={"profile_id": profile_id}, msg="Searching for: " + file, action="info",
+                                    html_id="sample_info")
                     # time.sleep(2)
                     for bucket_file in bucket_files:
 
@@ -158,19 +158,19 @@ class S3Connection():
                         missing_files.append(file)
             if len(missing_files) > 0:
                 # report missing files
-                notify_frontend(data={"profile_id": profile_id}, msg="Files Missing: " + str(
+                notify_read_status(data={"profile_id": profile_id}, msg="Files Missing: " + str(
                     missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="info",
-                                html_id="sample_info", group_name=channels_group_name)
+                                html_id="sample_info")
                 # return false to halt execution
                 return False
             else:
                 return etags
 
         except KeyError as e:
-            notify_frontend(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
-                            html_id="sample_info", group_name=channels_group_name)
+            notify_read_status(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
+                            html_id="sample_info")
             return False
         except Exception as e:
-            notify_frontend(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
-                            html_id="sample_info", group_name=channels_group_name)
+            notify_read_status(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
+                            html_id="sample_info")
             raise e

@@ -285,7 +285,7 @@ def ena_assembly(request, profile_id, assembly_id=None):
 
     if request.method == 'POST' or request.method == 'PUT':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
-        form = AssemblyForm(request.POST,sample_accession=sample_accession, assembly=assembly)
+        form = AssemblyForm(request.POST,request.FILES,sample_accession=sample_accession, assembly=assembly)
         if form.is_valid():
             notify_frontend(data={"profile_id": profile_id},
                             msg="Intitialising Assembly Submission",
@@ -321,6 +321,9 @@ def ena_assembly(request, profile_id, assembly_id=None):
                                                       "accession", "Success"),
                                                   action="info",
                                                   html_id="assembly_info")
+                    
+
+                    return JsonResponse(status=200,  data=sub_result)                    
                 # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
                 # return HttpResponse()
         else:
@@ -330,6 +333,8 @@ def ena_assembly(request, profile_id, assembly_id=None):
                                           html_id="assembly_info")
             is_error = True
             # messages.error(request, form.errors)
+        #if is_error:
+        return HttpResponse(content="Validation Error", status=400)
 
     else:
 
@@ -345,9 +350,9 @@ def ena_assembly(request, profile_id, assembly_id=None):
                             #         "description": "jfksjkdlfs"}
                             )
         return render(request, "copo/ena_assembly_form.html", {"profile_id": profile_id, "form": form, "hide_form": False})
-    if is_error:
-        return HttpResponse(content="Validation Error", status=400)
-    return HttpResponse(status=200)
+
+    
+
 
 
 @login_required
@@ -879,3 +884,9 @@ def copo_reads(request, profile_id):
     profile = Profile().get_record(profile_id)
     groups = group_functions.get_group_membership_asString()
     return render(request, 'copo/copo_read.html', {'profile_id': profile_id, 'profile': profile, 'groups': groups})
+
+
+@login_required()
+def copo_files(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/copo_files.html", {"profile_id": profile_id})

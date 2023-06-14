@@ -474,13 +474,16 @@ class BrokerDA:
         target_id = self.param_dict.get("target_id", str())
         target_ids  = self.param_dict.get("target_ids", [])
 
-        result = EnaAnnotation.submit_seq_annotation(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        result = EnaSpreadsheetParse.submit_read(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
         report_metadata = dict()
         report_metadata["status"] = result.get("status","success")
         report_metadata["message"] = result.get("message", "success")
         self.context["action_feedback"] = report_metadata       
+        if result.get("status","success") == "success":
+            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
+            self.context["component"] = "read"
         return self.context
-
+    
     def do_delete_read(self):
         """
         function handles the delete of a record for those components
@@ -497,7 +500,7 @@ class BrokerDA:
         report_metadata["message"] = result.get("message", "success")
 
         if result.get("status","success") == "success":
-            self.context["table_data"] = htags.generate_table_records(profile_id=self.profile_id, component="sample")
+            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
             self.context["component"] = "read"
 
         self.context["action_feedback"] = report_metadata
@@ -530,7 +533,8 @@ class BrokerVisuals:
             submission=(htags.generate_submissions_records, dict(profile_id=self.profile_id, component=self.component)),
             seqannotation=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
-            read = (htags.generate_table_records, dict(profile_id=self.profile_id, component="sample")),
+            read = (htags.generate_read_record, dict(profile_id=self.profile_id)),
+            files = (htags.generate_files_record, dict(user_id=self.user_id)),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments

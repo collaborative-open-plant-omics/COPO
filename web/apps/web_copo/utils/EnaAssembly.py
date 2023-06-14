@@ -84,6 +84,8 @@ def validate_assembly(form, profile_id, assembly_id):
     file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
     for key, value in form.items():
         #skip optional fields that have not been filled
+        if key.upper() == "ID":
+            continue
         if value:
             if key == "sample_text":
                 manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
@@ -143,6 +145,9 @@ def validate_assembly(form, profile_id, assembly_id):
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions":
                 {"assembly": [{"accession": accession, "alias": "webin-genome-" + form["assemblyname"], "assembly_id": str(assembly_rec["_id"])}]}}
             Submission().save_record(autofields={}, **fieldsdict)
+
+        table_data = htags.generate_table_records(profile_id, "assembly", None)
+        return {"success": "Assembly has been submitted", "table_data": table_data, "component": "assembly"}                 
     else:
         if return_code == 2:
             with open(these_assemblies / "manifest.txt.report") as report_file:
@@ -159,11 +164,7 @@ def validate_assembly(form, profile_id, assembly_id):
                         error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
             return {"error": error}
         else:
-            return {"error": output}
-        
-    table_data = htags.generate_table_records(profile_id, "assembly", None)
-    return {"success": "Annotation submission has been scheduled, you will be notified when it is complete", "table_data": table_data, "component": "seqannotation"}        
-    
+            return {"error": output}    
 
 
 def submit_assembly(file_path, profile_id):

@@ -5,6 +5,8 @@ from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittable
 from Bio import Entrez
+import pandas as pd
+from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 
 
 class ColumnValidator(Validator):
@@ -33,11 +35,24 @@ class MissingValuesValidator(Validator):
                 cellcount = 0
                 for c in cells:
                     cellcount += 1
-                    if c.strip() == "":
+                    if c.strip() == "" :
                         # we have missing data in required cells
                         self.errors.append(msg["validation_msg_missing_data_ena_seq"] % (
                             header, str(cellcount + 1)))
                         self.flag = False
+
+                    if header in lookup.DATE_FIELDS and c.strip() not in lookup.BLANK_VALS:
+                        try:
+                            validate_date(c)
+                        except ValueError as e:
+                            self.errors.append(
+                                msg["validation_msg_invalid_date"] % (c, str(cellcount + 1), header))
+                            self.flag = False
+                        except AssertionError as e:
+                            self.errors.append(
+                                msg["validation_msg_future_date"] % (c, str(cellcount + 1), header)
+                            )
+                            self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
 
@@ -90,5 +105,54 @@ class GzipValidator(Validator):
                 if not f.strip().endswith(".gz"):
                     error_str = f + ": File not gzipped. All files must be gzipped and end in '.gz'"
                     self.errors.append(error_str)
+                    self.flag = False
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
+
+
+class ReadNotInSubmissionQueueValidator(Validator):
+    def validate(self):
+        sample_names = list(self.data["sample_name"])
+        samples = Sample(profile_id=self.profile_id).get_all_records_columns(projection=dict(read=1,name=1), filter_by=dict(profile_id=self.profile_id, name={"$in": sample_names}))
+        sampleMap = {}
+        for sample in samples:
+            sampleMap[sample["name"]] = sample.get("read",[])
+            
+        for index, row in self.data.iterrows():
+            file_names = row["file_name"]
+            sample_name = row["sample_name"]
+            reads = sampleMap.get(sample_name, None)
+            if reads:
+                for read in reads:
+                    if set(read.get("file_name", str()).split(",")) == set(file_names.split(",")) and read.get("status","pending") == "processing":
+                        self.errors.append("File " + file_names + " already in submission queue for sample " + sample_name)
+                        self.flag = False 
+        return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
+    
+class DuplicatedDataFile(Validator):
+    def validate(self):
+        file_names = list(self.data["file_name"])
+        samples = Sample(profile_id=self.profile_id).get_all_records_columns(projection={"read":1,"name":1}, filter_by=dict(profile_id=self.profile_id))
+        fileMap = {}
+        for sample in samples:
+            for read in sample.get("read", []):
+                files = read.get("file_name", str()).split(",")
+                for f in files:
+                    fileMap[f] = sample["name"]
+
+        file_name_list = [ file_name  for paried_names in file_names for file_name in paried_names.split(",")]
+        file = [ x for x in file_name_list if file_name_list.count(x) > 1]
+
+        for f in set(file):
+            self.errors.append("File " + f + " is duplicated in manifest")
+            self.flag = False               
+
+        for index, row in self.data.iterrows():
+            file_names = row["file_name"]
+            sample_name = row["sample_name"]
+            files = file_names.split(",")
+            for f in files:
+                sample = fileMap.get(f, None)
+                if sample and sample != sample_name:
+                    self.errors.append(f"File {f} for sample {sample_name} already attached sample {sample}")
                     self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

@@ -53,7 +53,7 @@ FileTransferQueueCollection = 'FileTransferQueueCollection'
 StatsCollection = 'StatsCollection'
 BarcodeCollection = 'BarcodeCollection'
 ValidationQueueCollection = 'ValidationQueueCollection'
-ENAFileTransferCollection = 'EnaFileTransferCollection'
+EnaFileTransferCollection = 'EnaFileTransferCollection'
 APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
@@ -76,10 +76,11 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    test=get_collection_ref(TestCollection),
                    barcode=get_collection_ref(BarcodeCollection),
                    validationQueue=get_collection_ref(ValidationQueueCollection),
-                   enaFileTransfer=get_collection_ref(ENAFileTransferCollection),
+                   enaFileTransfer=get_collection_ref(EnaFileTransferCollection),
                    apiValidationReport=get_collection_ref(APIValidationReport),
                    assembly=get_collection_ref(AssemblyCollection),
-                   seqannotation=get_collection_ref(AnnotationCollection)
+                   seqannotation=get_collection_ref(AnnotationCollection),
+                   submissionQueue=get_collection_ref(SubmissionQueueCollection),
                    )
 
 
@@ -1397,6 +1398,15 @@ class Sample(DAComponent):
             "user": "copo@earlham.ac.uk"
         }}})
 
+    def update_read_accession(self, sample_accessions):
+            for accession in  sample_accessions:
+                self.get_collection_handle().update_many({"_id": ObjectId(accession["sample_id"])},
+                                                    {"$set": {"biosampleAccession": accession["biosample_accession"], "sraAccession": accession["sample_accession"], "status": "accepted"}})
+
+    def update_datafile_status(self, datafile_ids, status):
+        dt = data_utils.get_datetime()
+        for id in datafile_ids:
+            self.get_collection_handle().update_one({"profile_id": self.profile_id, "read.file_id" : {"$regex": id}, "read.$.status": {"$ne": status}}, {"$set": {"read.$.status": status, "modifed_date":  dt}})
 
 class Submission(DAComponent):
     def __init__(self, profile_id=None):
@@ -2043,7 +2053,7 @@ class Submission(DAComponent):
         if not submission:
             return dict(status='error', message="System Error! Please contact the administrator.")
 
-        if submission["seq_annotation_status"] == "pending":
+        if submission.get("seq_annotation_status", str() ) == "pending":
             return dict(status='error', message="Sequence annotation submission is in process, please try again later!")
         
         sub_handle.update_one({"_id": ObjectId(sub_id)}, {"$set": {"seq_annotation_status": "uploading", "date_modified":
@@ -2051,7 +2061,7 @@ class Submission(DAComponent):
         return dict(status='success', message="Sequence annotation submission has been scheduled!")
 
 
-    def update_seq_annotation_submission(self, sub_id, seq_annotation_id=[], submission_id=[]):
+    def update_seq_annotation_submission(self, sub_id, seq_annotation_id=str(), submission_id=[]):
         # when dtol sample has been processed, pull id from submission and check if there are remaining
         # samples left to go. If not, make submission complete. This will stop celery processing the this submission.
         sub_handle = self.get_collection_handle()
@@ -2130,7 +2140,17 @@ class Submission(DAComponent):
                             {"$set": {"date_modified": datetime.now(), "seq_annotation_submission_error.$.error": error}})
     '''
     def update_seq_annotation_submission_pending(self, sub_ids):
-        Submission().get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
+        self.get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
+
+    def reset_read_submisison_bundle(self, submission_id, is_success=True):
+        submission = self.get_record(submission_id)
+        bundle_samples = submission.get("bundle_samples", list())
+        sample_status = "accepted"
+        if not is_success:
+            sample_status = "pending"
+        Sample(profile_id=self.profile_id).get_collection_handle().update_many({"_id": {"$in": [ObjectId(id) for id in bundle_samples]}}, {"$set": {"status": sample_status, "date_modified": data_utils.get_datetime()}})
+        self.get_collection_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": []}})
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2260,7 +2280,7 @@ class DataFile(DAComponent):
         result = [i["name"] for i in datafiles if i['name']]
         return set(result)
 
-
+    
 class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
@@ -2821,40 +2841,39 @@ class Barcode(DAComponent):
                                                  upsert=True)
 
 
-class ENAFileTransferObject(DAComponent):
+class EnaFileTransfer(DAComponent):
     def __init__(self, profile_id=None):
-        super(ENAFileTransferObject, self).__init__(profile_id, "enaFileTransferObject")
-        self.ENAFileTransferObjectCollection = get_collection_ref(ENAFileTransferCollection)
+        super(EnaFileTransfer, self).__init__(profile_id, "enaFileTransfer")
         self.profile_id = profile_id
         #self.component = str()
 
     def get_pending_transfers(self):
         result_list = []
-        result = self.ENAFileTransferObjectCollection.find({"transfer_status": {"$ne": 2}, "status": "pending"})
+        result = self.get_collection_handle().find({"transfer_status": {"$ne": 2}, "status": "pending"})
         if result:
             result_list = list(result)
         # at most download 2 files at the sametime
-        count = self.ENAFileTransferObjectCollection.find({"transfer_status": 2, "status": "processing"}).count()
+        count = self.get_collection_handle().find({"transfer_status": 2, "status": "processing"}).count()
         if count <= 1:
-            result = self.ENAFileTransferObjectCollection.find_one({"transfer_status": 2, "status": "pending"})
+            result = self.get_collection_handle().find_one({"transfer_status": 2, "status": "pending"})
             if result:
                 result_list.append(result)
         return result_list
 
     def get_processing_transfers(self):
-        return self.ENAFileTransferObjectCollection.find({"transfer_status": {"$gt": 0}, "status": "processing"})
+        return self.get_collection_handle().find({"transfer_status": {"$gt": 0}, "status": "processing"})
 
     def set_processing(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)},
+        self.get_collection_handle().update_one({"_id": ObjectId(tx_id)},
                                                         {"$set": {"status": "processing",
                                                                   "last_checked": datetime.utcnow()}})
 
     def set_pending(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {
+        self.get_collection_handle().update_one({"_id": ObjectId(tx_id)}, {
             "$set": {"status": "pending", "last_checked": datetime.utcnow()}})
 
     def set_complete(self, tx_id):
-        self.ENAFileTransferObjectCollection.update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
+        self.get_collection_handle().update_one({"_id": ObjectId(tx_id)}, {"$set": {"status": "complete"}})
 
 
 class APIValidationReport(DAComponent):
@@ -2940,13 +2959,13 @@ class Sequnece_annotation(DAComponent):
         
         self.get_collection_handle().remove({"_id": {"$in":   seq_annotation_obj_ids}})
         return dict(status='success', message="Sequence annotation record/s have been deleted!")
-
-
-
-class EnaFileTransfer(DAComponent):
-    def __init__(self, profile_id=None):
-        super(EnaFileTransfer, self).__init__(profile_id, "enaFileTransfer")                                        
+                               
                                     
+
+class SubmissionQueue(DAComponent):
+    def __init__(self, profile_id=None):
+        super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")  
+
 
 def is_number(s):
     try:

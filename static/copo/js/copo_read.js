@@ -46,7 +46,7 @@ $(document).ready(function () {
     if (window.location.protocol === "https:") {
         wsprotocol = 'wss://';
     }
-    var wsurl = wsprotocol + window.location.host + '/ws/s3_status/' + uid
+    var wsurl = wsprotocol + window.location.host + '/ws/read_status/' + uid
 
     s3socket = new WebSocket(wsurl);
 
@@ -125,7 +125,11 @@ $(document).ready(function () {
             $("#sample_parse_table").DataTable().draw()
             $("#tabs").fadeIn()
             $("#ena_finish_button").fadeIn()
-        }      
+        } else if (d.action === "refresh_table") {
+            globalDataBuffer = d.data;
+            var event = jQuery.Event("refreshtable");
+            $('body').trigger(event);
+        }    
     }
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()
@@ -179,10 +183,11 @@ $(document).ready(function () {
     });
 
     //details button hover
+    /*
     $(document).on("mouseover", ".detail-hover-message", function (event) {
         $(this).prop('title', 'Click to view ' + component + ' details');
     });
-
+    */
 
     //$(".new-reads-spreadsheet-template").addClass("btn btn-info").attr("data-toggle", "modal").attr("data-target", "#uploadModal")
 
@@ -225,10 +230,10 @@ $(document).ready(function () {
         .addClass( 'highlight_accession' );
 
         for (var i=1; i<=numCols; i++) {
-            if ( $(table.column(i).header()).text() == 'ACCESSION' ) {
+            if ( $(table.column(i).header()).text() == 'SUBMISSION STATUS' ) {
 
                 var no_accessiion_indexes = table.rows().eq( 0 ).filter( function (rowIdx) {
-                    return table.cell( rowIdx, i ).data() === '' ? true : false;
+                    return table.cell( rowIdx, i ).data() != 'accepted' ? true : false;
                 } );
                 table.rows( no_accessiion_indexes )
                 .nodes()
@@ -274,10 +279,12 @@ function upload_spreadsheet(file) {
         dialog.setClosable(true);
         dialog.getButton('upload_read_manifest_button').stopSpin();
         console.error(data)
+        /*
         BootstrapDialog.show({
             title: 'Error',
             message: "Error " + data.status + ": " + data.responseText
         });
+        */
     }).done(function (data) {
         dialog.getButton('upload_read_manifest_button').enable();
         dialog.getButton('save_read_button').enable();

@@ -130,12 +130,14 @@ $(document).ready(function () {
 
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } else if (action_type === "reads") {
+            } /*else if (action_type === "reads") {
                 url = copoENAReadManifestValidateURL + id + "/view"
             } else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id + "/view"
             } else if (action_type === "annotation") {
                 url = copoENAAnnotationURL + id + "/view"
+            }*/ else {
+                url = "/copo/copo_" + action_type  + "/" + id + "/view"
             }
             document.location = url
         }
@@ -540,11 +542,13 @@ function append_component_buttons(record_id, profile_type) {
         }
 
         // Create button html
-        let pcomponent_count_span = $('<span></span>')
-            .attr("class", "pcomponent-count")
-            .attr("id", record_id + "_" + item.countsKey)
-            .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
-
+        let pcomponent_count_span = $("<span></span>")
+        if (item.countsKey) {
+            pcomponent_count_span = $('<span></span>')
+                .attr("class", "pcomponent-count")
+                .attr("id", record_id + "_" + item.countsKey)
+                .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
+        }
         let pcomponent_count_div = $('<div></div>')
             .attr("class", `tiny ui basic pcomponent-color left pointing label ${item.color}`)
             .html(pcomponent_count_span);
@@ -574,18 +578,21 @@ function filter_action_menu() {
     $(".copo-records-panel").each(function (idx, el) {
         const t = $(el).attr("profile_type");
         if (t.includes("ERGA")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='annotation']").hide()
-            $(el).find("a[anchor_type='dtol_option']").hide()
+            $(el).find("a[profile_component='stand-alone']").hide()
+            //$(el).find("a[anchor_type='reads']").hide()
+            //$(el).find("a[anchor_type='assembly']").hide()
+            //$(el).find("a[anchor_type='annotation']").hide()
+            //$(el).find("a[anchor_type='dtol_option']").hide()
         } else if (t.includes("DTOL") || t.includes("ASG")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='annotation']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='stand-alone']").hide()
+            //$(el).find("a[anchor_type='reads']").hide()
+            //$(el).find("a[anchor_type='assembly']").hide()
+            //$(el).find("a[anchor_type='annotation']").hide()
+            //$(el).find("a[anchor_type='erga_option']").hide()
         } else if (t.includes("Stand-alone")) {
-            $(el).find("a[anchor_type='dtol_option']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='dtol']").hide()
+            //$(el).find("a[anchor_type='dtol_option']").hide()
+            //$(el).find("a[anchor_type='erga_option']").hide()
         }
     })
 }
@@ -676,12 +683,14 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
 
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } else if (action_type === "reads") {
+            } /* else if (action_type === "reads") {
                 url = copoENAReadManifestValidateURL + id
             } else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id
-            } else if (action_type === "annotation") {
+            } else if (action_type === "seq_annotation") {
                 url = copoENAAnnotationURL + id
+            } */ else {
+                url = "/copo/copo_" +  action_type + "/" +  id + "/view"
             }
             document.location = url
         }

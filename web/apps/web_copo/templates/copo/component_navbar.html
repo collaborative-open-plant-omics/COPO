@@ -21,7 +21,9 @@
     <input type="hidden" value="{% url 'copo:copo_assembly' profile_id=profile_id %}" name="assembly_url"
            id="assembly_url"/>
     <input type="hidden" value="{% url 'copo:copo_reads' profile_id=profile_id %}" name="read_url"
-           id="read_url"/>           
+           id="read_url"/>      
+    <input type="hidden" value="{% url 'copo:copo_files' profile_id=profile_id %}" name="files_url"
+           id="files_url"/>                  
 </div>
 
 <div class="row" style="margin-bottom:40px;">

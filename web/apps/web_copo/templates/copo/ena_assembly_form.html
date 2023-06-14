@@ -1,63 +1,8 @@
-{% extends 'copo/base_2col.html' %}
-
 {% load static %}
 {% load web_tags_orcid %}
 {% load web_tags %}
 {% load crispy_forms_tags %}
-{% block stylesheet_block %}
-    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
-    <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
-          xmlns="http://www.w3.org/1999/html">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
-          xmlns="http://www.w3.org/1999/html">
     <style>
-        .group-button {
-            vertical-align: middle;
-            margin-left: 10px;
-            cursor: pointer;
-            font-size: 1.5em;
-        }
-
-        .plus-color {
-            color: #0ec36b;
-        }
-
-        .minus-color {
-            color: #d34e22;
-        }
-
-        .custom-header {
-            text-align: center;
-            padding: 3px;
-            background: #f5f5f5;
-            color: black;
-        }
-
-        .autocomplete {
-            margin-top: 40px;
-            min-width: 200px;
-        }
-
-        #users_table {
-            width: 300px;
-            margin-top: 40px;
-        }
-
-        .delete_cell {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .saving_status {
-            margin-right: 25px
-        }
-
-        .errorlist {
-            color: red;
-            font-weight: bolder;
-            font-size: larger;
-        }
-
         form {
             padding-bottom: 20px !important;
             border: 1px solid #ececec;
@@ -65,33 +10,8 @@
             border-radius: 10px;
         }
     </style>
-{% endblock %}
 
-
-{% block title_block %} COPO - Groups {% endblock %}
-
-{% block tagline_block %}
-
-
-{% endblock %}
-
-{% block browse_header_block %}
-
-    <div hidden id="hidden_attrs">
-        <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="group"/>
-        <input type="hidden" id="user_type" value="submitters"/>
-    </div>
-{% endblock browse_header_block %}
-
-
-{% block page_tile %}
-
-{% endblock page_tile %}
-
-
-{% block content %}
-    <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
+  <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12">
             <h3 class="h3">
@@ -137,7 +57,7 @@
             </div>
         {% endfor %}
     {% endif %}
-    <div style="width:40%">
+    <div style="width:80%">
 
         <form id="assembly_form" action="/copo/ena_assembly/{{ profile_id }}" method="post" class="ui form"
               enctype="multipart/form-data">
@@ -145,8 +65,7 @@
             <fieldset class="ena_assembly_form">      
 
             {{ form | crispy }}
-            <input id="submit_assembly_button" type="button" value="Submit Assembly" onclick="doPost()"
-                   class="ui blue button" ">
+
             </fieldset>
 
         </form>
@@ -161,18 +80,3 @@
 
     </div>
 
-
-{% endblock %}
-
-
-
-
-{% block js_block %}
-    <script>
-
-    </script>
-    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
-    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_assembly.js' %}"></script>
-{% endblock %}
