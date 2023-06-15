@@ -296,7 +296,7 @@ function get_copo_profile_components() {
             iconClass: "fa fa-file",
             semanticIcon: "file",
             countsKey1_deleted: "num_assembly",
-            buttons: [],
+            buttons: ["new-component-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "files_color",
             color: "blue",

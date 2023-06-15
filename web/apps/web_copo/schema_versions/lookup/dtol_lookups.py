@@ -3,6 +3,18 @@
 # such as validation enumerations and mappings between different field names
 from tools import resolve_env
 
+def get_collection_location_1(str):
+    return str.split('|')[0].strip()
+
+def get_collection_location_2(str):
+    return "|".join(str.split('|')[1:])
+
+def get_default_data_function(str):
+    return str.lower().replace("_", " ").strip()
+
+def exec_function(func=get_default_data_function , str=str()):
+    return func(str)
+
 DTOL_ENA_MAPPINGS = {
     'ASSOCIATED_BIOGENOME_PROJECTS': {
         'ena': 'associated biogenome projects'
@@ -15,11 +27,13 @@ DTOL_ENA_MAPPINGS = {
     },
     'COLLECTION_LOCATION_1': {
         'info': "split COLLECTION_LOCATION on first '|' and put left hand side here (should be country)",
-        'ena': 'geographic location (country and/or sea)'
+        'ena': 'geographic location (country and/or sea)',
+        'ena_data_function': get_collection_location_1
     },
     'COLLECTION_LOCATION_2': {
         'info': "split COLLECTION_LOCATION on first '|' and put right hand side here (should be a list of '|' separated locations)",
-        'ena': 'geographic location (region and locality)'
+        'ena': 'geographic location (region and locality)',
+        'ena_data_function': get_collection_location_2
     },
     'COLLECTOR_AFFILIATION': {
         'ena': 'collecting institution'
@@ -1673,3 +1687,5 @@ SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_
 SYMBIONT_VALS = ["TARGET", "SYMBIONT"]
 
 TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
+
+

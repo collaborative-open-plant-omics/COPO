@@ -60,15 +60,6 @@ def parse_ena_spreadsheet(request):
                 if not s3obj.check_s3_bucket_for_files(bucket_name=bucket_name, file_list=file_names):
                     # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
                     return HttpResponse()
-                # check if the files have been submitted or not
-                #files = []
-                #for f in file_names:
-                #    for i in f.split(","):
-                #        files.append(join(settings.UPLOAD_PATH, username, i.strip()))
-
-                # sub = Submission().get_collection_handle().find_one({"profile_id": profile_id, "bundle" : {"$exists": "true", "$ne": [] }})
-                # if sub :
-                #    return HttpResponse(content="Please submit the samples before upload , it cannot be updated", status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
                 notify_read_status(data={"profile_id": profile_id},
@@ -81,10 +72,6 @@ def parse_ena_spreadsheet(request):
                                 html_id="sample_info")
                 return HttpResponse(status=400)
 
-            # check if the file_names are in the sample and waiting for submission
-            # if so, then reject the upload
-             
-            # iff all above have passed, then run collect
             ena.collect()
             return HttpResponse()
         return HttpResponse(status=400)
@@ -123,14 +110,16 @@ def save_ena_records(request):
         df = dict()
         p = Profile().get_record(profile_id)
         attributes = dict()
-        attributes["datafiles_pairing"] = list()
+        #attributes["datafiles_pairing"] = list()
         attributes["target_repository"] = {"deposition_context": "ena"}
-        attributes["project_details"] = {
-            "project_name": p["title"],
-            "project_title": p["title"],
-            "project_description": p["description"],
-            "project_release_date": s["release_date"]
-        }
+        #attributes["project_details"] = {
+        #    "project_name": p["title"],
+        #    "project_title": p["title"],
+        #    "project_description": p["description"],
+        #    "project_release_date": s["release_date"]
+        #}
+
+        '''
         attributes["library_preparation"] = {
             "library_layout": s["library_layout"],
             "library_strategy": s["library_strategy"],
@@ -138,6 +127,9 @@ def save_ena_records(request):
             "library_selection": s["library_selection"],
             "library_description": s["library_description"]
         }
+        '''
+        attributes["library_preparation"] = {key: s[key] for key in s.keys() if key.startswith("library_")}
+
         attributes["nucleic_acid_sequencing"] = {"sequencing_instrument": s["sequencing_instrument"]}
 
 
@@ -182,19 +174,22 @@ def save_ena_records(request):
             sample["deleted"] = "0"
             sample["status"] = "pending"    
             #sample["read"] = {"file_name": [s["file_name"]] }
-            sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
-            sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
+            sample.update({key[len("SAMPLE_"):] : s[key] for key in s.keys() if key.startswith("SAMPLE_")})
+
+            #sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
+            #sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
 
             sample = Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample},
                                                                      upsert=True,
                                                                      return_document=ReturnDocument.AFTER)
         else:
-            sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
-            sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"] 
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": { "DATE_OF_COLLECTION":sample["DATE_OF_COLLECTION"], "COLLECTION_LOCATION": sample["COLLECTION_LOCATION"], "date_modified" : dt }} )  #, "$addToSet": {"read.file_name" : s["file_name"] }
+            sample_update_fields = ({key[len("SAMPLE_"):] : s[key] for key in s.keys() if key.startswith("SAMPLE_")})
+            sample_update_fields["date_modified"] = dt
+            #sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
+            #sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"] 
+            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": sample_update_fields})  #, "$addToSet": {"read.file_name" : s["file_name"] }
         sample_id = str(sample["_id"])
        
-
         attributes["attach_samples"] = {"study_samples": [sample_id]}
         df["description"] = {"attributes": attributes}
         df["title"] = p["title"]
@@ -309,7 +304,7 @@ def save_ena_records(request):
         if not is_found:
             Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$addToSet": {"read": f_meta }} )
 
-    attributes["datafiles_pairing"] = pairing
+   #attributes["datafiles_pairing"] = pairing
 
     # read_files = [x["file_location"] for x in bundle_meta]
 

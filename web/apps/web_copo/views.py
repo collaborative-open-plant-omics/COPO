@@ -98,61 +98,6 @@ def ena_read_manifest_validate(request, profile_id):
     request.session["profile_id"] = profile_id
     return render(request, "copo/ena_read_manifest_validate.html", {"profile_id": profile_id})
 
-@login_required()
-def ena_annotation_list(request, profile_id):
-    request.session["profile_id"] = profile_id
-    return render(request, "copo/ena_annotation_list.html", {"profile_id": profile_id})
-
-'''
-def ena_annotation_view(request, profile_id, seq_annotation_id):
-    request.session["profile_id"] = profile_id
-
-    seq_annotation = Sequnece_annotation().get_record(seq_annotation_id)
-    if not seq_annotation:
-        return HttpResponse(content="Sequence Annotation not exists", status=400)
-    
-    study_accession = ""
-    sample_accession = []
-    run_accession=[]
-    experiment_accession=[]
-    existing_sub = Submission().get_records_by_field("profile_id", profile_id)
-    existing_accessions = ""
-    if existing_sub:
-        existing_accessions = existing_sub[0].get("accessions", "")
-    if  existing_accessions:
-        study = existing_accessions.get("project", "")
-        if study:
-            if isinstance(study, dict):
-                study_accession = study.get("accession", "")
-            elif isinstance(study, list):
-                study_accession = study[0].get("accession", "")          
-        runs = existing_accessions.get("run", "")
-        if runs:
-            for run in runs:
-                if run.get("accession", ""):
-                    run_accession.append(run.get("accession", ""))
-        experiments = existing_accessions.get("experiment", "")
-        if experiments:
-            for experiment in experiments:
-                if experiment.get("accession", ""):
-                    experiment_accession.append(experiment.get("accession", ""))            
-        samples = existing_accessions.get("sample", "")
-        if samples:
-            for sample in samples:
-                if sample.get("sample_accession", ""):
-                    sample_accession.append(sample.get("sample_accession", ""))
-
-    AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
-    formset = AnnotationFilesFormSet(prefix="annotation_files")
-    filenames = seq_annotation.get("filenames", "")
-    filetypes = seq_annotation.get("filetypes", "")
-    formset = AnnotationFilesFormSet(prefix="annotation_files", initial= [{'file': filenames[i], 'type': filetypes[i]} for i in range(len(filenames))])
-
-    form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession, seq_annotation=seq_annotation)
-
-
-    return render(request, "copo/ena_annotation_form.html", {"profile_id": profile_id, "form": form, "formset": formset, "hide_form": False})
-'''
 
 @login_required()
 def ena_annotation(request, profile_id, seq_annotation_id=None):

@@ -421,8 +421,10 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record")
 def generate_read_record(profile_id=str()):
-    label = ['name', 'DATE_OF_COLLECTION', 'COLLECTION_LOCATION', 'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source',
-             'library_selection', 'library_description', "file_name", "file_md5", "biosampleAccession", "sraAccession", "submission_status",  "ena_file_upload_status"]
+    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status" ]
+    #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
+    
+    label_set = set()
     data_set = []
     columns = []
     columns.append(dict(data="record_id", visible=False))
@@ -432,17 +434,14 @@ def generate_read_record(profile_id=str()):
                        title='', defaultContent='', width="5%")
 
     columns.insert(0, detail_dict)
-    for x in label:
-        columns.append(dict(data=x, title=x.upper().replace("_", " ")))
-
     samples = Sample().execute_query({"profile_id": profile_id})
     for sample in samples:
         for read in sample.get("read", []):
             row_data = dict()
             row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
             row_data["name"] = sample["name"]
-            row_data["DATE_OF_COLLECTION"] = sample["DATE_OF_COLLECTION"]
-            row_data["COLLECTION_LOCATION"] = sample["COLLECTION_LOCATION"]
+            row_data.update({key : sample[key] for key in sample.keys() if key[0].isupper()} )
+            label_set.update({key  for key in sample.keys() if key[0].isupper()})
             row_data["file_name"] = read["file_name"]
             row_data["biosampleAccession"] = sample.get(
                 "biosampleAccession", str())
@@ -462,20 +461,12 @@ def generate_read_record(profile_id=str()):
                             " , " + files[1]["file_hash"]
                     attribute = files[0].get(
                         "description", dict()).get("attributes", dict())
-                    library_preparation = attribute.get(
-                        "library_preparation", dict())
-                    row_data["library_layout"] = library_preparation.get(
-                        "library_layout", str())
-                    row_data["library_strategy"] = library_preparation.get(
-                        "library_strategy", str())
-                    row_data["library_source"] = library_preparation.get(
-                        "library_source", str())
-                    row_data["library_selection"] = library_preparation.get(
-                        "library_selection", str())
-                    row_data["library_description"] = library_preparation.get(
-                        "library_description", str())
-                    row_data["sequencing_instrument"] = attribute.get(
-                        "nucleic_acid_sequencing", dict()).get("sequencing_instrument", str())
+                    row_data.update(attribute.get("library_preparation", dict()))
+                    row_data.update(attribute.get("nucleic_acid_sequencing", dict()))
+
+                    label_set.update(attribute.get("library_preparation", dict()).keys())
+                    label_set.update(attribute.get("nucleic_acid_sequencing", dict()).keys())
+
                     row_data["ena_file_upload_status"] = "unknown"
                     ena_file_transfer = EnaFileTransfer(profile_id=profile_id).execute_query({
                         "file_id": {"$in": file_ids}})
@@ -488,6 +479,9 @@ def generate_read_record(profile_id=str()):
                                 ena_file_transfer[1].get("status", str())
 
             data_set.append(row_data)
+
+    label.extend(list(label_set))
+    columns.extend([dict(data=x, title=x.upper().replace("_", " "), defaultContent='') for x in label])  
 
     return_dict = dict(dataSet=data_set,
                        columns=columns,
@@ -575,9 +569,6 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
             if x.get("show_in_table", True) and profile_type in x.get("specifications", []) and current_schema_version in x.get("manifest_version", ""):
-                    # ("asg" in x.get("specifications", []) or
-                    # "dtol" in x.get("specifications", []) or
-                    # "erga" in x.get("specifications", []))):
                 schema.append(x)
     else:
         schema = list()

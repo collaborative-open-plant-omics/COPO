@@ -135,8 +135,6 @@ $(document).ready(function () {
         s3socket.close()
     });
 
-
-
     
     //******************************Event Handlers Block*************************//
     var component = "read";

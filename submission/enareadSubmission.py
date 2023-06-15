@@ -29,7 +29,7 @@ from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_EXPERIM
     SRA_SUBMISSION_MODIFY_TEMPLATE, ENA_CLI
 import web.apps.web_copo.utils.FileTransferUtils as tx
 from submission.helpers.generic_helper import notify_read_status
-from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups
 import web.apps.web_copo.templatetags.html_tags as htags
 
 
@@ -557,18 +557,15 @@ class EnaReads:
                     etree.SubElement(sample_attribute_node, 'UNITS').text = atr.get("unit", str())
 
             # add sample collection date & collection location TODO
-            sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
-            etree.SubElement(sample_attribute_node, 'TAG').text =  DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_1']['ena']
-            etree.SubElement(sample_attribute_node, 'VALUE').text = sample.get("COLLECTION_LOCATION", str()).split('|')[0].strip()
 
-            sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
-            etree.SubElement(sample_attribute_node, 'TAG').text =  DTOL_ENA_MAPPINGS['COLLECTION_LOCATION_2']['ena']
-            etree.SubElement(sample_attribute_node, 'VALUE').text = "|".join(sample.get("COLLECTION_LOCATION", str()).split('|')[1:])
-
-            sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
-            etree.SubElement(sample_attribute_node, 'TAG').text =  DTOL_ENA_MAPPINGS['DATE_OF_COLLECTION']['ena']
-            etree.SubElement(sample_attribute_node, 'VALUE').text = sample.get("DATE_OF_COLLECTION", str()).lower().replace("_", " ").strip()
-
+            for key in sample.keys():
+                if key[0].isupper():
+                    ena_names = [ena_key for ena_key in dtol_lookups.DTOL_ENA_MAPPINGS.keys() if ena_key == key or (ena_key.startswith(key + "_" ) and dtol_lookups.DTOL_ENA_MAPPINGS[ena_key].get('ena', ""))]
+                    for ena_name in ena_names:
+                        sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
+                        etree.SubElement(sample_attribute_node, 'TAG').text =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name]['ena']
+                        function =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name].get('ena_data_function', dtol_lookups.get_default_data_function)
+                        etree.SubElement(sample_attribute_node, 'VALUE').text =  function(sample.get(key, str()))
 
         if not sra_samples:  # no samples to submit
             log_message = "No new samples to register!"

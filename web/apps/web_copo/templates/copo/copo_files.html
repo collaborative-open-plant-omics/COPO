@@ -16,7 +16,7 @@
     {% csrf_token %}
     <div hidden id="hidden_attrs">
         <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="Files"/>
+        <input type="hidden" id="nav_component_name" value="files"/>
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
     </div>
 {% endblock browse_header_block %}
@@ -30,17 +30,13 @@
 {% block content %}
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12">
-            <h3 class="h3">
-                Upload Files
-            </h3>
 
-
-            <form style="margin-bottom: 20px">
+            <!--form style="margin-bottom: 20px">
                 <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
                     COPO
                 </button>
 
-            </form>
+            </form-->
 
             <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
                  role="alert">

@@ -274,7 +274,7 @@
       "required": "true",
       "control_meta": {},
       "versions": [
-        "DATE_OF_COLLECTION"
+        "SAMPLE_DATE_OF_COLLECTION"
       ],
       "ref": "",
       "deprecated": false,
@@ -284,7 +284,7 @@
       ],
       "show_in_form": true,
       "label": "Date of Collection",
-      "id": "copo.sample.DATE_OF_COLLECTION",
+      "id": "SAMPLE_DATE_OF_COLLECTION",
       "show_in_table": true,
       "control": "date-picker",
       "default_value": "",
@@ -306,7 +306,7 @@
       "control_meta": {},
       "control": "text",
       "versions": [
-        "TIME_OF_COLLECTION"
+        "SAMPLE_TIME_OF_COLLECTION"
       ],
       "ref": "",
       "specifications": [
@@ -316,7 +316,7 @@
       "hidden": "false",
       "type": "string",
       "show_in_form": true,
-      "id": "copo.sample.TIME_OF_COLLECTION",
+      "id": "SAMPLE_TIME_OF_COLLECTION",
       "label": "Time of Collection",
       "show_in_table": true,
       "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
@@ -336,7 +336,7 @@
       "control_meta": {},
       "control": "text",
       "versions": [
-        "COLLECTION_LOCATION"
+        "SAMPLE_COLLECTION_LOCATION"
       ],
       "ref": "",
       "specifications": [
@@ -346,7 +346,7 @@
       "hidden": "false",
       "type": "string",
       "show_in_form": true,
-      "id": "copo.sample.COLLECTION_LOCATION",
+      "id": "SAMPLE_COLLECTION_LOCATION",
       "label": "Collection Location",
       "show_in_table": true,
       "dwc": "http://rs.tdwg.org/dwc/terms/higherGeography",

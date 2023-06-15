@@ -37,14 +37,7 @@ $(document).ready(function () {
     });
     */
     //******************************Functions Block******************************//
-
  
-    function handle_add_n_edit(url) {
-        dialog.realize();
-        dialog.setMessage($('<div></div>').load(url));
-        dialog.open();
-    }
-
 
     function do_record_task(event) {
         var task = event.task.toLowerCase(); //action to be performed e.g., 'Edit', 'Delete'
@@ -59,30 +52,27 @@ $(document).ready(function () {
 
         //add task
         if (task == "add") {
-            url = "/copo/ena_annotation/"+uid 
-            handle_add_n_edit(url)
-        }
-        else if (task == "edit") {
-            url = "/copo/ena_annotation/"+uid+"/"+records[0].record_id  
-            handle_add_n_edit(url)
+            do_add_record()
         }
         else {
             form_generic_task(component, task, records);
         }
         
     }
-
- 
-
-    $(document).on("click", "#presigned_urls_modal_button, .new-component-template ", function (evt) {
-        evt.preventDefault()
+    function do_add_record() {
         $("#url_upload_controls").show()
         $('#presigned_url_modal')
             .modal('show')
         ;
         $("#command_area").html("")
         $('#copy_urls_button').fadeOut()
-        $('#process_urls_button').fadeIn()
+        $('#process_urls_button').fadeIn()        
+    }
+ 
+
+    $(document).on("click", "#presigned_urls_modal_button, .new-component-template ", function (evt) {
+        evt.preventDefault()
+        do_add_record()
     })
 
     $(document).on("click", "#process_urls_button", function (evt) {

@@ -137,19 +137,5 @@ class ViewLock(models.Model):
         time_threshold = timezone.now() - VIEWLOCK_TIMEOUT
         locks = ViewLock.objects.filter(timeLocked__lte=time_threshold)
         for l in locks:
-            l.delete()
+            l.delet()
         print(locks)
-
-class seq_annotations(models.Model):
-    study: models.TextField(max_length=20, blank=False, default="")
-    sample: models.TextField(max_length=20, blank=False, default="")
-    title: models.TextField(max_length=200, blank=False, default="")
-    description: models.TextField(max_length=2000, blank=False, default="")
-    deleted: models.PositiveIntegerField(default=0)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-    profile_id = models.TextField(max_length=50, blank=False, default="")
-    files = models.JSONField( default=[], blank=True, null=True)
-    run = models.JSONField( default=[], blank=True, null=True)
-    experiment = models.JSONField( default=[], blank=True, null=True)
-    accession = models.TextField(max_length=20, blank=False, default="")
