@@ -15,6 +15,7 @@ import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.schemas.utils.metadata_rater import MetadataRater
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import EnaAnnotation, EnaAssembly, EnaSpreadsheetParse
+from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 
 
 class BrokerDA:
@@ -45,7 +46,8 @@ class BrokerDA:
             metadata_template=MetadataTemplate,
             repository=Repository,
             seqannotation=Sequnece_annotation,
-            assembly=Assembly
+            assembly=Assembly,
+            files=s3
         )
 
         if self.component in da_dict:
