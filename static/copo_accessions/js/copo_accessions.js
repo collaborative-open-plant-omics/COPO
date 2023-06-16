@@ -3,6 +3,7 @@ var sampleDescriptionToken = '';
 var sampleTableInstance = null;
 
 $(document).ready(function () {
+    $(document).data("showAllCOPOAccessions", false)
     $(document).data("isSampleProfileTypeStandalone", false)
     $(document).data("isUserProfileActive", true)
     //****************************** Event Handlers Block *************************//
@@ -10,11 +11,11 @@ $(document).ready(function () {
     // test begins
     // test ends
     //page global variables
-    var csrftoken = $('[name="csrfmiddlewaretoken"]').val();
-    var component = "accessions";
-    var wizardURL = "/rest/sample_wiz/";
-    var copoFormsURL = "/copo/copo_forms/";
-    var copoVisualsURL = "/copo/copo_accessions_visualise/";
+    const csrftoken = $('[name="csrfmiddlewaretoken"]').val();
+    const component = "accessions";
+    const wizardURL = "/rest/sample_wiz/";
+    const copoFormsURL = "/copo/copo_forms/";
+    const copoVisualsURL = "/copo/copo_accessions_visualise/";
 
     const wizardElement = $('#sampleWizard');
 
@@ -48,78 +49,6 @@ $(document).ready(function () {
         render_accessions_table(globalDataBuffer, componentMeta);
     });
 
-    //add new component button
-    // $(document).on("click", ".new-samples-template", function (event) {
-    //     initiate_description({});
-    // });
-
-    // $(document).on("show.bs.modal", "#sample_spreadsheet_modal", function (event) {
-    //     $("#sample_spreadsheet_modal").css("overflow-y", "scroll")
-    //     $("#upload_label").show()
-    //     $("#tabs").hide()
-    //     $("#sample_info").hide()
-    //     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
-    //         $("#sample_parse_table").DataTable().clear().destroy();
-    //     }
-    //     $("#sample_spreadsheet_modal").find("thead").empty()
-    //     $("#sample_spreadsheet_modal").find("tbody").empty()
-    //
-    // })
-    //
-    // //details button hover
-    // $(document).on("mouseover", ".detail-hover-message", function (event) {
-    //     $(this).prop('title', 'Click to view ' + component + ' details');
-    // });
-
-
-    //avoid enter key to submit wizard forms
-    // $(document).on("keyup keypress", ".wizard-dynamic-form", function (event) {
-    //     var keyCode = event.keyCode || event.which;
-    //     if (keyCode === 13) {
-    //         event.preventDefault();
-    //         return false;
-    //     }
-    // });
-    //
-    // //delete an incomplete description
-    // $(document).on("click", ".delete-description-i", function (event) {
-    //     event.preventDefault();
-    //     // delete_incomplete_description($(this), $(this).attr("data-target"));
-    // });
-
-    //reload an incomplete description
-    // $(document).on("click", ".reload-description-i", function (event) {
-    //     event.preventDefault();
-    //     var parameters = {'description_token': $(this).attr("data-target"), 'info_object': $(this)};
-    //     initiate_description(parameters);
-    // });
-    //
-    // $(document).on('click', '.wiz-btn-next', function (event) {
-    //     wizardElement.wizard('next');
-    // });
-    //
-    // $(document).on('click', '.wiz-btn-prev', function (event) {
-    //     wizardElement.wizard('previous');
-    // });
-
-    //var groups = $("#groups").val().split(",")
-    // if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
-    //     $(".new-samples-spreadsheet-template").show()
-    //     $(".new-samples-spreadsheet-template").show()
-    //     $(".new-samples-template").hide()
-    //
-    //     $("#help_add_button").removeClass("primary").addClass("green")
-    //     $("#help_add_button").children("i").removeClass("add").addClass("table")
-    // }
-
-    // if (document.getElementById("profile_type").value.includes("ERGA") && groups.includes("erga_users")) {
-    //     $(".new-samples-spreadsheet-template-erga").show()
-    //
-    //     $(".new-samples-template").hide()
-    //
-    //     $("#help_add_button").removeClass("primary").addClass("green")
-    //     $("#help_add_button").children("i").removeClass("add").addClass("table")
-    // }
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
         $(".accept_reject_samples").show()
     }
@@ -134,6 +63,21 @@ $(document).ready(function () {
 
     $(document).on("click", ".tol_inspect", function (evt) {
         document.location = "/copo/tol_inspect"
+    })
+
+    $(document).on("click", ".copo_accessions", function (evt) {
+        $(document).data("showAllCOPOAccessions", true)
+        const tableLoader = $('<div class="copo-i-loader"></div>');
+        let table_id = "*"
+        // load_all_COPO_accessions_records(componentMeta, copoVisualsURL)
+        load_accessions_records(componentMeta, copoVisualsURL);
+        if (tableLoader) tableLoader.remove(); //remove loader
+        // if ($(".table-parent-div").length) {
+        //     $(table_id).find(".table-parent-div").show();
+        // }
+        if ($(".page-welcome-message").length) {
+            $(table_id).find(".page-welcome-message").hide();
+        }
     })
 
     // $(document).on("change", "#number_of_samples", function (evt) {
@@ -2186,7 +2130,7 @@ function get_copo_accessions_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["accept_reject_samples", "tol_inspect"],
+            buttons: ["copo_accessions", "tol_inspect", "accept_reject_samples"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "accessions_color",
             color: "pink",
@@ -2397,7 +2341,8 @@ function do_table_buttons_events() {
     });
 }
 
-function place_accessions_task_buttons1(componentMeta, class_name) {
+function place_accessions_task_buttons(componentMeta) {
+    let class_name = $(document).data("showAllCOPOAccessions") ? "btn-toggle2" : "btn-toggle1";
     //place custom buttons on table
 
     if (!componentMeta.recordActions.length) {
@@ -2415,46 +2360,25 @@ function place_accessions_task_buttons1(componentMeta, class_name) {
         $(table.buttons().container()).append(customButtons);
     }
 
-    // if (class_name === "btn-toggle2") {
-    //     console.log(class_name)
-    //     $(table.buttons()).append(customButtons);
-    //     let all_accessions_options = $(table.buttons().container()).clone() //$(".dt-buttons ").clone()
-    //
-    //     // // all_accessions_options.previousSibling.remove()
-    //     // all_accessions_options.prev("br").remove();
-    //     // console.log("previousSibling: ", all_accessions_options.prev())
-    //
-    //     all_accessions_options.find('.buttons-csv').remove()
-    //
-    //     // all_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
-    //
-    //     all_accessions_options.append(customButtons);
-    //     //     .find('.active').text('Other Projects\' Accessions')
-    //     //
-    //     // all_accessions_options.find('.btn-default').text('Stand-alone Pr
-    // }
+    if (class_name === "btn-toggle2") {
+        $(table.buttons().container()).append(customButtons);
+    }
 
-    // componentMeta.recordActions.forEach(function (item) {
-    //     if (item === class_name) {
     const actionBTN = $(".accessions-record-action-templates").find("." + class_name).clone();
-
-    // If record action CSS class does not contain "1btn_toggle", remove all other CSS classes
-    // if (item !== class_name) actionBTN.removeClass(class_name);
-    // if (item !== "btn-toggle2") actionBTN.removeClass(item);
 
     actionBTN.attr("data-table", componentMeta.tableID);
     customButtons.append(actionBTN);
-    // }
-    // });
-// "..."
-    // Truncate profile title if it is too long
-    let profile_title = $("#profile_title")
-    let truncated_profile_title = profile_title.val().length > 10 ?
-        jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
-        : profile_title.val()
 
-    // Add profile title to the active toggle button
-    $(".btn-toggle1").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
+    if (!$(document).data("showAllCOPOAccessions")) {
+        // Truncate profile title if it is too long
+        let profile_title = $("#profile_title")
+        let truncated_profile_title = profile_title.val().length > 10 ?
+            jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
+            : profile_title.val()
+
+        // Add profile title to the active toggle button
+        $(".btn-toggle1").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
+    }
 
     refresh_accessions_tool_tips();
 
@@ -2462,92 +2386,8 @@ function place_accessions_task_buttons1(componentMeta, class_name) {
     do_table_buttons_events();
 }
 
-// function place_accessions_task_buttons2(componentMeta) {
-//     //place custom buttons on table
-//
-//     if (!componentMeta.recordActions.length) {
-//         return;
-//     }
-//
-//     const table = $('#' + componentMeta.tableID).DataTable();
-//
-//     const customButtons = $('<span/>', {
-//         style: "padding-left: 15px;",
-//         class: "copo-table-cbuttons"
-//     });
-//
-//     $(table.buttons().container()).append(customButtons);
-//
-//
-//     componentMeta.recordActions.forEach(function (item) {
-//         const actionBTN = $(".accessions-record-action-templates").find("." + item).clone();
-//
-//         // If record action CSS class does not contain "1btn_toggle", remove all other CSS classes
-//         if (item !== "btn-toggle") actionBTN.removeClass(item);
-//
-//         actionBTN.attr("data-table", componentMeta.tableID);
-//         customButtons.append(actionBTN);
-//     });
-// // "..."
-//     // Truncate profile title if it is too long
-//     let profile_title = $("#profile_title")
-//     let truncated_profile_title = profile_title.val().length > 10 ?
-//         jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
-//         : profile_title.val()
-//
-//     // Add profile title to the active toggle button
-//     $(".btn-toggle").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
-//
-//     refresh_accessions_tool_tips();
-//
-//     //table action buttons
-//     do_table_buttons_events();
-// }
-
 function render_accessions_table(data, cols, dataSet, componentMeta) {
-    // console.log("Data: ", data)
     const tableID = componentMeta.tableID;
-    //let dataSet = [Object.values(data)] //[data.flatMap(Object.values)]
-    const dataSetLst = []
-    //const cols_lst = []//Object.keys(data) //data.flatMap(Object.keys); //data.table_data.columns;// Build column names for the table
-    // console.log(typeof data)
-
-    // for (let i in data) {
-    //     console.log('i', i)
-    // }
-    // data.forEach(item => {
-    //     cols_lst.push(Object.keys(item))
-    //     dataSetLst.push(Object.values(item))
-    //     // if (o.name === 'John') {
-    //     //     console.log(o);
-    //     // }
-    // });
-
-    // $.each(data, function (index, item) {
-    //     console.log("Item: ", item)
-    //     cols_lst.push(Object.keys(item))
-    //     dataSetLst.push(Object.values(item))
-    // });
-
-    // let dataSet = [dataSetLst]
-    //
-    // console.log("Cols: ", cols_lst)
-    // console.log("Values: ", dataSet)
-    // const cols = []
-    // cols_lst.forEach(item => {
-    //     let title;
-    //     title = convertStringToTitleCase(item)
-    //     title.replace("_id", " ID")
-    //     title.replace("accession", " Accession")
-    //     cols.push({title: title, value: item});
-    // })
-
-    set_empty_accessions_component_message(dataSet.length); //display empty component message when there's no record
-
-    if (dataSet.length === 0) {
-        return false;
-    }
-
     //set data
     let table = null;
 
@@ -2585,38 +2425,12 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
             scrollX: true,
             scrollY: 350,
             buttons: [
-                // 'selectAll',
-                // {
-                //     text: 'Select filtered',
-                //     action: function (e, dt, node, config) {
-                //         var filteredRows = dt.rows({order: 'index', search: 'applied'});
-                //         if (filteredRows.count() > 0) {
-                //             dt.rows().deselect();
-                //             filteredRows.select();
-                //         }
-                //     }
-                // },
-                // 'selectNone',
                 {
                     extend: 'csv',
                     text: 'Export CSV',
                     title: null,
                     filename: "copo_" + String(tableID) + "_data"
                 },
-                // {
-                //     cssClass: "btn btn-xs btn-success active",
-                //     text: 'Other Projects\' Accessions',
-                //     action: function (e, dt, node, config) {
-                //         alert('Button activated');
-                //     }
-                // },
-                // {
-                //     cssClass: "btn btn-xs btn-default",
-                //     text: 'Stand-alone Projects\' Accessions',
-                //     action: function (e, dt, node, config) {
-                //         alert('Button activated');
-                //     }
-                // }
             ],
             language: {
                 "info": "Showing _START_ to _END_ of _TOTAL_ records",
@@ -2629,10 +2443,7 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
                         1: "%d record selected"
                     }
                 },
-                buttons: {
-                    // selectAll: "Select all",
-                    // selectNone: "Clear selection"
-                }
+                buttons: {}
             },
             order: [[1, 'asc']],
 
@@ -2666,19 +2477,11 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
                         return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
                     }
                 }
-                // {
-                //     "targets": "_all",
-                //     "createdCell": function (td, cellData, rowData, row, col) {
-                //         if (cellData === "") {
-                //             $(td).addClass("cell-no-content")
-                //         }
-                //     }
-                // }
             ],
 
             createdRow: function (row, data, index) {
                 //add class to row for ease of selection later
-                var recordId = index;
+                let recordId = index;
                 try {
                     recordId = data.record_id;
                 } catch (err) {
@@ -2690,9 +2493,6 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
             dom: 'Bfr<"row"><"row info-rw" i>tlp'
         });
 
-        // Hide the first column
-        // table.column(0).visible(false);
-
         table
             .buttons()
             .nodes()
@@ -2702,8 +2502,7 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
                     .addClass('tiny ui basic button');
             });
 
-        place_accessions_task_buttons1(componentMeta, "btn-toggle1"); //this will place custom buttons on the table for executing tasks on records
-        // place_accessions_task_buttons1(componentMeta, "btn-toggle2");
+        place_accessions_task_buttons(componentMeta);
     }
     let table_wrapper = $('#' + tableID + '_wrapper')
 
@@ -2720,15 +2519,12 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
     table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
 
     // Insert breakpoints after the toggle button
-    const actionBTN2 = $(".accessions-record-action-templates").find("." + "groupBtn2").clone();
-    table_wrapper.find(".dt-buttons").append($("<br><br>")).append(actionBTN2).append($("<br><br>"))
-    // $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons")).append(actionBTN2)
-
-    // If alll is toggled, show all records
-    // table_wrapper.find(".dt-buttons").clone().append(table_wrapper.find(".dt-buttons"))
-
-    //     .find("button").each(function () {
-    // })
+    if ($(document).data("showAllCOPOAccessions")) {
+        $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
+    } else {
+        const actionBTN2 = $(".accessions-record-action-templates").find("." + "groupBtn2").clone();
+        table_wrapper.find(".dt-buttons").append($("<br><br>")).append(actionBTN2).append($("<br><br>"))
+    }
 
     // Set height of table to fit the content in the table
     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
@@ -2805,15 +2601,73 @@ function render_accessions_table(data, cols, dataSet, componentMeta) {
 
 } //end of func
 
+// function load_all_COPO_accessions_records(componentMeta, copoVisualsURL) {
+//     let component_table_loder = $("#component_table_loader")
+//     const csrftoken = $.cookie('csrftoken');
+//
+//     //loader
+//     let tableLoader = null;
+//
+//     if (component_table_loder.length) {
+//         tableLoader = $('<div class="copo-i-loader"></div>');
+//         component_table_loder.append(tableLoader);
+//     }
+//
+//     $.ajax({
+//         url: copoVisualsURL,
+//         type: "POST",
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         },
+//         data: {
+//             "isSampleProfileTypeStandalone": false,
+//             "isUserProfileActive": false,
+//         },
+//         dataType: "json",
+//         success: function (data) {
+//             let cols = [];
+//             let dataSet = []
+//
+//             // Sort data by key
+//             $.each(data, function (index, item) {
+//                 // Remove "_id" from key-value pair from the original object
+//                 if (item.hasOwnProperty("_id")) delete data[index]["_id"];
+//
+//                 // Sort element dictionary by key
+//                 data[index] = Object.keys(data[index]).sort().reduce((a, c) => (a[c] = data[index][c], a), {})
+//                 dataSet.push(Object.values(item))
+//             });
+//
+//             // Get element keys
+//             // If there exists at least one element, the keys will remain the same so just get the
+//             // keys from the first element
+//             Object.keys(data[0]).forEach(item => {
+//                 cols.push({title: convertStringToTitleCase(item), value: item});
+//             })
+//
+//             render_accessions_table(data, cols, dataSet, componentMeta);
+//
+//             //remove loader
+//             if (tableLoader) tableLoader.remove();
+//         },
+//         error: function () {
+//             alert("Couldn't retrieve " + componentMeta.component + " data!");
+//         }
+//     });
+// }
 
 function load_accessions_records(componentMeta, copoVisualsURL) {
-    var csrftoken = $.cookie('csrftoken');
+    let component_table_loder = $("#component_table_loader")
+    const csrftoken = $.cookie('csrftoken');
+    let isSampleProfileTypeStandalone = $(document).data("showAllCOPOAccessions") ? false : $(document).data("isSampleProfileTypeStandalone")
+    let isUserProfileActive = $(document).data("showAllCOPOAccessions") ? false : $(document).data("isUserProfileActive")
 
     //loader
-    var tableLoader = null;
-    if ($("#component_table_loader").length) {
+    let tableLoader = null;
+
+    if (component_table_loder.length) {
         tableLoader = $('<div class="copo-i-loader"></div>');
-        $("#component_table_loader").append(tableLoader);
+        component_table_loder.append(tableLoader);
     }
 
     $.ajax({
@@ -2823,14 +2677,13 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
             'X-CSRFToken': csrftoken
         },
         data: {
-            // "sample_id": $('#profile_id').val(),
-            "isSampleProfileTypeStandalone": $(document).data("isSampleProfileTypeStandalone"),
-            "isUserProfileActive": $(document).data("isUserProfileActive")
-            // 'task': 'table_data',
-            // 'component': componentMeta.component
+            "isSampleProfileTypeStandalone": isSampleProfileTypeStandalone, //$(document).data("isSampleProfileTypeStandalone"),
+            "isUserProfileActive": isUserProfileActive //$(document).data("isUserProfileActive")
+
         },
         dataType: "json",
         success: function (data) {
+
             let cols = [];
             let dataSet = []
 
@@ -2844,17 +2697,45 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                 dataSet.push(Object.values(item))
             });
 
-            // Get element keys
-            // If there exists at least one element, the keys will remain the same so just get the
-            // keys from the first element
-            Object.keys(data[0]).forEach(item => {
-                cols.push({title: convertStringToTitleCase(item), value: item});
-            })
+            if ($(document).data("showAllCOPOAccessions")) {
+                console.log("showAllCOPOAccessions is true")
+                console.log("data", data)
+                console.log("dataSet", dataSet)
+                // load_accessions_records(componentMeta, copoVisualsURL)
+                // Get element keys
+                // If there exists at least one element, the keys will remain the same so just get the
+                // keys from the first element
+                Object.keys(data[0]).forEach(item => {
+                    cols.push({title: convertStringToTitleCase(item), value: item});
+                })
 
-            render_accessions_table(data, cols, dataSet, componentMeta);
+                render_accessions_table(data, cols, dataSet, componentMeta);
 
-            //remove loader
-            if (tableLoader) tableLoader.remove();
+                //remove loader
+                if (tableLoader) tableLoader.remove();
+
+            } else {
+                console.log("showAllCOPOAccessions is false")
+                set_empty_accessions_component_message(dataSet.length); //display empty component message when there's no record
+
+                if (dataSet.length === 0) {
+                    if (tableLoader) tableLoader.remove(); //remove loader
+                    $(".copo_accessions").show()
+                    return false;
+                } else {
+                    // Get element keys
+                    // If there exists at least one element, the keys will remain the same so just get the
+                    // keys from the first element
+                    Object.keys(data[0]).forEach(item => {
+                        cols.push({title: convertStringToTitleCase(item), value: item});
+                    })
+
+                    render_accessions_table(data, cols, dataSet, componentMeta);
+
+                    if (tableLoader) tableLoader.remove(); //remove loader
+                }
+            }
+
 
         },
         error: function () {
@@ -2922,19 +2803,19 @@ function toggle_accessions_view() {
             $(document).data("isUserProfileActive", false)
             load_accessions_records(componentMeta, copoVisualsURL)
 
-            // let all_accessions_options = $(".dt-buttons ").clone()
+            // let copo_accessions_options = $(".dt-buttons ").clone()
             //
             // // Remove breakpoints before the toggle button
-            // // all_accessions_options.previousSibling.remove()
-            // all_accessions_options.prev("br").remove();
-            // console.log("previousSibling: ", all_accessions_options.prev())
+            // // copo_accessions_options.previousSibling.remove()
+            // copo_accessions_options.prev("br").remove();
+            // console.log("previousSibling: ", copo_accessions_options.prev())
             //
-            // all_accessions_options.find('.buttons-csv').remove()
+            // copo_accessions_options.find('.buttons-csv').remove()
             //
-            // all_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
+            // copo_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
             //     .find('.active').text('Other Projects\' Accessions')
             //
-            // all_accessions_options.find('.btn-default').text('Stand-alone Projects\' Accessions')
+            // copo_accessions_options.find('.btn-default').text('Stand-alone Projects\' Accessions')
         } else {
             $(".page-title-custom").find("[title='Profile title']").show()
             $(document).data("isUserProfileActive", true)

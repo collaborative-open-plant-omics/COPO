@@ -381,7 +381,7 @@ function generate_component_control(component) {
 
         pageIcons.append(pcomponentHTML);
 
-        const components = get_profile_components();
+        const components = get_copo_profile_components();
 
         for (let i = 1; i < components.length; ++i) {
             const comp = components[i];

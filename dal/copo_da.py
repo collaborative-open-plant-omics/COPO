@@ -1029,20 +1029,12 @@ class Sample(DAComponent):
     #                                                {"profile_id": 1})
     #     return cursor_to_list(cursor)[0].get("profile_id", "")
 
-    def get_accessions(self, profile_id, isSampleProfileTypeStandalone=False, isUserProfileActive=True):
-        if isSampleProfileTypeStandalone:
-            current_profile_sample_accessions = self.get_collection_handle().find(
-                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
-                {"biosampleAccession": 1, "sraAccession": 1,
-                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
-                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "manifest_id": 1})
+    def get_accessions(self, profile_id, isSampleProfileTypeStandalone, isUserProfileActive):
+        print("isUserProfileActive:", isUserProfileActive)
+        print("isSampleProfileTypeStandalone:", isSampleProfileTypeStandalone)
+        print("Type of isSampleProfileTypeStandalone", type(isSampleProfileTypeStandalone))
 
-            all_profile_sample_accessions = self.get_collection_handle().find(
-                {"biosampleAccession": {"$exists": True, "$ne": ""}},
-                {"biosampleAccession": 1, "sraAccession": 1,
-                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
-                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "manifest_id": 1})
-        else:
+        if isSampleProfileTypeStandalone:
             current_profile_sample_accessions = self.get_collection_handle().find(
                 {"profile_id": profile_id, "accession": {"$exists": True, "$ne": ""}},
                 {"accession": 1, "alias": 1})
@@ -1051,9 +1043,30 @@ class Sample(DAComponent):
                 {"accession": {"$exists": True, "$ne": ""}},
                 {"accession": 1, "alias": 1})
 
-        cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
+            # cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
+            # print('Sample list 1: ', cursor_to_list_str(cursor))
+            # print("I am here 1")
+            cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
+        else:
+            current_profile_sample_accessions = self.get_collection_handle().find(
+                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"biosampleAccession": 1, "sraAccession": 1,
+                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
+                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
 
-        return cursor_to_list_str(cursor)
+            all_profile_sample_accessions = self.get_collection_handle().find(
+                {"biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"biosampleAccession": 1, "sraAccession": 1,
+                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
+                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
+
+            cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
+            # print('Sample list 1.2 (all): ', cursor_to_list_str(all_profile_sample_accessions))
+            print("I am here")
+
+        samples = list(cursor)
+
+        return samples  # cursor_to_list_str(cursor)
         # #  get schema
         # sc = self.get_component_schema()
         # out = list()

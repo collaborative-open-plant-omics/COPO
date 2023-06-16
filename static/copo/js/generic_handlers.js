@@ -2373,7 +2373,7 @@ function get_panel(panelType) {
     return $('<div/>').append(panel).clone();
 }
 
-`// Set COPO frontpage properties in this dictionary
+//Set COPO frontpage properties in this dictionary
 function get_component_meta(component) {
     var componentMeta = null;
     var components = get_profile_components();
@@ -2521,8 +2521,7 @@ function get_profile_components() {
     ];
 
     return componentProperties
-}`
-
+}
 
 //builds component-page navbar
 function do_page_controls(componentName) {

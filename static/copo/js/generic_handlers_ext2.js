@@ -247,6 +247,8 @@ function display_copo_alert(alertType, alertMessage, displayDuration) {
 
         // adjust the margin-top between sidebar (info) tab content and the profiles legend
         $('.profiles-legend').css('margin-top', '0');
+
+        $('.other-projects-accessions-filter-checkboxes').css('margin-top', '0');
     }
 
 }

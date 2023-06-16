@@ -148,7 +148,7 @@
 
                     <span class="input-group ajax-loading-div"><img
                             style="height: 24px; margin-left:5px;"
-                            src="{% static 'copo/img/loading.gif' %}"></span>
+                            src="{% static 'copo/img/loading.gif' %}" alt=""></span>
 
 
                 </div>
@@ -527,6 +527,13 @@
         <i class="icon clipboard list" style="font-size: 1.3em"></i>
     </button>
 
+    <!-- button for erga_users, erga_sample_managers, dtol_users or dtol_sample_managers to view
+         all sample accessions on COPO -->
+    <button style="display: none" title="View all COPO accessions"
+            class="big circular ui icon pink button copo_accessions copo-tooltip">
+        <i class="icon barcode" style="font-size: 1.3em"></i>
+    </button>
+
     <!-- record tasks button -->
     <button title="Record tasks" class="big circular ui icon button record-tasks-template copo-tooltip">
         <i class="icon tasks"></i>
@@ -555,7 +562,7 @@
         <div class="submission-progress progress" style="height:30px; margin-bottom: 5px; background-image: none;">
             <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0"
                  aria-valuemax="100"
-                 style="width: 0%; padding-top: 5px;"></div>
+                 style="width: 0; padding-top: 5px;"></div>
         </div>
         <div class="submission-progress-status">Submission pending</div>
     </div>
@@ -651,5 +658,49 @@
             <ul class="profiles-legend-group">
             </ul>
         </div>
+        <!-- Other projects' accessions filter checkboxes -->
+        <div class="accessions-legend">
+            <h4 class="accessions-legend-title">Filter Accessions Types</h4>
+            <div class="accessions-checkboxes"></div>
+        </div>
+
+        <div class="container mt-3 other-projects-accessions-filter-checkboxes">
+            <div class="row mb-3">
+                <div class="col">
+                    <section class="card">
+                        <div class="card-body">
+                            <div class="alert alert-primary text-center">Filter accessions based on project types</div>
+                            <form>
+                                {#                                <div class="row">#}
+                                {#                                    <div class="col-sm-6">#}
+                                <h4>Project Types</h4>
+                                <div class="checkBoxesDiv">
+                                </div>
+                                {#                                        <div class="form-check">#}
+                                {#                                            <input id="cb-category-one" class="cb-category form-check-input"#}
+                                {#                                                   type="checkbox" name="categories[]" value="category-one"/>#}
+                                {#                                            <label class="form-check-label" for="cb-category-one">ASG</label>#}
+                                {#                                        </div>#}
+                                {##}
+                                {#                                        <div class="form-check">#}
+                                {#                                            <input id="cb-category-two" class="cb-category form-check-input"#}
+                                {#                                                   type="checkbox" name="categories[]" value="category-two"/>#}
+                                {#                                            <label class="form-check-label" for="cb-category-two"> DTOL</label>#}
+                                {#                                        </div>#}
+                                {##}
+                                {#                                        <div class="form-check">#}
+                                {#                                            <input id="cb-category-three" class="cb-category form-check-input"#}
+                                {#                                                   type="checkbox" name="categories[]" value="category-three"/>#}
+                                {#                                            <label class="form-check-label" for="cb-category-three"> ERGA </label>#}
+                                {#                                        </div>#}
+                                {#                                    </div>#}
+                                {#                                </div>#}
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!-- Stand-alone projects' accessions filter checkboxes -->
     </div>
 </div>

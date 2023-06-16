@@ -13,6 +13,7 @@ urlpatterns = [
     # path('', views.index, name='index'),
     path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
+    path('accessions/', copo_accessions_views.copo_accessions_all   , name="copo_accessions_all"),
     path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
     path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),

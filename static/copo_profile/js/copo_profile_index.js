@@ -3,6 +3,7 @@ $(document).ready(function () {
     const component = "profile";
     const copoProfileIndexURL = "/copo/";
     const copoAcceptRejectURL = "/copo/accept_reject_sample"
+    const copoAccessionsDashboardURL = "/copo/accessions"
     const copoTolDashboardURL = "/copo/dashboard/"
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
@@ -43,6 +44,7 @@ $(document).ready(function () {
     if (profiles.length === 0) {
         $("#bottom-panel").hide();
         $(".profiles-legend").hide();
+        $(".other-projects-accessions-filter-checkboxes").hide();
         return false;
     }
 
@@ -104,6 +106,10 @@ $(document).ready(function () {
 
     $(document).on("click", "#copo_dashboard_shortcut", function (evt) {
         document.location = copoTolDashboardURL
+    })
+
+    $(document).on("click", "#copo_accessions_dashboard_shortcut", function (evt) {
+        document.location = copoAccessionsDashboardURL
     })
 
     $(document).on("click", ".expanding_menu > div", function (e) {
