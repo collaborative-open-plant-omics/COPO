@@ -137,5 +137,5 @@ class ViewLock(models.Model):
         time_threshold = timezone.now() - VIEWLOCK_TIMEOUT
         locks = ViewLock.objects.filter(timeLocked__lte=time_threshold)
         for l in locks:
-            l.delet()
+            l.delete()
         print(locks)
