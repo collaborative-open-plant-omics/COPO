@@ -517,7 +517,7 @@ def generate_files_record(user_id=str()):
         if files:
             for file in files:
                 row_data = dict()
-                row_data["record_id"] = file["Key"].replace("/", "_")
+                row_data["record_id"] = file["Key"]
                 row_data["file_name"] = file["Key"].replace("/", "_")
                 row_data["DT_RowId"] = "row_" + file["Key"].replace("/", "_")
                 row_data["size"] = file["Size"]

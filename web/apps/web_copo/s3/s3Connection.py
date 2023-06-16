@@ -4,20 +4,21 @@ from botocore.config import Config
 from django.conf import settings as s
 from botocore.exceptions import EndpointConnectionError
 from smart_open import open as s_open
-from django_tools.middlewares.ThreadLocal import get_current_request
+from django_tools.middlewares.ThreadLocal import get_current_request, get_current_user
 import time
 from os import path
 from submission.helpers.generic_helper import notify_read_status
 from exceptions_and_logging.logger import Logger
 from boto3.s3.transfer import TransferConfig
 import logging
+from django.contrib.auth.models import User
 
 class S3Connection():
     """
     Class to handle interations with ECS cloud storage via s3 service
     """
 
-    def __init__(self):
+    def __init__(self, profile_id=str()):
         self.ecs_endpoint =  s.ECS_ENDPOINT
         self.ecs_access_key_id = s.ECS_ACCESS_KEY_ID
         self.ecs_secret_key = s.ECS_SECRET_KEY
@@ -174,3 +175,13 @@ class S3Connection():
             notify_read_status(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
                             html_id="sample_info")
             raise e
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
+        user = get_current_user()
+        bucket_name = str(user.id) + "_" + user.username
+        for key in target_ids:
+            self.s3_client.delete_object(Bucket=bucket_name, Key=key)
+        return dict(status='success', message="File/s have been deleted!")
+    
+
+

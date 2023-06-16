@@ -302,7 +302,7 @@ function get_copo_profile_components() {
             color: "blue",
             tableID: 'files_table',
             profile_component: "stand-alone",
-            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single" 
+            recordActions: ["add_record_all", "delete_record_multi"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single" 
             visibleColumns: 5
         }   
         
