@@ -1030,23 +1030,31 @@ class Sample(DAComponent):
     #     return cursor_to_list(cursor)[0].get("profile_id", "")
 
     def get_accessions(self, profile_id, isSampleProfileTypeStandalone, isUserProfileActive):
-        print("isUserProfileActive:", isUserProfileActive)
-        print("isSampleProfileTypeStandalone:", isSampleProfileTypeStandalone)
-        print("Type of isSampleProfileTypeStandalone", type(isSampleProfileTypeStandalone))
-
         if isSampleProfileTypeStandalone:
-            current_profile_sample_accessions = self.get_collection_handle().find(
-                {"profile_id": profile_id, "accession": {"$exists": True, "$ne": ""}},
-                {"accession": 1, "alias": 1})
+            current_profile_sample_accessions = Submission().get_collection_handle().find(
+                {"profile_id": profile_id, "repository": "ena", "accessions": {"$exists": True, "$ne": {}}},
+                {"accessions": 1, "profile_id": 1})
 
-            all_profile_sample_accessions = self.get_collection_handle().find(
-                {"accession": {"$exists": True, "$ne": ""}},
-                {"accession": 1, "alias": 1})
+            all_profile_sample_accessions = Submission().get_collection_handle().find(
+                {"repository": "ena", "accessions": {"$exists": True, "$ne": {}}}, {"accessions": 1, "profile_id": 1})
 
-            # cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
-            # print('Sample list 1: ', cursor_to_list_str(cursor))
-            # print("I am here 1")
             cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
+            # print("Standalone accessions list (before)", list(cursor))
+            desired_accessions_types_order = ["project", "sample", "assembly", "seq_annotation", "experiment", "run"]
+
+            out = []
+            for i in list(cursor):
+                profile_title = Profile().get_name(i.get("profile_id", ""))  # Get profile title
+                i.update({'profile_title': profile_title})  # update list of dictionaries with profile title
+
+                # Reorder the list of accessions types
+                reordered_accessions_dict = {k: i.get("accessions", "").get(k, "") for k in
+                                             desired_accessions_types_order if i.get("accessions", "").get(k, "")}
+                i.update({'accessions': reordered_accessions_dict})
+                out.append(i)
+            print("Standalone accessions list (after)", out)
+            print("Python: I am here 1")
+            return out
         else:
             current_profile_sample_accessions = self.get_collection_handle().find(
                 {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
@@ -1061,36 +1069,11 @@ class Sample(DAComponent):
                  "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
 
             cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
-            # print('Sample list 1.2 (all): ', cursor_to_list_str(all_profile_sample_accessions))
-            print("I am here")
 
-        samples = list(cursor)
+            print("Python: I am here 2")
+            accessions = list(cursor)
 
-        return samples  # cursor_to_list_str(cursor)
-        # #  get schema
-        # sc = self.get_component_schema()
-        # out = list()
-        # taxon = dict()
-        # for i in list(cursor):
-        #     if "species_list" in i:
-        #         sp_lst = i["species_list"]
-        #         for sp in sp_lst:
-        #             # only extract target info...don't extract symnbiont info
-        #             if sp["SYMBIONT"] == "TARGET":
-        #                 for k, v in sp.items():
-        #                     i[k] = v
-        #             else:
-        #                 pass
-        #     sam = dict()
-        #     for cell in i:
-        #         for field in sc:
-        #
-        #             if cell == field.get("id", "").split(".")[-1] or cell == "_id":
-        #                 if set(TOL_PROFILE_TYPES).intersection(set(field.get("specifications", ""))):
-        #                     if field.get("show_in_table", ""):
-        #                         sam[cell] = i[cell]
-        #     out.append(sam)
-        # return out
+            return accessions
 
     def get_dtol_type(self, id):
         return self.get_collection_handle().find_one(

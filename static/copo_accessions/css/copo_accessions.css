@@ -13,7 +13,7 @@ hr {
 .autocomplete {
     z-index: 10;
     margin-left: -170px;
-    margin-top: 0px
+    margin-top: 0
 }
 
 /*CSS for tables*/
@@ -22,6 +22,7 @@ th {
     top: 0;
     z-index: 2;
 }
+
 
 .cell_highlight_in_column {
     background-color: #e0e1e2 !important;

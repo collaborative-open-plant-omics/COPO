@@ -116,7 +116,7 @@ def copo_accessions_visualise(request):
 
     samples = Sample().get_accessions(profile_id, isSampleProfileTypeStandalone, isUserProfileActive)
     samples = [dict(sorted(i.items())) for i in samples]  # Sort the list of samples by key
-    print('Sample list: ', samples)
+
     return HttpResponse(json_util.dumps(samples))
 
 
@@ -140,50 +140,6 @@ def goto_unauthorised_page(request, message="Apologies, you do not have permissi
     finally:
         context = {'message': message}
         return render(request, 'copo/unauthorised_page.html', context)
-
-
-# context = dict()
-#
-# task = request.POST.get("task", str())
-# context["quick_tour_flag"] = request.session.get("quick_tour_flag", True)
-# request.session["quick_tour_flag"] = context["quick_tour_flag"]  # for displaying tour message across site
-#
-# broker_visuals = BrokerVisuals(context=context,
-#                                profile_id=profile_id,
-#                                request=request,
-#                                user_id=request.user.id,
-#                                component=request.POST.get("component", str()),
-#                                target_id=request.POST.get("target_id", str()),
-#                                quick_tour_flag=request.POST.get("quick_tour_flag", False),
-#                                datafile_ids=json.loads(request.POST.get("datafile_ids", "[]"))
-#                                )
-#
-# task_dict = dict(table_data=broker_visuals.do_table_data,
-#                  server_side_table_data=broker_visuals.do_server_side_table_data,
-#                  profiles_counts=broker_visuals.do_profiles_counts,
-#                  wizard_messages=broker_visuals.do_wizard_messages,
-#                  metadata_ratings=broker_visuals.do_metadata_ratings,
-#                  description_summary=broker_visuals.do_description_summary,
-#                  un_describe=broker_visuals.do_un_describe,
-#                  attributes_display=broker_visuals.do_attributes_display,
-#                  help_messages=broker_visuals.get_component_help_messages,
-#                  update_quick_tour_flag=broker_visuals.do_update_quick_tour_flag,
-#                  get_component_info=broker_visuals.do_get_component_info,
-#                  get_profile_info=broker_visuals.do_get_profile_info,
-#                  get_submission_accessions=broker_visuals.do_get_submission_accessions,
-#                  get_submission_datafiles=broker_visuals.do_get_submission_datafiles,
-#                  get_destination_repo=broker_visuals.do_get_destination_repo,
-#                  get_repo_stats=broker_visuals.do_get_repo_stats,
-#                  managed_repositories=broker_visuals.do_managed_repositories,
-#                  get_submission_meta_repo=broker_visuals.do_get_submission_meta_repo,
-#                  view_submission_remote=broker_visuals.do_view_submission_remote,
-#                  )
-#
-# if task in task_dict:
-#     context = task_dict[task]()
-#
-# out = jsonpickle.encode(context, unpicklable=False)
-# return HttpResponse(out, content_type='application/json')
 
 
 def convertStringToBoolean(string):

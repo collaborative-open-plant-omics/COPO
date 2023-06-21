@@ -41,77 +41,78 @@ $(document).ready(function () {
     //load records
     load_accessions_records(componentMeta, copoVisualsURL);
 
-    //instantiate/refresh tooltips
+    //instantin ate/refresh tooltips
     refresh_accessions_tool_tips();
 
 
-    const categoryIds = [
-        "#category-one",
-        "#category-two",
-        "#category-three",
-        "#category-four",
-        "#category-five",
-        "#category-mix",
-        "#topics-mix",
-        "#mixed",
-    ];
+    // $(".filter-accessions").change(function () {
+    //     console.log("Hi")
+    //     console.log('accessions_filterTypes:', $(document).data('accessions_filterTypes'))
+    //     render();
+    // });
+    /** Reset accessions_table display to default view*/
 
-    /** Resets display to default view*/
-    const resetDisplay = function () {
-        $(categoryIds.join(", ")).show();
-        $(".cb-topic").attr("disabled", "disabled");
-        $(".results > li").show();
-    };
-
-    const getValues = function ($el) {
-        const items = [];
-        $el.each(function () {
-            items.push($(this).val());
-        });
-
-        return items;
-    };
-
-    const render = function () {
-        // Get values from checked categories and topics
-        const selectedCategories = getValues($(".cb-category:checked")); // ["category-one"]
-        const selectedTopics = getValues($(".cb-topic:checked")); // ["topic-one"]
-
-        if (selectedCategories.length > 0) {
-            $(".results li").hide();
-            $(".cb-topic").removeAttr("disabled"); // enable topic checkboxes
-
-            // Merge all the values from categories and topics
-            // e.g. ["category-one", "topic-one"]
-            const resources = $.merge(selectedCategories, selectedTopics);
-
-            // Convert merged array to string by "."
-            // e.g. .category-one.topic-one
-            const selectorFragment = resources.join(".");
-
-            categoryIds.forEach(function (categoryId) {
-                const selector = categoryId + " .results > li." + selectorFragment;
-                if ($(selector).length !== 0) {
-                    $(".results > li." + selectorFragment).show();
-                    $(categoryId).show();
-                } else {
-                    $(categoryId).hide();
-                }
-            });
-        } else {
-            resetDisplay();
-        }
-    };
-
-    $(".cb-category, .cb-topic").on("change", function () {
-        render();
-    });
+    $(document).on("change", ".filter-accessions", render)
 
 }); //end document ready
 
 
 //_________________________________________________
 // Handlers
+// Filter accessions table by accession type
+const resetDisplay = function () {
+    const uncheckedAccessions = getValues($(".filter-accessions:not(:checked)"))
+
+    uncheckedAccessions.forEach(function (type) {
+        let rows = $('.accessions_row').filter(function () {
+            return $(this).attr('accession_type') === type;
+        });
+
+        // Show each row based on the accession type unchecked
+        $(rows).each(function () {
+            $(this).show()
+        });
+
+    });
+}
+
+const getValues = function ($el) {
+    const items = [];
+    $el.each(function () {
+        items.push($(this).val());
+    });
+
+    return items;
+};
+
+const render = function () {
+    const selectedAccessions = getValues($(".filter-accessions:checked"));
+    console.log("I am here 2")
+    console.log("selectedAccessions:", selectedAccessions)
+    if ($(".filter-accessions:not(:checked)").length === $('.filter-accessions').length) {
+        // If length of all unchecked accession types is equal to the number of accession checkboxes
+        // in the filter accession type div, show all table rows
+        $(".accessions_row").show();
+    } else if (selectedAccessions.length > 0) {
+        $(".accessions_row").hide();
+
+        selectedAccessions.forEach(function (type) {
+            let rows = $('.accessions_row').filter(function () {
+                return $(this).attr('accession_type') === type;
+            });
+
+            // Show each row based on the accession type that is checked
+            $(rows).each(function () {
+                $(this).show()
+            });
+
+        });
+    } else {
+        resetDisplay();
+    }
+};
+
+// Accessions component
 // Set COPO frontpage properties in this dictionary
 function get_component_meta(component) {
     let componentMeta = null;
@@ -274,17 +275,351 @@ function place_accessions_task_buttons(componentMeta) {
     refresh_accessions_tool_tips();
 }
 
-function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, componentMeta) {
-    const tableID = componentMeta.tableID;
+// Populate Accessions table
+// function render_standalone_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
+//     const tableID = `#${componentMeta.tableID}`;
+//     //set data
+//     let table = null;
+//
+//     console.log('Cols:', cols)
+//     console.log('dataSet:', dataSet)
+//
+//     if ($.fn.dataTable.isDataTable(tableID)) {
+//         //if table instance already exists, then do refresh
+//         table = $(tableID).DataTable().clear().destroy()
+//     }
+//
+//     if (table) {
+//         // table.clear()
+//
+//         //clear old, set new data
+//         // table.rows().deselect();
+//         // table
+//         //     .clear()
+//         //     .draw();
+//         // table
+//         //     .rows
+//         //     .add(dataSet);
+//         // table
+//         //     .columns
+//         //     .add(cols)
+//         // table
+//         //     .search('')
+//         //     .columns()
+//         //     .search('')
+//         //     .draw();
+//         table = $(tableID).DataTable({
+//             data: dataSet,
+//             select: false,
+//             searchHighlight: true,
+//             ordering: true,
+//             lengthChange: true,
+//             scrollX: true,
+//             scrollY: 350,
+//             bDestroy: true,
+//             buttons: [
+//                 {
+//                     extend: 'csv',
+//                     text: 'Export CSV',
+//                     title: null,
+//                     filename: "copo_" + String(componentMeta.tableID) + "_data"
+//                 },
+//             ],
+//             language: {
+//                 "info": "Showing _START_ to _END_ of _TOTAL_ records",
+//                 "search": " ",
+//                 "lengthMenu": "show _MENU_ records",
+//                 select: {
+//                     rows: {
+//                         _: "%d records selected",
+//                         0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
+//                         1: "%d record selected"
+//                     }
+//                 },
+//                 buttons: {}
+//             },
+//             order: [[0, 'asc']],
+//
+//             fnDrawCallback: function () {
+//                 refresh_accessions_tool_tips();
+//                 const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
+//                 $('body').trigger(event);
+//             },
+//             columns: cols,
+//
+//             "columnDefs": [
+//                 {
+//                     "targets": "_all", // all fields
+//                     "createdCell": function (td, cellData, rowData, row, col) {
+//                         if (cellData === "") {
+//                             $(td).addClass("cell-no-content")
+//                         }
+//                     }
+//                 },
+//                 // {
+//                 //     'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
+//                 //     'render': function (data, type, full, meta) {
+//                 //         let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
+//                 //         return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
+//                 //     }
+//                 // },
+//                 // {
+//                 //     'targets': [4], // 'manifest_id' column
+//                 //     'render': function (data, type, full, meta) {
+//                 //         let get_samples_by_manifestID_url = `/api/manifest/${data}`
+//                 //         return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
+//                 //     }
+//                 // }
+//             ],
+//
+//             createdRow: function (row, data, rowIndex) {
+//                 //add class to row for ease of selection later
+//                 // let recordId = index;
+//                 // Iterate over the sample record IDs and add them to the row as a class
+//                 $.each(recordIDs, function (recordIndex, recordID) {
+//                     try {
+//                         if (rowIndex === recordIndex) {
+//                             $(row).attr("id", recordID)
+//                             $(row).addClass("accessions_row");
+//                             $(row).addClass(componentMeta.tableID + recordID);
+//                         }
+//                     } catch (err) {
+//                         console.log(`Error: ${err}`)
+//                     }
+//                 });
+//                 // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
+//                 let filterAccessionsTypes = []
+//                 $.each(accession_types, function (sampleIndex, sample_type) {
+//                     try {
+//                         if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
+//                     } catch (err) {
+//                         console.log(`Error: ${err}`)
+//                     }
+//                 });
+//             },
+//
+//             dom: 'Bfr<"row"><"row info-rw" i>tlp'
+//         });
+//
+//         table
+//             .buttons()
+//             .nodes()
+//             .each(function (value) {
+//                 $(this)
+//                     .removeClass("btn btn-default")
+//                     .addClass('tiny ui basic button');
+//             });
+//
+//         // place_accessions_task_buttons(componentMeta);
+//     } else {
+//         // table = $(tableID).DataTable({
+//         //     data: dataSet,
+//         //     select: false,
+//         //     searchHighlight: true,
+//         //     ordering: true,
+//         //     lengthChange: true,
+//         //     scrollX: true,
+//         //     scrollY: 350,
+//         //     buttons: [
+//         //         {
+//         //             extend: 'csv',
+//         //             text: 'Export CSV',
+//         //             title: null,
+//         //             filename: "copo_" + String(componentMeta.tableID) + "_data"
+//         //         },
+//         //     ],
+//         //     language: {
+//         //         "info": "Showing _START_ to _END_ of _TOTAL_ records",
+//         //         "search": " ",
+//         //         "lengthMenu": "show _MENU_ records",
+//         //         select: {
+//         //             rows: {
+//         //                 _: "%d records selected",
+//         //                 0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
+//         //                 1: "%d record selected"
+//         //             }
+//         //         },
+//         //         buttons: {}
+//         //     },
+//         //     order: [[0, 'asc']],
+//         //
+//         //     fnDrawCallback: function () {
+//         //         refresh_accessions_tool_tips();
+//         //         const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
+//         //         $('body').trigger(event);
+//         //     },
+//         //     columns: cols,
+//         //
+//         //     "columnDefs": [
+//         //         {
+//         //             "targets": "_all", // all fields
+//         //             "createdCell": function (td, cellData, rowData, row, col) {
+//         //                 if (cellData === "") {
+//         //                     $(td).addClass("cell-no-content")
+//         //                 }
+//         //             }
+//         //         },
+//         //         {
+//         //             'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
+//         //             'render': function (data, type, full, meta) {
+//         //                 let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
+//         //                 return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
+//         //             }
+//         //         },
+//         //         {
+//         //             'targets': [4], // 'manifest_id' column
+//         //             'render': function (data, type, full, meta) {
+//         //                 let get_samples_by_manifestID_url = `/api/manifest/${data}`
+//         //                 return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
+//         //             }
+//         //         }
+//         //     ],
+//         //
+//         //     createdRow: function (row, data, rowIndex) {
+//         //         //add class to row for ease of selection later
+//         //         // let recordId = index;
+//         //         // Iterate over the sample record IDs and add them to the row as a class
+//         //         $.each(recordIDs, function (recordIndex, recordID) {
+//         //             try {
+//         //                 if (rowIndex === recordIndex) {
+//         //                     $(row).attr("id", recordID)
+//         //                     $(row).addClass("accessions_row");
+//         //                     $(row).addClass(componentMeta.tableID + recordID);
+//         //                 }
+//         //             } catch (err) {
+//         //                 console.log(`Error: ${err}`)
+//         //             }
+//         //         });
+//         //         // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
+//         //         let filterAccessionsTypes = []
+//         //         $.each(accession_types, function (sampleIndex, sample_type) {
+//         //             try {
+//         //                 if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
+//         //             } catch (err) {
+//         //                 console.log(`Error: ${err}`)
+//         //             }
+//         //         });
+//         //     },
+//         //
+//         //     dom: 'Bfr<"row"><"row info-rw" i>tlp'
+//         // });
+//         //
+//         // table
+//         //     .buttons()
+//         //     .nodes()
+//         //     .each(function (value) {
+//         //         $(this)
+//         //             .removeClass("btn btn-default")
+//         //             .addClass('tiny ui basic button');
+//         //     });
+//         //
+//         // place_accessions_task_buttons(componentMeta);
+//     }
+//     let table_wrapper = $(tableID + '_wrapper')
+//
+//     table_wrapper
+//         .find(".dataTables_filter")
+//         .find("label").css({"padding": "20px 0 20px 0", "margin-top": "10px"})
+//         .find("input")
+//         .removeClass("input-sm")
+//         .attr("placeholder", "Search " + componentMeta.title)
+//         .attr("size", 30);
+//
+//     // Add css to align the buttons to the right
+//     table_wrapper.find(".dt-buttons").addClass("pull-right")
+//     table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
+//
+//     // Insert breakpoints after the toggle button
+//     if (table_wrapper.find("br").length === 0) {
+//         $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
+//     }
+//
+//     // Set height of table to fit the content in the table
+//     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
+//
+//     // Add padding between table and show records filter
+//     table_wrapper.find(".dataTables_length").css("padding-top", "20px")
+// } //end of func
+
+function render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
+    const tableID = `#${componentMeta.tableID}`;
     //set data
     let table = null;
 
-    if ($.fn.dataTable.isDataTable('#' + tableID)) {
+    if ($.fn.dataTable.isDataTable(tableID)) {
         //if table instance already exists, then do refresh
-        table = $('#' + tableID).DataTable();
+        table = $(tableID).DataTable()
     }
+    // if ($(document).data("isSampleProfileTypeStandalone")) {
+    let columnDefinition = $(document).data("isSampleProfileTypeStandalone")
+        ? [
+            {
+                "targets": "_all", // all fields
+                "createdCell": function (td, cellData, rowData, row, col) {
+                    if (cellData === "") {
+                        $(td).addClass("cell-no-content")
+                    }
+                },
+            },
+            {
+                "targets": "_all", // all fields
+                "defaultContent": "",
+            },
+        ]
+        : [
+            {
+                "targets": "_all", // all fields
+                "defaultContent": "",
+            },
+            {
+                "targets": "_all", // all fields
+                "createdCell": function (td, cellData, rowData, row, col) {
+                    if (cellData === "") {
+                        $(td).addClass("cell-no-content")
+                    }
+                }
+            },
+            {
+                'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
+                'render': function (data, type, full, meta) {
+                    let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
+                    return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
+                }
+            },
+            {
+                'targets': [4], // 'manifest_id' column
+                'render': function (data, type, full, meta) {
+                    let get_samples_by_manifestID_url = `/api/manifest/${data}`
+                    return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
+                }
+            }
+        ]
 
     if (table) {
+        console.log("JS: I am here 1")
+        console.log("cols 2", cols)
+        console.log("dataSet 2", dataSet)
+        console.log("recordIDs 2", recordIDs)
+
+        // Get the column API object
+        let column3 = table.column(3)
+        let column4 = table.column(4)
+        let column5 = table.column(5)
+        let column6 = table.column(6)
+
+        // Toggle visibility of the columns
+        column3.visible(!column3.visible());
+        column4.visible(!column4.visible());
+        column5.visible(!column5.visible());
+        column6.visible(!column6.visible());
+
+
+        // Set column names
+        $.each(cols, function (index, item) {
+            $(table.column(index).header()).text(item.title);
+            $(table.column(index).header()).val(item.value);
+        });
+
         //clear old, set new data
         table.rows().deselect();
         table
@@ -302,21 +637,59 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
             .columns()
             .search('')
             .draw();
+        //
+
+        let dt_options;
+        if ($(document).data("isSampleProfileTypeStandalone")) {
+            console.log('Table rows', table.rows())
+            console.log('Table rows type', typeof table.rows())
+            table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                var data = this.data();
+                let row = table.row(this.closest("tr")[rowIdx])
+                console.log('row data', data)
+                console.log('tableLoop', tableLoop)
+                console.log('rowLoop', rowLoop)
+                $(row).attr("id", 'hiID')
+                // ... do something with data(), or this.node(), etc
+            });
+            // dt_options = {
+            //     order: [[2, 'asc']],
+            //     createdRow: function (row, data, rowIndex) {
+            //         //add class to row for ease of selection later
+            //         // let recordId = index;
+            //         // Iterate over the sample record IDs and add them to the row as a class
+            //
+            //         console.log("recordIDs 4", recordIDs)
+            //         recordIDs.map(function (item) {
+            //             console.log("recordID", item.recordID)
+            //             console.log("profile_id", item.profile_id)
+            //         });
+            //     }
+            // }
+            //
+            // $(tableID).DataTable(dt_options);
+        } else {
+
+        }
+        table.draw();
+
     } else {
-        table = $('#' + tableID).DataTable({
+        table = $(tableID).DataTable({
             data: dataSet,
             select: false,
             searchHighlight: true,
             ordering: true,
             lengthChange: true,
             scrollX: true,
+            responsive: true,
             scrollY: 350,
+            bDestroy: true,
             buttons: [
                 {
                     extend: 'csv',
                     text: 'Export CSV',
                     title: null,
-                    filename: "copo_" + String(tableID) + "_data"
+                    filename: "copo_" + String(componentMeta.tableID) + "_data"
                 },
             ],
             language: {
@@ -332,54 +705,22 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
                 },
                 buttons: {}
             },
-            order: [[1, 'asc']],
-
+            order: [[0, 'asc']],
             fnDrawCallback: function () {
                 refresh_accessions_tool_tips();
                 const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
                 $('body').trigger(event);
             },
             columns: cols,
-
-            "columnDefs": [
-                {
-                    "targets": "_all", // all fields
-                    "createdCell": function (td, cellData, rowData, row, col) {
-                        if (cellData === "") {
-                            $(td).addClass("cell-no-content")
-                        }
-                    }
-                },
-                {
-                    'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
-                    'render': function (data, type, full, meta) {
-                        let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
-                        return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
-                    }
-                },
-                {
-                    'targets': [4], // 'manifest_id' column
-                    'render': function (data, type, full, meta) {
-                        let get_samples_by_manifestID_url = `/api/manifest/${data}`
-                        return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
-                    }
-                }
-            ],
-
+            "columnDefs": columnDefinition,
             createdRow: function (row, data, rowIndex) {
-                //add class to row for ease of selection later
-                // let recordId = index;
-                console.log("data: ", data)
-                console.log("sample_IDs", sample_IDs)
-                console.log("sample_types", sample_types)
-
-                // Iterate over the sample record IDs and add them to the row as a class
-                $.each(sample_IDs, function (recordIndex, recordID) {
+                // Iterate over the record IDs and add them to the row as a class
+                $.each(recordIDs, function (recordIndex, recordID) {
                     try {
                         if (rowIndex === recordIndex) {
                             $(row).attr("id", recordID)
                             $(row).addClass("accessions_row");
-                            $(row).addClass(tableID + recordID);
+                            $(row).addClass(componentMeta.tableID + recordID);
                         }
                     } catch (err) {
                         console.log(`Error: ${err}`)
@@ -387,15 +728,15 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
                 });
                 // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
                 let filterAccessionsTypes = []
-                $.each(sample_types, function (sampleIndex, sample_type) {
+                $.each(accession_types, function (sampleIndex, sample_type) {
                     try {
-                        if (rowIndex === sampleIndex) $(row).attr("accessions_type", sample_type)
+                        if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
                     } catch (err) {
                         console.log(`Error: ${err}`)
                     }
                 });
-            },
 
+            },
             dom: 'Bfr<"row"><"row info-rw" i>tlp'
         });
 
@@ -410,7 +751,8 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
 
         place_accessions_task_buttons(componentMeta);
     }
-    let table_wrapper = $('#' + tableID + '_wrapper')
+
+    let table_wrapper = $(tableID + '_wrapper')
 
     table_wrapper
         .find(".dataTables_filter")
@@ -425,7 +767,9 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
     table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
 
     // Insert breakpoints after the toggle button
-    $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
+    if (table_wrapper.find("br").length === 0) {
+        $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
+    }
 
     // Set height of table to fit the content in the table
     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
@@ -433,6 +777,38 @@ function render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, 
     // Add padding between table and show records filter
     table_wrapper.find(".dataTables_length").css("padding-top", "20px")
 } //end of func
+
+function set_filter_checkboxes(accession_types) {
+    let accessions_checkboxes = $('.accessions-checkboxes')
+    let accession_types_unique = [...new Set(accession_types)]; // Remove duplicates from sample types array
+
+    // Clear accessions checkboxes div if data exists within it
+    if (accessions_checkboxes.length) accessions_checkboxes.empty()
+
+    $.each(accession_types_unique, function (index, type) {
+        let label = $(document).data("isSampleProfileTypeStandalone")
+            ? convertStringToTitleCase(pluraliseString(type))
+            : type
+
+        let $filterCheckBoxItem = '<div class="form-check">'
+        $filterCheckBoxItem += '<input id="' + type + '" ' +
+            'class="filter-accessions form-check-input" ' +
+            'type="checkbox" name="accessionsTypes[]" value="' + type + '"/>'
+        $filterCheckBoxItem += '<label class="form-check-label" style="padding-left: 5px" for="' + type + '">'
+        $filterCheckBoxItem += label
+        $filterCheckBoxItem += '</label>'
+        $filterCheckBoxItem += '</div>'
+        $filterCheckBoxItem += '<br/>'
+
+        // Check "Projects" checkbox by default in Stand-alone project accession filter checkboxes
+        if ($(document).data("isSampleProfileTypeStandalone") && type === "project" && index === 0) {
+            $filterCheckBoxItem = $filterCheckBoxItem.replace('type="checkbox"', 'type="checkbox" checked')
+        }
+
+        // Populate the accessions checkboxes div with the accession types checkboxes
+        $(".accessions-legend").find('.accessions-checkboxes').append($filterCheckBoxItem)
+    });
+}
 
 function load_accessions_records(componentMeta, copoVisualsURL) {
     const component_table_loder = $("#component_table_loader")
@@ -459,80 +835,153 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
         },
         dataType: "json",
         success: function (data) {
-            console.log("data: ", data)
-            console.log("data length: ", data.length)
-            if ($(document).data("isSampleProfileTypeStandalone")) {
-                // Get Stand-alone projects data
-
+            let accessions_checkboxes = $('.accessions-checkboxes')
+            if (data.length === 0) {
+                if (accessions_checkboxes.length) accessions_checkboxes.empty()
+                if (tableLoader) tableLoader.remove(); //remove loader
+                return false;
             } else {
-                // Get other projects' data
+                if ($(document).data("isSampleProfileTypeStandalone")) {
+                    // Get Stand-alone projects data
+                    let column_names = ["Accession", "Alias", "Profile Title"]
+                    let cols = [];
+                    let accession_types = []
+                    let recordIDs = []
+                    let profileIDs = []
+
+                    $.each(data, function (index, item) {
+                        let obj = {}
+
+                        // Remove record ID & accession type from key-value pair from the original object
+                        // and keep a record of it
+                        if (item.hasOwnProperty("_id")) {
+                            // recordIDs.push(data[index]._id.$oid)
+                            obj.recordID = data[index]._id.$oid
+                            delete data[index]._id;
+                        }
+                        if (item.hasOwnProperty("profile_id")) {
+                            // profileIDs.push(data[index].profile_id)
+                            obj.profileID = data[index].profile_id
+                            delete data[index].profile_id;
+                        }
+
+                        recordIDs.push(obj) // Add record ID & profile ID to the object
+
+                        if (item.hasOwnProperty("accessions")) {
+                            // Get accession types
+                            Object.keys(data[index].accessions).forEach(item => {
+                                accession_types.push(item)
+                            })
+                            // Get accessions types values
+                            let data_array = {}
+                            accession_types.map(function (type) {
+
+                                let values_array = []
+
+                                data[index].accessions[type].map(function (i) {
+                                    if (i.hasOwnProperty("accession")) {
+                                        values_array.push(i.accession)
+                                    }
+                                    if (i.hasOwnProperty("alias")) {
+                                        values_array.push(i.alias)
+                                    }
+
+                                    if (i.hasOwnProperty("sample_accession")) {
+                                        values_array.push(i.sample_accession)
+                                    }
+                                    if (i.hasOwnProperty("sample_alias")) {
+                                        values_array.push(i.sample_alias)
+                                    }
+                                    // console.log("i", i)
+                                    // dataSet.push(Object.values(item))
+                                });
+
+                                // Append profile title to the end of the array
+                                values_array.push(data[index].profile_title)
+                                // let key_name = `${type}`
+                                // let dataSet_array = {key_name: dataSet}
+                                data_array[type] = values_array
+
+                            });
 
 
-                if (data.length === 0) {
+                            console.log('Accessions:', data[index].accessions)
+                            console.log("data_array", data_array)
+                            $(document).data("standaloneAccessionsData", data_array)
+
+                            delete data[index].accessions;
+                        }
+
+
+                    });
+
+                    // console.log("profile IDs length", profileIDs)
+
+                    // Add filter checkbox to under info panel to right side of screen
+                    set_filter_checkboxes(accession_types)
+
+                    // Get element keys
+                    column_names.forEach(item => {
+
+                        cols.push({title: item, value: item.toLowerCase().replace(/ /g, "_")})
+                    });
+                    console.log("cols", cols)
+
+                    // Get data values based on checked accession types
+                    const selectedAccessions = getValues($(".filter-accessions:checked"));
+                    console.log("selectedAccessions 1", selectedAccessions)
+                    let dataSet = []
+                    selectedAccessions.forEach(item => {
+                        dataSet.push($(document).data("standaloneAccessionsData")[item])
+                    });
+                    console.log("dataSet", dataSet)
+
+
+                    // Render table
+                    //render_standalone_accessions_table(data, cols, [dataSet], recordIDs, accession_types, componentMeta);
+                    render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta);
+
                     if (tableLoader) tableLoader.remove(); //remove loader
-                    // $(".copo_accessions").show()
-                    console.log("No data exists")
-                    return false;
                 } else {
+                    // Get other projects' data
                     let dataSet = []
                     let cols = [];
-                    let sample_types = []
-                    let sample_IDs = []
+                    let accession_types = []
+                    let sampleIDs = []
 
-                    console.log("Data exists")
-                    console.log
-                    // Sort data by key
+
                     $.each(data, function (index, item) {
                         // Remove sample ID & project type from key-value pair from the original object
                         // and keep a record of it
                         if (item.hasOwnProperty("_id")) {
-                            sample_IDs.push(data[index]._id.$oid)
+                            sampleIDs.push(data[index]._id.$oid)
                             delete data[index]._id;
                         }
 
                         if (item.hasOwnProperty("tol_project")) {
-                            sample_types.push(data[index].tol_project)
+                            accession_types.push(data[index].tol_project)
                             delete data[index].tol_project;
                         }
 
-                        // Sort element dictionary by key
-                        //data[index] = Object.keys(data[index]).sort().reduce((a, c) => (a[c] = data[index][c], a), {})
                         dataSet.push(Object.values(item))
                     });
 
                     // Add filter checkbox to under info panel to right side of screen
-                    let sample_types_unique = [...new Set(sample_types)]; // Remove duplicates from sample types array
-                    $.each(sample_types_unique, function (sampleIndex, sample_type) {
-                        console.log('UNique sample type', sample_type)
-                        let $filterCheckBoxItem = '<div class="form-check">'
-                        $filterCheckBoxItem += '<input id="' + sample_type + '" ' +
-                            'class="filter-check-boxes form-check-input" ' +
-                            'type="checkbox" name="sample_types[]" value="' + sample_type + '"/>'
-                        $filterCheckBoxItem += '<label class="form-check-label" style="padding-left: 5px" for="' + sample_type + '">'
-                        $filterCheckBoxItem += sample_type
-                        $filterCheckBoxItem += '</label>'
-                        $filterCheckBoxItem += '</div>'
-                        $filterCheckBoxItem += '<br/>'
-
-                        $(".accessions-legend").find('.accessions-checkboxes').append($filterCheckBoxItem)
-
-                    });
+                    set_filter_checkboxes(accession_types)
 
                     // Get element keys
                     // If there exists at least one element, the keys will remain the same so just get the
                     // keys from the first element
-                    console.log('Keys sorted', Object.keys(data[0]))
 
                     Object.keys(data[0]).forEach(item => {
                         cols.push({title: convertStringToTitleCase(item), value: item});
                     })
 
-                    console.log('Cols:', cols)
-
-                    render_accessions_table(data, cols, dataSet, sample_IDs, sample_types, componentMeta);
+                    render_accessions_table(data, cols, dataSet, sampleIDs, accession_types, componentMeta);
 
                     if (tableLoader) tableLoader.remove(); //remove loader
                 }
+
             }
 
 
@@ -705,6 +1154,7 @@ function generate_component_control(component) {
 
 //#------------- Helpers -----------------#
 function convertStringToTitleCase(str) {
+    // Given a string, convert it to title case/ sentence case
     return str.replace(
         /\w\S*/g,
         function (txt) {
@@ -714,6 +1164,25 @@ function convertStringToTitleCase(str) {
         .replace("_name", " Name")
         .replace("accession", " Accession")
         .replace("Sra", "SRA")
+        .replace("seq_a", "Sequence A")
+}
+
+function pluraliseString(str) {
+    // Pluralise a word based on the passed value
+    const pluralise = (val, word, plural = word + 's') => {
+        const _pluralise = (num, word, plural = word + 's') =>
+            [1, -1].includes(Number(num)) ? word : plural;
+        if (typeof val === 'object') return (num, word) => _pluralise(num, word, val[word]);
+        return _pluralise(val, word, plural);
+    };
+
+    // Plural form of special words
+    const PLURALS = {
+        assembly: 'assemblies'
+    };
+    const autoPluralise = pluralise(PLURALS);
+
+    return str === "assembly" ? autoPluralise(2, str) : pluralise(2, str)
 
 
 }
