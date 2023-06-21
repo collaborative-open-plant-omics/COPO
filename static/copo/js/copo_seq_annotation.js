@@ -65,13 +65,23 @@ $(document).ready(function () {
             // check info div is visible
             $(element).removeClass("alert-danger").addClass("alert-info")
             $(element).html(d.message)
+            if ("table_data" in d.data) {
+                globalDataBuffer = d.data;
+                var event = jQuery.Event("refreshtable");
+                $('body').trigger(event);
+            } 
             //$("#spinner").fadeOut()
         } else if (d.action === "error") {
             // check info div is visible
             $(element).removeClass("alert-info").addClass("alert-danger")
             $(element).html(d.message)
             //$("#spinner").fadeOut()
-        } 
+        } else if (d.action == "refresh_table") {
+            //table data
+            globalDataBuffer = d.data;
+            var event = jQuery.Event("refreshtable");
+            $('body').trigger(event);
+        }
     }
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()

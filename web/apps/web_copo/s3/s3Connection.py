@@ -12,6 +12,7 @@ from exceptions_and_logging.logger import Logger
 from boto3.s3.transfer import TransferConfig
 import logging
 from django.contrib.auth.models import User
+from io import BytesIO
 
 class S3Connection():
     """
@@ -136,9 +137,9 @@ class S3Connection():
             for f in file_list:
 
                 # if found, iterate list of given files to see if each if present in the bucket
-                found_flag = 0
                 files = f.split(",")
                 for file in files:
+                    found_flag = 0
                     print("Looking for", file)
                     file = file.strip()
 
@@ -160,7 +161,7 @@ class S3Connection():
             if len(missing_files) > 0:
                 # report missing files
                 notify_read_status(data={"profile_id": profile_id}, msg="Files Missing: " + str(
-                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="info",
+                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="error",
                                 html_id="sample_info")
                 # return false to halt execution
                 return False
@@ -183,5 +184,5 @@ class S3Connection():
             self.s3_client.delete_object(Bucket=bucket_name, Key=key)
         return dict(status='success', message="File/s have been deleted!")
     
-
-
+    def upload_file(self, chunk, bucket=str(), filename=str()):
+        self.s3_client.upload_fileobj(BytesIO(chunk), bucket, filename)

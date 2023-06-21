@@ -421,7 +421,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record")
 def generate_read_record(profile_id=str()):
-    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status" ]
+    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status"]
     #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
     
     label_set = set()

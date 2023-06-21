@@ -889,7 +889,21 @@ BUTTON_TEMPLATES = {
             "btnAction": "delete",
             "btnType": "multi",
             "btnMessage": "Delete selected"
-        },      
+        },    
+        "add_local_all": {
+            "text": "Add locally",
+            "className": "copo-dt btn button",
+            "iconClass": "fa fa-desktop",
+            "btnAction": "add_files_locally",
+            "btnType": "all"
+        },    
+        "add_terminal_all": {
+            "text": "Add by terminal",
+            "className": "copo-dt btn button",
+            "btnAction": "dd_files_by_terminal",
+            "iconClass": "fa fa-terminal",
+            "btnType": "all"
+        },          
     }
 }
 REPO_NAME_LOOKUP = {

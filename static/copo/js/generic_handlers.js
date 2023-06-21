@@ -2511,7 +2511,7 @@ function get_profile_components() {
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey: "num_seqannotation",
-            buttons: ["quick-tour-template", "new-component-template"],
+            buttons: ["new-component-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "data_color",
             color: "yellow",
@@ -2555,7 +2555,7 @@ function get_profile_components() {
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey: "num_assembly",
-            buttons: ["quick-tour-template", "new-component-template"],
+            buttons: [ "new-component-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "assembly_color",
             color: "violet",
@@ -2570,13 +2570,13 @@ function get_profile_components() {
             iconClass: "fa fa-file",
             semanticIcon: "file",
             countsKey1: "num_assembly",
-            buttons: ["new-component-template"],
+            buttons: [],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "files_color",
             color: "blue",
             tableID: 'files_table',
             profile_component: "stand-alone",
-            recordActions: ["add_record_all","delete_record_multi"],   // , "delete_record_multi, submit_assembly_multi , "edit_record_single" 
+            recordActions: [ "add_local_all", "add_terminal_all", "delete_record_multi"],   // , "delete_record_multi, submit_assembly_multi , "edit_record_single" 
             visibleColumns: 5
         }
     ];

@@ -109,6 +109,7 @@ def validate_annotation(form_data,formset, profile_id, seq_annotation_id=None):
         df = dict()
         df["file_name"] = f_name
         df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+        df["bucket_name"] = bucket_name
         df["file_location"] = file_location
         df["name"] = f_name
         df["file_id"] = "NA"
@@ -116,6 +117,7 @@ def validate_annotation(form_data,formset, profile_id, seq_annotation_id=None):
         df["deleted"] = data_utils.get_not_deleted_flag()
         df["date_created"] = dt
         df["type"] = file_types[f_name]
+        df["profile_id"] = profile_id
         inserted = DataFile().get_collection_handle().find_one_and_update({"file_location": file_location},
                                                                             {"$set": df}, upsert=True,
                                                                             return_document=ReturnDocument.AFTER)        
@@ -348,7 +350,10 @@ def poll_asyn_seq_annotation_submission_receipt():
                         continue
                     elif accessions["status"] == "ok":
                         msg = "Last Sequence Annotation Submitted:  - Seq Annotation Access: " + ','.join(str(x["accession"]) for x in accessions["accession"])   # + " - Biosample ID: " + accessions["biosample_accession"]
-                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
+
+                        table_data = htags.generate_table_records(profile_id=submission["profile_id"], component="seqannotation")
+                        #ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"], "table_data": table_data, "component": "seqannotation"}, msg=msg, action="refresh_table", )
+                        ghlper.notify_annotation_status(data={"profile_id": submission["profile_id"], "table_data": table_data, "component": "seqannotation"}, msg=msg, action="info",
                                         html_id="annotation_info")
 
                     else:
@@ -420,7 +425,7 @@ def update_seq_annotation_submission_pending():
                 Submission().update_seq_annotation_submission(sub_id=str(sub["_id"]), seq_annotation_id= seq_annotation_id)
                 continue
             for f in seq_annotation["files"]:
-                enaFile = EnaFileTransfer().get_collection_handle().find_one({"file_id": ObjectId(f), "profile_id": sub["profile_id"]})
+                enaFile = EnaFileTransfer().get_collection_handle().find_one({"file_id": f, "profile_id": sub["profile_id"]})
                 if enaFile:
                     if enaFile["status"] != "complete":
                         all_file_uploaded = False

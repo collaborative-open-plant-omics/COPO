@@ -235,5 +235,6 @@ urlpatterns = [
     re_path(r'^copo_reads/(?P<profile_id>[a-z0-9]+)/view', views.copo_reads,
             name='copo_reads'),            
     re_path(r'^copo_files/(?P<profile_id>[a-z0-9]+)/view', views.copo_files,
-            name='copo_files'),          
+            name='copo_files'),     
+    re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),            
 ]

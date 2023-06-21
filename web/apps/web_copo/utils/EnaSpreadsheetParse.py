@@ -59,7 +59,7 @@ def parse_ena_spreadsheet(request):
                 # check for files
                 if not s3obj.check_s3_bucket_for_files(bucket_name=bucket_name, file_list=file_names):
                     # error message has been sent to frontend by check_s3_bucket_for_files so return so prevent ena.collect() from running
-                    return HttpResponse()
+                     return HttpResponse(status=400)
             else:
                 # bucket is missing, therefore create bucket and notify user to upload files
                 notify_read_status(data={"profile_id": profile_id},
@@ -83,7 +83,7 @@ def save_ena_records(request):
     sample_data = request.session.get("sample_data")
     profile_id = request.session["profile_id"]
     profile_name = Profile().get_name(profile_id)
-    uid = request.user.id
+    uid = str(request.user.id)
     username = request.user.username
     alias = str(uuid.uuid4())
     bundle = list()
@@ -173,18 +173,20 @@ def save_ena_records(request):
             sample["date_modified"] = dt 
             sample["deleted"] = "0"
             sample["status"] = "pending"    
+            sample["created_by"] = uid
             #sample["read"] = {"file_name": [s["file_name"]] }
             sample.update({key[len("SAMPLE_"):] : s[key] for key in s.keys() if key.startswith("SAMPLE_")})
 
             #sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
             #sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
 
-            sample = Sample().get_collection_handle().find_one_and_update({"name": sample["name"]}, {"$set": sample},
+            sample = Sample().get_collection_handle().find_one_and_update({"name": sample["name"], "profile_id" : sample["profile_id"] }, {"$set": sample},
                                                                      upsert=True,
                                                                      return_document=ReturnDocument.AFTER)
         else:
             sample_update_fields = ({key[len("SAMPLE_"):] : s[key] for key in s.keys() if key.startswith("SAMPLE_")})
             sample_update_fields["date_modified"] = dt
+            sample_update_fields["updated_by"] = uid
             #sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
             #sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"] 
             Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": sample_update_fields})  #, "$addToSet": {"read.file_name" : s["file_name"] }
@@ -209,7 +211,7 @@ def save_ena_records(request):
         if s["library_layout"] == "SINGLE":
             # create single record
             f_name = s["file_name"]
-            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            df["ecs_location"] = uid + "_" + username + "/" + f_name
             # df["ecs_location"] = username + "/" + f_name   #temp-solution
             df["file_name"] = f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
@@ -241,7 +243,7 @@ def save_ena_records(request):
             file_names = s["file_name"].split(",")
             f_name = file_names[0].strip()
             df["file_name"] = f_name
-            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            df["ecs_location"] = uid + "_" + username  + "/" + f_name
             # df["ecs_location"] = username + "/" + f_name   #temp-solution
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
@@ -269,7 +271,7 @@ def save_ena_records(request):
             # df.pop("_id")
             f_name = file_names[1].strip()
             df["file_name"] = f_name
-            df["ecs_location"] = str(request.user.id) + "_" + request.user.username + "/" + f_name
+            df["ecs_location"] = uid + "_" + username  + "/" + f_name
             # df["ecs_location"] = request.user.username + "/" + f_name
             file_location = join(settings.UPLOAD_PATH, username, f_name)
             df["file_location"] = file_location
@@ -354,6 +356,7 @@ def submit_read(profile_id,  target_ids=list(), target_id=None):
     if not target_ids:
         return dict(status='error', message="Please select one or more records to submit!")
 
+    user = ThreadLocal.get_current_user()
     dt = get_datetime()
     file_ids = [ file_id for id in target_ids for file_id in id.split("_")[1].split(",") ]
     sample_obj_ids =  [ ObjectId(id.split("_")[0]) for id in target_ids ]
@@ -370,10 +373,10 @@ def submit_read(profile_id,  target_ids=list(), target_id=None):
         context = dict(status='error', message='Submission is already in the processing queue. Please try it later')
         return context
 
-    Submission(profile_id=profile_id).get_collection_handle().update_one({"_id": sub["_id"]}, { "$addToSet": {"bundle": {"$each" : paired_file_ids}}, "$set": {"complete": "false", "date_modified": dt}})
+    Submission(profile_id=profile_id).get_collection_handle().update_one({"_id": sub["_id"]}, { "$addToSet": {"bundle": {"$each" : paired_file_ids}}, "$set": {"complete": "false", "date_modified": dt, "updated_by": str(user.id)}})
 
     for id in paired_file_ids:
-        Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": {"$in": sample_obj_ids}, "read.file_id" : id, "read.status": "pending" }, {"$set": {"read.$.status": "processing", "date_modified": dt}})
+        Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": {"$in": sample_obj_ids}, "read.file_id" : id, "read.status": "pending" }, {"$set": {"read.$.status": "processing", "date_modified": dt, "updated_by": str(user.id)}})
 
     if not doc:  # submission not in queue, add to queue
         fields = dict(
@@ -408,7 +411,8 @@ def delete_ena_records(profile_id,  target_ids=list(), target_id=None):
     result = Sample(profile_id=profile_id).get_all_records_columns(filter_by={"_id": {"$in": sample_obj_ids}, "read.file_id": {"$regex": file_regex_ids}}, projection={"status":1, "biosampleAccession":1, "read.$":1, "derivesFrom":1})
     for r in result:
         for file in r.get("read", []):
-            if file["file_id"] not in file_ids:
+            interset = [file_id for file_id in file.get("file_id","").split(",") if file_id in file_ids]
+            if not interset:
                 continue
             if file.get("status", "pending") == "accepted":
                 return dict(status='error', message="one or more record/s have been submitted to ENA!")
@@ -430,7 +434,8 @@ def delete_ena_records(profile_id,  target_ids=list(), target_id=None):
                 file_ids.remove(file_id) if file_id in file_ids else None
 
     for a in other_annotation_with_same_file:
-        file_ids.remove(a["file_id"]) if a["file_id"] in file_ids else None
+        for f in a.get("files", []):
+            file_ids.remove(f) if f in file_ids else None
 
     if file_ids:
         DataFile(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(f) for f in file_ids]}}, multi=True)
@@ -448,7 +453,7 @@ def delete_ena_records(profile_id,  target_ids=list(), target_id=None):
     if delete_sources:
         other_samples_with_same_source = cursor_to_list(Sample(profile_id=profile_id).get_collection_handle().find({ "_id": {"$nin": delete_samples }, "derivesFrom": {"$in": delete_sources}}, {"derivesFrom":1}))
         for s in other_samples_with_same_source:
-            delete_sources.remove(s["derivesFrom"])
+            delete_sources.remove(s["derivesFrom"]) if s["derivesFrom"] in delete_sources else None
         Source(profile_id=profile_id).get_collection_handle().remove({"_id": {"$in": [ObjectId(s) for s in delete_sources]}})
 
     if delete_samples:

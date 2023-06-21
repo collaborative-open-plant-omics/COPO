@@ -31,6 +31,8 @@ import web.apps.web_copo.utils.FileTransferUtils as tx
 from submission.helpers.generic_helper import notify_read_status
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups
 import web.apps.web_copo.templatetags.html_tags as htags
+from exceptions_and_logging.logger import Logger
+from django.conf import settings
 
 
 REPOSITORIES = settings.REPOSITORIES
@@ -121,13 +123,25 @@ class EnaReads:
             {"_id": ObjectId(str(queued_record_id))},
             {'$set': queued_record})
 
-        result = self._submit()
-        if not result.get("status", False):
-            message = "Submission processing failed!"
+        try :
+
+            result = self._submit()
+            if not result.get("status", False):
+                message = "Submission processing failed! " + result.get("message", str())
+                ghlper.logging_info(message, self.submission_id)
+                # reset sample status to pending & remove bundle / bundle samples
+                Submission(profile_id=self.profile_id).reset_read_submisison_bundle(self.submission_id)
+        except Exception as exc:
+            if settings.DEBUG:
+                Logger().exception(exc)
+            message = "Submission processing failed due to exception! Retry again"
             ghlper.logging_info(message, self.submission_id)
             # reset sample status to pending & remove bundle / bundle samples
-            Submission(profile_id=self.profile_id).reset_read_submisison_bundle(self.submission_id, is_success=False)
-
+            queued_record['processing_status'] = 'pending'
+            collection_handle.update(
+                {"_id": ObjectId(str(queued_record_id))},
+                {'$set': queued_record})
+            return False
 
         # remove from queue - this supposes that submissions that returned error will have
         # to be re-scheduled for processing, upon addressing the error, by the user
@@ -419,10 +433,12 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
+            if settings.DEBUG:
+                Logger().exception(e)
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + \
                       curl_cmd.replace(
                           self.pass_word, "xxxxxx")
-            
+            raise e
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
             result['status'] = False
@@ -525,7 +541,8 @@ class EnaReads:
 
         # modify samples
 
-
+        is_modifed_sample = False
+        is_new_sample = False
 
         # add samples
         sra_samples = list()
@@ -533,8 +550,10 @@ class EnaReads:
             sample_alias = self.project_alias + ":sample:" + sample.get("name", str())
             root = root_add
             if sample['sample_id'] in submitted_samples_id:
+                is_modifed_sample = True
                 root = root_modify
-
+            else:
+                is_new_sample = True
             sra_samples.append(dict(sample_id=sample['sample_id'], sample_alias=sample_alias))
             sample_node = etree.SubElement(root, 'SAMPLE')
             sample_node.set("alias", sample_alias)
@@ -580,11 +599,11 @@ class EnaReads:
 
 
         #do it for modify
-        if submitted_samples_id:
+        if is_modifed_sample:
             self.process_sample(root_modify, modify_submission_xml_path, sra_df, is_new=False)
 
         #do it for add
-        else:
+        if is_new_sample:
             self.process_sample(root_add, submission_xml_path, sra_df, is_new=True)
 
     
@@ -710,11 +729,13 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
+            if settings.DEBUG:
+                Logger().exception(e)
             message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
             result['status'] = False
-
+            raise e
             return result
 
         root = etree.fromstring(receipt)
@@ -887,11 +908,13 @@ class EnaReads:
             try:
                 receipt = subprocess.check_output(curl_cmd, shell=True)
             except Exception as e:
+                if settings.DEBUG:
+                    Logger().exception(e)                
                 message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
                 ghlper.logging_error(message, self.submission_id)
                 result['message'] = message
                 result['status'] = False
-
+                raise
                 return result
 
             root = etree.fromstring(receipt)
@@ -1265,10 +1288,12 @@ class EnaReads:
             try:
                 receipt = subprocess.check_output(curl_cmd, shell=True)
             except Exception as e:
+                if settings.DEBUG:
+                    Logger().exception(e)                
                 message = 'API call error ' + str(e).replace(self.pass_word,"xxxxxx"),
                 ghlper.logging_error(message, self.submission_id)
                 submission_errors.append(message)
-                continue
+                raise e
 
             receipt_root = etree.fromstring(receipt)
 
@@ -1874,6 +1899,8 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
+            if settings.DEBUG:
+                Logger().exception(e)            
             message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message

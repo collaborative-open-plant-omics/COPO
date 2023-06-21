@@ -36,12 +36,13 @@ from submission.helpers.generic_helper import notify_frontend
 LOGGER = settings.LOGGER
 from web.apps.web_copo.models import UserDetails, StatusMessage
 from web.forms import AssemblyForm, AnnotationForm, AnnotationFilesForm
-from django.forms import formset_factory
+from django.forms import formset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse,  HttpResponseBadRequest
 from web.apps.web_copo.utils import EnaAssembly, EnaAnnotation
 from submission.helpers.generic_helper import notify_frontend, notify_assembly_status
 from django.contrib import messages
 from submission.helpers import generic_helper as ghlper
+from functools import partial, wraps
 
 
 
@@ -141,11 +142,20 @@ def ena_annotation(request, profile_id, seq_annotation_id=None):
                 if sample.get("sample_accession", ""):
                     sample_accession.append(sample.get("sample_accession", ""))
 
-    AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
+    ecs_files  = []
+    s3obj = S3Connection()
+    bucket_name = str(request.user.id) + "_" + request.user.username
+    if s3obj.check_for_s3_bucket(bucket_name):
+        files = s3obj.list_objects(bucket_name)
+        if files:
+            for file in files:   
+                ecs_files.append(file["Key"])
+
+    AnnotationFilesFormSet = formset_factory(wraps(AnnotationFilesForm)(partial(AnnotationFilesForm, ecs_files=ecs_files)), extra=3 )
     if request.method == 'POST' or request.method == 'PUT':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
         form = AnnotationForm(request.POST, request.FILES, sample_accession=sample_accession, study_accession=study_accession, run_accession=run_accession, experiment_accession=experiment_accession, seq_annotation=seq_annotation)
-        formset = AnnotationFilesFormSet(request.POST,request.FILES,prefix="annotation_files")
+        formset = AnnotationFilesFormSet(request.POST,request.FILES, prefix="annotation_files")
         if form.is_valid() and formset.is_valid():
             ghlper.notify_annotation_status(data={"profile_id": profile_id},
                             msg="Intitialising Annotation Submission",
@@ -185,7 +195,7 @@ def ena_annotation(request, profile_id, seq_annotation_id=None):
     else:
 
         form = AnnotationForm(study_accession=study_accession, sample_accession=sample_accession,run_accession=run_accession,experiment_accession=experiment_accession, seq_annotation=seq_annotation)
-        AnnotationFilesFormSet = formset_factory(AnnotationFilesForm, extra=3 )
+        #AnnotationFilesFormSet = formset_factory(AnnotationFilesForm(ecs_files), extra=3 )
         formset = AnnotationFilesFormSet(prefix="annotation_files")
         if seq_annotation:
             filenames = seq_annotation.get("filenames", "")
@@ -835,3 +845,26 @@ def copo_reads(request, profile_id):
 def copo_files(request, profile_id):
     request.session["profile_id"] = profile_id
     return render(request, "copo/copo_files.html", {"profile_id": profile_id})
+
+@login_required()
+def upload_ecs_files(request, profile_id):
+    files = request.FILES
+    if not files:
+        ghlper.notify_assembly_status(data={"profile_id": profile_id},
+                                        msg='At least one assembly file is required',
+                                        action="error",
+                                        html_id="file_info")
+        
+    bucket = str(request.user.id) + "_" + request.user.username
+    # Upload the file
+    s3  = S3Connection() 
+    for f in files:
+        file = files[f]
+        for chunk in file.chunks():
+            s3.upload_file(chunk, bucket, file.name)
+
+    context = dict()
+    context["table_data"] = htags.generate_files_record(user_id=request.user.id)
+    context["component"] = "files"
+    out = jsonpickle.encode(context, unpicklable=False)
+    return HttpResponse(status=200, content=out, content_type='application/json')

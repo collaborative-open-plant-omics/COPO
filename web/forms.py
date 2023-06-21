@@ -117,9 +117,16 @@ class AnnotationForm(forms.Form):
     #files = forms.CharField(label="FILES", required=True, widget=forms.Textarea(attrs={'placeholder': 'Comma separated list of file names'}))
     
 class AnnotationFilesForm(forms.Form):
-    def __init__(self,  *args, **kwargs):
+    def __init__(self,  *args, ecs_files=None,  **kwargs):
         super(AnnotationFilesForm, self).__init__(*args, **kwargs)
+        
         self.fields['type'].initial = None
+        self.fields['file'].initial = None
+        self.fields['file'].widget.attrs['readonly'] = True  
+        files_choices = [("", 'None')]
+        files_choices.extend([(x,x) for x in ecs_files])
+        self.fields['file'].choices = files_choices
+       
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -130,7 +137,7 @@ class AnnotationFilesForm(forms.Form):
             )
         )
 
-    file = forms.CharField(label="FILE", required=True, widget=forms.TextInput(attrs={'placeholder': 'file name'}))
+    file = forms.ChoiceField(label="FILE", required=True )
     type = forms.ChoiceField(label="TYPE", required=True,
                                      choices=[('','None'),('gff', 'gff'), ('tab', 'tab'),
                                               ("fasta", "fasta"), ("bed", "bed")])

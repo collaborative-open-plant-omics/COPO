@@ -15,7 +15,7 @@ import celery
 import redis
 from functools import wraps
 from tools import resolve_env
-
+from asgiref.sync import sync_to_async
 SESSION_REDIS_HOST = resolve_env.get_env('REDIS_HOST')
 SESSION_REDIS_PORT = int(resolve_env.get_env('REDIS_PORT'))
 REDIS_CLIENT = redis.Redis(host=SESSION_REDIS_HOST, port=SESSION_REDIS_PORT)
@@ -64,6 +64,7 @@ def update_study_status():
 
 
 @app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="process_ena_submission", timeout=5)
 def process_ena_submission(self):
     Logger().debug("Running process_ena_submission")
     enareadSubmission.EnaReads().process_queue()
@@ -71,13 +72,14 @@ def process_ena_submission(self):
 
 
 @app.task(bind=True,  base=CopoBaseClassForTask)
+@only_one(key="process_ena_transfer", timeout=5)
 def process_ena_transfer(self):
     Logger().debug("Running process_ena_transfer")
     enareadSubmission.EnaReads().process_file_transfer()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="biosample_submission", timeout=5)
+@only_one(key="process_dtol_sample_submission", timeout=5)
 def process_dtol_sample_submission(self):
     Logger().debug("Running process_dtol_sample_submission")
     dtol.process_pending_dtol_samples()
@@ -85,7 +87,7 @@ def process_dtol_sample_submission(self):
 
 
 @app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="bioimage_submission", timeout=5)
+@only_one(key="process_bioimage_submission", timeout=5)
 def process_bioimage_submission(self):
     Logger().debug("Running process_bioimage_submission")
     dtol_bioimage.process_bioimage_pending_submission()
@@ -114,6 +116,7 @@ def poll_missing_tolids(self):
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
+@only_one(key="process_poll_expired_viewlocks", timeout=5)
 def poll_expired_viewlocks(self):
     Logger().debug("Running poll_expired_viewlocks")
     ViewLock().remove_expired_locks()
@@ -128,7 +131,7 @@ def process_tol_validations(self):
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
-@only_one(key="pending_file_transfers", timeout=2)
+@only_one(key="process_pending_file_transfers", timeout=5)
 def process_pending_file_transfers(self):
     Logger().debug("Running process_pending_file_transfers")
     tx.process_pending_file_transfers()
@@ -136,12 +139,14 @@ def process_pending_file_transfers(self):
 
 
 @app.task(bind=True,   base=CopoBaseClassForTask)
+@only_one(key="process_check_for_stuck_transfers", timeout=5)
 def check_for_stuck_transfers(self):
     Logger().debug("Running check_for_stuck_transfers")
     tx.check_for_stuck_transfers()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="process_poll_asyn_ena_submission", timeout=5)
 def poll_asyn_ena_submission(self):
     Logger().debug("Running poll_asyn_ena_submission")
     dtol.poll_asyn_ena_submission()
@@ -155,20 +160,21 @@ def process_housekeeping(self):
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="process_poll_asyn_seq_annotation_submission_receipt", timeout=5)
 def poll_asyn_seq_annotation_submission_receipt(self):           
     Logger().debug("poll_asyn_annotation_submission_receipt")
     enaAnnotation.poll_asyn_seq_annotation_submission_receipt()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="process_seq_annotation_submission", timeout=5)
+@only_one(key="process_process_annotation_submission", timeout=5)
 def process_seq_annotation_submission(self):
     Logger().debug("Running process_annotation_submission")
     enaAnnotation.process_seq_annotation_pending_submission()
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="Running update_seq_annotation_submission_pending", timeout=5)
+@only_one(key="process_update_seq_annotation_submission_pending", timeout=5)
 def update_seq_annotation_submission_pending(self):
     Logger().debug("Running update_seq_annotation_submission_pending")
     enaAnnotation.update_seq_annotation_submission_pending()

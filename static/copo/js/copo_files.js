@@ -1,8 +1,34 @@
+var dialog = new BootstrapDialog({
+    title: "Upload local files",
+    message: "<div><input type='file' id='file' style='display:block' /></div>",
+    size: BootstrapDialog.SIZE_WIDE,
+    buttons: [{
+        id: 'upload_local_files_button',
+        label: 'Upload Local Files',
+        cssClass: 'btn-primary',
+        title: 'Upload Local Files',
+        action: function(){
+            document.getElementById('file').click();
+            //upload_spreadsheet($('#file').prop('files')[0])
+
+        }
+    }, {
+        label: 'Close',
+        action: function(dialogItself){
+            dialogItself.close();
+        }
+    }]               
+});
+
+uid = document.location.href
+uid = uid.split("/")
+uid = uid[uid.length - 2]
+
 $(document).ready(function () {
 
-    var uid = document.location.href
-    uid = uid.split("/")
-    uid = uid[uid.length - 2]
+    //uid = document.location.href
+    //uid = uid.split("/")
+    //uid = uid[uid.length - 2]
     
     //******************************Event Handlers Block*************************//
     var component = "files";
@@ -51,10 +77,11 @@ $(document).ready(function () {
         });
 
         //add task
-        if (task == "add") {
+        if (task == "add_files_by_terminal") {
             do_add_record()
-        }
-        else {
+        } else if (task == "add_files_locally") {
+            $("#uploadModal").modal('show')
+        } else {
             form_generic_task(component, task, records);
         }
         
@@ -114,4 +141,78 @@ $(document).ready(function () {
             navigator.clipboard.writeText($("#command_area").text());
     })
 
+    $(document).on("click", "#upload_local_files_button", function(evt) {
+        //  $("#command_area").select()
+       $("#uploadModal").find('#file').click();
+       
+    })
+
+
 });
+
+
+function upload_files(files) {
+    $("#warning_info").fadeOut("fast")
+    $("#warning_info2").fadeOut("fast")    
+
+    var csrftoken = $.cookie('csrftoken');
+    form = new FormData()
+    for (var i = 0; i < files.length; i++) {
+        form.append(i.toString(), files[i])
+    }
+
+
+    $('#upload_local_files_button').fadeOut()
+    var percent = $(".percent")
+    $("#ss_upload_spinner").fadeIn("fast")
+
+    jQuery.ajax({
+        url: "/copo/upload_ecs_files/"+uid,
+        data: form,
+        files: files,
+        cache: false,
+        dataType: "json",
+        contentType: false,
+        processData: false,
+        method: 'POST',
+        type: 'POST', // For jQuery < 1.9
+        headers: {"X-CSRFToken": csrftoken},
+     
+        xhr: function () {
+            var xhr = jQuery.ajaxSettings.xhr();
+            xhr.upload.onprogress = function (evt) {
+                var percentVal = Math.round(evt.loaded / evt.total * 100)
+                percent.html("<b>" + percentVal + "%</b>")
+                console.log('progress', percentVal)
+            };
+            xhr.upload.onload = function () {
+                percent.html("")
+                console.log('DONE!')
+            };
+            return xhr;
+        }
+        
+    }).error(function (data) {
+        $('#upload_local_files_button').fadeIn()
+        $("#ss_upload_spinner").fadeOut("fast")
+        BootstrapDialog.show({
+            title: 'Error',
+            message: "Error " + data.status + ": " + data.responseText
+        });
+      
+    }).done(function (data) {
+        $('#upload_local_files_button').fadeIn()
+        $("#ss_upload_spinner").fadeOut("fast")
+        $("#uploadModal").modal("hide")
+        result_dict = {}
+        result_dict["status"] = "success"
+        result_dict["message"] = "file/s are uploaded"
+        do_crud_action_feedback(result_dict);
+        globalDataBuffer = data;
+        if (data.hasOwnProperty  ("table_data")) {
+            var event = jQuery.Event("refreshtable");
+            $('body').trigger(event);
+        }
+
+    })
+}

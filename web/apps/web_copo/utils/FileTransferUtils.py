@@ -12,7 +12,6 @@ from tools import resolve_env
 from datetime import datetime
 from web.apps.web_copo.models import UserDetails, StatusMessage, User
 import threading
-from asgiref.sync import sync_to_async
 
 def make_transfer_record(file_id, submission_id):
     # N.B. called from celery
@@ -81,7 +80,7 @@ def insert_message(message, user):
     sm = StatusMessage(message_owner=user, message=message)
     sm.save()
 
-@sync_to_async
+
 def process_pending_file_transfers():
     log = Logger()
     # get pending transfers

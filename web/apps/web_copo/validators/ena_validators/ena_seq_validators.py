@@ -7,7 +7,7 @@ from web.apps.web_copo.utils.dtol.Dtol_Helpers import check_taxon_ena_submittabl
 from Bio import Entrez
 import pandas as pd
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
-
+from django_tools.middlewares import ThreadLocal
 
 class ColumnValidator(Validator):
     def validate(self):
@@ -130,14 +130,15 @@ class ReadNotInSubmissionQueueValidator(Validator):
     
 class DuplicatedDataFile(Validator):
     def validate(self):
+        user = ThreadLocal.get_current_user()
         file_names = list(self.data["file_name"])
-        samples = Sample(profile_id=self.profile_id).get_all_records_columns(projection={"read":1,"name":1}, filter_by=dict(profile_id=self.profile_id))
+        samples = Sample(profile_id=self.profile_id).get_collection_handle().find({"$or" : [{"created_by" : str(user.id)}, {"updated_by" : str(user.id)}]} ,{"read":1,"name":1, "profile_id":1})
         fileMap = {}
         for sample in samples:
             for read in sample.get("read", []):
                 files = read.get("file_name", str()).split(",")
                 for f in files:
-                    fileMap[f] = sample["name"]
+                    fileMap[f] = sample["profile_id"]+ " | "+ sample["name"]
 
         file_name_list = [ file_name  for paried_names in file_names for file_name in paried_names.split(",")]
         file = [ x for x in file_name_list if file_name_list.count(x) > 1]
@@ -148,7 +149,7 @@ class DuplicatedDataFile(Validator):
 
         for index, row in self.data.iterrows():
             file_names = row["file_name"]
-            sample_name = row["sample_name"]
+            sample_name = self.profile_id + " | " + row["sample_name"]
             files = file_names.split(",")
             for f in files:
                 sample = fileMap.get(f, None)
