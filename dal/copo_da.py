@@ -2142,13 +2142,21 @@ class Submission(DAComponent):
     def update_seq_annotation_submission_pending(self, sub_ids):
         self.get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
 
-    def reset_read_submisison_bundle(self, submission_id, is_success=True):
+    def reset_read_submisison_bundle(self, submission_id):
         submission = self.get_record(submission_id)
-        bundle_samples = submission.get("bundle_samples", list())
-        sample_status = "accepted"
-        if not is_success:
-            sample_status = "pending"
-        Sample(profile_id=self.profile_id).get_collection_handle().update_many({"_id": {"$in": [ObjectId(id) for id in bundle_samples]}}, {"$set": {"status": sample_status, "date_modified": data_utils.get_datetime()}})
+        
+        samples = Sample(profile_id=self.profile_id).get_all_records_columns(filter_by={"read.file_id": {"$in": submission["bundle"]}}, projection={"read":1})
+        for sample in samples:
+            is_update = False
+            for read in sample["read"]:
+                if read["file_id"] in submission["bundle"]:
+                    if read["status"] == "processing":
+                        read["status"] = "pending"
+                        is_update = True
+                    
+            if is_update:
+                sample["date_modified"] = data_utils.get_datetime()
+                Sample(profile_id=self.profile_id).update_record(sample["_id"], sample)
         self.get_collection_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": []}})
 
 

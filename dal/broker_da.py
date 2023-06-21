@@ -500,12 +500,10 @@ class BrokerDA:
         report_metadata = dict()
         report_metadata["status"] = result.get("status","success")
         report_metadata["message"] = result.get("message", "success")
-
+        self.context["action_feedback"] = report_metadata
         if result.get("status","success") == "success":
             self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
             self.context["component"] = "read"
-
-        self.context["action_feedback"] = report_metadata
         return self.context
 
 class BrokerVisuals:
