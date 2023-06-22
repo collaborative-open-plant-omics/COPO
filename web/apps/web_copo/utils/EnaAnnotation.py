@@ -305,10 +305,10 @@ def process_seq_annotation_pending_submission():
                 analysis_set_dom_new.append(analysis_dom)
                 seq_annotation_id_new.append(seq_annotation_id)
                     
-        if analysis_set_dom_new:
+        if len(seq_annotation_id_new) > 0:
             submission_dom = build_submission_dom(is_new=True)
             submit_ena_dtol_v2(submission_dom,  analysis_set_dom_new, sub, seq_annotation_id_new)
-        if analysis_set_dom_edit:
+        if len(seq_annotation_id_edit) > 0:
             submission_dom = build_submission_dom(is_new=False)
             submit_ena_dtol_v2(submission_dom,  analysis_set_dom_edit, sub, seq_annotation_id_edit)
 
