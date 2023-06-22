@@ -421,7 +421,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record")
 def generate_read_record(profile_id=str()):
-    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status"]
+    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
     #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
     
     label_set = set()
@@ -435,6 +435,7 @@ def generate_read_record(profile_id=str()):
 
     columns.insert(0, detail_dict)
     samples = Sample().execute_query({"profile_id": profile_id})
+    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
     for sample in samples:
         for read in sample.get("read", []):
             row_data = dict()
@@ -450,7 +451,18 @@ def generate_read_record(profile_id=str()):
             file_ids = file_id_str.split(",")
             if file_ids:
                 row_data["submission_status"] = read.get("status", "pending")
-                row_data["accession"] = read.get("readAccession", str())
+
+                if submission and row_data["submission_status"] == "accepted":
+                    for accession in submission[0].get("accessions", {}).get("run", []):
+                        if set(accession.get("datafiles",[])) == set(file_ids):
+                            row_data["run_accession"] = accession.get("accession", str())
+                            alias = accession.get("alias", str())
+                            break
+                    for accession in submission[0].get("accessions", {}).get("experiment", []):
+                        if accession.get("alias",[]) == alias:
+                            row_data["experiment_accession"] = accession.get("accession", str())
+                            break                        
+
                 files = DataFile().get_records(file_ids)
                 if files:
                     row_data["DT_RowId"] = "row_" + \
@@ -477,6 +489,10 @@ def generate_read_record(profile_id=str()):
                             row_data["ena_file_upload_status"] = row_data["ena_file_upload_status"] + \
                                 " | " + \
                                 ena_file_transfer[1].get("status", str())
+
+
+
+
 
             data_set.append(row_data)
 
