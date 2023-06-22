@@ -2168,7 +2168,7 @@ class Submission(DAComponent):
                     
             if is_update:
                 sample["date_modified"] = data_utils.get_datetime()
-                Sample(profile_id=self.profile_id).update_record(sample["_id"], sample)
+                Sample(profile_id=self.profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": sample})
         self.get_collection_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": []}})
 
     def reset_dtol_submission_status(self, submission_id, samples_ids):
