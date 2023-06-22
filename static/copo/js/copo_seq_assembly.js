@@ -20,7 +20,6 @@ $(document).ready(function () {
                 var $button = this; // 'this' here is a jQuery object that wrapping the <button> DOM element.
                 $button.disable();
                 $button.spin();
-                dialog.setClosable(false);
             }
         }, {
             label: 'Close',
@@ -121,7 +120,6 @@ $(document).ready(function () {
                 },
         }).error(function (data) {
             dialog.enableButtons(true);
-            dialog.setClosable(true);
             dialog.getButton('submit_assembly_button').stopSpin();            
             $(".modal-dialog").find("#assembly_form input, textarea, select").prop("disabled", false)
             $(".modal-dialog").find("#id_study").prop("disabled", true)
@@ -205,6 +203,7 @@ $(document).ready(function () {
         dialog.realize();
         dialog.setMessage($('<div></div>').load(url));
         dialog.open();
+        dialog.setClosable(false);
     }
 
     function do_record_task(event) {
