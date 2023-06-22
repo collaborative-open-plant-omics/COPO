@@ -2,7 +2,7 @@
   "configuration": {
     "type": "json",
     "provider": "isa",
-    "ref": "assembly_schema"
+    "ref": "seqannotation_schema"
   },
   "properties": [
     {
@@ -17,7 +17,7 @@
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.study",
+      "id": "copo.seqannotation.study",
       "label": "STUDY",
       "show_in_form": true,
       "ref": "",
@@ -38,7 +38,7 @@
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.sample",
+      "id": "copo.seqannotation.sample",
       "label": "SAMPLE",
       "show_in_form": true,
       "ref": "",
@@ -49,126 +49,21 @@
     },
     {
       "help_tip": "",
-      "unique": true,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "assemblyname"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.assemblyname",
-      "label": "ASSEMBLYNAME",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "true",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
       "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
       "versions": [
-        "assembly_type"
+        "run"
       ],
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.assembly_type",
-      "label": "ASSEMBLY_TYPE",
+      "id": "copo.seqannotation.run",
+      "label": "RUN",
       "show_in_form": true,
       "ref": "",
-      "type": "string",
-      "required": "true",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "coverage"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.coverage",
-      "label": "COVERAGE",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "true",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "program"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.program",
-      "label": "PROGRAM",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "true",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "platform"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.platform",
-      "label": "PLATFORM",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "true",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "mingaplength"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.mingaplength",
-      "label": "MINGAPLENGTH",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
+      "type": "array",
       "required": "false",
       "show_in_table": true,
       "control": "text"
@@ -180,17 +75,38 @@
       "show_as_attribute": true,
       "control_meta": {},
       "versions": [
-        "moleculetype"
+        "experiment"
       ],
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.moleculetype",
-      "label": "MOLECULETYPE",
+      "id": "copo.seqannotation.experiment",
+      "label": "EXPERIMENT",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },    
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "title"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.title",
+      "label": "TITLE",
       "show_in_form": true,
       "ref": "",
       "type": "string",
-      "required": "false",
+      "required": "true",
       "show_in_table": true,
       "control": "text"
     },
@@ -206,7 +122,7 @@
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.description",
+      "id": "copo.seqannotation.description",
       "label": "DESCRIPTION",
       "show_in_form": true,
       "ref": "",
@@ -222,18 +138,18 @@
       "show_as_attribute": true,
       "control_meta": {},
       "versions": [
-        "run_ref"
+        "files"
       ],
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.run_ref",
-      "label": "RUN_REF",
-      "show_in_form": true,
+      "id": "copo.seqannotation.files",
+      "label": "FILES",
+      "show_in_form": false,
       "ref": "",
-      "type": "string",
+      "type": "array",
       "required": "false",
-      "show_in_table": true,
+      "show_in_table": false,
       "control": "text"
     },
     {
@@ -243,20 +159,20 @@
       "show_as_attribute": true,
       "control_meta": {},
       "versions": [
-        "fasta"
+        "filenames"
       ],
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.fasta",
-      "label": "FASTA",
+      "id": "copo.seqannotation.filenames",
+      "label": "FILES",
       "show_in_form": true,
       "ref": "",
-      "type": "string",
+      "type": "array",
       "required": "false",
       "show_in_table": true,
       "control": "text"
-    },
+    },    
     {
       "help_tip": "",
       "unique": false,
@@ -264,86 +180,23 @@
       "show_as_attribute": true,
       "control_meta": {},
       "versions": [
-        "flatfile"
+        "filetypes"
       ],
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.flatfile",
-      "label": "FLATFILE",
+      "id": "copo.seqannotation.filetypes",
+      "label": "TYPE",
       "show_in_form": true,
       "ref": "",
-      "type": "string",
+      "type": "array",
       "required": "false",
-      "show_in_table": true,
+      "show_in_table": false,
       "control": "text"
-    },
+    },        
     {
       "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "agp"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.agp",
-      "label": "AGP",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "false",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "chromosome_list"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.chromosome_list",
-      "label": "CHROMOSOME_LIST",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "false",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "unique": false,
-      "default_value": "",
-      "show_as_attribute": true,
-      "control_meta": {},
-      "versions": [
-        "unlocalised_list"
-      ],
-      "unique_items": [],
-      "deprecated": false,
-      "hidden": "false",
-      "id": "copo.assembly.unlocalised_list",
-      "label": "UNLOCALISED_LIST",
-      "show_in_form": true,
-      "ref": "",
-      "type": "string",
-      "required": "false",
-      "show_in_table": true,
-      "control": "text"
-    },
-    {
-      "help_tip": "",
-      "required": "false",
+      "required": "true",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -354,14 +207,14 @@
       "hidden": "true",
       "label": "Delete",
       "show_in_form": false,
-      "id": "copo.assembly.deleted",
+      "id": "copo.seqannotation.deleted",
       "type": "string",
       "show_in_table": false,
       "control": "text"
     },
     {
       "help_tip": "",
-      "required": "false",
+      "required": "true",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -372,14 +225,14 @@
       "hidden": "true",
       "label": "Date Modified",
       "show_in_form": false,
-      "id": "copo.assembly.date_modified",
+      "id": "copo.seqannotation.date_modified",
       "type": "string",
       "show_in_table": false,
       "control": "date-picker"
     },
     {
       "help_tip": "",
-      "required": "false",
+      "required": "true",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -390,14 +243,14 @@
       "hidden": "true",
       "label": "Created",
       "show_in_form": false,
-      "id": "copo.assembly.date_created",
+      "id": "copo.seqannotation.date_created",
       "type": "string",
       "show_in_table": false,
       "control": "datetime"
     },
     {
       "help_tip": "",
-      "required": "false",
+      "required": "true",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -408,7 +261,7 @@
       "hidden": "true",
       "label": "Profile ID",
       "show_in_form": false,
-      "id": "copo.assembly.profile_id",
+      "id": "copo.seqannotation.profile_id",
       "type": "string",
       "show_in_table": false,
       "control": "text"
@@ -425,7 +278,7 @@
       "unique_items": [],
       "deprecated": false,
       "hidden": "false",
-      "id": "copo.assembly.accession",
+      "id": "copo.seqannotation.accession",
       "label": "ACCESSION",
       "show_in_form": true,
       "ref": "",
@@ -433,6 +286,27 @@
       "required": "false",
       "show_in_table": true,
       "control": "text"
-    }
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "error"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.error",
+      "label": "SUBMISSION ERROR",
+      "show_in_form": false,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    }        
   ]
 }

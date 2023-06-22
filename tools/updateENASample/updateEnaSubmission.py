@@ -10,6 +10,7 @@ session = requests.Session()
 session.auth = (config["username"], config["password"])
 submit_url = config["submit_url"]
 retrive_url = config["retrive_url"]
+add_new_attribute = config.get("add_new_attribute",False)
 
 webin = ET.Element("WEBIN")
 submission_set = ET.SubElement(webin, "SUBMISSION_SET")
@@ -24,6 +25,8 @@ def update_xml(data):
  not_found = False
  if response.status_code == requests.codes.ok:
     root = ET.fromstring(response.text)
+    sampleAttributes = root.find(".//SAMPLE_ATTRIBUTES")
+
     for i in data.keys():
         if i == "sample_accession":
            continue
@@ -38,7 +41,13 @@ def update_xml(data):
              else:
                  print('element:', i, "not found")
                  not_found = True
-
+        if not_found and add_new_attribute:
+             element = ET.SubElement(sampleAttributes, "SAMPLE_ATTRIBUTE")
+             tag = ET.SubElement(element, "TAG")
+             tag.text = i
+             value = ET.SubElement(element, "VALUE")
+             value.text = data[i]
+             not_found = False
     if not not_found:
       new_root = copy.copy(webin)
       new_root.append(root)

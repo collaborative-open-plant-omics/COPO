@@ -1,62 +1,11 @@
-{# extends 'copo/base_2col.html' #}
+{% extends 'copo/base_2col.html' %}
 
 {% load static %}
-{% load web_tags_orcid %}
 {% load web_tags %}
-
-{% block stylesheet_block %}
-    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
-    <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
-          xmlns="http://www.w3.org/1999/html">
-    <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
-          xmlns="http://www.w3.org/1999/html">
-    <style>
-        .group-button {
-            vertical-align: middle;
-            margin-left: 10px;
-            cursor: pointer;
-            font-size: 1.5em;
-        }
-
-        .plus-color {
-            color: #0ec36b;
-        }
-
-        .minus-color {
-            color: #d34e22;
-        }
-
-        .custom-header {
-            text-align: center;
-            padding: 3px;
-            background: #f5f5f5;
-            color: black;
-        }
-
-        .autocomplete {
-            margin-top: 40px;
-            min-width: 200px;
-        }
-
-        #users_table {
-            width: 300px;
-            margin-top: 40px;
-        }
-
-        .delete_cell {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .saving_status {
-            margin-right: 25px
-        }
-
-    </style>
-{% endblock %}
+{% load html_tags %}
 
 
-{% block title_block %} COPO - Groups {% endblock %}
+{% block title_block %} COPO Files {% endblock %}
 
 {% block tagline_block %}
 
@@ -67,43 +16,26 @@
     {% csrf_token %}
     <div hidden id="hidden_attrs">
         <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="group"/>
-        <input type="hidden" id="user_type" value="submitters"/>
+        <input type="hidden" id="nav_component_name" value="files"/>
+        <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
     </div>
 {% endblock browse_header_block %}
 
 
 {% block page_tile %}
-
+   {% include "component_navbar.html" %}
 {% endblock page_tile %}
 
 
 {% block content %}
-    <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12">
-            <h3 class="h3">
-                Submit Sequence Reads
-            </h3>
-            <p>
-                Upload a completed manifest for validation
-            </p>
-
-            <input id="file" type="file" style="display:none"/>
 
             <!--form style="margin-bottom: 20px">
                 <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
                     COPO
                 </button>
-                <label class="ui blue button" for="file" id="upload_label" style="width:200px">
-                    <input id="file" type="file" style="display:none"
-                           onchange="upload_spreadsheet(this.files[0])">
-                    Upload Sample Manifest
-                </label>
-                <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
-                    <div class="percent"></div>
-                </div>
-                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+
             </form-->
 
             <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
@@ -163,17 +95,53 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+
+    <div id="uploadModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">  
+          <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Upload File</h4>
+            </div>
+            <div class="modal-body">
+                     <input id="file" type="file" style="display:none" multiple="multiple"
+                           onchange="upload_files(this.files)">
+             </div>
+            <div class="modal-footer">
+                <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
+                    <div class="percent"></div>
+                </div>
+                <button type="button" id="upload_local_files_button" class="btn btn-primary">Upload</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>            
+          </div>
+        </div>
+    </div>
+
+
+
+    <!-- files_table -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="files_table"></div> <!-- div used by the quick tour agent -->
+    <div class="table-parent-div">
+        <table id="files_table" class="ui celled table hover copo-noborders-table"
+               cellspacing="0" width="100%">
+        </table>
+    </div>
+
+ 
+
 {% endblock %}
 
 
 
 
-{# block js_block #}
-<!--
+{% block js_block %}
+
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
-    <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
--->
-{# endblock #}
+    <script src="{% static 'copo/js/copo_files.js' %}"></script>
+
+
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'copo/base_2col.html' %}
+
+{% load static %}
+{% load web_tags %}
+{% load html_tags %}
+
+{% block stylesheet_block %}
+
+<style>
+    .highlight_accession {
+        background-color: #d9e8d9 !important;
+    }
+    .highlight_no_accession {
+        background-color: #FFD700 !important;
+    }
+</style>  
+
+{% endblock %}
+
+
+{% block title_block %} COPO Publications {% endblock %}
+
+{% block tagline_block %}
+
+{% endblock %}
+
+
+{% block browse_header_block %}
+    {% csrf_token %}
+    <div hidden id="hidden_attrs">
+        <!-- hidden attributes  -->
+        <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
+        <input type="hidden" id="nav_component_name" value="seqannotation"/>
+    </div>
+
+{% endblock %}
+
+{% block page_tile %}
+    {% include "component_navbar.html" %}
+{% endblock page_tile %}
+
+
+{% block content %}
+    <!-- publication entry options -->
+    <div id="pub_options" class="row collapse" style="margin-bottom: 20px;">
+        <div class="col-sm-3 col-md-3 col-lg-3">
+            <button type="button" style="background-image:none;"
+                    class="btn btn-sm btn-primary new-form-call"
+                    data-component="publication">Publication Form (Manual Entry)
+            </button>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3">
+            <div class="input-group">
+                <input type="text" class="form-control input-sm resolver-data" data-resolver="doi"
+                       placeholder="Enter a DOI">
+                <span class="input-group-btn">
+                            <button class="btn btn-sm btn-primary resolver-submit" type="button"
+                                    style="background-image:none;">Resolve</button>
+                        </span>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3">
+            <div class="input-group">
+                <input type="text" class="form-control input-sm resolver-data" data-resolver="pmid"
+                       placeholder="Enter a PubMed ID">
+                <span class="input-group-btn">
+                            <button class="btn btn-sm btn-primary resolver-submit"
+                                    type="button"
+                                    style="background-image:none;">Resolve</button>
+                        </span>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3"></div>
+    </div>
+
+
+    <!-- getting started section -->
+    <!--div class="row">
+        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message" style="display: none;">
+            <div class="copo-webui-popover">
+                <div class="webui-popover-inner">
+                    <h3 class="copo-webui-popover-title">Publications - Getting started</h3>
+                    <div class="copo-webui-popover-content">
+                        <div class="webpop-content-div">
+                            The publications component of a profile associates relevant literature with
+                            the current work profile. <br/><br/>Click the
+                            <button class="circular tiny ui icon primary button">
+                                <i class="icon add sign"></i>
+                            </button>
+                            button to access available
+                            options for entering publication records:
+                            <ol>
+                                <li><strong>Manual Entry: </strong>
+                                    <p>Provides an empty publication form for record entry. This option can
+                                        be useful in situations such as when entering metadata for a paper that
+                                        hasn't yet been published,
+                                        or indexed by a public resource.
+                                    </p>
+                                </li>
+                                <li><strong>Enter a DOI: </strong>
+                                    <p>Supply a valid DOI and click on the resolve button. If the resolution is
+                                        successful, the metadata for the paper will be automatically filled out in the
+                                        publication form. Make sure to verify the resolved record, for correctness,
+                                        before
+                                        proceeding to save it.
+                                    </p>
+                                </li>
+                                <li><strong>Enter a PubMed ID: </strong>
+                                    <p>Supply a valid PubMed ID and click on the resolve button. If the resolution is
+                                        successful, the metadata for the paper will be automatically filled out in the
+                                        publication form. Make sure to verify the resolved record, for correctness,
+                                        before
+                                        proceeding to save it.
+                                    </p>
+                                </li>
+                            </ol>
+                            <div><strong>Quick Tour: </strong>To explore the various
+                                controls available on this page, click the
+                                <button class="circular tiny ui icon orange button">
+                                    <i class="icon lightbulb"></i>
+                                </button>
+                                icon.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div-->
+
+    <!-- publication_table -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="seqannotation_table"></div> <!-- div used by the quick tour agent -->
+    <div class="table-parent-div">
+        <table id="seqannotation_table" class="ui celled table hover copo-noborders-table"
+               cellspacing="0" width="100%">
+        </table>
+    </div>
+
+    <div id="data" style="display: none;"></div>
+
+
+{% endblock %}
+
+{% block help_section %}
+{% endblock %}
+
+{% block component_info %}
+<div style="display:none; margin-top: 30px; " id="annotation_info" class="alert alert-info"
+role="alert"></div>
+{% endblock %}
+
+{% block js_block %}
+    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
+    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
+    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
+    <script src="{% static 'copo/js/copo_seq_annotation.js' %}"></script>
+
+{% endblock %}

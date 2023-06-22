@@ -268,6 +268,98 @@
       "ref": "file_name",
       "control": "text",
       "show_as_attribute": true
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "control_meta": {},
+      "versions": [
+        "SAMPLE_DATE_OF_COLLECTION"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "false",
+      "specifications": [
+        "ena_seq"
+      ],
+      "show_in_form": true,
+      "label": "Date of Collection",
+      "id": "SAMPLE_DATE_OF_COLLECTION",
+      "show_in_table": true,
+      "control": "date-picker",
+      "default_value": "",
+      "dwc": "http://rs.tdwg.org/dwc/terms/verbatimEventDate",
+      "type": "string",
+      "index": {
+        "erga": {
+          "colour": "#d0e3f3",
+          "excel_col": "AA",
+          "order": 27
+        }
+      }
+    },
+    {
+      "help_tip": "Time of Collection",
+      "required": "false",
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "control": "text",
+      "versions": [
+        "SAMPLE_TIME_OF_COLLECTION"
+      ],
+      "ref": "",
+      "specifications": [
+        "ena_seq"
+      ],
+      "deprecated": false,
+      "hidden": "false",
+      "type": "string",
+      "show_in_form": true,
+      "id": "SAMPLE_TIME_OF_COLLECTION",
+      "label": "Time of Collection",
+      "show_in_table": true,
+      "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
+      "index": {
+        "erga": {
+          "colour": "#d0e3f3",
+          "excel_col": "AB",
+          "order": 28
+        }
+      }
+    },
+    {
+      "help_tip": "A list of geographic names less specific than the information captured in the Collection Site term. Starting with the least specific, add geograhic place names to identify location using the blue plus. E.g. U.K., London, Westminster, Westminster Abbey all as separate list entries.",
+      "required": "true",
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "control": "text",
+      "versions": [
+        "SAMPLE_COLLECTION_LOCATION"
+      ],
+      "ref": "",
+      "specifications": [
+        "ena_seq"
+      ],
+      "deprecated": false,
+      "hidden": "false",
+      "type": "string",
+      "show_in_form": true,
+      "id": "SAMPLE_COLLECTION_LOCATION",
+      "label": "Collection Location",
+      "show_in_table": true,
+      "dwc": "http://rs.tdwg.org/dwc/terms/higherGeography",
+      "ontology_names": [
+        "gaz"
+      ],
+      "index": {
+        "erga": {
+          "colour": "#d0e3f3",
+          "excel_col": "AC",
+          "order": 29
+        }
+      }
     }
   ]
 }

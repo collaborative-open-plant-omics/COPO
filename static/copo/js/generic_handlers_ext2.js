@@ -660,6 +660,8 @@ function do_render_component_table(data, componentMeta) {
                 }
 
                 $(row).addClass(tableID + recordId);
+                var event = jQuery.Event("postcreatedrow", row=row, data=data, index=index); //individual compnents can trap and handle this event as they so wish
+                $('body').trigger(event);
             },
 
             dom: 'Bfr<"row"><"row info-rw" i>tlp'

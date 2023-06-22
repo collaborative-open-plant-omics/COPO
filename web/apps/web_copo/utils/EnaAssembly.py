@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal
 
-from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
 
 from dal.copo_da import Assembly, Submission
@@ -17,6 +16,8 @@ from exceptions_and_logging.logger import Logger
 from django.contrib import messages
 import glob
 from submission.helpers import generic_helper as ghlper
+from bson import ObjectId
+import web.apps.web_copo.templatetags.html_tags as htags
 
 
 # other types of assemblies (not individualss or cultured isolates):
@@ -63,10 +64,14 @@ def upload_assembly_files(files):
     output = "done"
     return output
 
-def validate_assembly(form, profile_id):
+def validate_assembly(form, profile_id, assembly_id):
     #check assemblyname unique
     form["assemblyname"] = '_'.join(form["assemblyname"].split())
-    ass = Assembly(profile_id = profile_id).execute_query({"assemblyname" : form["assemblyname"] })
+    conditions = {"assemblyname" : form["assemblyname"]}
+    if assembly_id:
+        conditions["_id"] = {"$ne" : ObjectId(assembly_id)}
+    ass = Assembly(profile_id = profile_id).execute_query(conditions)
+
     if len(ass) > 0:
         msg = "AssemblyName " + form["assemblyname"] + " already exists "
         return {"error": msg}
@@ -79,6 +84,8 @@ def validate_assembly(form, profile_id):
     file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
     for key, value in form.items():
         #skip optional fields that have not been filled
+        if key.upper() == "ID":
+            continue
         if value:
             if key == "sample_text":
                 manifest_content += "SAMPLE" + "\t" + str(value) + "\n"
@@ -125,8 +132,10 @@ def validate_assembly(form, profile_id):
             if f in file_fields:
                 form[f] = str(form[f])
         form["profile_id"] = profile_id  
-        assembly_rec = Assembly().save_record(auto_fields={},**form)
         accession = re.search( "ERZ\d*\w" , output).group(0).strip()
+        form["accession"] = accession
+        assembly_rec = Assembly().save_record(auto_fields={},**form, target_id=assembly_id)
+        
         existing_sub = Submission().get_records_by_field("profile_id", profile_id)
         if existing_sub:
             existing_sub_id = existing_sub[0].get("_id", "")
@@ -136,6 +145,9 @@ def validate_assembly(form, profile_id):
             fieldsdict = {"profile_id": profile_id, "repository": "ena", "complete": True, "accessions":
                 {"assembly": [{"accession": accession, "alias": "webin-genome-" + form["assemblyname"], "assembly_id": str(assembly_rec["_id"])}]}}
             Submission().save_record(autofields={}, **fieldsdict)
+
+        table_data = htags.generate_table_records(profile_id, "assembly", None)
+        return {"success": "Assembly has been submitted", "table_data": table_data, "component": "assembly"}                 
     else:
         if return_code == 2:
             with open(these_assemblies / "manifest.txt.report") as report_file:
@@ -152,8 +164,7 @@ def validate_assembly(form, profile_id):
                         error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
             return {"error": error}
         else:
-            return {"error": output}
-    return {"accession": accession}
+            return {"error": output}    
 
 
 def submit_assembly(file_path, profile_id):
