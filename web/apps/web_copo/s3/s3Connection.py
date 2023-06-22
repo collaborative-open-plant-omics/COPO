@@ -4,20 +4,22 @@ from botocore.config import Config
 from django.conf import settings as s
 from botocore.exceptions import EndpointConnectionError
 from smart_open import open as s_open
-from django_tools.middlewares.ThreadLocal import get_current_request
+from django_tools.middlewares.ThreadLocal import get_current_request, get_current_user
 import time
 from os import path
-from submission.helpers.generic_helper import notify_frontend
+from submission.helpers.generic_helper import notify_read_status
 from exceptions_and_logging.logger import Logger
 from boto3.s3.transfer import TransferConfig
 import logging
+from django.contrib.auth.models import User
+from io import BytesIO
 
 class S3Connection():
     """
     Class to handle interations with ECS cloud storage via s3 service
     """
 
-    def __init__(self):
+    def __init__(self, profile_id=str()):
         self.ecs_endpoint =  s.ECS_ENDPOINT
         self.ecs_access_key_id = s.ECS_ACCESS_KEY_ID
         self.ecs_secret_key = s.ECS_SECRET_KEY
@@ -119,54 +121,68 @@ class S3Connection():
                 profile_id = get_current_request().session["profile_id"]
             except AttributeError:
                 profile_id = "xxxx"
-            channels_group_name = "s3_" + profile_id
+            #channels_group_name = "read_status_" + profile_id
 
             missing_files = list()
+            etags = dict()
             # get objects in the supplied bucket name
             bucket_files = self.list_objects(bucket=bucket_name)
             
             if not bucket_files:
                 msg = "Bucket not found: " + bucket_name
-                notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="sample_info", group_name=channels_group_name)
+                notify_read_status(data={"profile_id": profile_id}, msg=msg, action="info",
+                                html_id="sample_info")
                 return False
             
             for f in file_list:
 
                 # if found, iterate list of given files to see if each if present in the bucket
-                found_flag = 0
                 files = f.split(",")
                 for file in files:
+                    found_flag = 0
                     print("Looking for", file)
                     file = file.strip()
 
-                    notify_frontend(data={"profile_id": profile_id}, msg="Searching for: " + file, action="info",
-                                    html_id="sample_info", group_name=channels_group_name)
+                    notify_read_status(data={"profile_id": profile_id}, msg="Searching for: " + file, action="info",
+                                    html_id="sample_info")
                     # time.sleep(2)
                     for bucket_file in bucket_files:
 
                         if file == bucket_file["Key"]:
                             print("Found", bucket_file["Key"])
                             found_flag = 1
+                            etag = bucket_file["ETag"]
+                            etag = etag.replace('"', '')
+                            etags[file] = etag
                             break
                     if not found_flag:
                         # if a file is not found it should be recorded as such
                         missing_files.append(file)
             if len(missing_files) > 0:
                 # report missing files
-                notify_frontend(data={"profile_id": profile_id}, msg="Files Missing: " + str(
-                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="info",
-                                html_id="sample_info", group_name=channels_group_name)
+                notify_read_status(data={"profile_id": profile_id}, msg="Files Missing: " + str(
+                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="error",
+                                html_id="sample_info")
                 # return false to halt execution
                 return False
             else:
-                return True
+                return etags
 
         except KeyError as e:
-            notify_frontend(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
-                            html_id="sample_info", group_name=channels_group_name)
+            notify_read_status(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
+                            html_id="sample_info")
             return False
         except Exception as e:
-            notify_frontend(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
-                            html_id="sample_info", group_name=channels_group_name)
+            notify_read_status(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
+                            html_id="sample_info")
             raise e
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):
+        user = get_current_user()
+        bucket_name = str(user.id) + "_" + user.username
+        for key in target_ids:
+            self.s3_client.delete_object(Bucket=bucket_name, Key=key)
+        return dict(status='success', message="File/s have been deleted!")
+    
+    def upload_file(self, chunk, bucket=str(), filename=str()):
+        self.s3_client.upload_fileobj(BytesIO(chunk), bucket, filename)

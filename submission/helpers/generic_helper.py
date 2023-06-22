@@ -242,6 +242,28 @@ def notify_assembly_status(action="message", msg=str(), data={}, html_id="", pro
     )
     return True
 
+def notify_annotation_status(action="message", msg=str(), data={}, html_id="", profile_id=""):
+    # type points to the object type which will be passed to the socket and is a method defined in consumer.py
+    event = {"type": "msg", "action": action, "message": msg, "data": data, "html_id": html_id}
+    channel_layer = get_channel_layer()
+    group_name = 'annotation_status_%s' % data["profile_id"]
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        event
+    )
+    return True
+
+def notify_read_status(action="message", msg=str(), data={}, html_id="", profile_id=""):
+    # type points to the object type which will be passed to the socket and is a method defined in consumer.py
+    event = {"type": "msg", "action": action, "message": msg, "data": data, "html_id": html_id}
+    channel_layer = get_channel_layer()
+    group_name = 'read_status_%s' % data["profile_id"]
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        event
+    )
+    return True
+
 def notify_transfer_status(profile_id=str(), submission_id=str(), status_message=str()):
     """
     function notifies client of ENA file transfer status
@@ -452,7 +474,7 @@ def transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwa
                             transfer_collection_handle.update(
                                 {"_id": ObjectId(str(transfer_record.pop('_id')))},
                                 {'$set': transfer_record})
-
+                    '''    
                     if 'status=success' in tokens and submission_id:  # per file success tracking
                         # update submission record
                         submission_record = submission_collection_handle.find_one(
@@ -468,7 +490,7 @@ def transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwa
                         for file_meta in target_files_meta:
                             file_meta["upload_status"] = True
 
-                        # push updates to client via to channels layer
+                        # ush updates to client via to channels layer
                         if report_status:
                             total_files_in_bundle = len(submission_record['bundle_meta'])
                             total_transferred = [x for x in submission_record['bundle_meta'] if
@@ -483,6 +505,7 @@ def transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwa
                         submission_collection_handle.update(
                             {"_id": ObjectId(submission_id)},
                             {'$set': submission_record})
+                    '''    
 
                     if 'LOG ======= end File Transfer statistics =======' in tokens:
                         message = '[Submission: ' + submission_id + '] ' \
@@ -500,4 +523,6 @@ def transfer_to_ena(webin_user, pass_word, remote_path, file_paths=list(), **kwa
     return True
 
 def delete_submisison_bundle(submission_id):
-    get_submission_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": [], "bundle_meta": []}})
+    submission = get_submission_handle().find_one({"_id": ObjectId(submission_id)})
+    bundle_samples = submission.get("bundle_samples", list())
+    get_submission_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": []}})

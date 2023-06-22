@@ -9,7 +9,7 @@ from dal import cursor_to_list
 from collections import defaultdict
 from submission.helpers import generic_helper as ghlper
 import web.apps.web_copo.schemas.utils.data_utils as data_utils
-from dal.copo_da import Profile
+from dal.copo_da import Profile, Sample
 
 
 class SubmissionHelper:
@@ -20,13 +20,16 @@ class SubmissionHelper:
 
         self.collection_handle = ghlper.get_submission_handle()
         doc = self.collection_handle.find_one({"_id": ObjectId(self.submission_id)},
-                                              {"profile_id": 1, "description_token": 1})
+                                              {"profile_id": 1, "description_token": 1, "bundle": 1, "project_release_date": 1})
 
         if doc:
             self.profile_id = doc.get("profile_id", str())
-            self.description_token = doc.get("description_token", str())
+            #self.description_token = doc.get("description_token", str())
 
-        self.description = ghlper.get_description_handle().find_one({"_id": ObjectId(self.description_token)})
+        #self.description = ghlper.get_description_handle().find_one({"_id": ObjectId(self.description_token)})
+        #self.bundle_samples = doc.get("bundle_samples", [])
+        self.project_release_date = doc.get("project_release_date", str())
+        self.bundle = doc.get("bundle", [])
 
     def get_converter_errors(self):
         return self.__converter_errors
@@ -39,10 +42,9 @@ class SubmissionHelper:
         function returns information about datafiles pairing
         :return:
         """
-
-        datafiles_pairing = self.description.get("attributes", dict()).get("datafiles_pairing", list())
-
+        datafiles_pairing = [ {"_id": x.split(",")[0], "_id2": x.split(",")[1] } for x in self.bundle if "," in x ]
         return datafiles_pairing
+    
 
     def get_sra_contacts(self):
         """
@@ -73,12 +75,7 @@ class SubmissionHelper:
         """
 
         release_date = dict()
-
-        if not self.description:
-            return release_date
-
-        attributes = self.description.get("attributes", dict())
-        release_date = attributes.get("project_details", dict()).get("project_release_date", str())
+        release_date = self.project_release_date
 
         if release_date:
             try:
@@ -91,7 +88,7 @@ class SubmissionHelper:
             return dict(release_date=release_date, in_the_past=past.date() <= present.date())
 
         return release_date
-
+    
     def get_study_descriptors(self):
         """
         function returns descriptors for a study e.g., name, title, description
@@ -100,22 +97,27 @@ class SubmissionHelper:
 
         study_attributes = dict()
 
-        if not self.description:
-            return study_attributes
+        #if not self.description:
+        #    return study_attributes
 
-        attributes = self.description.get("attributes", dict())
-        study_attributes["name"] = attributes.get("project_details", dict()).get("project_name", str())
-        study_attributes["title"] = attributes.get("project_details", dict()).get("project_title", str())
-        study_attributes["description"] = attributes.get("project_details", dict()).get("project_description", str())
-        if not study_attributes.get("name", str()):
-            profile = Profile().get_record(self.profile_id)
-            study_attributes["name"] = profile.get("title", str())
-        if not study_attributes.get("title", str()):
-            profile = Profile().get_record(self.profile_id)
-            study_attributes["title"] = profile.get("title", str())
-        if not study_attributes.get("description", str()):
-            profile = Profile().get_record(self.profile_id)
-            study_attributes["description"] = profile.get("description", str())
+        profile = Profile().get_record(self.profile_id)
+        study_attributes["name"] = profile.get("title", str())
+        study_attributes["title"] = profile.get("title", str())
+        study_attributes["description"] = profile.get("description", str())
+        
+        #attributes = self.description.get("attributes", dict())
+        #study_attributes["name"] = attributes.get("project_details", dict()).get("project_name", str())
+        #study_attributes["title"] = attributes.get("project_details", dict()).get("project_title", str())
+        #study_attributes["description"] = attributes.get("project_details", dict()).get("project_description", str())
+        #if not study_attributes.get("name", str()):
+        #    profile = Profile().get_record(self.profile_id)
+        #    study_attributes["name"] = profile.get("title", str())
+        #if not study_attributes.get("title", str()):
+        #    profile = Profile().get_record(self.profile_id)
+        #    study_attributes["title"] = profile.get("title", str())
+        #if not study_attributes.get("description", str()):
+        #    profile = Profile().get_record(self.profile_id)
+        #    study_attributes["description"] = profile.get("description", str())
         return study_attributes
 
     def get_sra_samples(self, submission_location=str()):
@@ -128,8 +130,19 @@ class SubmissionHelper:
         sra_samples = list()
 
         # get datafiles attached to submission
-        submission_record = self.collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"bundle": 1})
-        object_ids = [ObjectId(x) for x in submission_record.get("bundle", list())]
+        #submission_record = self.collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"bundle": 1})
+        '''
+        bundle_samples = submission_record.get("bundle_samples", list())
+        samples = Sample(profile_id=self.profile_id).get_records(bundle_samples)
+
+        # get datafiles attached to submission
+        object_ids = []
+        for sample in samples:
+            datafile_ids = (sample.get("description", dict()).get("file_id", list()))
+            object_ids.extend([ObjectId(x.get("file_id", str())) for x in datafile_ids])
+        '''
+        object_ids = [ ObjectId(file_id) for id in self.bundle for file_id in id.split(",") ]
+
 
         datafiles = cursor_to_list(ghlper.get_datafiles_handle().find({"_id": {"$in": object_ids}},
                                                                       {'_id': 1, 'file_location': 1, "description.attributes": 1, "name": 1,
@@ -197,16 +210,17 @@ class SubmissionHelper:
                 source.get("factorValues", list()))
 
         for sample in sample_records:
-            sra_sample = dict()
+            sra_sample = sample.copy()
             sra_sample['sample_id'] = str(sample['_id'])
             sra_sample['name'] = sample['name']
+        
             sra_sample['attributes'] = self.get_attributes(sample.get("characteristics", list()))
             sra_sample['attributes'] = sra_sample['attributes'] + self.get_attributes(
                 sample.get("factorValues", list()))
 
             # retrieve sample source
-            source_id = sample.get("derivesFrom", list())
-            source_id = source_id[0] if source_id else ''
+            source_id = sample.get("derivesFrom", str())
+            #source_id = source_id[0] if source_id else ''
             sample_source = sra_sources.get(source_id, dict())
 
             if sample_source:
@@ -330,3 +344,4 @@ class SubmissionHelper:
             return list()
 
         return doc.get('accessions', dict()).get('run', list())
+    

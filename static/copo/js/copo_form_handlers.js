@@ -3457,3 +3457,61 @@ function get_add_button(theTitle) {
 
     return addBtn;
 }
+
+function form_generic_task(component_name, task, records) {
+    record_ids = []
+    records.forEach(function (record) {
+        record_ids.push(record.record_id)
+    })
+
+    //get the visualisation context (i.e., what to be displayed after form save) and pass on
+
+    csrftoken = $.cookie('csrftoken');
+
+    $.ajax({
+        url: copoFormsURL,
+        type: "POST",
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+            'task': task,
+            'component': component_name,
+            'target_ids': JSON.stringify(record_ids),
+            "Accept"  : "application/json; charset=utf-8",
+        },
+        success: function (data) {
+            globalDataBuffer = data;
+            if (data.hasOwnProperty  ("table_data")) {
+                //table data
+                var event = jQuery.Event("refreshtable");
+                $('body').trigger(event);
+            }
+            //feedback
+            if (data.hasOwnProperty("action_feedback") &&
+                data.action_feedback.hasOwnProperty("status") &&
+                data.action_feedback.hasOwnProperty("message")) {
+                    do_crud_action_feedback(data.action_feedback);
+                    return true;
+            }
+
+        },
+        error: function (data) {
+            console.log(data.responseText);
+            try {
+                result = JSON.parse(data.responseText)
+                if (result.hasOwnProperty("action_feedback") &&
+                result.action_feedback.hasOwnProperty("status") &&
+                result.action_feedback.hasOwnProperty("message")) {
+                     do_crud_action_feedback(result.action_feedback);
+                     return false;
+                }
+            } catch (e) {
+                ;
+            }
+            result = {}
+            result["status"] = "error"
+            result["message"] = data.responseText + ". Please check that you are connected to a network and try again.";
+            do_crud_action_feedback(result);
+            return false;
+        }
+    });
+} //end of function

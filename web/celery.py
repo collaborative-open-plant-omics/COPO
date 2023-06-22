@@ -70,7 +70,22 @@ app.conf.beat_schedule = {
     'poll_asyn_ena_submission': {
         'task': 'web.apps.web_copo.tasks.poll_asyn_ena_submission',
         'schedule': timedelta(seconds=10)
+    },
+    'process_seq_annotation_submission': {
+        'task': 'web.apps.web_copo.tasks.process_seq_annotation_submission',
+        'schedule': timedelta(seconds=10)
+    },
+    'poll_asyn_seq_annotation_submission_receipt': {
+        'task': 'web.apps.web_copo.tasks.poll_asyn_seq_annotation_submission_receipt',
+        'schedule': timedelta(seconds=10)
+    },
+    'update_seq_annotation_submission_pending': {
+        'task': 'web.apps.web_copo.tasks.update_seq_annotation_submission_pending',
+        'schedule': timedelta(seconds=10)
     }
+
+
+    
 }
 
 

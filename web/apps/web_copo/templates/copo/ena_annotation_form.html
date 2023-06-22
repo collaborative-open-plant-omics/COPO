@@ -1,0 +1,81 @@
+{% load static %}
+{# load web_tags_orcid #}
+{% load web_tags %}
+{% load crispy_forms_tags %} 
+ 
+ <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <h3 class="h3">
+                Submit annotation
+            </h3>
+            <p>
+                Upload annotation files and fill in metadata, you must have already created a study in ENA and have
+                uploaded samples and reads. You will be requested the relative accessions.
+            </p>
+
+
+            <div style="display:none; margin-top: 30px; " id="annotation_info" class="alert alert-info"
+                 role="alert"></div>
+
+
+            <!--<div style="margin-bottom: 20px">
+                <label class="ui purple button" id="upload_assembly_files_label" style="width:200px">
+                    <input id="assembly_file" name="assembly_files" type="file" multiple style="display:none"
+                           onchange="upload_assembly_files(this.files)">Upload Assembly File(s)
+                </label>
+                <button class="ui blue button" for="file" id="metadata_form" style="width:200px">
+                    Fill in Metadata
+                </button>
+                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+
+            </div>-->
+
+
+            <div>
+                <table id="sample_parse_table" class="table table-striped table-bordered">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert {{ m.tags }} alert-success" role="alert">
+                {{ m | safe}}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div style="width:80%">
+
+        <form id="annotation_form" action="/copo/ena_annotation/{{ profile_id }}" method="post" class="ui form" 
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="ena_annotation_form">      
+
+            {{ form | crispy }}
+            {{ formset.management_form }}
+            <table>
+                {{ formset.management_form |crispy }}
+                {% for f in formset %}
+                {% crispy f %}
+                {% endfor %}
+            </table>
+
+            </fieldset>
+
+        </form>
+        <div style="margin-bottom: 20px"></div>
+        <div style="float: right; margin-bottom: 30px">
+                <span id="loading_span" style="display:none">
+                    <strong><small>Processing - this can take some time</small></strong>
+                    <img id="loader" style="height:24px; margin-right:10px"
+                         src="{% static "copo/img/loading.gif" %}"/>
+                    </span>
+        </div>
+
+    </div>
+
