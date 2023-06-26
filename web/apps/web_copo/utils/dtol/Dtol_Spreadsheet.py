@@ -383,7 +383,16 @@ class DtolSpreadsheet:
         # compare list of sample names with specimen ids already uploaded
         samples = self.sample_data
         # get list of specimen_ids in sample
-        specimen_id_column_index = 0
+        # specimen_id_column_index = 0
+        # sampling_permits_required_index = 0
+        # ethics_permits_required_index = 0
+        # nagoya_permits_required_index = 0
+        # sampling_permits_filename_index = 0
+        # ethics_permits_filename_index = 0
+        # nagoya_permits_filename_index = 0
+
+        specimen_id_column_index, sampling_permits_required_index, ethics_permits_required_index, nagoya_permits_required_index, sampling_permits_filename_index, ethics_permits_filename_index, nagoya_permits_filename_index = 0, 0, 0, 0, 0, 0, 0
+
         output = list()
         for num, col_name in enumerate(samples.columns):
             if col_name == "SPECIMEN_ID":
@@ -394,6 +403,13 @@ class DtolSpreadsheet:
                 ethics_permits_required_index = num
             elif col_name == "NAGOYA_PERMITS_REQUIRED":
                 nagoya_permits_required_index = num
+            elif col_name == "SAMPLING_PERMITS_FILENAME":
+                sampling_permits_filename_index = num
+            elif col_name == "ETHICS_PERMITS_FILENAME":
+                ethics_permits_filename_index = num
+            elif col_name == "NAGOYA_PERMITS_FILENAME":
+                nagoya_permits_filename_index = num
+
         if os.path.isdir(self.these_permits):
             rmtree(self.these_permits)
         self.these_permits.mkdir(parents=True)
@@ -418,10 +434,12 @@ class DtolSpreadsheet:
             specimen_id = sample[specimen_id_column_index].upper()
 
             file_list = [f for f in os.listdir(permit_path) if isfile(join(permit_path, f))]
+            file_list = set(file_list)  # Remove duplicate filenames
+
             if sample[ethics_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id + "_ETHICS_PERMITS.pdf":
+                    if filename == sample[ethics_permits_filename_index]:  # specimen_id + "_ETHICS_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -429,13 +447,14 @@ class DtolSpreadsheet:
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
-                                                            + "</strong>"
+                                                            + "</strong>",
+                        "file_name_expected": sample[ethics_permits_filename_index]
                     })
                     fail_flag = True
             if sample[sampling_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id + "_SAMPLING_PERMITS.pdf":
+                    if filename == sample[sampling_permits_filename_index]:  # specimen_id + "_SAMPLING_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -443,13 +462,14 @@ class DtolSpreadsheet:
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
-                                                            + "</strong>"
+                                                            + "</strong>",
+                        "file_name_expected": sample[sampling_permits_filename_index]
                     })
                     fail_flag = True
             if sample[nagoya_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == specimen_id + "_NAGOYA_PERMITS.pdf":
+                    if filename == sample[nagoya_permits_filename_index]:  # specimen_id + "_NAGOYA_PERMITS.pdf":
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
                         output.append({"file_name": str(p), "specimen_id": specimen_id})
                         found = True
@@ -457,7 +477,8 @@ class DtolSpreadsheet:
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
-                                                            + "</strong>"
+                                                            + "</strong>",
+                        "file_name_expected": sample[nagoya_permits_filename_index]
                     })
                     fail_flag = True
         # save to session

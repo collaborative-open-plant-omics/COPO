@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import uuid
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -15,7 +16,8 @@ import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from dal.copo_da import Submission, Sample, Profile, Source
 from submission.helpers.generic_helper import notify_frontend
 from tools import resolve_env
-from web.apps.web_copo.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS, \
+    PERMIT_FILENAME_COLUMN_NAMES
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS as settings
 from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_SAMPLE_TEMPLATE, SRA_PROJECT_TEMPLATE, \
     DTOL_SAMPLE_COLLECTION_LOCATION_STATEMENT
@@ -178,26 +180,70 @@ def process_pending_dtol_samples():
                     sample_type = "erga_specimen"
                 else:
                     sample_type = "dtol_specimen"
+
+                # Save source/specimen and add object fields to the source/specimen
                 if issymbiont == "TARGET":
                     specimen_obj_fields = {"SPECIMEN_ID": sam["SPECIMEN_ID"],
                                            "TAXON_ID": sam["species_list"][0]["TAXON_ID"],
                                            "sample_type": sample_type, "profile_id": sam['profile_id']}
-                    Source().save_record(auto_fields={}, **specimen_obj_fields)
+
+                    # Add permit filename to the source/specimen of erga sources
+                    permit_filename_field = {}
+
+                    if sam.get("SAMPLING_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"SAMPLING_PERMITS_FILENAME": sam.get("SAMPLING_PERMITS_FILENAME", "")})
+
+                    if sam.get("ETHICS_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"ETHICS_PERMITS_FILENAME": sam.get("ETHICS_PERMITS_FILENAME", "")})
+
+                    if sam.get("NAGOYA_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"NAGOYA_PERMITS_FILENAME": sam.get("NAGOYA_PERMITS_FILENAME", "")})
+
+                    obj_fields = {**specimen_obj_fields, **permit_filename_field}
+                    print("obj fields 1", obj_fields)
+                    # Source().save_record(auto_fields={}, **specimen_obj_fields)
+                    Source().save_record(auto_fields={}, **obj_fields)
                     specimen_obj_fields = populate_source_fields(sam)
-                    sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
-                    Source().add_fields(specimen_obj_fields, str(sour['_id']))
+                    # sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
+                    # Source().add_fields(specimen_obj_fields, str(sour['_id']))
                 else:
                     # look for sample with same specimen ID which is target
                     specimen_obj_fields = {"SPECIMEN_ID": targetsam["SPECIMEN_ID"],
                                            "TAXON_ID": targetsam["species_list"][0]["TAXON_ID"],
                                            "sample_type": sample_type, "profile_id": targetsam['profile_id']}
-                    Source().save_record(auto_fields={}, **specimen_obj_fields)
+                    # specimen_obj_fields.update(permit_filename_dict)  # Add permit filename to the specimen_obj_fields
+                    # Source().save_record(auto_fields={}, **specimen_obj_fields)
+                    # Add permit filename to the source/specimen of erga sources
+                    permit_filename_field = {}
+
+                    if targetsam.get("SAMPLING_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"SAMPLING_PERMITS_FILENAME": targetsam.get("SAMPLING_PERMITS_FILENAME", "")})
+
+                    if targetsam.get("ETHICS_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"ETHICS_PERMITS_FILENAME": targetsam.get("ETHICS_PERMITS_FILENAME", "")})
+
+                    if targetsam.get("NAGOYA_PERMITS_FILENAME", ""):
+                        permit_filename_field.update(
+                            {"NAGOYA_PERMITS_FILENAME": targetsam.get("NAGOYA_PERMITS_FILENAME", "")})
+
+                    obj_fields = {**specimen_obj_fields, **permit_filename_field}
+                    print("obj fields 2", obj_fields)
+                    Source().save_record(auto_fields={}, **obj_fields)
                     specimen_obj_fields = populate_source_fields(targetsam)
-                    sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
-                    Source().add_fields(specimen_obj_fields, str(sour['_id']))
+
+                sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
+                Source().add_fields(specimen_obj_fields, str(sour['_id']))
+                Source().add_fields(permit_filename_field, str(sour['_id']))
+
                 log_message("Specimen level sample for " + sam["SPECIMEN_ID"] + " created", Loglvl.INFO,
                             profile_id=profile_id)
                 # l.log("created specimen level sample for " + sam["SPECIMEN_ID"])
+
             # source exists but doesn't have accession/source didn't exist
             if not specimen_accession:
                 log_message("Retrieving specimen level sample biosampleAccession for " + sam["SPECIMEN_ID"],
@@ -295,12 +341,41 @@ def process_pending_dtol_samples():
 
             # Transfer permit files to b2drop
             sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
+            filename_value = ""
+            filename_column_name = ""
 
             if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
                 for permit_file in os.listdir(sample_permits_directory):
-                    if permit_file.endswith(".pdf") and permit_file.startswith(sam["SPECIMEN_ID"] + "_"):
-                        permit_file_path = os.path.join(sample_permits_directory, permit_file)
-                        os.rename(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
+                    for col_name in PERMIT_FILENAME_COLUMN_NAMES:
+                        if permit_file.endswith(".pdf") and permit_file in sam[col_name]:
+                            filename_value = permit_file
+                            filename_column_name = col_name
+
+                            permit_file_path = os.path.join(sample_permits_directory, permit_file)
+                            taxonID_directory = os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"])
+
+                            # Copy permit file from COPO media/sample_permits directory to b2drop directory
+                            # os.popen(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
+                            # try:
+                            #     shutil.copy2(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
+                            # except  Exception as error:
+                            #     print("Error:", error)
+                            #     l.exception(error)
+                            try:
+                                # Create taxonID directory if it doesn't exist
+                                if not os.path.exists(taxonID_directory):
+                                    os.makedirs(taxonID_directory)
+
+                                # os.popen(permit_file_path,
+                                #          taxonID_directory)
+                                shutil.copy2(permit_file_path,
+                                             Path(b2drop_permits_directory_path) / sam["TAXON_ID"] / permit_file)
+                                # os.popen(permit_file_path,
+                                #          Path(b2drop_permits_directory_path) / sam["TAXON_ID"] / permit_file)
+
+                            except  Exception as error:
+                                print("Error:", error)
+                                l.exception(error)
 
             # set appropriate relationship to specimen level sample
             l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"])
