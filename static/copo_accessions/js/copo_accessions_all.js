@@ -1,16 +1,13 @@
-var wizardMessages;
-var sampleDescriptionToken = '';
-var sampleTableInstance = null;
-
 $(document).ready(function () {
     const acceptRejectSampleURL = "/copo/accept_reject_sample"
     const tolInspectURL = "/copo/tol_inspect"
     const component = "accessions";
     const copoVisualsURL = "/copo/copo_accessions_visualise/";
-    const componentMeta = get_component_meta(component);
+    const componentMeta = get_accession_component_meta(component);
     const componentName = $("#nav_component_name").val();
 
     $(document).data("isSampleProfileTypeStandalone", false)
+    $(document).data("isUserProfileActive", false)
 
     $(document).on("click", ".accept_reject_samples", function (evt) {
         document.location = acceptRejectSampleURL
@@ -22,43 +19,36 @@ $(document).ready(function () {
 
     $(document).on("click", ".btn-toggle2", toggle_accessions_view)
 
+    $(document).on("change", ".filter-accessions", filterAccessionTypes)
+
     //trigger refresh of table
     $('body').on('refreshtable', function (event) {
         render_accessions_table(globalDataBuffer, componentMeta);
     });
 
-    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
+    if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")
+        || groups.includes("dtolenv_sample_managers")) {
         $(".accept_reject_samples").show()
     }
 
-    if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
+    if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users")
+        || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
         $(".tol_inspect").show()
     }
 
-    //set up global navigation components
-    do_page_controls(componentName);
+    // Set up global navigation components
+    do_accession_page_controls(componentName);
 
-    //load records
+    // Load records
     load_accessions_records(componentMeta, copoVisualsURL);
 
-    //instantin ate/refresh tooltips
+    // Instantiate/refresh tooltips
     refresh_accessions_tool_tips();
 
+}); //End document ready
 
-    // $(".filter-accessions").change(function () {
-    //     console.log("Hi")
-    //     console.log('accessions_filterTypes:', $(document).data('accessions_filterTypes'))
-    //     render();
-    // });
-    /** Reset accessions_table display to default view*/
+//______________Handlers___________________________________
 
-    $(document).on("change", ".filter-accessions", render)
-
-}); //end document ready
-
-
-//_________________________________________________
-// Handlers
 // Filter accessions table by accession type
 const resetDisplay = function () {
     const uncheckedAccessions = getValues($(".filter-accessions:not(:checked)"))
@@ -68,7 +58,7 @@ const resetDisplay = function () {
             return $(this).attr('accession_type') === type;
         });
 
-        // Show each row based on the accession type unchecked
+        // Show each row based on the accession type that is unchecked
         $(rows).each(function () {
             $(this).show()
         });
@@ -85,13 +75,12 @@ const getValues = function ($el) {
     return items;
 };
 
-const render = function () {
+const filterAccessionTypes = function () {
     const selectedAccessions = getValues($(".filter-accessions:checked"));
-    console.log("I am here 2")
-    console.log("selectedAccessions:", selectedAccessions)
+
     if ($(".filter-accessions:not(:checked)").length === $('.filter-accessions').length) {
         // If length of all unchecked accession types is equal to the number of accession checkboxes
-        // in the filter accession type div, show all table rows
+        // in the filter accession type div then, show all table rows
         $(".accessions_row").show();
     } else if (selectedAccessions.length > 0) {
         $(".accessions_row").hide();
@@ -113,8 +102,7 @@ const render = function () {
 };
 
 // Accessions component
-// Set COPO frontpage properties in this dictionary
-function get_component_meta(component) {
+function get_accession_component_meta(component) {
     let componentMeta = null;
     const components = get_copo_accessions_components();
 
@@ -269,288 +257,35 @@ function place_accessions_task_buttons(componentMeta) {
 
     const actionBTN = $(".accessions-record-action-templates").find("." + class_name).clone();
 
+    // Retain toggled button on "Standalone projects accessions" option
+    if ($(document).data("isSampleProfileTypeStandalone") && actionBTN.find('.active').text().includes("Other Projects' Accessions")) {
+        actionBTN.find('.btn').toggleClass('active');
+
+        if (actionBTN.find('.btn-success').size() > 0) {
+            actionBTN.find('.btn').toggleClass('btn-success');
+        }
+        actionBTN.find('.btn').toggleClass('btn-default');
+    }
+
+
     actionBTN.attr("data-table", componentMeta.tableID);
     customButtons.append(actionBTN);
 
     refresh_accessions_tool_tips();
 }
 
-// Populate Accessions table
-// function render_standalone_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
-//     const tableID = `#${componentMeta.tableID}`;
-//     //set data
-//     let table = null;
-//
-//     console.log('Cols:', cols)
-//     console.log('dataSet:', dataSet)
-//
-//     if ($.fn.dataTable.isDataTable(tableID)) {
-//         //if table instance already exists, then do refresh
-//         table = $(tableID).DataTable().clear().destroy()
-//     }
-//
-//     if (table) {
-//         // table.clear()
-//
-//         //clear old, set new data
-//         // table.rows().deselect();
-//         // table
-//         //     .clear()
-//         //     .draw();
-//         // table
-//         //     .rows
-//         //     .add(dataSet);
-//         // table
-//         //     .columns
-//         //     .add(cols)
-//         // table
-//         //     .search('')
-//         //     .columns()
-//         //     .search('')
-//         //     .draw();
-//         table = $(tableID).DataTable({
-//             data: dataSet,
-//             select: false,
-//             searchHighlight: true,
-//             ordering: true,
-//             lengthChange: true,
-//             scrollX: true,
-//             scrollY: 350,
-//             bDestroy: true,
-//             buttons: [
-//                 {
-//                     extend: 'csv',
-//                     text: 'Export CSV',
-//                     title: null,
-//                     filename: "copo_" + String(componentMeta.tableID) + "_data"
-//                 },
-//             ],
-//             language: {
-//                 "info": "Showing _START_ to _END_ of _TOTAL_ records",
-//                 "search": " ",
-//                 "lengthMenu": "show _MENU_ records",
-//                 select: {
-//                     rows: {
-//                         _: "%d records selected",
-//                         0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
-//                         1: "%d record selected"
-//                     }
-//                 },
-//                 buttons: {}
-//             },
-//             order: [[0, 'asc']],
-//
-//             fnDrawCallback: function () {
-//                 refresh_accessions_tool_tips();
-//                 const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
-//                 $('body').trigger(event);
-//             },
-//             columns: cols,
-//
-//             "columnDefs": [
-//                 {
-//                     "targets": "_all", // all fields
-//                     "createdCell": function (td, cellData, rowData, row, col) {
-//                         if (cellData === "") {
-//                             $(td).addClass("cell-no-content")
-//                         }
-//                     }
-//                 },
-//                 // {
-//                 //     'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
-//                 //     'render': function (data, type, full, meta) {
-//                 //         let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
-//                 //         return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
-//                 //     }
-//                 // },
-//                 // {
-//                 //     'targets': [4], // 'manifest_id' column
-//                 //     'render': function (data, type, full, meta) {
-//                 //         let get_samples_by_manifestID_url = `/api/manifest/${data}`
-//                 //         return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
-//                 //     }
-//                 // }
-//             ],
-//
-//             createdRow: function (row, data, rowIndex) {
-//                 //add class to row for ease of selection later
-//                 // let recordId = index;
-//                 // Iterate over the sample record IDs and add them to the row as a class
-//                 $.each(recordIDs, function (recordIndex, recordID) {
-//                     try {
-//                         if (rowIndex === recordIndex) {
-//                             $(row).attr("id", recordID)
-//                             $(row).addClass("accessions_row");
-//                             $(row).addClass(componentMeta.tableID + recordID);
-//                         }
-//                     } catch (err) {
-//                         console.log(`Error: ${err}`)
-//                     }
-//                 });
-//                 // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
-//                 let filterAccessionsTypes = []
-//                 $.each(accession_types, function (sampleIndex, sample_type) {
-//                     try {
-//                         if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
-//                     } catch (err) {
-//                         console.log(`Error: ${err}`)
-//                     }
-//                 });
-//             },
-//
-//             dom: 'Bfr<"row"><"row info-rw" i>tlp'
-//         });
-//
-//         table
-//             .buttons()
-//             .nodes()
-//             .each(function (value) {
-//                 $(this)
-//                     .removeClass("btn btn-default")
-//                     .addClass('tiny ui basic button');
-//             });
-//
-//         // place_accessions_task_buttons(componentMeta);
-//     } else {
-//         // table = $(tableID).DataTable({
-//         //     data: dataSet,
-//         //     select: false,
-//         //     searchHighlight: true,
-//         //     ordering: true,
-//         //     lengthChange: true,
-//         //     scrollX: true,
-//         //     scrollY: 350,
-//         //     buttons: [
-//         //         {
-//         //             extend: 'csv',
-//         //             text: 'Export CSV',
-//         //             title: null,
-//         //             filename: "copo_" + String(componentMeta.tableID) + "_data"
-//         //         },
-//         //     ],
-//         //     language: {
-//         //         "info": "Showing _START_ to _END_ of _TOTAL_ records",
-//         //         "search": " ",
-//         //         "lengthMenu": "show _MENU_ records",
-//         //         select: {
-//         //             rows: {
-//         //                 _: "%d records selected",
-//         //                 0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
-//         //                 1: "%d record selected"
-//         //             }
-//         //         },
-//         //         buttons: {}
-//         //     },
-//         //     order: [[0, 'asc']],
-//         //
-//         //     fnDrawCallback: function () {
-//         //         refresh_accessions_tool_tips();
-//         //         const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
-//         //         $('body').trigger(event);
-//         //     },
-//         //     columns: cols,
-//         //
-//         //     "columnDefs": [
-//         //         {
-//         //             "targets": "_all", // all fields
-//         //             "createdCell": function (td, cellData, rowData, row, col) {
-//         //                 if (cellData === "") {
-//         //                     $(td).addClass("cell-no-content")
-//         //                 }
-//         //             }
-//         //         },
-//         //         {
-//         //             'targets': [3, 5], // 'biosampleAccession' column & 'sraAccession' column respectively
-//         //             'render': function (data, type, full, meta) {
-//         //                 let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
-//         //                 return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
-//         //             }
-//         //         },
-//         //         {
-//         //             'targets': [4], // 'manifest_id' column
-//         //             'render': function (data, type, full, meta) {
-//         //                 let get_samples_by_manifestID_url = `/api/manifest/${data}`
-//         //                 return '<a class="no-underline" href="' + get_samples_by_manifestID_url + '"  target="_blank">' + data + '</a>';
-//         //             }
-//         //         }
-//         //     ],
-//         //
-//         //     createdRow: function (row, data, rowIndex) {
-//         //         //add class to row for ease of selection later
-//         //         // let recordId = index;
-//         //         // Iterate over the sample record IDs and add them to the row as a class
-//         //         $.each(recordIDs, function (recordIndex, recordID) {
-//         //             try {
-//         //                 if (rowIndex === recordIndex) {
-//         //                     $(row).attr("id", recordID)
-//         //                     $(row).addClass("accessions_row");
-//         //                     $(row).addClass(componentMeta.tableID + recordID);
-//         //                 }
-//         //             } catch (err) {
-//         //                 console.log(`Error: ${err}`)
-//         //             }
-//         //         });
-//         //         // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
-//         //         let filterAccessionsTypes = []
-//         //         $.each(accession_types, function (sampleIndex, sample_type) {
-//         //             try {
-//         //                 if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
-//         //             } catch (err) {
-//         //                 console.log(`Error: ${err}`)
-//         //             }
-//         //         });
-//         //     },
-//         //
-//         //     dom: 'Bfr<"row"><"row info-rw" i>tlp'
-//         // });
-//         //
-//         // table
-//         //     .buttons()
-//         //     .nodes()
-//         //     .each(function (value) {
-//         //         $(this)
-//         //             .removeClass("btn btn-default")
-//         //             .addClass('tiny ui basic button');
-//         //     });
-//         //
-//         // place_accessions_task_buttons(componentMeta);
-//     }
-//     let table_wrapper = $(tableID + '_wrapper')
-//
-//     table_wrapper
-//         .find(".dataTables_filter")
-//         .find("label").css({"padding": "20px 0 20px 0", "margin-top": "10px"})
-//         .find("input")
-//         .removeClass("input-sm")
-//         .attr("placeholder", "Search " + componentMeta.title)
-//         .attr("size", 30);
-//
-//     // Add css to align the buttons to the right
-//     table_wrapper.find(".dt-buttons").addClass("pull-right")
-//     table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
-//
-//     // Insert breakpoints after the toggle button
-//     if (table_wrapper.find("br").length === 0) {
-//         $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
-//     }
-//
-//     // Set height of table to fit the content in the table
-//     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
-//
-//     // Add padding between table and show records filter
-//     table_wrapper.find(".dataTables_length").css("padding-top", "20px")
-// } //end of func
-
 function render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
     const tableID = `#${componentMeta.tableID}`;
-    //set data
     let table = null;
 
+    // if table instance already exists then, clear, destroy and empty the table
     if ($.fn.dataTable.isDataTable(tableID)) {
-        //if table instance already exists, then do refresh
-        table = $(tableID).DataTable()
+        $(tableID).DataTable().clear().destroy()
+        $(tableID + " tbody").empty();
+        $(tableID + " thead").empty();
     }
-    // if ($(document).data("isSampleProfileTypeStandalone")) {
+    let order = $(document).data("isSampleProfileTypeStandalone") ? [[2, 'asc']] : [[0, 'asc']];
+
     let columnDefinition = $(document).data("isSampleProfileTypeStandalone")
         ? [
             {
@@ -565,6 +300,13 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                 "targets": "_all", // all fields
                 "defaultContent": "",
             },
+            {
+                'targets': [0], // 'accession' column
+                'render': function (data, type, full, meta) {
+                    let ebi_url = `https://www.ebi.ac.uk/ena/browser/view/${data}`
+                    return '<a class="no-underline" href="' + ebi_url + '"  target="_blank">' + data + '</a>';
+                }
+            }
         ]
         : [
             {
@@ -595,125 +337,55 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
             }
         ]
 
-    if (table) {
-        console.log("JS: I am here 1")
-        console.log("cols 2", cols)
-        console.log("dataSet 2", dataSet)
-        console.log("recordIDs 2", recordIDs)
-
-        // Get the column API object
-        let column3 = table.column(3)
-        let column4 = table.column(4)
-        let column5 = table.column(5)
-        let column6 = table.column(6)
-
-        // Toggle visibility of the columns
-        column3.visible(!column3.visible());
-        column4.visible(!column4.visible());
-        column5.visible(!column5.visible());
-        column6.visible(!column6.visible());
-
-
-        // Set column names
-        $.each(cols, function (index, item) {
-            $(table.column(index).header()).text(item.title);
-            $(table.column(index).header()).val(item.value);
-        });
-
-        //clear old, set new data
-        table.rows().deselect();
-        table
-            .clear()
-            .draw();
-        table
-            .rows
-            .add(dataSet);
-        table
-            .columns
-            .adjust()
-            .draw();
-        table
-            .search('')
-            .columns()
-            .search('')
-            .draw();
-        //
-
-        let dt_options;
-        if ($(document).data("isSampleProfileTypeStandalone")) {
-            console.log('Table rows', table.rows())
-            console.log('Table rows type', typeof table.rows())
-            table.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                var data = this.data();
-                let row = table.row(this.closest("tr")[rowIdx])
-                console.log('row data', data)
-                console.log('tableLoop', tableLoop)
-                console.log('rowLoop', rowLoop)
-                $(row).attr("id", 'hiID')
-                // ... do something with data(), or this.node(), etc
-            });
-            // dt_options = {
-            //     order: [[2, 'asc']],
-            //     createdRow: function (row, data, rowIndex) {
-            //         //add class to row for ease of selection later
-            //         // let recordId = index;
-            //         // Iterate over the sample record IDs and add them to the row as a class
-            //
-            //         console.log("recordIDs 4", recordIDs)
-            //         recordIDs.map(function (item) {
-            //             console.log("recordID", item.recordID)
-            //             console.log("profile_id", item.profile_id)
-            //         });
-            //     }
-            // }
-            //
-            // $(tableID).DataTable(dt_options);
-        } else {
-
-        }
-        table.draw();
-
-    } else {
-        table = $(tableID).DataTable({
-            data: dataSet,
-            select: false,
-            searchHighlight: true,
-            ordering: true,
-            lengthChange: true,
-            scrollX: true,
-            responsive: true,
-            scrollY: 350,
-            bDestroy: true,
-            buttons: [
-                {
-                    extend: 'csv',
-                    text: 'Export CSV',
-                    title: null,
-                    filename: "copo_" + String(componentMeta.tableID) + "_data"
-                },
-            ],
-            language: {
-                "info": "Showing _START_ to _END_ of _TOTAL_ records",
-                "search": " ",
-                "lengthMenu": "show _MENU_ records",
-                select: {
-                    rows: {
-                        _: "%d records selected",
-                        0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
-                        1: "%d record selected"
-                    }
-                },
-                buttons: {}
+    table = $(tableID).DataTable({
+        data: dataSet,
+        select: false,
+        searchHighlight: true,
+        ordering: true,
+        lengthChange: true,
+        scrollX: true,
+        responsive: true,
+        scrollY: 350,
+        bDestroy: true,
+        buttons: [
+            {
+                extend: 'csv',
+                text: 'Export CSV',
+                title: null,
+                filename: "copo_" + String(componentMeta.tableID) + "_data"
             },
-            order: [[0, 'asc']],
-            fnDrawCallback: function () {
-                refresh_accessions_tool_tips();
-                const event = jQuery.Event("posttablerefresh"); //individual compnents can trap and handle this event as they so wish
-                $('body').trigger(event);
+        ],
+        language: {
+            "info": "Showing _START_ to _END_ of _TOTAL_ records",
+            "search": " ",
+            "lengthMenu": "show _MENU_ records",
+            select: {
+                rows: {
+                    _: "%d records selected",
+                    0: "<span class='extra-table-info'>Click <span class='fa-stack' style='color:green; font-size:10px;'><i class='fa fa-circle fa-stack-2x'></i><i class='fa fa-plus fa-stack-1x fa-inverse'></i></span> beside a record to view extra details</span>",
+                    1: "%d record selected"
+                }
             },
-            columns: cols,
-            "columnDefs": columnDefinition,
-            createdRow: function (row, data, rowIndex) {
+            buttons: {}
+        },
+        order: order,
+        fnDrawCallback: function () {
+            refresh_accessions_tool_tips();
+            const event = jQuery.Event("posttablerefresh"); // individual compnents can trap and handle this event as they so wish
+            $('body').trigger(event);
+        },
+        columns: cols,
+        "columnDefs": columnDefinition,
+        createdRow: function (row, data, rowIndex) {
+            // Add the record ID and accesstion type to each row
+            if ($(document).data("isSampleProfileTypeStandalone")) {
+                recordIDs.map(function (item) {
+                    $(row).attr("id", item.recordID)
+                    $(row).addClass("accessions_row");
+                    $(row).addClass(componentMeta.tableID + item.recordID);
+                    $(row).find('td:last-child').attr("data-profile_id", item.profile_id)
+                });
+            } else {
                 // Iterate over the record IDs and add them to the row as a class
                 $.each(recordIDs, function (recordIndex, recordID) {
                     try {
@@ -726,31 +398,35 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                         console.log(`Error: ${err}`)
                     }
                 });
-                // Iterate over the sample types and add them as an attribute to each row   in the table              $.each(sample_types, function (index, type) {
-                let filterAccessionsTypes = []
-                $.each(accession_types, function (sampleIndex, sample_type) {
-                    try {
-                        if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
-                    } catch (err) {
-                        console.log(`Error: ${err}`)
-                    }
-                });
 
-            },
-            dom: 'Bfr<"row"><"row info-rw" i>tlp'
+            }
+
+            // Iterate over the accession types and add them as an attribute to each row  in the table
+            $.each(accession_types, function (sampleIndex, sample_type) {
+                try {
+                    if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
+                } catch (err) {
+                    console.log(`Error: ${err}`)
+                }
+            });
+        },
+        dom: 'Bfr<"row"><"row info-rw" i>tlp'
+    });
+
+    // Add buttons to the table
+    table
+        .buttons()
+        .nodes()
+        .each(function (value) {
+            $(this)
+                .removeClass("btn btn-default")
+                .addClass('tiny ui basic button');
         });
 
-        table
-            .buttons()
-            .nodes()
-            .each(function (value) {
-                $(this)
-                    .removeClass("btn btn-default")
-                    .addClass('tiny ui basic button');
-            });
+    place_accessions_task_buttons(componentMeta);
 
-        place_accessions_task_buttons(componentMeta);
-    }
+    // Filter the rows that are not associated with the current checked "Standalone" accession type
+    if ($(document).data("isSampleProfileTypeStandalone")) filterAccessionTypes()
 
     let table_wrapper = $(tableID + '_wrapper')
 
@@ -776,11 +452,11 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
 
     // Add padding between table and show records filter
     table_wrapper.find(".dataTables_length").css("padding-top", "20px")
-} //end of func
+} //End of func
 
 function set_filter_checkboxes(accession_types) {
     let accessions_checkboxes = $('.accessions-checkboxes')
-    let accession_types_unique = [...new Set(accession_types)]; // Remove duplicates from sample types array
+    let accession_types_unique = [...new Set(accession_types)]; // Remove duplicates from the sample types array
 
     // Clear accessions checkboxes div if data exists within it
     if (accessions_checkboxes.length) accessions_checkboxes.empty()
@@ -814,8 +490,7 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
     const component_table_loder = $("#component_table_loader")
     const csrftoken = $.cookie('csrftoken');
 
-    //loader
-    let tableLoader = null;
+    let tableLoader = null; //loader
 
     if (component_table_loder.length) {
         tableLoader = $('<div class="copo-i-loader"></div>');
@@ -830,12 +505,12 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
         },
         data: {
             "isSampleProfileTypeStandalone": $(document).data("isSampleProfileTypeStandalone"),
-            "isUserProfileActive": false,
-
+            "isUserProfileActive": $(document).data("isUserProfileActive"),
         },
         dataType: "json",
         success: function (data) {
             let accessions_checkboxes = $('.accessions-checkboxes')
+
             if (data.length === 0) {
                 if (accessions_checkboxes.length) accessions_checkboxes.empty()
                 if (tableLoader) tableLoader.remove(); //remove loader
@@ -847,7 +522,6 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                     let cols = [];
                     let accession_types = []
                     let recordIDs = []
-                    let profileIDs = []
 
                     $.each(data, function (index, item) {
                         let obj = {}
@@ -860,8 +534,8 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                             delete data[index]._id;
                         }
                         if (item.hasOwnProperty("profile_id")) {
-                            // profileIDs.push(data[index].profile_id)
-                            obj.profileID = data[index].profile_id
+                            // profile_ids.push(data[index].profile_id)
+                            obj.profile_id = data[index].profile_id
                             delete data[index].profile_id;
                         }
 
@@ -892,56 +566,41 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                                     if (i.hasOwnProperty("sample_alias")) {
                                         values_array.push(i.sample_alias)
                                     }
-                                    // console.log("i", i)
-                                    // dataSet.push(Object.values(item))
                                 });
 
                                 // Append profile title to the end of the array
                                 values_array.push(data[index].profile_title)
-                                // let key_name = `${type}`
-                                // let dataSet_array = {key_name: dataSet}
                                 data_array[type] = values_array
 
                             });
 
-
-                            console.log('Accessions:', data[index].accessions)
-                            console.log("data_array", data_array)
+                            // Store "Standalone" accessions data in a global variable
                             $(document).data("standaloneAccessionsData", data_array)
 
                             delete data[index].accessions;
                         }
-
-
                     });
 
-                    // console.log("profile IDs length", profileIDs)
 
                     // Add filter checkbox to under info panel to right side of screen
                     set_filter_checkboxes(accession_types)
 
                     // Get element keys
+                    // Replace whitespaces in the string with underscores and convert to lowercase
                     column_names.forEach(item => {
-
                         cols.push({title: item, value: item.toLowerCase().replace(/ /g, "_")})
                     });
-                    console.log("cols", cols)
 
-                    // Get data values based on checked accession types
-                    const selectedAccessions = getValues($(".filter-accessions:checked"));
-                    console.log("selectedAccessions 1", selectedAccessions)
+                    // Populate the row values for the table based on the accession type
                     let dataSet = []
-                    selectedAccessions.forEach(item => {
+                    Object.keys($(document).data("standaloneAccessionsData")).forEach(item => {
                         dataSet.push($(document).data("standaloneAccessionsData")[item])
-                    });
-                    console.log("dataSet", dataSet)
-
+                    })
 
                     // Render table
-                    //render_standalone_accessions_table(data, cols, [dataSet], recordIDs, accession_types, componentMeta);
                     render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta);
 
-                    if (tableLoader) tableLoader.remove(); //remove loader
+                    if (tableLoader) tableLoader.remove(); // remove loader
                 } else {
                     // Get other projects' data
                     let dataSet = []
@@ -951,7 +610,7 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
 
 
                     $.each(data, function (index, item) {
-                        // Remove sample ID & project type from key-value pair from the original object
+                        // Remove record ID & project type from key-value pair from the original object
                         // and keep a record of it
                         if (item.hasOwnProperty("_id")) {
                             sampleIDs.push(data[index]._id.$oid)
@@ -972,7 +631,6 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                     // Get element keys
                     // If there exists at least one element, the keys will remain the same so just get the
                     // keys from the first element
-
                     Object.keys(data[0]).forEach(item => {
                         cols.push({title: convertStringToTitleCase(item), value: item});
                     })
@@ -983,8 +641,6 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                 }
 
             }
-
-
         },
         error: function () {
             alert("Couldn't retrieve " + componentMeta.component + " data!");
@@ -1001,11 +657,11 @@ function refresh_accessions_tool_tips() {
     $('.copo-tooltip')
         .popup()
     ;
-} //end of func
+} // End of function refresh_accessions_tool_tips()
 
 function toggle_accessions_view() {
     const component = "accessions";
-    const componentMeta = get_component_meta(component);
+    const componentMeta = get_accession_component_meta(component);
     const copoVisualsURL = "/copo/copo_accessions_visualise/";
 
     $(this).find('.btn').toggleClass('active');
@@ -1032,10 +688,10 @@ function toggle_accessions_view() {
         $(document).data("isSampleProfileTypeStandalone", false)
         load_accessions_records(componentMeta, copoVisualsURL)
     }
-}
+} // End of function toggle_accessions_view()
 
-//builds component-page navbar
-function do_page_controls(componentName) {
+// Builds component-page navbar
+function do_accession_page_controls(componentName) {
     let component = null;
     const components = get_copo_accessions_components();
 
@@ -1050,11 +706,11 @@ function do_page_controls(componentName) {
         return false;
     }
 
-    generate_component_control(component);
+    generate_accession_component_control(component);
 
-} //end of func
+} //End of function do_accession_page_controls(componentName)
 
-function generate_component_control(component) {
+function generate_accession_component_control(component) {
     const pageHeaders = $(".copo-page-headers"); //page header/icons
     const pageIcons = $(".copo-page-icons"); //profile component icons
     const sideBar = $(".copo-sidebar"); //sidebar panels
@@ -1080,7 +736,6 @@ function generate_component_control(component) {
 
     pageHeaders.append(PageTitle);
 
-
     //create panels
     if (component.sidebarPanels) {
         const sidebarTemplate = $(".copo-sidebar-templates")
@@ -1105,7 +760,7 @@ function generate_component_control(component) {
 
     }
 
-    //create buttons
+    // create buttons
     const buttonsSpan = $('<span/>', {style: "white-space:nowrap;"});
     pageHeaders.append(buttonsSpan);
     component.buttons.forEach(function (item) {
@@ -1116,41 +771,43 @@ function generate_component_control(component) {
         }
     });
 
-    //...and profile component buttons
-    if (component.hasOwnProperty("profile_component") && component.profile_component.toString() === "true") {
-        const pcomponentHTML = $(".pcomponents-icons-templates").clone().removeClass("pcomponents-icons-templates");
-        const pcomponentAnchor = pcomponentHTML.find(".pcomponents-anchor").clone().removeClass("pcomponents-anchor");
-        pcomponentHTML.find(".pcomponents-anchor").remove();
+    // Create page icons/profile component buttons if (current user) profile is active
+    if ($(document).data("isUserProfileActive")) {
+        //...and profile component buttons
+        if (component.hasOwnProperty("profile_component") && component.profile_component.toString() === "true") {
+            const pcomponentHTML = $(".pcomponents-icons-templates").clone().removeClass("pcomponents-icons-templates");
+            const pcomponentAnchor = pcomponentHTML.find(".pcomponents-anchor").clone().removeClass("pcomponents-anchor");
+            pcomponentHTML.find(".pcomponents-anchor").remove();
 
-        pageIcons.append(pcomponentHTML);
+            pageIcons.append(pcomponentHTML);
 
-        const components = get_copo_accessions_components();
+            const components = get_copo_accessions_components();
 
-        for (let i = 1; i < components.length; ++i) {
-            const comp = components[i];
-            if (comp.hasOwnProperty("profile_component") && comp.profile_component.toString() === "true") {
+            for (let i = 1; i < components.length; ++i) {
+                const comp = components[i];
+                if (comp.hasOwnProperty("profile_component") && comp.profile_component.toString() === "true") {
 
-                if ((comp.component === component.component)) {
-                    continue;
+                    if ((comp.component === component.component)) {
+                        continue;
+                    }
+
+                    const newAnchor = pcomponentAnchor.clone();
+                    pcomponentHTML.append(newAnchor);
+
+                    newAnchor.attr("title", "Navigate to " + comp.title);
+                    newAnchor.attr("href", $("#" + comp.component + "_url").val());
+                    newAnchor.find("i")
+                        .addClass(comp.color)
+                        .addClass(comp.semanticIcon);
+
                 }
-
-                const newAnchor = pcomponentAnchor.clone();
-                pcomponentHTML.append(newAnchor);
-
-                newAnchor.attr("title", "Navigate to " + comp.title);
-                newAnchor.attr("href", $("#" + comp.component + "_url").val());
-                newAnchor.find("i")
-                    .addClass(comp.color)
-                    .addClass(comp.semanticIcon);
-
             }
         }
     }
 
     //refresh components...
-    // quick_tour_event();
     refresh_accessions_tool_tips();
-}
+} //End of function generate_accession_component_control(component)
 
 //#------------- Helpers -----------------#
 function convertStringToTitleCase(str) {
@@ -1183,6 +840,4 @@ function pluraliseString(str) {
     const autoPluralise = pluralise(PLURALS);
 
     return str === "assembly" ? autoPluralise(2, str) : pluralise(2, str)
-
-
 }

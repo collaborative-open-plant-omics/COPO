@@ -23,26 +23,6 @@ th {
     z-index: 2;
 }
 
-
-.cell_highlight_in_column {
-    background-color: #e0e1e2 !important;
-}
-
-.cell_updated {
-    background-color: #1678c2 !important;
-    color: white !important;
-}
-
-.cell_accepted {
-    background-color: #16ab39 !important;
-    color: white !important
-}
-
-.cell_tentative {
-    background-color: #eaae00 !important;
-    color: white !important;
-}
-
 /*Filter projecttypes usign checkboxes*/
 .alert {
     --bs-alert-bg: transparent;

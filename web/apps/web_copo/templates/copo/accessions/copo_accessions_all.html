@@ -22,14 +22,12 @@
     <div hidden id="hidden_attrs">
         <!-- hidden attributes  -->
         <input type="hidden" id="nav_component_name" value="accessions"/>
-        {# <input type="hidden" value="{{ profile.type }}" id="profile_type"/>#}
     </div>
 {% endblock browse_header_block %}
 
 {% block page_tile %}
     {% include "component_navbar.html" %}
 {% endblock page_tile %}
-
 
 {% block content %}
     <script>  let groups = {{ groups|safe }}</script>
