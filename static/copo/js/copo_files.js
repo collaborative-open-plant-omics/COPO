@@ -97,10 +97,16 @@ $(document).ready(function () {
     }
  
 
-    $(document).on("click", "#presigned_urls_modal_button, .new-component-template ", function (evt) {
+    $(document).on("click", "#presigned_urls_modal_button, .new-terminal-file ", function (evt) {
         evt.preventDefault()
         do_add_record()
     })
+
+    $(document).on("click", "#presigned_urls_modal_button, .new-local-file ", function (evt) {
+        evt.preventDefault()
+        $("#uploadModal").modal('show')
+    })
+
 
     $(document).on("click", "#process_urls_button", function (evt) {
         // get list of files output from ls -F1

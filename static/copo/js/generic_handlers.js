@@ -2570,7 +2570,7 @@ function get_profile_components() {
             iconClass: "fa fa-file",
             semanticIcon: "file",
             countsKey1: "num_assembly",
-            buttons: [],
+            buttons: ["new-local-file","new-terminal-file"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "files_color",
             color: "blue",
