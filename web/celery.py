@@ -65,7 +65,7 @@ app.conf.beat_schedule = {
     },
     'process_housekeeping': {
         'task': 'web.apps.web_copo.tasks.process_housekeeping',
-        'schedule': timedelta(days=1)
+        'schedule': timedelta(seconds=3600)
     },
     'poll_asyn_ena_submission': {
         'task': 'web.apps.web_copo.tasks.poll_asyn_ena_submission',
@@ -82,11 +82,10 @@ app.conf.beat_schedule = {
     'update_seq_annotation_submission_pending': {
         'task': 'web.apps.web_copo.tasks.update_seq_annotation_submission_pending',
         'schedule': timedelta(seconds=10)
-    },
-    'update_tagsequence_checklist': {
-        'task': 'web.apps.web_copo.tasks.update_tagsequence_checklist',
-        'schedule': timedelta(days=1)
-    }    
+    }
+
+
+    
 }
 
 

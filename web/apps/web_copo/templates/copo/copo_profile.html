@@ -48,10 +48,8 @@
     id="assembly_url"/>
     <input type="hidden" value="{% url 'copo:copo_reads' profile_id=p_id %}" name="read_url"
     id="read_url"/>   
-    <input type="hidden" value="{% url 'copo:copo_files' profile_id=p_id %}" name="files_url"
-    id="files_url"/>      
-    <input type="hidden" value="{% url 'copo:copo_taggedseq' profile_id=p_id %}" name="taggedseq_url"
-    id="taggedseq_url"/>  
+    <input type="hidden" value="{% url 'copo:copo_reads' profile_id=p_id %}" name="files_url"
+    id="files_url"/>        
     <div class="wrapper">
 
         <div class="pricing-table group">

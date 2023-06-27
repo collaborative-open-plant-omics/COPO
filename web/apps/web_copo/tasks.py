@@ -3,7 +3,7 @@ import celery
 import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
 import web.apps.web_copo.utils.dtol.Dtol_Bioimage_Submission as dtol_bioimage
 import web.apps.web_copo.utils.EnaAnnotation as enaAnnotation
-import web.apps.web_copo.utils.dtol.Dtol_Tagged_Sequence as dtol_tagged_sequence
+
 from dal.copo_da import Sample, Stats
 from web.apps.web_copo.models import ViewLock
 from submission import enareadSubmission
@@ -176,11 +176,4 @@ def process_seq_annotation_submission(self):
 def update_seq_annotation_submission_pending(self):
     Logger().debug("Running update_seq_annotation_submission_pending")
     enaAnnotation.update_seq_annotation_submission_pending()
-    return True
-
-@app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="update_tagsequence_checklist", timeout=5)
-def update_tagsequence_checklist(self):
-    Logger().debug("Running update_tagsequence_checklist")
-    dtol_tagged_sequence.updateCheckList()
     return True
