@@ -513,6 +513,7 @@ class BrokerVisuals:
         self.profile_id = self.param_dict.get("profile_id", str())
         self.user_id = self.param_dict.get("user_id", str())
         self.context = self.param_dict.get("context", dict())
+        self.request = self.param_dict.get("request", dict())
 
     def set_extra_params(self, extra_param):
         for k, v in extra_param.items():
@@ -535,6 +536,7 @@ class BrokerVisuals:
             assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             read = (htags.generate_read_record, dict(profile_id=self.profile_id)),
             files = (htags.generate_files_record, dict(user_id=self.user_id)),
+            tagedseq = (htags.generate_tagedseq_record, dict(profile_id=self.profile_id,checklist_id=self.request.POST.get("tagged_seq_checklist_id", str()))),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments
