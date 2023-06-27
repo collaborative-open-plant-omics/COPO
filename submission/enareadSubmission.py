@@ -600,13 +600,16 @@ class EnaReads:
 
         #do it for modify
         if is_modifed_sample:
-            self.process_sample(root_modify, modify_submission_xml_path, sra_df, is_new=False)
+            result = self.process_sample(root_modify, modify_submission_xml_path, sra_df, is_new=False)
 
+        if result['status'] is False:
+            return result
+        
         #do it for add
         if is_new_sample:
-            self.process_sample(root_add, submission_xml_path, sra_df, is_new=True)
+            result = self.process_sample(root_add, submission_xml_path, sra_df, is_new=True)
 
-    
+        return result
         '''
         # write sample xml
         result = self.write_xml_file(xml_object=root_add, file_name="sample.xml")
@@ -700,7 +703,6 @@ class EnaReads:
         Sample(profile_id=self.profile_id).update_read_accession(sample_accessions)
         '''
 
-        return dict(status=True, value='')
 
     def process_sample(self, root, submission_xml_path, sra_df, is_new=True)  :
         dt = d_utils.get_datetime()
@@ -753,7 +755,8 @@ class EnaReads:
 
             # log error
             ghlper.logging_error(result['message'], self.submission_id)
-
+            notify_read_status(data={"profile_id": self.profile_id},
+                            msg=result['message'], action="error", html_id="sample_info")
             return result
 
         # save sample accession for new sample only
