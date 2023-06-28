@@ -884,33 +884,6 @@ def poll_asyn_ena_submission():
                         notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
                                         html_id="dtol_sample_info")
                         continue
-    with requests.Session() as session:
-        session.auth = (user_token, pass_word)
-        headers = {'Accept': 'application/xml' }
-        for submission in submissions:
-            for sub in submission["submission"]:
-                accessions = ""
-                response = session.get(sub["href"],headers=headers)
-                if response.status_code == requests.codes.accepted:
-                    continue
-                elif response.status_code == requests.codes.ok:
-                    l.log("ENA RECEIPT " + response.text, type=Logtype.FILE)
-                    try:
-                        tree = ET.fromstring(response.text)
-                        accessions = handle_submit_receipt(Sample(), submission["_id"], tree)
-                    except ET.ParseError as e:
-                        l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
-                        message = " Unrecognized response from ENA - " + str(
-                            response.content) + " Please try again later, if it persists contact admins"
-                        notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                        html_id="dtol_sample_info")
-                        continue
-                    except Exception as e:
-                        l.exception(e)
-                        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + sub["href"]
-                        notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                        html_id="dtol_sample_info")
-                        continue
 
                     if not accessions:
                         notify_frontend(data={"profile_id": submission["profile_id"]}, msg="Error creating sample - no accessions found",
@@ -933,15 +906,7 @@ def poll_asyn_ena_submission():
                         notify_frontend(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
                                         html_id="dtol_sample_info")
                         Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=[], submission_id=sub["id"])
-                    else:
-                        msg = "Submission Rejected: <p>" + accessions["msg"] + "</p>"
-                        notify_frontend(data={"profile_id": submission["profile_id"]}, msg=msg, action="info",
-                                        html_id="dtol_sample_info")
-                        Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=[], submission_id=sub["id"])
 
-                    notify_frontend(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
-                                html_id="dtol_sample_info")
-                    
                     notify_frontend(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
                                 html_id="dtol_sample_info")
                     

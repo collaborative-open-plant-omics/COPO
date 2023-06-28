@@ -205,11 +205,11 @@ $(document).ready(function () {
 
         //add task
         if (task == "add") {
-            url = "/copo/ena_assembly/"+uid 
+            url = "/copo/ena_annotation/"+uid 
             handle_add_n_edit(url)
         }
         else if (task == "edit") {
-            url = "/copo/ena_assembly/"+uid+"/"+records[0].record_id  
+            url = "/copo/ena_annotation/"+uid+"/"+records[0].record_id  
             handle_add_n_edit(url)
         }
         else {

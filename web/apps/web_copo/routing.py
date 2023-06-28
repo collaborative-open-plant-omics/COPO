@@ -11,5 +11,6 @@ websocket_urlpatterns = [
     path('ws/assembly_status/<str:profile_id>', consumers.assemblyConsumer),
     path('ws/annotation_status/<str:profile_id>', consumers.annotationConsumer),
     path('ws/read_status/<str:uid>', consumers.readConsumer),
-    path('ws/read_status/<str:uid>', consumers.taggedSeqConsumer)
+
+
 ]

@@ -141,6 +141,4 @@ MESSAGES = {
     "validation_msg_warning_update_submitted_sample": "Warning: <strong>%s</strong> has been submitted with biosample accession <strong>%s</strong>. Please check this is "
                                               "correct before clicking 'Finish'.",
 
-
-
 }

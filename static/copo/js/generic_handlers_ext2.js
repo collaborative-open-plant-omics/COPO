@@ -757,7 +757,7 @@ function do_render_component_table(data, componentMeta) {
 } //end of func
 
 
-function load_records(componentMeta, args_dict) {
+function load_records(componentMeta) {
     var csrftoken = $.cookie('csrftoken');
 
     //loader
@@ -767,20 +767,16 @@ function load_records(componentMeta, args_dict) {
         $("#component_table_loader").append(tableLoader);
     }
 
-    var post_data = {}
-    if (args_dict != null) {
-        post_data = args_dict;
-    }
-    post_data['task'] = 'table_data';
-    post_data['component'] = componentMeta.component;
-
     $.ajax({
         url: copoVisualsURL,
         type: "POST",
         headers: {
             'X-CSRFToken': csrftoken
         },
-        data: post_data,
+        data: {
+            'task': 'table_data',
+            'component': componentMeta.component
+        },
         success: function (data) {
             do_render_component_table(data, componentMeta);
 
