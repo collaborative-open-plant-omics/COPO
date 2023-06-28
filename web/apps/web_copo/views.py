@@ -21,7 +21,7 @@ from api.views.general import *
 from dal import cursor_to_list
 from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals
-from dal.copo_da import DataFile, ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate, Sequnece_annotation, Assembly
+from dal.copo_da import DataFile, ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate, Sequnece_annotation, Assembly, TagSequenceChecklist
 from web.apps.web_copo.decorators import user_is_staff
 from web.apps.web_copo.lookup.lookup import REPO_NAME_LOOKUP
 from web.apps.web_copo.models import banner_view
@@ -487,7 +487,7 @@ def copo_visualize(request):
                                    component=request.POST.get("component", str()),
                                    target_id=request.POST.get("target_id", str()),
                                    quick_tour_flag=request.POST.get("quick_tour_flag", False),
-                                   datafile_ids=json.loads(request.POST.get("datafile_ids", "[]"))
+                                   datafile_ids=json.loads(request.POST.get("datafile_ids", "[]")),
                                    )
 
     task_dict = dict(table_data=broker_visuals.do_table_data,
@@ -546,6 +546,7 @@ def copo_forms(request):
                          data_source=request.POST.get("data_source", str()),
                          user_email=request.POST.get("user_email", str()),
                          bundle_name=request.POST.get("bundle_name", str()),
+                         tagged_seq_checklist_id=request.POST.get("tagged_seq_checklist_id", str()),
                          )
 
     task_dict = dict(resources=broker_da.do_form_control_schemas,
@@ -844,7 +845,8 @@ def copo_reads(request, profile_id):
 @login_required()
 def copo_files(request, profile_id):
     request.session["profile_id"] = profile_id
-    return render(request, "copo/copo_files.html", {"profile_id": profile_id})
+    profile = Profile().get_record(profile_id)
+    return render(request, "copo/copo_files.html", {"profile_id": profile_id, "profile": profile})
 
 @login_required()
 def upload_ecs_files(request, profile_id):
@@ -868,3 +870,12 @@ def upload_ecs_files(request, profile_id):
     context["component"] = "files"
     out = jsonpickle.encode(context, unpicklable=False)
     return HttpResponse(status=200, content=out, content_type='application/json')
+
+@login_required
+def copo_taggedseq(request, profile_id):
+    request.session["profile_id"] = profile_id    
+    profile = Profile().get_record(profile_id)
+    checklists = TagSequenceChecklist().get_checklists()
+
+    return render(request, 'copo/copo_tagged_seq.html', {'profile_id': profile_id, 'profile':profile,  'checklists': checklists})
+

@@ -58,6 +58,7 @@ APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
 AnnotationCollection = "SeqAnnotationCollection"
+TagSequenceChecklistCollection = "TagSequenceChecklistCollection"
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -81,6 +82,7 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    assembly=get_collection_ref(AssemblyCollection),
                    seqannotation=get_collection_ref(AnnotationCollection),
                    submissionQueue=get_collection_ref(SubmissionQueueCollection),
+                   tagSequenceChecklist=get_collection_ref(TagSequenceChecklistCollection)
                    )
 
 
@@ -3001,13 +3003,20 @@ class Sequnece_annotation(DAComponent):
         
         self.get_collection_handle().remove({"_id": {"$in":   seq_annotation_obj_ids}})
         return dict(status='success', message="Sequence annotation record/s have been deleted!")
-                               
                                     
-
 class SubmissionQueue(DAComponent):
     def __init__(self, profile_id=None):
         super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")  
 
+class TagSequenceChecklist(DAComponent):
+    def __init__(self, profile_id=None):
+        super(TagSequenceChecklist, self).__init__(profile_id, "tagSequenceChecklist")
+
+    def get_checklist(self, checklist_id):
+        return self.execute_query({"primary_id": checklist_id})
+    
+    def get_checklists(self):
+        return self.get_all_records_columns(projection={"primary_id": 1, "name": 1, "description": 1})
 
 def is_number(s):
     try:
