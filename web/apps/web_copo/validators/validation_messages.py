@@ -27,6 +27,8 @@ MESSAGES = {
                                    "specific details separated with '|'. See list of allowed Country entries at <a "
                                    "href='https://www.ebi.ac.uk/ena/browser/view/ERC000053'>https://www.ebi.ac.uk/ena"
                                    "/browser/view/ERC000053</a>",
+    "validation_msg_invalid_permit_filename": "Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row "
+                                              "<strong>%s</strong>. Expected value should be <strong>%s</strong>",
     "validation_msg_invalid_taxonomy": "Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row "
                                        "<strong>%s</strong>. Expected value is <strong>%s</strong>",
     "validation_msg_synonym": "Invalid scientific name: <strong>%s</strong> at row <strong>%s</strong> is a synonym "
@@ -139,6 +141,6 @@ MESSAGES = {
                                                                                       "<strong>LATITUDE_START/LATITUDE_END/LONGITUDE_START/LONGITUDE_END</strong>) "
                                                                                       "cannot have a decimal value at row <strong>%s</strong>",
     "validation_msg_warning_update_submitted_sample": "Warning: <strong>%s</strong> has been submitted with biosample accession <strong>%s</strong>. Please check this is "
-                                              "correct before clicking 'Finish'.",
+                                                      "correct before clicking 'Finish'.",
 
 }

@@ -40,6 +40,16 @@
                id="repository_url"/>
         <input type="hidden" value="{% url 'copo:view_templates' profile_id='999' %}" name="metadata_template_url"
                id="metadata_template_url"/>
+        
+        <input type="hidden" value="{% url 'copo:copo_seq_annotation' profile_id='999' %}" name="seqannotation_url"
+               id="seqannotation_url"/>
+        
+        <input type="hidden" value="{% url 'copo:copo_assembly' profile_id='999' %}" name="assembly_url"
+               id="assembly_url"/>               
+        <input type="hidden" value="{% url 'copo:copo_reads' profile_id='999' %}" name="read_url"
+               id="read_url"/>     
+        <input type="hidden" value="{% url 'copo:copo_files' profile_id='999' %}" name="files_url"
+               id="files_url"/>     
 
     </div>
 

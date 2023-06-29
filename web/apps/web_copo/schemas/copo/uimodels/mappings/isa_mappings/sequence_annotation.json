@@ -1,0 +1,312 @@
+{
+  "configuration": {
+    "type": "json",
+    "provider": "isa",
+    "ref": "seqannotation_schema"
+  },
+  "properties": [
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "study"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.study",
+      "label": "STUDY",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "sample"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.sample",
+      "label": "SAMPLE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "run"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.run",
+      "label": "RUN",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "experiment"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.experiment",
+      "label": "EXPERIMENT",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },    
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "title"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.title",
+      "label": "TITLE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "true",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "description"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.description",
+      "label": "DESCRIPTION",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "files"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.files",
+      "label": "FILES",
+      "show_in_form": false,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "filenames"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.filenames",
+      "label": "FILES",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },    
+    {
+      "help_tip": "",
+      "unique": false,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "filetypes"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.filetypes",
+      "label": "TYPE",
+      "show_in_form": true,
+      "ref": "",
+      "type": "array",
+      "required": "false",
+      "show_in_table": false,
+      "control": "text"
+    },        
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "deleted"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Delete",
+      "show_in_form": false,
+      "id": "copo.seqannotation.deleted",
+      "type": "string",
+      "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "date_modified"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Date Modified",
+      "show_in_form": false,
+      "id": "copo.seqannotation.date_modified",
+      "type": "string",
+      "show_in_table": false,
+      "control": "date-picker"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "date_created"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Created",
+      "show_in_form": false,
+      "id": "copo.seqannotation.date_created",
+      "type": "string",
+      "show_in_table": false,
+      "control": "datetime"
+    },
+    {
+      "help_tip": "",
+      "required": "true",
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "profile_id"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "true",
+      "label": "Profile ID",
+      "show_in_form": false,
+      "id": "copo.seqannotation.profile_id",
+      "type": "string",
+      "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "accession"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.accession",
+      "label": "ACCESSION",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "error"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.seqannotation.error",
+      "label": "SUBMISSION ERROR",
+      "show_in_form": false,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
+      "control": "text"
+    }        
+  ]
+}

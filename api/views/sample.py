@@ -132,7 +132,7 @@ def filter_for_API(sample_list, add_all_fields=False):
                 if k in time_fields:
                     s_out[k] = format_date(v)
                 elif k in ["created_by", "updated_by"]:
-                    s_out[k] = "*****@" + v.split("@")[1]
+                        s_out[k] = "*****@" + (v.split("@")[1] if "@" in v else "")
 
                 else:
                     s_out[k] = v

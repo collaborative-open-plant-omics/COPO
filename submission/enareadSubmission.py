@@ -19,7 +19,7 @@ import dal.mongo_util as mutil
 from contextlib import closing
 from django.conf import settings
 from submission.helpers import generic_helper as ghlper
-from dal.copo_da import Submission
+from dal.copo_da import Submission, Sample
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from submission.helpers.ena_helper import SubmissionHelper
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -28,6 +28,12 @@ from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_EXPERIM
     SRA_PROJECT_TEMPLATE, SRA_SAMPLE_TEMPLATE, \
     SRA_SUBMISSION_MODIFY_TEMPLATE, ENA_CLI
 import web.apps.web_copo.utils.FileTransferUtils as tx
+from submission.helpers.generic_helper import notify_read_status
+from web.apps.web_copo.schema_versions.lookup import dtol_lookups
+import web.apps.web_copo.templatetags.html_tags as htags
+from exceptions_and_logging.logger import Logger
+from django.conf import settings
+
 
 REPOSITORIES = settings.REPOSITORIES
 BASE_DIR = settings.BASE_DIR
@@ -57,6 +63,7 @@ class EnaReads:
         self.submission_context = None
         self.tmp_folder = None
         self.remote_location = None
+        self.project_id = None
 
     def process_queue(self):
         """
@@ -64,7 +71,7 @@ class EnaReads:
         :return:
         """
         collection_handle = ghlper.get_submission_queue_handle()
-
+        dt = d_utils.get_datetime()
         # check and update status for long running tasks
         records = list(
             collection_handle.find({'repository': {'$in': ENA_TYPES}, 'processing_status': 'running'}))
@@ -73,19 +80,19 @@ class EnaReads:
             recorded_time = rec.get("date_modified", None)
 
             if not recorded_time:
-                rec['date_modified'] = d_utils.get_datetime()
+                rec['date_modified'] = dt
                 collection_handle.update(
                     {"_id": ObjectId(str(rec.pop('_id')))},
                     {'$set': rec})
 
                 continue
 
-            current_time = d_utils.get_datetime()
+            current_time = dt
             time_difference = current_time - recorded_time
             if time_difference.seconds >= (REFRESH_THRESHOLD):  # time submission is perceived to have been running
 
                 # refresh task to be rescheduled
-                rec['date_modified'] = d_utils.get_datetime()
+                rec['date_modified'] = dt
                 rec['processing_status'] = 'pending'
                 collection_handle.update(
                     {"_id": ObjectId(str(rec.pop('_id')))},
@@ -102,7 +109,7 @@ class EnaReads:
         # pick top of the list, update status and timestamp
         queued_record = records[0]
         queued_record['processing_status'] = 'running'
-        queued_record['date_modified'] = d_utils.get_datetime()
+        queued_record['date_modified'] = dt
 
         queued_record_id = queued_record.pop('_id', '')
 
@@ -110,20 +117,41 @@ class EnaReads:
         message = "Now processing submission..."
 
         ghlper.logging_info(message, self.submission_id)
-
         ghlper.update_submission_status(status='info', message=message, submission_id=self.submission_id)
 
         collection_handle.update(
             {"_id": ObjectId(str(queued_record_id))},
             {'$set': queued_record})
 
-        result = self.submit()
+        try :
+
+            result = self._submit()
+            if not result.get("status", False):
+                message = "Submission processing failed! " + result.get("message", str())
+                ghlper.logging_info(message, self.submission_id)
+                # reset sample status to pending & remove bundle / bundle samples
+                Submission(profile_id=self.profile_id).reset_read_submisison_bundle(self.submission_id)
+        except Exception as exc:
+            if settings.DEBUG:
+                Logger().exception(exc)
+            message = "Submission processing failed due to exception! Retry again"
+            ghlper.logging_info(message, self.submission_id)
+            # reset sample status to pending & remove bundle / bundle samples
+            queued_record['processing_status'] = 'pending'
+            collection_handle.update(
+                {"_id": ObjectId(str(queued_record_id))},
+                {'$set': queued_record})
+            return False
+
         # remove from queue - this supposes that submissions that returned error will have
         # to be re-scheduled for processing, upon addressing the error, by the user
         collection_handle.remove({"_id": queued_record_id})
+        table_data = htags.generate_read_record(profile_id=self.profile_id)
+        result = {"table_data": table_data, "component": "read"}
+        notify_read_status(data={"profile_id": self.profile_id, "table_data":table_data, "component": "read"}, action="refresh_table", html_id="read_table"  )
         return True
 
-    def submit(self):
+    def _submit(self):
         """
         function acts as a controller for the submission process
         :return:
@@ -149,6 +177,11 @@ class EnaReads:
             ghlper.logging_info(message, self.submission_id)
 
             return dict(status=True, message=message)
+        
+        self.profile_id = submission_record.get("profile_id", str())
+
+        notify_read_status(data={"profile_id": self.profile_id},
+                        msg='Initiating Read submission......', action="info", html_id="sample_info")
 
         # instantiate helper object - performs most auxiliary tasks associated with the submission
         self.submission_helper = SubmissionHelper(submission_id=self.submission_id)
@@ -171,25 +204,34 @@ class EnaReads:
         context = self._get_submission_xml()
 
         if context['status'] is False:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="error", html_id="sample_info")
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
 
         submission_xml_path = context['value']
 
+        context = self._get_edit_submission_xml(submission_xml_path) 
+        modify_submission_xml_path = context['value']
+
         # register project
         if not self.submission_helper.get_study_accessions():
+            xml = submission_xml_path
+        #do the modifiction
+        else:
+            xml = modify_submission_xml_path
+        context = self._register_project(submission_xml_path=xml)
 
-            context = self._register_project(submission_xml_path=submission_xml_path)
-
-            if context['status'] is False:
-                ghlper.update_submission_status(status='error', message=context.get("message", str()),
-                                                submission_id=self.submission_id)
-                return context
+        if context['status'] is False:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="error", html_id="sample_info")
+            ghlper.update_submission_status(status='error', message=context.get("message", str()),
+                                            submission_id=self.submission_id)
+            return context
 
         # register samples
-        context = self._register_samples(submission_xml_path=submission_xml_path)
+        context = self._register_samples(submission_xml_path=submission_xml_path, modify_submission_xml_path=modify_submission_xml_path)
         if context['status'] is False:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="error", html_id="sample_info")
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
@@ -203,16 +245,19 @@ class EnaReads:
 
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=False)
         if context['status'] is False:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="error", html_id="sample_info") 
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
 
         context = self._submit_datafiles_rest(submission_xml_path=submission_xml_path, is_new=True)
         if context['status'] is False:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="error", html_id="sample_info")
             ghlper.update_submission_status(status='error', message=context.get("message", str()),
                                             submission_id=self.submission_id)
             return context
         
+
         #delete bundle as submission complete
         ghlper.delete_submisison_bundle(submission_id=self.submission_id)
 
@@ -227,6 +272,7 @@ class EnaReads:
         # report on file upload status
         context = self.get_upload_status()
         if context['status'] is True and context['message']:
+            notify_read_status(data={"profile_id": self.profile_id}, msg=context.get("message", str()), action="info", html_id="sample_info")
             ghlper.notify_transfer_status(profile_id=submission_record['profile_id'], submission_id=self.submission_id,
                                           status_message=context['message'])
 
@@ -245,6 +291,7 @@ class EnaReads:
                 os.makedirs(conv_dir)
         except Exception as e:
             message = 'Error creating submission location ' + conv_dir + ": " + str(e)
+            notify_read_status(data={"profile_id": self.profile_id}, msg=message, action="error", html_id="sample_info")
             ghlper.logging_error(message, self.submission_id)
             raise
 
@@ -334,6 +381,7 @@ class EnaReads:
         log_message = "Registering project..."
         ghlper.logging_info(log_message, self.submission_id)
         ghlper.update_submission_status(status='info', message=log_message, submission_id=self.submission_id)
+        notify_read_status(data={"profile_id": self.profile_id}, msg=log_message, action="info", html_id="sample_info")
 
         parser = etree.XMLParser(remove_blank_text=True)
         root = etree.parse(SRA_PROJECT_TEMPLATE, parser).getroot()
@@ -385,10 +433,12 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
+            if settings.DEBUG:
+                Logger().exception(e)
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + \
                       curl_cmd.replace(
                           self.pass_word, "xxxxxx")
-            
+            raise e
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
             result['status'] = False
@@ -443,21 +493,24 @@ class EnaReads:
             # update submission status
             status_message = "Project successfully registered, and accessions saved."
             ghlper.update_submission_status(status='info', message=status_message, submission_id=self.submission_id)
-
+            notify_read_status(data={"profile_id": self.profile_id},
+                        msg=status_message, action="info", html_id="sample_info")
         return dict(status=True, value='')
 
-    def _register_samples(self, submission_xml_path=str()):
+    def _register_samples(self, submission_xml_path=str(), modify_submission_xml_path=str()):
         """
         function creates and submits sample xml
         :return:
         """
 
         result = dict(status=True, value='')
+        dt = d_utils.get_datetime()
 
         # create sample xml
-        log_message = "Registering samples..."
-        ghlper.logging_info(log_message, self.submission_id)
-        ghlper.update_submission_status(status='info', message=log_message, submission_id=self.submission_id)
+        message = "Registering samples..."
+        ghlper.logging_info(message, self.submission_id)
+        ghlper.update_submission_status(status='info', message=message, submission_id=self.submission_id)
+        notify_read_status(data={"profile_id": self.profile_id}, msg=message, action="info", html_id="sample_info")
 
         # reset error object
         self.submission_helper.flush_converter_errors()
@@ -465,7 +518,9 @@ class EnaReads:
         parser = etree.XMLParser(remove_blank_text=True)
 
         # root element is  SAMPLE_SET
-        root = etree.parse(SRA_SAMPLE_TEMPLATE, parser).getroot()
+        root = None
+        root_add = etree.parse(SRA_SAMPLE_TEMPLATE, parser).getroot()
+        root_modify = etree.parse(SRA_SAMPLE_TEMPLATE, parser).getroot()
 
         # get samples and create sample nodes
         samples = self.submission_helper.get_sra_samples(submission_location=self.submission_location)
@@ -480,16 +535,25 @@ class EnaReads:
             return result
 
         # filter out already submitted samples
-        submitted_samples_id = [x['sample_id'] for x in self.submission_helper.get_sample_accessions()]
+        sample_accession_list = self.submission_helper.get_sample_accessions()
+        submitted_samples_id = [x['sample_id'] for x in sample_accession_list]
+        new_samples = [x['sample_id'] for x in samples if x['sample_id'] not in submitted_samples_id]       
+
+        # modify samples
+
+        is_modifed_sample = False
+        is_new_sample = False
 
         # add samples
         sra_samples = list()
         for sample in samples:
             sample_alias = self.project_alias + ":sample:" + sample.get("name", str())
-
+            root = root_add
             if sample['sample_id'] in submitted_samples_id:
-                continue
-
+                is_modifed_sample = True
+                root = root_modify
+            else:
+                is_new_sample = True
             sra_samples.append(dict(sample_id=sample['sample_id'], sample_alias=sample_alias))
             sample_node = etree.SubElement(root, 'SAMPLE')
             sample_node.set("alias", sample_alias)
@@ -511,18 +575,44 @@ class EnaReads:
                 if atr.get("unit", str()):
                     etree.SubElement(sample_attribute_node, 'UNITS').text = atr.get("unit", str())
 
+            # add sample collection date & collection location TODO
+
+            for key in sample.keys():
+                if key[0].isupper():
+                    ena_names = [ena_key for ena_key in dtol_lookups.DTOL_ENA_MAPPINGS.keys() if ena_key == key or (ena_key.startswith(key + "_" ) and dtol_lookups.DTOL_ENA_MAPPINGS[ena_key].get('ena', ""))]
+                    for ena_name in ena_names:
+                        sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
+                        etree.SubElement(sample_attribute_node, 'TAG').text =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name]['ena']
+                        function =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name].get('ena_data_function', dtol_lookups.get_default_data_function)
+                        etree.SubElement(sample_attribute_node, 'VALUE').text =  function(sample.get(key, str()))
+
         if not sra_samples:  # no samples to submit
             log_message = "No new samples to register!"
             ghlper.logging_info(log_message, self.submission_id)
             ghlper.update_submission_status(status='info', message=log_message, submission_id=self.submission_id)
-
+            notify_read_status(data={"profile_id": self.profile_id},
+                        msg=log_message, action="info", html_id="sample_info")
             return dict(status=True, value='')
 
         sra_df = pd.DataFrame(sra_samples)
         sra_df.index = sra_df['sample_alias']
 
+
+        #do it for modify
+        if is_modifed_sample:
+            result = self.process_sample(root_modify, modify_submission_xml_path, sra_df, is_new=False)
+
+        if result['status'] is False:
+            return result
+        
+        #do it for add
+        if is_new_sample:
+            result = self.process_sample(root_add, submission_xml_path, sra_df, is_new=True)
+
+        return result
+        '''
         # write sample xml
-        result = self.write_xml_file(xml_object=root, file_name="sample.xml")
+        result = self.write_xml_file(xml_object=root_add, file_name="sample.xml")
         if result['status'] is False:
             return result
 
@@ -598,6 +688,7 @@ class EnaReads:
             previous.extend(sample_accessions)
             accessions['sample'] = previous
             submission_record['accessions'] = accessions
+            submission_record['date_modified'] = dt
 
             collection_handle.update(
                 {"_id": ObjectId(str(submission_record.pop('_id')))},
@@ -606,8 +697,112 @@ class EnaReads:
             # update submission status
             status_message = "Samples successfully registered, accessions saved."
             ghlper.update_submission_status(status='info', message=status_message, submission_id=self.submission_id)
+            notify_read_status(data={"profile_id": self.profile_id},
+                        msg=status_message, action="info", html_id="sample_info")
+        #update sample status
+        Sample(profile_id=self.profile_id).update_read_accession(sample_accessions)
+        '''
 
+
+    def process_sample(self, root, submission_xml_path, sra_df, is_new=True)  :
+        dt = d_utils.get_datetime()
+
+        result = self.write_xml_file(xml_object=root, file_name="sample.xml")
+        if result['status'] is False:
+            return result
+
+        sample_xml_path = result['value']
+
+        result = dict(status=True, value='')
+
+        # register samples to the ENA service
+        curl_cmd = 'curl -u "' + self.user_token + ':' + self.pass_word \
+                   + '" -F "SUBMISSION=@' \
+                   + submission_xml_path \
+                   + '" -F "SAMPLE=@' \
+                   + sample_xml_path \
+                   + '" "' + self.ena_service \
+                   + '"'
+
+        ghlper.logging_info(
+            "Submitting samples xml to ENA via CURL. CURL command is: " + curl_cmd.replace(self.pass_word, "xxxxxx"),
+            self.submission_id)
+
+        try:
+            receipt = subprocess.check_output(curl_cmd, shell=True)
+        except Exception as e:
+            if settings.DEBUG:
+                Logger().exception(e)
+            message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
+            ghlper.logging_error(message, self.submission_id)
+            result['message'] = message
+            result['status'] = False
+            raise e
+            return result
+
+        root = etree.fromstring(receipt)
+
+        if root.get('success') == 'false':
+            result['status'] = False
+            result['message'] = "Couldn't register SAMPLES due to the following errors: "
+            errors = root.findall('.//ERROR')
+            if errors:
+                error_text = str()
+                for e in errors:
+                    error_text = error_text + " \n" + e.text
+
+                result['message'] = result['message'] + error_text
+
+            # log error
+            ghlper.logging_error(result['message'], self.submission_id)
+            notify_read_status(data={"profile_id": self.profile_id},
+                            msg=result['message'], action="error", html_id="sample_info")
+            return result
+
+        # save sample accession for new sample only
+        if is_new:
+            self.write_xml_file(xml_object=root, file_name="samples_receipt.xml")
+            ghlper.logging_info("Saving samples accessions to the database", self.submission_id)
+            sample_accessions = list()
+            for accession in root.findall('SAMPLE'):
+                biosample = accession.find('EXT_ID')
+                sample_alias = accession.get('alias', default=str())
+                sample_id = sra_df.loc[sample_alias]['sample_id']
+                sample_accessions.append(
+                    dict(
+                        sample_accession=accession.get('accession', default=str()),
+                        sample_alias=sample_alias,
+                        biosample_accession=biosample.get('accession', default=str()),
+                        sample_id=sample_id
+                    )
+                )
+
+            collection_handle = ghlper.get_submission_handle()
+            doc = collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"accessions": 1})
+
+            if doc:
+                submission_record = doc
+                accessions = submission_record.get("accessions", dict())
+                previous = accessions.get('sample', list())
+                previous.extend(sample_accessions)
+                accessions['sample'] = previous
+                submission_record['accessions'] = accessions
+                submission_record['date_modified'] = dt
+
+                collection_handle.update(
+                    {"_id": ObjectId(str(submission_record.pop('_id')))},
+                    {'$set': submission_record})
+
+                # update submission status
+                status_message = "Samples successfully registered, accessions saved."
+                ghlper.update_submission_status(status='info', message=status_message, submission_id=self.submission_id)
+                notify_read_status(data={"profile_id": self.profile_id},
+                            msg=status_message, action="info", html_id="sample_info")
+            #update sample status
+            Sample(profile_id=self.profile_id).update_read_accession(sample_accessions)
         return dict(status=True, value='')
+
+
 
     def process_study_release(self, force_release=False):
         """
@@ -615,6 +810,7 @@ class EnaReads:
         :param force_release: if True, study will be released even if still on embargo
         :return:
         """
+        dt = d_utils.get_datetime()
 
         self.submission_helper = SubmissionHelper(submission_id=self.submission_id)
 
@@ -653,7 +849,7 @@ class EnaReads:
             try:
                 first_public = datetime.strptime(first_public, "%Y-%m-%dT%H:%M:%S")
             except Exception as e:
-                first_public = d_utils.get_datetime()
+                first_public = dt
 
             collection_handle = self.submission_helper.collection_handle
             submission_record = collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"accessions": 1})
@@ -690,8 +886,11 @@ class EnaReads:
             context = self.write_xml_file(xml_object=root, file_name="submission_modify.xml")
 
             if context['status'] is False:
-                ghlper.update_submission_status(status='error', message=context.get("message", str()),
+                message = context.get("message", str())
+                ghlper.update_submission_status(status='error', message=message,
                                                 submission_id=self.submission_id)
+                notify_read_status(data={"profile_id": self.profile_id},
+                        msg=message, action="error", html_id="sample_info")
                 return context
 
             submission_xml_path = context['value']
@@ -712,11 +911,13 @@ class EnaReads:
             try:
                 receipt = subprocess.check_output(curl_cmd, shell=True)
             except Exception as e:
-                message = 'API call error ' + str(e)
+                if settings.DEBUG:
+                    Logger().exception(e)                
+                message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
                 ghlper.logging_error(message, self.submission_id)
                 result['message'] = message
                 result['status'] = False
-
+                raise
                 return result
 
             root = etree.fromstring(receipt)
@@ -746,7 +947,7 @@ class EnaReads:
             submission_record = collection_handle.find_one({"_id": ObjectId(self.submission_id)}, {"accessions": 1})
             prj = submission_record.get('accessions', dict()).get('project', [{}])
             prj[0]['status'] = 'PUBLIC'
-            prj[0]['release_date'] = d_utils.get_datetime()
+            prj[0]['release_date'] = dt
 
             collection_handle.update(
                 {"_id": ObjectId(str(submission_record.pop('_id')))},
@@ -767,9 +968,10 @@ class EnaReads:
         :return:
         """
 
-        log_message = "Preparing datafiles for submission..."
-        ghlper.logging_info(log_message, self.submission_id)
-        ghlper.update_submission_status(status='info', message=log_message, submission_id=self.submission_id)
+        message = "Preparing datafiles for submission..."
+        ghlper.logging_info(message, self.submission_id)
+        ghlper.update_submission_status(status='info', message=message, submission_id=self.submission_id)
+        notify_read_status(data={"profile_id": self.profile_id}, msg=message, action="info", html_id="sample_info")
 
         collection_handle = ghlper.get_submission_handle()
 
@@ -984,7 +1186,8 @@ class EnaReads:
             submission_message = f'Submitting {str(submission_file_names)} ...'
             ghlper.logging_info(submission_message, self.submission_id)
             ghlper.update_submission_status(status='info', message=submission_message, submission_id=self.submission_id)
-
+            notify_read_status(data={"profile_id": self.profile_id},
+                        msg=submission_message, action="info", html_id="sample_info")
             # construct experiment xml
             experiment_root = etree.parse(SRA_EXPERIMENT_TEMPLATE, xml_parser).getroot()
 
@@ -1088,10 +1291,12 @@ class EnaReads:
             try:
                 receipt = subprocess.check_output(curl_cmd, shell=True)
             except Exception as e:
+                if settings.DEBUG:
+                    Logger().exception(e)                
                 message = 'API call error ' + str(e).replace(self.pass_word,"xxxxxx"),
                 ghlper.logging_error(message, self.submission_id)
                 submission_errors.append(message)
-                continue
+                raise e
 
             receipt_root = etree.fromstring(receipt)
 
@@ -1182,12 +1387,16 @@ class EnaReads:
             # filter out submitted files from datafiles_df
             datafiles_df = datafiles_df[~datafiles_df.datafile_id.isin(submitted_files)]
 
+            # update datafile status
+            Sample(profile_id=self.profile_id).update_datafile_status(datafile_ids=submitted_files, status="accepted")
+
             if  not len(datafiles_df):
                 # all files have been successfully submitted, finalise submission
                 self.finalise_submission(is_new)
 
         return result
 
+    '''
     def _submit_datafiles_cli(self, submission_xml_path=str()):
         """
         function handles the submission of datafiles using ENA CLI
@@ -1519,7 +1728,7 @@ class EnaReads:
                 self.finalise_submission()
 
         return result
-
+    
     def get_cli_command(self, manifest_location=str()):
         """
         function composes the command line interface command to use for datafiles submission
@@ -1544,6 +1753,7 @@ class EnaReads:
                   self.sra_settings["sra_center"] + ' -ascp '
 
         return cli_cmd
+    '''
 
     def finalise_submission(self, is_new=True):
         """
@@ -1553,11 +1763,13 @@ class EnaReads:
         if not is_new:
             return
 
+        dt = d_utils.get_datetime()
         # all metadata have been successfully submitted
         log_message = "Finalising submission..."
         ghlper.logging_info(log_message, self.submission_id)
         ghlper.update_submission_status(status='info', message=log_message, submission_id=self.submission_id)
-
+        notify_read_status(data={"profile_id": self.profile_id},
+                        msg=log_message, action="info", html_id="sample_info")
         # remove submission auxiliary folders
 
         if os.path.exists(self.datafiles_dir):
@@ -1576,7 +1788,7 @@ class EnaReads:
 
         # mark submission as complete
         collection_handle = ghlper.get_submission_handle()
-        submission_record = dict(complete=True, completed_on=d_utils.get_datetime())
+        submission_record = dict(complete=True, completed_on=dt)
         collection_handle.update(
             {"_id": ObjectId(self.submission_id)},
             {'$set': submission_record})
@@ -1585,7 +1797,8 @@ class EnaReads:
         status_message = "Submission is marked as complete!"
         ghlper.logging_info(status_message, self.submission_id)
         ghlper.update_submission_status(status='success', message=status_message, submission_id=self.submission_id)
-
+        notify_read_status(data={"profile_id": self.profile_id},
+                        msg=status_message, action="info", html_id="sample_info")
         return True
 
     def write_xml_file(self, location=str(), xml_object=None, file_name=str()):
@@ -1628,7 +1841,7 @@ class EnaReads:
         function makes the study public
         :return:
         """
-
+        dt = d_utils.get_datetime()
         # instantiate helper object - performs most auxiliary tasks associated with the submission
         self.submission_helper = SubmissionHelper(submission_id=self.submission_id)
 
@@ -1689,7 +1902,9 @@ class EnaReads:
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
         except Exception as e:
-            message = 'API call error ' + str(e)
+            if settings.DEBUG:
+                Logger().exception(e)            
+            message = 'API call error ' + str(e).replace(self.pass_word, "xxxxxx"),
             ghlper.logging_error(message, self.submission_id)
             result['message'] = message
             result['status'] = False
@@ -1719,7 +1934,7 @@ class EnaReads:
         ghlper.logging_info("Study successfully released. Updating status in the database",
                             self.submission_id)
         prj[0]['status'] = 'PUBLIC'
-        prj[0]['release_date'] = d_utils.get_datetime()
+        prj[0]['release_date'] = dt
 
         collection_handle.update(
             {"_id": ObjectId(str(submission_record.pop('_id')))},
@@ -1728,7 +1943,8 @@ class EnaReads:
         # update submission status
         status_message = "Study release successful."
         ghlper.update_submission_status(status='info', message=status_message, submission_id=self.submission_id)
-
+        notify_read_status(data={"profile_id": self.profile_id},
+                        msg=status_message, action="info", html_id="sample_info")
         result = dict(status=True, value='', message=status_message)
         return result
 
@@ -1807,6 +2023,8 @@ class EnaReads:
                          f'select <strong>View Accessions</strong> from the menu</li>{extra_info}</ul>'
 
         ghlper.update_submission_status(status='success', message=status_message, submission_id=self.submission_id)
+        notify_read_status(data={"profile_id": self.profile_id},
+                        msg=status_message, action="info", html_id="sample_info")
 
         return dict(status=True, value='', message='')
 
@@ -1838,7 +2056,7 @@ class EnaReads:
         function processes the file transfer queue and initiates transfer to ENA Dropbox
         :return:
         """
-
+        dt = d_utils.get_datetime()
         transfer_collection_handle = ghlper.get_filetransfer_queue_handle()
 
         # check and update status for long running transfers - possibly stalled
@@ -1849,18 +2067,18 @@ class EnaReads:
             recorded_time = rec.get("date_modified", None)
 
             if not recorded_time:
-                rec['date_modified'] = d_utils.get_datetime()
+                rec['date_modified'] = dt
                 transfer_collection_handle.update(
                     {"_id": ObjectId(str(rec.pop('_id')))},
                     {'$set': rec})
 
                 continue
 
-            current_time = d_utils.get_datetime()
+            current_time = dt
             time_difference = current_time - recorded_time
             if time_difference.seconds >= (TRANSFER_REFRESH_THRESHOLD):  # time transfer has been running
                 # refresh task to be rescheduled
-                rec['date_modified'] = d_utils.get_datetime()
+                rec['date_modified'] = dt
                 rec['processing_status'] = 'pending'
                 transfer_collection_handle.update(
                     {"_id": ObjectId(str(rec.pop('_id')))},
@@ -1876,7 +2094,7 @@ class EnaReads:
         # pick top of the list, update status and timestamp
         queued_record = records[0]
         queued_record['processing_status'] = 'running'
-        queued_record['date_modified'] = d_utils.get_datetime()
+        queued_record['date_modified'] = dt
 
         queued_record_id = queued_record.pop('_id', '')
 

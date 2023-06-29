@@ -6,8 +6,9 @@ $(document).ready(function () {
     const copoAccessionsDashboardURL = "/copo/accessions"
     const copoTolDashboardURL = "/copo/dashboard/"
     const copoSamplesURL = "/copo/copo_samples/"
-    const copoENAReadManifestValidateURL = "/copo/ena_read_manifest_validate/"
-    const copoENAAssemblyURL = "/copo/ena_assembly/"
+    const copoENAReadManifestValidateURL = "/copo/copo_reads/"
+    const copoENAAssemblyURL = "/copo/copo_assembly/"
+    const copoENAAnnotationURL = "/copo/copo_seq_annotation/"
     const copoVisualsURL = "/copo/copo_profile_visualise/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
     const componentMeta = get_profile_component_meta(component);
@@ -128,10 +129,14 @@ $(document).ready(function () {
 
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } else if (action_type === "reads") {
-                url = copoENAReadManifestValidateURL + id
+            } /*else if (action_type === "reads") {
+                url = copoENAReadManifestValidateURL + id + "/view"
             } else if (action_type === "assembly") {
-                url = copoENAAssemblyURL + id
+                url = copoENAAssemblyURL + id + "/view"
+            } else if (action_type === "annotation") {
+                url = copoENAAnnotationURL + id + "/view"
+            }*/ else {
+                url = "/copo/copo_" + action_type  + "/" + id + "/view"
             }
             document.location = url
         }
@@ -221,7 +226,7 @@ $(document).ready(function () {
 
                     // Initialise functions for the profile grids beyond the 8 records that are shown by default
                     refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
-                    initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL)
+                    initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL, copoENAAnnotationURL); // Initialise functions for the profile grids beyond the 8 records that are shown by default
 
                     set_profile_grid_heading(content) // Set profile grid heading
                     // Adjust margin-bottom for associated types when profile description appears on 2 lines
@@ -288,13 +293,16 @@ $(document).ready(function () {
 function appendRecordComponents(grids) {
     // loop through each grid
     grids.each(function () {
-        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');
-
+        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');  
+        let profile_type = $(this).closest('.grid').find('.copo-records-panel').attr('profile_type');
+        if (profile_type) {
+            profile_type = profile_type.toLowerCase().trim();
+        }
         // Add component buttons to the menu for each profile record
         let menu = $(this).closest('.grid').find('#expanding_menu')
         let component_buttons;
         $(menu).attr("id", "menu_" + record_id)
-        component_buttons = append_component_buttons(record_id)
+        component_buttons = append_component_buttons(record_id, profile_type)
         $(menu).find(".comp").append(component_buttons)
     });
 
@@ -516,7 +524,7 @@ function update_counts(copoVisualsURL, csrftoken, component) {
     });
 }
 
-function append_component_buttons(record_id) {
+function append_component_buttons(record_id, profile_type) {
     //components row
     const components = get_copo_profile_components();
     const componentsDIV = $('<div/>', {
@@ -529,6 +537,10 @@ function append_component_buttons(record_id) {
             return false;
         }
 
+        if (!item.hasOwnProperty("profile_component") || (profile_type =="stand-alone" && item.profile_component != "stand-alone") || (profile_type !="stand-alone" && item.profile_component == "stand-alone")) {
+            return false;
+        }
+
         let component_link = '#';
 
         try {
@@ -538,11 +550,13 @@ function append_component_buttons(record_id) {
         }
 
         // Create button html
-        let pcomponent_count_span = $('<span></span>')
-            .attr("class", "pcomponent-count")
-            .attr("id", record_id + "_" + item.countsKey)
-            .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
-
+        let pcomponent_count_span = $("<span></span>")
+        if (item.countsKey) {
+            pcomponent_count_span = $('<span></span>')
+                .attr("class", "pcomponent-count")
+                .attr("id", record_id + "_" + item.countsKey)
+                .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
+        }
         let pcomponent_count_div = $('<div></div>')
             .attr("class", `tiny ui basic pcomponent-color left pointing label ${item.color}`)
             .html(pcomponent_count_span);
@@ -572,16 +586,21 @@ function filter_action_menu() {
     $(".copo-records-panel").each(function (idx, el) {
         const t = $(el).attr("profile_type");
         if (t.includes("ERGA")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='dtol_option']").hide()
+            $(el).find("a[profile_component='stand-alone']").hide()
+            //$(el).find("a[anchor_type='reads']").hide()
+            //$(el).find("a[anchor_type='assembly']").hide()
+            //$(el).find("a[anchor_type='annotation']").hide()
+            //$(el).find("a[anchor_type='dtol_option']").hide()
         } else if (t.includes("DTOL") || t.includes("ASG")) {
-            $(el).find("a[anchor_type='reads']").hide()
-            $(el).find("a[anchor_type='assembly']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='stand-alone']").hide()
+            //$(el).find("a[anchor_type='reads']").hide()
+            //$(el).find("a[anchor_type='assembly']").hide()
+            //$(el).find("a[anchor_type='annotation']").hide()
+            //$(el).find("a[anchor_type='erga_option']").hide()
         } else if (t.includes("Stand-alone")) {
-            $(el).find("a[anchor_type='dtol_option']").hide()
-            $(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='dtol']").hide()
+            //$(el).find("a[anchor_type='dtol_option']").hide()
+            //$(el).find("a[anchor_type='erga_option']").hide()
         }
     })
 }
@@ -712,10 +731,14 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
 
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } else if (action_type === "reads") {
+            } /* else if (action_type === "reads") {
                 url = copoENAReadManifestValidateURL + id
             } else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id
+            } else if (action_type === "seq_annotation") {
+                url = copoENAAnnotationURL + id
+            } */ else {
+                url = "/copo/copo_" +  action_type + "/" +  id + "/view"
             }
             document.location = url
         }
@@ -760,6 +783,7 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
 
         // Apply the content to the popover
         popover.attr('data-content', $content.html());
+
     }).on('shown.bs.popover', function (e) {
         $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });

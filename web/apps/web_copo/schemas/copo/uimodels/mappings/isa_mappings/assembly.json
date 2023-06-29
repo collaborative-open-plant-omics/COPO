@@ -7,7 +7,7 @@
   "properties": [
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -28,7 +28,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -70,7 +70,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -91,7 +91,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -112,7 +112,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -133,7 +133,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -154,7 +154,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -175,7 +175,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -196,7 +196,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -217,7 +217,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -238,7 +238,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -259,7 +259,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -280,7 +280,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -301,7 +301,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -322,7 +322,7 @@
     },
     {
       "help_tip": "",
-      "unique": true,
+      "unique": false,
       "default_value": "",
       "show_as_attribute": true,
       "control_meta": {},
@@ -343,7 +343,7 @@
     },
     {
       "help_tip": "",
-      "required": "true",
+      "required": "false",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -361,7 +361,7 @@
     },
     {
       "help_tip": "",
-      "required": "true",
+      "required": "false",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -374,12 +374,12 @@
       "show_in_form": false,
       "id": "copo.assembly.date_modified",
       "type": "string",
-      "show_in_table": true,
+      "show_in_table": false,
       "control": "date-picker"
     },
     {
       "help_tip": "",
-      "required": "true",
+      "required": "false",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -397,7 +397,7 @@
     },
     {
       "help_tip": "",
-      "required": "true",
+      "required": "false",
       "default_value": "",
       "control_meta": {},
       "versions": [
@@ -411,6 +411,27 @@
       "id": "copo.assembly.profile_id",
       "type": "string",
       "show_in_table": false,
+      "control": "text"
+    },
+    {
+      "help_tip": "",
+      "unique": true,
+      "default_value": "",
+      "show_as_attribute": true,
+      "control_meta": {},
+      "versions": [
+        "accession"
+      ],
+      "unique_items": [],
+      "deprecated": false,
+      "hidden": "false",
+      "id": "copo.assembly.accession",
+      "label": "ACCESSION",
+      "show_in_form": true,
+      "ref": "",
+      "type": "string",
+      "required": "false",
+      "show_in_table": true,
       "control": "text"
     }
   ]

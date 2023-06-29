@@ -1,14 +1,45 @@
-import re
-
 from dal.copo_da import Profile, Sample
-from django.conf import settings
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
-import importlib
+import re
 import validators
+
+
+class PermitColumnsValidator(Validator):
+    def check_permit_columns(self, permit_filename_column_name, permit_required_column_name, index, row):
+        header_rules = lookup.DTOL_RULES.get(permit_filename_column_name, "")
+        optional_regex = header_rules.get("optional_regex", "")
+        regex_human_readable = header_rules.get("human_readable", "")
+
+        if row.get(permit_required_column_name, "").strip() == "Y" \
+                and row.get(permit_filename_column_name, "") \
+                and not re.match(
+            optional_regex, row.get(permit_filename_column_name, "").strip().replace(" ", "_"), re.IGNORECASE):
+            self.errors.append(msg["validation_msg_invalid_permit_filename"] % (
+                row.get(permit_filename_column_name, ""), permit_filename_column_name, str(index + 1),
+                regex_human_readable))
+            self.flag = False
+
+        if row.get(permit_required_column_name, "").strip() == "N" and row.get(permit_filename_column_name,
+                                                                               "").strip().replace(" ",
+                                                                                                   "_").upper() != "NOT_APPLICABLE":
+            self.errors.append(msg["validation_msg_invalid_permit_filename"] % (
+                row.get(permit_filename_column_name, ""), permit_filename_column_name, str(index + 1),
+                regex_human_readable))
+            self.flag = False
+
+    def validate(self):
+        p_type = Profile().get_type(profile_id=self.profile_id)
+
+        # Only ERGA manifests have permit files
+        if "ERGA" in p_type:
+            for index, row in self.data.iterrows():
+                for i, item in enumerate(lookup.PERMIT_FILENAME_COLUMN_NAMES):
+                    self.check_permit_columns(item, lookup.PERMIT_REQUIRED_COLUMN_NAMES[i], index, row)
+        return self.errors, self.warnings, self.flag
 
 
 class DtolEnumerationValidator(Validator):
@@ -127,7 +158,10 @@ class DtolEnumerationValidator(Validator):
                             self.flag = False
                     if optional_regex:
                         # handle regular expression that will only trigger a warning exclude ERGA from this warning
-                        if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE):
+                        # ignore if 'NOT_APPLICABLE' is set as a value for the PERMIT_FILENAME_COLUMN_NAMES
+                        # for ERGA manifests
+                        if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE) \
+                                and header not in lookup.PERMIT_FILENAME_COLUMN_NAMES:
                             if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID'] and p_type == "ERGA":
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))

@@ -127,6 +127,28 @@
       "type": "string",
       "show_in_table": true,
       "control": "date-picker"
+    },
+    {
+      "help_tip": "",
+      "required": "false",
+      "specifications": [
+        "isasample"
+      ],
+      "default_value": "",
+      "control_meta": {},
+      "versions": [
+        "description"
+      ],
+      "ref": "",
+      "deprecated": false,
+      "hidden": "false",
+      "label": "Description",
+      "show_in_form": true,
+      "id": "copo.sample.description",
+      "type": "object",
+      "show_in_table": true,
+      "control": "text",
+      "show_as_attribute": false
     }
   ],
   "description": "Mappings of attribute in the Sample schema to a UI configuration source.",

@@ -62,16 +62,22 @@
                                 Actions
                                 <i class="dropdown icon"></i>
                                 <div class="menu" tabindex="-1">
-                                    <a class="item action" anchor_type="reads" data-action_type="reads">
+                                    <a class="item action" profile_component="stand-alone" anchor_type="files" data-action_type="files">
+                                        Upload Files
+                                    </a>                                   
+                                    <a class="item action" profile_component="stand-alone" anchor_type="reads" data-action_type="reads">
                                         Submit Reads
                                     </a>
-                                    <a class="item action" anchor_type="assembly" data-action_type="assembly">
+                                    <a class="item action" profile_component="stand-alone" anchor_type="assembly" data-action_type="assembly">
                                         Submit Assembly
                                     </a>
-                                    <a class="item action" anchor_type="dtol_option" data-action_type="dtol">
+                                    <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation" data-action_type="seq_annotation">
+                                        Submit Annotation
+                                    </a>                                    
+                                    <a class="item action" profile_component="dtol" anchor_type="dtol_option" data-action_type="dtol">
                                         Submit DTOL/ASG manifest
                                     </a>
-                                    <a class="item action" anchor_type="erga_option" data-action_type="erga">
+                                    <a class="item action" profile_component="dtol" anchor_type="erga_option" data-action_type="erga">
                                         Submit ERGA Manifest
                                     </a>
                                 </div>
@@ -157,6 +163,32 @@
                                             <div class="tiny ui basic pcomponent-color left pointing label red">
                                                 <span class="pcomponent-count"
                                                       id="{{ profile.id }}cdf_num_person"></span>
+                                            </div>
+                                        </a>
+                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"
+                                           style="margin: 3px;"
+                                           title="Navigate to Sequence Annotation"
+                                           href="/copo/copo_seq_annotation/{{ profile.id }}cdf/view">
+                                            <div class="tiny ui button pcomponent-color orange">
+                                                <i class="pcomponent-icon  fa fa-paperclip"></i>
+                                                <span class="pcomponent-name"
+                                                      style="padding-left: 3px;">Publications</span>
+                                            </div>
+                                            <div class="tiny ui basic pcomponent-color left pointing label orange">
+                                                <span class="pcomponent-count" id="{{ profile.id }}cdf_num_seqannotation"></span>
+                                            </div>
+                                        </a>
+                                        <a class="tiny ui labeled button pcomponent-button" tabindex="0"
+                                           style="margin: 3px;"
+                                           title="Navigate to Assembly"
+                                           href="/copo/copo_assembly/{{ profile.id }}cdf/view">
+                                            <div class="tiny ui button pcomponent-color orange">
+                                                <i class="pcomponent-icon  fa fa-paperclip"></i>
+                                                <span class="pcomponent-name"
+                                                      style="padding-left: 3px;">Publications</span>
+                                            </div>
+                                            <div class="tiny ui basic pcomponent-color left pointing label orange">
+                                                <span class="pcomponent-count" id="{{ profile.id }}cdf_num_assembly"></span>
                                             </div>
                                         </a>
                                     </div>

@@ -2,9 +2,8 @@ from dal.copo_da import Sample, Profile
 from submission.helpers.generic_helper import notify_frontend
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import BLANK_VALS
 from collections import Counter
-
-blank_vals = ["NOT_COLLECTED", "NOT_PROVIDED", "NOT_APPLICABLE"]
 
 
 class ColumnValidator(Validator):
@@ -44,7 +43,7 @@ class CellMissingDataValidator(Validator):
                                     header, str(cellcount + 1), "TARGET and SYMBIONT"))
                             else:
                                 self.errors.append(msg["validation_msg_missing_data"] % (
-                                    header, str(cellcount + 1), blank_vals))
+                                    header, str(cellcount + 1), BLANK_VALS))
                             self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
 
@@ -52,7 +51,7 @@ class CellMissingDataValidator(Validator):
 class RackTubeNotNullValidator(Validator):
     def validate(self):
         for index, row in self.data.iterrows():
-            if row.get("RACK_OR_PLATE_ID", "") in blank_vals and row["TUBE_OR_WELL_ID"] in blank_vals:
+            if row.get("RACK_OR_PLATE_ID", "") in BLANK_VALS and row["TUBE_OR_WELL_ID"] in BLANK_VALS:
                 self.errors.append(msg["validation_msg_rack_tube_both_na"] % (str(index + 1)))
                 self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
@@ -85,9 +84,8 @@ class RackPlateUniquenessValidator(Validator):
             # errors = list(map(lambda x: "<li>" + x + "</li>", errors))
             err = list(map(lambda x: x.get("RACK_OR_PLATE_ID", "") + "/" + x["TUBE_OR_WELL_ID"], dup))
 
-
-            #check if rack_tube present we are in the same profile
-            existingsam = Sample().get_by_field("rack_tube", err) #[str(rack_tube[0])])
+            # check if rack_tube present we are in the same profile
+            existingsam = Sample().get_by_field("rack_tube", err)  # [str(rack_tube[0])])
             for exsam in existingsam:
                 if exsam["profile_id"] == self.profile_id:
                     # todo check SYMBIONT value in species list is the same too
@@ -99,15 +97,15 @@ class RackPlateUniquenessValidator(Validator):
                         elif exsam["status"] == "pending":
                             self.warnings.append(msg["validation_msg_isupdate"] % exsam["rack_tube"])
                             self.kwargs["isupdate"] = True
-                    else:     #allow for update after approval in the same profile
-                         self.kwargs["isupdate"] = True
-                         self.warnings.append(msg["validation_msg_warning_update_submitted_sample"] % (
-                                    exsam["rack_tube"], exsam["biosampleAccession"]))
+                    else:  # allow for update after approval in the same profile
+                        self.kwargs["isupdate"] = True
+                        self.warnings.append(msg["validation_msg_warning_update_submitted_sample"] % (
+                            exsam["rack_tube"], exsam["biosampleAccession"]))
                     #    #rack_tube has already been approved by sample manager and can't be updated any more
                     #    self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % (err))
                     #    self.flag = False
                 else:
-                    #rack_tube exist in another profile, can't be updated
+                    # rack_tube exist in another profile, can't be updated
                     self.errors.append(msg["validation_msg_duplicate_tube_or_well_id_in_copo"] % exsam["rack_tube"])
                     self.flag = False
 

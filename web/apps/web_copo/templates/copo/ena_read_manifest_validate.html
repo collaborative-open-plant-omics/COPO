@@ -1,4 +1,4 @@
-{% extends 'copo/base_2col.html' %}
+{# extends 'copo/base_2col.html' #}
 
 {% load static %}
 {% load web_tags_orcid %}
@@ -91,8 +91,9 @@
                 Upload a completed manifest for validation
             </p>
 
+            <input id="file" type="file" style="display:none"/>
 
-            <form style="margin-bottom: 20px">
+            <!--form style="margin-bottom: 20px">
                 <button class="ui purple button" id="presigned_urls_modal_button" style="width:200px">Upload Data into
                     COPO
                 </button>
@@ -105,8 +106,7 @@
                     <div class="percent"></div>
                 </div>
                 <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
-
-            </form>
+            </form-->
 
             <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
                  role="alert">
@@ -170,10 +170,12 @@
 
 
 
-{% block js_block %}
+{# block js_block #}
+<!--
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <!--script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script-->
+    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
     <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
-{% endblock %}
+-->
+{# endblock #}

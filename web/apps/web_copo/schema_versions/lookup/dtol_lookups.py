@@ -3,6 +3,23 @@
 # such as validation enumerations and mappings between different field names
 from tools import resolve_env
 
+
+def get_collection_location_1(str):
+    return str.split('|')[0].strip()
+
+
+def get_collection_location_2(str):
+    return "|".join(str.split('|')[1:])
+
+
+def get_default_data_function(str):
+    return str.lower().replace("_", " ").strip()
+
+
+def exec_function(func=get_default_data_function, str=str()):
+    return func(str)
+
+
 DTOL_ENA_MAPPINGS = {
     'ASSOCIATED_BIOGENOME_PROJECTS': {
         'ena': 'associated biogenome projects'
@@ -15,11 +32,13 @@ DTOL_ENA_MAPPINGS = {
     },
     'COLLECTION_LOCATION_1': {
         'info': "split COLLECTION_LOCATION on first '|' and put left hand side here (should be country)",
-        'ena': 'geographic location (country and/or sea)'
+        'ena': 'geographic location (country and/or sea)',
+        'ena_data_function': get_collection_location_1
     },
     'COLLECTION_LOCATION_2': {
         'info': "split COLLECTION_LOCATION on first '|' and put right hand side here (should be a list of '|' separated locations)",
-        'ena': 'geographic location (region and locality)'
+        'ena': 'geographic location (region and locality)',
+        'ena_data_function': get_collection_location_2
     },
     'COLLECTOR_AFFILIATION': {
         'ena': 'collecting institution'
@@ -1207,10 +1226,13 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         'ASSOCIATED_TRADITIONAL_KNOWLEDGE_LABEL',
         'ETHICS_PERMITS_MANDATORY',
         'ETHICS_PERMITS_DEF',
+        'ETHICS_PERMITS_FILENAME',
         'SAMPLING_PERMITS_MANDATORY',
         'SAMPLING_PERMITS_DEF',
+        'SAMPLING_PERMITS_FILENAME'
         'NAGOYA_PERMITS_MANDATORY',
         'NAGOYA_PERMITS_DEF',
+        'NAGOYA_PERMITS_FILENAME',
         'HAZARD_GROUP',
         'OTHER_INFORMATION',
         'BARCODE_HUB',
@@ -1219,6 +1241,18 @@ DTOL_EXPORT_TO_STS_FIELDS = {
         'RACK_OR_PLATE_ID',
         'SERIES',
         'TISSUE_REMOVED_FROM_BARCODING',
+        'BIOBANKED_TISSUE_PRESERVATIVE',
+        'ASSOCIATED_TRADITIONAL_KNOWLEDGE_OR_BIOCULTURAL_PROJECT_ID',
+        'NAGOYA_PERMITS_REQUIRED',
+        'PROXY_TISSUE_VOUCHER_ID_FOR_BIOBANKING',
+        'BARCODING_STATUS',
+        'ORIGINAL_DECIMAL_LONGITUDE',
+        'PRIMARY_BIOGENOME_PROJECT',
+        'SAMPLING_PERMITS_REQUIRED',
+        'ETHICS_PERMITS_REQUIRED',
+        'ORIGINAL_DECIMAL_LATITUDE',
+        'MIXED_SAMPLE_RISK',
+        'ASSOCIATED_PROJECT_ACCESSIONS',
         'associated_tol_project',
         'biosampleAccession',
         'boldAccession',
@@ -1325,6 +1359,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         'DNA_VOUCHER_FOR_BIOBANKING',
         'ELEVATION',
         'ETHICS_PERMITS_DEF',
+        'ETHICS_PERMITS_FILENAME',
         'ETHICS_PERMITS_REQUIRED',
         'FAMILY',
         'GAL',
@@ -1343,6 +1378,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         'INFRASPECIFIC_EPITHET',
         'LIFESTAGE',
         'NAGOYA_PERMITS_DEF',
+        'NAGOYA_PERMITS_FILENAME',
         'NAGOYA_PERMITS_REQUIRED',
         'ORDER_OR_GROUP',
         'ORGANISM_PART',
@@ -1359,6 +1395,7 @@ DTOL_NO_COMPLIANCE_FIELDS = {
         'SAMPLE_COORDINATOR',
         'SAMPLE_COORDINATOR_AFFILIATION',
         'SAMPLE_COORDINATOR_ORCID_ID',
+        'SAMPLING_PERMITS_FILENAME',
         'SAMPLING_PERMITS_REQUIRED',
         'SCIENTIFIC_NAME',
         'SEX',
@@ -1440,6 +1477,11 @@ DTOL_RULES = {
             "ena_regex": "[+-]?(0|((0\.)|([1-9][0-9]*\.?))[0-9]*)([Ee][+-]?[0-9]+)?",
             "human_readable": "numeric, or empty string"
         },
+    'ETHICS_PERMITS_FILENAME':
+        {
+            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
+        },
     'LATITUDE_END':
         {
             "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)|(^not provided$)|(^restricted access$)",
@@ -1487,6 +1529,11 @@ DTOL_RULES = {
             "ena_regex": "(^[+-]?[0-9]+.?[0-9]*$)|(^not collected$)",
             "human_readable": "numeric, or NOT_COLLECTED"
 
+        },
+    'NAGOYA_PERMITS_FILENAME':
+        {
+            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
         },
     'ORIGINAL_COLLECTION_DATE':
         {
@@ -1538,6 +1585,11 @@ DTOL_RULES = {
                          "11}(,EGA[NR]\d{11})*$)|(^[ESD]R[SR]\d{6,}-[ESD]R[SR]\d{6,}$)|(^SAM[END][AG]?\d+-SAM[END]["
                          "AG]?\d+$)|(^EGA[NR]\d{11}-EGA[NR]\d{11}$)",
             "human_readable": "Specimen accession"
+        },
+    'SAMPLING_PERMITS_FILENAME':
+        {
+            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
         },
     'SAMPLING_WATER_BODY_DEPTH':
         {
@@ -1702,8 +1754,14 @@ BLANK_VALS = ['NOT_APPLICABLE', 'NOT_COLLECTED', 'NOT_PROVIDED']
 
 DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
 
+PERMIT_FILENAME_COLUMN_NAMES = ["SAMPLING_PERMITS_FILENAME", "ETHICS_PERMITS_FILENAME",
+                                "NAGOYA_PERMITS_FILENAME"]
+
+PERMIT_REQUIRED_COLUMN_NAMES = ["SAMPLING_PERMITS_REQUIRED", "ETHICS_PERMITS_REQUIRED",
+                                "NAGOYA_PERMITS_REQUIRED"]
+
 NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL',
-           'NaN', 'n/a', 'nan']
+           'NaN', 'n/a', 'nan', 'NaT']
 
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
 

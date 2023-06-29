@@ -55,13 +55,13 @@ from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 
 # from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import make_validation_record
 from web.apps.web_copo.utils.dtol.Dtol_Spreadsheet import DtolSpreadsheet
-from collections import OrderedDict
 from web.apps.web_copo.utils.group_functions import get_group_membership_asString
 from exceptions_and_logging import logger
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 from submission.submissionDelegator import schedule_submission
 import web.apps.web_copo.utils.EnaAssembly as EnaAssembly
+import web.apps.web_copo.utils.EnaAnnotation as EnaAnnotation
 from web.forms import AssemblyForm
 
 l = logger.Logger("exceptions_and_logging/logs")
@@ -1418,7 +1418,13 @@ def create_spreadsheet_samples(request):
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
     dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.save_records()
-    return HttpResponse(status=200)
+
+    # Save table_data
+    context = dict()
+    context["table_data"] = htags.generate_table_records(profile_id=request.session["profile_id"], component="sample")
+    context["component"] = "sample"
+    out = jsonpickle.encode(context, unpicklable=False)
+    return HttpResponse(status=200, content=out, content_type='application/json')
 
 
 def update_spreadsheet_samples(request):
@@ -1426,7 +1432,13 @@ def update_spreadsheet_samples(request):
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
     dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
-    return HttpResponse(status=200)
+    
+    # Save table_data
+    context = dict()
+    context["table_data"] = htags.generate_table_records(profile_id=request.session["profile_id"], component="sample")
+    context["component"] = "sample"
+    out = jsonpickle.encode(context, unpicklable=False)
+    return HttpResponse(status=200, content=out, content_type='application/json')
 
 
 def update_pending_samples_table(request):
@@ -1556,6 +1568,13 @@ def sample_permits(request):
 def assembly_files(request):
     files = request.FILES
     EnaAssembly.upload_assembly_files(files)
+
+    return HttpResponse(json.dumps({}))
+
+
+def annotation_files(request):
+    files = request.FILES
+    EnaAnnotation.upload_annotation_files(files)
 
     return HttpResponse(json.dumps({}))
 
