@@ -1,12 +1,13 @@
 version: "3.8"
 services:
   web:
-    image: copo/copo-web:v1.9.33.9
+    image: copo/copo-web:v1.11.2.1
     volumes:
       - web-data:/copo/media
       - static-data:/copo/static
       - logs-data:/copo/exceptions_and_logging/logs
       - submission-data:/copo/submission/data
+      - b2drop-permits:/copo/b2drop/permits
     environment:
       - ENVIRONMENT_TYPE=prod
       - ASPERA_PLUGIN_DIRECTORY=aspera_linux_plugin
@@ -55,6 +56,7 @@ services:
       - ECS_ENDPOINT=http://ei-copo.obj-data.nbi.ac.uk
       - ENA_V2_SERVICE_SYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit
       - ENA_V2_SERVICE_ASYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit/queue
+      - B2DROP_PERMITS="/copo/b2drop/permits"
     depends_on:
       - redis
       - postgres 
@@ -331,5 +333,7 @@ volumes:
   mongo-data:
     external: true
   postgres-data:
+    external: true
+  b2drop-permits:
     external: true
 

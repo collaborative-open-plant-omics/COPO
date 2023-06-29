@@ -2664,6 +2664,39 @@
       "2.4.1"
     ],
     "versions": [
+      "ETHICS_PERMITS_FILENAME"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Ethics Permits Filename",
+    "id": "copo.sample.ETHICS_PERMITS_FILENAME",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "CC",
+        "order": 81
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
       "SAMPLING_PERMITS_REQUIRED"
     ],
     "ref": "",
@@ -2683,8 +2716,8 @@
     "index": {
       "erga": {
         "colour": "#fff2cd",
-        "excel_col": "CC",
-        "order": 81
+        "excel_col": "CD",
+        "order": 82
       }
     }
   },
@@ -2716,8 +2749,41 @@
     "index": {
       "erga": {
         "colour": "#fff2cd",
-        "excel_col": "CD",
-        "order": 82
+        "excel_col": "CE",
+        "order": 83
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "SAMPLING_PERMITS_FILENAME"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Sampling Permits Filename",
+    "id": "copo.sample.SAMPLING_PERMITS_FILENAME",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "CF",
+        "order": 84
       }
     }
   },
@@ -2749,8 +2815,8 @@
     "index": {
       "erga": {
         "colour": "#fff2cd",
-        "excel_col": "CE",
-        "order": 83
+        "excel_col": "CG",
+        "order": 85
       }
     }
   },
@@ -2782,8 +2848,41 @@
     "index": {
       "erga": {
         "colour": "#fff2cd",
-        "excel_col": "CF",
-        "order": 84
+        "excel_col": "CH",
+        "order": 86
+      }
+    }
+  },
+  {
+    "help_tip": "",
+    "required": "true",
+    "control_meta": {},
+    "manifest_version": [
+      "2.4.2",
+      "2.4.1"
+    ],
+    "versions": [
+      "NAGOYA_PERMITS_FILENAME"
+    ],
+    "ref": "",
+    "deprecated": false,
+    "hidden": "false",
+    "specifications": [
+      "erga"
+    ],
+    "show_in_form": true,
+    "label": "Nagoya Permits Filename",
+    "id": "copo.sample.NAGOYA_PERMITS_FILENAME",
+    "show_in_table": true,
+    "control": "text",
+    "default_value": "",
+    "dwc": "",
+    "type": "string",
+    "index": {
+      "erga": {
+        "colour": "#fff2cd",
+        "excel_col": "CI",
+        "order": 87
       }
     }
   },
@@ -2816,8 +2915,8 @@
     "index": {
       "erga": {
         "colour": "#daebd4",
-        "excel_col": "CG",
-        "order": 85
+        "excel_col": "CJ",
+        "order": 88
       }
     }
   },
@@ -2846,8 +2945,8 @@
     "index": {
       "erga": {
         "colour": "#daebd4",
-        "excel_col": "CH",
-        "order": 86
+        "excel_col": "CK",
+        "order": 89
       }
     }
   },
@@ -2876,8 +2975,8 @@
     "index": {
       "erga": {
         "colour": "#daebd4",
-        "excel_col": "CI",
-        "order": 87
+        "excel_col": "CL",
+        "order": 90
       }
     }
   },
@@ -2906,8 +3005,8 @@
     "index": {
       "erga": {
         "colour": "#daebd4",
-        "excel_col": "CJ",
-        "order": 88
+        "excel_col": "CM",
+        "order": 91
       }
     }
   },

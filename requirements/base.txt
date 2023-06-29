@@ -169,6 +169,7 @@ s3transfer==0.6.0
 selenium==3.141.0
 Send2Trash==1.5.0
 service-identity==18.1.0
+shortuuid==1.0.11
 simplejson==3.16.0
 six==1.16.0
 smart-open==5.2.1

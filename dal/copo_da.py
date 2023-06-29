@@ -1159,9 +1159,9 @@ class Sample(DAComponent):
         # samples = list(cursor)
         # cursor = samples
         elif filter == "processing":
-            find_condition["status"] =  {
+            find_condition["status"] = {
                 "$in": ["processing", "sending"]}
-            
+
         else:
             find_condition["status"] = filter
             # cursor = handler.find(find_condition).sort(sort_clause).skip(int(start)).limit(int(length))
@@ -1411,14 +1411,19 @@ class Sample(DAComponent):
         }}})
 
     def update_read_accession(self, sample_accessions):
-            for accession in  sample_accessions:
-                self.get_collection_handle().update_many({"_id": ObjectId(accession["sample_id"])},
-                                                    {"$set": {"biosampleAccession": accession["biosample_accession"], "sraAccession": accession["sample_accession"], "status": "accepted"}})
+        for accession in sample_accessions:
+            self.get_collection_handle().update_many({"_id": ObjectId(accession["sample_id"])},
+                                                     {"$set": {"biosampleAccession": accession["biosample_accession"],
+                                                               "sraAccession": accession["sample_accession"],
+                                                               "status": "accepted"}})
 
     def update_datafile_status(self, datafile_ids, status):
         dt = data_utils.get_datetime()
         for id in datafile_ids:
-            self.get_collection_handle().update_one({"profile_id": self.profile_id, "read.file_id" : {"$regex": id}, "read.$.status": {"$ne": status}}, {"$set": {"read.$.status": status, "modifed_date":  dt}})
+            self.get_collection_handle().update_one(
+                {"profile_id": self.profile_id, "read.file_id": {"$regex": id}, "read.$.status": {"$ne": status}},
+                {"$set": {"read.$.status": status, "modifed_date": dt}})
+
 
 class Submission(DAComponent):
     def __init__(self, profile_id=None):
@@ -2050,28 +2055,30 @@ class Submission(DAComponent):
                                                         "accessions.assembly": {"accession": accession, "alias": alias,
                                                                                 "assembly_id": assembly_idstr}}})
         return
-    
+
     def add_annotation_accessions(self, s_id, accession):
         # todo if it's decided to have multiple assemblies per profile add accessions.annotation.sample to be able to cross
         # reference annotation and sample
-        #self.get_collection_handle().update_one(
+        # self.get_collection_handle().update_one(
         #    {"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}, "$pull" : {"seq_annotation_submission_error": {"seq_annotation_id": accession[0]["alias"]}}}) 
-        self.get_collection_handle().update_one({"_id": ObjectId(s_id)}, {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}}) 
-        
-    def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_ids ):
+        self.get_collection_handle().update_one({"_id": ObjectId(s_id)},
+                                                {"$addToSet": {"accessions.seq_annotation": {"$each": accession}}})
+
+    def make_seq_annotation_submission_uploading(self, sub_id, seq_annotation_ids):
         sub_handle = self.get_collection_handle()
         submission = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"seq_annotation_status": 1})
 
         if not submission:
             return dict(status='error', message="System Error! Please contact the administrator.")
 
-        if submission.get("seq_annotation_status", str() ) == "pending":
+        if submission.get("seq_annotation_status", str()) == "pending":
             return dict(status='error', message="Sequence annotation submission is in process, please try again later!")
-        
-        sub_handle.update_one({"_id": ObjectId(sub_id)}, {"$set": {"seq_annotation_status": "uploading", "date_modified":
-                                                       data_utils.get_datetime()}, "$addToSet": {"seq_annotations": {"$each" : seq_annotation_ids} }})
-        return dict(status='success', message="Sequence annotation submission has been scheduled!")
 
+        sub_handle.update_one({"_id": ObjectId(sub_id)},
+                              {"$set": {"seq_annotation_status": "uploading", "date_modified":
+                                  data_utils.get_datetime()},
+                               "$addToSet": {"seq_annotations": {"$each": seq_annotation_ids}}})
+        return dict(status='success', message="Sequence annotation submission has been scheduled!")
 
     def update_seq_annotation_submission(self, sub_id, seq_annotation_id=str(), submission_id=[]):
         # when dtol sample has been processed, pull id from submission and check if there are remaining
@@ -2079,13 +2086,15 @@ class Submission(DAComponent):
         sub_handle = self.get_collection_handle()
         # for sam_id in sam_ids:
         if submission_id:
-            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"seq_annotation_submission": {"id": submission_id}}})
+            sub_handle.update({"_id": ObjectId(sub_id)},
+                              {"$pull": {"seq_annotation_submission": {"id": submission_id}}})
         if seq_annotation_id:
             sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"seq_annotations": seq_annotation_id}})
         sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"seq_annotation_submission": 1, "seq_annotations": 1})
         if len(sub["seq_annotation_submission"]) < 1 and len(sub["seq_annotations"]) < 1:
             sub_handle.update({"_id": ObjectId(sub_id)},
-                              {"$set": {"seq_annotation_status": "complete", "date_modified": data_utils.get_datetime()}})
+                              {"$set": {"seq_annotation_status": "complete",
+                                        "date_modified": data_utils.get_datetime()}})
 
     def get_seq_annotation_pending_submission(self):
         REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
@@ -2108,13 +2117,14 @@ class Submission(DAComponent):
                     out.append(s)
                     self.update_submission_modified_timestamp(s["_id"])
                     lg.log("ADDING STALLED SEQ ANNOTATION SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da",
-                        level=Loglvl.ERROR, type=Logtype.FILE)
+                           level=Loglvl.ERROR, type=Logtype.FILE)
                     # no need to change status
             elif s.get("seq_annotation_status", "") == "pending":
                 out.append(s)
-                #self.update_submission_modified_timestamp(s["_id"])
+                # self.update_submission_modified_timestamp(s["_id"])
                 self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
-                                                    {"$set": {"seq_annotation_status": "sending", "date_modified": current_time}})
+                                                    {"$set": {"seq_annotation_status": "sending",
+                                                              "date_modified": current_time}})
         return out
 
     def get_seq_annotation_file_uploading(self):
@@ -2127,13 +2137,14 @@ class Submission(DAComponent):
         sub_handle = self.get_collection_handle()
         submission = {'id': submission_id, 'seq_annotation_id': seq_annotation_ids, 'href': href}
         sub_handle.update({"_id": ObjectId(sub_id)},
-                          {"$set": {"date_modified": datetime.now()}, "$push": {"seq_annotation_submission": submission},
+                          {"$set": {"date_modified": datetime.now()},
+                           "$push": {"seq_annotation_submission": submission},
                            "$pull": {"seq_annotations": {"$in": seq_annotation_ids}}})
-        
+
     def get_async_seq_annotation_submission(self):
         sub_handle = self.get_collection_handle()
         subs = sub_handle.find({"seq_annotation_submission": {"$exists": True, "$ne": []}},
-                              {"_id": 1, "seq_annotation_submission": 1, "profile_id": 1})
+                               {"_id": 1, "seq_annotation_submission": 1, "profile_id": 1})
         return cursor_to_list(subs)
 
     '''
@@ -2151,13 +2162,16 @@ class Submission(DAComponent):
                 sub_handle.update_one({"_id": ObjectId(sub_id), "seq_annotation_submission_error.seq_annotation_id": id},
                             {"$set": {"date_modified": datetime.now(), "seq_annotation_submission_error.$.error": error}})
     '''
+
     def update_seq_annotation_submission_pending(self, sub_ids):
-        self.get_collection_handle().update_many({"_id" : {"$in" : sub_ids}}, {"$set": {"seq_annotation_status" : "pending"} })
+        self.get_collection_handle().update_many({"_id": {"$in": sub_ids}},
+                                                 {"$set": {"seq_annotation_status": "pending"}})
 
     def reset_read_submisison_bundle(self, submission_id):
         submission = self.get_record(submission_id)
-        
-        samples = Sample(profile_id=self.profile_id).get_all_records_columns(filter_by={"read.file_id": {"$in": submission["bundle"]}}, projection={"read":1})
+
+        samples = Sample(profile_id=self.profile_id).get_all_records_columns(
+            filter_by={"read.file_id": {"$in": submission["bundle"]}}, projection={"read": 1})
         for sample in samples:
             is_update = False
             for read in sample["read"]:
@@ -2165,10 +2179,11 @@ class Submission(DAComponent):
                     if read["status"] == "processing":
                         read["status"] = "pending"
                         is_update = True
-                    
+
             if is_update:
                 sample["date_modified"] = data_utils.get_datetime()
-                Sample(profile_id=self.profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {"$set": sample})
+                Sample(profile_id=self.profile_id).get_collection_handle().update_one({"_id": sample["_id"]},
+                                                                                      {"$set": sample})
         self.get_collection_handle().update_one({"_id": ObjectId(submission_id)}, {"$set": {"bundle": []}})
 
     def reset_dtol_submission_status(self, submission_id, samples_ids):
@@ -2182,7 +2197,8 @@ class Submission(DAComponent):
         Submission().get_collection_handle().update({"_id": ObjectId(submission_id)}, {"$set": {"dtol_status": status}})
         if samples_ids:
             object_samples_ids = [ObjectId(x) for x in samples_ids]
-        Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}}, {"$set" : {"status": "processing"} })
+        Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}},
+                                                     {"$set": {"status": "processing"}})
 
 
 class DataFile(DAComponent):
@@ -2313,7 +2329,7 @@ class DataFile(DAComponent):
         result = [i["name"] for i in datafiles if i['name']]
         return set(result)
 
-    
+
 class Profile(DAComponent):
     def __init__(self, profile=None):
         super(Profile, self).__init__(None, "profile")
@@ -2887,7 +2903,7 @@ class EnaFileTransfer(DAComponent):
     def __init__(self, profile_id=None):
         super(EnaFileTransfer, self).__init__(profile_id, "enaFileTransfer")
         self.profile_id = profile_id
-        #self.component = str()
+        # self.component = str()
 
     def get_pending_transfers(self):
         result_list = []
@@ -2907,8 +2923,8 @@ class EnaFileTransfer(DAComponent):
 
     def set_processing(self, tx_id):
         self.get_collection_handle().update_one({"_id": ObjectId(tx_id)},
-                                                        {"$set": {"status": "processing",
-                                                                  "last_checked": datetime.utcnow()}})
+                                                {"$set": {"status": "processing",
+                                                          "last_checked": datetime.utcnow()}})
 
     def set_pending(self, tx_id):
         self.get_collection_handle().update_one({"_id": ObjectId(tx_id)}, {
@@ -2951,21 +2967,20 @@ class Assembly(DAComponent):
 
     def add_accession(self, id, accession):
         self.get_collection_handle().update({"_id": ObjectId(id)},
-                                                 {"$set": {"accession": accession, "error": []}})        
+                                            {"$set": {"accession": accession, "error": []}})
 
     def update_assembly_error(self, assembly_ids, msg):
-        seq_annotation_obj_ids = [ ObjectId(id) for id in assembly_ids ]
-        self.get_collection_handle().update_many({"_id": {"$in":   assembly_ids}},
-                                            {"$set": {"error":  msg}})
-
+        seq_annotation_obj_ids = [ObjectId(id) for id in assembly_ids]
+        self.get_collection_handle().update_many({"_id": {"$in": assembly_ids}},
+                                                 {"$set": {"error": msg}})
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
-        assembly_obj_ids = [ ObjectId(id) for id in target_ids ]
-        result = self.execute_query({"_id": {"$in": assembly_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
+        assembly_obj_ids = [ObjectId(id) for id in target_ids]
+        result = self.execute_query({"_id": {"$in": assembly_obj_ids}, "accession": {"$exists": True, "$ne": ""}})
         if result:
-           return dict(status='error', message="One or more assembly record/s have been accessed!")
-        
-        self.get_collection_handle().remove({"_id": {"$in":   assembly_obj_ids}})
+            return dict(status='error', message="One or more assembly record/s have been accessed!")
+
+        self.get_collection_handle().remove({"_id": {"$in": assembly_obj_ids}})
         return dict(status='success', message="Assembly record/s have been deleted!")
 
 
@@ -2975,38 +2990,39 @@ class Sequnece_annotation(DAComponent):
 
     def add_accession(self, id, accession):
         self.get_collection_handle().update({"_id": ObjectId(id)},
-                                                 {"$set": {"accession": accession, "error": []}})
+                                            {"$set": {"accession": accession, "error": []}})
+
     def update_seq_annotation_error(self, seq_annotation_ids, seq_annotation_sub_id, msg):
         seq_annotation_obj_ids = None
 
         if seq_annotation_ids:
-            seq_annotation_obj_ids = [ ObjectId(id) for id in seq_annotation_ids ]
-        
+            seq_annotation_obj_ids = [ObjectId(id) for id in seq_annotation_ids]
+
         elif seq_annotation_sub_id:
-            result = Submission().get_collection_handle().find({"seq_annotation_submission.id": seq_annotation_sub_id},{"seq_annotation_submission.$": 1})
+            result = Submission().get_collection_handle().find({"seq_annotation_submission.id": seq_annotation_sub_id},
+                                                               {"seq_annotation_submission.$": 1})
             if result:
                 records = cursor_to_list(result)
-                seq_annotation_obj_ids = [ ObjectId(id) for id in records[0]['seq_annotation_submission'][0]['seq_annotation_id'] ]
-    
-        if seq_annotation_obj_ids:
-            self.get_collection_handle().update_many({"_id": {"$in":   seq_annotation_obj_ids}},
-                                            {"$set": {"error":  msg}})
+                seq_annotation_obj_ids = [ObjectId(id) for id in
+                                          records[0]['seq_annotation_submission'][0]['seq_annotation_id']]
 
-        
+        if seq_annotation_obj_ids:
+            self.get_collection_handle().update_many({"_id": {"$in": seq_annotation_obj_ids}},
+                                                     {"$set": {"error": msg}})
+
     def validate_and_delete(self, target_id=str(), target_ids=list()):
-        seq_annotation_obj_ids = [ ObjectId(id) for id in target_ids ]
-        result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
+        seq_annotation_obj_ids = [ObjectId(id) for id in target_ids]
+        result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids}, "accession": {"$exists": True, "$ne": ""}})
         if result:
-           return dict(status='error', message="One or more sequence annotation record/s have been accessed!")
-        
-        self.get_collection_handle().remove({"_id": {"$in":   seq_annotation_obj_ids}})
+            return dict(status='error', message="One or more sequence annotation record/s have been accessed!")
+
+        self.get_collection_handle().remove({"_id": {"$in": seq_annotation_obj_ids}})
         return dict(status='success', message="Sequence annotation record/s have been deleted!")
-                               
-                                    
+
 
 class SubmissionQueue(DAComponent):
     def __init__(self, profile_id=None):
-        super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")  
+        super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")
 
 
 def is_number(s):
