@@ -2,7 +2,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 import uuid
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -202,20 +201,15 @@ def process_pending_dtol_samples():
                         permit_filename_field.update(
                             {"NAGOYA_PERMITS_FILENAME": sam.get("NAGOYA_PERMITS_FILENAME", "")})
 
-                    obj_fields = {**specimen_obj_fields, **permit_filename_field}
-                    print("obj fields 1", obj_fields)
-                    # Source().save_record(auto_fields={}, **specimen_obj_fields)
-                    Source().save_record(auto_fields={}, **obj_fields)
+                    obj_fields = {**specimen_obj_fields, **permit_filename_field}  # Merge dictionaries
+                    Source().save_record(auto_fields={}, **obj_fields)  # Save source/specimen record
                     specimen_obj_fields = populate_source_fields(sam)
-                    # sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
-                    # Source().add_fields(specimen_obj_fields, str(sour['_id']))
                 else:
                     # look for sample with same specimen ID which is target
                     specimen_obj_fields = {"SPECIMEN_ID": targetsam["SPECIMEN_ID"],
                                            "TAXON_ID": targetsam["species_list"][0]["TAXON_ID"],
                                            "sample_type": sample_type, "profile_id": targetsam['profile_id']}
-                    # specimen_obj_fields.update(permit_filename_dict)  # Add permit filename to the specimen_obj_fields
-                    # Source().save_record(auto_fields={}, **specimen_obj_fields)
+
                     # Add permit filename to the source/specimen of erga sources
                     permit_filename_field = {}
 
@@ -231,11 +225,11 @@ def process_pending_dtol_samples():
                         permit_filename_field.update(
                             {"NAGOYA_PERMITS_FILENAME": targetsam.get("NAGOYA_PERMITS_FILENAME", "")})
 
-                    obj_fields = {**specimen_obj_fields, **permit_filename_field}
-                    print("obj fields 2", obj_fields)
-                    Source().save_record(auto_fields={}, **obj_fields)
+                    obj_fields = {**specimen_obj_fields, **permit_filename_field}  # Merge dictionaries
+                    Source().save_record(auto_fields={}, **obj_fields)  # Save source/specimen record
                     specimen_obj_fields = populate_source_fields(targetsam)
 
+                # Add fields to the source/specimen
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                 Source().add_fields(specimen_obj_fields, str(sour['_id']))
                 Source().add_fields(permit_filename_field, str(sour['_id']))
@@ -341,37 +335,50 @@ def process_pending_dtol_samples():
 
             # Transfer permit files to b2drop
             sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
-            filename_value = ""
-            filename_column_name = ""
 
             if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
                 for permit_file in os.listdir(sample_permits_directory):
                     for col_name in PERMIT_FILENAME_COLUMN_NAMES:
-                        if permit_file.endswith(".pdf") and permit_file in sam[col_name]:
-                            filename_value = permit_file
-                            filename_column_name = col_name
-
+                        # Check if permit file (from the "sample_permits" directory in COPO is a '.pdf' file
+                        # and if it matches the permit filename inclusive of the appended uuid
+                        if permit_file.endswith(".pdf") and permit_file.replace('.pdf',
+                                                                                sam.get(col_name, "")[-27:]) in sam.get(
+                            col_name, ""):
                             permit_file_path = os.path.join(sample_permits_directory, permit_file)
                             taxonID_directory = os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"])
+                            permit_type = col_name.replace("_PERMITS_FILENAME", " Permit").title()
 
-                            # Copy permit file from COPO media/sample_permits directory to b2drop directory
-                            # os.popen(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
-                            # try:
-                            #     shutil.copy2(permit_file_path, Path(b2drop_permits_directory_path) / permit_file)
-                            # except  Exception as error:
-                            #     print("Error:", error)
-                            #     l.exception(error)
+                            # Copy permit file from COPO 'media/sample_permits' directory to b2drop directory
                             try:
                                 # Create taxonID directory if it doesn't exist
                                 if not os.path.exists(taxonID_directory):
                                     os.makedirs(taxonID_directory)
 
-                                # os.popen(permit_file_path,
-                                #          taxonID_directory)
                                 shutil.copy2(permit_file_path,
-                                             Path(b2drop_permits_directory_path) / sam["TAXON_ID"] / permit_file)
-                                # os.popen(permit_file_path,
-                                #          Path(b2drop_permits_directory_path) / sam["TAXON_ID"] / permit_file)
+                                             Path(b2drop_permits_directory_path) / sam[
+                                                 "TAXON_ID"] / sam.get(col_name, ""))
+
+                                # Create "readme.txt" file (if it doesn't exist) to store the permit file name,
+                                # permit type and specimen ID
+                                with open(os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"], 'readme.txt'),
+                                          'a+') as readmeFile:
+                                    # Check if the file is empty
+                                    readmeFile.seek(0)  # Traverse to the start of the file
+                                    first_character = readmeFile.read(1)  # Get the first character in the file
+
+                                    if not first_character:
+                                        # Add a line to the readme if file is empty
+                                        readmeFile.write(
+                                            "This file contains all the permit files and types associated with each specimen ID." + "\n \n")
+                                        readmeFile.write(
+                                            "SPECIMEN_ID" + "  " + "Permit_Type" + "  " + "Permit_Filename" + "\n")
+                                    else:
+                                        readmeFile.seek(0, os.SEEK_END)  # Traverse to the end of the file
+
+                                    # Add a line to the readme file
+                                    readmeFile.write(
+                                        sam["SPECIMEN_ID"] + "  " + permit_type.replace(" ", "_") + "  " + sam.get(
+                                            col_name, "") + "\n")
 
                             except  Exception as error:
                                 print("Error:", error)

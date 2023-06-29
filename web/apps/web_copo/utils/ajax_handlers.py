@@ -1419,7 +1419,13 @@ def create_spreadsheet_samples(request):
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
     dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.save_records()
-    return HttpResponse(status=200)
+
+    # Save table_data
+    context = dict()
+    context["table_data"] = htags.generate_table_records(profile_id=request.session["profile_id"], component="sample")
+    context["component"] = "sample"
+    out = jsonpickle.encode(context, unpicklable=False)
+    return HttpResponse(status=200, content=out, content_type='application/json')
 
 
 def update_spreadsheet_samples(request):
@@ -1427,7 +1433,13 @@ def update_spreadsheet_samples(request):
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
     dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
-    return HttpResponse(status=200)
+    
+    # Save table_data
+    context = dict()
+    context["table_data"] = htags.generate_table_records(profile_id=request.session["profile_id"], component="sample")
+    context["component"] = "sample"
+    out = jsonpickle.encode(context, unpicklable=False)
+    return HttpResponse(status=200, content=out, content_type='application/json')
 
 
 def update_pending_samples_table(request):
@@ -1566,6 +1578,7 @@ def annotation_files(request):
     EnaAnnotation.upload_annotation_files(files)
 
     return HttpResponse(json.dumps({}))
+
 
 def process_column_name(column):
     if "[" in column:

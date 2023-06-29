@@ -199,17 +199,33 @@ $(document).ready(function () {
                             url: "/copo/create_spreadsheet_samples",
                             data: {"validation_record_id": $(document).data("validation_record_id")}
 
-                        }).done(function () {
-                            location.reload()
+                        }).done(function (data) {
+                            dialogRef.close(); // Close 'Confirm' modal
+
+                            // Refresh table
+                            let result_dict = {}
+                            result_dict["status"] = "success"
+                            result_dict["message"] = "Samples have been created successfully"
+                            do_crud_action_feedback(result_dict);
+
+                            globalDataBuffer = data;
+
+                            if (data.hasOwnProperty("table_data")) {
+
+                                const event = jQuery.Event("refreshtable");
+                                $('body').trigger(event);
+                            }
+                            $("#sample_spreadsheet_modal").modal("hide") // Close 'Upload Spreadsheet' modal
                         }).error(function (data) {
                             console.error(data)
                         })
-                        dialogRef.close();
+
                     }
                 }
-            ]
-
+            ],
         })
+
+
     })
 
 
@@ -244,16 +260,27 @@ $(document).ready(function () {
                             data: {
                                 "validation_record_id": $(document).data("validation_record_id")
                             }
-                        }).done(function () {
-                            location.reload()
+                        }).done(function (data) {
+                            dialogRef.close(); // Close 'Confirm' modal
+                            // Refresh table
+                            let result_dict = {}
+                            result_dict["status"] = "success"
+                            result_dict["message"] = "Samples have been updated successfully"
+                            do_crud_action_feedback(result_dict);
+                            globalDataBuffer = data;
+
+                            if (data.hasOwnProperty("table_data")) {
+
+                                const event = jQuery.Event("refreshtable");
+                                $('body').trigger(event);
+                            }
+                            $("#sample_spreadsheet_modal").modal("hide") // Close 'Upload Spreadsheet' modal
                         }).error(function (data) {
                             console.error(data)
                         })
-                        dialogRef.close();
                     }
                 }
-            ]
-
+            ],
         })
     })
 
@@ -417,24 +444,21 @@ $(document).ready(function () {
                     if ($.fn.DataTable.isDataTable('#permits_table')) {
                         $("#permits_table").DataTable().clear().destroy();
                     }
-                    var headers = $("<tr><th>Specimen ID</th><th>Permit Files</th><th>Notes</th></tr>")
+                    var headers = $("<tr><th>Specimen ID</th><th>Permit Type</th><th>Permit Files</th><th>Notes</th></tr>")
                     $("#permits_table").find("thead").empty().append(headers)
                     $("#permits_table").find("tbody").empty()
                     var table_row
-                    for (r in d.message) {
+                    for (let r in d.message) {
                         row = d.message[r]
-                        if (row.file_name === "None") {
-                            // let permit_type = row.specimen_id.substring(row.specimen_id.indexOf("No "), row.specimen_id.indexOf(" found"))
-                            // permit_type = permit_type.slice(3, -1).toUpperCase().replace(/ /g, "_") // replace whitespace with underscore
-                            //let specimen_id = row.specimen_id.substring(row.specimen_id.indexOf("<strong>"), row.specimen_id.indexOf("</strong>"))
 
+                        if (row.file_name === "None") {
                             var img_tag = "Filename of permit must be named " +
-                                "<strong>" + row.file_name_expected + "</strong>" // specimen_id + "_" + permit_type + "S.pdf"
+                                "<strong>" + row.file_name_expected + "</strong>"
 
                         } else {
                             var img_tag = ""
                         }
-                        table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
+                        table_row = ("<tr><td>" + row.specimen_id + "</td><td>" + row.permit_type + "</td><td>" + row.file_name.split('\\').pop().split('/').pop() + "</td><td>" + img_tag + "</td></tr>") // split-pop thing is to get filename from full path
                         $("#permits_table").append(table_row)
                     }
                     $("#permits_table").DataTable()

@@ -3,6 +3,7 @@ import inspect
 import math
 import os
 import re
+import shortuuid
 import uuid
 import pickle
 from os.path import join, isfile
@@ -88,6 +89,15 @@ def make_species_list(sample):
     out["COMMON_NAME"] = sample.get("COMMON_NAME", "")
     out["TAXON_REMARKS"] = sample.get("TAXON_REMARKS", "")
     sample["species_list"].append(out)
+    return sample
+
+
+def update_permit_filename(sample, permit_filename_mapping):
+    # Update/Set permit filename to a unique name if it exists and it is not equal to "NOT_APPLICABLE"
+    # for ERGA manifests
+    for col_name in lookup.PERMIT_FILENAME_COLUMN_NAMES:
+        if sample.get(col_name, "") and sample.get(col_name, "") not in lookup.BLANK_VALS:
+            sample[col_name] = permit_filename_mapping.get(sample.get(col_name, ""), "")
     return sample
 
 
@@ -383,13 +393,6 @@ class DtolSpreadsheet:
         # compare list of sample names with specimen ids already uploaded
         samples = self.sample_data
         # get list of specimen_ids in sample
-        # specimen_id_column_index = 0
-        # sampling_permits_required_index = 0
-        # ethics_permits_required_index = 0
-        # nagoya_permits_required_index = 0
-        # sampling_permits_filename_index = 0
-        # ethics_permits_filename_index = 0
-        # nagoya_permits_filename_index = 0
 
         specimen_id_column_index, sampling_permits_required_index, ethics_permits_required_index, nagoya_permits_required_index, sampling_permits_filename_index, ethics_permits_filename_index, nagoya_permits_filename_index = 0, 0, 0, 0, 0, 0, 0
 
@@ -439,46 +442,52 @@ class DtolSpreadsheet:
             if sample[ethics_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == sample[ethics_permits_filename_index]:  # specimen_id + "_ETHICS_PERMITS.pdf":
+                    if filename == sample[ethics_permits_filename_index]:
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        output.append(
+                            {"file_name": str(p), "specimen_id": specimen_id, "permit_type": "Ethics Permit"})
                         found = True
                         break
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Ethics Permits found for <strong>" + specimen_id
                                                             + "</strong>",
-                        "file_name_expected": sample[ethics_permits_filename_index]
+                        "file_name_expected": sample[ethics_permits_filename_index],
+                        "permit_type": "Ethics Permit"
                     })
                     fail_flag = True
             if sample[sampling_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == sample[sampling_permits_filename_index]:  # specimen_id + "_SAMPLING_PERMITS.pdf":
+                    if filename == sample[sampling_permits_filename_index]:
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        output.append(
+                            {"file_name": str(p), "specimen_id": specimen_id, "permit_type": "Sampling Permit"})
                         found = True
                         break
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Sampling Permits found for <strong>" + specimen_id
                                                             + "</strong>",
-                        "file_name_expected": sample[sampling_permits_filename_index]
+                        "file_name_expected": sample[sampling_permits_filename_index],
+                        "permit_type": "Sampling Permit"
                     })
                     fail_flag = True
             if sample[nagoya_permits_required_index] == "Y":
                 found = False
                 for filename in file_list:
-                    if filename == sample[nagoya_permits_filename_index]:  # specimen_id + "_NAGOYA_PERMITS.pdf":
+                    if filename == sample[nagoya_permits_filename_index]:
                         p = Path(settings.MEDIA_URL) / "sample_permits" / self.profile_id / filename
-                        output.append({"file_name": str(p), "specimen_id": specimen_id})
+                        output.append(
+                            {"file_name": str(p), "specimen_id": specimen_id, "permit_type": "Nagoya Permit"})
                         found = True
                         break
                 if not found:
                     output.append({
                         "file_name": "None", "specimen_id": "No Nagoya Permits found for <strong>" + specimen_id
                                                             + "</strong>",
-                        "file_name_expected": sample[nagoya_permits_filename_index]
+                        "file_name_expected": sample[nagoya_permits_filename_index],
+                        "permit_type": "Nagoya Permit"
                     })
                     fail_flag = True
         # save to session
@@ -554,6 +563,21 @@ class DtolSpreadsheet:
             '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
             x)
 
+        # Create a permit filename mapping
+        permit_filename_mapping = dict()
+        permit_filename_lst = list()
+
+        for col_name in lookup.PERMIT_FILENAME_COLUMN_NAMES:
+            if col_name in sample_data.columns:
+                permit_filename_lst.extend(sample_data[col_name].unique().tolist())
+
+        # Iterate the list of permit filenames and create a mapping
+        for permit_filename in permit_filename_lst:
+            if permit_filename.endswith(".pdf"):
+                uniqueID = shortuuid.ShortUUID().random(length=22)
+                new_permit_filename = permit_filename.replace('.pdf', "_" + uniqueID + ".pdf")
+                permit_filename_mapping[permit_filename] = new_permit_filename
+
         sample_data["_id"] = ""
         for index, p in sample_data.iterrows():
             s = dict(p)
@@ -602,9 +626,15 @@ class DtolSpreadsheet:
                 # if ASG change also sex to not collected
                 if s["tol_project"] == "ASG":
                     s["SEX"] = "NOT_COLLECTED"
+
+            # Update permit filename
+            s = update_permit_filename(s, permit_filename_mapping)
+
             s = make_species_list(s)
             sampl = Sample(profile_id=self.profile_id).save_record(auto_fields={}, **s)
             Sample().timestamp_dtol_sample_created(sampl["_id"])
+            # update permit filename in the database i.e. set unique filename as the permit filename
+
             if not sampl["species_list"][0]["SYMBIONT"] or sampl["species_list"][0]["SYMBIONT"] == "TARGET":
                 public_name_list.append(
                     {"taxonomyId": int(sampl["species_list"][0]["TAXON_ID"]), "specimenId": sampl["SPECIMEN_ID"],
@@ -650,6 +680,22 @@ class DtolSpreadsheet:
         public_name_list = list()
         sample_data["_id"] = ""
         need_send_email = False
+
+        # Create a permit filename mapping
+        permit_filename_mapping = dict()
+        permit_filename_lst = list()
+
+        for col_name in lookup.PERMIT_FILENAME_COLUMN_NAMES:
+            if col_name in sample_data.columns:
+                permit_filename_lst.extend(sample_data[col_name].unique().tolist())
+
+        # Iterate the list of permit filenames and create a mapping
+        for permit_filename in permit_filename_lst:
+            if permit_filename.endswith(".pdf"):
+                uniqueID = shortuuid.ShortUUID().random(length=22)
+                new_permit_filename = permit_filename.replace('.pdf', "_" + uniqueID + ".pdf")
+                permit_filename_mapping[permit_filename] = new_permit_filename
+
         for p in range(0, len(sample_data)):
             s = map_to_dict(sample_data.columns, sample_data.iloc[p, :])
             notify_frontend(data={"profile_id": self.profile_id},
@@ -660,6 +706,12 @@ class DtolSpreadsheet:
             recorded_sample = Sample().get_target_by_field("rack_tube", rack_tube)[0]
             sample_data.at[p, '_id'] = recorded_sample["_id"]
             is_updated = False
+
+            # Update permit filename
+            for col_name in lookup.PERMIT_FILENAME_COLUMN_NAMES:
+                if s.get(col_name, "") and s.get(col_name, "") not in lookup.BLANK_VALS:
+                    s[col_name] = permit_filename_mapping.get(s.get(col_name, ""), "")
+
             for field in s.keys():
                 if s[field] != recorded_sample.get(field, "") and s[field].strip() != recorded_sample["species_list"][
                     0].get(field, ""):

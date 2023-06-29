@@ -13,12 +13,13 @@ from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
 from web.apps.web_copo.validators import validation_messages as msg
 from tools import resolve_env
 from exceptions_and_logging import logger
-from web.apps.web_copo.lookup.dtol_lookups import API_KEY
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import API_KEY
 from web.apps.web_copo.lookup.copo_enums import *
-
 
 public_name_service = resolve_env.get_env('PUBLIC_NAME_SERVICE')
 l = logger.Logger("exceptions_and_logging/logs")
+
+
 def make_tax_from_sample(s):
     out = dict()
     out["SYMBIONT"] = "symbiont"
@@ -49,7 +50,6 @@ def validate_date(date_text):
         assert todayis > enteredtime
     except AssertionError:
         raise AssertionError("Incorrect date entered: date is in the future")
-
 
 
 def check_taxon_ena_submittable(taxon, by="id"):
@@ -133,6 +133,7 @@ def create_barcoding_spreadsheet():
 
     return wb
 
+
 def query_public_name_service(sample_list):
     headers = {"api-key": API_KEY}
     url = urljoin(public_name_service, 'tol-ids')  # public-name
@@ -145,8 +146,10 @@ def query_public_name_service(sample_list):
         else:
             # in the case there is a network issue, just return an empty dict
             resp = {}
+            l.error('Name service response status code: ' + str(r.status_code) + ' ' + r.text)
         l.log("name service response: " + str(resp), type=Logtype.FILE)
         return resp
     except Exception as e:
         l.log("PUBLIC NAME SERVER ERROR: " + str(e), type=Logtype.FILE)
+        l.exception(e)
         return {}

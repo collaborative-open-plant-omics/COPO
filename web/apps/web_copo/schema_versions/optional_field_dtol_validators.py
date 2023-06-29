@@ -158,7 +158,10 @@ class DtolEnumerationValidator(Validator):
                             self.flag = False
                     if optional_regex:
                         # handle regular expression that will only trigger a warning exclude ERGA from this warning
-                        if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE):
+                        # ignore if 'NOT_APPLICABLE' is set as a value for the PERMIT_FILENAME_COLUMN_NAMES
+                        # for ERGA manifests
+                        if c and not re.match(optional_regex, c.replace("_", " "), re.IGNORECASE) \
+                                and header not in lookup.PERMIT_FILENAME_COLUMN_NAMES:
                             if header in ['RACK_OR_PLATE_ID', 'TUBE_OR_WELL_ID'] and p_type == "ERGA":
                                 self.warnings.append(msg["validation_msg_warning_racktube_format"] % (
                                     c, header, str(cellcount + 1)))
