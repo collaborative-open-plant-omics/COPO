@@ -81,9 +81,6 @@ def copo_tol_inspect_gal(request):
 
 
 def gal_and_partners(request):
-    import time
-    start_time = time.time()
-
     # Field name: "PARTNER"
     partner_enums = DTOL_ENUMS["PARTNER"]
     partner_map_marker_colour = "#F8E23B"
@@ -152,7 +149,6 @@ def gal_and_partners(request):
 
     out = {'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst,
            'partner_locations_lst': partner_locations_lst}
-    print("My program took", time.time() - start_time, "to run")
 
     return HttpResponse(json.dumps(out))
 
