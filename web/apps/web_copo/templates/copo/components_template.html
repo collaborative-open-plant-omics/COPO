@@ -20,7 +20,7 @@
 
 
             <span class="input-group ajax-loading-div">
-                    <img style="height: 24px; margin-left:5px;" src="{% static 'copo/img/loading.gif' %}"></span>
+                    <img style="height: 24px; margin-left:5px;" alt="" src="{% static 'copo/img/loading.gif' %}"></span>
             <h5>Choose which collection this item should be added to</h5>
             <div id="table-div-dataverse" class="table table-striped table-bordered"
                  style="padding: 10px;width:100%">
@@ -132,7 +132,7 @@
             <div class="dataverse-controls" style="">
                 <h5>Search for Dataverse</h5>
                 <div style="visibility:hidden" class="radio-inline">
-                    <label><input type="radio" value="dataverse" checked="true"
+                    <label><input type="radio" value="dataverse" checked="checked"
                                   name="dataverse-radio">Dataverse</label>
                 </div>
                 <div style="visibility:hidden" class="radio-inline">
@@ -364,23 +364,23 @@
         </div>
 
         <div class="submit_read_multi tiny ui basic dtables-dbuttons  teal button copo-dt copo-tooltip"
-            data-container="body"
-            data-action="submit_read"
-            data-error-message="Please select one or more record to submit"
-            data-btntype="multi"
-            title="Submit Read"
-            tabindex="0">
+             data-container="body"
+             data-action="submit_read"
+             data-error-message="Please select one or more record to submit"
+             data-btntype="multi"
+             title="Submit Read"
+             tabindex="0">
             <i class=" fa fa-info"></i>
             <span class="action-label" style="padding-left: 3px;">Submit</span>
         </div>
 
         <div class="delete_read_multi tiny ui basic dtables-dbuttons  red button copo-dt copo-tooltip"
-            data-container="body"
-            data-action="delete_read"
-            data-error-message="Please select one or more record to delete"
-            data-btntype="multi"
-            title="Delete Read"
-            tabindex="0">
+             data-container="body"
+             data-action="delete_read"
+             data-error-message="Please select one or more record to delete"
+             data-btntype="multi"
+             title="Delete Read"
+             tabindex="0">
             <i class=" fa fa-trash-o"></i>
             <span class="action-label" style="padding-left: 3px;">Delete</span>
         </div>
@@ -428,7 +428,6 @@
             </span>
         </div>
     </div>
-
 
 
     <div id="dataverse-table-template">
@@ -567,15 +566,15 @@
     </button>
 
     <!-- new component button template -->
-    <button title="Add new file by browsing local file system""
+    <button title="Add new file by browsing local file system"
             class="big circular ui icon primary button new-local-file copo-tooltip">
         <i class="icon desktop sign"></i>
     </button>
 
-        <!-- new component button template -->
+    <!-- new component button template -->
     <button title="Add new file by terminal"
-        class="big circular ui icon primary button new-terminal-file copo-tooltip">
-    <i class="icon terminal sign"></i>
+            class="big circular ui icon primary button new-terminal-file copo-tooltip">
+        <i class="icon terminal sign"></i>
     </button>
 
     <!-- semantic ui expanding menu -->
@@ -586,8 +585,10 @@
             <div class="menu">
                 <a class="item action" profile_component="stand-alone" anchor_type="files" data-action_type="files">Upload Files</a>
                 <a class="item action" profile_component="stand-alone" anchor_type="reads" data-action_type="reads">Submit Reads</a>
-                <a class="item action" profile_component="stand-alone" anchor_type="assembly" data-action_type="assembly">Submit Assembly</a>
-                <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation" data-action_type="seq_annotation">Submit Annotation</a>
+                <a class="item action" profile_component="stand-alone" anchor_type="assembly"
+                   data-action_type="assembly">Submit Assembly</a>
+                <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation"
+                   data-action_type="seq_annotation">Submit Annotation</a>
                 <a class="item action" profile_component="dtol" anchor_type="dtol_option" data-action_type="dtol">Submit DTOL/ASG manifest</a>
                 <a class="item action" profile_component="dtol" anchor_type="erga_option" data-action_type="erga">Submit ERGA Manifest</a>
             </div>
@@ -749,7 +750,7 @@
         </div>
         <!-- Other projects' accessions filter checkboxes -->
         <div class="accessions-legend">
-            <h4 class="accessions-legend-title">Filter Accessions Types</h4>
+            <h4 class="accessions-legend-title">Filter Accession Types</h4>
             <div class="accessions-checkboxes"></div>
         </div>
         <!-- Stand-alone projects' accessions filter checkboxes -->

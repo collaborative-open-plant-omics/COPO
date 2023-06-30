@@ -184,9 +184,12 @@ $(document).ready(function () {
 
     // World map
     // Show/Hide "World map is loading" spinner
-    $('svg').length > 0 ? $("#spinner_div").hide() : $("#spinner_div").show();
+    let spinner_div = $("#spinner_div")
+    let spinner = $("#spinner")
+    $('svg').length > 0 ? spinner_div.hide() : spinner_div.show();
     $.getJSON("gal_and_partners")
         .done(function (data) {
+            spinner.show();
             let map_locations = data.partner_locations_lst.concat(data.gal_locations_lst)
             let map_markers = []
             map_locations.map(x => map_markers.push({
@@ -214,8 +217,6 @@ $(document).ready(function () {
                 },
                 markerStyle: {
                     initial: {
-                        // r: 5,
-                        // fill: '#3B7DDD',
                         stroke: '#383f47',
                         strokeWidth: 2,
                         stokeOpacity: .2,
@@ -227,7 +228,7 @@ $(document).ready(function () {
                 },
                 regionStyle: {
                     initial: {
-                        fill: 'lightgrey', //'#dee2e8',
+                        fill: 'lightgrey',
                         stroke: 'none',
                         "stroke-width": 0,
                     },
@@ -263,7 +264,9 @@ $(document).ready(function () {
                     }]
                 }
             });
-            $("#spinner_div").hide();
+
+            // spinner.fadeOut("fast")
+            spinner_div.hide();
         }).error(function (error) {
         console.log(`Error: ${error.message}`)
     })

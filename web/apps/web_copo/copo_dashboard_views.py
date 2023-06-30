@@ -3,15 +3,16 @@ from bson import json_util, ObjectId
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
+from itertools import groupby
+from operator import itemgetter
 from web.apps.web_copo.models import ViewLock
-from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lkup
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, DTOL_ENUMS, \
+    PARTNER_MAP_LOCATION_COORDINATES, GAL_MAP_LOCATION_COORDINATES
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import group_functions
 
 import ast
-import itertools
 import json
-import operator
 import re
 
 LOGGER = settings.LOGGER
@@ -80,51 +81,84 @@ def copo_tol_inspect_gal(request):
 
 
 def gal_and_partners(request):
-    # {**x, **y} # merges dictionary x and dictionary y
+    import time
+    start_time = time.time()
+
     # Field name: "PARTNER"
+    partner_enums = DTOL_ENUMS["PARTNER"]
     partner_map_marker_colour = "#F8E23B"
-    partner_lst = [convert_string_to_titlecase(item) for item in lkup.DTOL_ENUMS["PARTNER"]]
-    # partner_location_information = [get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-    #                                                      lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")[
-    #                                                          "longitude"]) for
-    #                                 key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if
-    #                                key in lkup.DTOL_ENUMS["PARTNER"]]
-    partner_locations_lst = [
-        {**{"name": convert_string_to_titlecase(key)}, **lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, ""),
-         **get_location_details(lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-                                lkup.PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-         **{"samples_count": get_number_of_samples_produced("PARTNER", key)},
-         **{"style": {"r": 5, "fill": partner_map_marker_colour}}} for
-        key, value in lkup.PARTNER_MAP_LOCATION_COORDINATES.items() if key in lkup.DTOL_ENUMS["PARTNER"]]
+    partner_lst = [convert_string_to_titlecase(item) for item in partner_enums]
+
+    # Get PARTNER co-ordinates locations and other details
+    partner_locations_lst = []
+
+    for key, value in PARTNER_MAP_LOCATION_COORDINATES.items():
+        if key in partner_enums:
+            partner_coordinates = PARTNER_MAP_LOCATION_COORDINATES.get(key, "")
+            name = convert_string_to_titlecase(key)
+            location_details = get_location_details(partner_coordinates["latitude"], partner_coordinates["longitude"])
+            samples_count = get_number_of_samples_produced("PARTNER", key)
+            style = {"r": 5, "fill": partner_map_marker_colour}
+
+            # {**x, **y} # merges dictionary x and dictionary y
+            partner_locations_lst.append(
+                {**{"name": name}, **partner_coordinates, **location_details, **{"samples_count": samples_count},
+                 **{"style": style}})
+
+    # partner_locations_lst = [
+    #     {**{"name": convert_string_to_titlecase(key)}, **PARTNER_MAP_LOCATION_COORDINATES.get(key, ""),
+    #      **get_location_details(PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
+    #                             PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
+    #      **{"samples_count": get_number_of_samples_produced("PARTNER", key)},
+    #      **{"style": {"r": 5, "fill": partner_map_marker_colour}}} for
+    #     key, value in PARTNER_MAP_LOCATION_COORDINATES.items() if key in partner_enums]
 
     # Field name: "GAL"
     gal_map_marker_colour = "#3B7DDD"
+
     # Get list of GAL names based on manifest type and once GAL name begins with an uppercase letter
     gal_lst = [(convert_string_to_titlecase(item), manifest_type) for manifest_type, gal in
-               lkup.DTOL_ENUMS["GAL"].items() for item in gal if item[0].isupper()]
+               DTOL_ENUMS["GAL"].items() for item in gal if item[0].isupper()]
 
-    gal_lst_sorted = sorted(gal_lst, key=operator.itemgetter(0))  # Sort before grouping list
-    gal_lst_grouped = itertools.groupby(gal_lst_sorted, key=operator.itemgetter(0))  # Group list by GAL name
-    gal_lst = {k: list(map(operator.itemgetter(1), v)) for k, v in gal_lst_grouped}
+    gal_lst_sorted = sorted(gal_lst, key=itemgetter(0))  # Sort before grouping list
+    gal_lst_grouped = groupby(gal_lst_sorted, key=itemgetter(0))  # Group list by GAL name
+    gal_lst = {k: list(map(itemgetter(1), v)) for k, v in gal_lst_grouped}
 
+    # Get GAL co-ordinates locations and other details
     gal_lst_uppercase = [x.upper() for x in list(gal_lst.keys())]  # Convert GAL names to uppercase
-    gal_locations_lst = [
-        {**{"name": convert_string_to_titlecase(key)}, **lkup.GAL_MAP_LOCATION_COORDINATES.get(key, ""),
-         **get_location_details(lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-                                lkup.GAL_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-         **{"samples_count": get_number_of_samples_produced("GAL", key)},
-         **{"style": {"r": 5, "fill": gal_map_marker_colour}}} for
-        key, value in lkup.GAL_MAP_LOCATION_COORDINATES.items() if
-        key.upper() in gal_lst_uppercase]
+    gal_locations_lst = []
+
+    for key, value in GAL_MAP_LOCATION_COORDINATES.items():
+        if key.upper() in gal_lst_uppercase:
+            gal_coordinates = GAL_MAP_LOCATION_COORDINATES.get(key, "")
+            name = convert_string_to_titlecase(key)
+            location_details = get_location_details(gal_coordinates["latitude"], gal_coordinates["longitude"])
+            samples_count = get_number_of_samples_produced("GAL", key)
+            style = {"r": 5, "fill": gal_map_marker_colour}
+
+            # {**x, **y} # merges dictionary x and dictionary y
+            gal_locations_lst.append(
+                {**{"name": name}, **gal_coordinates, **location_details, **{"samples_count": samples_count},
+                 **{"style": style}})
+
+    # gal_locations_lst = [
+    #     {**{"name": convert_string_to_titlecase(key)}, **GAL_MAP_LOCATION_COORDINATES.get(key, ""),
+    #      **get_location_details(GAL_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
+    #                             GAL_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
+    #      **{"samples_count": get_number_of_samples_produced("GAL", key)},
+    #      **{"style": {"r": 5, "fill": gal_map_marker_colour}}} for
+    #     key, value in GAL_MAP_LOCATION_COORDINATES.items() if
+    #     key.upper() in gal_lst_uppercase]
 
     out = {'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst,
            'partner_locations_lst': partner_locations_lst}
+    print("My program took", time.time() - start_time, "to run")
 
-    return HttpResponse(json.dumps(out))  # partner_locations_lst  # HttpResponse(json.dumps(out))
+    return HttpResponse(json.dumps(out))
 
 
 def get_gal_names(request):
-    projects = lkup.TOL_PROFILE_TYPES
+    projects = TOL_PROFILE_TYPES
     samples = Sample().get_gal_names(projects)
     # Get 'GAL' field value, if it is not empty
     gal_names = [sample.get('GAL') for sample in samples if sample.get('GAL')]

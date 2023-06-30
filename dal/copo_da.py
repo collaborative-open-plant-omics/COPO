@@ -1030,11 +1030,6 @@ class Sample(DAComponent):
 
         })
 
-    # def get_profileID_by_sampleID(self, sample_id):
-    #     cursor = self.get_collection_handle().find({"_id": ObjectId(sample_id)},
-    #                                                {"profile_id": 1})
-    #     return cursor_to_list(cursor)[0].get("profile_id", "")
-
     def get_accessions(self, profile_id, isSampleProfileTypeStandalone, isUserProfileActive):
         if isSampleProfileTypeStandalone:
             current_profile_sample_accessions = Submission().get_collection_handle().find(
@@ -1045,7 +1040,7 @@ class Sample(DAComponent):
                 {"repository": "ena", "accessions": {"$exists": True, "$ne": {}}}, {"accessions": 1, "profile_id": 1})
 
             cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
-            # print("Standalone accessions list (before)", list(cursor))
+
             desired_accessions_types_order = ["project", "sample", "assembly", "seq_annotation", "experiment", "run"]
 
             out = []
@@ -1058,8 +1053,7 @@ class Sample(DAComponent):
                                              desired_accessions_types_order if i.get("accessions", "").get(k, "")}
                 i.update({'accessions': reordered_accessions_dict})
                 out.append(i)
-            print("Standalone accessions list (after)", out)
-            print("Python: I am here 1")
+
             return out
         else:
             current_profile_sample_accessions = self.get_collection_handle().find(
@@ -1076,7 +1070,6 @@ class Sample(DAComponent):
 
             cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
 
-            print("Python: I am here 2")
             accessions = list(cursor)
 
             return accessions

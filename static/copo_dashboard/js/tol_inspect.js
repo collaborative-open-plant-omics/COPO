@@ -910,9 +910,7 @@ function get_profile_titles(data) {
 
         const profile_titles_row = $("#profile_titles tr")
         const profile_titles_row_count = profile_titles_row.length - 1
-
-        console.log("selectedProfileID:", $(document).data("selectedProfileID"))
-
+        
         let profile_title_row_index = $(document).data("selectedProfileID")
             ? $('td[data-profile_id*=' + $(document).data("selectedProfileID") + ']').index($(this).closest('tr'))
             : 1

@@ -1,12 +1,12 @@
 $(document).ready(function () {
     const acceptRejectSampleURL = "/copo/accept_reject_sample"
+    const accessionsDashboardURL = "/copo/accessions"
     const tolInspectURL = "/copo/tol_inspect"
     const component = "accessions";
     const copoVisualsURL = "/copo/copo_accessions_visualise/";
     const componentMeta = get_accession_component_meta(component);
     const componentName = $("#nav_component_name").val();
 
-    $(document).data("isSampleProfileTypeStandalone", false)
     $(document).data("isUserProfileActive", true)
     $(document).data("showAllCOPOAccessions", false)
 
@@ -18,47 +18,26 @@ $(document).ready(function () {
         document.location = tolInspectURL
     })
 
-    $(document).on("click", ".btn-toggle1 .btn-toggle2", toggle_accessions_view)
+    $(document).on("click", ".copo_accessions", function (evt) {
+        document.location = accessionsDashboardURL
+    })
 
     $(document).on("change", ".filter-accessions", filterAccessionTypes)
 
-    $(document).on("click", ".copo_accessions", function (evt) {
-        $(document).data("showAllCOPOAccessions", true)
-        const tableLoader = $('<div class="copo-i-loader"></div>');
-        let table_id = "*"
-        // load_all_COPO_accessions_records(componentMeta, copoVisualsURL)
-        load_accessions_records(componentMeta, copoVisualsURL);
-        if (tableLoader) tableLoader.remove(); //remove loader
-        // if ($(".table-parent-div").length) {
-        //     $(table_id).find(".table-parent-div").show();
-        // }
-        if ($(".page-welcome-message").length) {
-            $(table_id).find(".page-welcome-message").hide();
-        }
-    })
 
     //trigger refresh of table
     $('body').on('refreshtable', function (event) {
         render_accessions_table(globalDataBuffer, componentMeta);
     });
 
-
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
-        $(".accept_reject_samples").show()
+        $(".accept_reject_samples").show() // Show 'accep/reject samples' button
     }
 
     if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
-        $(".tol_inspect").show()
+        $(".tol_inspect").show() // Show 'tol_inspect' button
+        $(".copo_accessions").show() // Show 'copo_accessions' button
     }
-
-    // Set up global navigation components
-    do_accession_page_controls(componentName);
-
-    // Load records
-    load_accessions_records(componentMeta, copoVisualsURL);
-
-    // Instantiate/refresh tooltips
-    refresh_accessions_tool_tips();
 
     // Instantiate based on profile type
     let profile_type = $("#profile_type").val()
@@ -72,14 +51,78 @@ $(document).ready(function () {
             groupBtn2.find('.btn').toggleClass('active');
 
             if (groupBtn2.find('.btn-success').size() > 0) {
-                $('.groupBtn2').find('.btn').toggleClass('btn-success');
+                groupBtn2.find('.btn').toggleClass('btn-success');
             }
             groupBtn2.find('.btn').toggleClass('btn-default');
         }
+    } else {
+        $(document).data("isSampleProfileTypeStandalone", false)
     }
+
+    // Set up global navigation components
+    do_accession_page_controls(componentName);
+
+    // Load records
+    load_accessions_records(componentMeta, copoVisualsURL);
+
+    // Instantiate/refresh tooltips
+    refresh_accessions_tool_tips();
 }); //end document ready
 
 //______________Handlers___________________________________
+// Filter accessions table by accession type
+const resetDisplay = function () {
+    const uncheckedAccessions = getValues($(".filter-accessions:not(:checked)"))
+
+    uncheckedAccessions.forEach(function (type) {
+        let rows = $('.accessions_row').filter(function () {
+            return $(this).attr('accession_type') === type;
+        });
+
+        // Show each row based on the accession type that is unchecked
+        $(rows).each(function () {
+            $(this).show()
+        });
+
+    });
+}
+
+const getValues = function ($el) {
+    const items = [];
+    $el.each(function () {
+        items.push($(this).val());
+    });
+
+    return items;
+};
+
+const filterAccessionTypes = function () {
+    const selectedAccessions = getValues($(".filter-accessions:checked"));
+
+    if ($(".filter-accessions:not(:checked)").length === $('.filter-accessions').length) {
+        // If length of all unchecked accession types is equal to the number of accession checkboxes
+        // in the filter accession type div then, show all table rows
+        $(".accessions_row").show();
+    } else if (selectedAccessions.length > 0) {
+        $(".accessions_row").hide();
+
+        selectedAccessions.forEach(function (type) {
+            let rows = $('.accessions_row').filter(function () {
+                return $(this).attr('accession_type') === type;
+            });
+
+            // Show each row based on the accession type that is checked
+            $(rows).each(function () {
+                $(this).show()
+            });
+
+        });
+    } else {
+        resetDisplay();
+    }
+};
+
+// Accessions component
 function set_empty_accessions_component_message(dataRows, table_id = "*") {
     //decides, based on presence of record, to display table or getting started info
 
@@ -107,58 +150,139 @@ function set_empty_accessions_component_message(dataRows, table_id = "*") {
     }
 }
 
-function place_accessions_task_buttons(componentMeta) {
-    let class_name = $(document).data("showAllCOPOAccessions") ? "btn-toggle2" : "btn-toggle1";
-    //place custom buttons on table
+function get_accession_component_meta(component) {
+    let componentMeta = null;
+    const components = get_copo_accessions_components();
 
-    if (!componentMeta.recordActions.length) {
-        return;
-    }
-
-    const table = $('#' + componentMeta.tableID).DataTable();
-
-    const customButtons = $('<span/>', {
-        style: "padding-left: 15px;",
-        class: "copo-table-cbuttons"
+    components.forEach(function (comp) {
+        if (comp.component === component) {
+            componentMeta = comp;
+            return false;
+        }
     });
 
-    if (class_name === "btn-toggle1") {
-        $(table.buttons().container()).append(customButtons);
-    }
+    return componentMeta
+} // End of function get_accession_component_meta()
 
-    if (class_name === "btn-toggle2") {
-        $(table.buttons().container()).append(customButtons);
-    }
-
-    const actionBTN = $(".accessions-record-action-templates").find("." + class_name).clone();
-
-    // Retain toggled button on "Standalone projects accessions" option
-    if ($(document).data("isSampleProfileTypeStandalone") && actionBTN.find('.active').text().includes("Other Projects' Accessions")) {
-        actionBTN.find('.btn').toggleClass('active');
-
-        if (actionBTN.find('.btn-success').size() > 0) {
-            actionBTN.find('.btn').toggleClass('btn-success');
-        }
-        actionBTN.find('.btn').toggleClass('btn-default');
-    }
-
-    actionBTN.attr("data-table", componentMeta.tableID);
-    customButtons.append(actionBTN);
-
-    if (!$(document).data("showAllCOPOAccessions")) {
-        // Truncate profile title if it is too long
-        let profile_title = $("#profile_title")
-        let truncated_profile_title = profile_title.val().length > 10 ?
-            jQuery.trim(profile_title.val()).substring(0, 10).trim(this) + '...'
-            : profile_title.val()
-
-        // Add profile title to the active toggle button
-        $(".btn-toggle1").find(".btn-success").text(`View Profile: ${truncated_profile_title} Accessions`)
-    }
-
-    refresh_accessions_tool_tips();
-}
-
+function get_copo_accessions_components() {
+    return [
+        {
+            component: 'profile',
+            title: 'Work Profiles',
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            tableID: 'copo_profiles_table',
+            secondaryTableID: 'copo_shared_profiles_table',
+            visibleColumns: 4,
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"] //specifies action buttons for records manipulation
+        },
+        {
+            component: 'sample',
+            title: 'Samples',
+            iconClass: "fa fa-filter",
+            semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_sample",
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples", "tol_inspect"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            colorClass: "samples_color",
+            color: "olive",
+            profile_component: true,
+            tableID: 'sample_table',
+            recordActions: ["show_sample_source", "describe_record_all", "edit_record_single"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'accessions',
+            title: 'Accessions',
+            iconClass: "fa fa-barcode",
+            semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_accessions",
+            buttons: ["copo_accessions", "tol_inspect", "accept_reject_samples"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "accessions_color",
+            color: "pink",
+            profile_component: true,
+            tableID: 'accessions_table',
+            recordActions: ["btn-toggle1", "btn-toggle2"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'datafile',
+            title: 'Datafiles',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_data",
+            colorClass: "data_color",
+            color: "black",
+            buttons: ["quick-tour-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            tableID: 'datafile_table',
+            profile_component: true,
+            // recordActions: ["describe_record_multi", "unbundle_record_multi", "undescribe_record_multi"],
+            recordActions: [],
+            visibleColumns: 3
+        },
+        {
+            component: 'submission',
+            title: 'Submissions',
+            iconClass: "fa fa-envelope",
+            semanticIcon: "mail outline",
+            countsKey: "num_submission",
+            buttons: ["quick-tour-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            colorClass: "submissions_color",
+            color: "green",
+            tableID: 'submission_table',
+            profile_component: true,
+            recordActions: [],
+            visibleColumns: 3
+        },
+        {
+            component: 'publication',
+            title: 'Publications',
+            iconClass: "fa fa-paperclip",
+            semanticIcon: "attach",
+            countsKey: "num_pub",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            colorClass: "pubs_color",
+            color: "orange",
+            tableID: 'publication_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"],
+            visibleColumns: 4
+        },
+        {
+            component: 'metadata_template',
+            title: 'Metadata Template',
+            iconClass: "fa fa-table",
+            semanticIcon: "attach",
+            countsKey: "num_temp",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            colorClass: "pubs_color",
+            color: "blue",
+            tableID: 'metadata_template_table',
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"],
+            visibleColumns: 4
+        },
+        {
+            component: 'person',
+            title: 'People',
+            iconClass: "fa fa-users",
+            semanticIcon: "users",
+            countsKey: "num_person",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            colorClass: "people_color",
+            color: "red",
+            tableID: 'person_table',
+            profile_component: true,
+            recordActions: ["add_record_all", "edit_record_single"],
+            visibleColumns: 5
+        },
+    ];
+} // End of function get_copo_accessions_components()
 function render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
     const tableID = `#${componentMeta.tableID}`;
     let table = null;
@@ -308,9 +432,6 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                 .addClass('tiny ui basic button');
         });
 
-    place_accessions_task_buttons(componentMeta);
-
-
     // Filter the rows that are not associated with the current checked "Standalone" accession type
     if ($(document).data("isSampleProfileTypeStandalone")) filterAccessionTypes()
 
@@ -329,12 +450,7 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
     table_wrapper.find('.info-rw').hide() // Hide showing 'x' of 'x' row
 
     // Insert breakpoints after the toggle button
-    if ($(document).data("showAllCOPOAccessions")) {
-        $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
-    } else {
-        const actionBTN2 = $(".accessions-record-action-templates").find("." + "groupBtn2").clone();
-        table_wrapper.find(".dt-buttons").append($("<br><br>")).append(actionBTN2).append($("<br><br>"))
-    }
+    $("<br><br>").insertAfter(table_wrapper.find(".dt-buttons"))
 
     // Set height of table to fit the content in the table
     table_wrapper.find(".dataTables_scrollBody").css("height", "fit-content")
@@ -344,60 +460,43 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
 
 } // End of func
 
-// function load_all_COPO_accessions_records(componentMeta, copoVisualsURL) {
-//     let component_table_loder = $("#component_table_loader")
-//     const csrftoken = $.cookie('csrftoken');
-//
-//     //loader
-//     let tableLoader = null;
-//
-//     if (component_table_loder.length) {
-//         tableLoader = $('<div class="copo-i-loader"></div>');
-//         component_table_loder.append(tableLoader);
-//     }
-//
-//     $.ajax({
-//         url: copoVisualsURL,
-//         type: "POST",
-//         headers: {
-//             'X-CSRFToken': csrftoken
-//         },
-//         data: {
-//             "isSampleProfileTypeStandalone": false,
-//             "isUserProfileActive": false,
-//         },
-//         dataType: "json",
-//         success: function (data) {
-//             let cols = [];
-//             let dataSet = []
-//
-//             // Sort data by key
-//             $.each(data, function (index, item) {
-//                 // Remove "_id" from key-value pair from the original object
-//                 if (item.hasOwnProperty("_id")) delete data[index]["_id"];
-//
-//                 // Sort element dictionary by key
-//                 data[index] = Object.keys(data[index]).sort().reduce((a, c) => (a[c] = data[index][c], a), {})
-//                 dataSet.push(Object.values(item))
-//             });
-//
-//             // Get element keys
-//             // If there exists at least one element, the keys will remain the same so just get the
-//             // keys from the first element
-//             Object.keys(data[0]).forEach(item => {
-//                 cols.push({title: convertStringToTitleCase(item), value: item});
-//             })
-//
-//             render_accessions_table(data, cols, dataSet, componentMeta);
-//
-//             //remove loader
-//             if (tableLoader) tableLoader.remove();
-//         },
-//         error: function () {
-//             alert("Couldn't retrieve " + componentMeta.component + " data!");
-//         }
-//     });
-// }
+function set_filter_checkboxes(accession_types) {
+    let accessions_checkboxes = $('.accessions-checkboxes')
+    let accession_types_unique = [...new Set(accession_types)]; // Remove duplicates from the sample types array
+
+    // Clear accessions checkboxes div if data exists within it
+    if (accessions_checkboxes.length) accessions_checkboxes.empty()
+
+    $.each(accession_types_unique, function (index, type) {
+        let label = $(document).data("isSampleProfileTypeStandalone")
+            ? convertStringToTitleCase(pluraliseString(type))
+            : type
+
+        let $filterCheckBoxItem = '<div class="form-check">'
+        $filterCheckBoxItem += '<input id="' + type + '" ' +
+            'class="filter-accessions form-check-input" ' +
+            'type="checkbox" value="' + type + '"/>'
+        $filterCheckBoxItem += '<label class="form-check-label" style="padding-left: 5px" for="' + type + '">'
+        $filterCheckBoxItem += label
+        $filterCheckBoxItem += '</label>'
+        $filterCheckBoxItem += '</div>'
+        $filterCheckBoxItem += '<br/>'
+
+        // Check "Projects" checkbox by default in Stand-alone project accession filter checkboxes
+        if ($(document).data("isSampleProfileTypeStandalone") && type === "project" && index === 0) {
+            $filterCheckBoxItem = $filterCheckBoxItem.replace('type="checkbox"', 'type="checkbox" checked')
+        }
+
+        // Check the first and only accession type displayed for the user profile
+        // by default in 'Other projects' project accession filter checkboxes
+        if ($(document).data("isUserProfileActive") && !$(document).data("isSampleProfileTypeStandalone") && index === 0) {
+            $filterCheckBoxItem = $filterCheckBoxItem.replace('type="checkbox"', 'type="checkbox" checked')
+        }
+
+        // Populate the accessions checkboxes div with the accession types checkboxes
+        $(".accessions-legend").find('.accessions-checkboxes').append($filterCheckBoxItem)
+    });
+}
 
 function load_accessions_records(componentMeta, copoVisualsURL) {
     const component_table_loder = $("#component_table_loader")
@@ -419,8 +518,8 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
             'X-CSRFToken': csrftoken
         },
         data: {
-            "isSampleProfileTypeStandalone": isSampleProfileTypeStandalone, //$(document).data("isSampleProfileTypeStandalone"),
-            "isUserProfileActive": isUserProfileActive //$(document).data("isUserProfileActive")
+            "isSampleProfileTypeStandalone": isSampleProfileTypeStandalone,
+            "isUserProfileActive": isUserProfileActive
 
         },
         dataType: "json",
@@ -558,53 +657,6 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
 
                     if (tableLoader) tableLoader.remove(); //remove loader
                 }
-
-                // let cols = [];
-                // let dataSet = []
-                //
-                // // Sort data by key
-                // $.each(data, function (index, item) {
-                //     // Remove "_id" from key-value pair from the original object
-                //     if (item.hasOwnProperty("_id")) delete data[index]["_id"];
-                //
-                //     // Sort element dictionary by key
-                //     data[index] = Object.keys(data[index]).sort().reduce((a, c) => (a[c] = data[index][c], a), {})
-                //     dataSet.push(Object.values(item))
-                // });
-                //
-                // if ($(document).data("showAllCOPOAccessions")) {
-                //     console.log("showAllCOPOAccessions is true")
-                //     console.log("data", data)
-                //     console.log("dataSet", dataSet)
-                //     // load_accessions_records(componentMeta, copoVisualsURL)
-                //     // Get element keys
-                //     // If there exists at least one element, the keys will remain the same so just get the
-                //     // keys from the first element
-                //     Object.keys(data[0]).forEach(item => {
-                //         cols.push({title: convertStringToTitleCase(item), value: item});
-                //     })
-                //
-                //     render_accessions_table(data, cols, dataSet, componentMeta);
-                //
-                //     //remove loader
-                //     if (tableLoader) tableLoader.remove();
-                //
-                // } else {
-                //     console.log("showAllCOPOAccessions is false")
-                //
-                //     // Get element keys
-                //     // If there exists at least one element, the keys will remain the same so just get the
-                //     // keys from the first element
-                //     Object.keys(data[0]).forEach(item => {
-                //         cols.push({title: convertStringToTitleCase(item), value: item});
-                //     })
-                //
-                //     render_accessions_table(data, cols, dataSet, componentMeta);
-                //
-                //     if (tableLoader) tableLoader.remove(); //remove loader
-
-                // }
-
             }
         },
         error: function () {
@@ -613,215 +665,165 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
     });
 }
 
-// function refresh_accessions_tool_tips() {
-//     $("[data-toggle='tooltip']").tooltip();
-//     $("[data-toggle='popover']").popover();
-//     $('.ui.dropdown')
-//         .dropdown()
-//     ;
-//     $('.copo-tooltip')
-//         .popup()
-//     ;
-//     //
-//     // apply_color();
-//     // refresh_selectbox();
-//     // refresh_select2box();
-//     // refresh_multiselectbox();
-//     // refresh_multiselect2box();
-//     // refresh_singleselectbox();
-//     // refresh_multisearch();
-//     // refresh_ontology_select();
-//     // refresh_general_ontology_search();
-//     // refresh_general_ontology_select();
-//     // refresh_copo_lookup();
-//     // refresh_copo_lookup2();
-//     //
-//     // refresh_range_slider();
-//     // auto_complete();
-//     //
-//     // setup_datepicker();
-//
-// } //end of func
+function refresh_accessions_tool_tips() {
+    $("[data-toggle='tooltip']").tooltip();
+    $("[data-toggle='popover']").popover();
+    $('.ui.dropdown')
+        .dropdown()
+    ;
+    $('.copo-tooltip')
+        .popup()
+    ;
+} // End of function refresh_accessions_tool_tips()
 
-function toggle_accessions_view() {
-    const component = "accessions";
-    const copoVisualsURL = "/copo/copo_accessions_visualise/";
-    const componentMeta = get_accession_component_meta(component);
+// Builds component-page navbar
+function do_accession_page_controls(componentName) {
+    let component = null;
+    const components = get_copo_accessions_components();
 
-    $('.btn-toggle').click(function () {
-        $(this).find('.btn').toggleClass('active');
-
-        if ($(this).find('.btn-primary').size() > 0) {
-            $(this).find('.btn').toggleClass('btn-primary');
-        }
-        if ($(this).find('.btn-danger').size() > 0) {
-            $(this).find('.btn').toggleClass('btn-danger');
-        }
-        if ($(this).find('.btn-success').size() > 0) {
-            $(this).find('.btn').toggleClass('btn-success');
-        }
-        if ($(this).find('.btn-info').size() > 0) {
-            $(this).find('.btn').toggleClass('btn-info');
-        }
-
-        $(this).find('.btn').toggleClass('btn-default');
-
-        // Show all accessions
-        if ($(this).find('.active').text().includes("All COPO Accessions")) {
-            $(".page-title-custom").find("[title='Profile title']").hide() // Hide profile title
-            $(document).data("isUserProfileActive", false)
-            load_accessions_records(componentMeta, copoVisualsURL)
-
-            // let copo_accessions_options = $(".dt-buttons ").clone()
-            //
-            // // Remove breakpoints before the toggle button
-            // // copo_accessions_options.previousSibling.remove()
-            // copo_accessions_options.prev("br").remove();
-            // console.log("previousSibling: ", copo_accessions_options.prev())
-            //
-            // copo_accessions_options.find('.buttons-csv').remove()
-            //
-            // copo_accessions_options.insertBefore($(`#${componentMeta.tableID}_filter`))
-            //     .find('.active').text('Other Projects\' Accessions')
-            //
-            // copo_accessions_options.find('.btn-default').text('Stand-alone Projects\' Accessions')
-        } else {
-            $(".page-title-custom").find("[title='Profile title']").show()
-            $(document).data("isUserProfileActive", true)
-            load_accessions_records(componentMeta, copoVisualsURL)
+    components.forEach(function (comp) {
+        if (comp.component === componentName) {
+            component = comp;
+            return false;
         }
     });
-} // End of function toggle_accessions_view()
 
-//builds component-page navbar
-// function do_page_controls(componentName) {
-//     let component = null;
-//     const components = get_copo_accessions_components();
-//
-//     components.forEach(function (comp) {
-//         if (comp.component === componentName) {
-//             component = comp;
-//             return false;
-//         }
-//     });
-//
-//     if (component == null) {
-//         return false;
-//     }
-//
-//     generate_accession_component_control(component);
-//
-// } //end of func
+    if (component == null) {
+        return false;
+    }
 
-// function generate_component_control(component) {
-//     const pageHeaders = $(".copo-page-headers"); //page header/icons
-//     const pageIcons = $(".copo-page-icons"); //profile component icons
-//     const sideBar = $(".copo-sidebar"); //sidebar panels
-//     let profileTitleID = $("#profile_title") // profile title ID
-//
-//     //add profile title
-//     if (profileTitleID.length) {
-//         const profileTitle = $('<div/>', {
-//             class: "page-title-custom",
-//             style: "margin-right:10px;",
-//             html: "<span title='Profile title' style='color: #8c8c8c; font-size: 18px;'>Profile: " + profileTitleID.val() + "</span>"
-//         });
-//
-//         pageHeaders.append(profileTitle);
-//     }
-//
-//     //add page title
-//     const PageTitle = $('<span/>', {
-//         class: "page-title-custom",
-//         style: "margin-right:10px;",
-//         html: component.title
-//     });
-//
-//     pageHeaders.append(PageTitle);
-//
-//
-//     //create panels
-//     if (component.sidebarPanels) {
-//         const sidebarTemplate = $(".copo-sidebar-templates")
-//         const sidebarPanels = sidebarTemplate.clone();
-//         const sidebarPanels2 = sidebarPanels.clone();
-//         sidebarPanels.find(".nav-tabs").html('');
-//         sidebarPanels.find(".tab-content").html('');
-//         sidebarTemplate.remove();
-//
-//
-//         component.sidebarPanels.forEach(function (item) {
-//             sidebarPanels.find(".nav-tabs").append(sidebarPanels2.find(".nav-tabs").find("." + item));
-//             sidebarPanels.find(".tab-content").append(sidebarPanels2.find(".tab-content").find("." + item));
-//             // sidebarPanels.find(".profiles-legend").append(sidebarPanels2.find(".profiles-legend").find("." + item));
-//         });
-//
-//         sideBar
-//             .append(sidebarPanels.find(".nav-tabs"))
-//             .append(sidebarPanels.find(".tab-content"))
-//         // .append(sidebarPanels.find(".profiles-legend"));
-//
-//
-//     }
-//
-//     //create buttons
-//     const buttonsSpan = $('<span/>', {style: "white-space:nowrap;"});
-//     pageHeaders.append(buttonsSpan);
-//     component.buttons.forEach(function (item) {
-//         if (component.buttons) {
-//             component.buttons.forEach(function (item) {
-//                 buttonsSpan.append($("." + item)).append("<span style='display: inline;'>&nbsp;</span>");
-//             });
-//         }
-//     });
-//
-//     //...and profile component buttons
-//     if (component.hasOwnProperty("profile_component") && component.profile_component.toString() === "true") {
-//         const pcomponentHTML = $(".pcomponents-icons-templates").clone().removeClass("pcomponents-icons-templates");
-//         const pcomponentAnchor = pcomponentHTML.find(".pcomponents-anchor").clone().removeClass("pcomponents-anchor");
-//         pcomponentHTML.find(".pcomponents-anchor").remove();
-//
-//         pageIcons.append(pcomponentHTML);
-//
-//         const components = get_copo_accessions_components();
-//
-//         for (let i = 1; i < components.length; ++i) {
-//             const comp = components[i];
-//             if (comp.hasOwnProperty("profile_component") && comp.profile_component.toString() === "true") {
-//
-//                 if ((comp.component === component.component)) {
-//                     continue;
-//                 }
-//
-//                 const newAnchor = pcomponentAnchor.clone();
-//                 pcomponentHTML.append(newAnchor);
-//
-//                 newAnchor.attr("title", "Navigate to " + comp.title);
-//                 newAnchor.attr("href", $("#" + comp.component + "_url").val());
-//                 newAnchor.find("i")
-//                     .addClass(comp.color)
-//                     .addClass(comp.semanticIcon);
-//
-//             }
-//         }
-//     }
-//
-//     //refresh components...
-//     // quick_tour_event();
-//     refresh_accessions_tool_tips();
-// }
+    generate_accession_component_control(component);
 
-// #------------- Helpers -----------------#
-// function convertStringToTitleCase(str) {
-//     return str.replace(
-//         /\w\S*/g,
-//         function (txt) {
-//             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-//         }
-//     ).replace("_id", " ID")
-//         .replace("_name", " Name")
-//         .replace("accession", " Accession")
-//         .replace("Sra", "SRA")
-//
-//
-// }
+} //End of function do_accession_page_controls(componentName)
+
+function generate_accession_component_control(component) {
+    const pageHeaders = $(".copo-page-headers"); //page header/icons
+    const pageIcons = $(".copo-page-icons"); //profile component icons
+    const sideBar = $(".copo-sidebar"); //sidebar panels
+    let profileTitleID = $("#profile_title") // profile title ID
+
+    //add profile title
+    if (profileTitleID.length) {
+        const profileTitle = $('<div/>', {
+            class: "page-title-custom",
+            style: "margin-right:10px;",
+            html: "<span title='Profile title' style='color: #8c8c8c; font-size: 18px;'>Profile: " + profileTitleID.val() + "</span>"
+        });
+
+        pageHeaders.append(profileTitle);
+    }
+
+    //add page title
+    const PageTitle = $('<span/>', {
+        class: "page-title-custom",
+        style: "margin-right:10px;",
+        html: component.title
+    });
+
+    pageHeaders.append(PageTitle);
+
+    //create panels
+    if (component.sidebarPanels) {
+        const sidebarTemplate = $(".copo-sidebar-templates")
+        const sidebarPanels = sidebarTemplate.clone();
+        const sidebarPanels2 = sidebarPanels.clone();
+        sidebarPanels.find(".nav-tabs").html('');
+        sidebarPanels.find(".tab-content").html('');
+        sidebarTemplate.remove();
+
+
+        component.sidebarPanels.forEach(function (item) {
+            sidebarPanels.find(".nav-tabs").append(sidebarPanels2.find(".nav-tabs").find("." + item));
+            sidebarPanels.find(".tab-content").append(sidebarPanels2.find(".tab-content").find("." + item));
+            sidebarPanels.find(".accessions-legend").append(sidebarPanels2.find(".accessions-legend").find("." + item));
+        });
+
+        sideBar
+            .append(sidebarPanels.find(".nav-tabs"))
+            .append(sidebarPanels.find(".tab-content"))
+            .append(sidebarPanels.find(".accessions-legend"));
+
+
+    }
+
+    // create buttons
+    const buttonsSpan = $('<span/>', {style: "white-space:nowrap;"});
+    pageHeaders.append(buttonsSpan);
+    component.buttons.forEach(function (item) {
+        if (component.buttons) {
+            component.buttons.forEach(function (item) {
+                buttonsSpan.append($("." + item)).append("<span style='display: inline;'>&nbsp;</span>");
+            });
+        }
+    });
+
+    // Create page icons/profile component buttons if (current user) profile is active
+    if ($(document).data("isUserProfileActive")) {
+        //...and profile component buttons
+        if (component.hasOwnProperty("profile_component") && component.profile_component.toString() === "true") {
+            const pcomponentHTML = $(".pcomponents-icons-templates").clone().removeClass("pcomponents-icons-templates");
+            const pcomponentAnchor = pcomponentHTML.find(".pcomponents-anchor").clone().removeClass("pcomponents-anchor");
+            pcomponentHTML.find(".pcomponents-anchor").remove();
+
+            pageIcons.append(pcomponentHTML);
+
+            const components = get_copo_accessions_components();
+
+            for (let i = 1; i < components.length; ++i) {
+                const comp = components[i];
+                if (comp.hasOwnProperty("profile_component") && comp.profile_component.toString() === "true") {
+
+                    if ((comp.component === component.component)) {
+                        continue;
+                    }
+
+                    const newAnchor = pcomponentAnchor.clone();
+                    pcomponentHTML.append(newAnchor);
+
+                    newAnchor.attr("title", "Navigate to " + comp.title);
+                    newAnchor.attr("href", $("#" + comp.component + "_url").val());
+                    newAnchor.find("i")
+                        .addClass(comp.color)
+                        .addClass(comp.semanticIcon);
+
+                }
+            }
+        }
+    }
+
+    //refresh components...
+    refresh_accessions_tool_tips();
+} //End of function generate_accession_component_control(component)
+
+//#------------- Helpers -----------------#
+function convertStringToTitleCase(str) {
+    // Given a string, convert it to title case/ sentence case
+    return str.replace(
+        /\w\S*/g,
+        function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    ).replace("_id", " ID")
+        .replace("_name", " Name")
+        .replace("accession", " Accession")
+        .replace("Sra", "SRA")
+        .replace("seq_a", "Sequence A")
+}
+
+function pluraliseString(str) {
+    // Pluralise a word based on the passed value
+    const pluralise = (val, word, plural = word + 's') => {
+        const _pluralise = (num, word, plural = word + 's') =>
+            [1, -1].includes(Number(num)) ? word : plural;
+        if (typeof val === 'object') return (num, word) => _pluralise(num, word, val[word]);
+        return _pluralise(val, word, plural);
+    };
+
+    // Plural form of special words
+    const PLURALS = {
+        assembly: 'assemblies'
+    };
+    const autoPluralise = pluralise(PLURALS);
+
+    return str === "assembly" ? autoPluralise(2, str) : pluralise(2, str)
+}

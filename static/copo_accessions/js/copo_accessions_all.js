@@ -28,12 +28,12 @@ $(document).ready(function () {
 
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")
         || groups.includes("dtolenv_sample_managers")) {
-        $(".accept_reject_samples").show()
+        $(".accept_reject_samples").show() // Show 'accep/reject samples' button
     }
 
     if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users")
         || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
-        $(".tol_inspect").show()
+        $(".tol_inspect").show() // Show 'tol_inspect' button
     }
 
     // Set up global navigation components
@@ -469,7 +469,7 @@ function set_filter_checkboxes(accession_types) {
         let $filterCheckBoxItem = '<div class="form-check">'
         $filterCheckBoxItem += '<input id="' + type + '" ' +
             'class="filter-accessions form-check-input" ' +
-            'type="checkbox" name="accessionsTypes[]" value="' + type + '"/>'
+            'type="checkbox" value="' + type + '"/>'
         $filterCheckBoxItem += '<label class="form-check-label" style="padding-left: 5px" for="' + type + '">'
         $filterCheckBoxItem += label
         $filterCheckBoxItem += '</label>'
@@ -529,12 +529,10 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                         // Remove record ID & accession type from key-value pair from the original object
                         // and keep a record of it
                         if (item.hasOwnProperty("_id")) {
-                            // recordIDs.push(data[index]._id.$oid)
                             obj.recordID = data[index]._id.$oid
                             delete data[index]._id;
                         }
                         if (item.hasOwnProperty("profile_id")) {
-                            // profile_ids.push(data[index].profile_id)
                             obj.profile_id = data[index].profile_id
                             delete data[index].profile_id;
                         }

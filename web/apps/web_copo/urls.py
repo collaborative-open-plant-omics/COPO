@@ -2,18 +2,15 @@ from api.views import general
 from api.views import sample as s
 from api.views import stats
 from django.urls import path, re_path
-
-from web.apps.web_copo.file_server import BaseFileDownloadView
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
 from . import views, copo_dashboard_views, copo_profile_views, copo_accessions_views
 
 app_name = 'web_copo'
 
 urlpatterns = [
-    # path('', views.index, name='index'),
     path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
-    path('accessions/', copo_accessions_views.copo_accessions_all   , name="copo_accessions_all"),
+    path('accessions/', copo_accessions_views.copo_accessions_all, name="copo_accessions_all"),
     path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
     path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
@@ -26,7 +23,6 @@ urlpatterns = [
     path('login/', views.login, name='auth'),
     path('logout/', views.copo_logout, name='logout'),
     path('register/', views.copo_register, name='register'),
-    # path('profile/update_counts/', views.get_profile_counts, name='update_counts'),
     path('profile/update_counts/', copo_profile_views.get_profile_counts, name='update_counts'),
     path('view_user_info/', views.view_user_info, name='view_user_info'),
     path('error/', views.goto_error, name='error_page'),
@@ -34,8 +30,6 @@ urlpatterns = [
     path('register_to_irods/', views.register_to_irods, name='register_to_irods'),
     re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/view', copo_profile_views.view_copo_profile,
             name='view_copo_profile'),
-    # re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/view', views.view_copo_profile,
-    #         name='view_copo_profile'),
     re_path(r'^copo_publications/(?P<profile_id>[a-z0-9]+)/view', views.copo_publications,
             name='copo_publications'),
     re_path(r'^copo_data/(?P<profile_id>[a-z0-9]+)/view', views.copo_data,
@@ -201,7 +195,7 @@ urlpatterns = [
     path('assembly_files/', ajax_handlers.assembly_files,
          name="assembly_files"),
     path('annotation_files/', ajax_handlers.annotation_files,
-         name="annotation_files"),         
+         name="annotation_files"),
     path('create_spreadsheet_samples/', ajax_handlers.create_spreadsheet_samples,
          name="create_spreadsheet_samples"),
     path('update_spreadsheet_samples/', ajax_handlers.update_spreadsheet_samples,
@@ -239,13 +233,13 @@ urlpatterns = [
     path('ena_read_manifest_validate/<profile_id>', views.ena_read_manifest_validate,
          name="ena_read_manifest_validate"),
     path('ena_assembly/<profile_id>/<assembly_id>', views.ena_assembly,
-         name="ena_assembly"),        
+         name="ena_assembly"),
     path('ena_assembly/<profile_id>', views.ena_assembly,
-         name="ena_assembly"),                   
+         name="ena_assembly"),
     path('ena_annotation/<profile_id>/<seq_annotation_id>', views.ena_annotation,
-         name="ena_annotation"),     
+         name="ena_annotation"),
     path('ena_annotation/<profile_id>', views.ena_annotation,
-         name="ena_annotation"),                    
+         name="ena_annotation"),
     path('parse_ena_spreadsheet/', EnaSpreadsheetParse.parse_ena_spreadsheet,
          name="parse_ena_spreadsheet"),
     path('save_ena_records/', EnaSpreadsheetParse.save_ena_records,
@@ -265,8 +259,8 @@ urlpatterns = [
     re_path(r'^copo_assembly/(?P<profile_id>[a-z0-9]+)/view', views.copo_assembly,
             name='copo_assembly'),
     re_path(r'^copo_reads/(?P<profile_id>[a-z0-9]+)/view', views.copo_reads,
-            name='copo_reads'),            
+            name='copo_reads'),
     re_path(r'^copo_files/(?P<profile_id>[a-z0-9]+)/view', views.copo_files,
-            name='copo_files'),     
-    re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),            
+            name='copo_files'),
+    re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),
 ]
