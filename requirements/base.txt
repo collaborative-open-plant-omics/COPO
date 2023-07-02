@@ -122,13 +122,13 @@ pyasn1
 pyasn1-modules==0.2.6
 pycodestyle==2.5.0
 pycparser==2.19
-Pygments==2.2.0
+Pygments==2.15.0
 PyHamcrest==1.9.0
 pylint==1.7.2
 pymongo==3.6.1
 pyOpenSSL==19.0.0
 pyparsing==2.1.10
-PyPDF2==1.26.0
+PyPDF2==1.27.9
 pyrsistent==0.15.4
 
 pytest==3.0.4
