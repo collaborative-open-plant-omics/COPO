@@ -21,7 +21,7 @@ from api.views.general import *
 from dal import cursor_to_list
 from dal.OAuthTokens import OAuthToken
 from dal.broker_da import BrokerDA, BrokerVisuals
-from dal.copo_da import DataFile, ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate, Sequnece_annotation, Assembly, TagSequenceChecklist
+from dal.copo_da import DataFile, ProfileInfo, Profile, Submission, Annotation, CopoGroup, Repository, MetadataTemplate, Sequnece_annotation, Assembly, TaggedSequenceChecklist
 from web.apps.web_copo.decorators import user_is_staff
 from web.apps.web_copo.lookup.lookup import REPO_NAME_LOOKUP
 from web.apps.web_copo.models import banner_view
@@ -482,7 +482,7 @@ def copo_visualize(request):
 
     broker_visuals = BrokerVisuals(context=context,
                                    profile_id=profile_id,
-                                   request=request,
+                                   request_dict=request.POST.dict(),
                                    user_id=request.user.id,
                                    component=request.POST.get("component", str()),
                                    target_id=request.POST.get("target_id", str()),
@@ -546,7 +546,8 @@ def copo_forms(request):
                          data_source=request.POST.get("data_source", str()),
                          user_email=request.POST.get("user_email", str()),
                          bundle_name=request.POST.get("bundle_name", str()),
-                         tagged_seq_checklist_id=request.POST.get("tagged_seq_checklist_id", str()),
+                         #tagged_seq_checklist_id=request.POST.get("tagged_seq_checklist_id", str()),
+                         request_dict=request.POST.dict(),
                          )
 
     task_dict = dict(resources=broker_da.do_form_control_schemas,
@@ -569,6 +570,7 @@ def copo_forms(request):
                      submit_annotation=broker_da.do_submit_annotation,
                      submit_read=broker_da.do_submit_read,
                      delete_read=broker_da.do_delete_read,
+                     submit_tagged_seq = broker_da.do_submit_tagged_seq,
                      )
 
     if task in task_dict:
@@ -875,7 +877,12 @@ def upload_ecs_files(request, profile_id):
 def copo_taggedseq(request, profile_id):
     request.session["profile_id"] = profile_id    
     profile = Profile().get_record(profile_id)
-    checklists = TagSequenceChecklist().get_checklists()
+    checklists = TaggedSequenceChecklist().get_checklists()
 
     return render(request, 'copo/copo_tagged_seq.html', {'profile_id': profile_id, 'profile':profile,  'checklists': checklists})
 
+
+@login_required()
+def ena_taggedseq_manifest_validate(request, profile_id):
+    request.session["profile_id"] = profile_id
+    return render(request, "copo/ena_taggedseq_manifest_validate.html", {"profile_id": profile_id})

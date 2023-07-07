@@ -317,7 +317,7 @@ function get_copo_profile_components() {
             color: "red",
             tableID: 'tagged_seq_table',
             profile_component: "dtol",
-            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_tagged_seq_multi"],
+            recordActions: [ "delete_record_multi",  "submit_tagged_seq_multi"],
             visibleColumns: 5
         }
         

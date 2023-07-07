@@ -30,7 +30,7 @@ DEBUG = True if str(resolve_env.get_env('DEBUG')).lower() == 'true' else False
 
 # ALLOWED_HOSTS = [ gethostname(), gethostbyname(gethostname()), ]
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org',
-                 '.demo.copo-project.org', 'localhost']
+                 '.demo.copo-project.org', 'localhost', '.copodev.cyverseuk.org']
 ALLOWED_CIDR_NETS = ['10.0.0.0/24']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -38,7 +38,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:80",
     "http://127.0.0.1:8000",
     "https://copo-project.org",
-    "http://demo.copo-project.org"
+    "http://demo.copo-project.org",
+    "https://copodev.cyverseuk.org"
 ]
 DEBUG_PROPAGATE_EXCEPTIONS = True
 # Django's base applications definition

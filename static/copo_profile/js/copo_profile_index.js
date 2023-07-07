@@ -560,26 +560,20 @@ function append_component_buttons(record_id, profile_type) {
 
     return componentsDIV;
 }
+            
 
 function filter_action_menu() {
     $(".copo-records-panel").each(function (idx, el) {
-        const t = $(el).attr("profile_type");
+        const t = $(el).attr("profile_type")
         if (t.includes("ERGA")) {
-            $(el).find("a[profile_component='stand-alone']").hide()
-            //$(el).find("a[anchor_type='reads']").hide()
-            //$(el).find("a[anchor_type='assembly']").hide()
-            //$(el).find("a[anchor_type='annotation']").hide()
-            //$(el).find("a[anchor_type='dtol_option']").hide()
+            $(el).find("a[profile_component ='stand-alone']").hide()
+            $(el).find("a[profile_component ='dtol']").hide()
         } else if (t.includes("DTOL") || t.includes("ASG")) {
-            $(el).find("a[profile_component='stand-alone']").hide()
-            //$(el).find("a[anchor_type='reads']").hide()
-            //$(el).find("a[anchor_type='assembly']").hide()
-            //$(el).find("a[anchor_type='annotation']").hide()
-            //$(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component ='stand-alone']").hide()
+            $(el).find("a[profile_component ='erga']").hide()
         } else if (t.includes("Stand-alone")) {
-            $(el).find("a[profile_component='dtol']").hide()
-            //$(el).find("a[anchor_type='dtol_option']").hide()
-            //$(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component ='erga']").hide()
+            $(el).find("a[profile_component ='dtol']").hide()
         }
     })
 }

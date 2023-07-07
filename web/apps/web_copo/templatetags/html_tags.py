@@ -17,7 +17,7 @@ import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_base_da import DataSchemas
 from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publication, Source, Person, Sample, \
-    Submission, EnaFileTransfer, TagSequenceChecklist, \
+    Submission, EnaFileTransfer, TaggedSequenceChecklist, TaggedSequence, \
     DataFile, DAComponent, Annotation, CGCore, MetadataTemplate
 from allauth.socialaccount import providers
 from hurry.filesize import size as hurrysize
@@ -25,6 +25,7 @@ from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging.logger import Logger
 from django.conf import settings
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
+import numpy as np
 
 register = template.Library()
 
@@ -164,7 +165,7 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
 
             # resolve values for unique items...
             # if a list of unique items is provided with the schema, use it, else dynamically
-            # generate unique items based on the component records
+            # generatef unique items based on the component records
             if "unique" in f and not f.get("unique_items", list()):
                 f["unique_items"] = generate_unique_items(component=component, profile_id=profile_id,
                                                           elem_id=f["id"].split(".")[-1], record_id=target_id, **kwargs)
@@ -543,50 +544,54 @@ def generate_files_record(user_id=str()):
 
     return return_dict
 
-@register.filter("generate_tagedseq_record")
-def generate_tagedseq_record(profile_id=str(), checklist_id=str()):
-    checklist = TagSequenceChecklist().execute_query({"primary_id" : checklist_id})
+@register.filter("generate_taggedseq_record")
+def generate_taggedseq_record(profile_id=str(), checklist_id=str()):
+    checklist = TaggedSequenceChecklist().execute_query({"primary_id" : checklist_id})
     if not checklist:
         return dict(dataSet=[],
                     columns=[],
                     )
 
-    label = [ x for x in checklist[0]["fields"].keys()]
+    fields = checklist[0]["fields"]
+    label = [ x for x in fields.keys()]
     data_set = []
     columns = []
+
+    detail_dict = dict( orderable=False, data=None,
+                        title='', defaultContent='', width="5%")
+    columns.insert(0, detail_dict)
     columns.append(dict(data="record_id", visible=False))
     columns.append(dict(data="DT_RowId", visible=False))
 
-    detail_dict = dict(  orderable=False, data=None,
-                       title='', defaultContent='', width="5%")
+    columns.extend([dict(data=x, title=fields[x]["name"], defaultContent='') for x in label  ])
+    columns.append(dict(data="status", title="STATUS", defaultContent=''))
+    columns.append(dict(data="accession", title="ACCESSION", defaultContent=''))
+    columns.append(dict(data="error", title="ERROR", defaultContent=''))
 
-    columns.insert(0, detail_dict)
-    for x in label:
-        columns.append(dict(data=x, title=x.upper().replace("_", " ")))
 
-    s3obj = s3()
-    user = User.objects.get(pk=user_id)
-    if not user:
-        return dict(dataSet=data_set,
-                    columns=columns,
-                    )
-    bucket_name = str(user_id) + "_" + user.username
-    if s3obj.check_for_s3_bucket(bucket_name):
-        files = s3obj.list_objects(bucket_name)
-        if files:
-            for file in files:
-                row_data = dict()
-                row_data["record_id"] = file["Key"]
-                row_data["file_name"] = file["Key"].replace("/", "_")
-                row_data["DT_RowId"] = "row_" + file["Key"].replace("/", "_")
-                row_data["size"] = file["Size"]
-                row_data["last_uploaded"] = file["LastModified"]
-                row_data["file_md5"] = file["ETag"].replace('"', '')
-                data_set.append(row_data)
+    tag_sequences = TaggedSequence(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+
+    if len(tag_sequences):
+        df = pd.DataFrame(tag_sequences)
+        #df['s_n'] = df.index
+
+        df['record_id'] = df._id.astype(str)
+        df["DT_RowId"] = df.record_id
+        df.DT_RowId = 'row_' + df.DT_RowId
+        df = df.drop('_id', axis='columns')
+        df.replace(np.nan, '', regex=True, inplace=True)
+
+        for name in df.columns:
+            if name in ["record_id", "DT_RowId", "status", "accession", "error"]:
+                continue
+            if name not in label:
+                df.drop(name, axis='columns', inplace=True)
+
+        data_set = df.to_dict('records')
 
     return_dict = dict(dataSet=data_set,
-                       columns=columns,
-                       )
+                    columns=columns,
+                    )
 
     return return_dict
 

@@ -86,7 +86,12 @@ app.conf.beat_schedule = {
     'update_tagsequence_checklist': {
         'task': 'web.apps.web_copo.tasks.update_tagsequence_checklist',
         'schedule': timedelta(days=1)
-    }    
+    }, 
+    'processing_pending_tagged_seq_submission': {
+        'task': 'web.apps.web_copo.tasks.processing_pending_tagged_seq_submission',
+        'schedule': timedelta(seconds=10)
+    }  
+
 }
 
 

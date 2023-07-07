@@ -328,11 +328,11 @@ class taggedSeqConsumer(AsyncWebsocketConsumer):
     notify_frontend(data={"profile_id": profile_id}, msg="", action="info",
                                     html_id="sample_info", group_name=annotation_profile_id)
 
-    open a javascript web socket connecting to path('ws/annotation_status/<str:uid>', consumers.taggedSeqConsumer)
+    open a javascript web socket connecting to path('ws/tagged_seq_status/<str:uid>', consumers.taggedSeqConsumer)
     """
 
     async def connect(self):
-        gn = "tagged_seq_status_" + self.scope['url_route']['kwargs']['profile_id']
+        gn = "tagged_seq_status_" + self.scope['url_route']['kwargs']['uid']
         self.group_name = gn
         # join group
         await self.channel_layer.group_add(

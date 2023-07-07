@@ -31,6 +31,7 @@
         <!-- hidden attributes  -->
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
         <input type="hidden" id="nav_component_name" value="taggedseq"/>
+        <input type="hidden" id="component_subtitle" value="<select id='checklist_id' name='checklists'>{% for checklist in checklists %}<option value='{{ checklist.primary_id }}' title='{{checklist.description}}' >{{ checklist.primary_id }} : {{ checklist.name }}</option>{% endfor %}</select> "/>
     </div>
 
 {% endblock %}
@@ -38,14 +39,14 @@
 {% block page_tile %}
     {% include "component_navbar.html" %}
 
-    <div class="row " >
+    <!--div class="row " >
         <label for="checklist_id">Select a checklist</label>
         <select id="checklist_id" name="checklists">
             {% for checklist in checklists %}
                 <option value="{{ checklist.primary_id }}" title="{{checklist.description}}" >{{ checklist.primary_id }} : {{ checklist.name }}</option>
             {% endfor %}
-            </select>
-    </div>
+        </select>
+    </div-->
 {% endblock page_tile %}
 
 
@@ -151,9 +152,8 @@
             </div>
             <div class="modal-body">
                 <label class="ui blue button" for="file" id="upload_label" style="width:200px">
-                    <input id="file" type="file" style="display:none"
-                           onchange="upload_spreadsheet(this.files[0])">
-                    Upload Sample Manifest
+                    <input id="file" type="file" style="display:none"/>
+                          
                 </label>
                 <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
                     <div class="percent"></div>
@@ -184,7 +184,7 @@
 {% endblock %}
 
 {% block component_info %}
-<div style="display:none; margin-top: 30px; " id="sample_info" class="alert alert-info"
+<div style="display:none; margin-top: 30px; " id="tagged_seq_info" class="alert alert-info"
 role="alert"></div>
 {% endblock %}
 

@@ -58,7 +58,8 @@ APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
 AnnotationCollection = "SeqAnnotationCollection"
-TagSequenceChecklistCollection = "TagSequenceChecklistCollection"
+TaggedSequenceChecklistCollection = "TagSequenceChecklistCollection"
+TaggedSequenceCollection = "TagSequenceCollection"
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -82,7 +83,8 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    assembly=get_collection_ref(AssemblyCollection),
                    seqannotation=get_collection_ref(AnnotationCollection),
                    submissionQueue=get_collection_ref(SubmissionQueueCollection),
-                   tagSequenceChecklist=get_collection_ref(TagSequenceChecklistCollection)
+                   taggedSequenceChecklist=get_collection_ref(TaggedSequenceChecklistCollection),
+                   taggedSequence=get_collection_ref(TaggedSequenceCollection)
                    )
 
 
@@ -2186,6 +2188,40 @@ class Submission(DAComponent):
             object_samples_ids = [ObjectId(x) for x in samples_ids]
         Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}}, {"$set" : {"status": "processing"} })
 
+    def make_tagged_seq_submission_pending(self, sub_id, target_ids):
+        self.get_collection_handle().update_one({"_id": ObjectId(sub_id)},  {"$set": {"tagged_seq_status": "pending"}, "$addToSet" : {"tagged_seqs": {"$each": target_ids}}}) 
+
+    def get_tagged_seq_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        subs = self.get_collection_handle().find(
+            {"tagged_seq_status": {"$in": ["sending", "pending"]}},
+            {"tagged_seq_status": 1, "profile_id": 1, "date_modified": 1, "tagged_seqs": 1})
+        sub = cursor_to_list(subs)
+        out = list()
+        current_time = data_utils.get_datetime()
+        for s in sub:
+            # calculate whether a submission is an old one
+            if s.get("tagged_seq_status", "") == "sending":
+                recorded_time = s.get("date_modified", current_time)
+                time_difference = current_time - recorded_time
+                if time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                    # submission retry time has elapsed so re-add to list
+                    out.append(s)
+                    self.update_submission_modified_timestamp(s["_id"])
+                    lg.log("ADDING STALLED TAGGED SEQ SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da",
+                        level=Loglvl.ERROR, type=Logtype.FILE)
+                    # no need to change status
+            elif s.get("tagged_seq_status", "") == "pending":
+                out.append(s)
+                #self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
+                                                    {"$set": {"tagged_seq_status": "sending", "date_modified": current_time}})
+        return out
+
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2962,6 +2998,10 @@ class Assembly(DAComponent):
 
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
         assembly_obj_ids = [ ObjectId(id) for id in target_ids ]
         result = self.execute_query({"_id": {"$in": assembly_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
         if result:
@@ -2996,6 +3036,11 @@ class Sequnece_annotation(DAComponent):
 
         
     def validate_and_delete(self, target_id=str(), target_ids=list()):
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+        
         seq_annotation_obj_ids = [ ObjectId(id) for id in target_ids ]
         result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
         if result:
@@ -3008,15 +3053,39 @@ class SubmissionQueue(DAComponent):
     def __init__(self, profile_id=None):
         super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")  
 
-class TagSequenceChecklist(DAComponent):
+class TaggedSequenceChecklist(DAComponent):
     def __init__(self, profile_id=None):
-        super(TagSequenceChecklist, self).__init__(profile_id, "tagSequenceChecklist")
+        super(TaggedSequenceChecklist, self).__init__(profile_id, "taggedSequenceChecklist")
 
     def get_checklist(self, checklist_id):
         return self.execute_query({"primary_id": checklist_id})
     
     def get_checklists(self):
         return self.get_all_records_columns(projection={"primary_id": 1, "name": 1, "description": 1})
+    
+class TaggedSequence(DAComponent):
+    def __init__(self, profile_id=None):
+        super(TaggedSequence, self).__init__(profile_id, "taggedSequence")
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):        
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+
+        tagged_seq_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": tagged_seq_ids},  "$or": [ {"accession":{"$exists": True, "$ne": ""}}, {"status": {"$exists": True, "$ne": "pending" }}] } )
+        if result:
+           return dict(status='error', message="One or more tagged sequence record/s have been accessed or scheduled to submit!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   tagged_seq_ids}})
+        return dict(status='success', message="Tagged Sequence record/s have been deleted!")
+    
+    def update_tagged_seq_processing(self, profile_id=str(), tagged_seq_ids=list()):
+        tagged_seq_obj_ids = [ ObjectId(id) for id in tagged_seq_ids ]
+        self.get_collection_handle().update_many({"profile_id": profile_id,  "_id": {"$in":   tagged_seq_obj_ids},  "$or":[ {"status": {"$exists": False}}, {"status": "pending" }]},
+                                            {"$set": {"status":  "processing"}})
+
 
 def is_number(s):
     try:

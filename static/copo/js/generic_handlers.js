@@ -2582,16 +2582,17 @@ function get_profile_components() {
         {
             component: 'taggedseq',
             title: 'Tagged Sequences',
+            subtitle: "#component_subtitle",
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey1: "num_barcode_manifest",
-            buttons: [],
+            buttons: ["new-taggedseq-spreadsheet-template"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "data_color",
             color: "red",
             tableID: 'tagged_seq_table',
             profile_component: "dtol",
-            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_tagged_seq_multi"],
+            recordActions: ["delete_record_multi",  "submit_tagged_seq_multi"],
             visibleColumns: 5
         },        
     ];
@@ -2641,7 +2642,7 @@ function generate_component_control(component) {
     var PageTitle = $('<span/>', {
         class: "page-title-custom",
         style: "margin-right:10px;",
-        html: component.title
+        html: component.title + " " + (component.subtitle ? "<span style='color: #8c8c8c; font-size: 18px;'>(" + $(component.subtitle).val() + ")</span>" : "")
     });
 
     pageHeaders.append(PageTitle);
