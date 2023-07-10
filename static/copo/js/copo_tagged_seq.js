@@ -303,7 +303,7 @@ function upload_spreadsheet(file) {
         dialog.setClosable(true);
         dialog.getButton('upload_taggedseq_manifest_button').stopSpin();
         //console.error(data)
-        responsetext = data.responseText
+        responseText = data.responseText
         if (responseText != "") {
             BootstrapDialog.show({
                 title: 'Error',
