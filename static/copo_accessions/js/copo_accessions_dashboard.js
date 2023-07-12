@@ -33,13 +33,19 @@ $(document).ready(function () {
 
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers")
         || groups.includes("dtolenv_sample_managers")) {
-        $(".accept_reject_samples").show() // Show 'accep/reject samples' button
+        $(".accept_reject_samples").show() // Show 'accept/reject samples' button
     }
 
     if (groups.includes("dtol_users") || groups.includes("dtol_sample_managers") || groups.includes("erga_users")
         || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
         $(".tol_inspect").show() // Show 'tol_inspect' button
         $(".tol_inspect_gal").show() // Show 'tol_inspect_gal' button
+    }
+
+    // Hide buttons if user does not belon to a group
+    if (groups.length === 0) {
+        $(".tol_inspect").hide() // Hide 'tol_inspect' button
+        $(".tol_inspect_gal").hide() // Hide 'tol_inspect_gal' button
     }
 
     // Set up global navigation components

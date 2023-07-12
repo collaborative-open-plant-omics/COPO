@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 import web.apps.web_copo.lookup.lookup as lkup
 from api.doi_metadata import DOI2Metadata
 from dal import cursor_to_list_str
+from exceptions_and_logging.logger import Logger
 import web.apps.web_copo.templatetags.html_tags as htags
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_da import Profile, Publication, Source, Person, Repository, Sample, Submission, DataFile, DAComponent, \
@@ -209,13 +210,12 @@ class BrokerDA:
             return self.context
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids  = self.param_dict.get("target_ids", [])
-        result = self.da_object.validate_and_delete(target_id=target_id, target_ids= target_ids)
+        target_ids = self.param_dict.get("target_ids", [])
+        result = self.da_object.validate_and_delete(target_id=target_id, target_ids=target_ids)
         if result.get("status", "") == "success":
             self.context = self.broker_visuals.do_table_data()
         self.context["action_feedback"] = result
         return self.context
-
 
     def do_delete(self):
         target_ids = [ObjectId(i) for i in self.param_dict.get("target_ids")]
@@ -384,6 +384,7 @@ class BrokerDA:
             message = "Couldn't create bundle: " + bundle_name + " " + str(e)
             result["status"] = "error"
             result["message"] = message
+            Logger().exception(e)
 
         self.context["result"] = result
         return self.context
@@ -414,6 +415,7 @@ class BrokerDA:
                 message = "Couldn't update bundle: " + bundle_name + " " + str(e)
                 result["status"] = "error"
                 result["message"] = message
+                Logger().exception(e)
         else:
             # new bundle being created
             try:
@@ -424,10 +426,10 @@ class BrokerDA:
                 message = "Couldn't create bundle: " + bundle_name + " " + str(e)
                 result["status"] = "error"
                 result["message"] = message
+                Logger().exception(e)
 
         self.context["result"] = result
         return self.context
-
 
     def do_submit_assembly(self):
         """
@@ -445,9 +447,9 @@ class BrokerDA:
             return self.context
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids  = self.param_dict.get("target_ids", [])
-        return EnaAssembly.submit_assembly(target_id=target_id, target_ids= target_ids)
-    
+        target_ids = self.param_dict.get("target_ids", [])
+        return EnaAssembly.submit_assembly(target_id=target_id, target_ids=target_ids)
+
     def do_submit_annotation(self):
         """
         function handles the delete of a record for those components
@@ -456,11 +458,12 @@ class BrokerDA:
         """
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids  = self.param_dict.get("target_ids", [])
+        target_ids = self.param_dict.get("target_ids", [])
 
-        result = EnaAnnotation.submit_seq_annotation(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        result = EnaAnnotation.submit_seq_annotation(profile_id=self.profile_id, target_ids=target_ids,
+                                                     target_id=target_id)
         report_metadata = dict()
-        report_metadata["status"] = result.get("status","success")
+        report_metadata["status"] = result.get("status", "success")
         report_metadata["message"] = result.get("message", "success")
         self.context["action_feedback"] = report_metadata
 
@@ -474,18 +477,18 @@ class BrokerDA:
         """
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids  = self.param_dict.get("target_ids", [])
+        target_ids = self.param_dict.get("target_ids", [])
 
         result = EnaSpreadsheetParse.submit_read(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
         report_metadata = dict()
-        report_metadata["status"] = result.get("status","success")
+        report_metadata["status"] = result.get("status", "success")
         report_metadata["message"] = result.get("message", "success")
-        self.context["action_feedback"] = report_metadata       
-        if result.get("status","success") == "success":
+        self.context["action_feedback"] = report_metadata
+        if result.get("status", "success") == "success":
             self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
             self.context["component"] = "read"
         return self.context
-    
+
     def do_delete_read(self):
         """
         function handles the delete of a record for those components
@@ -494,17 +497,19 @@ class BrokerDA:
         """
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids  = self.param_dict.get("target_ids", [])
+        target_ids = self.param_dict.get("target_ids", [])
 
-        result = EnaSpreadsheetParse.delete_ena_records(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        result = EnaSpreadsheetParse.delete_ena_records(profile_id=self.profile_id, target_ids=target_ids,
+                                                        target_id=target_id)
         report_metadata = dict()
-        report_metadata["status"] = result.get("status","success")
+        report_metadata["status"] = result.get("status", "success")
         report_metadata["message"] = result.get("message", "success")
         self.context["action_feedback"] = report_metadata
-        if result.get("status","success") == "success":
+        if result.get("status", "success") == "success":
             self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
             self.context["component"] = "read"
         return self.context
+
 
 class BrokerVisuals:
     def __init__(self, **kwargs):
@@ -533,8 +538,8 @@ class BrokerVisuals:
             submission=(htags.generate_submissions_records, dict(profile_id=self.profile_id, component=self.component)),
             seqannotation=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
-            read = (htags.generate_read_record, dict(profile_id=self.profile_id)),
-            files = (htags.generate_files_record, dict(user_id=self.user_id)),
+            read=(htags.generate_read_record, dict(profile_id=self.profile_id)),
+            files=(htags.generate_files_record, dict(user_id=self.user_id)),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments
@@ -656,7 +661,8 @@ class BrokerVisuals:
 
         if data_source:
             option_values = COPOLookup(accession=[target_id],
-                                       data_source=data_source, profile_id=self.profile_id).broker_component_search()['result']
+                                       data_source=data_source, profile_id=self.profile_id).broker_component_search()[
+                'result']
 
         self.context["option_values"] = option_values
         self.context["created_record_id"] = target_id
@@ -764,5 +770,3 @@ class BrokerVisuals:
         self.context["component_info"] = "welcome to " + self.component
 
         return self.context
-
-

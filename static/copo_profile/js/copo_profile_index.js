@@ -30,6 +30,18 @@ $(document).ready(function () {
         initiate_profile_form_call(component);
     });
 
+    $(document).on("click", "#accept_reject_shortcut", function () {
+        document.location = copoAcceptRejectURL
+    })
+
+    $(document).on("click", "#copo_tol_dashboard_shortcut", function () {
+        document.location = copoTolDashboardURL
+    })
+
+    $(document).on("click", "#copo_accessions_dashboard_shortcut", function () {
+        document.location = copoAccessionsDashboardURL
+    })
+
     // Show web page buttons according to the group that the users are associated with
     if (groups.length === 0) {
         $("#copo_accessions_dashboard_shortcut").show() // Show 'Accessions tol_dashboard' button for all users
@@ -108,18 +120,6 @@ $(document).ready(function () {
     });
 
     $(document).data("sortByDescendingOrder", true)
-
-    $(document).on("click", "#accept_reject_shortcut", function () {
-        document.location = copoAcceptRejectURL
-    })
-
-    $(document).on("click", "#copo_tol_dashboard_shortcut", function (evt) {
-        document.location = copoTolDashboardURL
-    })
-
-    $(document).on("click", "#copo_accessions_dashboard_shortcut", function (evt) {
-        document.location = copoAccessionsDashboardURL
-    })
 
     $(document).on("click", ".expanding_menu > div", function (e) {
         const el = $(e.currentTarget);

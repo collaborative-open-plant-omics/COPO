@@ -5,13 +5,14 @@ from urllib.request import Request, urlopen
 
 import rdflib
 from django.conf import settings
-
+from exceptions_and_logging.logger import Logger
 import web.apps.web_copo.lookup.lookup as lkup
 from dal.copo_da import DAComponent
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 
 ds = settings.DOI_SERVICES
 ncbi = settings.NCBI_SERVICES
+
 
 # class handles both DOI and PubMed Id resolutions
 class DOI2Metadata:
@@ -75,6 +76,7 @@ class DOI2Metadata:
                 self.resolved_data["pubMedID"] = pmid
         except Exception as e:
             print(str(e))
+            Logger().exception(e)
             self.error_messages.append("Could not resolve PubMed ID: " + pmid + "!")
 
         return

@@ -7,6 +7,7 @@ from dal.copo_da import TextAnnotation
 import numpy as np
 from web.apps.web_copo.utils import ajax_handlers
 from Bio import Entrez
+from exceptions_and_logging.logger import Logger
 
 # how many rows of each sheet should be shown to the user
 truncate_after = 5
@@ -32,6 +33,7 @@ def refresh_display(request):
         try:
             sheet_names = pandas.ExcelFile(path).sheet_names
         except Exception as e:
+            Logger().exception(e)
             # support CSV here (N.B. CSV does not support multiple sheets)
             sheet_names = [file["name"]]
 

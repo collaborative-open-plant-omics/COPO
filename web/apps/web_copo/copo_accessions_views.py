@@ -23,7 +23,6 @@ def copo_accessions(request, profile_id):
                   {'profile_id': profile_id, 'profile': profile, 'groups': groups})
 
 
-@login_required
 def copo_accessions_visualise(request):
     isUserProfileActive = convertStringToBoolean(request.POST.get("isUserProfileActive", str()))
     profile_id = request.session.get("profile_id")

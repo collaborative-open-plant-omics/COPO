@@ -110,7 +110,7 @@
         $(document).ready(function () {
             {% if user.is_authenticated %}
                 {% if not user.email %}
-                    <script type="text/javascript">do_email_form();</script>
+                   do_email_form()
                 {% endif %}
             {% endif %}
         });

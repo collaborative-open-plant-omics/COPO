@@ -16,6 +16,7 @@ from chunked_upload.models import ChunkedUpload
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_tools.middlewares import ThreadLocal
+from exceptions_and_logging.logger import Logger
 from collections import defaultdict
 import web.apps.web_copo.utils.EnaUtils as u
 from dal import cursor_to_list, cursor_to_list_str, cursor_to_list_no_ids, cursor_to_list_str2
@@ -529,6 +530,7 @@ class Person(DAComponent):
                     'copo.person.email': user.email
                 }
             except Exception as e:
+                Logger().exception(e)
                 pass
             else:
                 kwargs = dict()
@@ -1794,8 +1796,9 @@ class Submission(DAComponent):
 
         try:
             repository_type = self.get_repository_type(submission_id=submission_id)
-        except Exception as error:
+        except Exception as e:
             repository_type = str()
+            Logger().exception(e)
 
         if not repository_type:
             return dict(status='error', message="Submission repository unknown!", meta=list())
@@ -1841,8 +1844,9 @@ class Submission(DAComponent):
 
         try:
             repository_type = self.get_repository_type(submission_id=submission_id)
-        except Exception as error:
+        except Exception as e:
             repository_type = str()
+            Logger().exception(e)
 
         if not repository_type:
             return dict(status='error', message="Submission repository unknown!")

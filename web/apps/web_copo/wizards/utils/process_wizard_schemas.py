@@ -1,5 +1,6 @@
 __author__ = 'etuka'
 
+from exceptions_and_logging.logger import Logger
 import web.apps.web_copo.lookup.lookup as lkup
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 
@@ -20,6 +21,7 @@ class WizardSchemas:
             try:
                 template[k] = d_utils.json_to_pytype(v)['properties']
             except Exception as e:
+                Logger().exception(e)
                 pass
 
         return template
@@ -28,4 +30,3 @@ class WizardSchemas:
         template = self.process_wizard_templates()
 
         return template.get(identifier, list())
-

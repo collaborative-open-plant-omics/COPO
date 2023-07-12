@@ -79,6 +79,7 @@ def check_taxon_ena_submittable(taxon, by="id"):
             if taxinfo[0]["rank"] not in ["species", "subspecies"]:
                 errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
     except Exception as e:
+        l.exception(e)
         if receipt:
             if receipt.decode("utf-8") == "No results.":
                 errors.append(

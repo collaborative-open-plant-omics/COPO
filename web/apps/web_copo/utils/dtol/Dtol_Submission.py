@@ -337,52 +337,56 @@ def process_pending_dtol_samples():
             sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
 
             if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
-                for permit_file in os.listdir(sample_permits_directory):
-                    for col_name in PERMIT_FILENAME_COLUMN_NAMES:
-                        # Check if permit file (from the "sample_permits" directory in COPO is a '.pdf' file
-                        # and if it matches the permit filename inclusive of the appended uuid
-                        if permit_file.endswith(".pdf") and permit_file.replace('.pdf',
-                                                                                sam.get(col_name, "")[-27:]) in sam.get(
-                            col_name, ""):
-                            permit_file_path = os.path.join(sample_permits_directory, permit_file)
-                            taxonID_directory = os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"])
-                            permit_type = col_name.replace("_PERMITS_FILENAME", " Permit").title()
+                taxonID_directory = os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"])
+                for col_name in PERMIT_FILENAME_COLUMN_NAMES:
+                    # Skip if permit filename column is empty
+                    b2drop_filename = sam.get(col_name, "")
+                    if not b2drop_filename:
+                        continue
 
-                            # Copy permit file from COPO 'media/sample_permits' directory to b2drop directory
-                            try:
-                                # Create taxonID directory if it doesn't exist
-                                if not os.path.exists(taxonID_directory):
-                                    os.makedirs(taxonID_directory)
+                    # Get actual permit filename
+                    permit_file = b2drop_filename[:-27] + ".pdf"
+                    permit_file_path = os.path.join(sample_permits_directory, permit_file)
+                    permit_type = col_name.replace("_PERMITS_FILENAME", " Permit").title()
 
-                                shutil.copy2(permit_file_path,
-                                             Path(b2drop_permits_directory_path) / sam[
-                                                 "TAXON_ID"] / sam.get(col_name, ""))
+                    # Copy permit file from COPO 'media/sample_permits' directory to b2drop directory
+                    try:
+                        # Create taxonID directory if it doesn't exist
+                        if not os.path.exists(taxonID_directory):
+                            os.makedirs(taxonID_directory)
 
-                                # Create "readme.txt" file (if it doesn't exist) to store the permit file name,
-                                # permit type and specimen ID
-                                with open(os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"], 'readme.txt'),
-                                          'a+') as readmeFile:
-                                    # Check if the file is empty
-                                    readmeFile.seek(0)  # Traverse to the start of the file
-                                    first_character = readmeFile.read(1)  # Get the first character in the file
+                        b2drop_file_path = Path(b2drop_permits_directory_path) / sam[
+                            "TAXON_ID"] / b2drop_filename
 
-                                    if not first_character:
-                                        # Add a line to the readme if file is empty
-                                        readmeFile.write(
-                                            "This file contains all the permit files and types associated with each specimen ID." + "\n \n")
-                                        readmeFile.write(
-                                            "SPECIMEN_ID" + "  " + "Permit_Type" + "  " + "Permit_Filename" + "\n")
-                                    else:
-                                        readmeFile.seek(0, os.SEEK_END)  # Traverse to the end of the file
+                        shutil.copy2(permit_file_path, b2drop_file_path)
 
-                                    # Add a line to the readme file
-                                    readmeFile.write(
-                                        sam["SPECIMEN_ID"] + "  " + permit_type.replace(" ", "_") + "  " + sam.get(
-                                            col_name, "") + "\n")
+                        l.log(f"{b2drop_filename} file copied to b2drop")
 
-                            except  Exception as error:
-                                print("Error:", error)
-                                l.exception(error)
+                        # Create "readme.txt" file (if it doesn't exist) to store the permit file name,
+                        # permit type and specimen ID
+                        with open(os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"], 'readme.txt'),
+                                  'a+') as readmeFile:
+                            # Check if the file is empty
+                            readmeFile.seek(0)  # Traverse to the start of the file
+                            first_character = readmeFile.read(1)  # Get the first character in the file
+
+                            if not first_character:
+                                # Add a line to the readme if file is empty
+                                readmeFile.write(
+                                    "This file contains all the permit files and types associated with each specimen ID." + "\n \n")
+                                readmeFile.write(
+                                    "SPECIMEN_ID" + "  " + "Permit_Type" + "  " + "Permit_Filename" + "\n")
+                            else:
+                                readmeFile.seek(0, os.SEEK_END)  # Traverse to the end of the file
+
+                            # Add a line to the readme file
+                            readmeFile.write(
+                                sam["SPECIMEN_ID"] + "  " + permit_type.replace(" ", "_") + "  " + sam.get(
+                                    col_name, "") + "\n")
+
+                    except Exception as error:
+                        print("Error:", error)
+                        l.exception(error)
 
             # set appropriate relationship to specimen level sample
             l.log("setting relationship to specimen level sample for " + sam["SPECIMEN_ID"])
@@ -553,7 +557,11 @@ def query_awaiting_tolids():
         if rejected_sample:
             profile = Profile().get_record(profile_id)
             if profile:
-                CopoEmail().notify_sample_rejected_after_approval(project=get_profile_type(profile["type"]),title=profile["title"], description=profile["description"], rejected_sample=rejected_sample)
+                CopoEmail().notify_sample_rejected_after_approval(project=get_profile_type(profile["type"]),
+                                                                  title=profile["title"],
+                                                                  description=profile["description"],
+                                                                  rejected_sample=rejected_sample)
+
 
 def populate_source_fields(sampleobj):
     '''populate source in db to copy most of sample fields
@@ -1029,7 +1037,7 @@ def poll_asyn_ena_submission():
                     Submission().dtol_sample_rejected(sub_id=submission["_id"], sam_ids=[], submission_id=sub["id"])
 
                 notify_frontend(data={"profile_id": submission["profile_id"]}, msg="", action="hide_sub_spinner",
-                            html_id="dtol_sample_info")
+                                html_id="dtol_sample_info")
 
 
 def handle_submit_receipt(sampleobj, collection_id, tree, type="sample"):
@@ -1219,6 +1227,7 @@ def create_study(profile_id, collection_id):
                         html_id="dtol_sample_info")
         os.remove(submissionfile)
         os.remove(studyfile)
+        l.exception(e)
         return False
     # print(receipt)
     try:
@@ -1316,6 +1325,7 @@ def handle_common_ENA_error(error_to_parse, source_id):
         return resp
     except Exception as e:
         print("PUBLIC NAME SERVER ERROR: " + str(e))
+        Logger().exception(e)
         return {}'''
 
 

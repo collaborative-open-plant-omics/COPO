@@ -54,7 +54,7 @@ class WizardHelper:
         except Exception as e:
             initiate_result['status'] = "error"
             initiate_result['message'] = self.wiz_message["bundle_record_not_found"]["text"]
-
+            lg.exception(e)
             return initiate_result
 
         stages = description.get("stages", list())
@@ -521,6 +521,7 @@ class WizardHelper:
                     print(stage["ref"])
                     print('Stage resolution error. Next stage index: ' + str(next_stage_index) + ' ' + str(e))
                     stage = dict()
+                    lg.exception(e)
                     raise
 
             # we expect a stage that cannot be directly rendered to return a False, thus prompting
@@ -1204,7 +1205,7 @@ class WizardHelper:
             result['status'] = "error"
             exception_message = "Error removing bundle's metadata " + " : " + str(e)
             result['message'] = exception_message
-
+            lg.exception(e)
             return result
 
         return result
@@ -1727,6 +1728,7 @@ class WizardHelper:
             exception_message = "Error forming pairs. " + str(e)
             validation_result["status"] = "error"
             validation_result["message"] = exception_message
+            lg.exception(e)
             return validation_result
 
         # get all the file names involved

@@ -39,7 +39,7 @@ services:
       - TWITTER_SECRET_FILE=/run/secrets/copo_twitter_secret_key
       - FACEBOOK_SECRET_FILE=/run/secrets/copo_facebook_secret_key
       - NIH_API_KEY_FILE=/run/secrets/copo_nih_api_key
-      - PUBLIC_NAME_SERVICE_API_KEY_FILE=/run/secrets/copo_public_name_service_api_key 
+      - PUBLIC_NAME_SERVICE_API_KEY_FILE=/run/secrets/copo_public_name_service_api_key
       - MAIL_PASSWORD_FILE=/run/secrets/copo_mail_password
       - MAIL_PORT=587
       - MAIL_ADDRESS=data@earlham.ac.uk
@@ -56,16 +56,16 @@ services:
       - ECS_ENDPOINT=http://ei-copo.obj-data.nbi.ac.uk
       - ENA_V2_SERVICE_SYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit
       - ENA_V2_SERVICE_ASYNC=https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit/queue
-      - B2DROP_PERMITS="/copo/b2drop/permits"
+      - B2DROP_PERMITS=/copo/b2drop/permits
     depends_on:
       - redis
-      - postgres 
+      - postgres
       - mongo
     networks:
       - copo-frontend-network
       - copo-backend-network
     deploy:
-      replicas : 1
+      replicas: 1
       endpoint_mode: dnsrr
       restart_policy:
         condition: on-failure
@@ -100,7 +100,7 @@ services:
       - copo_public_name_service_api_key
       - copo_mail_password
       - copo_bioimage_path
-      - ecs_secret_key  
+      - ecs_secret_key
   nginx:
     image: copo/copo-nginx:1.23.3
     networks:
@@ -113,10 +113,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:     
+    environment:
       - copoweb=copo_web
     depends_on:
-      - web    
+      - web
     deploy:
       replicas: 1
       restart_policy:
@@ -241,11 +241,11 @@ services:
       - copo_mongo_initdb_root_password
       - copo_mongo_user_password
     environment:
-     - MONGO_INITDB_ROOT_USERNAME=copo_admin
-     - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/copo_mongo_initdb_root_password
-     - MONGO_USER=copo_user
-     - MONGO_USER_PASSWORD_FILE=/run/secrets/copo_mongo_user_password
-     - MONGO_DB=copo_mongo 
+      - MONGO_INITDB_ROOT_USERNAME=copo_admin
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/copo_mongo_initdb_root_password
+      - MONGO_USER=copo_user
+      - MONGO_USER_PASSWORD_FILE=/run/secrets/copo_mongo_user_password
+      - MONGO_DB=copo_mongo
     deploy:
       replicas: 1
       endpoint_mode: dnsrr
@@ -288,7 +288,7 @@ secrets:
   copo_orcid_secret_key:
     external: true
   copo_orcid_client_id:
-    external: true    
+    external: true
   copo_figshare_client_secret_key:
     external: true
   copo_figshare_consumer_secret_key:
@@ -314,7 +314,7 @@ secrets:
   copo-project.key:
     external: true
   copo_bioimage_path:
-    external: true  
+    external: true
   ecs_secret_key:
     external: true
 volumes:

@@ -449,6 +449,7 @@ class WizardHelper:
                     stored_data_set = store[self.object_key].to_dict('records')
         except Exception as e:
             print('Data Access Error: ' + str(e))
+            lg.log('Data Access Error: ' + str(e))
 
         # check if samples have previously been updated from defaults and if so, add these updates to stored_data_set
         if stored_data_set:

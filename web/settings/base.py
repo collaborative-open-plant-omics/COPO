@@ -15,7 +15,6 @@ SCHEMA_VERSIONS_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schema_
 
 SCHEMA_VERSIONS_FILE_LIST = ["sample.json", "ena_seq.json"]  # files based on schema versions
 
-
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 PROFILE_LOG_BASE = os.path.join(BASE_DIR, 'profiler')
@@ -224,8 +223,6 @@ TEST_USER_NAME = 'aaliyah'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
-
-B2DROP_PERMIT_FILE_FOLDER = 'https://b2drop.eudat.eu/remote.php/webdav/sample_files'
 
 CACHES = {
     'default': {

@@ -550,6 +550,7 @@ def assign_repo_users(request):
         try:
             user = User.objects.get(pk=user_id)
         except Exception as e:
+            l.exception(e)
             continue
         else:
             user_objects.append(user)
@@ -593,6 +594,7 @@ def deassign_repo_users(request):
         try:
             user = User.objects.get(pk=user_id)
         except Exception as e:
+            l.exception(e)
             continue
         else:
             user_objects.append(user)
@@ -763,6 +765,7 @@ def get_repo_info(request, sub=None):
                 dspace().dc_dict_to_dc(sub_id)
     except Exception as e:
         # print(e)
+        l.exception(e)
         return HttpResponse(json.dumps({"status": 404, "message": "error getting dataverse"}))
     s = Submission().get_record(ObjectId(sub_id))
     out = dict(repo_type=repo['type'], repo_url=repo['url'], meta=s.get("meta", list()))
@@ -831,6 +834,7 @@ def search_dataverse_vf(request):
     try:
         url = Submission().get_repository_details(submission_id=submission_id)['url']
     except Exception as e:
+        l.exception(e)
         return format_json_response({'status': "error", 'message': str(e)})
 
     dv_url = urllib.parse.urljoin(url, '/api/v1/search')
@@ -854,6 +858,7 @@ def search_dataverse_vf(request):
         else:
             return format_json_response({'status': "error", 'message': response.json().get("message", str())})
     except Exception as e:
+        l.exception(e)
         return format_json_response({'status': "error", 'message': "Error retrieving information: " + str(e)})
 
     items = response_data.get('items', list())
@@ -918,6 +923,7 @@ def get_dataverse_content_vf(request):
     try:
         url = Submission().get_repository_details(submission_id=submission_id)['url']
     except Exception as e:
+        l.exception(e)
         return format_json_response({'status': "error", 'message': str(e)})
 
     dv_url = urllib.parse.urljoin(url, '/api/v1/search')
@@ -939,6 +945,7 @@ def get_dataverse_content_vf(request):
         else:
             return format_json_response({'status': "error", 'message': response.json().get("message", str())})
     except Exception as e:
+        l.exception(e)
         return format_json_response({'status': "error", 'message': "Error retrieving information: " + str(e)})
 
     # filter based on object type and parent
@@ -1003,6 +1010,7 @@ def ckan_package_search(request):
     try:
         url = Submission().get_repository_details(submission_id=submission_id)['url']
     except Exception as e:
+        l.exception(e)
         out = jsonpickle.encode({'status': "error", 'message': str(e)}, unpicklable=False)
         return HttpResponse(out, content_type='application/json')
 
@@ -1024,6 +1032,7 @@ def ckan_package_search(request):
                                     unpicklable=False)
             return HttpResponse(out, content_type='application/json')
     except Exception as e:
+        l.exception(e)
         out = jsonpickle.encode({'status': "error", 'message': "Error retrieving datasets: " + str(e)},
                                 unpicklable=False)
         return HttpResponse(out, content_type='application/json')
@@ -1102,6 +1111,7 @@ def retrieve_dspace_objects(request):
     try:
         url = Submission().get_repository_details(submission_id=submission_id)["url"]
     except Exception as e:
+        l.exception(e)
         out = jsonpickle.encode({'status': "error", 'message': str(e)}, unpicklable=False)
         return HttpResponse(out, content_type='application/json')
 
@@ -1128,6 +1138,7 @@ def retrieve_dspace_objects(request):
                                     unpicklable=False)
             return HttpResponse(out, content_type='application/json')
     except Exception as e:
+        l.exception(e)
         out = jsonpickle.encode({'status': "error", 'message': f"Error retrieving DSpace {object_type}: " + str(e)},
                                 unpicklable=False)
         return HttpResponse(out, content_type='application/json')
@@ -1432,7 +1443,7 @@ def update_spreadsheet_samples(request):
     # note calling DtolSpreadsheet without a spreadsheet object will attempt to load one from the session
     dtol = DtolSpreadsheet(validation_record_id=validation_record_id)
     dtol.update_records()
-    
+
     # Save table_data
     context = dict()
     context["table_data"] = htags.generate_table_records(profile_id=request.session["profile_id"], component="sample")

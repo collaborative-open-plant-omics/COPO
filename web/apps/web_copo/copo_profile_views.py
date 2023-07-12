@@ -7,19 +7,16 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from jsonpickle import encode
-from tools.resolve_env import get_env
 from web.apps.web_copo.models import banner_view
 from web.apps.web_copo.utils import group_functions
 
 import pymongo
-import re
 
 LOGGER = settings.LOGGER
 
 
 @login_required
 def copo_profile_index(request):
-    print(get_env("MEDIA_ROOT"))
     # Profiles
     num_of_profiles_per_page = 8  # number of records to display by default on a single page
     uid = request.user.id

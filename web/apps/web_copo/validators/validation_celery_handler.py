@@ -3,6 +3,7 @@ from django.conf import settings
 from dal.copo_da import ValidationQueue, Profile, Sample, APIValidationReport
 from submission.helpers.generic_helper import notify_frontend
 from urllib.error import HTTPError
+from exceptions_and_logging.logger import Logger
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.schema_versions import optional_field_dtol_validators as optional_validators, taxon_validators
 from web.apps.web_copo.schema_versions import required_field_dtol_validators as required_validators
@@ -109,6 +110,7 @@ class ProcessValidationQueue:
                 notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
                                 action="info",
                                 html_id="sample_info")
+                Logger().exception(e)
                 return False
 
             """
@@ -166,6 +168,7 @@ class ProcessValidationQueue:
                                 action="error",
                                 html_id="sample_info")
                 ValidationQueue().set_taxon_validation_error(qm["_id"], err=msg)
+                Logger().exception(e)
                 if not qm["report_id"] == "":
                     APIValidationReport().setFailed(qm["report_id"], msg=msg)
                 return False
@@ -234,6 +237,7 @@ class ProcessValidationQueue:
                                 action="info",
                                 html_id="sample_info")
                 ValidationQueue().set_schema_validation_error(qm["_id"], err=msg)
+                Logger().exception(e)
                 if not qm["report_id"] == "":
                     APIValidationReport().setFailed(qm["report_id"], msg=msg)
                 return False
@@ -279,7 +283,7 @@ class ProcessValidationQueue:
 
     def make_update_notifications(self, qm):
         sample_data = self.data
-        updates = {}          
+        updates = {}
         permits_required = False
         for p in range(0, len(sample_data)):
             s = map_to_dict(self.data.columns, self.data.iloc[p, :])
@@ -300,7 +304,8 @@ class ProcessValidationQueue:
                             updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
                             updates[rack_tube][field]["new_value"] = s[field]
                         else:
-                            if field in ["SAMPLING_PERMITS_REQUIRED","NAGOYA_PERMITS_REQUIRED","ETHICS_PERMITS_REQUIRED"]:
+                            if field in ["SAMPLING_PERMITS_REQUIRED", "NAGOYA_PERMITS_REQUIRED",
+                                         "ETHICS_PERMITS_REQUIRED"]:
                                 s[field] == "Y"
                                 permits_required = True
                             updates[rack_tube][field]["old_value"] = exsam[field]
@@ -331,7 +336,7 @@ class ProcessValidationQueue:
                 for idx, x in enumerate(r):
                     if x is math.nan:
                         r[idx] = ""
-                out_data.append(r) 
+                out_data.append(r)
 
             notify_frontend(data={"profile_id": self.profile_id}, msg=str(qm["_id"]),
                             action="store_validation_record_id",
@@ -340,7 +345,7 @@ class ProcessValidationQueue:
                             html_id="warning_info3")
             notify_frontend(data={"profile_id": self.profile_id}, msg=out_data, action="make_update",
                             html_id="sample_table")
-            
+
         if permits_required:
             notify_frontend(data={"profile_id": self.profile_id}, msg="", action="require_permits",
                             html_id="")

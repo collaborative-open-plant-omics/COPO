@@ -11,6 +11,7 @@ import web.apps.web_copo.lookup.lookup as lookup
 import web.apps.web_copo.templatetags.html_tags as htags
 from web.apps.web_copo.schemas.utils import data_utils as d_utils
 from dal.copo_da import Submission, DataFile, DAComponent, Person, Sample, Description
+from exceptions_and_logging.logger import Logger
 
 
 class Investigation:
@@ -34,6 +35,7 @@ class Investigation:
                         properties[k] = getattr(Investigation, "_" + k)(self, properties[k])
                     except Exception as e:
                         print(e)
+                        Logger().exception(e)
                         properties[k] = ISAHelpers().get_schema_key_type(properties.get(k, dict()))
 
         return properties
@@ -143,6 +145,7 @@ class Study:
                         properties[k] = getattr(Study, "_" + k)(self, properties[k])
                     except Exception as e:
                         print(e)
+                        Logger().exception(e)
                         properties[k] = ISAHelpers().get_schema_key_type(properties.get(k, dict()))
 
             schemas.append(properties)
@@ -585,7 +588,7 @@ class Assay:
         pairing_info = pd.DataFrame(pairing_info)
 
         if len(pairing_info):
-            pairing_info.columns = ["file1","file2"]
+            pairing_info.columns = ["file1", "file2"]
             pairing_info['combined'] = pairing_info.file1 + "," + pairing_info.file2
 
         datafiles_df = pd.DataFrame(self.copo_isa_records["datafile"])
@@ -844,7 +847,8 @@ class ISAHelpers:
         # sample... contingent on datafiles
         attach_samples = list()
         for x in copo_records["datafile"]:
-            samp = x.get("description", dict()).get("attributes", dict()).get('attach_samples', dict()).get('study_samples', list())
+            samp = x.get("description", dict()).get("attributes", dict()).get('attach_samples', dict()).get(
+                'study_samples', list())
             if isinstance(samp, str):
                 attach_samples.extend(samp.split(","))
             elif isinstance(samp, list):

@@ -1,4 +1,5 @@
 __author__ = 'fshaw'
+
 import os
 from dal.copo_da import EnaFileTransfer, DataFile, Profile
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
@@ -13,6 +14,7 @@ from datetime import datetime
 from web.apps.web_copo.models import UserDetails, StatusMessage, User
 import threading
 
+
 def make_transfer_record(file_id, submission_id):
     # N.B. called from celery
     # make transfer object
@@ -24,7 +26,7 @@ def make_transfer_record(file_id, submission_id):
     tx["ecs_location"] = file["ecs_location"]
     tx["file_id"] = str(file["_id"])
     tx["profile_id"] = file["profile_id"]
-    #tx["status"] = "pending"
+    # tx["status"] = "pending"
     tx["submission_id"] = submission_id
     # N.B. Transfer Status
     # 0 transfer complete
@@ -34,7 +36,7 @@ def make_transfer_record(file_id, submission_id):
     # 4 check for md5ß
     # 5 transfer to ENA
     # 10 Error
-    #tx["transfer_status"] = 1
+    # tx["transfer_status"] = 1
     print(tx)
     ena_file = EnaFileTransfer().get_collection_handle().find_one({"local_path": file["file_location"]})
     if (not ena_file) or ena_file["status"] != "processing":
@@ -42,10 +44,11 @@ def make_transfer_record(file_id, submission_id):
         tx["last_checked"] = datetime.utcnow()
         tx["status"] = "pending"
         tx["transfer_status"] = 1
-        EnaFileTransfer().get_collection_handle().update_one({"local_path": file["file_location"]}, {"$set": tx}, upsert=True)
+        EnaFileTransfer().get_collection_handle().update_one({"local_path": file["file_location"]}, {"$set": tx},
+                                                             upsert=True)
     else:
         Logger().log("The file is downloading, will not download it again: " + tx["local_path"])
-    
+
 
 def check_for_stuck_transfers():
     # N.B. called from celery
@@ -75,6 +78,7 @@ def check_for_stuck_transfers():
                 if delta.seconds > 60 * 60 * 1:
                     EnaFileTransfer().set_pending(tx["_id"])
                     Logger().log("resetting to pending transfer: " + tx["local_path"])
+
 
 def insert_message(message, user):
     sm = StatusMessage(message_owner=user, message=message)
@@ -121,7 +125,7 @@ def process_pending_file_transfers():
                 else:
                     # no need to update last checked
                     increment_status_counter(tx)
-                #continue
+                # continue
             elif tx_status == 2:
                 # transfer to COPO
                 insert_message(message="Transferring file to COPO: " + tx["ecs_location"], user=user)
@@ -156,8 +160,6 @@ def process_pending_file_transfers():
                 thread = ToENA(tx=tx, user_details=ud, pid=pid)
                 thread.start()
                 # transfer_to_ena(tx)
-
-
 
 
 def record_error(error):
@@ -261,6 +263,7 @@ class ToENA(threading.Thread):
         try:
             to_ena(webin_user, pass_word, self.tx["remote_path"], [self.tx["local_path"]], **kwargs)
         except Exception as e:
+            l.exception(e)
             record_error("error transfering to ENA: " + str(e))
             reset_status_counter(self.tx)
         # now check if active tasks can be marked False
@@ -295,5 +298,6 @@ def transfer_to_ena(tx):
             Logger().log("deleting file after check")
             os.remove(tx["local_path"])
     except Exception as e:
+        l.exception(e)
         record_error("error transfering to ENA: " + str(e))
         reset_status_counter(tx)

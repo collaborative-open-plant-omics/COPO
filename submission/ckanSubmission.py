@@ -10,6 +10,7 @@ import requests
 from dal import cursor_to_list
 from dal.copo_da import Submission
 from dal.copo_da import Profile
+from exceptions_and_logging.logger import Logger
 from bson import ObjectId
 from submission.helpers import generic_helper as ghlper
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -88,10 +89,11 @@ class CkanSubmit:
         # get submission record
         try:
             submission_record = records[0]
-        except Exception as ex:
+        except Exception as e:
             ghlper.logging_error(traceback.format_exc(), self.submission_id)
             message = "Submission record not found. Please try resubmitting."
             ghlper.update_submission_status(status='error', message=message, submission_id=self.submission_id)
+            Logger().exception(e)
             return dict(status='error', message=message)
 
         try:
@@ -307,11 +309,11 @@ class CkanSubmit:
 
             file_path = df.get("file_path", str())
             api_call = f'curl -H "Authorization:{api_token}" "{call_url}" ' \
-                f'--form upload=@{file_path} ' \
-                f'--form package_id={dataset_id} ' \
-                f'--form name={file_basename} ' \
-                f'--form mimetype={file_mimetype} ' \
-                f'--form created={date_created}'
+                       f'--form upload=@{file_path} ' \
+                       f'--form package_id={dataset_id} ' \
+                       f'--form name={file_basename} ' \
+                       f'--form mimetype={file_mimetype} ' \
+                       f'--form created={date_created}'
 
             try:
                 receipt = subprocess.check_output(api_call, shell=True)

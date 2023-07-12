@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from dal.base_resource import Resource
 from dal.mongo_util import get_collection_ref
+from exceptions_and_logging.logger import Logger
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.vocab.status_vocab import STATUS_CODES
 
@@ -116,6 +117,7 @@ class DataSchemas:
         except Exception as e:
             exception_message = "Couldn't retrieve component schema. " + str(e)
             print(exception_message)
+            Logger().exception(e)
             raise
 
         return doc

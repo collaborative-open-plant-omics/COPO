@@ -16,7 +16,7 @@ import pandas
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django_tools.middlewares import ThreadLocal
-
+from exceptions_and_logging.logger import Logger
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from api.utils import map_to_dict
 from dal.copo_da import Sample, DataFile, Profile, Submission, ValidationQueue
@@ -202,6 +202,7 @@ class DtolSpreadsheet:
                 self.data.columns = self.data.columns.str.replace(" ", "")
             except Exception as e:
                 # if error notify via web socket
+                Logger().exception(e)
                 notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
                                 action="info",
                                 html_id="sample_info")
@@ -258,6 +259,7 @@ class DtolSpreadsheet:
 
 
         except Exception as e:
+            Logger().exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="info",
@@ -314,6 +316,7 @@ class DtolSpreadsheet:
                             html_id="sample_info")
             return False
         except Exception as e:
+            Logger().exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
                             action="error",

@@ -78,6 +78,9 @@ class PermitColumnsValidator(Validator):
 
             # Check if more than 1 specimenID is the same and check if the permit file name is also the same
             for prefix in permit_column_names:
+                # Check if the columns exist in the data columns
+                if f"{prefix}_FILENAME" not in self.data.columns or f"{prefix}_REQUIRED" not in self.data.columns:
+                    continue
                 # Create a new column that combines the permit column name prefix with "_REQUIRED" and
                 # "_FILENAME" columns each
                 self.data[f"{prefix}"] = self.data[f"{prefix}_REQUIRED"] + "|" + self.data[f"{prefix}_FILENAME"]

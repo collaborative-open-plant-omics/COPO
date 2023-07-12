@@ -107,7 +107,8 @@ def get_control_options(f, profile_id=None):
 
     if f.get("control", "text") in ["copo-lookup", "copo-lookup2"]:
         return COPOLookup(accession=f.get('data', str()),
-                          data_source=f.get('data_source', str()),  profile_id=profile_id).broker_component_search()['result']
+                          data_source=f.get('data_source', str()), profile_id=profile_id).broker_component_search()[
+            'result']
 
     if "option_values" not in f:  # you shouldn't be here
         return option_values
@@ -386,7 +387,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
     records = da_object.get_all_records_columns_server(sort_by=sort_by, sort_direction=sort_direction,
                                                        search_term=search_term, projection=dict(
-                                                           projection),
+            projection),
                                                        limit=n_size, skip=start, filter_by=filter_by)
 
     records_filtered = records_total
@@ -421,28 +422,30 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record")
 def generate_read_record(profile_id=str()):
-    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
-    #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
-    
+    label = ['name', "biosampleAccession", "sraAccession", "ena_file_upload_status", "file_name", "file_md5",
+             "submission_status", "run_accession", "experiment_accession"]
+    # 'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
+
     label_set = set()
     data_set = []
     columns = []
     columns.append(dict(data="record_id", visible=False))
     columns.append(dict(data="DT_RowId", visible=False))
 
-    detail_dict = dict( orderable=False, data=None,
+    detail_dict = dict(orderable=False, data=None,
                        title='', defaultContent='', width="5%")
 
     columns.insert(0, detail_dict)
     samples = Sample().execute_query({"profile_id": profile_id})
-    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
+    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id},
+                                                      projection={"_id": 1, "name": 1, "accessions": 1})
     for sample in samples:
         for read in sample.get("read", []):
             row_data = dict()
             row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
             row_data["name"] = sample["name"]
-            row_data.update({key : sample[key] for key in sample.keys() if key[0].isupper()} )
-            label_set.update({key  for key in sample.keys() if key[0].isupper()})
+            row_data.update({key: sample[key] for key in sample.keys() if key[0].isupper()})
+            label_set.update({key for key in sample.keys() if key[0].isupper()})
             row_data["file_name"] = read["file_name"]
             row_data["biosampleAccession"] = sample.get(
                 "biosampleAccession", str())
@@ -454,23 +457,23 @@ def generate_read_record(profile_id=str()):
 
                 if submission and row_data["submission_status"] == "accepted":
                     for accession in submission[0].get("accessions", {}).get("run", []):
-                        if set(accession.get("datafiles",[])) == set(file_ids):
+                        if set(accession.get("datafiles", [])) == set(file_ids):
                             row_data["run_accession"] = accession.get("accession", str())
                             alias = accession.get("alias", str())
                             break
                     for accession in submission[0].get("accessions", {}).get("experiment", []):
-                        if accession.get("alias",[]) == alias:
+                        if accession.get("alias", []) == alias:
                             row_data["experiment_accession"] = accession.get("accession", str())
-                            break                        
+                            break
 
                 files = DataFile().get_records(file_ids)
                 if files:
                     row_data["DT_RowId"] = "row_" + \
-                        read["file_id"].replace(",", "_")
+                                           read["file_id"].replace(",", "_")
                     row_data["file_md5"] = files[0]["file_hash"]
                     if len(files) > 1:
                         row_data["file_md5"] = row_data["file_md5"] + \
-                            " , " + files[1]["file_hash"]
+                                               " , " + files[1]["file_hash"]
                     attribute = files[0].get(
                         "description", dict()).get("attributes", dict())
                     row_data.update(attribute.get("library_preparation", dict()))
@@ -487,17 +490,13 @@ def generate_read_record(profile_id=str()):
                             "status", str())
                         if len(ena_file_transfer) > 1:
                             row_data["ena_file_upload_status"] = row_data["ena_file_upload_status"] + \
-                                " | " + \
-                                ena_file_transfer[1].get("status", str())
-
-
-
-
+                                                                 " | " + \
+                                                                 ena_file_transfer[1].get("status", str())
 
             data_set.append(row_data)
 
     label.extend(list(label_set))
-    columns.extend([dict(data=x, title=x.upper().replace("_", " "), defaultContent='') for x in label])  
+    columns.extend([dict(data=x, title=x.upper().replace("_", " "), defaultContent='') for x in label])
 
     return_dict = dict(dataSet=data_set,
                        columns=columns,
@@ -514,7 +513,7 @@ def generate_files_record(user_id=str()):
     columns.append(dict(data="record_id", visible=False))
     columns.append(dict(data="DT_RowId", visible=False))
 
-    detail_dict = dict(  orderable=False, data=None,
+    detail_dict = dict(orderable=False, data=None,
                        title='', defaultContent='', width="5%")
 
     columns.insert(0, detail_dict)
@@ -578,18 +577,22 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
         current_schema_version = settings.CURRENT_ERGA_VERSION
 
     get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
-                               "European Reference Genome Atlas (ERGA)", "Darwin Tree of Life Environmental Samples (DTOL_ENV)"]
+                               "European Reference Genome Atlas (ERGA)",
+                               "Darwin Tree of Life Environmental Samples (DTOL_ENV)"]
     # get and filter schema elements based on displayable columns and profile type
     if get_dtol_fields:
 
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
-            if x.get("show_in_table", True) and profile_type in x.get("specifications", []) and current_schema_version in x.get("manifest_version", ""):
+            if x.get("show_in_table", True) and profile_type in x.get("specifications",
+                                                                      []) and current_schema_version in x.get(
+                    "manifest_version", ""):
                 schema.append(x)
     else:
         schema = list()
         for x in da_object.get_schema().get("schema_dict"):
-            if (x.get("show_in_table", True) and (component != 'sample' or component == 'sample' and ("biosample" in x.get("specifications", []) or "isasample" in x.get(
+            if (x.get("show_in_table", True) and (component != 'sample' or component == 'sample' and (
+                    "biosample" in x.get("specifications", []) or "isasample" in x.get(
                     "specifications", [])))):
                 schema.append(x)
 
@@ -1345,7 +1348,8 @@ def generate_submission_accessions_data(submission_id=str()):
 
     try:
         repository = Submission().get_repository_type(submission_id=submission_id)
-    except Exception as error:
+    except Exception as e:
+        Logger().exception(e)
         return dict(dataSet=data_set,
                     columns=columns,
                     message="Could not retrieve repository type"
@@ -1354,7 +1358,8 @@ def generate_submission_accessions_data(submission_id=str()):
     try:
         submission_record = Submission().get_collection_handle().find_one({'_id': ObjectId(submission_id)},
                                                                           {"accessions": 1})
-    except Exception as error:
+    except Exception as e:
+        Logger().exception(e)
         return dict(dataSet=data_set,
                     columns=columns,
                     message="Could not retrieve submission record"
@@ -1431,7 +1436,7 @@ def generate_submission_accessions_data(submission_id=str()):
             for a in accessions:
                 link_ref = a["dspace_instance"] + a["link"]
                 meta_link = '<a target="_blank" href="' + \
-                    a["meta_url"] + '">' + a["meta_url"] + '</a>'
+                            a["meta_url"] + '">' + a["meta_url"] + '</a>'
                 retrieve_link = '<a href="' + link_ref + '/retrieve">' + link_ref + '</a>'
                 data_set.append(
                     [a["description"], a["format"], (hurrysize(a["sizeBytes"])),
@@ -1448,7 +1453,7 @@ def generate_submission_accessions_data(submission_id=str()):
                 'dataset_id'] + '">' + 'Show Metadata' + '</a>'
             data_set.append(
                 [accessions["dataset_title"], meta_link,
-                    retrieve_link, accessions["dataset_name"]]
+                 retrieve_link, accessions["dataset_name"]]
             )
 
     return_dict = dict(dataSet=data_set,
@@ -1841,13 +1846,13 @@ def resolve_copo_lookup2_data(data, elem):
 
     if option_values:
         resolved_value = [x[
-            'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{"
-            "data_source}' data-accession='{data_accession}' >"
-            "<i title='click for related information' style='cursor: pointer;' class='fa "
-            ""
-            ""
-            ""
-            "fa-info-circle'></i></span>".format(
+                              'label'] + "<span class='copo-embedded' style='margin-left: 5px;' data-source='{"
+                                         "data_source}' data-accession='{data_accession}' >"
+                                         "<i title='click for related information' style='cursor: pointer;' class='fa "
+                                         ""
+                                         ""
+                                         ""
+                                         "fa-info-circle'></i></span>".format(
             data_source=elem['data_source'], data_accession=x['accession']) for x in option_values]
 
     return resolved_value
