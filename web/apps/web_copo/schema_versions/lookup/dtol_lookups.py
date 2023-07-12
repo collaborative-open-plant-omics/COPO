@@ -1523,12 +1523,12 @@ DTOL_RULES = {
     'ORIGINAL_DECIMAL_LATITUDE':
         {
             "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)",
-            "human_readable": "numeric"
+            "human_readable": "numeric with 8 decimal places"
         },
     'ORIGINAL_DECIMAL_LONGITUDE':
         {
             "ena_regex": "(^[+-]?[0-9]+.?[0-9]{0,8}$)",
-            "human_readable": "numeric"
+            "human_readable": "numeric with 8 decimal places"
         },
     'RACK_OR_PLATE_ID':
         {

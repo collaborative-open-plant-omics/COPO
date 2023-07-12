@@ -2406,7 +2406,7 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga","download-blank-manifest-template|href:#blank_manifest_url", "accept_reject_samples"],
             sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",
@@ -2421,7 +2421,7 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_read",
-            buttons: ["new-reads-spreadsheet-template"],
+            buttons: ["new-reads-spreadsheet-template",  "download-blank-manifest-template|href:#blank_manifest_url"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "samples_color",
             color: "olive",
@@ -2581,12 +2581,12 @@ function get_profile_components() {
         },
         {
             component: 'taggedseq',
-            title: 'Tagged Sequences',
+            title: 'Barcoding Manifests',
             subtitle: "#component_subtitle",
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey1: "num_barcode_manifest",
-            buttons: ["new-taggedseq-spreadsheet-template"],
+            buttons: ["new-taggedseq-spreadsheet-template", "download-blank-manifest-template|href:#blank_manifest_url"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "data_color",
             color: "red",
@@ -2672,13 +2672,20 @@ function generate_component_control(component) {
     //create buttons
     var buttonsSpan = $('<span/>', {style: "white-space:nowrap;"});
     pageHeaders.append(buttonsSpan);
-    component.buttons.forEach(function (item) {
+    //component.buttons.forEach(function (item) {
         if (component.buttons) {
             component.buttons.forEach(function (item) {
-                buttonsSpan.append($("." + item)).append("<span style='display: inline;'>&nbsp;</span>");
+                button = $("." + item.split("|")[0]).clone();
+                if (item.indexOf("|") > -1) {
+                    arg = item.split("|")[1];
+                    if (arg.indexOf(":") > -1) {
+                        button.attr(arg.split(":")[0], $(arg.split(":")[1]).val());
+                    }    
+                }    
+                buttonsSpan.append(button).append("<span style='display: inline;'>&nbsp;</span>");
             });
         }
-    });
+    //});
 
     //...and profile component buttons
     if (component.hasOwnProperty("profile_component")) {

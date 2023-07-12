@@ -238,7 +238,7 @@ urlpatterns = [
     re_path(r'^copo_files/(?P<profile_id>[a-z0-9]+)/view', views.copo_files,
             name='copo_files'),     
     re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),      
-    re_path(r'^copo_taggedseq/(?P<profile_id>[a-z0-9]+)', views.copo_taggedseq, name='copo_taggedseq'),   
+    re_path(r'^copo_taggedseq/(?P<profile_id>[a-z0-9]+)/view', views.copo_taggedseq, name='copo_taggedseq'),   
 
     path('ena_taggedseq_manifest_validate/<profile_id>', views.ena_taggedseq_manifest_validate,
          name="ena_taggedseq_manifest_validate"),

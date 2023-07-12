@@ -885,4 +885,13 @@ def copo_taggedseq(request, profile_id):
 @login_required()
 def ena_taggedseq_manifest_validate(request, profile_id):
     request.session["profile_id"] = profile_id
-    return render(request, "copo/ena_taggedseq_manifest_validate.html", {"profile_id": profile_id})
+    checklist_id = request.GET.get("checklist_id")
+    checklist_name = ""
+    data = {"profile_id": profile_id}
+    if checklist_id:
+        checklist = TaggedSequenceChecklist().execute_query({"primary_id": checklist_id})
+        if checklist:
+            data["checklist_id"] = checklist_id
+            data["checklist_name"] = checklist[0]["name"]
+
+    return render(request, "copo/ena_taggedseq_manifest_validate.html", data)

@@ -1,10 +1,11 @@
 __author__ = 'fshaw'
 from django import template
 from django.contrib.auth.models import Group
+from django.conf import settings
 
 register = template.Library()
 from dal.copo_da import DataFile
-
+import re
 
 @register.filter("mongo_id")
 def mongo_id(value):
@@ -55,3 +56,15 @@ def produce_submission_header(value):
 def check_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return group in user.groups.all()
+
+@register.filter(is_safe=True, name="get_blank_manifest_url")
+def get_blank_manifest_url(value):
+    manfiest_version = settings.MANIFEST_VERSION
+    version = manfiest_version.get(value, "")
+    version = "_v" + version if version else ""
+    return settings.MANIFEST_DOWNLOAD_URL.format(value, version)
+
+@register.filter(is_safe=True, name="get_short_profile_type")
+def get_short_profile_type(value):
+    result = re.search(r"\((.*?)\)", value)
+    return result.group(1) if result else value

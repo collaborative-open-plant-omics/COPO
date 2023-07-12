@@ -3067,6 +3067,32 @@ class TaggedSequence(DAComponent):
     def __init__(self, profile_id=None):
         super(TaggedSequence, self).__init__(profile_id, "taggedSequence")
 
+    def get_schema(self, target_id=str()):
+        if not target_id:
+            return dict(schema_dict=[],
+                        schema=[]
+                        )   
+        taggedSeq = TaggedSequence(self.profile_id).get_record(target_id)
+        fields = []
+        if taggedSeq:
+            checklist = TaggedSequenceChecklist().execute_query({"primary_id": taggedSeq["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if taggedSeq.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
+
     def validate_and_delete(self, target_id=str(), target_ids=list()):        
         if not target_ids:
             target_ids = []

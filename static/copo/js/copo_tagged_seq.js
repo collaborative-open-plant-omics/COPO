@@ -1,12 +1,12 @@
 var dialog = new BootstrapDialog({
-    title: "Upload Tagged Sequence Manifest",
+    title: "Upload Barcoding Manifest",
     message: "<div><input type='file' id='fileid' style='display:none' /></div>",
     size: BootstrapDialog.SIZE_WIDE,
     buttons: [{
         id: 'upload_taggedseq_manifest_button',
-        label: 'Upload Tagged Sequence Manifest',
+        label: 'Upload Barcoding Manifest',
         cssClass: 'btn-primary',
-        title: 'Upload Tagged Sequence Manifest',
+        title: 'Upload Barcoding Manifest',
         action: function(){
             document.getElementById('file').click();
             //upload_spreadsheet($('#file').prop('files')[0])
@@ -38,7 +38,7 @@ $(document).ready(function () {
 
     var uid = document.location.href
     uid = uid.split("/")
-    uid = uid[uid.length - 1]
+    uid = uid[uid.length - 2]
     var wsprotocol = 'ws://';
     var s3socket
 
@@ -172,7 +172,7 @@ $(document).ready(function () {
 
     //add new component button
     $(document).on("click", ".new-taggedseq-spreadsheet-template", function (event) {
-        url =  "/copo/ena_taggedseq_manifest_validate/" + uid
+        url =  "/copo/ena_taggedseq_manifest_validate/" + uid+ "?checklist_id=" + $("#checklist_id").find(":selected").val();
         dialog.realize();
         dialog.setMessage($('<div></div>').load(url));
         dialog.open();   
@@ -188,6 +188,8 @@ $(document).ready(function () {
  
     });
 
+ 
+
     $("#checklist_id").change(function(){
 
         if ($.fn.dataTable.isDataTable('#' + componentMeta.tableID)) {
@@ -195,10 +197,16 @@ $(document).ready(function () {
             table = $('#' + componentMeta.tableID).DataTable();
             table.clear().destroy();
             $('#' + componentMeta.tableID).empty();
+            $('')
         }
         args_dict["tagged_seq_checklist_id"] = this.value;
+        args_dict[""]
         load_records(componentMeta, args_dict); // call to load component records
     });
+
+
+
+ 
 
     //******************************Event Handlers Block*************************//
 
@@ -326,7 +334,7 @@ function save_taggedseq_data() {
     }).done(function (data) {
         result_dict = {}
         result_dict["status"] = "success"
-        result_dict["message"] = "Tagged Sequence records are saved"
+        result_dict["message"] = "Barcoding records are saved"
         do_crud_action_feedback(result_dict);
         dialog.close()
         globalDataBuffer = data;

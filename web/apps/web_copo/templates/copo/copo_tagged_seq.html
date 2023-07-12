@@ -31,6 +31,10 @@
         <!-- hidden attributes  -->
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
         <input type="hidden" id="nav_component_name" value="taggedseq"/>
+        <!--input type="hidden" id="blank_manifest_url" value="{{  'BARCODING_'|get_blank_manifest_url  }}"/>  }}"/-->
+        {% for checklist in checklists %}
+            <input type="hidden" id="blank_manifest_url_{{checklist.primary_id}}" value="{{ checklist.primary_id  | get_blank_manifest_url  }}"/>  }}"
+        {% endfor %}
         <input type="hidden" id="component_subtitle" value="<select id='checklist_id' name='checklists'>{% for checklist in checklists %}<option value='{{ checklist.primary_id }}' title='{{checklist.description}}' >{{ checklist.primary_id }} : {{ checklist.name }}</option>{% endfor %}</select> "/>
     </div>
 

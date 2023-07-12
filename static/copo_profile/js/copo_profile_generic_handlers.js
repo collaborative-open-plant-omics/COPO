@@ -307,7 +307,7 @@ function get_copo_profile_components() {
         },
         {
             component: 'taggedseq',
-            title: 'Tagged Sequences',
+            title: 'Barcoding Manifest',
             iconClass: "fa fa-database",
             semanticIcon: "database",
             countsKey1: "num_barcode_manifest",

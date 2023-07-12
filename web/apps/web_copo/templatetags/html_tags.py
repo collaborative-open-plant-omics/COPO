@@ -48,7 +48,8 @@ da_dict = dict(
     submission=Submission,
     annotation=Annotation,
     cgcore=CGCore,
-    metadata_template=MetadataTemplate
+    metadata_template=MetadataTemplate,
+    taggedseq=TaggedSequence,
 )
 
 
@@ -218,6 +219,7 @@ def get_labels():
                       datafile=dict(label="Datafile"),
                       metadata_template=dict(label="Metadata Template"),
                       repository=dict(label="Repository"),
+                      taggedseq=dict(label="Tagged Sequence"),
                       )
 
     return label_dict
@@ -553,11 +555,11 @@ def generate_taggedseq_record(profile_id=str(), checklist_id=str()):
                     )
 
     fields = checklist[0]["fields"]
-    label = [ x for x in fields.keys()]
+    label = [ x for x in fields.keys() if fields[x]["type"] != "TEXT_AREA_FIELD"]
     data_set = []
     columns = []
 
-    detail_dict = dict( orderable=False, data=None,
+    detail_dict = dict(className='summary-details-control detail-hover-message', orderable=False, data=None,
                         title='', defaultContent='', width="5%")
     columns.insert(0, detail_dict)
     columns.append(dict(data="record_id", visible=False))
@@ -1516,7 +1518,7 @@ def generate_attributes(component, target_id):
         da_object = da_dict[component]()
 
     # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get(
+    schema = [x for x in da_object.get_schema(target_id=target_id).get(
         "schema_dict") if x.get("show_as_attribute", False)]
 
     # build db column projection
