@@ -17,7 +17,7 @@ def get_number_of_users(request):
     return HttpResponse(number)
 
 
-def get_number_of_dtol_samples(self):
+def get_number_of_dtol_samples(request):
     number = Sample().get_number_of_dtol_samples()
     return HttpResponse(number)
 
