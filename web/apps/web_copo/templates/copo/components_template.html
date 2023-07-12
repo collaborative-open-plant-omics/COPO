@@ -536,13 +536,13 @@
     </button>
 
     <!-- button to upload spreadsheet for dtol users -->
-    <button style="display: none" title="Add Sample(s) from DTOL Spreadsheet"
+    <button style="display: none" title="Add Sample(s) from DTOL/ASG Spreadsheet"
             class="big circular ui icon green button new-samples-spreadsheet-template copo-tooltip">
         <i class="icon table sign"></i>
     </button>
 
     <!-- button to view samples for dtol users-->
-    <button style="display: none" title="View DTOL Sample(s)"
+    <button style="display: none" title="View DTOL/ASG Sample(s)"
             class="big circular ui icon green button view-samples copo-tooltip">
         <i class="icon table sign"></i>
     </button>
@@ -590,7 +590,7 @@
                 <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation"
                    data-action_type="seq_annotation">Submit Annotation</a>
                 <a class="item action" profile_component="dtol" anchor_type="dtol_option" data-action_type="dtol">Submit DTOL/ASG manifest</a>
-                <a class="item action" profile_component="dtol" anchor_type="erga_option" data-action_type="erga">Submit ERGA Manifest</a>
+                <a class="item action" profile_component="erga" anchor_type="erga_option" data-action_type="erga">Submit ERGA Manifest</a>
             </div>
         </div>
         <div class="ui left pointing dropdown link item">
@@ -617,9 +617,15 @@
         <i class="icon clipboard list" style="font-size: 1.3em"></i>
     </button>
 
+    <!-- button for erga_users, erga_sample_managers, dtol_users or dtol_sample_managers to inspect
+       TOL of samples by GAL within a profile -->
+    <button class="big circular ui icon green button tol_inspect_gal copo-tooltip" title="Inspect TOL by GAL">
+        <i class="icon building" style="font-size: 1.3em"></i>
+    </button>
+
     <!-- button for erga_users, erga_sample_managers, dtol_users or dtol_sample_managers to view
          all sample accessions on COPO -->
-    <button style="display: none" title="View all COPO accessions"
+    <button style="display: none" title="View COPO Accessions' Dashboard"
             class="big circular ui icon pink button copo_accessions copo-tooltip">
         <i class="icon barcode" style="font-size: 1.3em"></i>
     </button>

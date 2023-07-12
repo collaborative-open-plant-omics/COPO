@@ -7,21 +7,25 @@ $(document).ready(function () {
     // done within samples within the user's profile
     $(document).data("filterByCOPODatabaseID", false)
 
-    $(document).on("click", ".statistics_card .statistics_card_title", function () {
+    $(document).on("click", ".statistics_card, .statistics_card_title", function () {
         document.location = copoStatisticsURL
     })
 
-    $(document).on("click", ".gal_inspection_card .gal_inspection_card_title", function () {
+    $(document).on("click", ".gal_inspection_card, .gal_inspection_card_title", function () {
         document.location = copoGALInspectionURL;
     })
 
-    $(document).on("click", ".tol_inspect_card .tol_inspect_card_title", function () {
+    $(document).on("click", ".tol_inspect_card, .tol_inspect_card_title", function () {
         document.location = copoTOLInspectionURL;
     })
 
     $(document).on("click", "#filterByCOPODatabaseID", function () {
         let checkedValue = !!$("#filterByCOPODatabaseID").is(":checked");
         $(document).data("filterByCOPODatabaseID", checkedValue);
+    })
+
+    $(document).on("click", "#stats_bar .card", function () {
+        window.location = copoStatisticsURL
     })
 
     // Status bar
@@ -171,7 +175,6 @@ $(document).ready(function () {
         console.log(`Error: ${error.message}`)
     })
 
-
     // GAL Inspection card
     $($("#gal_names tbody tr")[1]).click()
 
@@ -181,13 +184,13 @@ $(document).ready(function () {
     $("table#profile_samples tr th").removeAttr("onclick"); // Disable click event on table rows
     $("#profile_samples").removeClass("table-hover") // Remove hover on table
 
-
     // World map
     // Show/Hide "World map is loading" spinner
-    let spinner_div = $("#spinner_div")
-    let spinner = $("#spinner")
+    let spinner_div = $("#world_map_spinner_div")
+    let spinner = $("#world_map_spinner")
     $('svg').length > 0 ? spinner_div.hide() : spinner_div.show();
-    $.getJSON("gal_and_partners")
+
+    $.getJSON("tol/gal_and_partners")
         .done(function (data) {
             spinner.show();
             let map_locations = data.partner_locations_lst.concat(data.gal_locations_lst)
@@ -248,7 +251,6 @@ $(document).ready(function () {
                         scale: {
                             'yellow': '#F8E23B',
                             'blue': '#3B7DDD',
-
                         },
                         legend: {
                             horizontal: true,
@@ -265,14 +267,12 @@ $(document).ready(function () {
                 }
             });
 
-            // spinner.fadeOut("fast")
+            spinner.fadeOut("fast")
             spinner_div.hide();
         }).error(function (error) {
         console.log(`Error: ${error.message}`)
     })
-
 });
-
 
 function show_map_marker_popup_details(item) {
     let dialogDiv = $('<div id="map_marker_detailsID"/>')
@@ -287,3 +287,4 @@ function show_map_marker_popup_details(item) {
 
     dialogDiv.dialog({modal: true, title: "Details", show: 'clip', hide: 'clip'});
 }
+

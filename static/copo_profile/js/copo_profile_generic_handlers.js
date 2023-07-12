@@ -176,11 +176,26 @@ function get_copo_profile_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["accept_reject_samples", "tol_inspect"],
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "accessions_color",
             color: "pink",
-            profile_component: true,
+            profile_component: "dtol",
+            tableID: 'accessions_table',
+            recordActions: ["btn-toggle"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'accessions',
+            title: 'Accessions',
+            iconClass: "fa fa-barcode",
+            semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_accessions",
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "accessions_color",
+            color: "pink",
+            profile_component: "stand-alone",
             tableID: 'accessions_table',
             recordActions: ["btn-toggle"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
@@ -287,7 +302,7 @@ function get_copo_profile_components() {
             color: "violet",
             tableID: 'assembly_table',
             profile_component: "stand-alone",
-            recordActions: ["add_record_all" ],   // "delete_record_multi, submit_assembly_multi, , "edit_record_single"
+            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi, , "edit_record_single"
             visibleColumns: 5
         },
         {
@@ -302,7 +317,7 @@ function get_copo_profile_components() {
             color: "yellow",
             tableID: 'seqannotation_table',
             profile_component: "stand-alone",
-            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi",  "submit_annotation_multi"],
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi", "submit_annotation_multi"],
             visibleColumns: 5
         },
         {
@@ -311,7 +326,7 @@ function get_copo_profile_components() {
             iconClass: "fa fa-file",
             semanticIcon: "file",
             countsKey1_deleted: "num_assembly",
-            buttons: ["new_local_file", "new_terminal_file"],
+            buttons: ["new-local-file", "new-terminal-file"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "files_color",
             color: "blue",

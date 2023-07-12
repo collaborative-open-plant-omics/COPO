@@ -86,7 +86,7 @@ div.breadcrumbs {
 /* SORTABLE TABLES */
 
 table thead th.sorted .sortoptions {
-   float: left;
+    float: left;
 }
 
 thead th.sorted .text {
@@ -94,7 +94,7 @@ thead th.sorted .text {
     padding-left: 42px;
 }
 
-/* dashboard styles */
+/* tol_dashboard styles */
 
 .dashboard .module table td a {
     padding-left: .6em;
@@ -245,7 +245,7 @@ form .form-row p.datetime {
     padding-left: inherit;
     left: 10px;
     right: inherit;
-    float:left;
+    float: left;
 }
 
 .inline-related h3 span.delete label {

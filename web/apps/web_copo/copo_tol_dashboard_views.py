@@ -1,4 +1,6 @@
+from api.utils import finish_request
 from api.views.general import *
+from api.views.sample import filter_for_API
 from bson import json_util, ObjectId
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -47,15 +49,17 @@ def convert_string_to_titlecase(txt):
     return result if word_within_parenthesis else titlecase_word
 
 
-@login_required
-def copo_dashboard(request):
+def copo_tol_dashboard(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
 
+    # Stand-alone users/annoymous users can only view certain aspects of the tol dashboard
     if any(item in member_groups for item in required_member_groups):
-        return render(request, 'copo/dashboard/copo_dashboard.html', {})
+        context = {'group_status': False}
     else:
-        return goto_unauthorised_page()
+        context = {'group_status': True}
+
+    return render(request, 'copo/tol_dashboard/copo_tol_dashboard.html', context)
 
 
 @login_required
@@ -64,9 +68,9 @@ def copo_tol_inspect(request):
     member_groups = group_functions.get_group_membership_asString()
 
     if any(item in member_groups for item in required_member_groups):
-        return render(request, 'copo/dashboard/copo_tol_inspect.html', {})
+        return render(request, 'copo/tol_dashboard/copo_tol_inspect.html', {})
     else:
-        return goto_unauthorised_page()
+        return goto_unauthorised_page(request)
 
 
 @login_required
@@ -75,9 +79,9 @@ def copo_tol_inspect_gal(request):
     member_groups = group_functions.get_group_membership_asString()
 
     if any(item in member_groups for item in required_member_groups):
-        return render(request, 'copo/dashboard/copo_tol_inspect_gal.html', {})
+        return render(request, 'copo/tol_dashboard/copo_tol_inspect_gal.html', {})
     else:
-        return goto_unauthorised_page()
+        return goto_unauthorised_page(request)
 
 
 def gal_and_partners(request):

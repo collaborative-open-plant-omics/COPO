@@ -23,7 +23,8 @@ from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.copo_enums import Loglvl, Logtype
 from web.apps.web_copo.lookup.lookup import DB_TEMPLATES
-from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES
+from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, SANGER_TOL_PROFILE_TYPES, \
+    STANDALONE_ACCESSION_TYPES
 from web.apps.web_copo.models import UserDetails
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.schemas.utils.cg_core.cg_schema_generator import CgCoreSchemas
@@ -114,12 +115,20 @@ class ProfileInfo:
                         )
 
         status = dict()
-
+        profile_type = Profile().get_type(self.profile_id)
         for k, v in num_dict.items():
             if handle_dict.get(v, None):
                 if v == "accessions":
-                    status[k] = handle_dict.get(v).count(
-                        {'profile_id': self.profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}})
+                    if "Stand-alone" in profile_type:
+                        # Stand-alone projects
+                        status[k] = Submission().get_collection_handle().count({"$and": [
+                            {"profile_id": self.profile_id, "repository": "ena",
+                             "accessions": {"$exists": True, "$ne": {}}}]})
+
+                    if any(x.upper() in profile_type for x in TOL_PROFILE_TYPES):
+                        # Other projects
+                        status[k] = handle_dict.get(v).count({"$and": [
+                            {'profile_id': self.profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}}]})
                 else:
                     status[k] = handle_dict.get(v).count(
                         {'profile_id': self.profile_id})
@@ -1041,16 +1050,15 @@ class Sample(DAComponent):
 
             cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
 
-            desired_accessions_types_order = ["project", "sample", "assembly", "seq_annotation", "experiment", "run"]
-
             out = []
             for i in list(cursor):
+                # Get profile title
                 profile_title = Profile().get_name(i.get("profile_id", ""))  # Get profile title
                 i.update({'profile_title': profile_title})  # update list of dictionaries with profile title
 
                 # Reorder the list of accessions types
                 reordered_accessions_dict = {k: i.get("accessions", "").get(k, "") for k in
-                                             desired_accessions_types_order if i.get("accessions", "").get(k, "")}
+                                             STANDALONE_ACCESSION_TYPES if i.get("accessions", "").get(k, "")}
                 i.update({'accessions': reordered_accessions_dict})
                 out.append(i)
 
@@ -2620,16 +2628,9 @@ class Profile(DAComponent):
                     {"user_id": owner_id, "type": {"$regex": data, "$options": "i"}}).sort(
                     "date_created", pymongo.DESCENDING)
             else:
-                print("All user profiles by project")
+
                 p = self.get_collection_handle().aggregate(
                     {"type": {"$regex": data, "$options": "i"}}).sort("date_created", pymongo.DESCENDING)
-        else:
-            # p = self.get_collection_handle().aggregate(
-            #     [{"$match": {"type": {"$in": projects}, "manifest_id": {"$in": manifest_ids}}},
-            #      {"$project": {"profile_id": 1}}])
-            #
-            #
-            print("Data type is not string")
         return cursor_to_list(p)
 
     def get_profiles_based_on_sample_data(self, projects, manifest_ids):

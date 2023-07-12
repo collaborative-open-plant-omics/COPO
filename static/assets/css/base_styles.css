@@ -31,7 +31,7 @@ body {
 
 #frontpage-navbar {
     font-size: 8px;
-    float: left !important;
+    float: right !important; /*Align top navbar to the right of the web page*/
     padding-left: 20px;
 }
 
@@ -59,7 +59,7 @@ body {
     padding: 5px 0 !important;
     min-width: 160px !important;
     font-size: 14px;
-    text-align: left;
+    text-align: right;
     list-style: none;
     position: absolute;
     top: 100%;

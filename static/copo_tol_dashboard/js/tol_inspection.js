@@ -19,7 +19,8 @@ const profile_samples_dt_options = {
 
 $(document).ready(function () {
     const copoGALInspectionURL = "/copo/tol_inspect/gal";
-    const copoTolDashboardURL = "/copo/dashboard/";
+    const copoTolDashboardURL = "/copo/dashboard/tol";
+    const accessionsDashboardURL = "/copo/dashboard/accessions";
 
     $(document).data("areAllSampleModalFieldsShown", false)
     $(document).data("showAllTableFieldsCheckBox", false);
@@ -34,8 +35,12 @@ $(document).ready(function () {
         document.location = copoGALInspectionURL;
     })
 
-    $(document).on("click", ".copo_dashboard", function () {
+    $(document).on("click", ".copo_tol_dashboard", function () {
         document.location = copoTolDashboardURL
+    })
+
+    $(document).on("click", ".copo_accessions", function () {
+        document.location = accessionsDashboardURL
     })
 
     $(document).on("click", ".sample_table_row", function (el) {
@@ -57,7 +62,7 @@ $(document).ready(function () {
                 'sample_id': sample_id,
             },
             success: function (data) {
-                if (!window.location.href.includes('dashboard')) json2HtmlForm_SampleDetails(data)
+                if (!window.location.href.includes('dashboard/tol')) json2HtmlForm_SampleDetails(data)
             },
             error: function () {
                 alert(errorMsg);
@@ -573,12 +578,26 @@ function get_samples(row, project) {
     let profile_id = $(row).find("td").data("profile_id")
     let s;
     let searchByFaceting = $(document).data("searchByFaceting")
+    let sample_table_component_loader = $('.sample_table_component_loader')
     s = determine_sample_request_data(row, profile_id, project)
 
     $("#profile_id").val(profile_id)
     $("#spinner").show()
 
+    if (!window.location.href.includes("dashboard/tol")) {
+        sample_table_component_loader.find('.sample_table_spinner')
+            .toggleClass('hidden')
+            .toggleClass('active')
+            .css("margin-top", "20%")
+    } else {
+        sample_table_component_loader.find('.sample_table_spinner')
+            .css({"margin-top": "50%"})
+    }
+
+    $("#data_status").text("Loading...")
+
     $.ajax(s).done(function (data) {
+            let tol_inspect_card = $(".tol_inspect_card")
             let sample_panel_tol_inspect = $("#sample_panel_tol_inspect")
 
             if ($.fn.DataTable.isDataTable('#profile_samples')) {
@@ -588,9 +607,9 @@ function get_samples(row, project) {
             sample_panel_tol_inspect.find("thead").empty()
             sample_panel_tol_inspect.find("tbody").empty()
 
-            // Show only 13 rows when copo_dashboard web page is displayed
+            // Show only 13 rows when copo_tol_dashboard web page is displayed
             // Correlates with height of data table scroll bar
-            data = window.location.href.includes('dashboard') ? data.slice(0, 12) : data
+            data = window.location.href.includes('dashboard/tol') ? data.slice(0, 12) : data
 
             if (data.length) {
                 // If the search is not by faceting then, display the 'Samples' header as the active header
@@ -616,7 +635,7 @@ function get_samples(row, project) {
                 }
 
                 // Show the breadcrumb/ navigation bar is samples exist on tol_inspect web page
-                if (!window.location.href.includes('dashboard')) $("#tolInspectNavBar").find(".breadcrumb").show()
+                if (!window.location.href.includes('dashboard/tol')) $("#tolInspectNavBar").find(".breadcrumb").show()
 
                 const rows = [];
 
@@ -701,8 +720,8 @@ function get_samples(row, project) {
                     })
                     profile_samples.DataTable(profile_samples_dt_options);
 
-                    // Re-configure 'profile_samples' table options if 'copo_dashboard' is displayed
-                    if (window.location.href.includes('dashboard')) {
+                    // Re-configure 'profile_samples' table options if 'copo_tol_dashboard' is displayed
+                    if (window.location.href.includes('dashboard/tol')) {
                         profile_samples_dt_options.lengthMenu = [15]
                         profile_samples_dt_options.bLengthChange = false //  Remove the 'show entries' droppdown menu option
                         profile_samples_dt_options.scrollY = 450 // Correlates with number of table rows
@@ -735,7 +754,7 @@ function get_samples(row, project) {
                     queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
 
                     //Only show the checkboxes on tol_inspect web page
-                    if (!window.location.href.includes('dashboard')) {
+                    if (!window.location.href.includes('dashboard/tol')) {
                         document.querySelector("#showAllTableFieldsCheckBoxID").onchange = (e) => {
                             let checked = e.target.checked;
                             $(document).data("showAllTableFieldsCheckBox", checked);
@@ -765,15 +784,32 @@ function get_samples(row, project) {
 
                     // Hide 'profileSamplesTable_checkBoxesDiv' div and disable its child checkboxes
                     // 'Show all fields' checkbox and 'Query in COPO record' checkbox
-                    // when on dashboard web page
-                    if (window.location.href.includes('dashboard')) {
+                    // when on tol_dashboard web page
+                    if (window.location.href.includes('dashboard/tol')) {
                         showAllTableFieldsCheckBoxID.prop("disabled", true);
                         queryCOPORecordsCheckBoxID.prop("disabled", true);
                         $("#profileSamplesTable_checkBoxesDiv").hide()
+                        if (tol_inspect_card.hasClass("tol_inspect_card_padding")) tol_inspect_card.removeClass("tol_inspect_card_padding")
                     }
 
                 })
                 highlight_empty_cells_in_selected_row()
+
+                // Add a placeholder to the search box
+                let table_wrapper = $("#profile_samples_wrapper")
+                table_wrapper
+                    .find(".dataTables_filter")
+                    .find("input[type='search']")
+                    .attr("placeholder", "Search samples")
+
+                $("#data_status").text("Idle")
+
+                if (window.location.href.includes("dashboard/tol")) {
+                    sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden').css("padding-top", 0)
+                    $('.tol_inspect_card').css('margin-top', '0')
+                } else {
+                    sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden')
+                }
             } else {
                 let content
                 if (data.hasOwnProperty("locked")) {
@@ -784,18 +820,20 @@ function get_samples(row, project) {
                     content = $("<h4/>", {
                         html: "No Samples Found"
                     })
-                }
-                sample_panel_tol_inspect.find(".labelling").empty().html(
-                    content
-                )
-                // Increase padding of the 'tol inspect" card if 'No Samples Found' message
-                // is shown on dashboard web page
-                if (window.location.href.includes('dashboard')) {
-                    sample_panel_tol_inspect.find(".h4").css("padding-top", "200px").css("text-align", "center");
-                    $(".tol_inspect_card").addClass("tol_inspect_card_padding")
-                    $(".tol_inspect_card > div").addClass("mb-3")
 
                 }
+                sample_panel_tol_inspect.find(".labelling").empty().html(content)
+                $("#data_status").text("Idle")
+
+                // Increase padding of the 'tol inspect" card if 'No Samples Found' message
+                // is shown on tol_dashboard web page
+                if (window.location.href.includes('dashboard/tol')) {
+                    sample_panel_tol_inspect.find(".h4").css("padding-top", "200px").css("text-align", "center");
+                    tol_inspect_card.addClass("tol_inspect_card_padding")
+                    $(".tol_inspect_card > div").addClass("mb-3")
+                }
+
+                sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden')
 
                 // Hide navbar menu if no sample records exist in a profile
                 $("#tolInspectNavBar").find(".breadcrumb").empty().html("").hide()
@@ -840,6 +878,7 @@ function get_profile_titles(data) {
     let getProjectTitlesForUserOnly = !!($.isEmptyObject(searchQueryDict) && queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox)
     let searchByFaceting = typeof (data) !== 'string'
     let profile_titles_nav_bar = $("#profile_types_filter")
+    let profile_titles_table_component_loader = $('.profile_titles_table_component_loader')
 
     $(document).data("searchByFaceting", searchByFaceting);
 
@@ -847,6 +886,13 @@ function get_profile_titles(data) {
     // else if data is of type 'object' (dictionary) i.e. the value of data is 'match_items' data,
     // search by faceting is required
     data = searchByFaceting ? match_items : data
+
+    if (!window.location.href.includes("dashboard/tol")) {
+        profile_titles_table_component_loader.find('.profile_titles_table_spinner')
+            .toggleClass('hidden')
+            .toggleClass('active')
+            .css("margin-top", "10%")
+    }
 
     $.ajax({
         url: "/copo/get_profiles_for_tol_inspection/",
@@ -910,7 +956,7 @@ function get_profile_titles(data) {
 
         const profile_titles_row = $("#profile_titles tr")
         const profile_titles_row_count = profile_titles_row.length - 1
-        
+
         let profile_title_row_index = $(document).data("selectedProfileID")
             ? $('td[data-profile_id*=' + $(document).data("selectedProfileID") + ']').index($(this).closest('tr'))
             : 1
@@ -938,7 +984,12 @@ function get_profile_titles(data) {
         } else {
             $(profile_titles_row[profile_title_row_index]).click()
         }
-
+        // Add a placeholder to the search box
+        let table_wrapper = $("#profile_titles_wrapper")
+        table_wrapper
+            .find(".dataTables_filter")
+            .find("input[type='search']")
+            .attr("placeholder", "Search profile titles")
 
         $.fn.dataTable.moment('DD/MM/YYYY');
         profile_titlesID.DataTable({
@@ -950,6 +1001,11 @@ function get_profile_titles(data) {
 
         })
 
+        if (!window.location.href.includes("dashboard/tol")) {
+            profile_titles_table_component_loader.find('.profile_titles_table_spinner')
+                .toggleClass('active')
+                .toggleClass('hidden')
+        }
     })
 }
 
@@ -977,7 +1033,6 @@ function highlight_empty_cells_in_selected_row() {
         }
     })
 }
-
 
 function determine_sample_request_data(row, profile_id, project) {
     let match_items;

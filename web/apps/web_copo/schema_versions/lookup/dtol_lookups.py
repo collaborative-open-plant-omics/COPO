@@ -1479,7 +1479,7 @@ DTOL_RULES = {
         },
     'ETHICS_PERMITS_FILENAME':
         {
-            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "optional_regex": "^.+\.pdf$",
             "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
         },
     'LATITUDE_END':
@@ -1532,7 +1532,7 @@ DTOL_RULES = {
         },
     'NAGOYA_PERMITS_FILENAME':
         {
-            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "optional_regex": "^.+\.pdf$",
             "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
         },
     'ORIGINAL_COLLECTION_DATE':
@@ -1588,7 +1588,7 @@ DTOL_RULES = {
         },
     'SAMPLING_PERMITS_FILENAME':
         {
-            "optional_regex": "(^.+\.pdf$)|(^not applicable$) |(^not_applicable$)",
+            "optional_regex": "^.+\.pdf$",
             "human_readable": "filename (including '.pdf' extension) if permit is required or NOT_APPLICABLE if permit is not required"
         },
     'SAMPLING_WATER_BODY_DEPTH':
@@ -1760,6 +1760,8 @@ PERMIT_FILENAME_COLUMN_NAMES = ["SAMPLING_PERMITS_FILENAME", "ETHICS_PERMITS_FIL
 PERMIT_REQUIRED_COLUMN_NAMES = ["SAMPLING_PERMITS_REQUIRED", "ETHICS_PERMITS_REQUIRED",
                                 "NAGOYA_PERMITS_REQUIRED"]
 
+PERMIT_COLUMN_NAMES_PREFIX = ["SAMPLING_PERMITS", "ETHICS_PERMITS", "NAGOYA_PERMITS"]
+
 NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL',
            'NaN', 'n/a', 'nan', 'NaT']
 
@@ -1769,6 +1771,8 @@ SANGER_TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
 
 SPECIES_LIST_FIELDS = ["SYMBIONT", "TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS", "SCIENTIFIC_NAME",
                        "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN", "COMMON_NAME", "TAXON_REMARKS"]
+
+STANDALONE_ACCESSION_TYPES = ["project", "sample", "assembly", "seq_annotation", "experiment", "run"]
 
 SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_NAME", "TAXON_REMARKS",
                    "INFRASPECIFIC_EPITHET", "CULTURE_OR_STRAIN_ID", "COMMON_NAME", "LIFESTAGE", "SEX", "SYMBIONT",

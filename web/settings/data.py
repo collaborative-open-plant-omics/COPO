@@ -77,7 +77,7 @@ DESCRIPTION_GRACE_PERIOD = 10  # no of days after which pending descriptions are
 CURRENT_ASG_VERSION = "2.4.1"
 CURRENT_DTOL_VERSION = "2.4.1"
 CURRENT_DTOLENV_VERSION = "2.4"
-CURRENT_ERGA_VERSION = "2.4.2"
+CURRENT_ERGA_VERSION = "2.4.3"
 
 # settings for ECS
 ECS_ACCESS_KEY_ID = resolve_env.get_env('ECS_ACCESS_KEY_ID')

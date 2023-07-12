@@ -4,15 +4,24 @@ from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
+
+import pandas as pd
 import re
 import validators
 
 
 class PermitColumnsValidator(Validator):
-    def check_permit_columns(self, permit_filename_column_name, permit_required_column_name, index, row):
+    def check_permit_filename_value(self, permit_filename_column_name, permit_required_column_name, index, row):
         header_rules = lookup.DTOL_RULES.get(permit_filename_column_name, "")
         optional_regex = header_rules.get("optional_regex", "")
         regex_human_readable = header_rules.get("human_readable", "")
+
+        if row.get(permit_required_column_name, "").strip() == "Y" \
+                and row.get(permit_filename_column_name, "").strip().replace(" ", "_").upper() == "NOT_APPLICABLE":
+            self.errors.append(msg["validation_msg_invalid_permit_filename"] % (
+                row.get(permit_filename_column_name, ""), permit_filename_column_name, str(index + 1),
+                regex_human_readable))
+            self.flag = False
 
         if row.get(permit_required_column_name, "").strip() == "Y" \
                 and row.get(permit_filename_column_name, "") \
@@ -31,14 +40,55 @@ class PermitColumnsValidator(Validator):
                 regex_human_readable))
             self.flag = False
 
+    def check_multiple_permit_filenames_with_same_specimen_id(self, data, permit_column_prefix):
+        for specimen_id, permit_filename in data.items():
+            permit_filename_lst = list(permit_filename)  # Convert numpy array to list
+            if len(permit_filename_lst) > 1:
+                # Display an error message for each row that has the same SPECIMEN_ID but different filename
+                for filename in permit_filename_lst:
+                    self.errors.append(msg["validation_msg_multiple_permit_filenames_with_same_specimen_id"] % (
+                        filename, f"{permit_column_prefix}_REQUIRED", f"{permit_column_prefix}_FILENAME", specimen_id))
+                    self.flag = False
+
+            # If there is only 1 filename, check if it is valid in relation to the value in the REQUIRED permit column
+            if len(permit_filename_lst) == 1:
+                if permit_filename_lst[0] == "N|NOT_APPLICABLE":
+                    pass
+                elif permit_filename_lst[0].startswith("Y|") and permit_filename_lst[0].endswith(".pdf"):
+                    pass
+                else:
+                    self.errors.append(msg["validation_msg_multiple_permit_filenames_with_same_specimen_id"] % (
+                        permit_filename_lst[0], f"{permit_column_prefix}_REQUIRED", f"{permit_column_prefix}_FILENAME",
+                        specimen_id))
+                    self.flag = False
+
     def validate(self):
         p_type = Profile().get_type(profile_id=self.profile_id)
 
         # Only ERGA manifests have permit files
         if "ERGA" in p_type:
+            permit_filename_column_names = lookup.PERMIT_FILENAME_COLUMN_NAMES
+            permit_required_column_names = lookup.PERMIT_REQUIRED_COLUMN_NAMES
+            permit_column_names = lookup.PERMIT_COLUMN_NAMES_PREFIX
+
+            # Check if permit file name is valid
             for index, row in self.data.iterrows():
-                for i, item in enumerate(lookup.PERMIT_FILENAME_COLUMN_NAMES):
-                    self.check_permit_columns(item, lookup.PERMIT_REQUIRED_COLUMN_NAMES[i], index, row)
+                for i, item in enumerate(permit_filename_column_names):
+                    self.check_permit_filename_value(item, permit_required_column_names[i], index, row)
+
+            # Check if more than 1 specimenID is the same and check if the permit file name is also the same
+            for prefix in permit_column_names:
+                # Create a new column that combines the permit column name prefix with "_REQUIRED" and
+                # "_FILENAME" columns each
+                self.data[f"{prefix}"] = self.data[f"{prefix}_REQUIRED"] + "|" + self.data[f"{prefix}_FILENAME"]
+
+                # Group the data by SPECIMEN_ID and combine the values in the new column into a numpy array
+                result = self.data.groupby('SPECIMEN_ID')[f"{prefix}"].unique()
+
+                self.check_multiple_permit_filenames_with_same_specimen_id(result, prefix)
+                # Drop the column created
+                self.data.drop(columns=[f"{prefix}"], inplace=True)
+
         return self.errors, self.warnings, self.flag
 
 

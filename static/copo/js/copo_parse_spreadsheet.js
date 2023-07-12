@@ -448,6 +448,10 @@ $(document).ready(function () {
                     $("#permits_table").find("thead").empty().append(headers)
                     $("#permits_table").find("tbody").empty()
                     var table_row
+
+                    // Filter out duplicates
+                    d.message = d.message.filter((item, index, self) => self.findIndex(x => x.specimen_id === item.specimen_id && x.permit_type === item.permit_type) === index)
+
                     for (let r in d.message) {
                         row = d.message[r]
 

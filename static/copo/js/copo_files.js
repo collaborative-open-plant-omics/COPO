@@ -7,17 +7,17 @@ var dialog = new BootstrapDialog({
         label: 'Upload Local Files',
         cssClass: 'btn-primary',
         title: 'Upload Local Files',
-        action: function(){
+        action: function () {
             document.getElementById('file').click();
             //upload_spreadsheet($('#file').prop('files')[0])
 
         }
     }, {
         label: 'Close',
-        action: function(dialogItself){
+        action: function (dialogItself) {
             dialogItself.close();
         }
-    }]               
+    }]
 });
 
 uid = document.location.href
@@ -25,11 +25,10 @@ uid = uid.split("/")
 uid = uid[uid.length - 2]
 
 $(document).ready(function () {
-
     //uid = document.location.href
     //uid = uid.split("/")
     //uid = uid[uid.length - 2]
-    
+
     //******************************Event Handlers Block*************************//
     var component = "files";
     //var copoVisualsURL = "/copo/copo_visuals/";
@@ -55,6 +54,8 @@ $(document).ready(function () {
         do_record_task(event);
     });
 
+    // Remove profile title if present
+    if ($('.page-title-custom').find("span[title='Profile title']").is(":visible")) $('.page-title-custom').find("span[title='Profile title']").remove();
 
     //details button hover
     /*
@@ -62,8 +63,9 @@ $(document).ready(function () {
         $(this).prop('title', 'Click to view ' + component + ' details');
     });
     */
+
     //******************************Functions Block******************************//
- 
+
 
     function do_record_task(event) {
         var task = event.task.toLowerCase(); //action to be performed e.g., 'Edit', 'Delete'
@@ -84,8 +86,9 @@ $(document).ready(function () {
         } else {
             form_generic_task(component, task, records);
         }
-        
+
     }
+
     function do_add_record() {
         $("#url_upload_controls").show()
         $('#presigned_url_modal')
@@ -93,9 +96,9 @@ $(document).ready(function () {
         ;
         $("#command_area").html("")
         $('#copy_urls_button').fadeOut()
-        $('#process_urls_button').fadeIn()        
+        $('#process_urls_button').fadeIn()
     }
- 
+
 
     $(document).on("click", "#presigned_urls_modal_button, .new-terminal-file ", function (evt) {
         evt.preventDefault()
@@ -142,15 +145,15 @@ $(document).ready(function () {
 
     })
 
-    $(document).on("click", "#copy_urls_button", function(evt) {
+    $(document).on("click", "#copy_urls_button", function (evt) {
         //  $("#command_area").select()
-            navigator.clipboard.writeText($("#command_area").text());
+        navigator.clipboard.writeText($("#command_area").text());
     })
 
-    $(document).on("click", "#upload_local_files_button", function(evt) {
+    $(document).on("click", "#upload_local_files_button", function (evt) {
         //  $("#command_area").select()
-       $("#uploadModal").find('#file').click();
-       
+        $("#uploadModal").find('#file').click();
+
     })
 
 
@@ -159,7 +162,7 @@ $(document).ready(function () {
 
 function upload_files(files) {
     $("#warning_info").fadeOut("fast")
-    $("#warning_info2").fadeOut("fast")    
+    $("#warning_info2").fadeOut("fast")
 
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
@@ -173,7 +176,7 @@ function upload_files(files) {
     $("#ss_upload_spinner").fadeIn("fast")
 
     jQuery.ajax({
-        url: "/copo/upload_ecs_files/"+uid,
+        url: "/copo/upload_ecs_files/" + uid,
         data: form,
         files: files,
         cache: false,
@@ -183,7 +186,7 @@ function upload_files(files) {
         method: 'POST',
         type: 'POST', // For jQuery < 1.9
         headers: {"X-CSRFToken": csrftoken},
-     
+
         xhr: function () {
             var xhr = jQuery.ajaxSettings.xhr();
             xhr.upload.onprogress = function (evt) {
@@ -197,7 +200,7 @@ function upload_files(files) {
             };
             return xhr;
         }
-        
+
     }).error(function (data) {
         $('#upload_local_files_button').fadeIn()
         $("#ss_upload_spinner").fadeOut("fast")
@@ -205,7 +208,7 @@ function upload_files(files) {
             title: 'Error',
             message: "Error " + data.status + ": " + data.responseText
         });
-      
+
     }).done(function (data) {
         $('#upload_local_files_button').fadeIn()
         $("#ss_upload_spinner").fadeOut("fast")
@@ -215,7 +218,7 @@ function upload_files(files) {
         result_dict["message"] = "file/s are uploaded"
         do_crud_action_feedback(result_dict);
         globalDataBuffer = data;
-        if (data.hasOwnProperty  ("table_data")) {
+        if (data.hasOwnProperty("table_data")) {
             var event = jQuery.Event("refreshtable");
             $('body').trigger(event);
         }

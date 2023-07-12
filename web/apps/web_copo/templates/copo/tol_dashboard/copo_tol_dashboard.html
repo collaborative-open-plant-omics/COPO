@@ -1,0 +1,487 @@
+{% extends 'copo/base_1col.html' %}
+
+{% load static %}
+{% load web_tags %}
+{% load html_tags %}
+
+{% block title %}Tree of Life Dashboard{% endblock %}
+
+{% block stylesheet_block %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link id="pagestyle" rel="stylesheet" href="{% static 'copo_tol_dashboard/css/material-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'copo_tol_dashboard/css/jquery-jvectormap-2.0.5.css' %}"/>
+    <link rel="stylesheet" href="{% static 'copo_tol_dashboard/css/copo_tol_dashboard.css' %}"/>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+    <style></style>
+{% endblock stylesheet_block %}
+
+{% block title_block %} Dashboard {% endblock %}
+
+{% block tagline_block %}{% endblock %}
+
+{% block browse_header_block %}{% endblock browse_header_block %}
+{% block page_tile %}{% endblock page_tile %}
+
+{% block content %}
+    <!-- Web page content -->
+    <div class="container-fluid">
+        {# Status bar #}
+        <div id="stats_bar" style="padding-bottom: 2rem">
+            <div class="ui cards centered raised link">
+                <div class="card link">
+                    <div class="ui statistic" style="padding-top: 10px">
+                        <div class="value">
+                            <i class="dna icon teal"></i> <span id="num_samples"></span>
+                        </div>
+                        <div class="label">
+                            Samples
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic" style="padding-top: 10px">
+                        <div class="value">
+                            <i class="folder open icon violet"></i>
+                            <span id="num_profiles" style="padding-left: 5px"></span>
+                        </div>
+                        <div class="label">
+                            Profiles
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic" style="padding-top: 10px">
+                        <div class="value">
+                            <i class="user icon orange"></i><span id="num_users" style="padding-left: 5px"></span>
+                        </div>
+                        <div class="label">
+                            Users
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ui statistic" style="padding-top: 10px">
+                        <div class="value">
+                            <i class="upload icon green"></i><span id="num_uploads" style="padding-left: 5px"></span>
+                        </div>
+                        <div class="label">
+                            File Uploads
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if  group_status %}
+            {# Web page content for Stand-alone users or other users #}
+            <div class="row mt-4">
+                {# Satistics card #}
+                <div class="col-lg-7 col-md-8 mt-4 mb-4 ui link cards">
+                    <div class="card z-index-2 " style="height:637px; width:900px">
+                        <div class="card-header p-0 position-relative mx-3 z-index-2 bg-transparent"
+                             style="margin-top: 20px !important;">
+                            <div class="border-radius-lg py-3 pe-1">
+                                <div class="chart">
+                                    <canvas id="lineGraphID" class="chart-canvas"
+                                            style="display: block; box-sizing: border-box; height: 500px; width: 868px;"
+                                            width="1737" height="1000"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body statistics_card">
+                            <h6 class="mb-0 section_title statistics_card_title">COPO Statistics</h6>
+                            <p class="text-sm ">View the statistics of COPO objects over time and of Tree of Life by
+                                variables</p>
+                            <hr class="dark horizontal">
+                        </div>
+                    </div>
+                </div>
+                {# Manifest submission overview #}
+                <div class="col-lg-5 col-md-6 mt-4">
+                    <div class="card" style="height:650px;">
+                        <div class="card-header pb-3">
+                            <h5 class="card-title mb-0">Manifest submission overview</h5>
+                        </div>
+                        <div class="card-body px-4 p-3">
+                            <div class="timeline timeline-one-side">
+                                <div class="timeline-block mb-4">
+                                    <span class="timeline-step">
+                                        <i class="material-icons text-success text-gradient">check_circle_outline</i>
+                                    </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">View Accessions</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Biosample, SRA
+                                            and
+                                            submission accessions of approved samples can be viewed</p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-block mb-4">
+                                <span class="timeline-step">
+                                    <i class="material-icons" style="color: #21ba45">table_view</i>
+                                </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Preview samples
+                                            created</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Sample metadata
+                                            can
+                                            be previewed</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-4">
+                                <span class="timeline-step">
+                                    <i class="icon tasks sign" style="color:#00b5ad; font-size: 1.32em"></i>
+
+                                </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Approval or rejection of
+                                            samples</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
+                                            inspected by sample managers</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-4">
+                                  <span class="timeline-step">
+                                       <i class="material-icons" style="color: #b5cc18">filter_alt</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Creation of samples</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
+                                            created</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-4">
+                                  <span class="timeline-step">
+                                    <i class="material-icons text-warning text-gradient">fact_check</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Manifest validation</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Taxonomy
+                                            information
+                                            and manifest SOP specification format are validated</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-4">
+                                  <span class="timeline-step">
+                                    <i class="icon table sign" style="color:#7b809a; font-size: 1.32em"></i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Complete and upload
+                                            manifest</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Fill in
+                                            spreasheet</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-4">
+                                  <span class="timeline-step">
+                                    <i class="material-icons" style="color: #2185d0">add_circle</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Create profile
+                                            record</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">An ASG, ERGA,
+                                            DTOL or DTOLENV manifest record is created</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                {# World map card #}
+                <div class="col-lg-12 col-md-6 mb-md-0 mb-4 mt-0">
+                    <div class="card flex-fill w-100" style="height:620px; !important;">
+                        <div class="card-header ">
+                            <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Labs (GALs) and
+                                Partners</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="world_map" style="height: 500px" class="jvectormap jvectormap-merc"
+                                 data-projection="merc" data-name="world_merc">
+                                    <span id="world_map_spinner_div" class="pull-right"
+                                          style="font-size:12px; font-weight:normal">
+                                            <div class="alert alert-info" style="min-width: 400px; min-height: 55px;"
+                                                 role="alert">
+                                                <span id="world_map_spinner" style="margin-top:10px"
+                                                      class="pull-right ui tiny active inline loader"></span>
+                                                <div id="world_map_sub_spinner" style="margin-top:10px"
+                                                     class="pull-right ui tiny indeterminate inline loader"></div>
+                                                <p id="" style="color:#3a87ad !important; font-size:20px !important;">
+                                                    World map is loading...</p>
+                                            </div>
+                                    </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        {% else %}
+            {# Web page content for users who belong to a group #}
+            <div class="row mt-4">
+                {# Satistics card #}
+                <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
+                    <div class="card z-index-2 " style="height:660px; width:600px">
+                        <div class="card-header p-0 position-relative mx-3 z-index-2 bg-transparent"
+                             style="margin-top: 60px !important;">
+                            <div class="border-radius-lg py-3 pe-1">
+                                <div class="chart">
+                                    <canvas id="lineGraphID" class="chart-canvas" height="500"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body statistics_card">
+                            <h6 class="mb-0 section_title statistics_card_title">COPO Statistics</h6>
+                            <p class="text-sm ">View the statistics of COPO objects over time and of Tree of Life by
+                                variables</p>
+                            <hr class="dark horizontal">
+                        </div>
+                    </div>
+                </div>
+                {# GAL inspection card #}
+                <div class="col-lg-4 col-md-6 mt-4 mb-4 ui link cards">
+                    <div class="card z-index-2" style="height:660px; width:600px">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                            <div class="card-body center-div">
+                                {#GAL names table is needed for pie chart to be shown#}
+                                <div hidden class="col-lg-2 col-md-2 col-sm-2">
+                                    <table id="gal_names" class="table table-hover table-condensed">
+                                        <thead>
+                                        <tr>
+                                            <th style="text-align: center">GAL</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="chart chart-xs">
+                                    <canvas id="pieChartID" class="chartjs-render-monitor" width="796" height="400"
+                                            style="display: block; height: 400px !important; width: 500px !important;"
+                                            aria-label="taxonomy representation" role="figure">
+                                    </canvas>
+                                </div>
+                                <div id="taxonomyLevelsDivID" class="form-group" style="padding-top: 20px;">
+                                    <input class="form-control taxonomyLevel_fieldName active_taxonomy_level"
+                                           value="ORDER_OR_GROUP" readonly aria-label="ORDER_OR_GROUP">
+                                    <input class="form-control taxonomyLevel_fieldName" value="FAMILY" readonly
+                                           aria-label="FAMILY">
+                                    <input class="form-control taxonomyLevel_fieldName" value="GENUS" readonly
+                                           aria-label="GENUS">
+                                    <input class="form-control taxonomyLevel_fieldName" value="SCIENTIFIC_NAME"
+                                           readonly aria-label="SCIENTIFIC_NAME">
+                                </div>
+
+                            </div>
+                        </div>
+                        <!--   Component loader -->
+                        <div class="piechart_component_loader">
+                            <div class="piechart_spinner ui huge_loader active inverted dimmer">
+                                <div class="ui text loader">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="card-body gal_inspection_card" style="margin-top: 98%;">
+                            <h6 class="mb-0 section_title gal_inspection_card_title"> Genome Acquisition Lab (GAL)
+                                Inspection </h6>
+                            <p class="text-sm "> View the metadata of GAL according to its taxonomy </p>
+                            <hr class="dark horizontal">
+                        </div>
+                    </div>
+                </div>
+                {# TOL inspection card #}
+                <div class="col-lg-4 mt-4 mb-3 ui link cards">
+                    <div class="card" style="height:660px; width:1040px">
+
+                        <div class="card-body px-4 pb-2" style="flex: none; !important">
+                            <div class="row" style="">
+                                {# Profile titles table is needed for pie chart to be shown#}
+                                <div hidden class="col-lg-2 col-md-2 col-sm-2">
+                                    <ul class="nav nav-tabs" id="profile_types_filter">
+                                    </ul>
+                                    <br>
+                                    <table id="profile_titles" class="table table-hover table-condensed">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 261px">Profile Title</th>
+                                            <th style="text-align: center; width: 140px">Date Created</th>
+                                            <th style="text-align: center; width: 140px">Number of Samples</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+
+                                </div>
+                                <div id="checkbox_valueID"></div>
+                                <!--   Component loader -->
+                                <div class="sample_table_component_loader">
+                                    <div class="sample_table_spinner ui huge_loader active inverted dimmer">
+                                        <div class="ui text loader">Loading...</div>
+                                    </div>
+                                </div>
+                                <div id="sample_panel_tol_inspect" style="padding-left:10px"
+                                     class="col-lg-12 col-md-12 col-sm-12">
+                                    <h4 class="h4"><small class="labelling">Samples</small></h4>
+
+                                    <table id="profile_samples" class="table table-hover table-bordered display compact"
+                                           style="width:540px ! important;">
+                                        <thead></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body row tol_inspect_card tol_inspect_card_padding" style="margin-top: 35%">
+                            <div class="col-lg-8 mt-3">
+                                <h6 class="mb-0 section_title tol_inspect_card_title"> Tree of Life (ToL)
+                                    Inspection</h6>
+                                <p class="text-sm "> View sample details based on profile type</p>
+                            </div>
+                            <hr class="dark horizontal">
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                {# World map card #}
+                <div class="col-lg-8 col-md-6 mb-md-0 mb-4 mt-0">
+                    <div class="card flex-fill w-100" style="height:620px; !important;">
+                        <div class="card-header ">
+                            <h5 class="card-title mt-3 mb-0">Worldwide view of COPO Genome Acquisition Labs (GALs) and
+                                Partners</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="world_map" style="height: 500px" class="jvectormap jvectormap-merc"
+                                 data-projection="merc" data-name="world_merc">
+                                    <span id="world_map_spinner_div" class="pull-right"
+                                          style="font-size:12px; font-weight:normal">
+                                            <div class="alert alert-info" style="min-width: 400px; min-height: 55px;"
+                                                 role="alert">
+                                                <span id="world_map_spinner" style="margin-top:10px"
+                                                      class="pull-right ui tiny active inline loader"></span>
+                                                <div id="world_map_sub_spinner" style="margin-top:10px"
+                                                     class="pull-right ui tiny indeterminate inline loader"></div>
+                                                <p id="" style="color:#3a87ad !important; font-size:20px !important;">
+                                                    World map is loading...</p>
+                                            </div>
+                                    </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                {# Manifest submission overview #}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card" style="height:620px;">
+                        <div class="card-header pb-2">
+                            <h5 class="card-title mb-0">Manifest submission overview</h5>
+                        </div>
+                        <div class="card-body px-4 p-3">
+                            <div class="timeline timeline-one-side">
+                                <div class="timeline-block mb-3">
+                                    <span class="timeline-step">
+                                        <i class="material-icons text-success text-gradient">check_circle_outline</i>
+                                    </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">View Accessions</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Biosample, SRA
+                                            and
+                                            submission accessions of approved samples can be viewed</p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-block mb-3">
+                                <span class="timeline-step">
+                                    <i class="material-icons" style="color: #21ba45">table_view</i>
+                                </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Preview samples
+                                            created</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Sample metadata
+                                            can
+                                            be previewed</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-3">
+                                <span class="timeline-step">
+                                    <i class="icon tasks sign" style="color:#00b5ad; font-size: 1.32em"></i>
+
+                                </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Approval or rejection of
+                                            samples</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
+                                            inspected by sample managers</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-3">
+                                  <span class="timeline-step">
+                                       <i class="material-icons" style="color: #b5cc18">filter_alt</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Creation of samples</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Samples are
+                                            created</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-3">
+                                  <span class="timeline-step">
+                                    <i class="material-icons text-warning text-gradient">fact_check</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Manifest validation</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Taxonomy
+                                            information
+                                            and manifest SOP specification format are validated</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-3">
+                                  <span class="timeline-step">
+                                    <i class="icon table sign" style="color:#7b809a; font-size: 1.32em"></i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Complete and upload
+                                            manifest</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">Fill in
+                                            spreasheet</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-block mb-3">
+                                  <span class="timeline-step">
+                                    <i class="material-icons" style="color: #2185d0">add_circle</i>
+                                  </span>
+                                    <div class="timeline-content">
+                                        <h6 class="text-dark text-lg font-weight-bold mb-0">Create profile
+                                            record</h6>
+                                        <p class="text-secondary font-weight-bold text-medium mt-1 mb-0">An ASG, ERGA,
+                                            DTOL or DTOLENV manifest record is created</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock content %}
+
+{% block help_section %}{% endblock %}
+
+{% block js_block %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="{% static 'copo_tol_dashboard/js/copo_tol_dashboard.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/tol_inspection.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/tol_inspection_by_gal.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/jquery-jvectormap-2.05.min.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/jquery-jvectormap-world-mill.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
+{% endblock js_block %}

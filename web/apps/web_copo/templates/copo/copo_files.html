@@ -4,8 +4,8 @@
 {% load web_tags %}
 {% load html_tags %}
 
-
-{% block title_block %} COPO Files {% endblock %}
+{% block title %}Files{% endblock %}
+{% block title_block %}Files{% endblock %}
 
 {% block tagline_block %}
 
@@ -23,7 +23,7 @@
 
 
 {% block page_tile %}
-   {% include "component_navbar.html" %}
+    {% include "component_navbar.html" %}
 {% endblock page_tile %}
 
 
@@ -58,9 +58,8 @@
                 </table>
             </div>
         </div>
-
     </div>
-
+    <!-- presigned_url modal -->
     <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -95,41 +94,72 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-
+    <!-- upload modal -->
     <div id="uploadModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">  
-          <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                    aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Upload File</h4>
-            </div>
-            <div class="modal-body">
-                     <input id="file" type="file" style="display:none" multiple="multiple"
-                           onchange="upload_files(this.files)">
-             </div>
-            <div class="modal-footer">
-                <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
-                    <div class="percent"></div>
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload File</h4>
                 </div>
-                <button type="button" id="upload_local_files_button" class="btn btn-primary">Upload</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>            
-          </div>
+                <div class="modal-body">
+                    <input id="file" type="file" style="display:none" multiple="multiple"
+                           onchange="upload_files(this.files)">
+                </div>
+                <div class="modal-footer">
+                    <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
+                        <div class="percent"></div>
+                    </div>
+                    <button type="button" id="upload_local_files_button" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
-
+    <!-- getting started section -->
+    <div class="row">
+        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message"
+             style="display: none;">
+            <div class="copo-webui-popover">
+                <div class="webui-popover-inner">
+                    <h3 class="copo-webui-popover-title">Files - Getting started</h3>
+                    <div class="copo-webui-popover-content">
+                        <div class="webpop-content-div">
+                            The files' page provides a platform for uploading files from a cluster or from one's
+                            local (computer) system.
+                            <br/><br/>
+                            <div>To add files from your local system, click the
+                                <button class="circular tiny ui icon primary button">
+                                    <i class="icon desktop sign"></i>
+                                </button>
+                                icon.
+                            </div>
+                            <br/>
+                            <div>To add files via the terminal, click the
+                                <button class="circular tiny ui icon primary button">
+                                    <i class="icon terminal sign"></i>
+                                </button>
+                                icon.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- files_table -->
-    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="files_table"></div> <!-- div used by the quick tour agent -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
+         data-copo-tour-id="files_table"></div> <!-- div used by the quick tour agent -->
     <div class="table-parent-div">
         <table id="files_table" class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">
         </table>
     </div>
 
- 
+
 
 {% endblock %}
 

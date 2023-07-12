@@ -7,7 +7,7 @@
 {% block title %}Tree of Life Inspection{% endblock %}
 
 {% block stylesheet_block %}
-    <link rel="stylesheet" href="{% static 'copo_dashboard/css/tol_inspect.css' %}">
+    <link rel="stylesheet" href="{% static 'copo_tol_dashboard/css/tol_inspection.css' %}">
     <style></style>
 {% endblock %}
 
@@ -41,7 +41,7 @@
         <div class="alert alert-info" style="min-width: 400px; min-height: 55px" role="alert">
             <span id="spinner" style="display:none" class="pull-right ui tiny active inline loader"></span>
             <div id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
-            <p id="dtol_sample_info">Idle</p>
+            <p id="data_status">Idle</p>
         </div>
     </span>
 
@@ -49,14 +49,19 @@
         <div class="col-lg-4 col-md-4 col-sm-4 display: inline;">
             <h3 class="h3">Tree of Life (ToL) Inspection
                 <span style="display: inline;">&nbsp;</span>
-                <button title="View TOL Inspection by GAL"
-                        class="big circular ui icon green button tol_inspect_gal copo-tooltip ">
+                <button class="big circular ui icon green button tol_inspect_gal copo-tooltip"
+                        title="View TOL Inspection by GAL">
                     <i class="icon building" style="font-size: 1.3em"></i>
                 </button>
-                <button id="copo_dashboard_shortcut"
-                        class="big circular ui icon yellow button copo_dashboard copo-tooltip"
-                        title="View COPO Dashboard">
+                <button id="copo_tol_dashboard_shortcut"
+                        class="big circular ui icon yellow button copo_tol_dashboard copo-tooltip"
+                        title="View COPO Tree of Life Dashboard">
                     <i class="icon dashboard" style="font-size: 1.3em"></i>
+                </button>
+                <button id="copo_accessions_dashboard_shortcut"
+                        title="View COPO Accessions' Dashboard"
+                        class="big circular ui icon pink button copo_accessions copo-tooltip">
+                    <i class="icon barcode" style="font-size: 1.3em"></i>
                 </button>
             </h3>
         </div>
@@ -72,8 +77,13 @@
     <div class="row" style="padding-top:10px">
 
         <div class="col-lg-4 col-md-4 col-sm-4">
-            <ul class="nav nav-tabs" id="profile_types_filter">
-            </ul>
+            <!--   Profile titles table component loader -->
+            <div class="profile_titles_table_component_loader">
+                <div class="profile_titles_table_spinner ui huge_loader hidden inverted dimmer">
+                    <div class="ui text loader">Loading...</div>
+                </div>
+            </div>
+            <ul class="nav nav-tabs" id="profile_types_filter"></ul>
             <br>
             <table id="profile_titles" class="table table-hover table-condensed">
 
@@ -90,7 +100,12 @@
         </div>
         <div id="checkbox_valueID"></div>
         <div id="sample_panel_tol_inspect" style="padding-left:25px" class="col-lg-8 col-md-8 col-sm-8">
-            <!--<div class="table_viewport">-->
+            <!--   Component loader -->
+            <div class="sample_table_component_loader">
+                <div class="sample_table_spinner ui huge_loader hidden inverted dimmer">
+                    <div class="ui text loader">Loading...</div>
+                </div>
+            </div>
             <h4 class="h4"><small class="labelling">Click a Profile on the left to see Samples.</small></h4>
 
             <table id="profile_samples" class="table table-hover table-bordered display compact">
@@ -111,7 +126,8 @@
 {% endblock %}
 
 {% block js_block %}
-    <script src="{% static 'copo_dashboard/js/tol_inspect.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/tol_inspection.js' %}"></script>
+    <script src="{% static 'copo/js/fastdom.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.3/bootbox.min.js"></script>

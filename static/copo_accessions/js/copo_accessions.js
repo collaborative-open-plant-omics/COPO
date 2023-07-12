@@ -1,6 +1,6 @@
 $(document).ready(function () {
     const acceptRejectSampleURL = "/copo/accept_reject_sample"
-    const accessionsDashboardURL = "/copo/accessions"
+    const accessionsDashboardURL = "/copo/dashboard/accessions"
     const tolInspectURL = "/copo/tol_inspect"
     const component = "accessions";
     const copoVisualsURL = "/copo/copo_accessions_visualise/";
@@ -22,7 +22,7 @@ $(document).ready(function () {
         document.location = accessionsDashboardURL
     })
 
-    $(document).on("change", ".filter-accessions", filterAccessionTypes)
+    $(document).on("change", ".filter-accessions", filterDataByAccessionType)
 
 
     //trigger refresh of table
@@ -71,22 +71,6 @@ $(document).ready(function () {
 
 //______________Handlers___________________________________
 // Filter accessions table by accession type
-const resetDisplay = function () {
-    const uncheckedAccessions = getValues($(".filter-accessions:not(:checked)"))
-
-    uncheckedAccessions.forEach(function (type) {
-        let rows = $('.accessions_row').filter(function () {
-            return $(this).attr('accession_type') === type;
-        });
-
-        // Show each row based on the accession type that is unchecked
-        $(rows).each(function () {
-            $(this).show()
-        });
-
-    });
-}
-
 const getValues = function ($el) {
     const items = [];
     $el.each(function () {
@@ -96,30 +80,42 @@ const getValues = function ($el) {
     return items;
 };
 
-const filterAccessionTypes = function () {
-    const selectedAccessions = getValues($(".filter-accessions:checked"));
+const filterDataByAccessionType = function () {
+    const component = "accessions";
+    const componentMeta = get_accession_component_meta(component);
+    let tableID = `#${componentMeta.tableID}`
+    let table = $(tableID).DataTable()
 
-    if ($(".filter-accessions:not(:checked)").length === $('.filter-accessions').length) {
-        // If length of all unchecked accession types is equal to the number of accession checkboxes
-        // in the filter accession type div then, show all table rows
-        $(".accessions_row").show();
-    } else if (selectedAccessions.length > 0) {
-        $(".accessions_row").hide();
+    $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+            let checkedAccessions = getValues($(".filter-accessions:checked"));
+            let uncheckedboxes = $(".filter-accessions:not(:checked)")
+            let uncheckedAccessions = getValues(uncheckedboxes)
 
-        selectedAccessions.forEach(function (type) {
-            let rows = $('.accessions_row').filter(function () {
-                return $(this).attr('accession_type') === type;
-            });
+            if (settings.nTable.id === componentMeta.tableID) {
+                let row_accession_type = table
+                    .row(dataIndex)         // get the row to evaluate
+                    .nodes()                // extract the HTML - node() does not support to$
+                    .to$()                  // get rows as jQuery object
+                    .attr('accession_type'); //get the value of 'accession_type' attribute
 
-            // Show each row based on the accession type that is checked
-            $(rows).each(function () {
-                $(this).show()
-            });
-
-        });
-    } else {
-        resetDisplay();
-    }
+                if (uncheckedboxes.length === $('.filter-accessions').length) {
+                    // If length of all unchecked accession types is equal to the number of accession checkboxes
+                    // in the filter accession type div then, show all table rows
+                    return true;
+                } else if (checkedAccessions.length > 0) {
+                    // Show each row based on the accession type that is checked
+                    return checkedAccessions.includes(row_accession_type);
+                } else {
+                    // Reset display
+                    // Show each row based on the accession type that is unchecked
+                    return uncheckedAccessions.includes(row_accession_type);
+                }
+            }
+        }
+    );
+    table.draw(); // Redraw the table
+    $.fn.dataTable.ext.search.pop();
 };
 
 // Accessions component
@@ -170,7 +166,7 @@ function get_copo_accessions_components() {
             component: 'profile',
             title: 'Work Profiles',
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-profiles-legend"],
             tableID: 'copo_profiles_table',
             secondaryTableID: 'copo_shared_profiles_table',
             visibleColumns: 4,
@@ -182,11 +178,11 @@ function get_copo_accessions_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples", "tol_inspect"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "samples_color",
             color: "olive",
-            profile_component: true,
+            profile_component: "dtol",
             tableID: 'sample_table',
             recordActions: ["show_sample_source", "describe_record_all", "edit_record_single"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
@@ -197,13 +193,43 @@ function get_copo_accessions_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["copo_accessions", "tol_inspect", "accept_reject_samples"],
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "accessions_color",
             color: "pink",
-            profile_component: true,
+            profile_component: "dtol",
             tableID: 'accessions_table',
-            recordActions: ["btn-toggle1", "btn-toggle2"],
+            recordActions: ["btn-toggle"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'accessions',
+            title: 'Accessions',
+            iconClass: "fa fa-barcode",
+            semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_accessions",
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "accessions_color",
+            color: "pink",
+            profile_component: "stand-alone",
+            tableID: 'accessions_table',
+            recordActions: ["btn-toggle"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'read',
+            title: 'Reads',
+            iconClass: "fa fa-filter",
+            semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_read",
+            buttons: ["new-reads-spreadsheet-template", "update-reads-template"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "samples_color",
+            color: "olive",
+            profile_component: "stand-alone",
+            tableID: 'sample_table',
+            recordActions: ["delete_read_multi", "submit_read_multi"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },
         {
@@ -215,9 +241,9 @@ function get_copo_accessions_components() {
             colorClass: "data_color",
             color: "black",
             buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             tableID: 'datafile_table',
-            profile_component: true,
+            //profile_component: true,
             // recordActions: ["describe_record_multi", "unbundle_record_multi", "undescribe_record_multi"],
             recordActions: [],
             visibleColumns: 3
@@ -229,11 +255,11 @@ function get_copo_accessions_components() {
             semanticIcon: "mail outline",
             countsKey: "num_submission",
             buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "submissions_color",
             color: "green",
             tableID: 'submission_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: [],
             visibleColumns: 3
         },
@@ -244,11 +270,11 @@ function get_copo_accessions_components() {
             semanticIcon: "attach",
             countsKey: "num_pub",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "pubs_color",
             color: "orange",
             tableID: 'publication_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: ["add_record_all", "edit_record_single", "delete_record_multi"],
             visibleColumns: 4
         },
@@ -259,7 +285,7 @@ function get_copo_accessions_components() {
             semanticIcon: "attach",
             countsKey: "num_temp",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "pubs_color",
             color: "blue",
             tableID: 'metadata_template_table',
@@ -273,14 +299,88 @@ function get_copo_accessions_components() {
             semanticIcon: "users",
             countsKey: "num_person",
             buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "people_color",
             color: "red",
             tableID: 'person_table',
-            profile_component: true,
+            //profile_component: true,
             recordActions: ["add_record_all", "edit_record_single"],
             visibleColumns: 5
         },
+        {
+            component: 'assembly',
+            title: 'Assembly',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_assembly",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "assembly_color",
+            color: "violet",
+            tableID: 'assembly_table',
+            profile_component: "stand-alone",
+            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi, , "edit_record_single"
+            visibleColumns: 5
+        },
+        {
+            component: 'seqannotation',
+            title: 'Sequence Annotations',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_seqannotation",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "data_color",
+            color: "yellow",
+            tableID: 'seqannotation_table',
+            profile_component: "stand-alone",
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi", "submit_annotation_multi"],
+            visibleColumns: 5
+        },
+        {
+            component: 'files',
+            title: 'Files',
+            iconClass: "fa fa-file",
+            semanticIcon: "file",
+            countsKey1_deleted: "num_assembly",
+            buttons: ["new-local-file", "new-terminal-file"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "files_color",
+            color: "blue",
+            tableID: 'files_table',
+            profile_component: "stand-alone",
+            recordActions: ["add_local_all", "add_terminal_all", "delete_record_multi"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single"
+            visibleColumns: 5
+        }
+        /*
+        {
+            component: 'annotation',
+            title: 'Generic Annotations',
+            iconClass: "fa fa-pencil",
+            semanticIcon: "write",
+            countsKey: "num_annotation",
+            buttons: ["quick-tour-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-annotate"],
+            colorClass: "annotations_color",
+            color: "violet",
+            tableID: 'annotation_table',
+            recordActions: ["delete_record_multi"],
+            visibleColumns: 10000
+        }, TODO - these need to be reactivated in the future sometime
+        {
+            component: 'repository',
+            title: 'Repositories',
+            iconClass: "fa fa-pencil",
+            semanticIcon: "write",
+            countsKey: "num_annotation",
+            buttons: ["quick-tour-template", "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help", "copo-sidebar-annotate"],
+            colorClass: "annotations_color",
+            color: "violet",
+            tableID: 'repository_table',
+            recordActions: ["delete_record_multi"],
+            visibleColumns: 10000
+        }*/
     ];
 } // End of function get_copo_accessions_components()
 function render_accessions_table(data, cols, dataSet, recordIDs, accession_types, componentMeta) {
@@ -302,6 +402,10 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                 "createdCell": function (td, cellData, rowData, row, col) {
                     if (cellData === "") {
                         $(td).addClass("cell-no-content")
+                    }
+                    if (typeof cellData == 'undefined') {
+                        $(td).addClass("cell-no-content")
+                        $(td).text("")
                     }
                 },
             },
@@ -327,6 +431,10 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                 "createdCell": function (td, cellData, rowData, row, col) {
                     if (cellData === "") {
                         $(td).addClass("cell-no-content")
+                    }
+                    if (typeof cellData == 'undefined') {
+                        $(td).addClass("cell-no-content")
+                        $(td).text("")
                     }
                 }
             },
@@ -403,8 +511,8 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
                             $(row).addClass("accessions_row");
                             $(row).addClass(componentMeta.tableID + recordID);
                         }
-                    } catch (err) {
-                        console.log(`Error: ${err}`)
+                    } catch (error) {
+                        console.log(`Error: ${error.message}`)
                     }
                 });
 
@@ -414,8 +522,8 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
             $.each(accession_types, function (sampleIndex, sample_type) {
                 try {
                     if (rowIndex === sampleIndex) $(row).attr("accession_type", sample_type)
-                } catch (err) {
-                    console.log(`Error: ${err}`)
+                } catch (error) {
+                    console.log(`Error: ${error.message}`)
                 }
             });
         },
@@ -433,7 +541,7 @@ function render_accessions_table(data, cols, dataSet, recordIDs, accession_types
         });
 
     // Filter the rows that are not associated with the current checked "Standalone" accession type
-    if ($(document).data("isSampleProfileTypeStandalone")) filterAccessionTypes()
+    if ($(document).data("isSampleProfileTypeStandalone")) filterDataByAccessionType()
 
     let table_wrapper = $(tableID + '_wrapper')
 
@@ -527,9 +635,10 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
             let accessions_checkboxes = $('.accessions-checkboxes')
 
             if (data.length === 0) {
-                if (accessions_checkboxes.length) accessions_checkboxes.empty()
+                if (accessions_checkboxes.find('.form-check').length) accessions_checkboxes.empty()
+                $('.accessions-legend').hide()  // Hide the filter accessions' legend
                 set_empty_accessions_component_message(data.length); //display empty component message when there's no record
-                $(".copo_accessions").show()
+                $(".copo_accessions").show() // Show the accessions' button
                 if (tableLoader) tableLoader.remove(); //remove loader
                 return false;
             } else {

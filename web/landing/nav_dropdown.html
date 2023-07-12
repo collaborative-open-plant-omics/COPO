@@ -1,22 +1,25 @@
-<nav class="navbar navbar-inverse navbar-fixed-top navbar-fixed-left" style="height: 10px !important; min-height: 55px;"
+{% load web_tags %}
+<nav class="navbar navbar-inverse navbar-fixed-top navbar-fixed-left" style="height: 10px !important; min-height: 59px;"
      role="navigation">
     <div class="container-fluid" style="display:block">
         <div class="navbar-header">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <img class="icon-margin-top" style="height: 45px; margin-left: 12px; margin-top: -10px; padding:2px"
-                     src="/static/copo/img/COPO_icon_white.png">
+            <a class="navbar-brand"
+               href="{% if user.is_authenticated %} {% url 'copo:index' %} {% else %}{% url 'index' %}{% endif %}">
+                <img style="height: 45px; margin-left: 12px; margin-top: -8px; padding: 2px;"
+                     src="/static/copo/img/COPO_icon_white.png"
+                     alt="COPO logo">
             </a>
         </div>
         <div class="collapse navbar-collapse" id="frontpage-navbar">
-            <ul class="nav navbar-nav navbar-left">
+            <ul class="nav navbar-nav navbar-right">
                 <li role="presentation"><a href="/">Home</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">Analytics <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li role="presentation"><a href="/copo/stats">Statistics</a></li>
-                        <li role="presentation"><a href="/copo/dashboard">Tree of Life Dashboard</a></li>
-                        <li role="presentation"><a href="/copo/accessions">Accessions Dashboard</a></li>
+                        <li role="presentation"><a href="/copo/dashboard/tol">Tree of Life Dashboard</a></li>
+                        <li role="presentation"><a href="/copo/dashboard/accessions">Accessions' Dashboard</a></li>
                     </ul>
                 </li>
                 <li role="presentation"><a href="/about">About</a></li>
@@ -28,56 +31,7 @@
                         <li role="presentation"><a href="/#contact-sec">Contact Us</a></li>
                     </ul>
                 </li>
-
             </ul>
         </div> <!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
-
-{#<div class="dropdown">#}
-{##}
-{##}
-{#    <i class="dropdown-toggle ellipsis vertical big icon dot-color" data-toggle="dropdown" aria-haspopup="true"#}
-{#       aria-expanded="false"></i>#}
-{##}
-{#    <div class="dropdown-menu dropdown-menu-right">#}
-{##}
-{#        <a class="dropdown-item" href="/">#}
-{#            <div class="item">#}
-{#                Home#}
-{#            </div>#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="/about">#}
-{#            <div class="item">#}
-{#                About#}
-{#            </div>#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="/ebp">#}
-{#            <div class="item">#}
-{#                EBP resources#}
-{#            </div>#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="/copo/stats">#}
-{#            <div class="item">#}
-{#                Stats#}
-{#            </div>#}
-{#        </a>#}
-{#        <!--#}
-{#        <div class="item">#}
-{#            Darwin Tree of Life#}
-{#        </div>#}
-{#        -->#}
-{#        <a class="dropdown-item" href="http://demo.copo-project.org/copo">#}
-{#            <div class="item">#}
-{#                Try Demo#}
-{#            </div>#}
-{#        </a>#}
-{#        <a class="dropdown-item" href="https://copo-project.org/copo">#}
-{#            <div class="item">#}
-{#                Submit Data#}
-{#            </div>#}
-{#        </a>#}
-{##}
-{#    </div>#}
-{#</div>#}
-{##}

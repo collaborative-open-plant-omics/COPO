@@ -4,26 +4,25 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}Reads{% endblock %}
 {% block stylesheet_block %}
+    <style>
+        .highlight_accession {
+            background-color: #d9e8d9 !important;
+        }
 
-<style>
-    .highlight_accession {
-        background-color: #d9e8d9 !important;
-    }
-    .highlight_no_accession {
-        background-color: #FFD700 !important;
-    }
-</style>  
+        .highlight_no_accession {
+            background-color: #FFD700 !important;
+        }
+    </style>
 
 {% endblock %}
 
-
-{% block title_block %} COPO Reads {% endblock %}
+{% block title_block %}Reads{% endblock %}
 
 {% block tagline_block %}
 
 {% endblock %}
-
 
 {% block browse_header_block %}
     {% csrf_token %}
@@ -32,13 +31,11 @@
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
         <input type="hidden" id="nav_component_name" value="read"/>
     </div>
-
 {% endblock %}
 
 {% block page_tile %}
     {% include "component_navbar.html" %}
 {% endblock page_tile %}
-
 
 {% block content %}
     <!-- publication entry options -->
@@ -72,51 +69,22 @@
         </div>
         <div class="col-sm-3 col-md-3 col-lg-3"></div>
     </div>
-
-
     <!-- getting started section -->
-    <!--div class="row">
-        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message" style="display: none;">
+    <div class="row">
+        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message"
+             style="display: none;">
             <div class="copo-webui-popover">
                 <div class="webui-popover-inner">
-                    <h3 class="copo-webui-popover-title">Publications - Getting started</h3>
+                    <h3 class="copo-webui-popover-title">Reads - Getting started</h3>
                     <div class="copo-webui-popover-content">
                         <div class="webpop-content-div">
-                            The read component of a profile  <br/><br/>Click the
-                            <button class="circular tiny ui icon primary button">
-                                <i class="icon add sign"></i>
-                            </button>
-                            button to access available
-                            options for entering publication records:
-                            <ol>
-                                <li><strong>Manual Entry: </strong>
-                                    <p>Provides an empty publication form for record entry. This option can
-                                        be useful in situations such as when entering metadata for a paper that
-                                        hasn't yet been published,
-                                        or indexed by a public resource.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a DOI: </strong>
-                                    <p>Supply a valid DOI and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a PubMed ID: </strong>
-                                    <p>Supply a valid PubMed ID and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                            </ol>
-                            <div><strong>Quick Tour: </strong>To explore the various
-                                controls available on this page, click the
-                                <button class="circular tiny ui icon orange button">
-                                    <i class="icon lightbulb"></i>
+                            The reads' page provides a platform for adding then viewing
+                            sequence of base pairs (or base pair probabilities) corresponding
+                            to all or part of a single DNA fragment.
+                            <br/><br/>
+                            <div>To add reads, click the
+                                <button class="circular tiny ui icon green button">
+                                    <i class="icon table sign"></i>
                                 </button>
                                 icon.
                             </div>
@@ -125,37 +93,35 @@
                 </div>
             </div>
         </div>
-    </div-->
-
-
+    </div>
+    <!-- modal section -->
     <div id="uploadModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-      
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title">File upload form</h4>
-            </div>
-            <div class="modal-body">
-                <label class="ui blue button" for="file" id="upload_label" style="width:200px">
-                    <input id="file" type="file" style="display:none"
-                           onchange="upload_spreadsheet(this.files[0])">
-                    Upload Sample Manifest
-                </label>
-                <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
-                    <div class="percent"></div>
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">File upload form</h4>
                 </div>
-                <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+                <div class="modal-body">
+                    <label class="ui blue button" for="file" id="upload_label" style="width:200px">
+                        <input id="file" type="file" style="display:none"
+                               onchange="upload_spreadsheet(this.files[0])">
+                        Upload Sample Manifest
+                    </label>
+                    <div class="ui active inline loader" id="ss_upload_spinner" style="display:none">
+                        <div class="percent"></div>
+                    </div>
+                    <button class="ui green button" id="ena_finish_button" style="display:none">Finish</button>
+                </div>
+
             </div>
-       
-          </div>
-      
+
         </div>
-      </div>
-
-
+    </div>
     <!-- read_table -->
-    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="read_table"></div> <!-- div used by the quick tour agent -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
+         data-copo-tour-id="read_table"></div> <!-- div used by the quick tour agent -->
     <div class="table-parent-div">
         <table id="read_table" class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">
@@ -171,8 +137,8 @@
 {% endblock %}
 
 {% block component_info %}
-<div style="display:none; margin-top: 30px; " id="sample_info" class="alert alert-info"
-role="alert"></div>
+    <div style="display:none; margin-top: 30px; " id="sample_info" class="alert alert-info"
+         role="alert"></div>
 {% endblock %}
 
 {% block js_block %}

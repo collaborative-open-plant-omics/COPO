@@ -3,21 +3,21 @@ from api.views import sample as s
 from api.views import stats
 from django.urls import path, re_path
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
-from . import views, copo_dashboard_views, copo_profile_views, copo_accessions_views
+from . import views, copo_tol_dashboard_views, copo_profile_views, copo_accessions_views
 
 app_name = 'web_copo'
 
 urlpatterns = [
     path('', copo_profile_views.copo_profile_index, name='index'),
     path('accept_reject_sample/', views.copo_sample_accept_reject, name="accept_reject"),
-    path('accessions/', copo_accessions_views.copo_accessions_all, name="copo_accessions_all"),
-    path('dashboard/', copo_dashboard_views.copo_dashboard, name="copo_dashboard"),
-    path('dashboard/gal_and_partners/', copo_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
+    path('dashboard/accessions/', copo_accessions_views.copo_accessions_dashboard, name="copo_accessions_dashboard"),
+    path('dashboard/tol', copo_tol_dashboard_views.copo_tol_dashboard, name="copo_tol_dashboard"),
+    path('dashboard/tol/gal_and_partners/', copo_tol_dashboard_views.gal_and_partners, name='copo_gal_and_partners'),
     path('dataverse_submit/', views.test_dataverse_submit, name='test_dataverse_submit'),
     # path('test_submission/', views.test_submission, name='test_submission'),
     path('test/', views.test, name='test'),
-    path('tol_inspect/', copo_dashboard_views.copo_tol_inspect, name="tol_inspect"),
-    path('tol_inspect/gal/', copo_dashboard_views.copo_tol_inspect_gal, name="tol_inspect_gal"),
+    path('tol_inspect/', copo_tol_dashboard_views.copo_tol_inspect, name="tol_inspect"),
+    path('tol_inspect/gal/', copo_tol_dashboard_views.copo_tol_inspect_gal, name="tol_inspect_gal"),
     path('stats/<str:view>', views.stats, name='stats'),
     path('stats/', views.stats, name='stats'),
     path('login/', views.login, name='auth'),
@@ -203,20 +203,20 @@ urlpatterns = [
     path('update_pending_samples_table/', ajax_handlers.update_pending_samples_table,
          name="update_pending_samples_table"),
     path('get_profiles_for_tol_inspection/',
-         copo_dashboard_views.get_profiles_for_tol_inspection,
+         copo_tol_dashboard_views.get_profiles_for_tol_inspection,
          name="get_profiles_for_tol_inspection"),
     path('get_profiles_based_on_sample_data/',
-         copo_dashboard_views.get_profiles_based_on_sample_data,
+         copo_tol_dashboard_views.get_profiles_based_on_sample_data,
          name="get_profiles_based_on_sample_data"),
     path('get_profile_titles_nav_tabs/',
-         copo_dashboard_views.get_profile_titles_nav_tabs,
+         copo_tol_dashboard_views.get_profile_titles_nav_tabs,
          name="get_profile_titles_nav_tabs"),
-    path('get_gal_names/', copo_dashboard_views.get_gal_names, name="get_gal_names"),
-    path('get_sample_details/', copo_dashboard_views.get_sample_details,
+    path('get_gal_names/', copo_tol_dashboard_views.get_gal_names, name="get_gal_names"),
+    path('get_sample_details/', copo_tol_dashboard_views.get_sample_details,
          name="get_sample_details"),
     path('get_samples_for_profile/', ajax_handlers.get_samples_for_profile,
          name="get_samples_for_profile"),
-    path('get_samples_by_search_faceting/', copo_dashboard_views.get_samples_by_search_faceting,
+    path('get_samples_by_search_faceting/', copo_tol_dashboard_views.get_samples_by_search_faceting,
          name="get_samples_by_search_faceting"),
     path('mark_sample_rejected/', ajax_handlers.mark_sample_rejected,
          name="mark_sample_rejected"),
@@ -252,6 +252,8 @@ urlpatterns = [
          name="process_urls"),
     path('get_sample_column_names/', ajax_handlers.get_samples_column_names,
          name="get_sample_column_names"),
+    path('get_filter_accession_titles/', copo_accessions_views.get_filter_accession_titles,
+         name="get_filter_accession_titles"),
 
     re_path(r'^copo_seq_annotation/(?P<profile_id>[a-z0-9]+)/view', views.copo_seq_annotation,
             name='copo_seq_annotation'),

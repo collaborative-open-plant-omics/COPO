@@ -3,8 +3,8 @@ $(document).ready(function () {
     const component = "profile";
     const copoProfileIndexURL = "/copo/";
     const copoAcceptRejectURL = "/copo/accept_reject_sample"
-    const copoAccessionsDashboardURL = "/copo/accessions"
-    const copoTolDashboardURL = "/copo/dashboard/"
+    const copoAccessionsDashboardURL = "/copo/dashboard/accessions"
+    const copoTolDashboardURL = "/copo/dashboard/tol"
     const copoSamplesURL = "/copo/copo_samples/"
     const copoENAReadManifestValidateURL = "/copo/copo_reads/"
     const copoENAAssemblyURL = "/copo/copo_assembly/"
@@ -30,11 +30,19 @@ $(document).ready(function () {
         initiate_profile_form_call(component);
     });
 
-    // Display 'Accept/reject' button for sample managers
-    for (let g in groups) {
-        if (groups[g].includes("sample_managers")) {
-            $("#accept_reject_shortcut").show()
-            break;
+    // Show web page buttons according to the group that the users are associated with
+    if (groups.length === 0) {
+        $("#copo_accessions_dashboard_shortcut").show() // Show 'Accessions tol_dashboard' button for all users
+        $("#copo_tol_dashboard_shortcut").show() // Show 'Tree of life tol_dashboard' button for all users
+    } else {
+        for (let g in groups) {
+            // Display 'Accept/reject' button for sample managers
+            if (groups[g].includes("sample_managers")) {
+                $("#accept_reject_shortcut").show()
+                break;
+            }
+            $("#copo_accessions_dashboard_shortcut").show() // Show 'Accessions tol_dashboard' button for all users
+            $("#copo_tol_dashboard_shortcut").show() // Show 'Tree of life tol_dashboard' button for all users
         }
     }
 
@@ -105,7 +113,7 @@ $(document).ready(function () {
         document.location = copoAcceptRejectURL
     })
 
-    $(document).on("click", "#copo_dashboard_shortcut", function (evt) {
+    $(document).on("click", "#copo_tol_dashboard_shortcut", function (evt) {
         document.location = copoTolDashboardURL
     })
 
@@ -136,7 +144,7 @@ $(document).ready(function () {
             } else if (action_type === "annotation") {
                 url = copoENAAnnotationURL + id + "/view"
             }*/ else {
-                url = "/copo/copo_" + action_type  + "/" + id + "/view"
+                url = "/copo/copo_" + action_type + "/" + id + "/view"
             }
             document.location = url
         }
@@ -293,7 +301,7 @@ $(document).ready(function () {
 function appendRecordComponents(grids) {
     // loop through each grid
     grids.each(function () {
-        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');  
+        let record_id = $(this).closest('.grid').find('.row-title span').attr('id');
         let profile_type = $(this).closest('.grid').find('.copo-records-panel').attr('profile_type');
         if (profile_type) {
             profile_type = profile_type.toLowerCase().trim();
@@ -537,7 +545,7 @@ function append_component_buttons(record_id, profile_type) {
             return false;
         }
 
-        if (!item.hasOwnProperty("profile_component") || (profile_type =="stand-alone" && item.profile_component != "stand-alone") || (profile_type !="stand-alone" && item.profile_component == "stand-alone")) {
+        if (!item.hasOwnProperty("profile_component") || (profile_type === "stand-alone" && !item.profile_component.includes("stand-alone")) || (profile_type !== "stand-alone" && item.profile_component.includes("stand-alone"))) {
             return false;
         }
 
@@ -557,14 +565,24 @@ function append_component_buttons(record_id, profile_type) {
                 .attr("id", record_id + "_" + item.countsKey)
                 .html('<i class="fa fa-spinner fa-pulse" style="font-size: 10px;"></i>')
         }
+
         let pcomponent_count_div = $('<div></div>')
-            .attr("class", `tiny ui basic pcomponent-color left pointing label ${item.color}`)
-            .html(pcomponent_count_span);
+
+        // Do not show the count for "accessions" component and "files" component
+        if (item.component !== "accessions" && item.component !== "files") {
+            pcomponent_count_div.attr("class", `tiny ui basic pcomponent-color left pointing label ${item.color}`)
+                .html(pcomponent_count_span);
+        }
 
         let pcomponent_name_div = $('<div></div>')
             .attr("class", `tiny ui button pcomponent-color ${item.color}`)
             .append('<i class="pcomponent-icon ' + item.iconClass + '"></i>')
             .append('<span class="pcomponent-name" style="padding-left: 3px;">' + item.title + '</span>');
+
+        // Add border radius to "accessions" component and "files" component
+        if (item.component === "accessions" || item.component === "files") {
+            pcomponent_name_div.css("border-radius", ".28571429rem")
+        }
 
         let buttonHTML = $('<a></a>')
             .attr("title", "Navigate to " + item.title)
@@ -576,7 +594,6 @@ function append_component_buttons(record_id, profile_type) {
             .append(pcomponent_count_div);
 
         componentsDIV.append(buttonHTML);
-
     });
 
     return componentsDIV;
@@ -587,20 +604,13 @@ function filter_action_menu() {
         const t = $(el).attr("profile_type");
         if (t.includes("ERGA")) {
             $(el).find("a[profile_component='stand-alone']").hide()
-            //$(el).find("a[anchor_type='reads']").hide()
-            //$(el).find("a[anchor_type='assembly']").hide()
-            //$(el).find("a[anchor_type='annotation']").hide()
-            //$(el).find("a[anchor_type='dtol_option']").hide()
+            $(el).find("a[profile_component='dtol']").hide()
         } else if (t.includes("DTOL") || t.includes("ASG")) {
             $(el).find("a[profile_component='stand-alone']").hide()
-            //$(el).find("a[anchor_type='reads']").hide()
-            //$(el).find("a[anchor_type='assembly']").hide()
-            //$(el).find("a[anchor_type='annotation']").hide()
-            //$(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='erga']").hide()
         } else if (t.includes("Stand-alone")) {
             $(el).find("a[profile_component='dtol']").hide()
-            //$(el).find("a[anchor_type='dtol_option']").hide()
-            //$(el).find("a[anchor_type='erga_option']").hide()
+            $(el).find("a[profile_component='erga']").hide()
         }
     })
 }
@@ -738,7 +748,7 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
             } else if (action_type === "seq_annotation") {
                 url = copoENAAnnotationURL + id
             } */ else {
-                url = "/copo/copo_" +  action_type + "/" +  id + "/view"
+                url = "/copo/copo_" + action_type + "/" + id + "/view"
             }
             document.location = url
         }

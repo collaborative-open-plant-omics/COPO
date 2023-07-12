@@ -11,7 +11,7 @@
     <style></style>
 {% endblock %}
 
-{% block title_block %} Accessions {% endblock %}
+{% block title_block %} Accessions{% endblock %}
 
 {% block tagline_block %}
 
@@ -54,7 +54,8 @@
                             <div class="webpop-content-div">
                                 The accessions page provides a platform for retrieving and analysing
                                 biological samples that have biosample accession, SRA accession
-                                and submission accession associated with them as part of a project.
+                                and submission accession associated with them as part of a project
+                                after the samples have been accepted.
                                 <br/><br/>
                                 <div><strong>All COPO accessions: </strong>To explore all accessions on COPO,
                                     click the
@@ -82,7 +83,7 @@
 {% endblock %}
 
 {% block js_block %}
-    {#    <script src="{% static 'copo_accessions/js/copo_accessions_all.js' %}"></script>#}
+    {#    <script src="{% static 'copo_accessions/js/copo_accessions_dashboard.js' %}"></script>#}
     <script src="{% static 'copo_accessions/js/copo_accessions.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>

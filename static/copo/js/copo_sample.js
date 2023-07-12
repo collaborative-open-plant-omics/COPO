@@ -97,10 +97,16 @@ $(document).ready(function () {
     //var groups = $("#groups").val().split(",")
     if (["DTOL", "ASG"].some(el => document.getElementById("profile_type").value.includes(el)) && groups.includes("dtol_users")) {
         $(".new-samples-spreadsheet-template").show()
-       // $(".new-samples-spreadsheet-template").show()
+        // $(".new-samples-spreadsheet-template").show()
         $(".new-samples-template").hide()
 
-        $("#help_add_button").removeClass("primary").addClass("green")
+        if (document.getElementById("profile_type").value.includes("ASG")) {
+            $(".new-samples-spreadsheet-template").removeClass("green").addClass("purple").css("background-color", "#5829bb")
+            $("#help_add_button").removeClass("primary").addClass("purple").css("background-color", "#5829bb")
+        } else {
+            $("#help_add_button").removeClass("primary").addClass("green")
+        }
+
         $("#help_add_button").children("i").removeClass("add").addClass("table")
     }
 
@@ -109,7 +115,7 @@ $(document).ready(function () {
 
         $(".new-samples-template").hide()
 
-        $("#help_add_button").removeClass("primary").addClass("green")
+        $("#help_add_button").removeClass("primary").addClass("pink")
         $("#help_add_button").children("i").removeClass("add").addClass("table")
     }
     if (groups.includes("dtol_sample_managers") || groups.includes("erga_sample_managers") || groups.includes("dtolenv_sample_managers")) {
@@ -2121,6 +2127,4 @@ $(document).ready(function () {
     if (!profile_type.includes("Stand-alone")) {
         $("#edit_button").hide()
     }
-
-
 }); //end document ready

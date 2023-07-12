@@ -1,0 +1,163 @@
+/* Custom CSS*/
+.alert-info {
+    background-image: none !important;
+    background-color: #cce5ff !important; /* transparent !important;*/
+}
+
+canvas {
+    width: 100%;
+    object-fit: contain; /*  Enables reponsiveness*/
+}
+
+.center-div {
+    display: grid;
+    place-items: center;
+}
+
+input {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+label {
+    display: inline-block;
+}
+
+table {
+    caption-side: bottom;
+    border-collapse: collapse;
+}
+
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+}
+
+th {
+    text-align: inherit;
+    text-align: -webkit-match-parent;
+}
+
+/*COPO statistics card*/
+.statistics_card {
+    padding: 4px 2rem 0 2rem !important;
+}
+
+.section_title:hover {
+    color: #4183c4;
+    text-decoration: underline;
+}
+
+
+/*CSS for GAL inspection card*/
+.gal_inspection_card {
+    padding: 0 2rem 0 2rem !important;
+}
+
+#taxonomyLevelsDivID > input.active_taxonomy_level {
+    background-color: #fff3ce;
+}
+
+#taxonomyLevelsDivID .form-control {
+    text-align: center;
+    width: 380px;
+}
+
+.samples_table_component_loader,
+.piechart_component_loader {
+    display: flex;
+    justify-content: center;
+}
+
+.huge_loader:after,
+.huge_loader:before {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    margin: 0 0 0 -2.07142857rem
+}
+
+.huge_loader {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    font-size: 1.42857143em
+}
+
+/*TOL inspection card*/
+.tol_inspect_card {
+    padding: 16px 2rem 0 2rem !important;
+}
+
+.tol_inspect_card_padding {
+    padding: 21.6em 2rem 0 2rem !important;
+}
+
+/*Set cursor pointer to normal*/
+#profile_samples {
+    cursor: default;
+}
+
+.profile_samples_info {
+    padding-top: 40px;
+}
+
+/*Show only 4 rows of the profile_samples table*/
+#profile_samples > tbody > tr.toggle {
+    display: none;
+}
+
+#profile_samples.show-all > tbody > tr {
+    display: table-row;
+}
+
+/*Set 'profile_samples table' CSS style*/
+.table-bordered {
+    width: 525px;
+}
+
+
+/*World map card*/
+.gal_worldwide_view_card {
+    padding: 0 2rem 0 2rem !important;
+}
+
+.jvectormap-legend-inner {
+    margin-bottom: 5px !important;
+}
+
+.jvectormap-legend {
+    margin: 0 10px 30px 0 !important; /*top | right | bottom | left*/
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick {
+    width: auto !important;
+    margin-right: 10px !important;
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick-text {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    line-height: 13px !important;
+}
+
+.jvectormap-legend-tick-text {
+    margin-left: 5px;
+}
+
+.jvectormap-legend-cnt-h .jvectormap-legend-tick-sample {
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.jvectormap-legend-tick-sample {
+    margin-left: 5px;
+}

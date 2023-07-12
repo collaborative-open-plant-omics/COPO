@@ -4,21 +4,23 @@
 {% load web_tags %}
 {% load html_tags %}
 
+{% block title %}Sequence Annotations{% endblock %}
 {% block stylesheet_block %}
 
-<style>
-    .highlight_accession {
-        background-color: #d9e8d9 !important;
-    }
-    .highlight_no_accession {
-        background-color: #FFD700 !important;
-    }
-</style>  
+    <style>
+        .highlight_accession {
+            background-color: #d9e8d9 !important;
+        }
+
+        .highlight_no_accession {
+            background-color: #FFD700 !important;
+        }
+    </style>
 
 {% endblock %}
 
 
-{% block title_block %} Sequence Annotation {% endblock %}
+{% block title_block %}Sequence Annotations{% endblock %}
 
 {% block tagline_block %}
 
@@ -55,8 +57,9 @@
                        placeholder="Enter a DOI">
                 <span class="input-group-btn">
                             <button class="btn btn-sm btn-primary resolver-submit" type="button"
-                                    style="background-image:none;">Resolve</button>
-                        </span>
+                                    style="background-image:none;">Resolve
+                            </button>
+                </span>
             </div>
         </div>
         <div class="col-sm-3 col-md-3 col-lg-3">
@@ -66,8 +69,9 @@
                 <span class="input-group-btn">
                             <button class="btn btn-sm btn-primary resolver-submit"
                                     type="button"
-                                    style="background-image:none;">Resolve</button>
-                        </span>
+                                    style="background-image:none;">Resolve
+                            </button>
+                </span>
             </div>
         </div>
         <div class="col-sm-3 col-md-3 col-lg-3"></div>
@@ -75,49 +79,22 @@
 
 
     <!-- getting started section -->
-    <!--div class="row">
-        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message" style="display: none;">
+    <div class="row">
+        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message"
+             style="display: none;">
             <div class="copo-webui-popover">
                 <div class="webui-popover-inner">
-                    <h3 class="copo-webui-popover-title">Publications - Getting started</h3>
+                    <h3 class="copo-webui-popover-title">Sequence Annotations - Getting started</h3>
                     <div class="copo-webui-popover-content">
                         <div class="webpop-content-div">
-                            The publications component of a profile associates relevant literature with
-                            the current work profile. <br/><br/>Click the
-                            <button class="circular tiny ui icon primary button">
-                                <i class="icon add sign"></i>
-                            </button>
-                            button to access available
-                            options for entering publication records:
-                            <ol>
-                                <li><strong>Manual Entry: </strong>
-                                    <p>Provides an empty publication form for record entry. This option can
-                                        be useful in situations such as when entering metadata for a paper that
-                                        hasn't yet been published,
-                                        or indexed by a public resource.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a DOI: </strong>
-                                    <p>Supply a valid DOI and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a PubMed ID: </strong>
-                                    <p>Supply a valid PubMed ID and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                            </ol>
-                            <div><strong>Quick Tour: </strong>To explore the various
-                                controls available on this page, click the
-                                <button class="circular tiny ui icon orange button">
-                                    <i class="icon lightbulb"></i>
+                            The sequence annotation's page provides a platform to marking specific features
+                            in a Deoxyribonucleic acid (DNA), Ribonucleic acid (RNA) or protein sequence with
+                            descriptive information about structure or function. It is usally performed after
+                            a genome is sequenced and assembled.
+                            <br/><br/>
+                            <div>To add annotations, click the
+                                <button class="circular tiny ui icon primary button">
+                                    <i class="icon table add"></i>
                                 </button>
                                 icon.
                             </div>
@@ -126,10 +103,11 @@
                 </div>
             </div>
         </div>
-    </div-->
+    </div>
 
     <!-- publication_table -->
-    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5" data-copo-tour-id="seqannotation_table"></div> <!-- div used by the quick tour agent -->
+    <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
+         data-copo-tour-id="seqannotation_table"></div> <!-- div used by the quick tour agent -->
     <div class="table-parent-div">
         <table id="seqannotation_table" class="ui celled table hover copo-noborders-table"
                cellspacing="0" width="100%">
@@ -145,8 +123,8 @@
 {% endblock %}
 
 {% block component_info %}
-<div style="display:none; margin-top: 30px; " id="annotation_info" class="alert alert-info"
-role="alert"></div>
+    <div style="display:none; margin-top: 30px; " id="annotation_info" class="alert alert-info"
+         role="alert"></div>
 {% endblock %}
 
 {% block js_block %}

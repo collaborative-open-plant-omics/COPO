@@ -73,3 +73,9 @@ th {
     --bs-gutter-x: 1.5rem;
     --bs-gutter-y: 0;
 }
+
+/* Filter accessions' checkboxes*/
+.accession_type_info_icon {
+    position: relative;
+    left: 4px;
+}

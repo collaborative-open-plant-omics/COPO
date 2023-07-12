@@ -9,7 +9,7 @@ $(document).ready(function () {
     var copoFormsURL = "/copo/copo_forms/";
     var copoVisualsURL = "/copo/copo_visualize/";
     var copoDeleteProfile = "/copo/delete_profile/"
-    var copoTolDashboardURL = "/copo/dashboard/"
+    var copoTolDashboardURL = "/copo/dashboard/tol"
     csrftoken = $.cookie('csrftoken');
 
     const componentMeta = get_component_meta(component);
@@ -17,7 +17,7 @@ $(document).ready(function () {
     $(document).on("click", "#accept_reject_shortcut", function (evt) {
         document.location = "/copo/accept_reject_sample"
     })
-    $(document).on("click", "#copo_dashboard_shortcut", function (evt) {
+    $(document).on("click", "#copo_tol_dashboard_shortcut", function (evt) {
         document.location = copoTolDashboardURL
     })
     $(document).on("click", ".expanding_menu > div", function (e) {
@@ -43,7 +43,7 @@ $(document).ready(function () {
             } else if (action_type === "files") {
                 url = "/copo/copo_files/" + id + "/view"
             } */ else {
-                url = "/copo/copo_" + action_type  + "/" + id + "/view"
+                url = "/copo/copo_" + action_type + "/" + id + "/view"
             }
             document.location = url
         }
@@ -642,7 +642,7 @@ $(document).ready(function () {
     // Show "tol_dashboard" button
     for (let g in groups) {
         if (groups[g].includes("sample_managers") || groups[g].includes("_users")) {
-            $("#copo_dashboard_shortcut").show()
+            $("#copo_tol_dashboard_shortcut").show()
             break;
         }
     }

@@ -7,7 +7,7 @@
 {% block title %}Tree of Life Inspection by Genome Acquisition Labs{% endblock %}
 
 {% block stylesheet_block %}
-    <link rel="stylesheet" href="{% static 'copo_dashboard/css/tol_inspect_gal.css' %}"/>
+    <link rel="stylesheet" href="{% static 'copo_tol_dashboard/css/tol_inspection_by_gal.css' %}"/>
     <style></style>
 {% endblock %}
 
@@ -28,21 +28,27 @@
         <div class="alert alert-info" style="min-width: 400px; min-height: 55px" role="alert">
             <span id="spinner" style="display:none" class="pull-right ui tiny active inline loader"></span>
             <div id="sub_spinner" class="pull-right ui tiny indeterminate inline loader"></div>
-            <p id="dtol_sample_info">Idle</p>
+            <p id="taxonomy_data_status">Idle</p>
         </div>
     </span>
 
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 display: inline;">
-            <h3 class="h3">Tree of Life (ToL) Inspection by Genome Acquisition Labs (GAL)
-                <button title="View TOL Inspection"
-                        class="big circular ui icon green button tol_inspect1 copo-tooltip ">
+            <h3 class="h3 page-header-width">
+                <div class="word-break">Tree of Life (ToL) Inspection by Genome Acquisition Labs (GAL)</div>
+                <button class="big circular ui icon green button tol_inspect copo-tooltip"
+                        title="View TOL Inspection">
                     <i class="icon clipboard list" style="font-size: 1.3em"></i>
                 </button>
-                <button id="copo_dashboard_shortcut"
-                        class="big circular ui icon yellow button copo_dashboard copo-tooltip"
-                        title="View COPO Dashboard">
+                <button id="copo_tol_dashboard_shortcut"
+                        class="big circular ui icon yellow button copo_tol_dashboard copo-tooltip"
+                        title="View COPO Tree of Life Dashboard">
                     <i class="icon dashboard" style="font-size: 1.3em"></i>
+                </button>
+                <button id="copo_accessions_dashboard_shortcut"
+                        title="View COPO Accessions' Dashboard"
+                        class="big circular ui icon pink button copo_accessions copo-tooltip">
+                    <i class="icon barcode" style="font-size: 1.3em"></i>
                 </button>
             </h3>
         </div>
@@ -72,9 +78,16 @@
             </div>
 
             <div>
-                <div id="taxonomyPieChartTabID" class="tabcontent">
+                <div id="taxonomyPieChartTabID" class="tabcontent" style="height: 480px!important;">
+                    <!--   Pie chart component loader -->
+                    <div class="piechart_component_loader">
+                        <div class="piechart_spinner ui huge_loader hidden inverted dimmer">
+                            <div class="ui text loader">Loading...</div>
+                        </div>
+                    </div>
+
                     <canvas id="pieChartID" class="chartjs-render-monitor"
-                            style="margin:0 auto 0 auto;height: 600px !important; width: 700px !important;"
+                            style="margin:0 auto;height: 480px; width: 600px; display:none;"
                             aria-label="taxonomy representation" role="figure">
                     </canvas>
                 </div>
@@ -83,7 +96,7 @@
                             aria-label="GAL sample goal percentage representation" role="figure">
                     </canvas>
                 </div>
-                <div id="taxonomyLevelsDivID" class="form-group center-div" style="padding-top: 20px;">
+                <div id="taxonomyLevelsDivID" class="form-group center-div" style="padding-top: 20px; display:none;">
                     <input class="form-control taxonomyLevel_fieldName active_taxonomy_level" value="ORDER_OR_GROUP"
                            readonly/>
                     <input class="form-control taxonomyLevel_fieldName" value="FAMILY" readonly/>
@@ -103,6 +116,6 @@
 {% block help_section %}{% endblock %}
 
 {% block js_block %}
-    <script src="{% static 'copo_dashboard/js/tol_inspect_gal.js' %}"></script>
+    <script src="{% static 'copo_tol_dashboard/js/tol_inspection_by_gal.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.0/chart.umd.js"></script>
 {% endblock %}

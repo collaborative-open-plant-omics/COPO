@@ -1,5 +1,4 @@
 th {
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 9;
@@ -68,4 +67,24 @@ td {
 canvas {
     width: 100%;
     object-fit: contain;
+}
+
+/*CSS for ToL inspection card*/
+.profile_titles_table_component_loader,
+.sample_table_component_loader {
+    display: flex;
+    justify-content: center;
+}
+
+.huge_loader:after,
+.huge_loader:before {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    margin: 0 0 0 -2.07142857rem
+}
+
+.huge_loader {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    font-size: 1.42857143em
 }

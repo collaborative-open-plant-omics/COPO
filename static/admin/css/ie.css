@@ -1,6 +1,6 @@
 /* IE 6 & 7 */
 
-/* Proper fixed width for dashboard in IE6 */
+/* Proper fixed width for tol_dashboard in IE6 */
 
 .dashboard #content {
     *width: 768px;

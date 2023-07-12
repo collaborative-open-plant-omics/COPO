@@ -565,7 +565,7 @@ function do_render_component_table(data, componentMeta) {
 
     set_empty_component_message(dataSet.length); //display empty component message when there's no record
 
-    if (dataSet.length == 0) {
+    if (dataSet.length === 0) {
         return false;
     }
 
@@ -665,7 +665,7 @@ function do_render_component_table(data, componentMeta) {
                 }
 
                 $(row).addClass(tableID + recordId);
-                var event = jQuery.Event("postcreatedrow", row=row, data=data, index=index); //individual compnents can trap and handle this event as they so wish
+                var event = jQuery.Event("postcreatedrow", row = row, data = data, index = index); //individual compnents can trap and handle this event as they so wish
                 $('body').trigger(event);
             },
 

@@ -1,4 +1,5 @@
 __author__ = 'fshaw'
+
 from django import template
 from django.contrib.auth.models import Group
 
@@ -55,3 +56,8 @@ def produce_submission_header(value):
 def check_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return group in user.groups.all()
+
+
+@register.filter("group_count")
+def group_count(user):
+    return len(user.groups.all())

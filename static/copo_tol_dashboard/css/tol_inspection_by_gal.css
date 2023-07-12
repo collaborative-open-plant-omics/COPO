@@ -5,7 +5,6 @@
 
 /*CSS for tables*/
 th {
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 9;
@@ -86,4 +85,35 @@ div.x-off-canvas .x-off-canvas-content {
 canvas {
     width: 100%;
     object-fit: contain;
+}
+
+.word-break {
+    word-break: break-word;
+}
+
+.page-header-width {
+    width: 350px;
+}
+
+/*CSS for GAL inspection card*/
+.piechart_component_loader {
+    display: flex;
+    justify-content: center;
+    /*position: absolute;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
+}
+
+.huge_loader:after,
+.huge_loader:before {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    margin: 0 0 0 -2.07142857rem
+}
+
+.huge_loader {
+    width: 4.14285714rem;
+    height: 4.14285714rem;
+    font-size: 1.42857143em
 }
