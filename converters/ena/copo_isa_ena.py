@@ -500,6 +500,7 @@ class Assay:
                     try:
                         properties[k] = getattr(Assay, "_" + k)(self, properties[k])
                     except Exception as e:
+                        Logger().exception(e)
                         print(e)
                         properties[k] = ISAHelpers().get_schema_key_type(properties.get(k, dict()))
 

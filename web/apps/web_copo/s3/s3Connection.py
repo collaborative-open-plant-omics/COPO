@@ -1,5 +1,5 @@
 import boto3
-#from boto3.session import Session
+# from boto3.session import Session
 from botocore.config import Config
 from django.conf import settings as s
 from botocore.exceptions import EndpointConnectionError
@@ -14,26 +14,29 @@ import logging
 from django.contrib.auth.models import User
 from io import BytesIO
 
+
 class S3Connection():
     """
     Class to handle interations with ECS cloud storage via s3 service
     """
 
     def __init__(self, profile_id=str()):
-        self.ecs_endpoint =  s.ECS_ENDPOINT
+        self.ecs_endpoint = s.ECS_ENDPOINT
         self.ecs_access_key_id = s.ECS_ACCESS_KEY_ID
         self.ecs_secret_key = s.ECS_SECRET_KEY
 
         self.expiration = 60 * 60 * 24
         self.path = '/'
         boto3.set_stream_logger(name='', level=logging.INFO, format_string=None)
-        self.s3_client = boto3.client('s3', endpoint_url=self.ecs_endpoint, #verify=False,
-                                      config=Config(signature_version='s3v4', connect_timeout=10, retries={"max_attempts":3}, s3={'addressing_style': "path"}),
+        self.s3_client = boto3.client('s3', endpoint_url=self.ecs_endpoint,  # verify=False,
+                                      config=Config(signature_version='s3v4', connect_timeout=10,
+                                                    retries={"max_attempts": 3}, s3={'addressing_style': "path"}),
                                       aws_access_key_id=self.ecs_access_key_id,
                                       aws_secret_access_key=self.ecs_secret_key)
-        #self.transport_params = {'client': self.s3_client}
-        Logger().debug(msg=f"endpoint: {self.ecs_endpoint}, access key: {self.ecs_access_key_id}, secret: {self.ecs_secret_key}")
- 
+        # self.transport_params = {'client': self.s3_client}
+        Logger().debug(
+            msg=f"endpoint: {self.ecs_endpoint}, access key: {self.ecs_access_key_id}, secret: {self.ecs_secret_key}")
+
     def list_buckets(self):
         response = self.s3_client.list_buckets()
         Logger().debug(msg=response['Buckets'])
@@ -55,16 +58,16 @@ class S3Connection():
     def get_object(self, bucket, key, loc):
         Logger().log("transfering file to: " + loc)
         KB = 1024
-        MB = KB * KB 
-        GB = KB * MB          
-        
-        config = TransferConfig(multipart_threshold=256 * MB, multipart_chunksize=128 * MB, io_chunksize= 32 * MB, max_concurrency=10, use_threads=True)
+        MB = KB * KB
+        GB = KB * MB
+
+        config = TransferConfig(multipart_threshold=256 * MB, multipart_chunksize=128 * MB, io_chunksize=32 * MB,
+                                max_concurrency=10, use_threads=True)
         self.s3_client.download_file(bucket, key, loc, Config=config)
-        
-        #with open(loc, 'wb') as data:
+
+        # with open(loc, 'wb') as data:
         #   self.s3_client.download_fileobj(bucket, key, data, Config=config)
         Logger().log("transfer complete: " + loc)
-  
 
     def get_presigned_url(self, bucket, key, expires_seconds=60 * 60 * 24):
         '''
@@ -75,8 +78,10 @@ class S3Connection():
         :return:
         '''
         try:
-            response = self.s3_client.generate_presigned_url('put_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=expires_seconds)
+            response = self.s3_client.generate_presigned_url('put_object', Params={'Bucket': bucket, 'Key': key},
+                                                             ExpiresIn=expires_seconds)
         except Exception as e:
+            Logger().exception(e)
             response = e
         return response
 
@@ -100,14 +105,14 @@ class S3Connection():
         :return: the bucket
         '''
 
-        #try:
+        # try:
         return self.s3_client.create_bucket(Bucket=str(bucket_name))
-    
-    
-        #except Exception as e:
+
+        # except Exception as e:
+        #    Logger().exception(e)
         #    response = "error"
         #    print(e)
-        #return bucket
+        # return bucket
 
     def check_s3_bucket_for_files(self, bucket_name, file_list):
         '''
@@ -116,24 +121,24 @@ class S3Connection():
         :param file_list: list of files to look for
         :return: a list containing the names of files _not_ found
         '''
-        try: 
+        try:
             try:
                 profile_id = get_current_request().session["profile_id"]
             except AttributeError:
                 profile_id = "xxxx"
-            #channels_group_name = "read_status_" + profile_id
+            # channels_group_name = "read_status_" + profile_id
 
             missing_files = list()
             etags = dict()
             # get objects in the supplied bucket name
             bucket_files = self.list_objects(bucket=bucket_name)
-            
+
             if not bucket_files:
                 msg = "Bucket not found: " + bucket_name
                 notify_read_status(data={"profile_id": profile_id}, msg=msg, action="info",
-                                html_id="sample_info")
+                                   html_id="sample_info")
                 return False
-            
+
             for f in file_list:
 
                 # if found, iterate list of given files to see if each if present in the bucket
@@ -144,7 +149,7 @@ class S3Connection():
                     file = file.strip()
 
                     notify_read_status(data={"profile_id": profile_id}, msg="Searching for: " + file, action="info",
-                                    html_id="sample_info")
+                                       html_id="sample_info")
                     # time.sleep(2)
                     for bucket_file in bucket_files:
 
@@ -161,20 +166,23 @@ class S3Connection():
             if len(missing_files) > 0:
                 # report missing files
                 notify_read_status(data={"profile_id": profile_id}, msg="Files Missing: " + str(
-                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions", action="error",
-                                html_id="sample_info")
+                    missing_files) + ". Please upload these by clicking on 'Upload Data into COPO' and following the instructions",
+                                   action="error",
+                                   html_id="sample_info")
                 # return false to halt execution
                 return False
             else:
                 return etags
 
         except KeyError as e:
-            notify_read_status(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e), action="info",
-                            html_id="sample_info")
+            notify_read_status(data={"profile_id": profile_id}, msg="Key Error Occured...cannot find key: " + str(e),
+                               action="info",
+                               html_id="sample_info")
             return False
         except Exception as e:
+            Logger().exception(e)
             notify_read_status(data={"profile_id": profile_id}, msg="An error occured: " + str(e), action="info",
-                            html_id="sample_info")
+                               html_id="sample_info")
             raise e
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
@@ -183,6 +191,6 @@ class S3Connection():
         for key in target_ids:
             self.s3_client.delete_object(Bucket=bucket_name, Key=key)
         return dict(status='success', message="File/s have been deleted!")
-    
+
     def upload_file(self, chunk, bucket=str(), filename=str()):
         self.s3_client.upload_fileobj(BytesIO(chunk), bucket, filename)

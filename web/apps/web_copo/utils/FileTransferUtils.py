@@ -134,7 +134,6 @@ def process_pending_file_transfers():
                     increment_status_counter(tx)
                 except Exception as e:
                     Logger().error("error downloading from ecs: " + str(e))
-                    Logger().exception(e)
                     reset_status_counter(tx)
             elif tx_status == 3:
                 increment_status_counter(tx)
@@ -263,7 +262,7 @@ class ToENA(threading.Thread):
         try:
             to_ena(webin_user, pass_word, self.tx["remote_path"], [self.tx["local_path"]], **kwargs)
         except Exception as e:
-            l.exception(e)
+            Logger().exception(e)
             record_error("error transfering to ENA: " + str(e))
             reset_status_counter(self.tx)
         # now check if active tasks can be marked False
@@ -298,6 +297,6 @@ def transfer_to_ena(tx):
             Logger().log("deleting file after check")
             os.remove(tx["local_path"])
     except Exception as e:
-        l.exception(e)
+        Logger().exception(e)
         record_error("error transfering to ENA: " + str(e))
         reset_status_counter(tx)

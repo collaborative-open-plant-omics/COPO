@@ -1,5 +1,6 @@
 from Bio import Entrez
 from django.core.management import BaseCommand
+from exceptions_and_logging.logger import Logger
 from tools import resolve_env
 from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS
 from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
@@ -142,6 +143,7 @@ class Command(BaseCommand):
             message = 'API call error ' + "Submitting xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
                 self.pass_word, "xxxxxx")
             print(message)
+            Logger().exception(e)
             return False
 
         os.remove(fileis)

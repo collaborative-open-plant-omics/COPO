@@ -1,6 +1,7 @@
 from django.core.management import BaseCommand
 from Bio import Entrez
-from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml,\
+from exceptions_and_logging.logger import Logger
+from web.apps.web_copo.utils.dtol.Dtol_Submission import build_specimen_sample_xml, \
     build_bundle_sample_xml, update_bundle_sample_xml
 import xml.etree.ElementTree as ET
 import subprocess
@@ -22,8 +23,8 @@ db.SourceCollection.aggregate([{"$group":{"_id": "$biosampleAccession", "count" 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
-    help="correct sources with duplicated biosampleAccession -" \
-         "provide comma separated list of duplicated biosample accessions in sources"
+    help = "correct sources with duplicated biosampleAccession -" \
+           "provide comma separated list of duplicated biosample accessions in sources"
     Entrez.email = "copo@earlham.ac.uk"
 
     def __init__(self):
@@ -34,7 +35,6 @@ class Command(BaseCommand):
             'submit/')] + "samples/"  # https://devwww.ebi.ac.uk/ena/submit/drop-box/samples/" \
         self.ena_report = resolve_env.get_env('ENA_ENDPOINT_REPORT')
 
-
     def add_arguments(self, parser):
         parser.add_argument('accessions', type=str)
 
@@ -42,14 +42,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         updates_to_make = options['accessions'].split(",")
         print(updates_to_make)
-        #query ENA to identify correct specimen id to be associated with biosample accession
+        # query ENA to identify correct specimen id to be associated with biosample accession
         for accession in updates_to_make:
-            #todo it's possible isntead of this use the receipt command to get the alias, which is the COPO _id
+            # todo it's possible isntead of this use the receipt command to get the alias, which is the COPO _id
             curl_cmd = "curl -u " + self.user_token + \
                        ':' + self.pass_word + " " + self.ena_sample_retrieval \
                        + accession
             registered_source = subprocess.check_output(curl_cmd, shell=True)
-            #print(registered_source)
+            # print(registered_source)
             root = ET.fromstring(registered_source)
             for sample in root.findall("SAMPLE"):
                 for attributeset in sample.findall("SAMPLE_ATTRIBUTES"):
@@ -61,18 +61,18 @@ class Command(BaseCommand):
             print("\n************************************************************************\n")
             source_list = da.Source().get_by_field("biosampleAccession", accession)
             for possible_source in source_list:
-                if possible_source["SPECIMEN_ID"]==correct_specimen:
+                if possible_source["SPECIMEN_ID"] == correct_specimen:
                     pass
                 else:
                     specimen_to_correct = possible_source["SPECIMEN_ID"]
-                    #retrieve information from the SRA accession instead
+                    # retrieve information from the SRA accession instead
                     curl_cmd = 'curl -m 300 -u ' + self.user_token + ':' + self.pass_word \
                                + ' ' + self.ena_report \
                                + possible_source["sraAccession"]
-                    #print(curl_cmd)
+                    # print(curl_cmd)
                     ena_receipt = subprocess.check_output(curl_cmd, shell=True)
-                    #print(ena_receipt)
-                    report = json.loads(ena_receipt.decode('utf8').replace("'",'"'))
+                    # print(ena_receipt)
+                    report = json.loads(ena_receipt.decode('utf8').replace("'", '"'))
                     correct_biosample = report[0]["report"].get("secondaryId", "")
                     print("************************************************************************\n")
                     print("source with SPECIMEN_ID ", specimen_to_correct, " correct biosample is ", correct_biosample)
@@ -82,33 +82,31 @@ class Command(BaseCommand):
                     oldvalue = accession
                     da.Source().record_manual_update("biosampleAccession", oldvalue, value, possible_source['_id'])
                     da.Source().add_field("biosampleAccession", value, possible_source['_id'])
-                    #correct children samples
-                    #identify all samples to be corrected
+                    # correct children samples
+                    # identify all samples to be corrected
                     samples_to_correct = da.Sample().get_sample_by_specimen_id(specimen_to_correct)
                     for sample in samples_to_correct:
-                        #todo local update in db as for source
+                        # todo local update in db as for source
                         if sample["ORGANISM_PART"] == "WHOLE_ORGANISM":
                             print("HERE**********************************************************8")
-                            #the relationship to update is sampleSameAs
+                            # the relationship to update is sampleSameAs
                             da.Sample().record_manual_update("sampleSameAs", oldvalue, value, sample["_id"])
                             da.Sample().add_field("sampleSameAs", value, sample["_id"])
                         else:
-                            #the relationship to update is sampleDerivedFrom
+                            # the relationship to update is sampleDerivedFrom
                             da.Sample().record_manual_update("sampleDerivedFrom", oldvalue, value, sample["_id"])
                             da.Sample().add_field("sampleDerivedFrom", value, sample["_id"])
                         # todo change function -this needs to be updated in ENA too-
                         self.update_sample(sample['_id'])
 
-
-
     def update_sample(self, sample):
-        #update ENA record
+        # update ENA record
         updatedrecord = da.Sample().get_record(sample)
-        #retrieve submitted XML for sample
-        #curl_cmd = "curl -u " + self.user_token + \
+        # retrieve submitted XML for sample
+        # curl_cmd = "curl -u " + self.user_token + \
         #           ':' + self.pass_word + " " + self.ena_sample_retrieval \
         #           + updatedrecord['biosampleAccession']
-        #registered_sample = subprocess.check_output(curl_cmd, shell=True)
+        # registered_sample = subprocess.check_output(curl_cmd, shell=True)
         #     #self.update_samplexml(registered_sample, updatedrecord['biosampleAccession'])
         build_bundle_sample_xml(str(updatedrecord['_id']))
         update_bundle_sample_xml([updatedrecord['_id']], "bundle_" + str(updatedrecord['_id']) + ".xml")
@@ -116,7 +114,7 @@ class Command(BaseCommand):
         self.modify_sample(updatedrecord['_id'])
 
     def modify_sample(self, id):
-        fileis = "bundle_"+ str(id)+ ".xml"
+        fileis = "bundle_" + str(id) + ".xml"
         curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
                    + ' -F "SUBMISSION=@modifysubmission.xml' \
                    + '" -F "SAMPLE=@' \
@@ -125,11 +123,11 @@ class Command(BaseCommand):
                    + '"'
         try:
             receipt = subprocess.check_output(curl_cmd, shell=True)
-            #print(receipt)
+            # print(receipt)
         except Exception as e:
             message = 'API call error ' + "Submitting xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
                 self.pass_word, "xxxxxx")
-            #print(message)
+            # print(message)
+            Logger().exception(e)
             return False
             os.remove(fileis)
-

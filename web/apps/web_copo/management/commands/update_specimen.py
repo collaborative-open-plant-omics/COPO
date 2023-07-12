@@ -1,6 +1,7 @@
 from dal import cursor_to_list
 from dal.copo_da import Source, Sample
 from django.core.management import BaseCommand
+from exceptions_and_logging.logger import Logger
 from tools import resolve_env
 from web.apps.web_copo.schema_versions.lookup.dtol_lookups import DTOL_ENA_MAPPINGS, DTOL_UNITS
 
@@ -218,6 +219,7 @@ class Command(BaseCommand):
         except Exception as e:
             message = 'API call error ' + "Submitting project xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
                 self.pass_word, "xxxxxx")
+            Logger().exception(e)
             return False
 
         os.remove(accession + ".xml")

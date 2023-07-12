@@ -1,4 +1,5 @@
 from django.core.management import BaseCommand
+from exceptions_and_logging.logger import Logger
 from Bio import Entrez
 from web.apps.web_copo.utils.dtol.Dtol_Submission import populate_source_fields, \
     build_specimen_sample_xml, build_submission_xml, submit_biosample
@@ -7,25 +8,23 @@ import subprocess
 from tools import resolve_env
 import os
 
-
 import dal.copo_da as da
-
 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
-    help="update taxonomy information of samples - " \
-         "provide comma separated biosamples:'new scientific name'"
+    help = "update taxonomy information of samples - " \
+           "provide comma separated biosamples:'new scientific name'"
     Entrez.email = "copo@earlham.ac.uk"
 
     def __init__(self):
         self.TAXONOMY_FIELDS = ["TAXON_ID", "ORDER_OR_GROUP", "FAMILY", "GENUS",
-                               "SCIENTIFIC_NAME", "COMMON_NAME", "TAXON_REMARKS",
+                                "SCIENTIFIC_NAME", "COMMON_NAME", "TAXON_REMARKS",
                                 "INFRASPECIFIC_EPITHET"]
         self.rankdict = {
             "order": "ORDER_OR_GROUP",
-            "family" : "FAMILY",
-            "genus" :  "GENUS"
+            "family": "FAMILY",
+            "genus": "GENUS"
         }
         self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
         self.user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
@@ -60,7 +59,7 @@ class Command(BaseCommand):
                 print(element, "may be a Source")
             print("**********************************************************************************")
         for sample in samplesindb:
-            #retrieve new taxonomy information
+            # retrieve new taxonomy information
             scientific_name = d_updates[sample["biosampleAccession"]]
             taxonomyinfo = self.query_taxonomy(scientific_name)
             taxonomy = taxonomyinfo['LineageEx']
@@ -72,7 +71,6 @@ class Command(BaseCommand):
             else:
                 source_biosample = sample.get("sampleSameAs")
             self.update_specsampletaxonomy(source_biosample, taxon, barcoding)
-
 
     def query_taxonomy(self, scientific_name):
         handle = Entrez.esearch(db="Taxonomy", term=scientific_name)
@@ -87,7 +85,7 @@ class Command(BaseCommand):
         return records[0]
 
     def update_sampletaxonomy(self, sample, taxonomy, taxon, name, barcoding):
-        #update db record
+        # update db record
         out = dict()
         for item in taxonomy:
             if item['Rank'] in self.rankdict:
@@ -109,31 +107,29 @@ class Command(BaseCommand):
                     da.Sample().record_manual_update(tax_field, oldvalue, newvalue, sample)
         da.Sample().add_field("species_list.0", out, sample)
 
-        #query public name (skip this for now)
+        # query public name (skip this for now)
 
-        #update ENA record
+        # update ENA record
         updatedrecord = da.Sample().get_record(sample)
-        #todo retrieve sample from xml
-        #retrieve submitted XML for sample
+        # todo retrieve sample from xml
+        # retrieve submitted XML for sample
         curl_cmd = "curl -u " + self.user_token + \
                    ':' + self.pass_word + " " + self.ena_sample_retrieval \
                    + updatedrecord['biosampleAccession']
         registered_sample = subprocess.check_output(curl_cmd, shell=True)
 
-
         self.update_samplexml(registered_sample, out['TAXON_ID'], updatedrecord['biosampleAccession'])
 
-
     def update_specsampletaxonomy(self, accession, taxon, barcoding):
-        #update db record
+        # update db record
         source = da.Source().get_by_field("biosampleAccession", accession)
-        assert len(source)==1
+        assert len(source) == 1
         if barcoding:
             da.Source().record_barcoding_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
         else:
             da.Source().record_manual_update("TAXON_ID", source[0]["TAXON_ID"], taxon, source[0]['_id'])
         da.Source().add_field("TAXON_ID", taxon, source[0]['_id'])
-        #update ENA record
+        # update ENA record
         updatedrecord = da.Source().get_record(source[0]['_id'])
         # retrieve submitted XML for source
         curl_cmd = "curl -u " + self.user_token + \
@@ -142,8 +138,6 @@ class Command(BaseCommand):
         registered_specimen = subprocess.check_output(curl_cmd, shell=True)
 
         self.update_samplexml(registered_specimen, updatedrecord['TAXON_ID'], updatedrecord['biosampleAccession'])
-
-
 
     def modify_sample(self, accession):
         curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
@@ -159,12 +153,13 @@ class Command(BaseCommand):
             message = 'API call error ' + "Submitting xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
                 self.pass_word, "xxxxxx")
             print(message)
+            Logger().exception(e)
             return False
 
         os.remove(accession + ".xml")
 
-    def update_samplexml(self, registered_sample, new_taxon , accession):
-        #only thing to update in ENA is taxon ID
+    def update_samplexml(self, registered_sample, new_taxon, accession):
+        # only thing to update in ENA is taxon ID
         doc = ET.fromstring(registered_sample)
         tree = ET.ElementTree(doc)
         name_block = tree.find('SAMPLE').find('SAMPLE_NAME')

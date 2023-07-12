@@ -6,11 +6,10 @@ import glob
 import json
 import os
 import xml.etree.ElementTree as ET
-
 import pandas as pd
-from django.core.management.base import BaseCommand
-
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
+from django.core.management.base import BaseCommand
+from exceptions_and_logging.logger import Logger
 from dal.copo_base_da import DataSchemas
 from dal.mongo_util import get_collection_ref
 from web.apps.web_copo.lookup.resolver import RESOLVER
@@ -62,6 +61,7 @@ class Command(BaseCommand):
             df = pd.read_csv(os.path.join(drop_downs_pth, 'crp_list.csv'))
         except Exception as e:
             self.stdout.write(self.style.ERROR('Error retrieving schema resource: ' + str(e)))
+            Logger().exception(e)
             return False
 
         # ﻿'Platform_no', 'Operating_name', 'Official_name', 'Standard_reference', 'Lead_center', 'Class'
@@ -82,6 +82,7 @@ class Command(BaseCommand):
                 json.dump(result, fout)
         except Exception as e:
             self.stdout.write(self.style.ERROR('Error writing crp_list.json: ' + str(e)))
+            Logger().exception(e)
             return False
 
         return True
@@ -105,6 +106,7 @@ class Command(BaseCommand):
                 Lookups.insert_many(result_df.to_dict('records'))
             except Exception as e:
                 print(e)
+                Logger().exception(e)
 
     def agrovoc_datasource(self):
         """

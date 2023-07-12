@@ -1,18 +1,16 @@
 from django.core.management import BaseCommand
-
+from exceptions_and_logging.logger import Logger
 import xml.etree.ElementTree as ET
 import subprocess
 from tools import resolve_env
 import os
 
-
 import dal.copo_da as da
-
 
 
 # The class must be named Command, and subclass BaseCommand
 class Command(BaseCommand):
-    help="script to update checksums"
+    help = "script to update checksums"
 
     def __init__(self):
         self.pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
@@ -28,7 +26,7 @@ class Command(BaseCommand):
     # A command must define handle()
     def handle(self, *args, **options):
         update_dict = {}
-        #build dictionary of cheksums
+        # build dictionary of cheksums
         checksum_dict = {}
         with open("/home/minottoa/adammd5toupdate.chk", 'r') as checksums_file:
             for line in checksums_file.readlines():
@@ -36,11 +34,11 @@ class Command(BaseCommand):
                 checksum_dict[line[1]] = line[0]
         profile = da.Profile().get_by_title(options['profile_title'].strip())
         assert len(profile) == 1
-        profile_id = profile[0].get('_id',"")
+        profile_id = profile[0].get('_id', "")
         print(profile_id)
         submission = da.Submission().get_records_by_field("profile_id", str(profile_id))
         assert len(submission) == 1
-        runs = submission[0].get("accessions","").get("run", "")
+        runs = submission[0].get("accessions", "").get("run", "")
         bundle_meta = submission[0].get("bundle_meta", "")
         for run in runs:
             accession = run.get("accession", "")
@@ -64,7 +62,6 @@ class Command(BaseCommand):
 
             self.update_samplexml(registered_run, update_dict[run], run)
 
-
     def modify_run(self, run):
         curl_cmd = 'curl -u ' + self.user_token + ':' + self.pass_word \
                    + ' -F "SUBMISSION=@modifysubmission.xml' \
@@ -79,11 +76,12 @@ class Command(BaseCommand):
             message = 'API call error ' + "Submitting xml to ENA via CURL. CURL command is: " + curl_cmd.replace(
                 self.pass_word, "xxxxxx")
             print(message)
+            Logger().exception(e)
             return False
         os.remove(run + ".xml")
 
     def update_samplexml(self, registered_sample, updatedict, run):
-        #only thing to update in ENA is checksums
+        # only thing to update in ENA is checksums
         doc = ET.fromstring(registered_sample)
         tree = ET.ElementTree(doc)
         name_block = tree.find('RUN').find('DATA_BLOCK')
@@ -97,6 +95,7 @@ class Command(BaseCommand):
         tree.write(open(run + ".xml", 'w'), encoding='unicode')
 
         self.modify_run(run)
+
 
 '''<RUN_SET>
   <RUN accession="ERR7224572"
