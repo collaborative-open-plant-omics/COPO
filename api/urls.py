@@ -65,6 +65,8 @@ dtol_api_patterns = [
 stats_api_patterns = [
     re_path(r'stats/number_of_users', stats.get_number_of_users,
             name='get_number_of_users'),
+    re_path(r'stats/number_of_dtol_samples', stats.get_number_of_dtol_samples,
+            name='get_number_of_dtol_samples'),
     re_path(r'stats/number_of_samples', stats.get_number_of_samples,
             name='get_number_of_samples'),
     re_path(r'stats/number_of_profiles', stats.get_number_of_profiles,

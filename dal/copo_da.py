@@ -1032,14 +1032,10 @@ class Sample(DAComponent):
         return self.get_collection_handle().find({"tol_project": {"$in": ["ASG", "DTOL"]}})
 
     def get_number_of_dtol_samples(self):
-        return self.get_collection_handle().count(
-            {"sample_type": "dtol"}
-        )
+        return self.get_collection_handle().count({"sample_type": "dtol"})
 
     def get_number_of_samples(self):
-        return self.get_collection_handle().count({
-
-        })
+        return self.get_collection_handle().count({})
 
     def get_accessions(self, profile_id, isSampleProfileTypeStandalone, isUserProfileActive):
         if isSampleProfileTypeStandalone:
