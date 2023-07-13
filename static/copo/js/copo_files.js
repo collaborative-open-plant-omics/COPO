@@ -206,7 +206,8 @@ function upload_files(files) {
         $("#ss_upload_spinner").fadeOut("fast")
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.responseText
+            message: "Error " + data.status + ": " + data.responseText,
+            type: BootstrapDialog.TYPE_DANGER
         });
 
     }).done(function (data) {

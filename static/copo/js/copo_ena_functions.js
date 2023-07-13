@@ -24,10 +24,9 @@ $(document).ready(function () {
             d = JSON.parse(e.data)
             if (!d && $("#" + d.html_id).is(":visible")) {
                 $("#" + d.html_id).fadeOut("50")
-            }
-            else if (d && d.message && !$("#" + d.html_id).is(":visible")) {
+            } else if (d && d.message && !$("#" + d.html_id).is(":visible")) {
                 $("#" + d.html_id).fadeIn("50")
-            }          
+            }
             $("#" + d.html_id).html(d.message)
             if (d.action === "info") {
                 // show something on the info div
@@ -79,7 +78,7 @@ $(document).ready(function () {
                 $("#sample_parse_table").DataTable().draw()
                 $("#tabs").fadeIn()
                 $("#ena_finish_button").fadeIn()
-            }      
+            }
         }
         window.addEventListener("beforeunload", function (event) {
             s3socket.close()
@@ -130,17 +129,17 @@ $(document).ready(function () {
 
         })
 
-        $(document).on("click", "#copy_urls_button", function(evt) {
-              //  $("#command_area").select()
-                navigator.clipboard.writeText($("#command_area").text());
-         })
+        $(document).on("click", "#copy_urls_button", function (evt) {
+            //  $("#command_area").select()
+            navigator.clipboard.writeText($("#command_area").text());
+        })
 
 
     }
 )
 
 
-function upload_spreadsheet(file = file) {    
+function upload_spreadsheet(file = file) {
     $("#upload_label").fadeOut("fast")
     $("#ss_upload_spinner").fadeIn("fast")
     $("#warning_info").fadeOut("fast")
@@ -179,12 +178,13 @@ function upload_spreadsheet(file = file) {
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.responseText
+            message: "Error " + data.status + ": " + data.responseText,
+            type: BootstrapDialog.TYPE_DANGER
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
         $("#presigned_urls_modal_button").prop('disabled', false);
-        $("#upload_label").fadeIn()        
+        $("#upload_label").fadeIn()
 
     })
 }

@@ -1386,6 +1386,7 @@ def get_subsample_stages(request):
 def sample_spreadsheet(request, report_id=""):
     file = request.FILES["file"]
     name = file.name
+    fmt = ""
     if "profile_id" in request.POST:
         p_id = request.POST["profile_id"]
     else:
@@ -1397,8 +1398,10 @@ def sample_spreadsheet(request, report_id=""):
         fmt = 'csv'
 
     if fmt not in ["xls", "csv"]:
-        l.log("ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
-        pass
+        msg = "Unrecognised file format for spreadsheet. " \
+              "File format should be either <strong>.xls</strong>, <strong>.xlsx</strong> or <strong>.csv</strong>."
+        l.log("Ajax handlers: 1324 - unrecognised file format for spreadsheet", type=Logtype.FILE)
+        return HttpResponse(status=400, content=msg)
 
     if dtol.loadManifest(m_format=fmt):
         srlz_dtol = pickle.dumps(dtol.file)

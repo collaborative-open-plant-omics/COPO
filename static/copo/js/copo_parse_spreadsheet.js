@@ -56,7 +56,8 @@ function upload_image_files(file) {
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.statusText
+            message: "Error " + data.status + ": " + data.statusText,
+            type: BootstrapDialog.TYPE_DANGER
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
@@ -103,7 +104,8 @@ function upload_permit_files(file) {
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.statusText
+            message: "Error " + data.status + ": " + data.statusText,
+            type: BootstrapDialog.TYPE_DANGER
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")
@@ -153,7 +155,8 @@ function upload_spreadsheet(upload_type = upload_type, file = file) {
         console.error(data)
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.statusText
+            message: "Error " + data.status + ": " + data.responseText,
+            type: BootstrapDialog.TYPE_DANGER
         });
     }).done(function (data) {
         $("#ss_upload_spinner").fadeOut("fast")

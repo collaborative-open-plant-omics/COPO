@@ -7,18 +7,18 @@ var dialog = new BootstrapDialog({
         label: 'Upload Read Manifest',
         cssClass: 'btn-primary',
         title: 'Upload Read Manifest',
-        action: function(){
+        action: function () {
             document.getElementById('file').click();
             //upload_spreadsheet($('#file').prop('files')[0])
 
         }
-    },{
+    }, {
         id: 'save_read_button',
         label: 'Finish',
         cssClass: 'btn-primary',
         title: 'Finish',
         disabled: true,
-        action: function(){
+        action: function () {
             var $button = this; // 'this' here is a jQuery object that wrapping the <button> DOM element.
             $button.disable();
             $button.spin();
@@ -28,10 +28,10 @@ var dialog = new BootstrapDialog({
         }
     }, {
         label: 'Close',
-        action: function(dialogItself){
+        action: function (dialogItself) {
             dialogItself.close();
         }
-    }]               
+    }]
 });
 
 $(document).ready(function () {
@@ -63,15 +63,14 @@ $(document).ready(function () {
             elem = $(".modal-dialog").find("#" + d.html_id)
             if (elem) {
                 element = elem
-            }        
-        }  
+            }
+        }
 
         if (!d && !$(element).is(":hidden")) {
             $(element).fadeOut("50")
-        }
-        else if (d && d.message && $(element).is(":hidden")) {
+        } else if (d && d.message && $(element).is(":hidden")) {
             $(element).fadeIn("50")
-        }          
+        }
         //$("#" + d.html_id).html(d.message)
         if (d.action === "info") {
             // show something on the info div
@@ -129,13 +128,13 @@ $(document).ready(function () {
             globalDataBuffer = d.data;
             var event = jQuery.Event("refreshtable");
             $('body').trigger(event);
-        }    
+        }
     }
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()
     });
 
-    
+
     //******************************Event Handlers Block*************************//
     var component = "taggedseq";
     var copoFormsURL = "/copo/copo_forms/";
@@ -166,20 +165,20 @@ $(document).ready(function () {
 
     //add new component button
     $(document).on("click", ".new-reads-spreadsheet-template", function (event) {
-        url =  "/copo/ena_read_manifest_validate/" + uid
+        url = "/copo/ena_read_manifest_validate/" + uid
         dialog.realize();
         dialog.setMessage($('<div></div>').load(url));
-        dialog.open();   
+        dialog.open();
         dialog.getButton('save_read_button').disable();
-        
-        $('.modal-dialog').find("#file").on("change", (function(event) {
+
+        $('.modal-dialog').find("#file").on("change", (function (event) {
             dialog.getButton('upload_read_manifest_button').disable();
             dialog.getButton('upload_read_manifest_button').spin();
             dialog.setClosable(false);
-            upload_spreadsheet( $(this).prop('files')[0])
+            upload_spreadsheet($(this).prop('files')[0])
 
         }));
- 
+
     });
 
     //details button hover
@@ -207,45 +206,43 @@ $(document).ready(function () {
 
         //add task
         if (task == "add") {
-            url = "/copo/ena_annotation/"+uid 
+            url = "/copo/ena_annotation/" + uid
             handle_add_n_edit(url)
-        }
-        else if (task == "edit") {
-            url = "/copo/ena_annotation/"+uid+"/"+records[0].record_id  
+        } else if (task == "edit") {
+            url = "/copo/ena_annotation/" + uid + "/" + records[0].record_id
             handle_add_n_edit(url)
-        }
-        else {
+        } else {
             form_generic_task("sample", task, records);
         }
-       
+
     }
 
 
     $('body').on('posttablerefresh', function (event) {
-        table = $('#'+ component + '_table').DataTable();
+        table = $('#' + component + '_table').DataTable();
         var numCols = $('#' + component + '_table thead th').length;
         table.rows()
-        .nodes()
-        .to$()
-        .addClass( 'highlight_accession' );
+            .nodes()
+            .to$()
+            .addClass('highlight_accession');
 
-        for (var i=1; i<=numCols; i++) {
-            if ( $(table.column(i).header()).text() == 'SUBMISSION STATUS' ) {
+        for (var i = 1; i <= numCols; i++) {
+            if ($(table.column(i).header()).text() == 'SUBMISSION STATUS') {
 
-                var no_accessiion_indexes = table.rows().eq( 0 ).filter( function (rowIdx) {
-                    return table.cell( rowIdx, i ).data() != 'accepted' ? true : false;
-                } );
-                table.rows( no_accessiion_indexes )
-                .nodes()
-                .to$()
-                .addClass( 'highlight_no_accession' );
-                break  
+                var no_accessiion_indexes = table.rows().eq(0).filter(function (rowIdx) {
+                    return table.cell(rowIdx, i).data() != 'accepted' ? true : false;
+                });
+                table.rows(no_accessiion_indexes)
+                    .nodes()
+                    .to$()
+                    .addClass('highlight_no_accession');
+                break
             }
         }
-    }) 
+    })
 });
 
-function upload_spreadsheet(file) {    
+function upload_spreadsheet(file) {
     $("#warning_info").fadeOut("fast")
     $("#warning_info2").fadeOut("fast")
     var csrftoken = $.cookie('csrftoken');
@@ -282,7 +279,8 @@ function upload_spreadsheet(file) {
         /*
         BootstrapDialog.show({
             title: 'Error',
-            message: "Error " + data.status + ": " + data.responseText
+            message: "Error " + data.status + ": " + data.responseText,
+            type: BootstrapDialog.TYPE_DANGER
         });
         */
     }).done(function (data) {
@@ -304,9 +302,9 @@ function save_read_data() {
         do_crud_action_feedback(result_dict);
         dialog.close()
         globalDataBuffer = data;
-        
-        if (data.hasOwnProperty  ("table_data")) {
-            
+
+        if (data.hasOwnProperty("table_data")) {
+
             var event = jQuery.Event("refreshtable");
             $('body').trigger(event);
         }

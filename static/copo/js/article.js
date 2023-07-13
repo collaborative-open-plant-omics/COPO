@@ -16,7 +16,7 @@ $(document).ready(function () {
     $('#input_text').on("keypress", save_tags);
 
 
-    function modal_setup_handler(){
+    function modal_setup_handler() {
         $('#fileupload')[0].reset();
         $('#files').empty()
     }
@@ -94,7 +94,8 @@ function save_article(e) {
         //show do not submit alert
         BootstrapDialog.show({
             title: 'Error',
-            message: 'Please enter a description'
+            message: 'Please enter a description',
+            type: BootstrapDialog.TYPE_DANGER
         });
         return false
     }
@@ -102,7 +103,8 @@ function save_article(e) {
         //show do not submit alert
         BootstrapDialog.show({
             title: 'Error',
-            message: 'Please enter some tags'
+            message: 'Please enter some tags',
+            type: BootstrapDialog.TYPE_DANGER,
         });
         return false
     }

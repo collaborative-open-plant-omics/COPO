@@ -95,8 +95,8 @@ class ProcessValidationQueue:
 
             notify_frontend(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
                             html_id="sample_info")
-            try:
 
+            try:
                 self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
                 '''
                 for column in self.allowed_empty:
@@ -105,6 +105,16 @@ class ProcessValidationQueue:
                 self.data = self.data.apply(lambda x: x.astype(str))
                 self.data = self.data.apply(lambda x: x.str.strip())
                 self.data.columns = self.data.columns.str.replace(" ", "")
+
+                # validate for an empty manifest/excel file
+                if len(self.data.index) == 0 or len(self.data.columns) == 0:
+                    msg = "<h4>" + self.file_name + "</h4><ol><li>Manifest uploaded is empty</li></ol>"
+                    notify_frontend(data={"profile_id": self.profile_id},
+                                    msg=msg,
+                                    action="error",
+                                    html_id="sample_info")
+                    Logger().error(msg)
+                    return False
             except Exception as e:
                 # if error notify via web socket
                 notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),

@@ -192,6 +192,7 @@ class DtolSpreadsheet:
                 elif m_format == "csv":
                     self.data = pandas.read_csv(self.file, keep_default_na=False,
                                                 na_values=lookup.NA_VALS)
+
                 self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
                 '''
                 for column in self.allowed_empty:
@@ -202,10 +203,10 @@ class DtolSpreadsheet:
                 self.data.columns = self.data.columns.str.replace(" ", "")
             except Exception as e:
                 # if error notify via web socket
-                Logger().exception(e)
                 notify_frontend(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
-                                action="info",
+                                action="error",
                                 html_id="sample_info")
+                Logger().exception(e)
                 return False
             return True
 
