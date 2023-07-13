@@ -73,6 +73,7 @@ def process_pending_dtol_samples():
         file_subfix = str(uuid.uuid4())  # use this to recover bundle sample file
         build_bundle_sample_xml(file_subfix)
         s_ids = []
+        specimenID_lst = list()  # list of specimen IDs
         # check for public name with Sanger Name Service
         public_name_list = list()
         rejected_sample = {}
@@ -335,8 +336,10 @@ def process_pending_dtol_samples():
 
             # Transfer permit files to b2drop
             sample_permits_directory = os.path.join(sample_permits_directory_path, profile_id)
-
-            if os.path.exists(sample_permits_directory):  # Check if sample permits directory exists
+            
+            # Check if sample permits directory exists and if specimen accession is not in the list of specimen IDs
+            if not sam["SPECIMEN_ID"] in specimenID_lst and os.path.exists(
+                    sample_permits_directory):  # Check if sample permits directory exists
                 taxonID_directory = os.path.join(b2drop_permits_directory_path, sam["TAXON_ID"])
                 for col_name in PERMIT_FILENAME_COLUMN_NAMES:
                     # Skip if permit filename column is empty
@@ -345,7 +348,7 @@ def process_pending_dtol_samples():
                         continue
 
                     # Get actual permit filename
-                    permit_file = b2drop_filename[:-27] + ".pdf"
+                    permit_file = b2drop_filename.replace(f"_{b2drop_filename.split('_')[-1]}", ".pdf")
                     permit_file_path = os.path.join(sample_permits_directory, permit_file)
                     permit_type = col_name.replace("_PERMITS_FILENAME", " Permit").title()
 
@@ -383,6 +386,9 @@ def process_pending_dtol_samples():
                             readmeFile.write(
                                 sam["SPECIMEN_ID"] + "  " + permit_type.replace(" ", "_") + "  " + sam.get(
                                     col_name, "") + "\n")
+
+                        # Add specimen ID to list
+                        specimenID_lst.append(sam["SPECIMEN_ID"])
 
                     except Exception as error:
                         print("Error:", error)

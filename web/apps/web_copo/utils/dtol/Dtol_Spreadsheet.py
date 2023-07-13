@@ -3,7 +3,6 @@ import inspect
 import math
 import os
 import re
-import shortuuid
 import uuid
 import pickle
 from os.path import join, isfile
@@ -578,8 +577,8 @@ class DtolSpreadsheet:
         # Iterate the list of permit filenames and create a mapping
         for permit_filename in permit_filename_lst:
             if permit_filename.endswith(".pdf"):
-                uniqueID = shortuuid.ShortUUID().random(length=22)
-                new_permit_filename = permit_filename.replace('.pdf', "_" + uniqueID + ".pdf")
+                current_date = d_utils.get_datetime().strftime('%Y%m%d')
+                new_permit_filename = permit_filename.replace('.pdf', "_" + str(current_date) + ".pdf")
                 permit_filename_mapping[permit_filename] = new_permit_filename
 
         sample_data["_id"] = ""
@@ -696,8 +695,8 @@ class DtolSpreadsheet:
         # Iterate the list of permit filenames and create a mapping
         for permit_filename in permit_filename_lst:
             if permit_filename.endswith(".pdf"):
-                uniqueID = shortuuid.ShortUUID().random(length=22)
-                new_permit_filename = permit_filename.replace('.pdf', "_" + uniqueID + ".pdf")
+                current_date = d_utils.get_datetime().strftime('%Y%m%d')
+                new_permit_filename = permit_filename.replace('.pdf', "_" + str(current_date) + ".pdf")
                 permit_filename_mapping[permit_filename] = new_permit_filename
 
         for p in range(0, len(sample_data)):
