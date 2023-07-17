@@ -31,7 +31,7 @@
         <!-- hidden attributes  -->
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
         <input type="hidden" id="nav_component_name" value="taggedseq"/>
-        <!--input type="hidden" id="blank_manifest_url" value="{{  'BARCODING_'|get_blank_manifest_url  }}"/>  }}"/-->
+        <input type="hidden" id="blank_manifest_url" value="">
         {% for checklist in checklists %}
             <input type="hidden" id="blank_manifest_url_{{checklist.primary_id}}" value="{{ checklist.primary_id  | get_blank_manifest_url  }}"/>  }}"
         {% endfor %}
@@ -93,57 +93,36 @@
 
 
     <!-- getting started section -->
-    <!--div class="row">
+    <div class="row">
         <div class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-0 page-welcome-message" style="display: none;">
             <div class="copo-webui-popover">
                 <div class="webui-popover-inner">
-                    <h3 class="copo-webui-popover-title">Publications - Getting started</h3>
+                    <h3 class="copo-webui-popover-title">Barcoding Manifest - Getting started</h3>
                     <div class="copo-webui-popover-content">
                         <div class="webpop-content-div">
-                            The read component of a profile  <br/><br/>Click the
-                            <button class="circular tiny ui icon primary button">
-                                <i class="icon add sign"></i>
+                            The Barcode Manifest component of a profile  <br/><br/>Select the correct 
+                            checklist and then click the
+                            <button class="circular tiny ui icon brown  button">
+                                <i class="icon download sign"></i>
                             </button>
-                            button to access available
-                            options for entering publication records:
-                            <ol>
-                                <li><strong>Manual Entry: </strong>
-                                    <p>Provides an empty publication form for record entry. This option can
-                                        be useful in situations such as when entering metadata for a paper that
-                                        hasn't yet been published,
-                                        or indexed by a public resource.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a DOI: </strong>
-                                    <p>Supply a valid DOI and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                                <li><strong>Enter a PubMed ID: </strong>
-                                    <p>Supply a valid PubMed ID and click on the resolve button. If the resolution is
-                                        successful, the metadata for the paper will be automatically filled out in the
-                                        publication form. Make sure to verify the resolved record, for correctness,
-                                        before
-                                        proceeding to save it.
-                                    </p>
-                                </li>
-                            </ol>
-                            <div><strong>Quick Tour: </strong>To explore the various
+                            button to download the blank manfiest.  Once complete the manifest, you can click 
+                            <button class="circular tiny ui icon green  button">
+                                <i class="icon table sign"></i>
+                            </button>
+                            button to upload the manifest. 
+                            <!--div><strong>Quick Tour: </strong>To explore the various
                                 controls available on this page, click the
                                 <button class="circular tiny ui icon orange button">
                                     <i class="icon lightbulb"></i>
                                 </button>
                                 icon.
-                            </div>
+                            </div-->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div-->
+    </div>
 
 
     <div id="uploadModal" class="modal fade" role="dialog">

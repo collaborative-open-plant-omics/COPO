@@ -34,6 +34,10 @@ import glob
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 l = logger.Logger()
 import uuid
+import pandas as pd
+from django.conf import settings
+from openpyxl.utils.cell import get_column_letter
+
 
 class EnaTaggedSequence:
     pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
@@ -213,7 +217,46 @@ class EnaTaggedSequence:
             TaggedSequenceChecklist().get_collection_handle().find_one_and_update({"primary_id": checklist["primary_id"]},
                                                                             {"$set": checklist},
                                                                             upsert=True)
-            
+            df = pd.DataFrame.from_dict(list(checklist["fields"].values()), orient='columns')
+            df1 = df
+            df.loc[df["mandatory"] == "mandatory", "name"] = df["name"]
+            df.loc[df["mandatory"] != "mandatory", "name"] = "[ " +  df["name"] + " ]"
+            df1 = df.transpose()
+
+            version = settings.MANIFEST_VERSION.get(checklist["primary_id"], str())
+            if version:
+                version = "_v" + version
+            checklist_filename = os.path.join(settings.MANIFEST_PATH, settings.MANIFEST_FILE_NAME.format(checklist["primary_id"], version)  )
+            with pd.ExcelWriter(path=checklist_filename, engine='xlsxwriter' ) as writer:  
+                sheet_name = checklist["primary_id"] + " " + checklist["name"]
+                df1.loc[["name"]].to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+
+                df1.columns = df1.iloc[0] 
+                for field in checklist["fields"].values():
+                    name = field["name"] if field["mandatory"] == "mandatory" else "[ " + field["name"] + " ]"
+                    column_index = df1.columns.get_loc(name)
+                    column_length = len(name)
+                    writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
+
+                    if "choice" in field:
+                        choice = field["choice"]
+                        if len(choice) > 0:
+                            column_letter = get_column_letter(column_index + 1)
+                            cell_start_end = '%s2:%s1048576' % (column_letter, column_letter)
+                            writer.sheets[sheet_name].data_validation(cell_start_end,
+                                                                    {'validate': 'list',
+                                                                    'source': choice})
+                            
+                sheet_name = 'field_descriptions'           
+                df.to_excel(writer, sheet_name=sheet_name)
+
+                for column in df.columns:
+                    column_length = max(df[column].astype(str).map(len).max(), len(column))
+                    column_index = df.columns.get_loc(column)+1
+                    writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
+
+
+
     def get_mandatory_field(self, checklist):
         mandatory_fields = []
         for field in checklist["fields"]:
@@ -265,7 +308,10 @@ class EnaTaggedSequence:
                 record["checklist_id"] = request.session["checklist_id"]
 
                 for key, value in s.items():
-                    upper_key = key.upper()
+                    header = key
+                    header = header.replace("[ ", "",1)
+                    header = header.replace(" ]", "",-1)
+                    upper_key = header.upper()
                     if upper_key in column_name_mapping:
                         record[column_name_mapping[upper_key]] = value
 
@@ -357,6 +403,11 @@ class EnaTaggedSequence:
             action_type = ET.SubElement(action, 'HOLD')
             action_type.set("HoldUntilDate", release_date["release_date"])
 
+        else:
+            actions = root.find('ACTIONS')
+            action = ET.SubElement(actions, 'ACTION')
+            action_type = ET.SubElement(action, 'RELEASE')
+
         return self._write_xml_file(xml_object=root, file_name="submission.xml")
 
 
@@ -377,7 +428,7 @@ class EnaTaggedSequence:
         if add != None:
             action.remove(add)
         modify = ET.SubElement(action, 'MODIFY')
-        
+
         return self._write_xml_file(xml_object=root, file_name="submission_edit.xml")
 
     def _write_xml_file(self, location=str(), xml_object=None, file_name=str()):
@@ -473,17 +524,19 @@ class EnaTaggedSequence:
                 self._remove_accessed_tagged_seqs(sub["_id"], accessed_tagged_seqs)
 
                 for checklist_id, tagged_seqs_per_checklist in tagged_seqs_map.items():
-                    # validate tagged seqs                    
-                    notify_tagged_seq_status(data={"profile_id": sub["profile_id"]}, msg="Validating barcoding sequence......" , action="info", html_id="tagged_seq_info")
-                    context = self._validate_tagged_seq(sub["profile_id"], str(sub["_id"]), project_accession["accession"], checklist_id, tagged_seqs_per_checklist)
-                    table_data = htags.generate_taggedseq_record(profile_id=sub["profile_id"], checklist_id=checklist_id)
-                    action="info"
-                    message=context.get("success", str())
-                    if context.get('error',str()) :
-                        self._reject_submission(sub["_id"], tagged_seqs_per_checklist, context.get("error", str()))
-                        action="error"
-                        message=context.get("error", str())
-                    notify_tagged_seq_status(data={"profile_id": sub["profile_id"], "table_data": table_data, "component": "taggedseq"}, msg=message, action=action, html_id="tagged_seq_info")
+
+                    for tagged_seq in tagged_seqs_per_checklist:
+                        # validate tagged seqs                    
+                        notify_tagged_seq_status(data={"profile_id": sub["profile_id"]}, msg="Validating barcoding sequence......" , action="info", html_id="tagged_seq_info")
+                        context = self._validate_tagged_seq(sub["profile_id"], str(sub["_id"]), project_accession["accession"], checklist_id, [tagged_seq])
+                        table_data = htags.generate_taggedseq_record(profile_id=sub["profile_id"], checklist_id=checklist_id)
+                        action="info"
+                        message=context.get("success", str())
+                        if context.get('error',str()) :
+                            self._reject_submission(sub["_id"], [tagged_seq], context.get("error", str()))
+                            action="error"
+                            message=context.get("error", str())
+                        notify_tagged_seq_status(data={"profile_id": sub["profile_id"], "table_data": table_data, "component": "taggedseq"}, msg=message, action=action, html_id="tagged_seq_info")
 
             except Exception as e:
                 l.exception(e)
@@ -671,7 +724,7 @@ class EnaTaggedSequence:
         df = pd.DataFrame(tagged_seqs)      
 
         df.drop(['SPECIMEN_ID'], axis=1, inplace=True)
-        df.drop([x for x in df.columns if x not in fields.keys()], axis=1, inplace=True)
+        df.drop([x for x in df.columns if x not in fields.keys() or df[x][0].strip()==""], axis=1, inplace=True)
         df.rename(columns=new_column_name, inplace=True) 
 
         with open(tsv_file, "w") as destination:
@@ -683,7 +736,7 @@ class EnaTaggedSequence:
                 shutil.copyfileobj(f_in, f_out)
         
 
-        manifest_name = submission_id + "_" + uuid.uuid4().hex + "_" + checklist_id
+        manifest_name = submission_id + "_" + str(tagged_seqs[0]["_id"]) + "_" + checklist_id
         manifest_content = "STUDY" + "\t" + accession + "\n"
         manifest_content += "NAME" + "\t" + manifest_name +  "\n"   
         manifest_content += "TAB" + "\t" +  tsv_file + ".gz" +  "\n"
@@ -826,7 +879,7 @@ class TaggedSequenceSpreedsheet:
                 self.data = self.data.apply(lambda x: x.str.strip())
                 #self.data.columns = self.data.columns.str.replace(" ", "")
                    
-                new_column_name = { name : name.upper() for name in self.data.columns.values.tolist() }
+                new_column_name = { name : name.replace("[ ", "",1).replace(" ]","", -1).upper() for name in self.data.columns.values.tolist() }
                 self.new_data = self.data.rename(columns=new_column_name)    
 
                 checklist = TaggedSequenceChecklist().get_collection_handle().find_one({"primary_id": self.checklist_id})

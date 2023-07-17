@@ -14,6 +14,11 @@ SCHEMA_VERSIONS_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schema_
 
 SCHEMA_VERSIONS_FILE_LIST = ["sample.json", "ena_seq.json"]  # files based on schema versions
 
+MANIFEST_PATH = os.path.join(BASE_DIR, 'static', 'assets', 'manifests')
+MANIFEST_FILE_NAME = "{0}_MANIFEST_TEMPLATE{1}.xlsx"
+MANIFEST_DOWNLOAD_URL =  "/static/assets/manifests/" + MANIFEST_FILE_NAME
+
+
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 PROFILE_LOG_BASE = os.path.join(BASE_DIR, 'profiler')

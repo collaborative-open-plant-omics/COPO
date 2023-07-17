@@ -154,6 +154,8 @@ $(document).ready(function () {
     var args_dict = {}
     args_dict["tagged_seq_checklist_id"] = $("#checklist_id").find(":selected").val();
     load_records(componentMeta, args_dict); // call to load component records
+    $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+args_dict["tagged_seq_checklist_id"]).val())
+
 
     //register_resolvers_event(); //register event for publication resolvers
 
@@ -197,8 +199,8 @@ $(document).ready(function () {
             table = $('#' + componentMeta.tableID).DataTable();
             table.clear().destroy();
             $('#' + componentMeta.tableID).empty();
-            $('')
         }
+        $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+this.value).val())
         args_dict["tagged_seq_checklist_id"] = this.value;
         args_dict[""]
         load_records(componentMeta, args_dict); // call to load component records

@@ -98,4 +98,3 @@ MANIFEST_VERSION = {
     "READ": "1.0.0",
     "DTOL_BARCODE": "",
 }
-MANIFEST_DOWNLOAD_URL =  "/static/assets/manifests/{0}_MANIFEST_TEMPLATE{1}.xlsx"

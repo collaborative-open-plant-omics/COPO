@@ -424,7 +424,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record")
 def generate_read_record(profile_id=str()):
-    label = ['name', "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
+    label = ['name', "study_accession", "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
     #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
     
     label_set = set()
@@ -439,9 +439,18 @@ def generate_read_record(profile_id=str()):
     columns.insert(0, detail_dict)
     samples = Sample().execute_query({"profile_id": profile_id})
     submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
+    if not submission:
+        return_dict = dict(dataSet=data_set,
+                columns=columns,
+                )
+    project_accession = submission[0].get("accessions",dict()).get("project",[])
+    study_accession = ""
+    if project_accession:
+        study_accession = project_accession[0].get("accession","")
     for sample in samples:
         for read in sample.get("read", []):
             row_data = dict()
+            row_data["study_accession"] = study_accession
             row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
             row_data["name"] = sample["name"]
             row_data.update({key : sample[key] for key in sample.keys() if key[0].isupper()} )
