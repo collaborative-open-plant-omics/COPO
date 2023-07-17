@@ -23,13 +23,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "A",
-        "order": 1
-      }
-    }
+    "colour": "#badac5",
+    "excel_col": "A",
+    "order": 1
   },
   {
     "help_tip": "Rack or Plate Id",
@@ -56,13 +52,9 @@
     "label": "Rack or Plate Id",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "B",
-        "order": 2
-      }
-    }
+    "colour": "#badac5",
+    "excel_col": "B",
+    "order": 2
   },
   {
     "help_tip": "Tube or Well Id",
@@ -89,13 +81,9 @@
     "label": "Tube or Well Id",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "C",
-        "order": 3
-      }
-    }
+    "colour": "#badac5",
+    "excel_col": "C",
+    "order": 3
   },
   {
     "help_tip": "An identifier given to the Occurrence at the time it was recorded. Often serves as a link between field notes and an Occurrence record, such as a specimen collector's number.",
@@ -122,13 +110,9 @@
     "label": "Specimen Id",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/recordNumber",
-    "index": {
-      "asg": {
-        "colour": "#badac5",
-        "excel_col": "D",
-        "order": 4
-      }
-    }
+    "colour": "#badac5",
+    "excel_col": "D",
+    "order": 4
   },
   {
     "help_tip": "The taxonomic Order into which the Family is placed.",
@@ -155,13 +139,9 @@
     "label": "Order or Group",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "E",
-        "order": 5
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "E",
+    "order": 5
   },
   {
     "help_tip": "The taxonomic Family into which the Genus is placed.",
@@ -188,13 +168,9 @@
     "label": "FAMILY",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "F",
-        "order": 6
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "F",
+    "order": 6
   },
   {
     "help_tip": "The taxonomic Genus to which the Species belongs.",
@@ -221,13 +197,9 @@
     "label": "GENUS",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "G",
-        "order": 7
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "G",
+    "order": 7
   },
   {
     "help_tip": "A valid NCBI TAXON_ID to the species level is mandatory in order to submit data to public repositories.",
@@ -254,13 +226,9 @@
     "label": "TAXON_ID",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "H",
-        "order": 8
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "H",
+    "order": 8
   },
   {
     "help_tip": "The official scientific name as found in NCBI taxonomy database",
@@ -287,13 +255,9 @@
     "label": "SCIENTIFIC_NAME",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "I",
-        "order": 9
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "I",
+    "order": 9
   },
   {
     "help_tip": "Taxon remarks",
@@ -320,13 +284,9 @@
     "label": "TAXON_REMARKS",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "J",
-        "order": 10
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "J",
+    "order": 10
   },
   {
     "help_tip": "Infraspecific epithet",
@@ -353,13 +313,9 @@
     "label": "INFRASPECIFIC_EPITHET",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "K",
-        "order": 11
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "K",
+    "order": 11
   },
   {
     "help_tip": "Culture or Strain ID",
@@ -386,13 +342,9 @@
     "label": "CULTURE_OR_STRAIN_ID",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "L",
-        "order": 12
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "L",
+    "order": 12
   },
   {
     "help_tip": "Common name",
@@ -419,13 +371,9 @@
     "label": "COMMON_NAME",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ffffe6",
-        "excel_col": "M",
-        "order": 13
-      }
-    }
+    "colour": "#ffffe6",
+    "excel_col": "M",
+    "order": 13
   },
   {
     "help_tip": "",
@@ -450,13 +398,9 @@
     "id": "copo.sample.LIFESTAGE",
     "type": "string",
     "show_in_table": true,
-    "index": {
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "N",
-        "order": 14
-      }
-    }
+    "colour": "#dad3ea",
+    "excel_col": "N",
+    "order": 14
   },
   {
     "help_tip": "",
@@ -487,13 +431,9 @@
       "Female",
       "Unknown"
     ],
-    "index": {
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "O",
-        "order": 15
-      }
-    }
+    "colour": "#dad3ea",
+    "excel_col": "O",
+    "order": 15
   },
   {
     "help_tip": "e.g. Leg removed from complete organism",
@@ -520,13 +460,9 @@
     "label": "Organism Part",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "P",
-        "order": 16
-      }
-    }
+    "colour": "#dad3ea",
+    "excel_col": "P",
+    "order": 16
   },
   {
     "help_tip": "",
@@ -553,13 +489,9 @@
     "label": "Symbiont",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "Q",
-        "order": 17
-      }
-    }
+    "colour": "#dad3ea",
+    "excel_col": "Q",
+    "order": 17
   },
   {
     "help_tip": "",
@@ -586,13 +518,9 @@
     "label": "Relationship",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#dad3ea",
-        "excel_col": "R",
-        "order": 18
-      }
-    }
+    "colour": "#dad3ea",
+    "excel_col": "R",
+    "order": 18
   },
   {
     "help_tip": "Partner",
@@ -619,13 +547,9 @@
     "label": "Partner",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "Partner Sample ID",
@@ -652,13 +576,9 @@
     "label": "Partner Sample ID",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "Collector Sample ID",
@@ -685,13 +605,9 @@
     "label": "Collector Sample Identifier",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/measurementID",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "U",
-        "order": 21
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "U",
+    "order": 21
   },
   {
     "help_tip": "",
@@ -717,13 +633,9 @@
     "default_value": "",
     "dwc": "http://rs.tdwg.org/dwc/terms/recordedBy",
     "type": "string",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "V",
-        "order": 22
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "V",
+    "order": 22
   },
   {
     "help_tip": "The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record.",
@@ -750,13 +662,9 @@
     "label": "Collector Affiliation",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/institutionCode",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "W",
-        "order": 23
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "W",
+    "order": 23
   },
   {
     "help_tip": "",
@@ -782,13 +690,9 @@
     "default_value": "",
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimEventDate",
     "type": "string",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "X",
-        "order": 24
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "X",
+    "order": 24
   },
   {
     "help_tip": "A list of geographic names less specific than the information captured in the Collection Site term. Starting with the least specific, add geograhic place names to identify location using the blue plus. E.g. U.K., London, Westminster, Westminster Abbey all as separate list entries.",
@@ -818,13 +722,9 @@
     "ontology_names": [
       "gaz"
     ],
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "Y",
-        "order": 25
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "Y",
+    "order": 25
   },
   {
     "help_tip": "The geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
@@ -851,13 +751,9 @@
     "label": "decimalLatitude",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLatitude",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "Z",
-        "order": 26
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "Z",
+    "order": 26
   },
   {
     "help_tip": "The geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
@@ -884,13 +780,9 @@
     "label": "Longitude",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLongitude",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AA",
-        "order": 27
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AA",
+    "order": 27
   },
   {
     "help_tip": "A list of maps, gazetteers, or other resources used to georeference the Location, described specifically enough to allow anyone in the future to use the same resources.",
@@ -917,13 +809,9 @@
     "label": "Grid Reference",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/georeferenceSources",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AB",
-        "order": 28
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AB",
+    "order": 28
   },
   {
     "help_tip": "Comments or notes about the Location. e.g. Underwater since 2005",
@@ -950,13 +838,9 @@
     "label": "Habitat Remarks",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/locationRemarks",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AC",
-        "order": 29
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AC",
+    "order": 29
   },
   {
     "help_tip": "The original description of the depth below the local surface.",
@@ -983,13 +867,9 @@
     "label": "Depth (in meters)",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimDepth",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AD",
-        "order": 30
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AD",
+    "order": 30
   },
   {
     "help_tip": "The original description of the elevation (altitude, usually above sea level) of the Location.",
@@ -1016,13 +896,9 @@
     "label": "Elevation (in meters)",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/verbatimElevation",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AE",
-        "order": 31
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AE",
+    "order": 31
   },
   {
     "help_tip": "",
@@ -1048,13 +924,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AF",
-        "order": 32
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AF",
+    "order": 32
   },
   {
     "help_tip": "",
@@ -1080,13 +952,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AG",
-        "order": 33
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AG",
+    "order": 33
   },
   {
     "help_tip": "The original geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
@@ -1113,13 +981,9 @@
     "label": "originalDecimalLatitude",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLatitude",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AH",
-        "order": 34
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AH",
+    "order": 34
   },
   {
     "help_tip": "The original geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
@@ -1146,13 +1010,9 @@
     "label": "originalDecimalLongitude",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/decimalLongitude",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AI",
-        "order": 35
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AI",
+    "order": 35
   },
   {
     "help_tip": "Time of Collection",
@@ -1179,13 +1039,9 @@
     "label": "Time of Collection",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AJ",
-        "order": 36
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AJ",
+    "order": 36
   },
   {
     "help_tip": "The name of, reference to, or description of the method or protocol used during an Event. E.g. UV light trap, mist net, bottom trawl, ad hoc observation, point count",
@@ -1212,13 +1068,9 @@
     "label": "Description of Collection Method",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/samplingProtocol",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AK",
-        "order": 37
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AK",
+    "order": 37
   },
   {
     "help_tip": "Difficulty of sample re-collection. Quantify ie. 'guaranteed same day', 'several days searching', 'requires considerable effort' (offshore boat/Caving/remote location travel)",
@@ -1245,13 +1097,9 @@
     "label": "Difficult or High priority sample",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/samplingEffort",
-    "index": {
-      "asg": {
-        "colour": "#d0e3f3",
-        "excel_col": "AL",
-        "order": 38
-      }
-    }
+    "colour": "#d0e3f3",
+    "excel_col": "AL",
+    "order": 38
   },
   {
     "help_tip": "Separate multiple names with '|'",
@@ -1277,13 +1125,9 @@
     "default_value": "",
     "dwc": "http://rs.tdwg.org/dwc/terms/identifiedBy",
     "type": "string",
-    "index": {
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AM",
-        "order": 39
-      }
-    }
+    "colour": "#e9efb5",
+    "excel_col": "AM",
+    "order": 39
   },
   {
     "help_tip": "Separate multiple names with '|'",
@@ -1309,13 +1153,9 @@
     "default_value": "",
     "dwc": "http://rs.tdwg.org/dwc/terms/identifierAffiliation",
     "type": "string",
-    "index": {
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AN",
-        "order": 40
-      }
-    }
+    "colour": "#e9efb5",
+    "excel_col": "AN",
+    "order": 40
   },
   {
     "help_tip": "Comment if chance of misidentification, reference text used to identify, etc",
@@ -1342,13 +1182,9 @@
     "label": "Species Determination Method",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences",
-    "index": {
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AO",
-        "order": 41
-      }
-    }
+    "colour": "#e9efb5",
+    "excel_col": "AO",
+    "order": 41
   },
   {
     "help_tip": "",
@@ -1375,13 +1211,9 @@
     "label": "Specimen Identification Risk",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/identificationReferences",
-    "index": {
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AP",
-        "order": 42
-      }
-    }
+    "colour": "#e9efb5",
+    "excel_col": "AP",
+    "order": 42
   },
   {
     "help_tip": "Mixed sample risk",
@@ -1408,13 +1240,9 @@
     "label": "mixedSampleRisk",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#e9efb5",
-        "excel_col": "AQ",
-        "order": 43
-      }
-    }
+    "colour": "#e9efb5",
+    "excel_col": "AQ",
+    "order": 43
   },
   {
     "help_tip": "A list (concatenated and separated) of preparations and preservation methods for a specimen. Example, fossil, cast, photograph, DNA extract, skin, skull, skeleton, whole animal (ETOH), tissue (EDTA)",
@@ -1441,13 +1269,9 @@
     "label": "Preserved By",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AR",
-        "order": 44
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AR",
+    "order": 44
   },
   {
     "help_tip": "A list of affiliations separated by '|'",
@@ -1474,13 +1298,9 @@
     "label": "Preserver Affiliation",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AS",
-        "order": 45
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AS",
+    "order": 45
   },
   {
     "help_tip": "Preparations and preservation methods for a specimen",
@@ -1507,13 +1327,9 @@
     "label": "Preservation Approach",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AT",
-        "order": 46
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AT",
+    "order": 46
   },
   {
     "help_tip": "Specific preservative solution used in preparation",
@@ -1540,13 +1356,9 @@
     "label": "Preservative Solution",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/preparations",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AU",
-        "order": 47
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AU",
+    "order": 47
   },
   {
     "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
@@ -1573,13 +1385,9 @@
     "label": "Time Elapsed From Collection To Preservation (in Hours)",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventTime",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AV",
-        "order": 48
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AV",
+    "order": 48
   },
   {
     "help_tip": "The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. In format YYYY-MM-DD",
@@ -1606,13 +1414,9 @@
     "label": "Date of Preservation",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/eventDate",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AW",
-        "order": 49
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AW",
+    "order": 49
   },
   {
     "help_tip": "",
@@ -1638,13 +1442,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#f4ebe2",
-        "excel_col": "AX",
-        "order": 50
-      }
-    }
+    "colour": "#f4ebe2",
+    "excel_col": "AX",
+    "order": 50
   },
   {
     "help_tip": "",
@@ -1670,13 +1470,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "AY",
-        "order": 51
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "AY",
+    "order": 51
   },
   {
     "help_tip": "",
@@ -1702,13 +1498,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "AZ",
-        "order": 52
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "AZ",
+    "order": 52
   },
   {
     "help_tip": "",
@@ -1734,13 +1526,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BA",
-        "order": 53
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "BA",
+    "order": 53
   },
   {
     "help_tip": "",
@@ -1766,13 +1554,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BB",
-        "order": 54
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "BB",
+    "order": 54
   },
   {
     "help_tip": "",
@@ -1798,13 +1582,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BC",
-        "order": 55
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "BC",
+    "order": 55
   },
   {
     "help_tip": "",
@@ -1830,13 +1610,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BD",
-        "order": 56
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "BD",
+    "order": 56
   },
   {
     "help_tip": "Barcoding Status",
@@ -1863,13 +1639,9 @@
     "label": "barcodingStatus",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#c3f6ef",
-        "excel_col": "BE",
-        "order": 57
-      }
-    }
+    "colour": "#c3f6ef",
+    "excel_col": "BE",
+    "order": 57
   },
   {
     "help_tip": "",
@@ -1895,13 +1667,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BF",
-        "order": 58
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BF",
+    "order": 58
   },
   {
     "help_tip": "Sample format",
@@ -1928,13 +1696,9 @@
     "label": "sampleFormat",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "Hazard Group",
@@ -1961,13 +1725,9 @@
     "label": "Hazard Group",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BG",
-        "order": 59
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BG",
+    "order": 59
   },
   {
     "help_tip": "Regulatory Compliance",
@@ -1994,13 +1754,9 @@
     "label": "Regulatory Compliance",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BH",
-        "order": 60
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BH",
+    "order": 60
   },
   {
     "help_tip": "",
@@ -2026,13 +1782,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BI",
-        "order": 61
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BI",
+    "order": 61
   },
   {
     "help_tip": "Proxy voucher ID",
@@ -2059,13 +1811,9 @@
     "label": "proxyVoucherId",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BJ",
-        "order": 62
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BJ",
+    "order": 62
   },
   {
     "help_tip": "Voucher Link",
@@ -2092,13 +1840,9 @@
     "label": "voucherLink",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BK",
-        "order": 63
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BK",
+    "order": 63
   },
   {
     "help_tip": "Proxy voucher Link",
@@ -2125,13 +1869,9 @@
     "label": "proxyVoucherLink",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BL",
-        "order": 64
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BL",
+    "order": 64
   },
   {
     "help_tip": "Voucher Institution",
@@ -2158,13 +1898,9 @@
     "label": "voucherInstitution",
     "show_in_table": true,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BM",
-        "order": 65
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BM",
+    "order": 65
   },
   {
     "help_tip": "Other Information",
@@ -2191,13 +1927,9 @@
     "label": "Other Information",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
-    "index": {
-      "asg": {
-        "colour": "#ead2dc",
-        "excel_col": "BN",
-        "order": 66
-      }
-    }
+    "colour": "#ead2dc",
+    "excel_col": "BN",
+    "order": 66
   },
   {
     "help_tip": "",
@@ -2223,13 +1955,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2255,13 +1983,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "Characteristics of the sample e.g., height, sex",
@@ -2337,13 +2061,9 @@
     "type": "string",
     "show_in_table": true,
     "control": "text",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2369,13 +2089,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2422,13 +2138,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "rack_tube",
@@ -2455,13 +2167,9 @@
     "label": "",
     "show_in_table": false,
     "dwc": "http://rs.tdwg.org/dwc/terms/dynamicProperties",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2516,13 +2224,9 @@
     "label": "species_list",
     "show_in_table": false,
     "dwc": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2548,13 +2252,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2580,13 +2280,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "pending",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2612,13 +2308,9 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   },
   {
     "help_tip": "",
@@ -2644,12 +2336,8 @@
     "show_in_table": true,
     "control": "text",
     "default_value": "",
-    "index": {
-      "asg": {
-        "colour": "",
-        "excel_col": "",
-        "order": null
-      }
-    }
+    "colour": "",
+    "excel_col": "",
+    "order": null
   }
 ]
