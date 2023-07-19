@@ -9,6 +9,73 @@ $(document).ready(function () {
     var dialog = new BootstrapDialog({
         title: "Add Sequence Annotation",
         message: "",
+        onshown: function(dialogRef){
+
+            $(".modal-dialog").find("#id_sample").off('change').on("change", (function(event){
+                console.log("changed")
+                event.preventDefault()
+                //var $el =  $(".modal-dialog").find("#id_run");
+                //$el.empty(); // remove old options
+                //$el =  $(".modal-dialog").find("#id_experiment");
+                //$el.empty(); // remove old options
+                value = $(".modal-dialog").find("#id_sample").find(":selected").val()
+                if (value == undefined || value === "") {
+                  var $el =  $(".modal-dialog").find("#id_run");
+                  $el.empty(); // remove old options
+                  $el =  $(".modal-dialog").find("#id_experiment");
+                  $el.empty(); // remove old options
+                  return
+                }   
+        
+                jQuery.ajax({
+                    url: '/copo/copo_reads/' + value + "/get_read_accessions",
+                    type: 'GET', // For jQuery < 1.9
+                    headers:
+                        {
+                            "X-CSRFToken": csrftoken
+                        },
+                }).error(function (data) {
+                    BootstrapDialog.show({
+                        title: 'Error',
+                        message: "Error " + data.responseText
+                    });
+                }).done(function (data) {
+                    var $el =  $(".modal-dialog").find("#id_run");
+                    run = $el.find(":selected").val()
+                    $el.empty();
+                    $.each(data["run_accessions"], function(index, value) {
+                      $el.append($("<option></option>")
+                         .attr("value", value)
+                         .attr("selected", run!= undefined && run.includes(value)).text(value));
+                    });
+        
+                    $el =  $(".modal-dialog").find("#id_experiment");
+                    experiment = $el.find(":selected").val()
+                    $el.empty(); // remove old options
+                    $.each(data["experiment_accessions"], function(index, value) {
+                      $el.append($("<option></option>")
+                        .attr("value", value)
+                        .attr("selected", experiment != undefined && experiment.includes(value)).text(value));
+                    });  
+        
+                });
+                
+            }));
+
+            selected_sample = $(".modal-dialog").find("#id_sample").find(":selected").val()
+            if ( selected_sample == "") {
+                var $el =  $(".modal-dialog").find("#id_run");
+                $el.empty(); // remove old options
+                $el =  $(".modal-dialog").find("#id_experiment");
+                $el.empty(); // remove old options             
+            } else {
+                var event = jQuery.Event("change");
+                $(".modal-dialog").find("#id_sample").val(selected_sample).trigger(event);
+                console.log("triggered")
+            }
+
+
+        },
         buttons: [{
             id: 'submit_annotation_button',
             label: 'Submit Annotation',
@@ -28,6 +95,9 @@ $(document).ready(function () {
             }
         }]               
     });
+
+
+
 
 
     if (window.location.protocol === "https:") {
@@ -219,9 +289,7 @@ $(document).ready(function () {
         dialog.setMessage($('<div>Please wait...</div>').load(url));
         dialog.open();
         dialog.setClosable(false);
-
     }
-
 
     function do_record_task(event) {
         var task = event.task.toLowerCase(); //action to be performed e.g., 'Edit', 'Delete'
@@ -381,4 +449,8 @@ $(document).ready(function () {
             }
         }
     }) 
+
+
+    
+
 });

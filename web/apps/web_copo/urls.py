@@ -247,7 +247,6 @@ urlpatterns = [
     path('save_ena_taggedseq_records/', EnaTaggedSequence().save_ena_taggedseq_records,
          name="save_taggedseq_records"),
 
-     
-
-
-]
+    re_path(r'^copo_reads/(?P<sample_accession>[A-Z0-9]+)/get_read_accessions', EnaSpreadsheetParse.get_read_accessions,
+            name='get_read_accessions')
+] 

@@ -440,9 +440,10 @@ def generate_read_record(profile_id=str()):
     samples = Sample().execute_query({"profile_id": profile_id})
     submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
     if not submission:
-        return_dict = dict(dataSet=data_set,
+        return dict(dataSet=data_set,
                 columns=columns,
                 )
+        
     project_accession = submission[0].get("accessions",dict()).get("project",[])
     study_accession = ""
     if project_accession:
@@ -623,19 +624,17 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     profile_type = type.lower()
     if "asg" in profile_type:
         profile_type = "asg"
-        current_schema_version = settings.CURRENT_ASG_VERSION
 
     elif "dtol_env" in profile_type:
         profile_type = "dotl_env"
-        current_schema_version = settings.CURRENT_DTOLENV_VERSION
 
     elif "dtol" in profile_type:
         profile_type = "dtol"
-        current_schema_version = settings.CURRENT_DTOL_VERSION
 
     elif "erga" in profile_type:
         profile_type = "erga"
-        current_schema_version = settings.CURRENT_ERGA_VERSION
+
+    current_schema_version = settings.MANIFEST_VERSION.get(profile_type.upper(), '')
 
     get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
                                "European Reference Genome Atlas (ERGA)", "Darwin Tree of Life Environmental Samples (DTOL_ENV)"]

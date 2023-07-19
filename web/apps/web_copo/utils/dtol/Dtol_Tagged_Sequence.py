@@ -220,7 +220,7 @@ class EnaTaggedSequence:
             df = pd.DataFrame.from_dict(list(checklist["fields"].values()), orient='columns')
             df1 = df
             df.loc[df["mandatory"] == "mandatory", "name"] = df["name"]
-            df.loc[df["mandatory"] != "mandatory", "name"] = "[ " +  df["name"] + " ]"
+            df.loc[df["mandatory"] != "mandatory", "name"] = df["name"] + " (optional)"
             df1 = df.transpose()
 
             version = settings.MANIFEST_VERSION.get(checklist["primary_id"], str())
@@ -233,7 +233,7 @@ class EnaTaggedSequence:
 
                 df1.columns = df1.iloc[0] 
                 for field in checklist["fields"].values():
-                    name = field["name"] if field["mandatory"] == "mandatory" else "[ " + field["name"] + " ]"
+                    name = field["name"] if field["mandatory"] == "mandatory" else field["name"] + " (optional)"
                     column_index = df1.columns.get_loc(name)
                     column_length = len(name)
                     writer.sheets[sheet_name].set_column(column_index, column_index, column_length)
@@ -309,8 +309,7 @@ class EnaTaggedSequence:
 
                 for key, value in s.items():
                     header = key
-                    header = header.replace("[ ", "",1)
-                    header = header.replace(" ]", "",-1)
+                    header = header.replace(" (optional)", "", -1)
                     upper_key = header.upper()
                     if upper_key in column_name_mapping:
                         record[column_name_mapping[upper_key]] = value
@@ -879,7 +878,7 @@ class TaggedSequenceSpreedsheet:
                 self.data = self.data.apply(lambda x: x.str.strip())
                 #self.data.columns = self.data.columns.str.replace(" ", "")
                    
-                new_column_name = { name : name.replace("[ ", "",1).replace(" ]","", -1).upper() for name in self.data.columns.values.tolist() }
+                new_column_name = { name : name.replace(" (optional)", "",-1).upper() for name in self.data.columns.values.tolist() }
                 self.new_data = self.data.rename(columns=new_column_name)    
 
                 checklist = TaggedSequenceChecklist().get_collection_handle().find_one({"primary_id": self.checklist_id})

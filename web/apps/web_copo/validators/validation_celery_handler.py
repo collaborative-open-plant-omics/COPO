@@ -74,16 +74,13 @@ class ProcessValidationQueue:
 
             if "ASG" in t:
                 self.type = "ASG"
-                self.current_schema_version = settings.CURRENT_ASG_VERSION
             elif "DTOL_EI" in t:
                 self.type = "DTOL_EI"
-                self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
             elif "ERGA" in t:
                 self.type = "ERGA"
-                self.current_schema_version = settings.CURRENT_ERGA_VERSION
             else:
                 self.type = "DTOL"
-                self.current_schema_version = settings.CURRENT_DTOL_VERSION
+            self.current_schema_version = settings.MANIFEST_VERSION.get(self.type, "")
 
             try:
                 self.data = pandas.read_excel(self.sample_data, keep_default_na=False, na_values=lookup.NA_VALS)

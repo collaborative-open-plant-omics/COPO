@@ -530,7 +530,7 @@ class EnaReads:
 
         if converter_errors:
             result['status'] = False
-            result['message'] = converter_errors
+            result['message'] = "\n".join(converter_errors)
 
             return result
 

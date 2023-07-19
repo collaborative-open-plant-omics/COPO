@@ -25,10 +25,11 @@ from pathlib import Path
 from bson import ObjectId
 import web.apps.web_copo.templatetags.html_tags as htags
 from dal import cursor_to_list
+from django.contrib.auth.decorators import login_required
 
 l = logger.Logger("exceptions_and_logging/logs")
 
-
+@login_required()
 def parse_ena_spreadsheet(request):
     username = request.user.username
     profile_id = request.session["profile_id"]
@@ -77,7 +78,7 @@ def parse_ena_spreadsheet(request):
         return HttpResponse(status=400)
     return HttpResponse(status=400)
 
-
+@login_required()
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
     sample_data = request.session.get("sample_data")
@@ -347,7 +348,6 @@ def save_ena_records(request):
     result = {"table_data": table_data, "component": "read"}
     return JsonResponse(status=200,  data=result)
 
-
 def submit_read(profile_id,  target_ids=list(), target_id=None):
 
     if target_id:
@@ -462,6 +462,30 @@ def delete_ena_records(profile_id,  target_ids=list(), target_id=None):
     return dict(status='success', message="Read record/s have been deleted!")
 
 
+@login_required()
+def get_read_accessions(request, sample_accession): 
+    samples = Sample().get_all_records_columns(filter_by={"sraAccession": sample_accession}, projection={"profile_id":1, "read":1})
+    run_accessions = []
+    experiment_accessions = []
+    if samples:
+        sample = samples[0]
+        submission = Submission().get_all_records_columns(filter_by={"profile_id": sample["profile_id"]}, projection={"accessions":1})
+        for read in sample.get("read", []):
+            file_id_str = read.get("file_id", str())
+            file_ids = file_id_str.split(",")
+            if file_ids:
+                if read.get("status", "pending") == "accepted":
+                        for accession in submission[0].get("accessions", {}).get("run", []):
+                            if set(accession.get("datafiles",[])) == set(file_ids):
+                                run_accessions.append(accession.get("accession", str()))
+                                alias = accession.get("alias", str())
+                                break
+                        for accession in submission[0].get("accessions", {}).get("experiment", []):
+                            if accession.get("alias",[]) == alias:
+                                experiment_accessions.append(accession.get("accession", str()))
+                                break       
+    result = dict(run_accessions=run_accessions, experiment_accessions=experiment_accessions)                                                     
+    return JsonResponse(status=200,  data=result)
 
 class ENASpreadsheet:
 
@@ -597,3 +621,4 @@ class ENASpreadsheet:
 
         notify_read_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
                         html_id="sample_table")
+        

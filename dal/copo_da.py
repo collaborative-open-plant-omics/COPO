@@ -866,16 +866,15 @@ class Sample(DAComponent):
         # Get manifest version based on profile type
         if "asg" in manifest_type:
             profile_type = "asg"
-            current_schema_version = settings.CURRENT_ASG_VERSION
         elif "dtolenv" in manifest_type:
             profile_type = "dtolenv"
-            current_schema_version = settings.CURRENT_DTOLENV_VERSION
         elif "dtol" in manifest_type:
             profile_type = "dtol"
-            current_schema_version = settings.CURRENT_DTOL_VERSION
         elif "erga" in manifest_type:
             profile_type = "erga"
-            current_schema_version = settings.CURRENT_ERGA_VERSION
+
+        current_schema_version = settings.MANIFEST_VERSION.get(profile_type.upper(),"")
+
 
         # extend system fields
         for k, v in kwargs.items():
