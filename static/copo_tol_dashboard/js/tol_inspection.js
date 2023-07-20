@@ -830,6 +830,7 @@ function get_samples(row, project) {
                 if (window.location.href.includes('dashboard/tol')) {
                     sample_panel_tol_inspect.find(".h4").css("padding-top", "200px").css("text-align", "center");
                     tol_inspect_card.addClass("tol_inspect_card_padding")
+                    tol_inspect_card.css("margin-top", "0") // Remove margin-top of the 'tol inspect' card
                     $(".tol_inspect_card > div").addClass("mb-3")
                 }
 

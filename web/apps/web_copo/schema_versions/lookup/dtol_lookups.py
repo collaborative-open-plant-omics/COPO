@@ -1437,7 +1437,7 @@ DTOL_RULES = {
             "ena_regex": "(^[12][0-9]{3}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01])(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
                          "([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
                          "([+-][0-9]{1,2})?)?)?)?)?$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
-            "human_readable": "YYYY-MM-DD, NOT_COLLECTED or NOT_PROVIDED"
+            "human_readable": "YYYY-MM-DD, YYYY-MM, YYYY, NOT_COLLECTED or NOT_PROVIDED"
         },
     'DECIMAL_LATITUDE':
         {
@@ -1752,7 +1752,7 @@ API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
 
 BLANK_VALS = ['NOT_APPLICABLE', 'NOT_COLLECTED', 'NOT_PROVIDED']
 
-DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
+DATE_FIELDS = ["DATE_OF_PRESERVATION"]
 
 PERMIT_FILENAME_COLUMN_NAMES = ["SAMPLING_PERMITS_FILENAME", "ETHICS_PERMITS_FILENAME",
                                 "NAGOYA_PERMITS_FILENAME"]

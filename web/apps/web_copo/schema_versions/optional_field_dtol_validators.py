@@ -351,11 +351,11 @@ class DtolEnumerationValidator(Validator):
                             validate_date(c)
                         except ValueError as e:
                             self.errors.append(
-                                msg["validation_msg_invalid_date"] % (c, str(cellcount + 1), header))
+                                msg["validation_msg_invalid_date"] % (c, header, str(cellcount + 1)))
                             self.flag = False
                         except AssertionError as e:
                             self.errors.append(
-                                msg["validation_msg_future_date"] % (c, str(cellcount + 1), header)
+                                msg["validation_msg_future_date"] % (c, header, str(cellcount + 1))
                             )
                             self.flag = False
         if flag_symbiont:
