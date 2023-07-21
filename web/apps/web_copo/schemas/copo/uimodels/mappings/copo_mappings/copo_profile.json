@@ -108,6 +108,10 @@
         {
           "value": "ERGA_PILOT",
           "label": "European Reference Genome Atlas - Pilot (ERGA_PILOT)"
+        },
+        {
+          "value": "POP_GENOMICS",
+          "label": "Population Genomics (POP_GENOMICS)"
         }
       ]
     },
