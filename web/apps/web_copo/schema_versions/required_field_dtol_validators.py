@@ -160,6 +160,7 @@ class DecimalLatitudeLongitudeValidator(Validator):
         """
 
         p_type = Profile().get_type(profile_id=self.profile_id)
+        associated_p_type_lst = Profile().get_associated_type(self.profile_id, value=True, label=False)
 
         if "ERGA" in p_type:
             for index, row in self.data.iterrows():
@@ -167,10 +168,24 @@ class DecimalLatitudeLongitudeValidator(Validator):
                 latlong_start_end_lst = [row.get("LATITUDE_START", ""), row.get("LATITUDE_END", ""),
                                          row.get("LONGITUDE_START", ""), row.get("LONGITUDE_END", "")]
 
-                if any(i == "" for i in decimal_latlong_lst) or any(i == "" for i in latlong_start_end_lst):
+                if all(i == "" for i in decimal_latlong_lst) and all(i == "" for i in latlong_start_end_lst):
                     self.errors.append(
-                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_value"] % str(index + 2))
+                        msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_value"] % str(
+                            index + 2))
                     self.flag = False
+                elif any(i == "" for i in decimal_latlong_lst) or any(i == "" for i in latlong_start_end_lst):
+                    # erga manifests that inlude "POP_GENOMICS" as an associated tol project type
+                    # are allowed to have blank field
+                    if any(i == "" for i in POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING) \
+                            and any(i == "" for i in latlong_start_end_lst) \
+                            and "POP_GENOMICS" in associated_p_type_lst or 'SHORT_READ_SEQUENCING' in self.data[
+                        'PURPOSE_OF_SPECIMEN'].unique():
+                        continue
+                    else:
+                        self.errors.append(
+                            msg["validation_msg_error_decimal_latlong_or_latlong_start_end_missing_value"] % str(
+                                index + 2))
+                        self.flag = False
 
                 elif any(i == "NOT_COLLECTED" for i in decimal_latlong_lst) and any(
                         i != "NOT_COLLECTED" for i in decimal_latlong_lst) or any(
@@ -238,33 +253,44 @@ class PopGenomicsAssociatedTypeValidator(Validator):
         if "ERGA" in p_type:
             if "POP_GENOMICS" in associated_p_type_lst and 'SHORT_READ_SEQUENCING' in self.data[
                 'PURPOSE_OF_SPECIMEN'].unique():
-                # Associated tol project (s) for the manifest includes "POP_GENOMICS"
-                for index, row in self.data.iterrows():
-                    # Update value of 'PURPOSE_OF_SPECIMEN' column to 'RESEQUENCING'
-                    # because it is 'SHORT_READ_SEQUENCING' for all rows
-                    self.data.at[index, 'PURPOSE_OF_SPECIMEN'] = 'RESEQUENCING'
-                    # Set default value for the optional column if it was left blank
-                    for optional_column in POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING:
-                        if not row.get(optional_column, "").strip():
-                            if optional_column == 'DATE_OF_PRESERVATION':
-                                self.data.at[index, optional_column] = self.data.at[index, "DATE_OF_COLLECTION"]
-                            elif optional_column == 'GAL_SAMPLE_ID':
-                                self.data.at[index, optional_column] = self.data.at[index, "COLLECTOR_SAMPLE_ID"]
-                            else:
-                                self.data.at[index, optional_column] = \
-                                    POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING[
+                if (self.data['PURPOSE_OF_SPECIMEN'] == 'SHORT_READ_SEQUENCING').all():
+                    # Associated tol project (s) for the manifest includes "POP_GENOMICS"
+                    for index, row in self.data.iterrows():
+                        # Update value of 'PURPOSE_OF_SPECIMEN' column to 'RESEQUENCING'
+                        # because it is 'SHORT_READ_SEQUENCING' for all rows
+                        self.data.at[index, 'PURPOSE_OF_SPECIMEN'] = 'RESEQUENCING'
+                        # Set default value for the optional column if it was left blank
+                        for optional_column in POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING:
+                            if not row.get(optional_column, "").strip():
+                                if optional_column == 'GAL_SAMPLE_ID':
+                                    default_value = self.data.at[index, "COLLECTOR_SAMPLE_ID"]
+                                    self.data.at[index, optional_column] = default_value
+                                else:
+                                    default_value = POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING[
                                         optional_column]
+                                    self.data.at[index, optional_column] = default_value
 
-                            # Display warning for fields where default values were set
-                            self.warnings.append(msg["validation_msg_missing_optional_field_value"] % (
-                                optional_column, str(index + 2),
-                                POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING[optional_column]))
+                                # Display warning for fields where default values were set
+                                self.warnings.append(msg["validation_msg_missing_optional_field_value"] % (
+                                    optional_column, str(index + 2), default_value))
 
-                # Display warning that the value of 'PURPOSE_OF_SPECIMEN' column was changed to 'RESEQUENCING'
-                self.warnings.append(msg["validation_msg_warning_purpose_of_specimen"])
+                    # Display warning that the value of 'PURPOSE_OF_SPECIMEN' column was changed to 'RESEQUENCING'
+                    self.warnings.append(msg["validation_msg_warning_purpose_of_specimen"])
+                else:
+                    # Display error message for rows where value of 'PURPOSE_OF_SPECIMEN' column is not equal to
+                    # 'SHORT_READ_SEQUENCING'
+                    rows_indices = self.data.index[
+                        self.data.get("PURPOSE_OF_SPECIMEN", "") != 'SHORT_READ_SEQUENCING'].tolist()
+
+                    for index in rows_indices:
+                        self.errors.append(
+                            msg["validation_msg_invalid_purpose_of_specimen"]
+                            % (self.data.at[index, 'PURPOSE_OF_SPECIMEN'], str(index + 2)))
+                        self.flag = False
             elif "POP_GENOMICS" in associated_p_type_lst and 'SHORT_READ_SEQUENCING' not in self.data[
                 'PURPOSE_OF_SPECIMEN'].unique():
-                # Display error message for rows where value of 'PURPOSE_OF_SPECIMEN' column is not equal to 'SHORT_READ_SEQUENCING'
+                # Display error message for rows where value of 'PURPOSE_OF_SPECIMEN' column is not equal to
+                # 'SHORT_READ_SEQUENCING'
                 rows_indices = self.data.index[
                     self.data.get("PURPOSE_OF_SPECIMEN", "") != 'SHORT_READ_SEQUENCING'].tolist()
 
@@ -275,10 +301,16 @@ class PopGenomicsAssociatedTypeValidator(Validator):
                     self.flag = False
             elif "POP_GENOMICS" not in associated_p_type_lst and 'SHORT_READ_SEQUENCING' in self.data[
                 'PURPOSE_OF_SPECIMEN'].unique():
-                # Associated tol project(s) for the manifest does not include "POP_GENOMICS"
-                p_name = f'{p_name[:25]}...' if len(p_name) > 28 else p_name  # Truncate profile name to 25 characters
-                self.errors.append(msg["validation_msg_invalid_associated_tol_project"] % p_name)
-                self.flag = False
+                if "BGE" in associated_p_type_lst:
+                    # Associated tol project(s) for the "ERGA" manifest can include "BGE" once 'SHORT_READ_SEQUENCING'
+                    # is inputted
+                    pass
+                else:
+                    # Associated tol project(s) for the manifest does not include "POP_GENOMICS"
+                    p_name = f'{p_name[:25]}...' if len(
+                        p_name) > 28 else p_name  # Truncate profile name to 25 characters
+                    self.errors.append(msg["validation_msg_invalid_associated_tol_project"] % p_name)
+                    self.flag = False
             else:
                 pass
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")

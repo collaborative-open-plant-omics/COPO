@@ -525,6 +525,12 @@ $(document).ready(function () {
                     if (d.data.hasOwnProperty("permits_required") && d.data.permits_required == true) {
                         $("#finish_button").fadeOut()
                     } else {
+                        if ($("#files_label").is(':visible')) {
+                            // $("#files_label").fadeOut()
+                            $("#files_label").addClass("disabled")
+                            $("#files_label").attr("disabled", "true")
+                            $("#files_label").find("input").attr("disabled", "true")
+                        }
                         $("#ena_finish_button").fadeIn()
                         $("#finish_button").fadeIn()
                     }

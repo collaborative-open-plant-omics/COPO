@@ -188,7 +188,7 @@ def get_profile_titles_nav_tabs(request):
     else:
         profiles = Profile().get_all_profiles()
 
-    profile_types = [i.get("type", "") for i in profiles]
+    profile_types = [i.get("type", "") for i in profiles if i.get("type", "") != "Stand-alone"]  # Get tol profile types
 
     #  Extract value within enclosed parentheses from a unique set of profile types
     #  If the value exists, return it else, return the profile type

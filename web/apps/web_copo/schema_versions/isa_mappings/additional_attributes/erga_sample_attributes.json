@@ -936,6 +936,7 @@
     "control_meta": {},
     "control": "text",
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [
@@ -965,6 +966,7 @@
     "control_meta": {},
     "control": "text",
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [
@@ -994,6 +996,7 @@
     "control_meta": {},
     "control": "text",
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [
@@ -1023,6 +1026,7 @@
     "control_meta": {},
     "control": "text",
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [
@@ -1495,7 +1499,7 @@
     ],
     "deprecated": false,
     "hidden": "false",
-    "type": "array",
+    "type": "string",
     "show_in_form": true,
     "id": "copo.sample.PRESERVED_BY",
     "label": "Preserved By",
@@ -1903,9 +1907,10 @@
   },
   {
     "help_tip": "",
-    "required": "true",
+    "required": "false",
     "control_meta": {},
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [
@@ -1964,6 +1969,7 @@
     "required": "true",
     "control_meta": {},
     "manifest_version": [
+      "2.4.3",
       "2.4.2"
     ],
     "versions": [

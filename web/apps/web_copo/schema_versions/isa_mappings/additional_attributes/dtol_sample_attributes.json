@@ -1264,7 +1264,7 @@
     ],
     "deprecated": false,
     "hidden": "false",
-    "type": "array",
+    "type": "string",
     "show_in_form": true,
     "id": "copo.sample.PRESERVED_BY",
     "label": "Preserved By",

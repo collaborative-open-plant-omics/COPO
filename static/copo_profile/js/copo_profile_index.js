@@ -545,7 +545,9 @@ function append_component_buttons(record_id, profile_type) {
             return false;
         }
 
-        if (!item.hasOwnProperty("profile_component") || (profile_type === "stand-alone" && !item.profile_component.includes("stand-alone")) || (profile_type !== "stand-alone" && item.profile_component.includes("stand-alone"))) {
+        if (!item.hasOwnProperty("profile_component") || (profile_type === "stand-alone" &&
+            !item.profile_component.includes("stand-alone")) || (profile_type !== "stand-alone"
+            && item.profile_component.includes("stand-alone"))) {
             return false;
         }
 

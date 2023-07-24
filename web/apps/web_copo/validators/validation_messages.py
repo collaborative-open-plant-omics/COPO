@@ -71,7 +71,7 @@ MESSAGES = {
                                                   '<strong>PURPOSE_OF_SPECIMEN</strong> at row <strong>%s</strong>. '
                                                   'Expected value should be <strong>SHORT_READ_SEQUENCING</strong> '
                                                   'since associated profile type is '
-                                                  '<strong>Population Genomics (POP_GENOMICS)</strong>',
+                                                  '<strong>Population Genomics (POP_GENOMICS)</strong>.',
     'validation_msg_invalid_rank': 'Invalid scientific name or taxon ID: row <strong>%s</strong> - rank of scientific '
                                    'name and taxon id should be species.',
     'validation_msg_invalid_taxon': "TAXON_ID <strong>%s</strong> at row <strong>%s</strong> is invalid. Check "
@@ -134,8 +134,9 @@ MESSAGES = {
                                         'because TISSUE_REMOVED_FOR_BARCODING is <strong>%s</strong>',
     'validation_msg_warning_na_value_voucher': "Warning: <strong>%s</strong> in column <strong>%s</strong> at row "
                                                "<strong>%s</strong>. ERGA requires to voucher your sample, if you "
-                                               "don't, be aware the sequencing may not continue until you have provided <strong>%s</strong>.",
-    'validation_msg_warning_purpose_of_specimen': 'Warning: Overwriting PURPOSE_OF_SPECIMEN value with '
+                                               "don't, be aware the sequencing may not continue until you have provided "
+                                               "<strong>%s</strong>.",
+    'validation_msg_warning_purpose_of_specimen': 'Warning: Overwriting <strong>PURPOSE_OF_SPECIMEN</strong> value with '
                                                   '<strong>RESEQUENCING</strong> because PURPOSE_OF_SPECIMEN is '
                                                   '<strong>SHORT_READ_SEQUENCING</strong>',
     'validation_msg_warning_racktube_format': "Warning: <strong>%s</strong> <strong>%s</strong> at row "

@@ -358,14 +358,14 @@ function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID
             if (!pattern.test(this.value)) {
                 selected_type = this.value // Get selected value if no parentheses exist
             } else {
-                let associated_type_abbreviation_without_parentheses =
-                    this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+                let associated_type_abbreviation_with_parentheses =
+                    this.value.substring(this.value.indexOf('('), this.value.indexOf(')') + 1);
 
                 // Get associated type acronym that is enclosed in parentheses
                 // If empty an empty string is returned, set the acronym as the full string
-                selected_type = associated_type_abbreviation_without_parentheses === ''
+                selected_type = associated_type_abbreviation_with_parentheses === ''
                     ? this.value.replace(/\(\s*\)/g, "")
-                    : associated_type_abbreviation_without_parentheses
+                    : associated_type_abbreviation_with_parentheses
             }
 
             let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
@@ -373,9 +373,16 @@ function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID
                 // Exclude the selected profile from the associated profile type dropdown menu options
                 multi_select_options.select2({
                     templateResult: function (option) {
-
                         if (option.text.includes(selected_type)) {
                             return null;
+                        }
+                        // Exclude erga associated types from the associated profile type dropdown menu options
+                        // if "ERGA" is not selected as the profile type
+                        let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT']
+                        if (!selected_type.includes('ERGA')) {
+                            if (erga_associated_types.some(erga_a_type => option.text.includes(erga_a_type))) {
+                                return null;
+                            }
                         }
                         return option.text;
                     }
