@@ -306,6 +306,11 @@ class ProcessValidationQueue:
             exsam = exsam[0]
             updates[rack_tube] = {}
             for field in s.keys():
+                # Always ask user to upload permit if it is required
+                if any(s[x] == "Y" for x in
+                       lookup.PERMIT_REQUIRED_COLUMN_NAMES):
+                    permits_required = True
+
                 if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field,
                                                                                                                  ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
@@ -314,8 +319,7 @@ class ProcessValidationQueue:
                             updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
                             updates[rack_tube][field]["new_value"] = s[field]
                         else:
-                            if field in ["SAMPLING_PERMITS_REQUIRED", "NAGOYA_PERMITS_REQUIRED",
-                                         "ETHICS_PERMITS_REQUIRED"]:
+                            if field in lookup.PERMIT_REQUIRED_COLUMN_NAMES:
                                 s[field] == "Y"
                                 permits_required = True
                             updates[rack_tube][field]["old_value"] = exsam[field]

@@ -3,14 +3,14 @@
  */
 
 let htmlForm = $('<div/>'); //global form div
-let global_key_split = "___0___";
+let global_key_split = '___0___';
 
 //map controls to rendering functions
 const controlsMapping = {
-    "text": "do_text_ctrl",
-    "textarea": "do_textarea_ctrl",
-    "select": "do_select_ctrl",
-    "copo-multi-select2": "do_copo_multi_select2_ctrl"
+    text: 'do_text_ctrl',
+    textarea: 'do_textarea_ctrl',
+    select: 'do_select_ctrl',
+    'copo-multi-select2': 'do_copo_multi_select2_ctrl',
 };
 
 let contactCOPODialogCount = 1;
@@ -19,10 +19,9 @@ let contactCOPODialogCount = 1;
 const dispatchFormControl = {
     do_text_ctrl: function (formElem, elemValue) {
         let txt;
-        const ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
+        const ctrlsDiv = $('<div/>', {
+            class: 'ctrlDIV',
+        });
 
         let metaDiv = $('<div/>');
         let readonly = false;
@@ -35,67 +34,59 @@ const dispatchFormControl = {
             formElem.email = true;
         }
 
-        if (formElem.disabled === "true") {
-            txt = $('<input/>',
-                {
-                    type: "text",
-                    class: "input-copo form-control copo-text-control",
-                    id: formElem.id,
-                    name: formElem.id,
-                    readonly: readonly,
-                    disabled: true
-                });
+        if (formElem.disabled === 'true') {
+            txt = $('<input/>', {
+                type: 'text',
+                class: 'input-copo form-control copo-text-control',
+                id: formElem.id,
+                name: formElem.id,
+                readonly: readonly,
+                disabled: true,
+            });
         } else {
-            txt = $('<input/>',
-                {
-                    type: "text",
-                    class: "input-copo form-control copo-text-control",
-                    id: formElem.id,
-                    name: formElem.id,
-                    readonly: readonly,
-                });
+            txt = $('<input/>', {
+                type: 'text',
+                class: 'input-copo form-control copo-text-control',
+                id: formElem.id,
+                name: formElem.id,
+                readonly: readonly,
+            });
         }
-
 
         //set validation markers
         const vM = set_validation_markers(formElem, txt);
 
         metaDiv.append(txt);
 
-
         // set control metadata
-        if (formElem.hasOwnProperty("control_meta")) {
+        if (formElem.hasOwnProperty('control_meta')) {
             const control_meta = formElem.control_meta;
 
-            if (control_meta.hasOwnProperty("input_group_addon")) {
+            if (control_meta.hasOwnProperty('input_group_addon')) {
                 //get addon label
                 let input_group_addon_label = '';
 
                 try {
                     input_group_addon_label = control_meta.input_group_addon_label;
                 } catch (err) {
-
                 }
 
                 //redefine metaDiv
-                metaDiv = $('<div/>',
-                    {
-                        class: "input-group"
-                    });
+                metaDiv = $('<div/>', {
+                    class: 'input-group',
+                });
 
-                const inputGroupSpan = $('<span/>',
-                    {
-                        class: "input-group-addon",
-                        html: input_group_addon_label
-                    });
+                const inputGroupSpan = $('<span/>', {
+                    class: 'input-group-addon',
+                    html: input_group_addon_label,
+                });
 
-                if (control_meta.input_group_addon === "right") {
+                if (control_meta.input_group_addon === 'right') {
                     metaDiv.append(txt).append(inputGroupSpan);
                 } else {
                     metaDiv.append(inputGroupSpan).append(txt);
                 }
             }
-
         }
 
         ctrlsDiv.append(metaDiv);
@@ -105,20 +96,17 @@ const dispatchFormControl = {
         return add_message_segment(output);
     },
     do_textarea_ctrl: function (formElem, elemValue) {
+        const ctrlsDiv = $('<div/>', {
+            class: 'ctrlDIV',
+        });
 
-        const ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
-
-        const txt = $('<textarea/>',
-            {
-                class: "form-control copo-textarea-control",
-                rows: 4,
-                cols: 40,
-                id: formElem.id,
-                name: formElem.id
-            });
+        const txt = $('<textarea/>', {
+            class: 'form-control copo-textarea-control',
+            rows: 4,
+            cols: 40,
+            id: formElem.id,
+            name: formElem.id,
+        });
 
         //set validation markers
         const vM = set_validation_markers(formElem, txt);
@@ -130,35 +118,37 @@ const dispatchFormControl = {
         return add_message_segment(output);
     },
     do_select_ctrl: function (formElem, elemValue) {
-        const ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
+        const ctrlsDiv = $('<div/>', {
+            class: 'ctrlDIV',
+        });
 
         //build select
-        const selectCtrl = $('<select/>',
-            {
-                class: "form-control input-copo copo-select-control",
-                id: formElem.id,
-                name: formElem.id
-            });
+        const selectCtrl = $('<select/>', {
+            class: 'form-control input-copo copo-select-control',
+            id: formElem.id,
+            name: formElem.id,
+        });
 
         if (formElem.option_values) {
             for (let i = 0; i < formElem.option_values.length; ++i) {
                 const option = formElem.option_values[i];
-                let lbl = "";
-                let vl = "";
-                if (typeof option === "string") {
+                let lbl = '';
+                let vl = '';
+                if (typeof option === 'string') {
                     lbl = option;
                     vl = option;
-                } else if (typeof option === "object") {
+                } else if (typeof option === 'object') {
                     lbl = option.label;
                     vl = option.value;
                 }
-                if (vl === "required") {
-                    $('<option disabled selected value>' + lbl + '</option>').appendTo(selectCtrl)
+                if (vl === 'required') {
+                    $('<option disabled selected value>' + lbl + '</option>').appendTo(
+                        selectCtrl
+                    );
                 } else {
-                    $('<option value="' + vl + '">' + lbl + '</option>').appendTo(selectCtrl);
+                    $('<option value="' + vl + '">' + lbl + '</option>').appendTo(
+                        selectCtrl
+                    );
                 }
             }
         }
@@ -168,15 +158,14 @@ const dispatchFormControl = {
         return get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
     },
     do_copo_multi_select2_ctrl: function (formElem, elemValue) {
-        formElem["type"] = "string"; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
+        formElem['type'] = 'string'; //this, for the purposes of the UI, should be assigned a string temporarily, since multi_search takes care of the multiple values
 
-        var ctrlsDiv = $('<div/>',
-            {
-                class: "ctrlDIV"
-            });
+        var ctrlsDiv = $('<div/>', {
+            class: 'ctrlDIV',
+        });
 
-        var placeholder = "Select " + formElem.label + "...";
-        if (formElem.hasOwnProperty("placeholder")) {
+        var placeholder = 'Select ' + formElem.label + '...';
+        if (formElem.hasOwnProperty('placeholder')) {
             placeholder = formElem.placeholder;
         }
 
@@ -192,7 +181,7 @@ const dispatchFormControl = {
         if (formElem.option_values && formElem.option_values.length) {
             optionsList = formElem.option_values.map(function (item) {
                 let newItem;
-                if (typeof item === "string") {
+                if (typeof item === 'string') {
                     newItem = item;
                     item = {};
                     item.value = newItem;
@@ -202,7 +191,7 @@ const dispatchFormControl = {
                 return {
                     id: item.accession || item.value,
                     text: item.label,
-                    selected: true
+                    selected: true,
                 };
             });
         }
@@ -211,33 +200,34 @@ const dispatchFormControl = {
         let currentValue = [];
 
         if (elemValue) {
-            if (typeof elemValue === "string") {
-                currentValue = elemValue.split(",");
-            } else if (formElem.id.includes("associated_type") && typeof elemValue === "object") {
-                let obj = JSON.parse(JSON.stringify(elemValue))
+            if (typeof elemValue === 'string') {
+                currentValue = elemValue.split(',');
+            } else if (
+                formElem.id.includes('associated_type') &&
+                typeof elemValue === 'object'
+            ) {
+                let obj = JSON.parse(JSON.stringify(elemValue));
                 $.each(obj, function (index, item) {
-                    currentValue.push(item.value)
+                    currentValue.push(item.value);
                 });
-            } else if (typeof elemValue === "object") {
-                currentValue = elemValue
+            } else if (typeof elemValue === 'object') {
+                currentValue = elemValue;
             }
         }
 
         //generate element controls
-        var ctrl = $('<select/>',
-            {
-                class: "input-copo form-control copo-multi-select2",
-                style: "width: 100%",
-                "multiple": true,
-                id: formElem.id,
-                name: formElem.id,
-                "data-validate": true,
-                "data-placeholder": placeholder,
-                "data-maximumSelectionLength": maximumSelectionLength,
-                "data-currentValue": JSON.stringify(currentValue),
-                "data-optionsList": JSON.stringify(optionsList)
-            });
-
+        var ctrl = $('<select/>', {
+            class: 'input-copo form-control copo-multi-select2',
+            style: 'width: 100%',
+            multiple: true,
+            id: formElem.id,
+            name: formElem.id,
+            'data-validate': true,
+            'data-placeholder': placeholder,
+            'data-maximumSelectionLength': maximumSelectionLength,
+            'data-currentValue': JSON.stringify(currentValue),
+            'data-optionsList': JSON.stringify(optionsList),
+        });
 
         //set validation markers
         const vM = set_validation_markers(formElem, ctrl);
@@ -248,17 +238,18 @@ const dispatchFormControl = {
         const returnDiv = get_form_ctrl(ctrlsDiv.clone(), formElem, elemValue);
 
         return add_message_segment(returnDiv);
-    }
+    },
 };
 
 $(document).ready(function () {
     //handle event for form calls
-    $(document).on("click", ".new-form-call", function (e) { //call to generate form
+    $(document).on('click', '.new-form-call', function (e) {
+        //call to generate form
         e.preventDefault();
 
-        let component = "";
+        let component = '';
         try {
-            component = $(this).attr("data-component");
+            component = $(this).attr('data-component');
         } catch (err) {
             console.log(err);
         }
@@ -274,45 +265,48 @@ $(document).ready(function () {
     $('#contactCOPODialogBtnID').bind('click', function () {
         contactCOPODialogCount++;
     });
-
 }); //end of document ready
 
 function initiate_profile_form_call(component) {
-    let copoFormsURL = "/copo/copo_profile_forms/";
+    let copoFormsURL = '/copo/copo_profile_forms/';
     const csrftoken = $.cookie('csrftoken');
-    const errorMsg = "Couldn't build " + component + " form!";
+    const errorMsg = "Couldn't build " + component + ' form!';
     let componentData = null;
 
     $.ajax({
         url: copoFormsURL,
-        type: "POST",
+        type: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         data: {
-            'task': 'form',
-            'component': component
+            task: 'form',
+            component: component,
         },
         success: function (data) {
             json2HtmlProfileForm(data);
             componentData = data;
-
         },
         error: function () {
             alert(errorMsg);
-        }
+        },
     });
 }
 
 function contact_COPO_popup_dialog() {
-    const message = "If you would like to make manifest submissions to an ASG, ERGA or DToL manifest group";
+    const message =
+        'If you would like to make manifest submissions to an ASG, ERGA or DToL manifest group';
     let $content = '<div>';
 
-    $content += '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' + message + '</div>';
-    $content += '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> in order to be added to the manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
+    $content +=
+        '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' +
+        message +
+        '</div>';
+    $content +=
+        '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> in order to be added to the manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
     $content += '</div>';
 
     const dialog = new BootstrapDialog({
         type: BootstrapDialog.TYPE_WARNING,
-        title: "Contact COPO via email",
+        title: 'Contact COPO via email',
         message: $content,
         closable: false,
         onshown: function (dialogRef) {
@@ -320,20 +314,22 @@ function contact_COPO_popup_dialog() {
         },
         onhide: function (dialogRef) {
         },
-        buttons: [{
-            id: 'contactCOPODialogBtnID',
-            label: 'Okay',
-            cssClass: 'btn-custom3',
-            hotkey: 13,
-            action: function (dialogRef) {
-                dialogRef.close(); // Close the 'Contact COPO' dialog
-            }
-        }]
+        buttons: [
+            {
+                id: 'contactCOPODialogBtnID',
+                label: 'Okay',
+                cssClass: 'btn-custom3',
+                hotkey: 13,
+                action: function (dialogRef) {
+                    dialogRef.close(); // Close the 'Contact COPO' dialog
+                },
+            },
+        ],
     });
 
     dialog.realize();
     dialog.getModalFooter().removeClass('modal-footer');
-    dialog.getModalFooter().css({"padding": "15px", "text-align": "right"});
+    dialog.getModalFooter().css({padding: '15px', 'text-align': 'right'});
 
     // Show the 'Contact COPO dialog' once
     if (contactCOPODialogCount > 1) {
@@ -342,60 +338,106 @@ function contact_COPO_popup_dialog() {
     } else {
         dialog.open();
     }
-
 } //end of contact_COPO_popup_dialog  **************
 
-function remove_selectedProfileType_from_associatedProfileTypeList(profileTypeID) {
-    document.getElementById(profileTypeID).addEventListener("change", function () {
-        // Perform the following only if selected 'Profile Type' is not "Stand-alone"
-        if (this.value !== "Stand-alone") {
-            $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
-            // Retrieve the parentheses and the enclosed string from the selected profile type
-            let selected_type;
-            let multi_select_options = $('.copo-multi-select2')
-            const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+function filter_associatedProfileTypeList_based_on_selectedProfileType(
+    profileTypeID
+) {
+    if (
+        !document.getElementById(profileTypeID).value ||
+        document.getElementById(profileTypeID).value != 'Stand-alone'
+    ) {
+        let selected_type = get_acronym(
+            document.getElementById(profileTypeID).value
+        );
+        let multi_select_options = $('.copo-multi-select2');
+        let associated_type_option = multi_select_options.find(
+            "option[value*='" + selected_type + "']"
+        );
+        let selected_associated_types = multi_select_options.find(':selected');
 
-            if (!pattern.test(this.value)) {
-                selected_type = this.value // Get selected value if no parentheses exist
-            } else {
-                let associated_type_abbreviation_with_parentheses =
-                    this.value.substring(this.value.indexOf('('), this.value.indexOf(')') + 1);
+        // Check any associated type (s) exists
+        if (selected_associated_types.length && associated_type_option.length) {
+            // Exclude the selected profile from the associated profile type dropdown menu options
+            multi_select_options.select2({
+                templateResult: function (option) {
+                    let option_value = get_acronym(option.text);
 
-                // Get associated type acronym that is enclosed in parentheses
-                // If empty an empty string is returned, set the acronym as the full string
-                selected_type = associated_type_abbreviation_with_parentheses === ''
-                    ? this.value.replace(/\(\s*\)/g, "")
-                    : associated_type_abbreviation_with_parentheses
-            }
-
-            let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
-            if (associated_type_option.length) {
-                // Exclude the selected profile from the associated profile type dropdown menu options
-                multi_select_options.select2({
-                    templateResult: function (option) {
-                        if (option.text.includes(selected_type)) {
+                    if (option_value === selected_type) {
+                        return null;
+                    }
+                    // Exclude erga associated types from the associated profile type dropdown menu options
+                    // if "ERGA" is not selected as the profile type
+                    let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT'];
+                    if (!selected_type.includes('ERGA')) {
+                        if (
+                            erga_associated_types.some((erga_a_type) =>
+                                option.text.includes(erga_a_type)
+                            )
+                        ) {
                             return null;
                         }
-                        // Exclude erga associated types from the associated profile type dropdown menu options
-                        // if "ERGA" is not selected as the profile type
-                        let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT']
-                        if (!selected_type.includes('ERGA')) {
-                            if (erga_associated_types.some(erga_a_type => option.text.includes(erga_a_type))) {
+                    }
+                    return option.text;
+                },
+            });
+
+            // Reinitialise/update the multi-select options
+            multi_select_options.trigger('change');
+        }
+    }
+}
+
+function remove_selectedProfileType_from_associatedProfileTypeList(
+    profileTypeID
+) {
+    document
+        .getElementById(profileTypeID)
+        .addEventListener('change', function () {
+            // Perform the following only if selected 'Profile Type' is not "Stand-alone"
+            if (this.value !== 'Stand-alone') {
+                $('.row:nth-child(4) > .col-sm-12').show(); // Show 'Associated Profile Type(s)' field
+
+                let selected_type = get_acronym(this.value);
+                let multi_select_options = $('.copo-multi-select2');
+                let associated_type_option = multi_select_options.find(
+                    "option[value*='" + selected_type + "']"
+                );
+
+                // Clear associated type(s) options when profile type is changed
+                multi_select_options.val(null).trigger('change');
+
+                if (associated_type_option.length) {
+                    // Exclude the selected profile from the associated profile type dropdown menu options
+                    multi_select_options.select2({
+                        templateResult: function (option) {
+                            let option_value = get_acronym(option.text);
+
+                            if (option_value === selected_type) {
                                 return null;
                             }
-                        }
-                        return option.text;
-                    }
-                });
-                // Reinitialise/update the multi-select options
-                multi_select_options.trigger('change');
-
+                            // Exclude erga associated types from the associated profile type dropdown menu options
+                            // if "ERGA" is not selected as the profile type
+                            let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT'];
+                            if (!selected_type.includes('ERGA')) {
+                                if (
+                                    erga_associated_types.some((erga_a_type) =>
+                                        option.text.includes(erga_a_type)
+                                    )
+                                ) {
+                                    return null;
+                                }
+                            }
+                            return option.text;
+                        },
+                    });
+                    // Reinitialise/update the multi-select options
+                    multi_select_options.trigger('change');
+                }
+            } else {
+                $('.row:nth-child(4) > .col-sm-12').hide(); // Hide 'Associated Profile Type(s)' field
             }
-        } else {
-            $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
-        }
-    });
-
+        });
 }
 
 function json2HtmlProfileForm(data) {
@@ -406,9 +448,9 @@ function json2HtmlProfileForm(data) {
 
             htmlForm.empty(); //clear form
             dialogRef.close();
-        }
+        },
     };
-    let dialog_title = get_profile_form_title(data)
+    let dialog_title = get_profile_form_title(data);
     const dialog = new BootstrapDialog({
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
@@ -423,7 +465,7 @@ function json2HtmlProfileForm(data) {
         },
         onshown: function (dialogRef) {
             //prevent enter keypress from submitting form automatically
-            $("form").keypress(function (e) {
+            $('form').keypress(function (e) {
                 //Enter key
                 if (e.which === 13) {
                     return false;
@@ -431,7 +473,7 @@ function json2HtmlProfileForm(data) {
             });
 
             // Add Profile form
-            if (dialog_title.includes("Add Profile")) {
+            if (dialog_title.includes('Add Profile')) {
                 // If a user is not added to a manifest group, display a message for the user to contact
                 // COPO via email dialog in order to be added to the manifest group
                 if (groups.length === 0) {
@@ -439,48 +481,64 @@ function json2HtmlProfileForm(data) {
                 } else {
                     // In the 'Add Profile' dialog, remove selected profile type from 'associated_type' dropdown menu
                     // options if a user is added to a manifest group
-                    remove_selectedProfileType_from_associatedProfileTypeList(data.form.form_schema[2].id)
+                    remove_selectedProfileType_from_associatedProfileTypeList(
+                        data.form.form_schema[2].id
+                    );
                 }
             }
 
             // Edit Profile form
-            if (dialog_title.includes("Edit Profile")) {
+            if (dialog_title.includes('Edit Profile')) {
                 if (groups.length === 0) {
                     // If a user is not added to a manifest group,do nothing
                     // This is already handled by back-end functionality.
                 } else {
-                    // In the 'Edit Profile' dialog, remove selected profile profile from 'associated_type'
+                    // Filter 'associated_type' dropdown menu options based on
+                    // selected profile type after 2 seconds
+                    setTimeout(function () {
+                        // Do something after 1 second
+                        filter_associatedProfileTypeList_based_on_selectedProfileType(
+                            data.form.form_schema[2].id
+                        );
+                    }, 2000);
+
+                    // remove selected profile profile from 'associated_type'
                     // dropdown menu options if a user is added to a manifest group
-                    remove_selectedProfileType_from_associatedProfileTypeList(data.form.form_schema[2].id)
+                    remove_selectedProfileType_from_associatedProfileTypeList(
+                        data.form.form_schema[2].id
+                    );
                 }
             }
 
             //custom validators
-            custom_validate(htmlForm.find("form"));
+            custom_validate(htmlForm.find('form'));
 
             refresh_form_aux_controls();
 
             //validate on submit event
-            htmlForm.find("form").validator().on('submit', function (e) {
-                if (e.isDefaultPrevented()) {
-                    return false;
-                } else {
-                    e.preventDefault();
-                    save_form(data.form, dialogRef);
-                }
-            });
+            htmlForm
+                .find('form')
+                .validator()
+                .on('submit', function (e) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    } else {
+                        e.preventDefault();
+                        save_form(data.form, dialogRef);
+                    }
+                });
 
-            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            const event = jQuery.Event('postformload'); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
-            if (!groups.includes("dtol_users")) {
+            if (!groups.includes('dtol_users')) {
                 $('select option[value *= "(DTOL)"]').hide();
                 $('select option[value *= "(ASG)"]').hide();
             }
-            if (!groups.includes("erga_users")) {
+            if (!groups.includes('erga_users')) {
                 $('select option[value *= "(ERGA)"]').hide();
             }
-            if (!groups.includes("dtolenv_users")) {
+            if (!groups.includes('dtolenv_users')) {
                 $('select option[value *= "(DTOL_ENV)"]').hide();
             }
         },
@@ -490,22 +548,23 @@ function json2HtmlProfileForm(data) {
                 label: 'Cancel',
                 cssClass: 'tiny ui basic button',
                 action: function (dialogRef) {
-                    doTidyClose["closeIt"](dialogRef);
+                    doTidyClose['closeIt'](dialogRef);
                     // Close any other dialog that might have been opened
                     $.each(BootstrapDialog.dialogs, function (id, dialog) {
                         dialog.close();
                     });
-                }
+                },
             },
             {
                 id: 'btnFormSave',
-                label: '<i class="copo-components-icons glyphicon glyphicon-save"></i> Save',
+                label:
+                    '<i class="copo-components-icons glyphicon glyphicon-save"></i> Save',
                 cssClass: 'tiny ui basic primary button',
                 action: function (dialogRef) {
-                    validate_forms(htmlForm.find("form"));
-                }
-            }
-        ]
+                    validate_forms(htmlForm.find('form'));
+                },
+            },
+        ],
     });
 
     const $dialogContent = $('<div/>');
@@ -515,19 +574,26 @@ function json2HtmlProfileForm(data) {
 
     const form_body_div = set_up_form_body_div(data);
 
-    $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
+    $dialogContent
+        .append(form_help_div)
+        .append(form_message_div)
+        .append(form_body_div);
 
     // If user is in a manifest group, hide 'Associated profile type(s)' field on "Add Profile" dialog launch
     // because "Stand-alone" is the default value for 'Profile Type'
-    if (dialog_title.includes("Add Profile") && groups.length >= 1) {
-        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    if (dialog_title.includes('Add Profile') && groups.length >= 1) {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide();
     }
 
     // If user is in a manifest group, hide 'Associated profile type(s)' field on "Edit Profile" dialog launch
     // if "Stand-alone" is the value shown for 'Profile Type'
 
-    if (dialog_title.includes("Edit Profile") && groups.length >= 1 && data.form.form_schema[2].data === "Stand-alone") {
-        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    if (
+        dialog_title.includes('Edit Profile') &&
+        groups.length >= 1 &&
+        data.form.form_schema[2].data === 'Stand-alone'
+    ) {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide();
     }
 
     dialog.realize();
@@ -542,26 +608,24 @@ function build_form_body(data) {
     const formValue = formJSON.form_value;
 
     //clean slate for form
-    let formCtrl = htmlForm.find("form");
+    let formCtrl = htmlForm.find('form');
     if (formCtrl.length) {
         formCtrl.empty();
     } else {
-        formCtrl = $('<form/>',
-            {
-                "data-toggle": "validator"
-            });
+        formCtrl = $('<form/>', {
+            'data-toggle': 'validator',
+        });
     }
 
     //generate controls given component schema
     for (let i = 0; i < formJSON.form_schema.length; ++i) {
-
         const formElem = formJSON.form_schema[i];
         let control = formElem.control;
 
         let elemValue = null;
 
         if (formValue) {
-            const elem = formElem.id.split(".").slice(-1)[0];
+            const elem = formElem.id.split('.').slice(-1)[0];
             if (formValue[elem]) {
                 elemValue = formValue[elem];
             }
@@ -569,59 +633,61 @@ function build_form_body(data) {
             if (formElem.default_value) {
                 elemValue = formElem.default_value;
             } else {
-                elemValue = "";
+                elemValue = '';
             }
         }
 
-        if (formElem.hidden === "true") {
-            control = "hidden";
+        if (formElem.hidden === 'true') {
+            control = 'hidden';
         }
 
         try {
-            formCtrl.append(dispatchFormControl[controlsMapping[control.toLowerCase()]](formElem, elemValue));
+            formCtrl.append(
+                dispatchFormControl[controlsMapping[control.toLowerCase()]](
+                    formElem,
+                    elemValue
+                )
+            );
         } catch (err) {
             console.log(err);
-            formCtrl.append('<div class="form-group copo-form-group"><span class="text-danger">Form Control Error</span> (' + formElem.label + '): Cannot resolve form control!</div>');
+            formCtrl.append(
+                '<div class="form-group copo-form-group"><span class="text-danger">Form Control Error</span> (' +
+                formElem.label +
+                '): Cannot resolve form control!</div>'
+            );
         }
     }
 
     return htmlForm.append(formCtrl);
-
 }
 
 function get_form_message(data) {
-    const messageRowDiv = $('<div/>',
-        {
-            class: "row"
-        });
+    const messageRowDiv = $('<div/>', {
+        class: 'row',
+    });
 
-    const messageColDiv = $('<div/>',
-        {
-            class: "col-sm-12 col-md-12 col-lg-12 formMessageDiv"
-        });
+    const messageColDiv = $('<div/>', {
+        class: 'col-sm-12 col-md-12 col-lg-12 formMessageDiv',
+    });
 
     messageRowDiv.append(messageColDiv);
 
     let message_text = null;
     let message_type = null;
 
-
     try {
         message_text = data.form.form_message.text;
         message_type = data.form.form_message.type;
-
     } catch (err) {
     }
 
     if (message_text && message_type) {
         let feedback = get_alert_control();
-        let alertClass = "alert-" + message_type;
+        let alertClass = 'alert-' + message_type;
 
-        feedback
-            .removeClass("alert-success")
-            .addClass(alertClass);
+        feedback.removeClass('alert-success').addClass(alertClass);
 
-        feedback.find(".alert-message").html(message_text);
+        feedback.find('.alert-message').html(message_text);
         messageColDiv.html(feedback);
     }
 
@@ -629,61 +695,62 @@ function get_form_message(data) {
 }
 
 function get_profile_form_title(data) {
-    let formTitle = "";
-    let formMode = "add";
+    let formTitle = '';
+    let formMode = 'add';
 
     if (data.form.target_id) {
-        formTitle = "Edit " + data.form.form_label;
-        formMode = "edit";
+        formTitle = 'Edit ' + data.form.form_label;
+        formMode = 'edit';
     } else {
-        formTitle = "Add " + data.form.form_label;
-        formMode = "add";
+        formTitle = 'Add ' + data.form.form_label;
+        formMode = 'add';
     }
 
     return formTitle;
 }
 
 function set_up_help_ctrl(ctrlName) {
-
     // now set up switch button to support the tool tips
-    $("[name='" + ctrlName + "']").bootstrapSwitch(
-        {
-            size: "mini",
-            onColor: "primary",
-            state: true
-        });
-
-    $('input[name="' + ctrlName + '"]').on('switchChange.bootstrapSwitch', function (event, state) {
-        if ($(this).closest(".helpDivRow").siblings(".formDivRow").length) {
-            toggle_display_help_tips(state, $(this).closest(".helpDivRow").siblings(".formDivRow").first());
-        }
+    $("[name='" + ctrlName + "']").bootstrapSwitch({
+        size: 'mini',
+        onColor: 'primary',
+        state: true,
     });
 
+    $('input[name="' + ctrlName + '"]').on(
+        'switchChange.bootstrapSwitch',
+        function (event, state) {
+            if ($(this).closest('.helpDivRow').siblings('.formDivRow').length) {
+                toggle_display_help_tips(
+                    state,
+                    $(this).closest('.helpDivRow').siblings('.formDivRow').first()
+                );
+            }
+        }
+    );
 }
 
 function set_up_form_help_div(data) {
-    const ctrlDiv = $('<div/>',
-        {
-            class: "row helpDivRow",
-            style: "margin-bottom:20px;"
-        });
+    const ctrlDiv = $('<div/>', {
+        class: 'row helpDivRow',
+        style: 'margin-bottom:20px;',
+    });
 
-    const cloneCol = $('<div/>',
-        {
-            class: "col-sm-7 col-md-7 col-lg-7"
-        });
+    const cloneCol = $('<div/>', {
+        class: 'col-sm-7 col-md-7 col-lg-7',
+    });
 
     return ctrlDiv.append(cloneCol);
 }
 
 function set_up_form_body_div(data) {
-    let formBodyDiv = $('<div/>',
-        {
-            class: "row formDivRow"
-        }).append($('<div/>',
-        {
-            class: "col-sm-12 col-md-12 col-lg-12"
-        }).append(htmlForm));
+    let formBodyDiv = $('<div/>', {
+        class: 'row formDivRow',
+    }).append(
+        $('<div/>', {
+            class: 'col-sm-12 col-md-12 col-lg-12',
+        }).append(htmlForm)
+    );
     //build main form
     build_form_body(data);
 
@@ -695,92 +762,126 @@ function refresh_form_aux_controls() {
     refresh_profile_tool_tips();
 
     //set up help tips
-    set_up_help_ctrl("helptips-chk");
+    set_up_help_ctrl('helptips-chk');
 
     //refresh form validator
-    refresh_validator(htmlForm.find("form"));
+    refresh_validator(htmlForm.find('form'));
 }
 
 function set_validation_markers(formElem, ctrl) {
     //validation markers
 
     const validationMarkers = {};
-    let errorHelpDiv = "";
-
+    let errorHelpDiv = '';
 
     //required marker
-    if (formElem.hasOwnProperty("required") && (formElem.required.toString().toLowerCase() === "true")) {
-        ctrl.attr("required", true);
-        ctrl.attr("data-error", formElem.label + " required!");
+    if (
+        formElem.hasOwnProperty('required') &&
+        formElem.required.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('required', true);
+        ctrl.attr('data-error', formElem.label + ' required!');
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //unique marker...
-    if (formElem.hasOwnProperty("unique") && (formElem.unique.toString().toLowerCase() === "true")) {
+    if (
+        formElem.hasOwnProperty('unique') &&
+        formElem.unique.toString().toLowerCase() === 'true'
+    ) {
         let uniqueArray = [];
 
-        if (formElem.hasOwnProperty("unique_items")) {
+        if (formElem.hasOwnProperty('unique_items')) {
             uniqueArray = formElem.unique_items;
         }
 
         uniqueArray = JSON.stringify(uniqueArray);
 
-        ctrl.attr("data-unique", "unique");
-        ctrl.attr("data-unique-array", uniqueArray);
-        ctrl.attr('data-unique-error', "The " + formElem.label + " value already exists!");
+        ctrl.attr('data-unique', 'unique');
+        ctrl.attr('data-unique-array', uniqueArray);
+        ctrl.attr(
+            'data-unique-error',
+            'The ' + formElem.label + ' value already exists!'
+        );
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
-
     //batch unique marker...allows unique test for siblings of the same kind on the form
-    if (formElem.hasOwnProperty("batch") && (formElem.batch.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-batch", "batch");
-        ctrl.attr("data-family-name", formElem.batchuniquename);
-        ctrl.attr('data-batch-error', "The " + formElem.label + " value has already been assigned!");
+    if (
+        formElem.hasOwnProperty('batch') &&
+        formElem.batch.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-batch', 'batch');
+        ctrl.attr('data-family-name', formElem.batchuniquename);
+        ctrl.attr(
+            'data-batch-error',
+            'The ' + formElem.label + ' value has already been assigned!'
+        );
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //email marker...
-    if (formElem.hasOwnProperty("email") && (formElem.email.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-email", "email");
-        ctrl.attr('data-email-error', "Please enter a valid value for the " + formElem.label);
+    if (
+        formElem.hasOwnProperty('email') &&
+        formElem.email.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-email', 'email');
+        ctrl.attr(
+            'data-email-error',
+            'Please enter a valid value for the ' + formElem.label
+        );
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //phone marker...
-    if (formElem.hasOwnProperty("phone") && (formElem.phone.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-phone", "phone");
-        ctrl.attr('data-phone-error', "Please enter a valid value for the " + formElem.label);
+    if (
+        formElem.hasOwnProperty('phone') &&
+        formElem.phone.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-phone', 'phone');
+        ctrl.attr(
+            'data-phone-error',
+            'Please enter a valid value for the ' + formElem.label
+        );
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //resolver marker...
-    if (formElem.hasOwnProperty("igroup") && (formElem.igroup.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-igroup", "igroup");
-        ctrl.attr('data-igroup-error', "Please click " + formElem.button_label);
+    if (
+        formElem.hasOwnProperty('igroup') &&
+        formElem.igroup.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-igroup', 'igroup');
+        ctrl.attr('data-igroup-error', 'Please click ' + formElem.button_label);
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //characteristic marker
-    if (formElem.hasOwnProperty("characteristics") && (formElem.characteristics.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-characteristics", "characteristics");
-        ctrl.attr('data-characteristics-error', "Value/Unit error!");
+    if (
+        formElem.hasOwnProperty('characteristics') &&
+        formElem.characteristics.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-characteristics', 'characteristics');
+        ctrl.attr('data-characteristics-error', 'Value/Unit error!');
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //validate_ontology marker
-    if (formElem.hasOwnProperty("validate_ontology") && (formElem.validate_ontology.toString().toLowerCase() === "true")) {
-        ctrl.attr("data-ontology", "ontology");
-        ctrl.attr('data-ontology-error', "Please enter a valid ontology.");
+    if (
+        formElem.hasOwnProperty('validate_ontology') &&
+        formElem.validate_ontology.toString().toLowerCase() === 'true'
+    ) {
+        ctrl.attr('data-ontology', 'ontology');
+        ctrl.attr('data-ontology-error', 'Please enter a valid ontology.');
 
-        errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
+        errorHelpDiv = $('<div></div>').attr({class: 'help-block with-errors'});
     }
 
     //ontologyrequired marker
@@ -792,7 +893,6 @@ function set_validation_markers(formElem, ctrl) {
     //     errorHelpDiv = $('<div></div>').attr({class: "help-block with-errors"});
     // }
 
-
     validationMarkers['errorHelpDiv'] = errorHelpDiv;
     validationMarkers['ctrl'] = ctrl;
 
@@ -801,24 +901,22 @@ function set_validation_markers(formElem, ctrl) {
 
 function form_help_ctrl(tip) {
     if (tip) {
-        return $('<span/>',
-            {
-                html: tip,
-                class: "form-input-help",
-                style: "display:none;"
-            });
+        return $('<span/>', {
+            html: tip,
+            class: 'form-input-help',
+            style: 'display:none;',
+        });
     } else {
         return '';
     }
 }
 
 function form_div_ctrl() {
-    return $('<div/>',
-        {
-            style: "padding-bottom:5px; outline: 0;",
-            class: "form-group copo-form-group",
-            tabindex: -1
-        });
+    return $('<div/>', {
+        style: 'padding-bottom:5px; outline: 0;',
+        class: 'form-group copo-form-group',
+        tabindex: -1,
+    });
 }
 
 function form_label_ctrl(formElem) {
@@ -826,39 +924,49 @@ function form_label_ctrl(formElem) {
     const target = formElem.id;
     let lblCtrl = '';
 
-    if (formElem.hasOwnProperty("required") && (formElem.required.toString().toLowerCase() === "true")) {
-        lbl = lbl + "<span class='constraint-label required-label'> required</span>";
-    } else if (formElem.hasOwnProperty("field_constraint") && (formElem.field_constraint.trim().toLowerCase() !== "")) {
-        const dclass = "constraint-label " + formElem.field_constraint.trim().toLowerCase() + "-label";
+    if (
+        formElem.hasOwnProperty('required') &&
+        formElem.required.toString().toLowerCase() === 'true'
+    ) {
+        lbl =
+            lbl + "<span class='constraint-label required-label'> required</span>";
+    } else if (
+        formElem.hasOwnProperty('field_constraint') &&
+        formElem.field_constraint.trim().toLowerCase() !== ''
+    ) {
+        const dclass =
+            'constraint-label ' +
+            formElem.field_constraint.trim().toLowerCase() +
+            '-label';
         const dval = formElem.field_constraint.trim().toLowerCase();
-        lbl = lbl + "<span class='" + dclass + "'>" + dval + "</span>";
+        lbl = lbl + "<span class='" + dclass + "'>" + dval + '</span>';
     }
 
     if (lbl) {
-        lblCtrl = $('<label/>',
-            {
-                html: lbl,
-                for: target,
-                class: "control-label"
-            });
-
+        lblCtrl = $('<label/>', {
+            html: lbl,
+            for: target,
+            class: 'control-label',
+        });
 
         var helpTip = '';
-        if (formElem.hasOwnProperty('help_tip') && formElem.hasOwnProperty('help_tip') !== '') {
-            helpTip = formElem["help_tip"];
+        if (
+            formElem.hasOwnProperty('help_tip') &&
+            formElem.hasOwnProperty('help_tip') !== ''
+        ) {
+            helpTip = formElem['help_tip'];
         }
 
         if (helpTip) {
-            const item = $('<i/>',
-                {
-                    style: "margin-left: 5px;",
-                    class: "ui grey icon info circle copo-tooltip",
-                    "data-html": helpTip
-                });
+            const item = $('<i/>', {
+                style: 'margin-left: 5px;',
+                class: 'ui grey icon info circle copo-tooltip',
+                'data-html': helpTip,
+            });
             lblCtrl.append(item);
         }
     }
-    return lblCtrl
+    return lblCtrl;
 }
 
 function get_element_clone(ctrlsDiv, counter) {
@@ -867,28 +975,25 @@ function get_element_clone(ctrlsDiv, counter) {
     ctrlClone.find(':input').each(function () {
         if (this.id) {
             var elemID = this.id;
-            $(this).attr("id", elemID + global_key_split + counter);
-            $(this).attr("name", elemID + global_key_split + counter);
+            $(this).attr('id', elemID + global_key_split + counter);
+            $(this).attr('name', elemID + global_key_split + counter);
         }
     });
 
-
     const row = $('<div/>', {
-        class: "row control-row"
+        class: 'row control-row',
     });
 
     const left = $('<div/>', {
-        class: "col-sm-9"
+        class: 'col-sm-9',
     });
 
     const right = $('<div/>', {
-        class: "col-sm-3",
-        style: "padding-left: 5px;"
+        class: 'col-sm-3',
+        style: 'padding-left: 5px;',
     });
 
-    row
-        .append(left)
-        .append(right);
+    row.append(left).append(right);
 
     const delBtn = get_del_button();
 
@@ -909,12 +1014,11 @@ function get_element_clone(ctrlsDiv, counter) {
         refresh_profile_tool_tips();
     });
 
-
     left.append(ctrlClone);
     right.append(addBtn);
     right.append(delBtn);
 
-    return row
+    return row;
 }
 
 function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
@@ -924,44 +1028,61 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
     //validate elemValue
     if (Object.prototype.toString.call(elemValue) === '[object Object]') {
         if ($.isEmptyObject(elemValue)) {
-            elemValue = "";
+            elemValue = '';
         }
     }
 
     if (elemValue) {
-        if (formElem.type === "array" && !formElem.id.includes("associated_type")) {
+        if (formElem.type === 'array' && !formElem.id.includes('associated_type')) {
             if (elemValue.length > 0) {
-
                 //first element should not be open to deletion
-                ctrlsWithValuesDiv.find(":input").each(function () {
+                ctrlsWithValuesDiv.find(':input').each(function () {
                     if (this.id) {
                         let sendOfValue = elemValue;
-                        if (Object.prototype.toString.call(elemValue) === '[object Array]') {
+                        if (
+                            Object.prototype.toString.call(elemValue) === '[object Array]'
+                        ) {
                             sendOfValue = elemValue[0];
                         }
 
-                        const resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
+                        const resolvedValue = resolve_ctrl_values_aux_1(
+                            this.id,
+                            formElem,
+                            sendOfValue
+                        );
                         $(this).val(resolvedValue);
-                        this.setAttribute("value", resolvedValue);
+                        this.setAttribute('value', resolvedValue);
                     }
                 });
 
                 //sort other elements of the elemValue array
-                if (Object.prototype.toString.call(elemValue) === '[object Array]' && elemValue.length > 1) {
+                if (
+                    Object.prototype.toString.call(elemValue) === '[object Array]' &&
+                    elemValue.length > 1
+                ) {
                     ctrlsWithValuesDivArray = $('<div/>');
 
                     for (let i = 1; i < elemValue.length; ++i) {
                         ++counter;
 
-                        const ctrlsWithValuesDivSiblings = get_element_clone(ctrlsDiv.clone(), counter);
-                        ctrlsWithValuesDivSiblings.find(":input").each(function () {
+                        const ctrlsWithValuesDivSiblings = get_element_clone(
+                            ctrlsDiv.clone(),
+                            counter
+                        );
+                        ctrlsWithValuesDivSiblings.find(':input').each(function () {
                             if (this.id) {
+                                const tId = this.id.substring(
+                                    0,
+                                    this.id.lastIndexOf(global_key_split)
+                                ); //strip off subscript
 
-                                const tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
-
-                                const resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
+                                const resolvedValue = resolve_ctrl_values_aux_1(
+                                    tId,
+                                    formElem,
+                                    elemValue[i]
+                                );
                                 $(this).val(resolvedValue);
-                                this.setAttribute("value", resolvedValue);
+                                this.setAttribute('value', resolvedValue);
                             }
                         });
 
@@ -969,9 +1090,9 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                     }
                 }
             }
-
-        } else {//not array type elemValue
-            ctrlsWithValuesDiv.find(":input").each(function () {
+        } else {
+            //not array type elemValue
+            ctrlsWithValuesDiv.find(':input').each(function () {
                 if (this.id) {
                     let sendOfValue = elemValue;
 
@@ -979,19 +1100,23 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                         sendOfValue = elemValue.join();
                     }
 
-                    const resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
+                    const resolvedValue = resolve_ctrl_values_aux_1(
+                        this.id,
+                        formElem,
+                        sendOfValue
+                    );
                     $(this).val(resolvedValue);
-                    this.setAttribute("value", resolvedValue);
+                    this.setAttribute('value', resolvedValue);
 
-                    if ($(this).prop("tagName") === "SELECT") {//this was what worked, as .val() failed to dance
+                    if ($(this).prop('tagName') === 'SELECT') {
+                        //this was what worked, as .val() failed to dance
                         for (var i = 0; i < this.length; ++i) {
                             if (this.options[i].value === resolvedValue) {
-                                this.options[i].setAttribute("selected", "selected");
+                                this.options[i].setAttribute('selected', 'selected');
                                 break;
                             }
                         }
                     }
-
                 }
             });
         }
@@ -1008,10 +1133,15 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
 function resolve_ctrl_values_aux_1(ctrlObjectID, formElem, elemValue) {
     var embedValue = null;
 
-    if (ctrlObjectID.length === formElem.id.length) { //likely end-point element
+    if (ctrlObjectID.length === formElem.id.length) {
+        //likely end-point element
         embedValue = elemValue;
-    } else if (ctrlObjectID.length > formElem.id.length) { //likely a composite element
-        var elemKeys = ctrlObjectID.split(formElem.id + ".").slice(-1)[0].split(".");
+    } else if (ctrlObjectID.length > formElem.id.length) {
+        //likely a composite element
+        var elemKeys = ctrlObjectID
+            .split(formElem.id + '.')
+            .slice(-1)[0]
+            .split('.');
 
         embedValue = elemValue;
         for (var i = 0; i < elemKeys.length; ++i) {
@@ -1024,20 +1154,20 @@ function resolve_ctrl_values_aux_1(ctrlObjectID, formElem, elemValue) {
 
 function add_message_segment(outputCtrl) {
     var row = $('<div/>', {
-        class: "row rendered-control"
+        class: 'row rendered-control',
     });
 
     var left = $('<div/>', {
-        class: "col-sm-12 control-segment"
+        class: 'col-sm-12 control-segment',
     });
 
     left.append(outputCtrl);
 
     var right = $('<div/>', {
-        class: "col-sm-4 message-segment"
+        class: 'col-sm-4 message-segment',
     });
 
-    row.append(left)
+    row.append(left);
     // .append(right);
 
     return row;
@@ -1048,26 +1178,29 @@ function get_form_ctrl(ctrlsDiv, formElem, elemValue) {
     var counter = 0;
 
     //resolve control values
-    var ctrlObjects = resolve_ctrl_values(ctrlsDiv.clone(), counter, formElem, elemValue);
+    var ctrlObjects = resolve_ctrl_values(
+        ctrlsDiv.clone(),
+        counter,
+        formElem,
+        elemValue
+    );
 
     var firstElement = ctrlObjects.ctrlsWithValuesDiv;
-    if (formElem.type === "array") {
+    if (formElem.type === 'array') {
         firstElement = $('<div/>', {
-            class: "row control-row"
+            class: 'row control-row',
         });
 
         var left = $('<div/>', {
-            class: "col-sm-9"
+            class: 'col-sm-9',
         });
 
         var right = $('<div/>', {
-            class: "col-sm-3",
-            style: "padding-left: 5px;"
+            class: 'col-sm-3',
+            style: 'padding-left: 5px;',
         });
 
-        firstElement
-            .append(left)
-            .append(right);
+        firstElement.append(left).append(right);
 
         var addBtn = get_add_button();
 
@@ -1099,10 +1232,11 @@ function validate_forms(formObject) {
 function custom_validate(formObject) {
     formObject.validator({
         custom: {
-            unique: function ($el) {//validates for unique fields
+            unique: function ($el) {
+                //validates for unique fields
                 //get array of items for test
                 //items in array must be of type String for the unique validation to work!!
-                const uniqueArray = JSON.parse($el.attr("data-unique-array"));
+                const uniqueArray = JSON.parse($el.attr('data-unique-array'));
                 const newValue = $el.val().trim().toLowerCase();
 
                 let oKFlag = true;
@@ -1117,7 +1251,7 @@ function custom_validate(formObject) {
                 });
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
             batch: function ($el) {
@@ -1127,20 +1261,23 @@ function custom_validate(formObject) {
                 const uniqueArray = [];
 
                 //get family name
-                const familyName = $el.attr("data-family-name");
+                const familyName = $el.attr('data-family-name');
 
                 //get siblings...with same family name
-                $el.closest("form").find("[data-family-name='" + familyName + "']").each(function () {
-                    if (this.id !== $el.attr("id")) {
-                        uniqueArray.push($(this).val().trim().toLowerCase());
-                    }
-                });
+                $el
+                    .closest('form')
+                    .find("[data-family-name='" + familyName + "']")
+                    .each(function () {
+                        if (this.id !== $el.attr('id')) {
+                            uniqueArray.push($(this).val().trim().toLowerCase());
+                        }
+                    });
 
                 const newValue = $el.val().trim().toLowerCase();
 
                 let oKFlag = true;
 
-                if (newValue !== "") {
+                if (newValue !== '') {
                     $.each(uniqueArray, function (index, item) {
                         if (Object.prototype.toString.call(item) === '[object String]') {
                             if (newValue === item) {
@@ -1152,82 +1289,92 @@ function custom_validate(formObject) {
                 }
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
             igroup: function ($el) {
                 //validates for copo-input-group control
 
-                const hiddenSibling = $("#" + $el.attr("id") + "_hidden");
+                const hiddenSibling = $('#' + $el.attr('id') + '_hidden');
                 const newValue = hiddenSibling.val().trim();
 
                 let oKFlag = true;
 
-                if (newValue === "") {
+                if (newValue === '') {
                     oKFlag = false;
                 }
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
-            phone: function ($el) {//validates for phone fields
+            phone: function ($el) {
+                //validates for phone fields
                 const re = /^\+?(0|[1-9]\d*)$/;
                 const newValue = $el.val().trim();
 
                 const oKFlag = re.test(newValue);
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
-            email: function ($el) {//validates for email fields
-                const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            email: function ($el) {
+                //validates for email fields
+                const re =
+                    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 const newValue = $el.val().trim();
 
                 const oKFlag = re.test(newValue);
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
-            otr: function ($el) {//validates for ontology fields required
+            otr: function ($el) {
+                //validates for ontology fields required
                 const validationSource = $el;
 
                 let oKFlag = true;
 
+                validationSource
+                    .closest('.ontology-parent')
+                    .find('.ontology-field-hidden')
+                    .each(function () {
+                        const dataKey = $(this).attr('data-key');
 
-                validationSource.closest(".ontology-parent").find(".ontology-field-hidden").each(function () {
-                    const dataKey = $(this).attr("data-key");
-
-                    if ((dataKey === 'annotationValue' && !$(this).val().trim())) {
-                        oKFlag = false;
-                    }
-
-                });
+                        if (dataKey === 'annotationValue' && !$(this).val().trim()) {
+                            oKFlag = false;
+                        }
+                    });
 
                 oKFlag = false;
 
-
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
-            ontology: function ($el) {//validates for ontology fields requiring accessions
+            ontology: function ($el) {
+                //validates for ontology fields requiring accessions
                 var validationSource = $el;
                 var oKFlag = true;
 
-                validationSource.closest(".ontology-parent").find(".ontology-field-hidden").each(function () {
-                    var dataKey = $(this).attr("data-key");
+                validationSource
+                    .closest('.ontology-parent')
+                    .find('.ontology-field-hidden')
+                    .each(function () {
+                        var dataKey = $(this).attr('data-key');
 
-                    if ((dataKey === 'termSource' && !$(this).val().trim()) || (dataKey === 'termAccession' && !$(this).val().trim())) {
-                        oKFlag = false;
-                    }
-
-                });
+                        if (
+                            (dataKey === 'termSource' && !$(this).val().trim()) ||
+                            (dataKey === 'termAccession' && !$(this).val().trim())
+                        ) {
+                            oKFlag = false;
+                        }
+                    });
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
             },
             characteristics: function ($el) {
@@ -1237,9 +1384,12 @@ function custom_validate(formObject) {
                 let oKFlag = true;
 
                 const dataKey = 'annotationValue';
-                const elements = validationSource.closest(".ctrlDIV").find(".ontology-parent").find("[data-key='" + dataKey + "']");
+                const elements = validationSource
+                    .closest('.ctrlDIV')
+                    .find('.ontology-parent')
+                    .find("[data-key='" + dataKey + "']");
 
-                const valueElem = {'unit': '', 'value': ''};
+                const valueElem = {unit: '', value: ''};
 
                 elements.each(function (indx, item) {
                     if (valueElem.hasOwnProperty(item.getAttribute('data-parent1'))) {
@@ -1252,7 +1402,8 @@ function custom_validate(formObject) {
                 if (valueElem.value !== '') {
                     //case: numeric value, no unit
                     if ($.isNumeric(valueElem.value) && valueElem.unit === '') {
-                        errorMessage = 'Numeric value "' + valueElem.value + '" requires a unit!';
+                        errorMessage =
+                            'Numeric value "' + valueElem.value + '" requires a unit!';
                         oKFlag = false;
                     }
                 } else {
@@ -1268,69 +1419,80 @@ function custom_validate(formObject) {
                 } else {
                     //clear error flags
 
-                    const valTarget = validationSource.closest(".ctrlDIV").find(".ontology-parent").find(".copo-validation-target");
-                    const valSource = validationSource.closest(".ctrlDIV").find(".ontology-parent").find(".copo-validation-source");
+                    const valTarget = validationSource
+                        .closest('.ctrlDIV')
+                        .find('.ontology-parent')
+                        .find('.copo-validation-target');
+                    const valSource = validationSource
+                        .closest('.ctrlDIV')
+                        .find('.ontology-parent')
+                        .find('.copo-validation-source');
 
-                    valTarget.removeAttr("data-error");
-                    valTarget.removeAttr("required");
-                    valTarget.removeClass("has-error");
-                    valTarget.closest(".form-group").removeClass("has-error has-danger");
-                    valTarget.closest(".form-group").find(".with-errors").remove();
+                    valTarget.removeAttr('data-error');
+                    valTarget.removeAttr('required');
+                    valTarget.removeClass('has-error');
+                    valTarget.closest('.form-group').removeClass('has-error has-danger');
+                    valTarget.closest('.form-group').find('.with-errors').remove();
 
-                    valSource.removeAttr("data-error");
-                    valSource.removeAttr("required");
-                    valSource.removeClass("has-error");
-                    valSource.closest(".form-group").removeClass("has-error has-danger");
-                    valSource.closest(".form-group").find(".with-errors").remove();
+                    valSource.removeAttr('data-error');
+                    valSource.removeAttr('required');
+                    valSource.removeClass('has-error');
+                    valSource.closest('.form-group').removeClass('has-error has-danger');
+                    valSource.closest('.form-group').find('.with-errors').remove();
                 }
 
                 if (!oKFlag) {
-                    return "Not valid!";
+                    return 'Not valid!';
                 }
-            }
-        }
+            },
+        },
     });
 }
 
 function save_form(formJSON, dialogRef) {
     let globalDataBuffer = {};
-    let copoFormsURL = "/copo/copo_profile_forms/";
-    let task = "save";
-    let error_msg = "Couldn't add " + formJSON.form_label + "!";
+    let copoFormsURL = '/copo/copo_profile_forms/';
+    let task = 'save';
+    let error_msg = "Couldn't add " + formJSON.form_label + '!';
     if (formJSON.target_id) {
-        task = "edit";
-        error_msg = "Couldn't edit " + formJSON.form_label + "!";
+        task = 'edit';
+        error_msg = "Couldn't edit " + formJSON.form_label + '!';
     }
 
     //manage auto-generated fields
     const form_values = Object();
-    let a_type_lst = []
+    let a_type_lst = [];
     let options_lst = [];
-    htmlForm.find("form").find(":input").each(function () {
-        // Add the acronym and full word of the associated type
-        if (this.id.includes('associated_type')) {
-            options_lst = $(this).data('optionslist')
+    htmlForm
+        .find('form')
+        .find(':input')
+        .each(function () {
+            // Add the acronym and full word of the associated type
+            if (this.id.includes('associated_type')) {
+                options_lst = $(this).data('optionslist');
 
-            if ($(this).val()) {
-                $.each($(this).val(), function (idx, acronym) {
-                    options_lst.filter(x => x.id === acronym).map(
-                        i => a_type_lst.push({
-                            value: i.id,
-                            label: i.text
-                        })
-                    );
-                });
+                if ($(this).val()) {
+                    $.each($(this).val(), function (idx, acronym) {
+                        options_lst
+                            .filter((x) => x.id === acronym)
+                            .map((i) =>
+                                a_type_lst.push({
+                                    value: i.id,
+                                    label: i.text,
+                                })
+                            );
+                    });
+                }
+                form_values[this.id] = a_type_lst;
+            } else {
+                form_values[this.id] = $(this).val();
             }
-            form_values[this.id] = a_type_lst
-        } else {
-            form_values[this.id] = $(this).val();
-        }
-    });
+        });
 
     const auto_fields = JSON.stringify(form_values);
 
     //get the visualisation context (i.e., what to be displayed after form save) and pass on
-    let visualize = "";
+    let visualize = '';
     if (formJSON.visualize) {
         visualize = formJSON.visualize;
     }
@@ -1345,46 +1507,57 @@ function save_form(formJSON, dialogRef) {
 
     $.ajax({
         url: copoFormsURL,
-        type: "POST",
+        type: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         data: {
-            'task': task,
-            'auto_fields': auto_fields,
-            'component': formJSON.component_name,
-            'visualize': visualize,
-            'target_id': formJSON.target_id
+            task: task,
+            auto_fields: auto_fields,
+            component: formJSON.component_name,
+            visualize: visualize,
+            target_id: formJSON.target_id,
         },
         success: function (data) {
             globalDataBuffer = data;
 
             //table data
-            if (data.hasOwnProperty("table_data")) {
-                var event = jQuery.Event("refreshtable");
+            if (data.hasOwnProperty('table_data')) {
+                var event = jQuery.Event('refreshtable');
                 $('body').trigger(event);
             }
 
             //feedback
-            if (data.hasOwnProperty("action_feedback") &&
-                data.action_feedback.hasOwnProperty("status") &&
-                data.action_feedback.hasOwnProperty("message")) {
-
-                if (["error", "red", "danger", "negative"].indexOf(data.action_feedback.status) > -1) {
+            if (
+                data.hasOwnProperty('action_feedback') &&
+                data.action_feedback.hasOwnProperty('status') &&
+                data.action_feedback.hasOwnProperty('message')
+            ) {
+                if (
+                    ['error', 'red', 'danger', 'negative'].indexOf(
+                        data.action_feedback.status
+                    ) > -1
+                ) {
                     let feedbackControl = get_alert_control();
-                    let alertClass = "alert-danger";
+                    let alertClass = 'alert-danger';
 
+                    feedbackControl.removeClass('alert-success').addClass(alertClass);
                     feedbackControl
-                        .removeClass("alert-success")
-                        .addClass(alertClass);
-                    feedbackControl.find(".alert-message").html(data.action_feedback.message);
+                        .find('.alert-message')
+                        .html(data.action_feedback.message);
 
-                    dialogRef.getModalBody().find(".formMessageDiv").html(feedbackControl);
+                    dialogRef
+                        .getModalBody()
+                        .find('.formMessageDiv')
+                        .html(feedbackControl);
 
                     btnSave.enable();
                     btnCancel.enable();
                     btnSave.stopSpin();
 
-                    let modalId = dialogRef.getModal().closest(".bootstrap-dialog").attr("id");
-                    $("#" + modalId).scrollTop(0);
+                    let modalId = dialogRef
+                        .getModal()
+                        .closest('.bootstrap-dialog')
+                        .attr('id');
+                    $('#' + modalId).scrollTop(0);
 
                     return true;
                 } else {
@@ -1415,37 +1588,76 @@ function save_form(formJSON, dialogRef) {
             console.log(data.responseText);
 
             let feedbackControl = get_alert_control();
-            let alertClass = "alert-danger";
+            let alertClass = 'alert-danger';
 
+            feedbackControl.removeClass('alert-success').addClass(alertClass);
             feedbackControl
-                .removeClass("alert-success")
-                .addClass(alertClass);
-            feedbackControl.find(".alert-message").html(error_msg + ". Please check that you are connected to a network and try again.");
+                .find('.alert-message')
+                .html(
+                    error_msg +
+                    '. Please check that you are connected to a network and try again.'
+                );
 
-            dialogRef.getModalBody().find(".formMessageDiv").html(feedbackControl);
+            dialogRef.getModalBody().find('.formMessageDiv').html(feedbackControl);
 
             btnSave.enable();
             btnCancel.enable();
             btnSave.stopSpin();
 
-            let modalId = dialogRef.getModal().closest(".bootstrap-dialog").attr("id");
-            $("#" + modalId).scrollTop(0);
+            let modalId = dialogRef
+                .getModal()
+                .closest('.bootstrap-dialog')
+                .attr('id');
+            $('#' + modalId).scrollTop(0);
 
             return true;
-        }
+        },
     });
 } //end of function
 
 function get_del_button(theTitle) {
-    const title = theTitle || "Remove";
-    return $('<button title="' + title + '"  class="ui negative icon button copo-tooltip">\n' +
+    const title = theTitle || 'Remove';
+    return $(
+        '<button title="' +
+        title +
+        '"  class="ui negative icon button copo-tooltip">\n' +
         '  <i class="minus icon"></i>\n' +
-        '</button>');
+        '</button>'
+    );
 }
 
 function get_add_button(theTitle) {
-    const title = theTitle || "Add";
-    return $('<button title="' + title + '" class="ui primary icon button copo-tooltip">\n' +
+    const title = theTitle || 'Add';
+    return $(
+        '<button title="' +
+        title +
+        '" class="ui primary icon button copo-tooltip">\n' +
         '  <i class="plus icon"></i>\n' +
-        '</button>');
+        '</button>'
+    );
+}
+
+function get_acronym(txt) {
+    // Retrieve the parentheses and the enclosed string from the
+    // selected profile type
+    const regex = /\(([^()]*)\)/g;
+    let select_value;
+
+    if (!regex.test(txt)) {
+        select_value = txt; // Get selected value if no parentheses exist
+    } else {
+        let associated_type_abbreviation_without_parentheses = txt.substring(
+            txt.indexOf('(') + 1,
+            txt.indexOf(')')
+        );
+
+        // Get associated type acronym that is enclosed in parentheses
+        // If empty an empty string is returned, set the acronym as the full string
+        select_value =
+            associated_type_abbreviation_without_parentheses === ''
+                ? txt.replace(/\(\s*\)/g, '')
+                : associated_type_abbreviation_without_parentheses.trim();
+    }
+
+    return select_value;
 }
