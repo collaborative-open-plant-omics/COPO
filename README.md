@@ -4,15 +4,18 @@ Featuring:
 
 - Docker Engine
 - Docker Swarm
-- Python 3.5
-- Django 2.x
+- Python 3.8
+- Django 3.x
 - Mongo DB
 - Postgres
 - Nginx
 - Gunicorn
 
 For installation/deployment information
-see https://copo-docs.readthedocs.io/en/latest/help/deployment-guide.html
+see https://copo-docs.readthedocs.io/en/latest/advanced/docker-environment-setup.html
+
+For information about setting up the COPO project locally
+see https://copo-docs.readthedocs.io/en/latest/advanced/copo-project-setup.html
 
 For other documentation see https://copo-docs.readthedocs.io/en/latest/
 
