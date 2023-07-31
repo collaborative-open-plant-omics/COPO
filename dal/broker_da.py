@@ -146,11 +146,17 @@ class BrokerDA:
             # Get a list of profile IDs that have the same profile title as the profile record to be edited
             lst_of_profile_ids = cursor_to_list_str(existing_profiles_ids)
 
-            # if the target ID  matches the ID in the list and the targeted profile title matches the title
-            # in the editable field then, proceed with the 'edit' task
-            if targetprofiletitle == self.auto_fields["copo.profile.title"] and targetid == lst_of_profile_ids[0].get(
+            # Get target profile type
+            targetprofiletype = self.da_object.get_record(kwargs["target_id"]).get("type", "")
+
+            if targetprofiletype != self.auto_fields["copo.profile.type"]:
+                # Profile type cannot be changed
+                report_metadata["message"] = "Forbidden action, it is not possible to modify the profile type"
+                status = "error"
+            elif targetprofiletitle == self.auto_fields["copo.profile.title"] and targetid == lst_of_profile_ids[0].get(
                     "_id", "") and len(lst_of_profile_ids) == 1:
-                # edit record
+                # if the target ID  matches the ID in the list and the targeted profile title matches the title
+                # in the editable field then, proceed with the 'edit' task
                 record_object = self.da_object.save_record(auto_fields=self.auto_fields, **kwargs)
                 report_metadata["message"] = "Record updated! <br><br>Web page will refresh in 3 seconds."
                 status = "success"
