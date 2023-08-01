@@ -697,32 +697,64 @@ function set_associated_types_marginBottom() {
     // NB: If line height is 42 or 48 then, profile description is displayed on two lines
 
     $("div.profileDescription").each(function () {
+        // Study release status div
+        let studyStatusDiv = $(this).prev().prev().prev();
+
         if ($(this).height() === 42 || $(this).height() === 48) {
             // No associated types
             if ($(this).hasClass('no_associatedTypes_marginBottom')) {
+               // Has study release details
                 $(this).removeClass('no_associatedTypes_marginBottom')
-                    .addClass('no_associatedTypes_marginBottom_2LineDescriptionText')
-            } else {
+                       .addClass('no_associatedTypes_marginBottom_2LineDescriptionText')
+            } else if($(this).hasClass('no_associatedTypes_marginBottom_release')){
+                // Does not have study release details
+                $(this).removeClass('no_associatedTypes_marginBottom_release')
+                    .addClass('no_associatedTypes_marginBottom_2LineDescriptionText_release')
+            }else {
                 // Associated types
                 let associated_type_div_value = $(this).next().next();
                 if ($(this).hasClass('associatedTypes_marginBottom')) {
-                    if (associated_type_div_value.hasClass('one_associatedType_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('one_associatedType_marginBottom')
-                            .addClass('one_associatedType_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('two_associatedTypes_marginBottom')
-                            .addClass('two_associatedTypes_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('three_associatedTypes_marginBottom')
-                            .addClass('three_associatedTypes_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('several_associatedType_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('several_associatedType_marginBottom')
-                            .addClass('several_associatedTypes_marginBottom_2LineDescriptionText')
+                    if(studyStatusDiv.hasClass('studyStatusDiv')){
+                        // Has study release details
+                        if (associated_type_div_value.hasClass('one_associatedType_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('one_associatedType_marginBottom_release')
+                                .addClass('one_associatedType_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('two_associatedTypes_marginBottom_release')
+                                .addClass('two_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('three_associatedTypes_marginBottom_release')
+                                .addClass('three_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('several_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('several_associatedTypes_marginBottom_release')
+                                .addClass('several_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        }
+
+                    }else{
+                        // Does not have study release details
+                        if (associated_type_div_value.hasClass('one_associatedType_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('one_associatedType_marginBottom')
+                                .addClass('one_associatedType_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('two_associatedTypes_marginBottom')
+                                .addClass('two_associatedTypes_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('three_associatedTypes_marginBottom')
+                                .addClass('three_associatedTypes_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('several_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('several_associatedTypes_marginBottom')
+                                .addClass('several_associatedTypes_marginBottom_2LineDescriptionText')
+                        }
                     }
+
                 }
             }
         }

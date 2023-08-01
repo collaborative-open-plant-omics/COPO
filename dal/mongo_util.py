@@ -87,6 +87,9 @@ def cursor_to_list_str2(cursor, use_underscore_in_id=True):
 
         r["date_created"] = r['date_created'].strftime('%a, %d %b %Y %H:%M')
         r["date_modified"] = r['date_modified'].strftime('%a, %d %b %Y %H:%M')
+
+        if r.get('study_status',''):
+            r['study_release_date'] = r['study_release_date'].strftime('%a, %d %b %Y %H:%M')
     return records
 
 

@@ -24,9 +24,21 @@
                     <div class="col-sm-12 col-md-12 col-lg-12"
                          style="height:fit-content;">
                         <!--Panel content -->
-                        <div class="boldText">Created:</div>
-                        <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
-                        <div class="boldText">Description:</div>
+                        <div style="display:inline; margin-bottom: 10px;"> 
+                            <span class="boldText"> Created: </span> 
+                            {{ profile.date_created }}
+                        </div>
+                        {% if profile.study_status %}
+                            <div class="studyStatusDiv" style="margin-top: 10px;"> 
+                                <span class="boldText"> Release Status: </span> 
+                                {{ profile.study_status }}
+                            </div>
+                            <div style="margin-bottom: 10px;"> 
+                                <span class="boldText"> Release Date: </span> 
+                                {{ profile.study_release_date }}
+                            </div>
+                        {% endif %}
+                        <div class="boldText" style="margin-top: 10px;">Description:</div>
 
                         {% if profile.associated_type %}
                             <div class="showEllipsisFor2TextLines associatedTypes_marginBottom profileDescription">
@@ -35,25 +47,43 @@
                                 Associated
                                 Profile Type(s):
                             </div>
+                            {% if profile.study_status %}
+                                <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom_release {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom_release {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom_release {% else %}several_associatedTypes_marginBottom_release {% endif %}">
+                                    <ul class="associated_type_ulTag">
+                                        {% for element in profile.associated_type %}
+                                            <li>  {{ element.value }}
+                                                <i class="fa fa-info-circle associated_type_info_icon"
+                                                title="{{ element.label }}"></i>
+                                            </li>
 
-                            <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
-                                <ul class="associated_type_ulTag">
-                                    {% for element in profile.associated_type %}
-                                        <li>  {{ element.value }}
-                                            <i class="fa fa-info-circle associated_type_info_icon"
-                                               title="{{ element.label }}"></i>
-                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
+                                    <ul class="associated_type_ulTag">
+                                        {% for element in profile.associated_type %}
+                                            <li>  {{ element.value }}
+                                                <i class="fa fa-info-circle associated_type_info_icon"
+                                                title="{{ element.label }}"></i>
+                                            </li>
 
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
                         {% else %}
-                            <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
-                                {{ profile.description }}</div>
+                            {% if profile.study_status %}
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom_release{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText_release{% endif %}">
+                                    {{ profile.description }}</div>
+                            {% else %}     
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
+                                    {{ profile.description }}</div>
+                            {% endif %}
                         {% endif %}
                         <!--Panel expanding menu -->
-                        <span class="ui vertical menu expanding_menu" id="expanding_menu">
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                        <span class="ui compact menu expanding_menu" id="expanding_menu">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Actions
                                 <i class="dropdown icon"></i>
                                 <div class="menu" tabindex="-1">
@@ -71,7 +101,7 @@
                                        data-action_type="erga">Submit ERGA Manifest</a>
                                 </div>
                             </div>
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Components
                                 <i class="dropdown icon"></i>
                                 <div class="menu comp" tabindex="-1"></div>
