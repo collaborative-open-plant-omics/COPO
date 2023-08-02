@@ -427,7 +427,7 @@ study/profile has release details
 
 
 .two_associatedTypes_marginBottom {
-    margin-bottom: 99px;
+    margin-bottom: 165px;
     padding-top: 15px;
 }
 
@@ -500,7 +500,7 @@ study/profile has release details
 
 .several_associatedTypes_marginBottom_2LineDescriptionText_release{
     height: 100px;
-    margin-bottom: 10 px;
+    margin-bottom: 10px;
     overflow: auto;
     padding-top: 15px;
     columns: 2;
@@ -741,6 +741,20 @@ study/profile has release details
     }
 }
 
+@media only screen and (max-width: 1797px) {
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 145px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 145px;
+    }
+
+    .several_associatedTypes_marginBottom_release {
+        margin-bottom: 10px
+    }
+}
+
 @media only screen and (max-width: 1716px) {
     .one_associatedType_marginBottom {
         margin-bottom: 145px;
@@ -771,6 +785,14 @@ study/profile has release details
         margin-bottom: 165px;
     }
 
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 165px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 165px;
+    }
+
     .two_associatedTypes_marginBottom_2LineDescriptionText_release {
         margin-bottom: 98px;
     }
@@ -781,6 +803,10 @@ study/profile has release details
     
     .three_associatedTypes_marginBottom_release{
         margin-bottom: 118px;
+    }
+
+    .several_associatedTypes_marginBottom_release {
+        margin-bottom: 30px;
     }
 }
 

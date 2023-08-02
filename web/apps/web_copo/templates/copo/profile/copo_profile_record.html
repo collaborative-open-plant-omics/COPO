@@ -74,10 +74,10 @@
                                 {% endif %}
                         {% else %}
                             {% if profile.study_status %}
-                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom_release{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText_release{% endif %}">
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 56 %}no_associatedTypes_marginBottom_release{% elif profile.description.strip|length >= 56 %}no_associatedTypes_marginBottom_2LineDescriptionText_release{% endif %}">
                                     {{ profile.description }}</div>
                             {% else %}     
-                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 56 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 56 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
                                     {{ profile.description }}</div>
                             {% endif %}
                         {% endif %}

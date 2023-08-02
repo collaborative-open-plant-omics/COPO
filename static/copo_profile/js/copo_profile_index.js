@@ -624,7 +624,8 @@ function set_mediaQueries() {
         window.matchMedia("(max-width: 1901px)"),
         window.matchMedia("(max-width: 1893px)"),
         window.matchMedia("(max-width: 1818px)"),
-        window.matchMedia("(max-width: 1564px)")
+        window.matchMedia("(max-width: 1564px)"),
+        window.matchMedia("(max-width: 1703px)")
     ]
 
     // Attach listener function on state changes
