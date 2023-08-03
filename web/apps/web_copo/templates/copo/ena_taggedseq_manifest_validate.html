@@ -1,0 +1,125 @@
+{# extends 'copo/base_2col.html' #}
+
+{% load static %}
+{% load web_tags_orcid %}
+{% load web_tags %}
+
+{% block stylesheet_block %}
+    <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{% static 'copo/lou-multi-select-e052211/css/multi-select.css' %}"
+          xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{% static 'copo/css/copo/orcid_profile.css' %}"
+          xmlns="http://www.w3.org/1999/html">
+    <style>
+        .group-button {
+            vertical-align: middle;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .plus-color {
+            color: #0ec36b;
+        }
+
+        .minus-color {
+            color: #d34e22;
+        }
+
+        .custom-header {
+            text-align: center;
+            padding: 3px;
+            background: #f5f5f5;
+            color: black;
+        }
+
+        .autocomplete {
+            margin-top: 40px;
+            min-width: 200px;
+        }
+
+        #users_table {
+            width: 300px;
+            margin-top: 40px;
+        }
+
+        .delete_cell {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .saving_status {
+            margin-right: 25px
+        }
+
+        .checklist  {
+            color: red;
+            font-size: 1.2em;
+        }
+    </style>
+{% endblock %}
+
+
+
+{% block browse_header_block %}
+    {% csrf_token %}
+    <div hidden id="hidden_attrs">
+        <!-- hidden attributes  -->
+        <input type="hidden" id="nav_component_name" value="taggedseq"/>
+        <input type="hidden" id="user_type" value="submitters"/>
+    </div>
+{% endblock browse_header_block %}
+
+
+{% block page_tile %}
+
+{% endblock page_tile %}
+
+
+{% block content %}
+    <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <h3 class="h3">
+              for <span class="checklist" >{{ checklist_id }} : {{ checklist_name }} </span>
+            </h3>
+
+            <p>
+                Upload a completed manifest for validation
+            </p>
+
+            <input id="file" type="file" style="display:none"/>
+
+
+            <div style="display:none; margin-top: 30px; " id="warning_info" class="alert alert-info"
+                 role="alert">
+            </div>
+            <div style="display:none; margin-top: 30px; " id="warning_info2" class="alert alert-info"
+                 role="alert">
+            </div>
+            <div style="display:none; margin-top: 30px; " id="warning_info3" class="alert alert-info"
+                 role="alert">
+            </div>
+            <div style="display:none; margin-top: 30px; " id="tagged_seq_info" class="alert alert-info"
+                 role="alert">
+            </div>
+
+            <div>
+                <table id="tagged_seq_parse_table" class="table table-striped table-bordered">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+
+
+
+{# block js_block #}
+
+{# endblock #}

@@ -104,8 +104,8 @@ MESSAGES = {
     "validation_msg_overwrite_symbionts": "<strong>Warning: COPO will overwrite any <strong>SYMBIONT</strong> field to match "
                                           "the corresponding TARGET, unless otherwise stated in the SOP</br></strong>"
                                           "<strong>%s</strong>. Date cannot be in the future.",
-    "validation_msg_paired_file_error": "Field indicates that files should be paired, but only one filename was "
-                                        "provided at row <strong>%s</strong>",
+    "validation_msg_paired_file_error": "Field indicates that files should be paired, 2 filenames are allowed "
+                                        "at row <strong>%s</strong>",
     "validation_msg_single_file_error": "Field indicates that files should be single, but multiple filenames were "
                                         "provided at row <strong>%s</strong>",
     "validation_msg_string_in_taxon_id": "Non numeric TAXON_ID found in row <strong>%s</strong>. Taxon ids must be integer",

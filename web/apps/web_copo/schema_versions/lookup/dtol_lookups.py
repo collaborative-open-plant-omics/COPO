@@ -1426,7 +1426,8 @@ DTOL_RULES = {
             "ena_regex": "(^[12][0-9]{3}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01])(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
                          "([+-][0-9]{1,2})?)?)?)?(/[0-9]{4}(-[0-9]{2}(-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?Z?"
                          "([+-][0-9]{1,2})?)?)?)?)?$)|(^not collected$)|(^not provided$)|(^restricted access$) ",
-            "human_readable": "YYYY-MM-DD, NOT_COLLECTED or NOT_PROVIDED"
+
+            "human_readable": "YYYY-MM-DD, YYYY-MM, YYYY, NOT_COLLECTED or NOT_PROVIDED"
         },
     'DECIMAL_LATITUDE':
         {
@@ -1678,7 +1679,7 @@ API_KEY = resolve_env.get_env("PUBLIC_NAME_SERVICE_API_KEY")
 
 BLANK_VALS = ['NOT_APPLICABLE', 'NOT_COLLECTED', 'NOT_PROVIDED']
 
-DATE_FIELDS = ["DATE_OF_COLLECTION", "DATE_OF_PRESERVATION"]
+DATE_FIELDS = ["DATE_OF_PRESERVATION"]
 
 NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.#IND', '1.#QNAN', '<NA>', 'N/A', 'NULL',
            'NaN', 'n/a', 'nan', 'NaT']
@@ -1699,5 +1700,3 @@ SYMBIONT_FIELDS = ["ORDER_OR_GROUP", "FAMILY", "GENUS", "TAXON_ID", "SCIENTIFIC_
 SYMBIONT_VALS = ["TARGET", "SYMBIONT"]
 
 TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
-
-

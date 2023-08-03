@@ -857,33 +857,7 @@ def handle_async_receipt(receipt, sample_ids, sub_id):
 
 def poll_asyn_ena_submission():
     submissions = Submission().get_async_submission()
-    with requests.Session() as session:
-        session.auth = (user_token, pass_word)
-        headers = {'Accept': 'application/xml' }
-        for submission in submissions:
-            for sub in submission["submission"]:
-                accessions = ""
-                response = session.get(sub["href"],headers=headers)
-                if response.status_code == requests.codes.accepted:
-                    continue
-                elif response.status_code == requests.codes.ok:
-                    l.log("ENA RECEIPT " + response.text, type=Logtype.FILE)
-                    try:
-                        tree = ET.fromstring(response.text)
-                        accessions = handle_submit_receipt(Sample(), submission["_id"], tree)
-                    except ET.ParseError as e:
-                        l.log("Unrecognized response from ENA " + str(e), type=Logtype.FILE)
-                        message = " Unrecognized response from ENA - " + str(
-                            response.content) + " Please try again later, if it persists contact admins"
-                        notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                        html_id="dtol_sample_info")
-                        continue
-                    except Exception as e:
-                        l.exception(e)
-                        message = 'API call error ' + "Submitting project xml to ENA via CURL. href is: " + sub["href"]
-                        notify_frontend(data={"profile_id": submission["profile_id"]}, msg=message, action="error",
-                                        html_id="dtol_sample_info")
-                        continue
+
     with requests.Session() as session:
         session.auth = (user_token, pass_word)
         headers = {'Accept': 'application/xml' }

@@ -1,5 +1,6 @@
+{% load web_tags %}
 <div class="grid">
-    <div class="copo-records-panel" profile_type="{{ profile.type }} ">
+    <div class="copo-records-panel" profile_type="{{ profile.type }} " study_status="{{ profile.study_status | get_first_value_from_array }}" study_release_date="{{ profile.study_release_date | get_first_value_from_array }}">
         <!--Panel -->
         <div class="panel">
             <!--Panel heading -->
@@ -57,8 +58,8 @@
                             </div>
                         {% endif %}
                         <!--Panel menu -->
-                        <span class="ui vertical menu expanding_menu" id="menu_{{ profile.id }}">
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                        <span class="ui compact menu expanding_menu" id="menu_{{ profile.id }}">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Actions
                                 <i class="dropdown icon"></i>
                                 <div class="menu" tabindex="-1">
@@ -86,10 +87,12 @@
                                     <a class="item action" profile_component="erga" anchor_type="taggedseq" data-action_type="taggedseq">
                                         Submit Barcoding Manifest
                                     </a>
-
+                                    <a class="item action" profile_component="all" anchor_type="all" data-action_type="all">
+                                        Release study
+                                    </a>
                                 </div>
                             </div>
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Components
                                 <i class="dropdown icon"></i>
                                 <div class="menu comp" tabindex="-1">

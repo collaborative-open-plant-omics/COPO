@@ -37,12 +37,12 @@ app.conf.beat_schedule = {
         'task': 'web.apps.web_copo.tasks.process_tol_validations',
         'schedule': timedelta(seconds=3)
     },
-    """
+
     'find_incorrectly_rejected_samples': {
         'task': 'web.apps.web_copo.tasks.find_incorrectly_rejected_samples',
         'schedule': timedelta(seconds=60)
     },
-    """
+
     'update_stats': {
         'task': 'web.apps.web_copo.tasks.update_stats',
         'schedule': timedelta(hours=24)
@@ -83,15 +83,22 @@ app.conf.beat_schedule = {
         'task': 'web.apps.web_copo.tasks.update_seq_annotation_submission_pending',
         'schedule': timedelta(seconds=10)
     },
-    'update_tagsequence_checklist': {
-        'task': 'web.apps.web_copo.tasks.update_tagsequence_checklist',
+#    'update_tagsequence_checklist': {
+#        'task': 'web.apps.web_copo.tasks.update_tagsequence_checklist',
+#        'schedule': timedelta(days=1)
+#    },     
+    'update_ena_checklist': {
+        'task': 'web.apps.web_copo.tasks.update_ena_checklist',
         'schedule': timedelta(days=1)
-    }, 
+    },     
     'processing_pending_tagged_seq_submission': {
         'task': 'web.apps.web_copo.tasks.processing_pending_tagged_seq_submission',
         'schedule': timedelta(seconds=10)
-    }  
-
+    },  
+    'update_ena_read_checklist': {
+        'task': 'web.apps.web_copo.tasks.update_ena_read_checklist',
+        'schedule': timedelta(days=1)
+    }, 
 }
 
 

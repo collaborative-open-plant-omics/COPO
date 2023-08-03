@@ -248,5 +248,8 @@ urlpatterns = [
          name="save_taggedseq_records"),
 
     re_path(r'^copo_reads/(?P<sample_accession>[A-Z0-9]+)/get_read_accessions', EnaSpreadsheetParse.get_read_accessions,
-            name='get_read_accessions')
+            name='get_read_accessions'),
+
+    re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/release_study', copo_profile_views.release_study,
+            name='release_study'),
 ] 

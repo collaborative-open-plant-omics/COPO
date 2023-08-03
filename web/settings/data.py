@@ -94,8 +94,13 @@ MANIFEST_VERSION = {
     "DTOL_ENV": "2.4",
     "DTOL_EI": "2.4",
     "ERGA": "2.4.2",
-    "ERT000020": "1.0.0",
-    "ERT000002": "1.0.0",
-    "READ": "1.0.0",
     "DTOL_BARCODE": "",
 }
+
+BARCODING_CHECKLIST = ["ERT000002", "ERT000020"]
+
+ENA_CHECKLIST_URL  = [
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/ERT000002?type=sequence",
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/ERT000020?type=sequence",
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/*?type=sample"
+]

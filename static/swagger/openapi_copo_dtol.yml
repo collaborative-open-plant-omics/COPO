@@ -50,10 +50,11 @@ paths:
         If no manifest ID is provided, COPO simply returns a list of all manifest ids
       parameters:
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            type: string
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         200:
           description: A JSON array sample objects
@@ -80,10 +81,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -118,10 +119,10 @@ paths:
             type: string
             format: date-time
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            type: string
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -162,10 +163,10 @@ paths:
             type: string
             format: date-time
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -194,10 +195,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample status objects
@@ -225,10 +226,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample copo_ids
@@ -256,10 +257,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -294,10 +295,10 @@ paths:
             type: string
             format: date-time
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample objects
@@ -325,10 +326,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -356,10 +357,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -393,10 +394,10 @@ paths:
             type: string
             minimum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -423,10 +424,10 @@ paths:
             minimum: 1
             maximum: 1
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -451,10 +452,10 @@ paths:
           schema:
             type: string
         - in: query
-          name: csv
+          name: return_type
           schema:
-            type: boolean
-          description: export data into csv format
+            enum: [json, csv, rocrate]
+          description: export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects

@@ -9,8 +9,9 @@ $(document).ready(function () {
     var dialog = new BootstrapDialog({
         title: "Add Sequence Annotation",
         message: "",
+        /*
         onshown: function(dialogRef){
-
+ 
             $(".modal-dialog").find("#id_sample").off('change').on("change", (function(event){
                 console.log("changed")
                 event.preventDefault()
@@ -61,7 +62,7 @@ $(document).ready(function () {
                 });
                 
             }));
-
+            
             selected_sample = $(".modal-dialog").find("#id_sample").find(":selected").val()
             if ( selected_sample == "") {
                 var $el =  $(".modal-dialog").find("#id_run");
@@ -74,8 +75,8 @@ $(document).ready(function () {
                 console.log("triggered")
             }
 
-
         },
+        */
         buttons: [{
             id: 'submit_annotation_button',
             label: 'Submit Annotation',
@@ -286,8 +287,78 @@ $(document).ready(function () {
  
     function handle_add_n_edit(url) {
         dialog.realize();
-        dialog.setMessage($('<div>Please wait...</div>').load(url));
-        dialog.open();
+        dialog.getButton('submit_annotation_button').disable();
+        dialog.setMessage($('<div>Please wait...</div>').load(url, function (response, status, xhr) {
+
+            if ( status == "error" ) {
+                var msg = "Sorry but there was an error: ";
+                dialog.setMessage($('<div>' + msg + xhr.status + " " + xhr.statusText + '</div>'));
+                
+            } else {
+                dialog.getButton('submit_annotation_button').enable();
+                $(".modal-dialog").find("#id_sample").off('change').on("change", (function(event){
+                    console.log("changed")
+                    event.preventDefault()
+
+                    value = $(".modal-dialog").find("#id_sample").find(":selected").val()
+                    if (value == undefined || value === "") {
+                      var $el =  $(".modal-dialog").find("#id_run");
+                      $el.empty(); // remove old options
+                      $el =  $(".modal-dialog").find("#id_experiment");
+                      $el.empty(); // remove old options
+                      return
+                    }   
+            
+                    jQuery.ajax({
+                        url: '/copo/copo_reads/' + value + "/get_read_accessions",
+                        type: 'GET', // For jQuery < 1.9
+                        headers:
+                            {
+                                "X-CSRFToken": csrftoken
+                            },
+                    }).error(function (data) {
+                        BootstrapDialog.show({
+                            title: 'Error',
+                            message: "Error " + data.responseText
+                        });
+                    }).done(function (data) {
+                        var $el =  $(".modal-dialog").find("#id_run");
+                        run = $el.find(":selected").val()
+                        $el.empty();
+                        $.each(data["run_accessions"], function(index, value) {
+                          $el.append($("<option></option>")
+                             .attr("value", value)
+                             .attr("selected", run!= undefined && run.includes(value)).text(value));
+                        });
+            
+                        $el =  $(".modal-dialog").find("#id_experiment");
+                        experiment = $el.find(":selected").val()
+                        $el.empty(); // remove old options
+                        $.each(data["experiment_accessions"], function(index, value) {
+                          $el.append($("<option></option>")
+                            .attr("value", value)
+                            .attr("selected", experiment != undefined && experiment.includes(value)).text(value));
+                        });  
+            
+                    });    
+                }));
+                selected_sample = $(".modal-dialog").find("#id_sample").find(":selected").val()
+                if ( selected_sample == "") {
+                    var $el =  $(".modal-dialog").find("#id_run");
+                    $el.empty(); // remove old options
+                    $el =  $(".modal-dialog").find("#id_experiment");
+                    $el.empty(); // remove old options             
+                } else {
+                    var event = jQuery.Event("change");
+                    $(".modal-dialog").find("#id_sample").val(selected_sample).trigger(event);
+                    console.log("triggered")
+                }
+                           
+            }  
+                
+        } )); 
+         dialog.open();  
+       
         dialog.setClosable(false);
     }
 
@@ -313,120 +384,10 @@ $(document).ready(function () {
         }
         else {
             form_generic_task(component, task, records);
-        }
-        /*
-       //submit task
-        if (task == "submit_annotation") {
-            csrftoken = $.cookie('csrftoken');
-            record_ids = []
-            records.forEach(function (record) {
-                record_ids.push(record.record_id)
-
-            })
-
-            
-
-            $.ajax({
-                url: copoFormsURL,
-                type: "POST",
-                headers: {'X-CSRFToken': csrftoken},
-                data: {
-                    'task': 'submit_annotation',
-                    'component': component,
-                    'target_ids' : JSON.stringify(record_ids)
-                }
-
-            }).done(function (data_response) {
-                BootstrapDialog.show({
-                    title: "Sequence Annotation/s scheduled to submit",
-                    message: "All Sequence Annotation/s have been scheduled to submit.",
-                    cssClass: "copo-modal1",
-                    closable: true,
-                    animate: true,
-                    type: BootstrapDialog.TYPE_INFO
-                });
-                for (let i = 0; i < records.length; i++) {
-                    document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
-                }
-            }).error(function (data_response) {
-                BootstrapDialog.show({
-                    title: "Sequence Annotation submission - error",
-                    message: "One or more Sequence Annotation couldn't be scheduled to submit.",
-                    cssClass: "copo-modal1",
-                    closable: true,
-                    animate: true,
-                    type: BootstrapDialog.TYPE_DANGER
-                });
-                for (let i = 0; i < records.length; i++) {
-                    if (!data_response.responseJSON["undeleted"].includes(records[i]["record_id"])) {
-                        document.getElementById(records[i]["record_id"]).closest(".copo-records-panel").style.display = 'none';
-                    }
-                }
-                console.log(data_response)
-            });
-        //table.rows().deselect(); //deselect all rows
-        }
-    
-        form_generic_task(component, task, records);
-        */    
-
-        
+        }        
     }
 
-    /*
-    function register_resolvers_event() {
-        //event handler for resolving doi and pubmed
-        $('.resolver-submit').on('click', function (event) {
-            var triggerElem = $(this);
-            $(this).html("<div style='text-align: center'><i class='fa fa-spinner fa-pulse'></i></div>");
 
-            var elem = $(this).closest(".input-group").find(".resolver-data");
-            var idHandle = elem.val();
-
-            //reset input field to placeholder
-            elem.val("");
-
-            idHandle = idHandle.replace(/^\s+|\s+$/g, '');
-
-            var idType = elem.attr("data-resolver");
-
-            if (idHandle.length == 0) {
-                var alertMessage = "Please supply a value for PubMed ID before clicking the 'Resolve' button!";
-
-                if (idType == "doi") {
-                    alertMessage = "Please supply a value for DOI before clicking the 'Resolve' button!";
-                }
-
-                display_copo_alert("warning", alertMessage, 10000);
-
-                triggerElem.html("Resolve");
-                return false;
-            }
-
-            $.ajax({
-                url: copoFormsURL,
-                type: "POST",
-                headers: {'X-CSRFToken': csrftoken},
-                data: {
-                    'task': 'doi',
-                    'component': component,
-                    'id_handle': idHandle,
-                    'id_type': idType
-                },
-                success: function (data) {
-                    json2HtmlForm(data);
-                    triggerElem.html("Resolve");
-                    $("#pub_options").collapse("hide");
-                },
-                error: function () {
-                    triggerElem.html("Resolve");
-                    $("#pub_options").collapse("hide");
-                    alert("Couldn't resolve resource!");
-                }
-            });
-        });
-    }
-    */
     $('body').on('posttablerefresh', function (event) {
         table = $('#'+ component + '_table').DataTable();
         var numCols = $('#' + component + '_table thead th').length;
@@ -448,9 +409,6 @@ $(document).ready(function () {
                 break  
             }
         }
-    }) 
-
-
-    
+    })     
 
 });

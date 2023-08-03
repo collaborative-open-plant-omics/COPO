@@ -1,27 +1,19 @@
 import requests
 from lxml import etree as ET
 from tools import resolve_env
-from dal.copo_da import TaggedSequenceChecklist, TaggedSequence, Submission
+from dal.copo_da import EnaChecklist, TaggedSequence, Submission
 from exceptions_and_logging import logger
-from web.apps.web_copo.validators.ena_validators import ena_tagged_seq_validators  as required_validators
 from django_tools.middlewares import ThreadLocal
-import inspect
-from web.apps.web_copo.validators.validator import Validator
 from submission.helpers.generic_helper import notify_tagged_seq_status
-import pandas 
-from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype, get_datetime, get_not_deleted_flag
-from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
-import math
-from web.apps.web_copo.schemas.utils import data_utils
+from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype, get_datetime, get_not_deleted_flag, simple_utc
+
 from django.http import HttpResponse, JsonResponse
 from api.utils import map_to_dict
 import web.apps.web_copo.templatetags.html_tags as htags
 from submission.helpers.ena_helper import SubmissionHelper
 from datetime import datetime
 import os
-from web.apps.web_copo.lookup.resolver import RESOLVER
-from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_PROJECT_TEMPLATE, \
-    SRA_SUBMISSION_MODIFY_TEMPLATE, ENA_CLI
+from web.apps.web_copo.lookup.lookup import SRA_SUBMISSION_TEMPLATE, SRA_PROJECT_TEMPLATE
 import subprocess
 from django.conf import settings
 from bson import ObjectId
@@ -33,22 +25,24 @@ import re
 import glob
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 l = logger.Logger()
-import uuid
 import pandas as pd
 from django.conf import settings
-from openpyxl.utils.cell import get_column_letter
-
+from web.apps.web_copo.utils.EnaChecklistHandler import EnaCheckListSpreedsheet
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 class EnaTaggedSequence:
     pass_word = resolve_env.get_env('WEBIN_USER_PASSWORD')
     user_token = resolve_env.get_env('WEBIN_USER').split("@")[0]
     ena_service = resolve_env.get_env('ENA_SERVICE')
     headers = {'Accept': 'application/xml' }
-    sra_settings = data_utils.json_to_pytype(SRA_SETTINGS).get("properties", dict())
+    sra_settings = json_to_pytype(SRA_SETTINGS).get("properties", dict())
     submission_helper = None
     submission_path = os.path.join(Path(settings.MEDIA_ROOT), "ena_tagged_seq_files")
     the_submission= None
 
+    '''
     def loadCheckList(self):
         url = "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/*?type=sequence"
         with requests.Session() as session:    
@@ -60,103 +54,6 @@ class EnaTaggedSequence:
                 l.exception(e)
                 return False            
     
-    '''
-    <CHECKLIST_SET>
-    <CHECKLIST accession="ERT000028" checklistType="Sequence">
-    <IDENTIFIERS>
-        <PRIMARY_ID>ERT000028</PRIMARY_ID>
-    </IDENTIFIERS>
-    <DESCRIPTOR>
-        <LABEL>Single Viral CDS</LABEL>
-        <NAME>Single Viral CDS</NAME>
-        <DESCRIPTION>For complete or partial single coding sequence (CDS) from a viral gene. Please do not use for peptides processed from polyproteins or proviral sequences, as these are all annotated differently.</DESCRIPTION>
-        <AUTHORITY>ENA</AUTHORITY>
-        <FIELD_GROUP restrictionType="Any number or none of the fields">
-            <NAME>Mandatory Fields and Questions</NAME>
-            <FIELD>
-                <LABEL>VMOLTYPE</LABEL>
-                <NAME>Molecule Type</NAME>
-                <DESCRIPTION>Type of in vivo molecule sequenced. Taken from the INSDC controlled vocabulary. Example: Genomic DNA, Genomic RNA, viral cRNA.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TEXT_CHOICE_FIELD>
-                    <TEXT_VALUE>
-                        <VALUE>genomic DNA</VALUE>
-                    </TEXT_VALUE>
-                    <TEXT_VALUE>
-                        <VALUE>genomic RNA</VALUE>
-                    </TEXT_VALUE>
-                    <TEXT_VALUE>
-                        <VALUE>viral cRNA</VALUE>
-                    </TEXT_VALUE>
-                </TEXT_CHOICE_FIELD>
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD>
-            <FIELD>
-                <LABEL>ORGANISM</LABEL>
-                <NAME>Organism</NAME>
-                <DESCRIPTION>Full name of virus (ICTV-approved or otherwise), NCBI taxid, BioSample accession, SRA sample accession, or sample alias. Influenza, Norovirus, Sapovirus and HIV have special nomenclature. Please contact us if you are unsure. Example: Raspberry bushy dwarf virus, Influenza A virus (A/chicken/Germany/1949(H10N7)), HIV-1 M:F_CHU51.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TAXON_FIELD/>
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD>
-            <FIELD>
-                <LABEL>GENE</LABEL>
-                <NAME>Gene</NAME>
-                <DESCRIPTION>Symbol of the gene corresponding to a sequence region. Example: RdRp, CP, ORF1.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TEXT_FIELD/>
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD>
-            <FIELD>
-                <LABEL>SVCGRTABLE</LABEL>
-                <NAME>Translation table</NAME>
-                <DESCRIPTION>Translation table for this virus. Chose between standard (table 1) and mitovirus codes (table 4.). Example: 1, 4.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TEXT_FIELD/>
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD>
-            <FIELD>
-                <LABEL>5PARTIAL</LABEL>
-                <NAME>Partial at 5' ? (yes/no)</NAME>
-                <DESCRIPTION>For an incomplete CDS with the start codon upstream of the submitted sequence.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TEXT_CHOICE_FIELD>
-                    <TEXT_VALUE>
-                        <VALUE>yes</VALUE>
-                    </TEXT_VALUE>
-                    <TEXT_VALUE>
-                        <VALUE>no</VALUE>
-                    </TEXT_VALUE>
-                </TEXT_CHOICE_FIELD>
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD>
-            <FIELD>
-                <LABEL>5CDS</LABEL>
-                <NAME>5' CDS location</NAME>
-                <DESCRIPTION>Start of the coding region relative to the submitted sequence. For a full length CDS this is the position of the first base of the start codon.</DESCRIPTION>
-                <FIELD_TYPE>
-                <TEXT_FIELD>
-                    <REGEX_VALUE>\d+</REGEX_VALUE>
-                </TEXT_FIELD> 
-                </FIELD_TYPE>
-                <MANDATORY>mandatory</MANDATORY>
-                <MULTIPLICITY>single</MULTIPLICITY>
-            </FIELD> 
-            </FIELD_GROUP>
-        </DESCRIPTOR>
-        </CHECKLIST>
-        </CHECKLIST_SET>
-    '''
 
     def _parseCheckList(self, xmlstr):
         xml = xmlstr.encode('utf-8')
@@ -204,7 +101,7 @@ class EnaTaggedSequence:
             checklist['fields']["SPECIMEN_ID"] = field
 
             checklist["modified_date"] =  dt
-            checklist["deleted"] = data_utils.get_not_deleted_flag()
+            checklist["deleted"] = get_not_deleted_flag()
             checklist_set.append(checklist)
             if len(checklist_ids) == 0:
                 break
@@ -263,8 +160,10 @@ class EnaTaggedSequence:
             if field["mandatory"] == "mandatory":
                 mandatory_fields.append(field["label"])
         return mandatory_fields
+    '''
 
 
+    @method_decorator(login_required, name='dispatch')
     def parse_ena_taggedseq_spreadsheet(self, request):
         profile_id = request.session["profile_id"]
         notify_tagged_seq_status(data={"profile_id": profile_id},
@@ -274,7 +173,7 @@ class EnaTaggedSequence:
         file = request.FILES["file"]
         checklist_id = request.POST["checklist_id"]
         name = file.name
-        ena = TaggedSequenceSpreedsheet(file=file, checklist_id=checklist_id)
+        ena = EnaCheckListSpreedsheet(file=file, checklist_id=checklist_id, component="tagged_seq")
         if name.endswith("xlsx") or name.endswith("xls"):
             fmt = 'xls'
         else:
@@ -288,11 +187,12 @@ class EnaTaggedSequence:
             return HttpResponse(status=400)
         return HttpResponse(status=400)
 
+    @method_decorator(login_required, name='dispatch')
     def save_ena_taggedseq_records(self, request):
         tagged_seq_data = request.session.get("tagged_seq_data")
         profile_id = request.session["profile_id"]
         uid = str(request.user.id)
-        checklist = TaggedSequenceChecklist().get_collection_handle().find_one({"primary_id": request.session["checklist_id"]})
+        checklist = EnaChecklist().get_collection_handle().find_one({"primary_id": request.session["checklist_id"]})
         column_name_mapping = { field["name"].upper() : key  for key, field in checklist["fields"].items()  }
         fields = checklist["fields"]
         if tagged_seq_data:
@@ -367,7 +267,7 @@ class EnaTaggedSequence:
         # set submission attributes
         root.set("broker_name", self.sra_settings["sra_broker"])
         root.set("center_name", self.sra_settings["sra_center"])
-        root.set("submission_date", datetime.utcnow().replace(tzinfo=data_utils.simple_utc()).isoformat())
+        root.set("submission_date", datetime.utcnow().replace(tzinfo=simple_utc()).isoformat())
 
         # set SRA contacts
         contacts = root.find('CONTACTS')
@@ -389,12 +289,12 @@ class EnaTaggedSequence:
                 for role in user_sra_roles:
                     user_contact.set(role, k[0])
 
-        # todo: add study publications
-
+        # don't release automatically
         # set release action
         release_date = self.submission_helper.get_study_release()
 
         # only set release info if in the past, instant release should be handled upon submission completion
+        '''
         if release_date and release_date["in_the_past"] is False:
             actions = root.find('ACTIONS')
             action = ET.SubElement(actions, 'ACTION')
@@ -406,7 +306,7 @@ class EnaTaggedSequence:
             actions = root.find('ACTIONS')
             action = ET.SubElement(actions, 'ACTION')
             action_type = ET.SubElement(action, 'RELEASE')
-
+        '''
         return self._write_xml_file(xml_object=root, file_name="submission.xml")
 
 
@@ -467,7 +367,7 @@ class EnaTaggedSequence:
 
     def processing_pending_tagged_seq_submission(self):
 
-        # submit images
+        # submit tagged seqs
         submissions = Submission().get_tagged_seq_pending_submission()
         #sub_ids = []
         if not submissions:
@@ -711,7 +611,7 @@ class EnaTaggedSequence:
         #if len(tagged_seqs) != len(tagged_seq_ids):
         #    return dict(status=False, value="Tagged sequence checklist id mismatch")
 
-        checklists = TaggedSequenceChecklist().execute_query({"primary_id": checklist_id})
+        checklists = EnaChecklist().execute_query({"primary_id": checklist_id})
         
         if not checklists:
             return dict(status=False, value="Tagged sequence checklist not found")
@@ -748,16 +648,16 @@ class EnaTaggedSequence:
         if "dev" in self.ena_service:
             test = " -test "
         #cli_path = "tools/reposit/ena_cli/webin-cli.jar"
-        webin_cmd = "java -jar webin-cli.jar -username " + self.user_token + " -password '" + self.pass_word + "'" + test + " -context sequence -manifest " + str(
+        webin_cmd = "java -Xmx2048m -jar webin-cli.jar -username " + self.user_token + " -password '" + self.pass_word + "'" + test + " -context sequence -manifest " + str(
             manifest_path) + " -validate -ascp"
         l.debug(msg=webin_cmd)
         #print(webin_cmd)
         try:
-            l.log(msg='validating assembly submission')
+            l.log(msg='validating tagged sequence submission')
             notify_tagged_seq_status(data={"profile_id": profile_id},
-                            msg="Validating Assembly Submission",
+                            msg="Validating barcoding sequence submission",
                             action="info",
-                            html_id="assembly_info")
+                            html_id="tagged_seq_info")
             output = subprocess.check_output(webin_cmd, shell=True)
             l.debug(output)
         except subprocess.CalledProcessError as cpe:
@@ -780,7 +680,7 @@ class EnaTaggedSequence:
             accession = re.search( "ERZ\d*\w" , output).group(0).strip()
             self._add_tagged_seq_accession(ObjectId(submission_id), accession, "webin-sequence-" + manifest_name, tagged_seqs)        
             table_data = htags.generate_taggedseq_record(profile_id, checklist_id)
-            return {"success": f"Tagged Sequence has been submitted with accession {accession}", "table_data": table_data, "component": "taggedseq" }
+            return {"success": f"Barcoding sequence has been submitted with accession {accession}", "table_data": table_data, "component": "taggedseq" }
         else:
             if return_code == 2:
                 with open(self.the_submission / "manifest.txt.report") as report_file:
@@ -806,14 +706,14 @@ class EnaTaggedSequence:
         test = ""
         if "dev" in self.ena_service:
             test = " -test "
-        webin_cmd = "java -jar webin-cli.jar -username " + self.user_token + " -password '" + self.pass_word + "'" + test + " -context sequence -manifest " + manifest_path + " -submit"
+        webin_cmd = "java -Xmx2048m -jar webin-cli.jar -username " + self.user_token + " -password '" + self.pass_word + "'" + test + " -context sequence -manifest " + manifest_path + " -submit"
         l.debug(msg=webin_cmd)
         # print(webin_cmd)
         # try/except as it turns out this can fail even if validate is successfull
         try:
             l.log(msg="submitting assembly")
             notify_tagged_seq_status(data={"profile_id": profile_id},
-                            msg="Submitting Tagged Sequence",
+                            msg="Submitting barcoding sequence",
                             action="info",
                             html_id="tagged_seq_info")
             output = subprocess.check_output(webin_cmd, shell=True)
@@ -826,147 +726,4 @@ class EnaTaggedSequence:
         #todo delete files after successfull submission
         #todo decide if keeping manifest.txt and store accession in assembly objec too
         return output
-
-
-class TaggedSequenceSpreedsheet:
-   def __init__(self, file, checklist_id):
-        self.req = ThreadLocal.get_current_request()
-        self.profile_id = self.req.session.get("profile_id", None)
-        self.checklist_id = checklist_id
-        self.data = None
-        self.new_data = None
-        self.required_validators = list()
-
-        self.symbiont_list = []
-        self.validator_list = []
-        # if a file is passed in, then this is the first time we have seen the spreadsheet,
-        # if not then we are looking at creating samples having previously validated
-        if file:
-            self.file = file
-        else:
-            self.sample_data = self.req.session.get("tagged_seq_data", "")
-            self.isupdate = self.req.session.get("isupdate", False)
-
-
-        # create list of required validators
-        required = dict(globals().items())["required_validators"]
-        for element_name in dir(required):
-            element = getattr(required, element_name)
-            if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
-                self.required_validators.append(element)
-
-   def get_filenames_from_manifest(self):
-        return list(self.data["file_name"])
-
-   def loadManifest(self, m_format):
-
-        if self.profile_id is not None:
-            notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="Loading..", action="info",
-                            html_id="tagged_seq_info")
-
-            try:
-                # read excel and convert all to string
-                if m_format == "xls":
-                    self.data = pandas.read_excel(self.file, keep_default_na=False,
-                                                  na_values=lookup.NA_VALS)
-                elif m_format == "csv":
-                    self.data = pandas.read_csv(self.file, keep_default_na=False,
-                                                na_values=lookup.NA_VALS)
-                    
-                self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
-                self.data = self.data.apply(lambda x: x.astype(str))
-                self.data = self.data.apply(lambda x: x.str.strip())
-                #self.data.columns = self.data.columns.str.replace(" ", "")
-                   
-                new_column_name = { name : name.replace(" (optional)", "",-1).upper() for name in self.data.columns.values.tolist() }
-                self.new_data = self.data.rename(columns=new_column_name)    
-
-                checklist = TaggedSequenceChecklist().get_collection_handle().find_one({"primary_id": self.checklist_id})
-                if checklist:
-                   fields = checklist["fields"]
-                   new_column_name = { value["name"].upper() : key for key, value in fields.items() }
-                   self.new_data.rename(columns=new_column_name, inplace=True)    
-
-            except Exception as e:
-                # if error notify via web socket
-                notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
-                                action="info",
-                                html_id="tagged_seq_info")
-                return False
-            return True
-
-   def validate(self):
-        flag = True
-        errors = []
-        warnings = []
-        self.isupdate = False
-
-        try:
-
-            checklist = TaggedSequenceChecklist().get_collection_handle().find_one({"primary_id": self.checklist_id})
-
-            # validate for required fields
-            for v in self.required_validators:
-                errors, warnings, flag, self.isupdate = v(profile_id=self.profile_id, checklist=checklist,
-                                                          data=self.new_data, fields=None,
-                                                          errors=errors, warnings=warnings, flag=flag,
-                                                          isupdate=self.isupdate).validate()
-
-            # send warnings
-            if warnings:
-                l.log(",".join(warnings))
-                notify_tagged_seq_status(data={"profile_id": self.profile_id},
-                                msg="<br>".join(warnings),
-                                action="warning",
-                                html_id="warning_info2")
-            # if flag is false, compile list of errors
-            if not flag:
-                errors = list(map(lambda x: "<li>" + x + "</li>", errors))
-                errors = "".join(errors)
-                l.log(errors)
-                notify_tagged_seq_status(data={"profile_id": self.profile_id},
-                                msg="<h4>" + self.file.name + "</h4><ol>" + errors + "</ol>",
-                                action="error",
-                                html_id="tagged_seq_info")
-                return False
-
-
-
-        except Exception as e:
-            l.exception(e)
-            error_message = str(e).replace("<", "").replace(">", "")
-            notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
-                            action="info",
-                            html_id="tagged_seq_info")
-
-            return False
-
-        # if we get here we have a valid spreadsheet
-        notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="Spreadsheet is Valid", action="info",
-                        html_id="tagged_seq_info")
-        notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="", action="close", html_id="upload_controls")
-        notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg="", action="make_valid", html_id="tagged_seq_info")
-
-        return True
-
-   def collect(self):
-        # create table data to show to the frontend from parsed manifest
-        tagged_seq_data = []
-        headers = list()
-        for col in list(self.data.columns):
-            headers.append(col)
-        tagged_seq_data.append(headers)
-        for index, row in self.data.iterrows():
-            r = list(row)
-            for idx, x in enumerate(r):
-                if x is math.nan:
-                    r[idx] = ""
-            tagged_seq_data.append(r)
-        # store sample data in the session to be used to create mongo objects
-        self.req.session["tagged_seq_data"] = tagged_seq_data
-        self.req.session["checklist_id"] = self.checklist_id
-
-        notify_tagged_seq_status(data={"profile_id": self.profile_id}, msg=tagged_seq_data, action="make_table",
-                        html_id="tagged_seq_parse_table")
-             
 

@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     rsync \
     git \
 	nano \
+    less \
     libxml2-dev \
     python \
     build-essential \
@@ -31,7 +32,7 @@ RUN mkdir /code
 WORKDIR /copo
 COPY . /code/
 
-RUN wget -O webin-cli.jar https://github.com/enasequence/webin-cli/releases/download/6.3.0/webin-cli-6.3.0.jar
+RUN wget -O webin-cli.jar https://github.com/enasequence/webin-cli/releases/download/6.5.1/webin-cli-6.5.1.jar
 
 # add aspera client to path
 COPY ./tools/reposit/.aspera/ /root/.aspera/

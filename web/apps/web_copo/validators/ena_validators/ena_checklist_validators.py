@@ -22,7 +22,7 @@ class MandatoryValuesValidator(Validator):
                     null_rows.extend(self.data[self.data[key] == ""].index.tolist())
                     null_rows.extend(self.data[self.data[key].isna()].index.tolist())
                     for row in null_rows:
-                        self.errors.append(msg["validation_msg_missing_data_ena_seq"] % (
+                        self.errors.append("Missing data detected in column <strong>%s</strong> part at row <strong>%s</strong>." % (
                             field["name"], str(row + 1)))
                         self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
@@ -31,10 +31,11 @@ class MandatoryValuesValidator(Validator):
 class IncorrectValueValidator(Validator):
     def validate(self):
         checklist = self.kwargs.get("checklist", {})
+
         biosampleAccessions = Sample(profile_id=self.profile_id).get_all_records_columns(filter_by= {"biosampleAccession": {"$exists":True, "$ne": ""}}, projection={"biosampleAccession":1, "SPECIMEN_ID":1})
         biosampleAccessionsMap = {}
         if biosampleAccessions:
-            biosampleAccessionsMap = {row["biosampleAccession"]:row["SPECIMEN_ID"] for row in biosampleAccessions} 
+            biosampleAccessionsMap = {row["biosampleAccession"]:row.get("SPECIMEN_ID","") for row in biosampleAccessions} 
 
         for column in self.data.columns:
             if column in checklist["fields"].keys():

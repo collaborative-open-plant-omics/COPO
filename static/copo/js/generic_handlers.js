@@ -2418,6 +2418,7 @@ function get_profile_components() {
         {
             component: 'read',
             title: 'Reads',
+            subtitle: "#component_subtitle",
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_read",

@@ -104,7 +104,7 @@ $(document).ready(function () {
 
         $(".modal-dialog").find("#assembly_form input, textarea, select").prop("disabled", true)
     
-    
+        var percent = $(".percent")
         form.append("profile_id", profile_id)
         jQuery.ajax({
             url: '/copo/ena_assembly/' + profile_id,
@@ -113,11 +113,25 @@ $(document).ready(function () {
             cache: false,
             contentType: false,
             processData: false,
+            method: 'POST',
             type: 'POST', // For jQuery < 1.9
             headers:
                 {
                     "X-CSRFToken": csrftoken
                 },
+            xhr: function () {
+                var xhr = jQuery.ajaxSettings.xhr();
+                xhr.upload.onprogress = function (evt) {
+                    var percentVal = Math.round(evt.loaded / evt.total * 100)
+                    percent.html(" (uploading...<b>" + percentVal + "%</b>)")
+                    console.log('progress', percentVal)
+                };
+                xhr.upload.onload = function () {
+                    percent.html("")
+                    console.log('DONE!')
+                };
+                return xhr;
+            }                
         }).error(function (data) {
             dialog.enableButtons(true);
             dialog.getButton('submit_assembly_button').stopSpin();            

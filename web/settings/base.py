@@ -225,8 +225,8 @@ UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
 
 TEST_USER_NAME = 'aaliyah'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
-FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 2
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 24
 
 CACHES = {
     'default': {
@@ -256,8 +256,8 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# FILE_UPLOAD_HANDLERS = (
+#FILE_UPLOAD_HANDLERS = (
 #    "django.core.files.uploadhandler.MemoryFileUploadHandler",
 #    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
-#    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+#    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 # )

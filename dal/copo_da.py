@@ -60,6 +60,9 @@ AssemblyCollection = 'AssemblyCollection'
 AnnotationCollection = "SeqAnnotationCollection"
 TaggedSequenceChecklistCollection = "TagSequenceChecklistCollection"
 TaggedSequenceCollection = "TagSequenceCollection"
+EnaChecklistCollection ="EnaChecklistCollection"
+EnaObectCollection = "EnaObjectCollection"
+ReadObjectCollection = "SampleCollection"
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -84,7 +87,10 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    seqannotation=get_collection_ref(AnnotationCollection),
                    submissionQueue=get_collection_ref(SubmissionQueueCollection),
                    taggedSequenceChecklist=get_collection_ref(TaggedSequenceChecklistCollection),
-                   taggedSequence=get_collection_ref(TaggedSequenceCollection)
+                   taggedSequence=get_collection_ref(TaggedSequenceCollection),
+                   enaChecklist=get_collection_ref(EnaChecklistCollection),
+                   enaObject=get_collection_ref(EnaObectCollection),
+                   read=get_collection_ref(ReadObjectCollection)
                    )
 
 
@@ -200,7 +206,7 @@ class DAComponent:
     def get_qualified_field(self, elem=str()):
         return self.get_id_base() + "." + elem
 
-    def get_schema(self):
+    def get_schema(self, **kwargs):
         schema_base = DataSchemas("COPO").get_ui_template().get("copo")
         x = data_utils.json_to_object(schema_base.get(self.component, dict()))
 
@@ -1422,6 +1428,8 @@ class Sample(DAComponent):
         dt = data_utils.get_datetime()
         for id in datafile_ids:
             self.get_collection_handle().update_one({"profile_id": self.profile_id, "read.file_id" : {"$regex": id}, "read.$.status": {"$ne": status}}, {"$set": {"read.$.status": status, "modifed_date":  dt}})
+
+
 
 class Submission(DAComponent):
     def __init__(self, profile_id=None):
@@ -3062,6 +3070,7 @@ class TaggedSequenceChecklist(DAComponent):
     def get_checklists(self):
         return self.get_all_records_columns(projection={"primary_id": 1, "name": 1, "description": 1})
     
+
 class TaggedSequence(DAComponent):
     def __init__(self, profile_id=None):
         super(TaggedSequence, self).__init__(profile_id, "taggedSequence")
@@ -3110,6 +3119,101 @@ class TaggedSequence(DAComponent):
         tagged_seq_obj_ids = [ ObjectId(id) for id in tagged_seq_ids ]
         self.get_collection_handle().update_many({"profile_id": profile_id,  "_id": {"$in":   tagged_seq_obj_ids},  "$or":[ {"status": {"$exists": False}}, {"status": "pending" }]},
                                             {"$set": {"status":  "processing"}})
+
+
+class EnaChecklist(DAComponent):
+    def __init__(self, profile_id=None):
+        super(EnaChecklist, self).__init__(profile_id, "enaChecklist")
+
+    def get_checklist(self, checklist_id):
+        return self.execute_query({"primary_id": checklist_id})
+    
+    def get_barcoding_checklists_no_fields(self):
+        return self.get_all_records_columns(filter_by={"primary_id": {"$in" : settings.BARCODING_CHECKLIST}},  projection={"primary_id": 1, "name": 1, "description": 1})
+    
+    def get_sample_checklists_no_fields(self):
+        return self.get_all_records_columns(filter_by={"primary_id": { "$regex" : "^ERC" } },  projection={"primary_id": 1, "name": 1, "description": 1})
+    
+
+class EnaObject(DAComponent):
+    def __init__(self, profile_id=None):
+        super(EnaObject, self).__init__(profile_id, "enaObject")
+
+    def get_schema(self, target_id=str()):
+        if not target_id:
+            return dict(schema_dict=[],
+                        schema=[]
+                        )   
+        taggedSeq = EnaObject(self.profile_id).get_record(target_id)
+        fields = []
+        if taggedSeq:
+            checklist = EnaChecklist().execute_query({"primary_id": taggedSeq["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if taggedSeq.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):        
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+
+        tagged_seq_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": tagged_seq_ids},  "$or": [ {"accession":{"$exists": True, "$ne": ""}}, {"status": {"$exists": True, "$ne": "pending" }}] } )
+        if result:
+           return dict(status='error', message="One or more Ena object/s have been accessed or scheduled to submit!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   tagged_seq_ids}})
+        return dict(status='success', message="Ena object/s have been deleted!")
+    
+    def update_ena_object_processing(self, profile_id=str(), tagged_seq_ids=list()):
+        tagged_seq_obj_ids = [ ObjectId(id) for id in tagged_seq_ids ]
+        self.get_collection_handle().update_many({"profile_id": profile_id,  "_id": {"$in":   tagged_seq_obj_ids},  "$or":[ {"status": {"$exists": False}}, {"status": "pending" }]},
+                                            {"$set": {"status":  "processing"}})
+
+
+class Read(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Read, self).__init__(profile_id, "read")
+
+    def get_schema(self, target_id):
+
+        if not target_id:
+            return dict(schema_dict=[], schemas=[])
+        
+        read = Read(self.profile_id).get_record(target_id)
+        fields = []
+        if read:
+            checklist = EnaChecklist().execute_query({"primary_id": read["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if read.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
 
 
 def is_number(s):

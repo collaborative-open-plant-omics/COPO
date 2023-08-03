@@ -205,18 +205,18 @@ a.component-btns {
 }
 
 /* Icon: Sorting */
-.sort-icon {;
+.sort-icon {
     color: black;
     font-size: 24px;
     width: 30px;
     line-height: 17px !important;
 }
 
-.sort-up {;
+.sort-up {
     padding-top: 12px;
 }
 
-.sort-down {;
+.sort-down {
     padding-top: 0;
 }
 
@@ -299,7 +299,7 @@ a.component-btns {
 .grid-item {
     height: 400px !important;
     border-radius: 5px;
-    /* 4 per row, with space for margin */
+    /* 4 grids per row, with space for margin */
     width: calc((100% / 4) - 24px);
     background-color: #ffffff;
     margin: 8px;
@@ -372,12 +372,24 @@ ul.associated_type_ulTag {
 }
 
 /*CSS styles for profile records with no associated types assigned*/
+/* The suffix '_release' relates to 'margin-bottom' CSS for if the 
+study/profile has release details
+*/
+
 .no_associatedTypes_marginBottom {
-    margin-bottom: 144px;
+    margin-bottom: 213px;
+}
+
+.no_associatedTypes_marginBottom_release {
+    margin-bottom: 162px;
 }
 
 .no_associatedTypes_marginBottom_2LineDescriptionText {
-    margin-bottom: 122px;
+    margin-bottom: 193px;
+}
+
+.no_associatedTypes_marginBottom_2LineDescriptionText_release {
+    margin-bottom: 142px;
 }
 
 .associatedTypes_marginBottom {
@@ -389,8 +401,17 @@ ul.associated_type_ulTag {
 }
 
 /*CSS styles for profile records with associated types assigned*/
+/* The suffix '_release' relates to 'margin-bottom' CSS for if the 
+   study/profile has release details 
+*/
+
 .one_associatedType_marginBottom {
-    margin-bottom: 99px;
+    margin-bottom: 167px;
+    padding-top: 15px;
+}
+
+.one_associatedType_marginBottom_release {
+    margin-bottom: 118px;
     padding-top: 15px;
 }
 
@@ -399,8 +420,19 @@ ul.associated_type_ulTag {
     padding-top: 15px;
 }
 
+.one_associatedType_marginBottom_2LineDescriptionText_release {
+    margin-bottom: 95px;
+    padding-top: 15px;
+}
+
+
 .two_associatedTypes_marginBottom {
-    margin-bottom: 99px;
+    margin-bottom: 165px;
+    padding-top: 15px;
+}
+
+.two_associatedTypes_marginBottom_release {
+    margin-bottom: 117px;
     padding-top: 15px;
 }
 
@@ -409,15 +441,33 @@ ul.associated_type_ulTag {
     padding-top: 15px;
 }
 
+.two_associatedTypes_marginBottom_2LineDescriptionText_release {
+    margin-bottom: 97px;
+    padding-top: 15px;
+}
+
 
 .three_associatedTypes_marginBottom {
-    margin-bottom: 99px;
+    margin-bottom: 168px;
+    padding-top: 15px;
+}
+
+.three_associatedTypes_marginBottom_release {
+    margin-bottom: 118px;
     padding-top: 15px;
 }
 
 .three_associatedTypes_marginBottom_2LineDescriptionText {
     height: 81px;
-    margin-bottom: 10px;
+    margin-bottom: 80px;
+    overflow: auto;
+    padding-top: 15px;
+    columns: 2;
+}
+
+.three_associatedTypes_marginBottom_2LineDescriptionText_release {
+    height: 81px;
+    margin-bottom: 30px;
     overflow: auto;
     padding-top: 15px;
     columns: 2;
@@ -425,14 +475,31 @@ ul.associated_type_ulTag {
 
 .several_associatedTypes_marginBottom {
     height: 100px;
-    margin-bottom: 10px;
+    margin-bottom: 80px;
     overflow: auto;
     padding-top: 15px;
     columns: 2;
 }
 
+.several_associatedTypes_marginBottom_release{
+    height: 100px;
+    margin-bottom: 30px;
+    overflow: auto;
+    padding-top: 15px;
+    columns: 2;
+}
+
+
 .several_associatedTypes_marginBottom_2LineDescriptionText {
-    height: 77px;
+    height: 100px;
+    margin-bottom: 60px;
+    overflow: auto;
+    padding-top: 15px;
+    columns: 2;
+}
+
+.several_associatedTypes_marginBottom_2LineDescriptionText_release{
+    height: 100px;
     margin-bottom: 10px;
     overflow: auto;
     padding-top: 15px;
@@ -673,64 +740,125 @@ ul.associated_type_ulTag {
         left: 37%;
     }
 }
-
-@media only screen and (max-width: 1818px) {
+@media only screen and (max-width: 2400px) {
     .no_associatedTypes_marginBottom {
-        margin-bottom: 147px;
+        margin-bottom: 210px;
     }
 
-    .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 122px;
+    .no_associatedTypes_marginBottom_release {
+        margin-bottom: 150px;
     }
 
-    .one_associatedType_marginBottom {
-        margin-bottom: 80px;
-    }
-
-}
-
-@media only screen and (max-width: 1667px) {
-    .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 98px;
-    }
-
-    .one_associatedType_marginBottom {
-        margin-bottom: 98px;
-    }
-
-    .one_associatedType_marginBottom_2LineDescriptionText {
-        margin-bottom: 98px;
-    }
-
-    .three_associatedTypes_marginBottom_2LineDescriptionText {
-        columns: revert;
-    }
-
-    .several_associatedTypes_marginBottom_2LineDescriptionText {
-        columns: revert;
-    }
-}
-
-@media only screen and (max-width: 1568px) {
-    .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 125px;
-    }
-
-    .one_associatedType_marginBottom_2LineDescriptionText {
-        margin-bottom: 80px;
+    .two_associatedTypes_marginBottom_release {
+        margin-bottom: 105px;
     }
 
     .two_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 105px;
-        padding-top: 15px;
+        margin-bottom: 145px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 85px;
+    }
+}
+
+@media only screen and (max-width: 1797px) {
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 145px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 145px;
+    }
+
+    .several_associatedTypes_marginBottom_release {
+        margin-bottom: 10px
+    }
+}
+
+@media only screen and (max-width: 1716px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 145px;
     }
 
     .three_associatedTypes_marginBottom {
-        margin-bottom: 105px;
+        margin-bottom: 145px;
+    } 
+    
+    .three_associatedTypes_marginBottom_release {
+        margin-bottom: 94px;
     }
 
-    .several_associatedTypes_marginBottom {
-        columns: revert;
+}
+
+@media only screen and (max-width: 1711px) {
+    .one_associatedType_marginBottom {
+        margin-bottom: 163px;
+    }
+}
+
+@media only screen and (max-width: 1701px) {
+    .two_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 82px;
+    }
+}
+
+@media only screen and (max-width: 1703px) {
+    .grid,
+    .grid-item {
+        /* 3 grids per row, with space for margin */
+       width: calc((100% / 3) - 24px);
+    }
+
+    .no_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 165px;
+      }
+
+    .one_associatedType_marginBottom{
+        margin-bottom: 165px;
+    }
+
+    .two_associatedTypes_marginBottom {
+        margin-bottom: 165px;
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 165px;
+    }
+    
+    .two_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 98px;
+    }
+
+    .three_associatedTypes_marginBottom {
+        margin-bottom: 169px;
+    }
+    
+    .three_associatedTypes_marginBottom_release{
+        margin-bottom: 118px;
+    }
+
+
+    .several_associatedTypes_marginBottom_release {
+        margin-bottom: 30px;
+    }
+}
+
+@media only screen and (max-width: 1669px) {
+    .grid,
+    .grid-item {
+        /* 2 grids per row, with space for margin */
+       width: calc((100% / 2) - 24px);
+    }
+
+    .two_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 120px;
+    }
+}
+
+@media only screen and (max-width: 1498px) {
+    .two_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 99px;
     }
 }
 
@@ -741,24 +869,8 @@ ul.associated_type_ulTag {
 }
 
 @media only screen and (max-width: 1458px) {
-    .ui.vertical.menu {
-        width: 10rem;
-    }
-
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0 !important;
-    }
-}
-
-@media only screen and (max-width: 1394px) {
-    .ui.vertical.menu {
-        width: 0;
-    }
-}
-
-@media only screen and (max-width: 1391px) {
-    .ui.vertical.menu {
-        width: 10rem;
     }
 }
 
@@ -774,67 +886,26 @@ ul.associated_type_ulTag {
     }
 }
 
-@media only screen and (max-width: 1230px) {
-    .one_associatedType_marginBottom {
-        margin-bottom: 80px;
-    }
-
-    .one_associatedType_marginBottom_2LineDescriptionText {
-        margin-bottom: 60px;
-    }
-
-    .two_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 62px;
-    }
-
-    .three_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 63px;
-    }
-
-    .several_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 62px;
-    }
-
-}
 
 @media only screen and (max-width: 1218px) {
-    .one_associatedType_marginBottom {
-        margin-bottom: 80px;
-    }
-
-    .one_associatedType_marginBottom_2LineDescriptionText {
-        margin-bottom: 60px;
-    }
-
-    .two_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 60px;
-    }
-
-    .three_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 63px;
-    }
-
-    .several_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 63px;
-    }
-
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 15px 0 15px 15px !important; /*top right bottom left */
     }
 }
 
 
-@media only screen and (max-width: 1138px) {
-    .grid-panel-body-selected {
-        height: 300px !important;
-    }
-}
-
-
 @media only screen and (max-width: 1089px) {
-    .ui.vertical.menu {
-        width: 10rem;
+    .grid,
+    .grid-item {
+        /* 1 grid per row, with no space for margin */
+       width: 80%;
     }
+
+    #copo_profiles_table{
+        /* Centre all grids in the table */
+        justify-content: center;
+    }
+
 
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0 !important;
@@ -844,88 +915,91 @@ ul.associated_type_ulTag {
         overflow: hidden;
         white-space: pre;
         text-overflow: ellipsis;
-        -webkit-appearance: none;
-    }
-
-    .ui.vertical.menu {
-        width: 10rem;
-        height: 5rem;
-        padding: 10px;
-    }
-
-    .ui.left.pointing.dropdown.link.item {
-        padding: 5px;
+        appearance: none;
     }
 }
 
-@media only screen and (max-width: 974px) {
-    .ui.vertical.menu {
-        width: 8rem;
-        padding: 0;
 
+@media only screen and (max-width: 776px) {
+    .grid-panel-body {
+        height: 335px !important
     }
 
     .no_associatedTypes_marginBottom {
-        margin-bottom: 120px;
+        margin-bottom: 190px;
+    }
+
+    .no_associatedTypes_marginBottom_release {
+        margin-bottom: 140px;
     }
 
     .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 100px;
+        margin-bottom: 170px;
     }
 
+    .no_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 140px;
+      }
+    
     .one_associatedType_marginBottom {
-        margin-bottom: 55px;
+        margin-bottom: 145px;
     }
 
-    .one_associatedType_marginBottom_2LineDescriptionText {
+    .one_associatedType_marginBottom_release {
+        margin-bottom: 95px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 75px;
+    }
+
+    .two_associatedTypes_marginBottom_release {
+        margin-bottom: 95px;
+    }
+
+    .three_associatedTypes_marginBottom {
+        margin-bottom: 145px;
+    }
+
+    .three_associatedTypes_marginBottom_release {
         margin-bottom: 35px;
-    }
-
-    .two_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: -3px;
-        overflow: auto;
-        height: 40px;
+        columns: 2;
     }
 
     .three_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 38px;
+        margin-bottom: 60px;
     }
 
-    .several_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 35px;
+    .three_associatedTypes_marginBottom_2LineDescriptionText_release {
+        height: fit-content;
+        margin-bottom: 35px;
+        columns: 3;
     }
 
-    .grid-panel-body {
-        padding: 15px;
-        height: revert !important;
-    }
-}
-
-@media only screen and (max-width: 960px) {
-    .no_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: 104px;
-    }
-
-    .one_associatedType_marginBottom {
-        margin-bottom: 57px;
-    }
-
-    .one_associatedType_marginBottom_2LineDescriptionText {
+    .several_associatedTypes_marginBottom{
         margin-bottom: 40px;
     }
 
-    .two_associatedTypes_marginBottom_2LineDescriptionText {
-        margin-bottom: -20px;
-        height: 60px;
+    .several_associatedTypes_marginBottom_release{
+        height: 90px;
+        margin-bottom: 20px;
         overflow: auto;
+        padding-top: 15px;
+        columns: 3;
     }
 
-    .three_associatedTypes_marginBottom_2LineDescriptionText {
-        height: 40px;
+    .several_associatedTypes_marginBottom_2LineDescriptionText{
+        margin-bottom: 40px;
+        overflow: auto;
+        columns: 3;
     }
 
-    .grid-panel-body {
-        height: revert !important;
+    .several_associatedTypes_marginBottom_2LineDescriptionText_release{
+        height: 90px;
+        margin-bottom: 0;
+        overflow: auto;
+        padding-top: 15px;
+        columns: 2;
     }
 
 }

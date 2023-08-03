@@ -2,6 +2,7 @@ __author__ = 'fshaw'
 from django import template
 from django.contrib.auth.models import Group
 from django.conf import settings
+from datetime import datetime
 
 register = template.Library()
 from dal.copo_da import DataFile
@@ -68,3 +69,12 @@ def get_blank_manifest_url(value):
 def get_short_profile_type(value):
     result = re.search(r"\((.*?)\)", value)
     return result.group(1) if result else value
+
+@register.filter(is_safe=True, name="get_first_value_from_array")
+def get_first_value_from_array(value):
+    if value and type(value) is list:
+        result = value[0]
+        if type(result) is datetime:
+            result = result.strftime('%a, %d %b %Y %H:%M')    
+        return result
+    return value
