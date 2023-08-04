@@ -26,11 +26,13 @@
            id="read_url"/>
     <input type="hidden" value="{% url 'copo:copo_files' profile_id=profile_id %}" name="files_url"
            id="files_url"/>
+    <input type="hidden" value="{% url 'copo:copo_taggedseq' profile_id=profile_id %}" name="taggedseq_url"
+           id="taggedseq_url"/>              
 </div>
 
 <div class="row" style="margin-bottom:40px;">
-    <div class="col-sm-6 col-md-6 col-lg-6 copo-page-headers"></div>
-    <div class="col-sm-6 col-md-6 col-lg-6 copo-page-icons"></div>
+    <div class="col-sm-7 col-md-7 col-lg-9 copo-page-headers"></div>
+    <div class="col-sm-5 col-md-5 col-lg-3 copo-page-icons"></div>
 </div>
 <div class="tdt"></div>
 

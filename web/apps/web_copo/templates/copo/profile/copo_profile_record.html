@@ -1,6 +1,7 @@
 {% load static %}
+{% load web_tags %}
 <div class="grid">
-    <div class="copo-records-panel" profile_type="{{ profile.type }} ">
+    <div class="copo-records-panel" profile_type="{{ profile.type }}" study_status="{{ profile.study_status | get_first_value_from_array }}" study_release_date="{{ profile.study_release_date | get_first_value_from_array }}">
         <!--Panel -->
         <div class="panel">
             <!--Panel heading -->
@@ -24,9 +25,14 @@
                     <div class="col-sm-12 col-md-12 col-lg-12"
                          style="height:fit-content;">
                         <!--Panel content -->
-                        <div class="boldText">Created:</div>
-                        <div style="margin-bottom: 10px;">{{ profile.date_created }}</div>
-                        <div class="boldText">Description:</div>
+                        <div style="display:inline; margin-bottom: 10px;"><span class="boldText">Created: </span> {{ profile.date_created }}</div>
+                        
+                        {% if profile.study_status %}
+                            <div class="studyStatusDiv" style="margin-top: 10px;"><span class="boldText">Release Status: </span> <span id="study_status_{{profile.id}}">{{ profile.study_status | get_first_value_from_array}}</span></div>
+                            <div style="margin-top: 10px;"><span class="boldText">Release Date: </span>    
+                                <span id="study_release_date_{{profile.id}}">{{ profile.study_release_date | get_first_value_from_array}}</span></div>
+                        {% endif %}                        
+                        <div class="boldText" style="margin-top: 10px;">Description:</div>
 
                         {% if profile.associated_type %}
                             <div class="showEllipsisFor2TextLines associatedTypes_marginBottom profileDescription">
@@ -36,42 +42,59 @@
                                 Profile Type(s):
                             </div>
 
-                            <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
-                                <ul class="associated_type_ulTag">
-                                    {% for element in profile.associated_type %}
-                                        <li>  {{ element.value }}
-                                            <i class="fa fa-info-circle associated_type_info_icon"
-                                               title="{{ element.label }}"></i>
-                                        </li>
+                            {% if profile.study_status %}
+                                <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom_release {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom_release {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom_release {% else %}several_associatedTypes_marginBottom_release {% endif %}">
+                                    <ul class="associated_type_ulTag">
+                                        {% for element in profile.associated_type %}
+                                            <li>  {{ element.value }}
+                                                <i class="fa fa-info-circle associated_type_info_icon"
+                                                title="{{ element.label }}"></i>
+                                            </li>
 
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <div class="associated_type_div_value {% if profile.associated_type|length == 1 %}one_associatedType_marginBottom {% elif profile.associated_type|length == 2 %}two_associatedTypes_marginBottom {% elif profile.associated_type|length == 3 %}three_associatedTypes_marginBottom {% else %}several_associatedTypes_marginBottom {% endif %}">
+                                    <ul class="associated_type_ulTag">
+                                        {% for element in profile.associated_type %}
+                                            <li>  {{ element.value }}
+                                                <i class="fa fa-info-circle associated_type_info_icon"
+                                                title="{{ element.label }}"></i>
+                                            </li>
+
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
                         {% else %}
-                            <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 52 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 52 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
-                                {{ profile.description }}</div>
+                            {% if profile.study_status %}
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 56 %}no_associatedTypes_marginBottom_release{% elif profile.description.strip|length >= 56 %}no_associatedTypes_marginBottom_2LineDescriptionText_release{% endif %}">
+                                    {{ profile.description }}</div>
+                            {% else %}     
+                                <div class="showEllipsisFor2TextLines profileDescription {% if profile.description.strip|length < 56 %}no_associatedTypes_marginBottom{% elif profile.description.strip|length >= 56 %}no_associatedTypes_marginBottom_2LineDescriptionText{% endif %}">
+                                    {{ profile.description }}</div>
+                            {% endif %}
                         {% endif %}
+                          
                         <!--Panel expanding menu -->
-                        <span class="ui vertical menu expanding_menu" id="expanding_menu">
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                        <span class="ui compact menu expanding_menu" id="expanding_menu">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Actions
                                 <i class="dropdown icon"></i>
                                 <div class="menu" tabindex="-1">
-                                    <a class="item action" profile_component="stand-alone" anchor_type="files"
-                                       data-action_type="files">Upload Files</a>
-                                    <a class="item action" profile_component="stand-alone" anchor_type="reads"
-                                       data-action_type="reads">Submit Reads</a>
-                                    <a class="item action" profile_component="stand-alone" anchor_type="assembly"
-                                       data-action_type="assembly">Submit Assembly</a>
-                                    <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation"
-                                       data-action_type="seq_annotation">Submit Annotation</a>
-                                    <a class="item action" profile_component="dtol" anchor_type="dtol_option"
-                                       data-action_type="dtol">Submit DTOL/ASG manifest</a>
-                                    <a class="item action" profile_component="erga" anchor_type="erga_option"
-                                       data-action_type="erga">Submit ERGA Manifest</a>
+                                    <a class="item action" profile_component="stand-alone" anchor_type="files" data-action_type="files">Upload Files</a>                                   
+                                    <a class="item action" profile_component="stand-alone" anchor_type="reads" data-action_type="reads">Submit Reads</a>
+                                    <a class="item action" profile_component="stand-alone" anchor_type="assembly" data-action_type="assembly">Submit Assembly</a>
+                                    <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation" data-action_type="seq_annotation">Submit Annotation</a>
+                                    <a class="item action" profile_component="dtol" anchor_type="samples" data-action_type="samples">Submit DTOL/ASG manifest</a>
+                                    <a class="item action" profile_component="erga" anchor_type="samples" data-action_type="samples">Submit ERGA Manifest</a>
+                                    <a class="item action" profile_component="erga" anchor_type="taggedseq" data-action_type="taggedseq">Submit Barcoding Manifest</a>
+                                    <a class="item action" profile_component="dtol" anchor_type="taggedseq" data-action_type="taggedseq">Submit Barcoding Manifest</a>
+                                    <a class="item action" profile_component="all" anchor_type="all" data-action_type="release_study">Release Study</a>
                                 </div>
                             </div>
-                            <div class="ui left pointing dropdown link item" tabindex="0">
+                            <div class="ui up pointing dropdown link item" tabindex="0">
                                 Components
                                 <i class="dropdown icon"></i>
                                 <div class="menu comp" tabindex="-1"></div>

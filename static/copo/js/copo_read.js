@@ -125,10 +125,12 @@ $(document).ready(function () {
             $("#tabs").fadeIn()
             $("#ena_finish_button").fadeIn()
         } else if (d.action === "refresh_table") {
-            globalDataBuffer = d.data;
-            var event = jQuery.Event("refreshtable");
-            $('body').trigger(event);
-        }
+            $(element).removeClass("alert-danger").addClass("alert-info")
+            $(element).html(d.message)
+            var args_dict = {}
+            args_dict["sample_checklist_id"] = $("#checklist_id").find(":selected").val();
+            load_records(componentMeta, args_dict); // call to load component records
+        }    
     }
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()
@@ -144,7 +146,12 @@ $(document).ready(function () {
     //get component metadata
     var componentMeta = get_component_meta(component);
 
-    load_records(componentMeta); // call to load component records
+    //load_records(componentMeta); // call to load component records
+
+    var args_dict = {}
+    args_dict["sample_checklist_id"] = $("#checklist_id").find(":selected").val();
+    load_records(componentMeta, args_dict); // call to load component records
+    $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+args_dict["sample_checklist_id"]).val())
 
     //register_resolvers_event(); //register event for publication resolvers
 
@@ -162,14 +169,17 @@ $(document).ready(function () {
     });
 
     //add new component button
-    $(document).on("click", ".new-reads-spreadsheet-template", function (event) {
-        url = "/copo/ena_read_manifest_validate/" + uid
+    $(document).off("click").on("click", ".new-reads-spreadsheet-template", function (event) {
+        url =  "/copo/ena_read_manifest_validate/" + uid + "?checklist_id=" + $("#checklist_id").find(":selected").val();
         dialog.realize();
         dialog.setMessage($('<div></div>').load(url));
         dialog.open();
         dialog.getButton('save_read_button').disable();
-
-        $('.modal-dialog').find("#file").on("change", (function (event) {
+        
+        $('.modal-dialog').find("#file").off("change").on("change", (function(event) {
+            if ($(this).prop('files') == undefined || $(this).prop('files').length == 0) {
+                return
+            }
             dialog.getButton('upload_read_manifest_button').disable();
             dialog.getButton('upload_read_manifest_button').spin();
             dialog.setClosable(false);
@@ -178,6 +188,22 @@ $(document).ready(function () {
         }));
 
     });
+
+
+    $("#checklist_id").change(function(){
+
+        if ($.fn.dataTable.isDataTable('#' + componentMeta.tableID)) {
+            //if table instance already exists, then do refresh
+            table = $('#' + componentMeta.tableID).DataTable();
+            table.clear().destroy();
+            $('#' + componentMeta.tableID).empty();
+        }
+        $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+this.value).val())
+        args_dict["sample_checklist_id"] = this.value;
+        args_dict[""]
+        load_records(componentMeta, args_dict); // call to load component records
+    });
+
 
     //details button hover
     /*
@@ -209,8 +235,11 @@ $(document).ready(function () {
         } else if (task == "edit") {
             url = "/copo/ena_annotation/" + uid + "/" + records[0].record_id
             handle_add_n_edit(url)
-        } else {
-            form_generic_task("sample", task, records);
+        }
+        else {
+            var args_dict = {}
+            args_dict["sample_checklist_id"] = $("#checklist_id").find(":selected").val();            
+            form_generic_task("sample", task, records, args_dict);
         }
 
     }
@@ -224,8 +253,8 @@ $(document).ready(function () {
             .to$()
             .addClass('highlight_accession');
 
-        for (var i = 1; i <= numCols; i++) {
-            if ($(table.column(i).header()).text() == 'SUBMISSION STATUS') {
+        for (var i=1; i<=numCols; i++) {
+            if ( $(table.column(i).header()).text() == 'STATUS' ) {
 
                 var no_accessiion_indexes = table.rows().eq(0).filter(function (rowIdx) {
                     return table.cell(rowIdx, i).data() != 'accepted' ? true : false;
@@ -245,6 +274,7 @@ function upload_spreadsheet(file) {
     $("#warning_info2").fadeOut("fast")
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
+    form.append("checklist_id", $("#checklist_id").find(":selected").val())
     form.append("file", file)
     var percent = $(".percent")
     jQuery.ajax({
@@ -274,13 +304,14 @@ function upload_spreadsheet(file) {
         dialog.setClosable(true);
         dialog.getButton('upload_read_manifest_button').stopSpin();
         console.error(data)
-        /*
-        BootstrapDialog.show({
-            title: 'Error',
-            message: "Error " + data.status + ": " + data.responseText,
-            type: BootstrapDialog.TYPE_DANGER
-        });
-        */
+        responseText = data.responseText
+        if (responseText != "") {        
+            BootstrapDialog.show({
+                title: 'Error',
+                message: "Error " + data.status + ": " + data.responseText
+            });
+        }
+
     }).done(function (data) {
         dialog.getButton('upload_read_manifest_button').enable();
         dialog.getButton('save_read_button').enable();

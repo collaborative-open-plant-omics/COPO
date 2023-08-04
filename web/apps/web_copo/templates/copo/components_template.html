@@ -129,7 +129,7 @@
                 </div>
             </div>
         </div>-->
-            <div class="dataverse-controls" style="">
+            <div class="dataverse-controls">
                 <h5>Search for Dataverse</h5>
                 <div style="visibility:hidden" class="radio-inline">
                     <label><input type="radio" value="dataverse" checked="checked"
@@ -405,6 +405,17 @@
              tabindex="0">
             <i class=" fa fa-terminal"></i>
             <span class="action-label" style="padding-left: 3px;">Add</span>
+        </div>       
+
+        <div class="submit_tagged_seq_multi tiny ui basic dtables-dbuttons  teal button copo-dt copo-tooltip"
+            data-container="body"
+            data-action="submit_tagged_seq"
+            data-error-message="Please select one or more record to submit"
+            data-btntype="multi"
+            title="Submit Tagged Sequence"
+            tabindex="0">
+            <i class=" fa fa-info"></i>
+            <span class="action-label" style="padding-left: 3px;">Submit</span>
         </div>
 
     </div>
@@ -577,9 +588,21 @@
         <i class="icon terminal sign"></i>
     </button>
 
+    <!-- button to upload spreadsheet for barcoding -->
+    <button style="display: inline" title="Add Tagged Sequence (s) from Tagged Sequence Spreadsheet"
+            class="big circular ui icon green button new-taggedseq-spreadsheet-template copo-tooltip">
+        <i class="icon table sign"></i>
+    </button>
+
+    <!-- button to download blank spreadsheet -->
+    <a  title="Download Blank Manfiest Template"
+            class="big circular ui icon brown button download-blank-manifest-template copo-tooltip">
+        <i class="icon download sign"></i>
+    </a>    
+
     <!-- semantic ui expanding menu -->
-    <span class="ui vertical menu expanding_menu" id="expanding_menu">
-        <div class="ui left pointing dropdown link item">
+    <span class="ui compact menu expanding_menu" id="expanding_menu">
+        <div class="ui up pointing dropdown link item">
             Actions
             <i class="dropdown icon"></i>
             <div class="menu">
@@ -589,11 +612,15 @@
                    data-action_type="assembly">Submit Assembly</a>
                 <a class="item action" profile_component="stand-alone" anchor_type="seq_annotation"
                    data-action_type="seq_annotation">Submit Annotation</a>
-                <a class="item action" profile_component="dtol" anchor_type="dtol_option" data-action_type="dtol">Submit DTOL/ASG manifest</a>
-                <a class="item action" profile_component="erga" anchor_type="erga_option" data-action_type="erga">Submit ERGA Manifest</a>
+                <a class="item action" profile_component="dtol" anchor_type="samples" data-action_type="samples">Submit DTOL/ASG manifest</a>
+                <a class="item action" profile_component="erga" anchor_type="samples" data-action_type="samples">Submit ERGA Manifest</a>
+                <a class="item action" profile_component="dtol" anchor_type="taggedseq" data-action_type="taggedseq">Submit Barcoding Manifest</a>
+                <a class="item action" profile_component="erga" anchor_type="taggedseq" data-action_type="taggedseq">Submit Barcoding Manifest</a>   
+                <a class="item action" profile_component="all" anchor_type="all" data-action_type="all">Release Study</a>
+
             </div>
         </div>
-        <div class="ui left pointing dropdown link item">
+        <div class="ui up pointing dropdown link item">
             Components
             <i class="dropdown icon"></i>
             <div class="menu comp">

@@ -110,7 +110,8 @@ function format_feedback_message(message, messageClass, messageTitle) {
 function do_table_buttons_events() {
     //attaches events to table buttons
 
-    $(document).on("click", ".copo-dt", function (event) {
+    $(document).off("click", ".copo-dt")
+        .on("click", ".copo-dt", function (event) {
         event.preventDefault();
 
         $('.copo-dt').webuiPopover('destroy');
@@ -576,8 +577,9 @@ function do_render_component_table(data, componentMeta) {
         //if table instance already exists, then do refresh
         table = $('#' + tableID).DataTable();
     }
-
+ 
     if (table) {
+ 
         //clear old, set new data
         table.rows().deselect();
         table
@@ -587,15 +589,18 @@ function do_render_component_table(data, componentMeta) {
             .rows
             .add(dataSet);
         table
-            .columns
-            .adjust()
-            .draw();
+           .columns
+           .adjust()
+           .draw();
         table
             .search('')
             .columns()
             .search('')
-            .draw();
-    } else {
+            .draw(); 
+    } 
+    
+    else {
+     
         table = $('#' + tableID).DataTable({
             data: dataSet,
             select: true,

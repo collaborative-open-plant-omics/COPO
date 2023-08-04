@@ -3458,7 +3458,7 @@ function get_add_button(theTitle) {
     return addBtn;
 }
 
-function form_generic_task(component_name, task, records) {
+function form_generic_task(component_name, task, records, args_dict) {
     record_ids = []
     records.forEach(function (record) {
         record_ids.push(record.record_id)
@@ -3468,16 +3468,20 @@ function form_generic_task(component_name, task, records) {
 
     csrftoken = $.cookie('csrftoken');
 
+    var post_data = {}
+    if (args_dict != undefined) {
+        post_data = args_dict;
+    }
+    post_data['task'] = task
+    post_data['component']= component_name
+    post_data['target_ids'] = JSON.stringify(record_ids)
+    post_data["Accept"] = "application/json; charset=utf-8"
+    
     $.ajax({
         url: copoFormsURL,
         type: "POST",
         headers: {'X-CSRFToken': csrftoken},
-        data: {
-            'task': task,
-            'component': component_name,
-            'target_ids': JSON.stringify(record_ids),
-            "Accept"  : "application/json; charset=utf-8",
-        },
+        data: post_data,
         success: function (data) {
             globalDataBuffer = data;
             if (data.hasOwnProperty  ("table_data")) {

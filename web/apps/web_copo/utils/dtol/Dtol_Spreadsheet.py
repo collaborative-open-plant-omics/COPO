@@ -141,17 +141,13 @@ class DtolSpreadsheet:
         t = Profile().get_type(self.profile_id)
         if "ASG" in t:
             self.type = "ASG"
-            self.current_schema_version = settings.CURRENT_ASG_VERSION
         elif "ERGA" in t:
             self.type = "ERGA"
-            self.current_schema_version = settings.CURRENT_ERGA_VERSION
         elif "DTOL_ENV" in t:
             self.type = "DTOL_ENV"
-            self.current_schema_version = settings.CURRENT_DTOLENV_VERSION
         else:
             self.type = "DTOL"
-            self.current_schema_version = settings.CURRENT_DTOL_VERSION
-
+        self.current_schema_version = settings.MANIFEST_VERSION.get(self.type, "")
         # get associated profile type(s) of manifest
         associated_type_lst = Profile().get_associated_type(self.profile_id, value=True, label=False)
         # Get associated type(s) as string separated by '|' symbol
@@ -584,18 +580,18 @@ class DtolSpreadsheet:
         sample_data["_id"] = ""
         for index, p in sample_data.iterrows():
             s = dict(p)
+            type = ""
             # store manifest version for posterity. If unknown store as 0
             if "asg" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_ASG_VERSION
+                type = "ASG"
             elif "dtolenv" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_DTOLENV_VERSION
+                type = "DTOLENV"
             elif "dtol" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_DTOL_VERSION
+                type = "DTOL"
             elif "erga" in self.type.lower():
-                s["manifest_version"] = settings.CURRENT_ERGA_VERSION
-            else:
-                s["manifest_version"] = 0
+                type = "ERGA"
 
+            s["manifest_version"] = settings.MANIFEST_VERSION.get(type, "0")
             s["sample_type"] = self.type.lower()
             s["tol_project"] = self.type
             s["associated_tol_project"] = self.associated_type

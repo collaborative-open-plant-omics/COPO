@@ -334,6 +334,22 @@ function get_copo_profile_components() {
             profile_component: "stand-alone",
             recordActions: ["add_local_all", "add_terminal_all", "delete_record_multi"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single"
             visibleColumns: 5
+        },
+        {
+            component: 'taggedseq',
+            title: 'Barcoding Manifests',
+            subtitle: "#component_subtitle",
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey1: "num_barcode_manifest",
+            buttons: ["new-taggedseq-spreadsheet-template", "download-blank-manifest-template|href:#blank_manifest_url"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "data_color",
+            color: "red",
+            tableID: 'tagged_seq_table',
+            profile_component: "dtol",
+            recordActions: ["delete_record_multi",  "submit_tagged_seq_multi"],
+            visibleColumns: 5
         }
 
         /*

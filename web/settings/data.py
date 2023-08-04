@@ -74,12 +74,33 @@ DATAFILE_OBJECT_PREFIX = "datafiles_"
 DESCRIPTION_GRACE_PERIOD = 10  # no of days after which pending descriptions are deleted
 
 # settings for TOL schema (manifest) versions i.e. code modularisation
+'''
 CURRENT_ASG_VERSION = "2.4.1"
 CURRENT_DTOL_VERSION = "2.4.1"
 CURRENT_DTOLENV_VERSION = "2.4"
-CURRENT_ERGA_VERSION = "2.4.3"
-
+CURRENT_ERGA_VERSION = "2.4.2"
+'''
 # settings for ECS
 ECS_ACCESS_KEY_ID = resolve_env.get_env('ECS_ACCESS_KEY_ID')
 ECS_SECRET_KEY = resolve_env.get_env('ECS_SECRET_KEY')
 ECS_ENDPOINT = resolve_env.get_env('ECS_ENDPOINT')
+
+
+# settings for manifest
+MANIFEST_VERSION = {
+    "ASG":  "2.4.1",
+    "DTOL": "2.4.1",
+    "DTOLENV": "2.4",
+    "DTOL_ENV": "2.4",
+    "DTOL_EI": "2.4",
+    "ERGA": "2.4.3",
+    "DTOL_BARCODE": "",
+}
+
+BARCODING_CHECKLIST = ["ERT000002", "ERT000020"]
+
+ENA_CHECKLIST_URL  = [
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/ERT000002?type=sequence",
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/ERT000020?type=sequence",
+    "https://www.ebi.ac.uk/ena/submit/report/checklists/xml/*?type=sample"
+]

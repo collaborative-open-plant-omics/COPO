@@ -62,7 +62,7 @@ $(document).ready(function () {
     set_empty_profile_component_message(profiles_total);
 
     // No profile records exist
-    if (profiles.length === 0) {
+    if (profiles_visible_length === 0) {
         $("#bottom-panel").hide();
         $(".profiles-legend").hide();
         $(".other-projects-accessions-filter-checkboxes").hide();
@@ -97,7 +97,7 @@ $(document).ready(function () {
 
     $("#sortProfilesBtn")[0].selectedIndex = 0 // Set first option of sort menu
 
-    grid_count.text(profiles.length); // Number of profile records visible
+    grid_count.text(profiles_visible_length); // Number of profile records visible
     grid_total.text(profiles_total); //  Total number of profile records for the user
 
     let div_grid = $('div.grid')
@@ -135,18 +135,35 @@ $(document).ready(function () {
             let id = el.closest(".expanding_menu").attr("id");
             id = id.split("_")[1]
 
-            if (action_type === "dtol" || action_type === "erga") {
+            /*if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } /*else if (action_type === "reads") {
-                url = copoENAReadManifestValidateURL + id + "/view"
-            } else if (action_type === "assembly") {
+                document.location = url
+            } else */if (action_type === "release_study") {
+                result = confirm("Are you sure to release the study?")
+                if (result) {
+                    url = "/copo/copo_profile/" + id + "/release_study" 
+                    $.ajax({
+                        url: url
+                    }).done(function (data) {
+                        $('#study_status_'+id).html("PUBLIC");
+                        $('#study_release_date_'+id).html(data['study_release_date']);
+                        el.hide()
+                        /*
+                        el.attr('aria-disabled', true).attr("role","link").css("pointer-events", "none").css("color", "grey")
+                        alert("Study released successfully")
+                        */
+                    }).error(function (data) {
+                        alert(data.responseText)
+                    });   
+                }  
+            } /* else if (action_type === "assembly") {
                 url = copoENAAssemblyURL + id + "/view"
             } else if (action_type === "annotation") {
                 url = copoENAAnnotationURL + id + "/view"
             }*/ else {
-                url = "/copo/copo_" + action_type + "/" + id + "/view"
+                url = "/copo/copo_" + action_type  + "/" + id + "/view"
+                document.location = url
             }
-            document.location = url
         }
     })
 
@@ -600,20 +617,34 @@ function append_component_buttons(record_id, profile_type) {
 
     return componentsDIV;
 }
+            
 
 function filter_action_menu() {
     $(".copo-records-panel").each(function (idx, el) {
-        const t = $(el).attr("profile_type");
-        if (t.includes("ERGA")) {
-            $(el).find("a[profile_component='stand-alone']").hide()
-            $(el).find("a[profile_component='dtol']").hide()
-        } else if (t.includes("DTOL") || t.includes("ASG")) {
-            $(el).find("a[profile_component='stand-alone']").hide()
-            $(el).find("a[profile_component='erga']").hide()
-        } else if (t.includes("Stand-alone")) {
-            $(el).find("a[profile_component='dtol']").hide()
-            $(el).find("a[profile_component='erga']").hide()
+        const t = $(el).attr("profile_type")
+        let s = $(el).attr("study_status")
+        study_status = ""
+        if (s != undefined) {
+            study_status =  s.toUpperCase()
         }
+        if (t.includes("ERGA")) {
+            $(el).find("a[profile_component ='stand-alone']").hide()
+            $(el).find("a[profile_component ='dtol']").hide()
+        } else if (t.includes("DTOL") || t.includes("ASG")) {
+            $(el).find("a[profile_component ='stand-alone']").hide()
+            $(el).find("a[profile_component ='erga']").hide()
+        } else if (t.includes("Stand-alone")) {
+            $(el).find("a[profile_component ='erga']").hide()
+            $(el).find("a[profile_component ='dtol']").hide()
+        } 
+        if (s == undefined || s != "PRIVATE") {
+            $(el).find("a[data-action_type ='release_study']").hide()
+        } 
+        /*
+        else if (s == "PUBLIC") {
+            $(el).find("a[data-action_type ='release_study']").attr('aria-disabled', true).attr("role","link").css("pointer-events", "none").css("color", "grey")
+        } */
+
     })
 }
 
@@ -624,7 +655,8 @@ function set_mediaQueries() {
         window.matchMedia("(max-width: 1901px)"),
         window.matchMedia("(max-width: 1893px)"),
         window.matchMedia("(max-width: 1818px)"),
-        window.matchMedia("(max-width: 1564px)")
+        window.matchMedia("(max-width: 1564px)"),
+        window.matchMedia("(max-width: 1703px)")
     ]
 
     // Attach listener function on state changes
@@ -697,31 +729,62 @@ function set_associated_types_marginBottom() {
     // NB: If line height is 42 or 48 then, profile description is displayed on two lines
 
     $("div.profileDescription").each(function () {
+        // Study release status div
+        let studyStatusDiv = $(this).prev().prev().prev();
+
         if ($(this).height() === 42 || $(this).height() === 48) {
             // No associated types
             if ($(this).hasClass('no_associatedTypes_marginBottom')) {
+                // Has study release details
                 $(this).removeClass('no_associatedTypes_marginBottom')
-                    .addClass('no_associatedTypes_marginBottom_2LineDescriptionText')
-            } else {
+                .addClass('no_associatedTypes_marginBottom_2LineDescriptionText')
+            } else if($(this).hasClass('no_associatedTypes_marginBottom_release')){
+                // Does not have study release details
+                $(this).removeClass('no_associatedTypes_marginBottom_release')
+                    .addClass('no_associatedTypes_marginBottom_2LineDescriptionText_release')
+            }else {
                 // Associated types
                 let associated_type_div_value = $(this).next().next();
                 if ($(this).hasClass('associatedTypes_marginBottom')) {
-                    if (associated_type_div_value.hasClass('one_associatedType_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('one_associatedType_marginBottom')
-                            .addClass('one_associatedType_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('two_associatedTypes_marginBottom')
-                            .addClass('two_associatedTypes_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('three_associatedTypes_marginBottom')
-                            .addClass('three_associatedTypes_marginBottom_2LineDescriptionText')
-                    } else if (associated_type_div_value.hasClass('several_associatedType_marginBottom')) {
-                        associated_type_div_value
-                            .removeClass('several_associatedType_marginBottom')
-                            .addClass('several_associatedTypes_marginBottom_2LineDescriptionText')
+                    if(studyStatusDiv.hasClass('studyStatusDiv')){
+                        // Has study release details
+                        if (associated_type_div_value.hasClass('one_associatedType_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('one_associatedType_marginBottom_release')
+                                .addClass('one_associatedType_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('two_associatedTypes_marginBottom_release')
+                                .addClass('two_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('three_associatedTypes_marginBottom_release')
+                                .addClass('three_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        } else if (associated_type_div_value.hasClass('several_associatedTypes_marginBottom_release')) {
+                            associated_type_div_value
+                                .removeClass('several_associatedTypes_marginBottom_release')
+                                .addClass('several_associatedTypes_marginBottom_2LineDescriptionText_release')
+                        }
+
+                    }else{
+                        // Does not have study release details
+                        if (associated_type_div_value.hasClass('one_associatedType_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('one_associatedType_marginBottom')
+                                .addClass('one_associatedType_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('two_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('two_associatedTypes_marginBottom')
+                                .addClass('two_associatedTypes_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('three_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('three_associatedTypes_marginBottom')
+                                .addClass('three_associatedTypes_marginBottom_2LineDescriptionText')
+                        } else if (associated_type_div_value.hasClass('several_associatedTypes_marginBottom')) {
+                            associated_type_div_value
+                                .removeClass('several_associatedTypes_marginBottom')
+                                .addClass('several_associatedTypes_marginBottom_2LineDescriptionText')
+                        }
                     }
                 }
             }
@@ -733,6 +796,7 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
     filter_action_menu();
     update_counts(copoVisualsURL, csrftoken, component);
 
+    /*
     $(".item a").click(function (e) {
         let url;
         const el = $(e.currentTarget);
@@ -743,19 +807,14 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
 
             if (action_type === "dtol" || action_type === "erga") {
                 url = copoSamplesURL + id + "/view"
-            } /* else if (action_type === "reads") {
-                url = copoENAReadManifestValidateURL + id
-            } else if (action_type === "assembly") {
-                url = copoENAAssemblyURL + id
-            } else if (action_type === "seq_annotation") {
-                url = copoENAAnnotationURL + id
-            } */ else {
-                url = "/copo/copo_" + action_type + "/" + id + "/view"
+            }  else {
+                url = "/copo/copo_" +  action_type + "/" +  id + "/view"
             }
             document.location = url
         }
     })
-
+    */
+    
     $(".expanding_menu > div").click(function (e) {
         const el = $(e.currentTarget);
         el.closest('.grid').removeClass("grid-selected")

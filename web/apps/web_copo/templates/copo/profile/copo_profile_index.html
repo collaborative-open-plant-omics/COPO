@@ -79,8 +79,8 @@
 
     {% endif %}
     <div class="row" style="margin-bottom:70px;">
-        <div class="col-sm-5 col-md-5 col-lg-5 copo-page-headers"></div>
-        <div class="col-sm-7 col-md-7 col-lg-7 copo-page-icons">
+        <div class="col-sm-5 col-md-5 col-lg-9 copo-page-headers"></div>
+        <div class="col-sm-7 col-md-7 col-lg-3 copo-page-icons">
             <button id="accept_reject_shortcut" style="display:none"
                     class="big circular ui icon teal button pull-right accept_reject_samples copo-tooltip"
                     title="Accept/Reject TOL Samples">
@@ -103,13 +103,10 @@
 
 {% block content %}
     <script>
-        let groups =
-        {{ groups|safe }}
-    </script>
-    <script> let profiles =
-    {{ profiles|safe }} </script>
-    <script>  let profiles_total =
-    {{ profiles_total|safe }} </script>
+        let groups = {{ groups|safe }}
+        let profiles_visible_length = {{ profiles_visible_length|safe }}  
+        let profiles_total = {{ profiles_total|safe }}
+   </script>
     <!-- test -->
     <!-- end test -->
 

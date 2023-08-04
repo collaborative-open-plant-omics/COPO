@@ -1,9 +1,9 @@
 import celery
-
 import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
 import web.apps.web_copo.utils.dtol.Dtol_Bioimage_Submission as dtol_bioimage
 import web.apps.web_copo.utils.EnaAnnotation as enaAnnotation
-
+from web.apps.web_copo.utils.dtol.Dtol_Tagged_Sequence import EnaTaggedSequence
+from web.apps.web_copo.utils.EnaChecklistHandler import ChecklistHandler, ReadChecklistHandler
 from dal.copo_da import Sample, Stats
 from web.apps.web_copo.models import ViewLock
 from submission import enareadSubmission
@@ -15,7 +15,7 @@ import celery
 import redis
 from functools import wraps
 from tools import resolve_env
-from asgiref.sync import sync_to_async
+
 SESSION_REDIS_HOST = resolve_env.get_env('REDIS_HOST')
 SESSION_REDIS_PORT = int(resolve_env.get_env('REDIS_PORT'))
 REDIS_CLIENT = redis.Redis(host=SESSION_REDIS_HOST, port=SESSION_REDIS_PORT)
@@ -176,4 +176,32 @@ def process_seq_annotation_submission(self):
 def update_seq_annotation_submission_pending(self):
     Logger().debug("Running update_seq_annotation_submission_pending")
     enaAnnotation.update_seq_annotation_submission_pending()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="update_tagsequence_checklist", timeout=5)
+def update_tagsequence_checklist(self):
+    Logger().debug("Running update_tagsequence_checklist")
+    EnaTaggedSequence().updateCheckList()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="update_ena_checklist", timeout=5)
+def update_ena_checklist(self):
+    Logger().debug("Running update_ena_checklist")
+    ChecklistHandler().updateCheckList()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="update_ena_read_checklist", timeout=5)
+def update_ena_read_checklist(self):
+    Logger().debug("Running update_ena_read_checklist")
+    ReadChecklistHandler().updateCheckList()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="processing_pending_tagged_seq_submission", timeout=5)
+def processing_pending_tagged_seq_submission(self):
+    Logger().debug("Running processing_pending_tagged_seq_submission")
+    EnaTaggedSequence().processing_pending_tagged_seq_submission()
     return True

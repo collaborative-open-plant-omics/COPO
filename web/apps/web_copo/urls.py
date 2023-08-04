@@ -3,6 +3,7 @@ from api.views import sample as s
 from api.views import stats
 from django.urls import path, re_path
 from web.apps.web_copo.utils import ajax_handlers, annotation_handlers, template_handlers, EnaSpreadsheetParse
+from web.apps.web_copo.utils.dtol.Dtol_Tagged_Sequence  import EnaTaggedSequence
 from . import views, copo_tol_dashboard_views, copo_profile_views, copo_accessions_views
 
 app_name = 'web_copo'
@@ -263,6 +264,20 @@ urlpatterns = [
     re_path(r'^copo_reads/(?P<profile_id>[a-z0-9]+)/view', views.copo_reads,
             name='copo_reads'),
     re_path(r'^copo_files/(?P<profile_id>[a-z0-9]+)/view', views.copo_files,
-            name='copo_files'),
-    re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),
-]
+            name='copo_files'),     
+    re_path(r'^upload_ecs_files/(?P<profile_id>[a-z0-9]+)', views.upload_ecs_files, name='upload_ecs_files'),      
+    re_path(r'^copo_taggedseq/(?P<profile_id>[a-z0-9]+)/view', views.copo_taggedseq, name='copo_taggedseq'),   
+
+    path('ena_taggedseq_manifest_validate/<profile_id>', views.ena_taggedseq_manifest_validate,
+         name="ena_taggedseq_manifest_validate"),
+    path('parse_ena_taggedseq_spreadsheet/', EnaTaggedSequence().parse_ena_taggedseq_spreadsheet,
+         name="parse_ena_taggedseq_spreadsheet"),
+    path('save_ena_taggedseq_records/', EnaTaggedSequence().save_ena_taggedseq_records,
+         name="save_taggedseq_records"),
+
+    re_path(r'^copo_reads/(?P<sample_accession>[A-Z0-9]+)/get_read_accessions', EnaSpreadsheetParse.get_read_accessions,
+            name='get_read_accessions'),
+
+    re_path(r'^copo_profile/(?P<profile_id>[a-z0-9]+)/release_study', copo_profile_views.release_study,
+            name='release_study'),
+] 

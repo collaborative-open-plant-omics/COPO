@@ -1830,10 +1830,10 @@ def is_number(s):
 
 
 def get_current_manifest_version(request):
-    return HttpResponse(json.dumps({'current_asg_manifest_version': settings.CURRENT_ASG_VERSION,
-                                    'current_dtolenv_manifest_version': settings.CURRENT_DTOLENV_VERSION,
-                                    'current_dtol_manifest_version': settings.CURRENT_DTOL_VERSION,
-                                    'current_erga_manifest_version': settings.CURRENT_ERGA_VERSION}))
+    return HttpResponse(json.dumps({'current_asg_manifest_version': settings.MANIFEST_VERSION.get("ASG", ""),
+                                    'current_dtolenv_manifest_version': settings.MANIFEST_VERSION.get("DTOLENV", ""),
+                                    'current_dtol_manifest_version': settings.MANIFEST_VERSION.get("DTOL", ""),
+                                    'current_erga_manifest_version': settings.MANIFEST_VERSION.get("ERGA", "")}))
 
 
 def get_manifest_fields(request):
@@ -1842,13 +1842,14 @@ def get_manifest_fields(request):
 
     # Get manfiest version
     if "asg" in manifest_type:
-        current_schema_version = settings.CURRENT_ASG_VERSION
+        current_schema_version = settings.MANIFEST_VERSION.get("ASG", "")
     elif "dtol_ei" in manifest_type or "dtol_env" in manifest_type:
-        current_schema_version = settings.CURRENT_DTOLENV_VERSION
+        current_schema_version = settings.MANIFEST_VERSION.get("DTOLENV", "")
     elif "erga" in manifest_type:
-        current_schema_version = settings.CURRENT_ERGA_VERSION
+        current_schema_version = settings.MANIFEST_VERSION.get("ERGA", "")
     else:
-        current_schema_version = settings.CURRENT_DTOL_VERSION
+        current_schema_version = settings.MANIFEST_VERSION.get("DTOL", "")
+
 
     # Get sample fields
     s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
@@ -1921,20 +1922,20 @@ def get_common_value_dropdown_list(request):
 
 
 def get_manifest_filename(manifest_type):
-    filename_part = '_MANIFEST_TEMPLATE_v'
-    manifest_type = manifest_type.upper()
-
+    type = ""
     if "ASG" in manifest_type:
-        return f'{manifest_type}{filename_part}{settings.CURRENT_ASG_VERSION}.xlsx'
+        type = "ASG"
     elif "DTOLENV" in manifest_type or "DTOL_ENV" in manifest_type or "ENV" in manifest_type:
-        return f'DTOLENV{filename_part}{settings.CURRENT_DTOLENV_VERSION}.xlsx'
+        type = "DTOLENV"
     elif "DTOL" in manifest_type:
-        return f'{manifest_type}{filename_part}{settings.CURRENT_DTOL_VERSION}.xlsx'
+        type = "DTOL"
     elif "ERGA" in manifest_type:
-        return f'{manifest_type}{filename_part}{settings.CURRENT_ERGA_VERSION}.xlsx'
-    else:
-        # default/other
-        return ".xlsx"
+        type = "ERGA"
+
+    version = settings.MANIFEST_VERSION.get(type, "")
+    if version:
+        version = "_v" + version
+    settings.MANIFEST_FILE_NAME.format(type, version) + ".xlsx"    
 
 
 def generate_manifest_template(request):

@@ -53,23 +53,20 @@
         .saving_status {
             margin-right: 25px
         }
+        .checklist  {
+            color: red;
+            font-size: 1.2em;
+        }        
 
     </style>
 {% endblock %}
 
 
-{% block title_block %} COPO - Groups {% endblock %}
-
-{% block tagline_block %}
-
-
-{% endblock %}
-
 {% block browse_header_block %}
     {% csrf_token %}
     <div hidden id="hidden_attrs">
         <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="group"/>
+        <input type="hidden" id="nav_component_name" value="read"/>
         <input type="hidden" id="user_type" value="submitters"/>
     </div>
 {% endblock browse_header_block %}
@@ -85,8 +82,9 @@
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12">
             <h3 class="h3">
-                Submit Sequence Reads
+                for <span class="checklist" >{{ checklist_id }} : {{ checklist_name }} </span>
             </h3>
+
             <p>
                 Upload a completed manifest for validation
             </p>
@@ -131,7 +129,7 @@
 
     </div>
 
-    <div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
+    <!--div id="presigned_url_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -161,9 +159,9 @@
                     <button type="button" id="copy_urls_button" class="btn btn-primary">Copy</button>
                     <button type="button" id="process_urls_button" class="btn btn-primary">Process</button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div> 
+    </div--> 
 
 {% endblock %}
 
@@ -171,11 +169,5 @@
 
 
 {# block js_block #}
-<!--
-    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
-    <script src="{% static 'copo/js/copo_form_handlers.js' %}"></script>
-    <script src="{% static 'copo/js/copo_parse_spreadsheet.js' %}"></script>
-    <script src="{% static 'copo/js/copo_ena_functions.js' %}"></script>
--->
+ 
 {# endblock #}

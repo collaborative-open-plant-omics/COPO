@@ -11,11 +11,12 @@ from exceptions_and_logging.logger import Logger
 import web.apps.web_copo.templatetags.html_tags as htags
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_da import Profile, Publication, Source, Person, Repository, Sample, Submission, DataFile, DAComponent, \
-    Annotation, Description, CGCore, MetadataTemplate, Assembly, Sequnece_annotation
+    Annotation, Description, CGCore, MetadataTemplate, Assembly, Sequnece_annotation, TaggedSequence
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.schemas.utils.metadata_rater import MetadataRater
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import EnaAnnotation, EnaAssembly, EnaSpreadsheetParse
+from web.apps.web_copo.utils.dtol.Dtol_Tagged_Sequence import EnaTaggedSequence
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
 
 
@@ -27,6 +28,7 @@ class BrokerDA:
         self.visualize = self.param_dict.get("visualize", str())
         self.profile_id = self.param_dict.get("profile_id", str())
         self.auto_fields = self.param_dict.get("auto_fields", dict())
+        self.request_dict = self.param_dict.get("request_dict", dict())
 
         if self.auto_fields and isinstance(self.auto_fields, str):
             self.auto_fields = json.loads(self.auto_fields)
@@ -48,7 +50,8 @@ class BrokerDA:
             repository=Repository,
             seqannotation=Sequnece_annotation,
             assembly=Assembly,
-            files=s3
+            files=s3,
+            taggedseq=TaggedSequence
         )
 
         if self.component in da_dict:
@@ -483,15 +486,16 @@ class BrokerDA:
         """
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids = self.param_dict.get("target_ids", [])
+        target_ids  = self.param_dict.get("target_ids", [])
+        sample_checklist_id = self.request_dict.get("sample_checklist_id", str())
 
-        result = EnaSpreadsheetParse.submit_read(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id)
+        result = EnaSpreadsheetParse.submit_read(profile_id=self.profile_id, target_ids=target_ids, target_id=target_id,checklist_id=sample_checklist_id)
         report_metadata = dict()
         report_metadata["status"] = result.get("status", "success")
         report_metadata["message"] = result.get("message", "success")
-        self.context["action_feedback"] = report_metadata
-        if result.get("status", "success") == "success":
-            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
+        self.context["action_feedback"] = report_metadata       
+        if result.get("status","success") == "success":
+            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id,checklist_id=sample_checklist_id)
             self.context["component"] = "read"
         return self.context
 
@@ -503,7 +507,8 @@ class BrokerDA:
         """
 
         target_id = self.param_dict.get("target_id", str())
-        target_ids = self.param_dict.get("target_ids", [])
+        target_ids  = self.param_dict.get("target_ids", [])
+        sample_checklist_id  = self.request_dict.get("sample_checklist_id", [])
 
         result = EnaSpreadsheetParse.delete_ena_records(profile_id=self.profile_id, target_ids=target_ids,
                                                         target_id=target_id)
@@ -511,11 +516,24 @@ class BrokerDA:
         report_metadata["status"] = result.get("status", "success")
         report_metadata["message"] = result.get("message", "success")
         self.context["action_feedback"] = report_metadata
-        if result.get("status", "success") == "success":
-            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id)
+        if result.get("status","success") == "success":
+            self.context["table_data"] = htags.generate_read_record(profile_id=self.profile_id, checklist_id=sample_checklist_id)
             self.context["component"] = "read"
         return self.context
 
+    def do_submit_tagged_seq(self):
+        target_id = self.param_dict.get("target_id", str())
+        target_ids  = self.param_dict.get("target_ids", [])
+        tagged_seq_checklist_id = self.request_dict.get("tagged_seq_checklist_id", str())
+        result = EnaTaggedSequence().submit_tagged_seq(profile_id=self.profile_id, checklist_id=tagged_seq_checklist_id, target_ids=target_ids, target_id=target_id)
+        report_metadata = dict()
+        report_metadata["status"] = result.get("status","success")
+        report_metadata["message"] = result.get("message", "success")
+        self.context["action_feedback"] = report_metadata
+        if result.get("status","success") == "success":
+            self.context["table_data"] = htags.generate_taggedseq_record(profile_id=self.profile_id, checklist_id=tagged_seq_checklist_id)
+            self.context["component"] = "taggedseq"
+        return self.context
 
 class BrokerVisuals:
     def __init__(self, **kwargs):
@@ -524,6 +542,7 @@ class BrokerVisuals:
         self.profile_id = self.param_dict.get("profile_id", str())
         self.user_id = self.param_dict.get("user_id", str())
         self.context = self.param_dict.get("context", dict())
+        self.request_dict = self.param_dict.get("request_dict", dict())
 
     def set_extra_params(self, extra_param):
         for k, v in extra_param.items():
@@ -544,8 +563,9 @@ class BrokerVisuals:
             submission=(htags.generate_submissions_records, dict(profile_id=self.profile_id, component=self.component)),
             seqannotation=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             assembly=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
-            read=(htags.generate_read_record, dict(profile_id=self.profile_id)),
-            files=(htags.generate_files_record, dict(user_id=self.user_id)),
+            read = (htags.generate_read_record, dict(profile_id=self.profile_id,checklist_id=self.request_dict.get("sample_checklist_id", str()))),
+            files = (htags.generate_files_record, dict(user_id=self.user_id)),
+            taggedseq = (htags.generate_taggedseq_record, dict(profile_id=self.profile_id,checklist_id=self.request_dict.get("tagged_seq_checklist_id", str()))),
         )
 
         # NB: in table_data_dict, use an empty dictionary as a parameter for listed functions that define zero arguments
@@ -589,9 +609,9 @@ class BrokerVisuals:
 
     def do_server_side_table_data(self):
         self.context["component"] = self.component
-        request = self.param_dict.get("request", dict())
+        request_dict = self.param_dict.get("request_dict", dict())
 
-        data = htags.generate_server_side_table_records(self.profile_id, component=self.component, request=request.POST)
+        data = htags.generate_server_side_table_records(self.profile_id, component=self.component, request=request_dict)
         self.context["draw"] = data["draw"]
         self.context["records_total"] = data["records_total"]
         self.context["records_filtered"] = data["records_filtered"]

@@ -79,15 +79,18 @@ class AnnotationForm(forms.Form):
         if study_accession:
             self.fields['study'].initial = study_accession
             self.fields['study'].widget.attrs['readonly'] = True
+ 
         if run_accession:
             self.fields['run'].widget.attrs['readonly'] = True
             self.fields['run'].choices = [(x,x) for x in run_accession]
         if experiment_accession:
             self.fields['experiment'].widget.attrs['readonly'] = True
             self.fields['experiment'].choices =  [(x,x) for x in experiment_accession]
+ 
+        self.fields['sample'].choices = [("","None")]
         if sample_accession:
             self.fields['sample'].widget.attrs['readonly'] = True
-            self.fields['sample'].choices = [(x,x) for x in sample_accession]
+            self.fields['sample'].choices.extend([(x,x) for x in sample_accession])
         if kwargs.get('id', ""):
             self.fields['id'].initial = kwargs.get('id', "")
             self.fields['id'].widget.attrs['readonly'] = True

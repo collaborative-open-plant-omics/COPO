@@ -15,6 +15,11 @@ SCHEMA_VERSIONS_DIR = os.path.join(BASE_DIR, 'web', 'apps', 'web_copo', 'schema_
 
 SCHEMA_VERSIONS_FILE_LIST = ["sample.json", "ena_seq.json"]  # files based on schema versions
 
+MANIFEST_PATH = os.path.join(BASE_DIR, 'static', 'assets', 'manifests')
+MANIFEST_FILE_NAME = "{0}_MANIFEST_TEMPLATE{1}.xlsx"
+MANIFEST_DOWNLOAD_URL =  "/static/assets/manifests/" + MANIFEST_FILE_NAME
+
+
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 PROFILE_LOG_BASE = os.path.join(BASE_DIR, 'profiler')
@@ -31,7 +36,7 @@ DEBUG = True if str(resolve_env.get_env('DEBUG')).lower() == 'true' else False
 
 # ALLOWED_HOSTS = [ gethostname(), gethostbyname(gethostname()), ]
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', '.copo-project.org',
-                 '.demo.copo-project.org', 'localhost', ".copodev.cyverseuk.org"]
+                 '.demo.copo-project.org', 'localhost', '.copodev.cyverseuk.org']
 ALLOWED_CIDR_NETS = ['10.0.0.0/24']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -221,8 +226,8 @@ UNIT_TESTING = resolve_env.get_env('UNIT_TESTING')
 
 TEST_USER_NAME = 'aaliyah'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
-FILE_UPLOAD_MAX_MEMORY_SIZE = 500000000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 2
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 24
 
 CACHES = {
     'default': {
@@ -252,8 +257,8 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# FILE_UPLOAD_HANDLERS = (
+#FILE_UPLOAD_HANDLERS = (
 #    "django.core.files.uploadhandler.MemoryFileUploadHandler",
 #    "web.apps.web_copo.utils.LogUploadHandler.LogUploadHandler",
-#    #"django.core.files.uploadhandler.TemporaryFileUploadHandler",
+#    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 # )

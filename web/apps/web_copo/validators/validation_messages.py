@@ -117,8 +117,8 @@ MESSAGES = {
     'validation_msg_overwrite_symbionts': '<strong>Warning: COPO will overwrite any <strong>SYMBIONT</strong> field '
                                           'to match the corresponding TARGET, unless otherwise stated in the SOP</br>'
                                           '</strong><strong>%s</strong>. Date cannot be in the future.',
-    'validation_msg_paired_file_error': 'Field indicates that files should be paired, but only one filename was '
-                                        'provided at row <strong>%s</strong>',
+    'validation_msg_paired_file_error': 'Field indicates that files should be paired, 2 filenames are allowed '
+                                        'at row <strong>%s</strong>',
     'validation_msg_rack_tube_both_na': 'NOT_APPLICABLE, NOT_PROVIDED or NOT_COLLECTED found in both RACK_OR_PLATE_ID '
                                         'and TUBE_OR_WELL_ID at row <strong>%s</strong>.',
     'validation_msg_single_file_error': 'Field indicates that files should be single, but multiple filenames were '

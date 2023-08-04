@@ -1,19 +1,19 @@
 var dialog = new BootstrapDialog({
-    title: "Upload Read Manifest",
+    title: "Upload Barcoding Manifest",
     message: "<div><input type='file' id='fileid' style='display:none' /></div>",
     size: BootstrapDialog.SIZE_WIDE,
     buttons: [{
-        id: 'upload_read_manifest_button',
-        label: 'Upload Read Manifest',
+        id: 'upload_taggedseq_manifest_button',
+        label: 'Upload Barcoding Manifest',
         cssClass: 'btn-primary',
-        title: 'Upload Read Manifest',
-        action: function () {
+        title: 'Upload Barcoding Manifest',
+        action: function(){
             document.getElementById('file').click();
             //upload_spreadsheet($('#file').prop('files')[0])
 
         }
-    }, {
-        id: 'save_read_button',
+    },{
+        id: 'save_taggedseq_button',
         label: 'Finish',
         cssClass: 'btn-primary',
         title: 'Finish',
@@ -23,7 +23,7 @@ var dialog = new BootstrapDialog({
             $button.disable();
             $button.spin();
             dialog.setClosable(false);
-            save_read_data()
+            save_taggedseq_data()
 
         }
     }, {
@@ -58,7 +58,7 @@ $(document).ready(function () {
     }
     s3socket.onmessage = function (e) {
         d = JSON.parse(e.data)
-        element = element = $("#" + d.html_id)
+        element  = $("#" + d.html_id)
         if ($(".modal-dialog").is(':visible')) {
             elem = $(".modal-dialog").find("#" + d.html_id)
             if (elem) {
@@ -85,11 +85,11 @@ $(document).ready(function () {
             //$("#spinner").fadeOut()
         } else if (d.action === "make_table") {
             // make table of metadata parsed from spreadsheet
-            if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
-                $("#sample_parse_table").DataTable().clear().destroy();
+            if ($.fn.DataTable.isDataTable("#" + d.html_id)) {
+                $("#" + d.html_id).DataTable().clear().destroy();
             }
-            $("#sample_parse_table").find("thead").empty()
-            $("#sample_parse_table").find("tbody").empty()
+            $("#" + d.html_id).find("thead").empty()
+            $("#" + d.html_id).find("tbody").empty()
             var body = $("tbody")
             var count = 0
             for (r in d.message) {
@@ -109,26 +109,32 @@ $(document).ready(function () {
                     tr.append(td)
                 }
                 if (count === 0) {
-                    $("#sample_parse_table").find("thead").append(tr)
+                    $("#" + d.html_id).find("thead").append(tr)
                 } else {
-                    $("#sample_parse_table").find("tbody").append(tr)
+                    $("#" + d.html_id).find("tbody").append(tr)
                 }
                 count++
             }
             $("#sample_info").hide()
-            $("#sample_parse_table").DataTable({
+            $("#" + d.html_id).DataTable({
                 "scrollY": "400px",
                 "scrollX": true,
             })
             $("#table_div").fadeIn(1000)
-            $("#sample_parse_table").DataTable().draw()
+            $("#" + d.html_id).DataTable().draw()
             $("#tabs").fadeIn()
             $("#ena_finish_button").fadeIn()
-        } else if (d.action === "refresh_table") {
+        }/* else if (d.action === "refresh_table") {
+            globalDataBuffer = d.data;
+            var event = jQuery.Event("refreshtable");
+            $('body').trigger(event);
+        } */
+        if (d.data.hasOwnProperty  ("table_data")) {
             globalDataBuffer = d.data;
             var event = jQuery.Event("refreshtable");
             $('body').trigger(event);
         }
+       
     }
     window.addEventListener("beforeunload", function (event) {
         s3socket.close()
@@ -147,6 +153,8 @@ $(document).ready(function () {
     var args_dict = {}
     args_dict["tagged_seq_checklist_id"] = $("#checklist_id").find(":selected").val();
     load_records(componentMeta, args_dict); // call to load component records
+    $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+args_dict["tagged_seq_checklist_id"]).val())
+
 
     //register_resolvers_event(); //register event for publication resolvers
 
@@ -164,22 +172,45 @@ $(document).ready(function () {
     });
 
     //add new component button
-    $(document).on("click", ".new-reads-spreadsheet-template", function (event) {
-        url = "/copo/ena_read_manifest_validate/" + uid
+    $(document).on("click", ".new-taggedseq-spreadsheet-template", function (event) {
+        url =  "/copo/ena_taggedseq_manifest_validate/" + uid+ "?checklist_id=" + $("#checklist_id").find(":selected").val();
         dialog.realize();
         dialog.setMessage($('<div></div>').load(url));
-        dialog.open();
-        dialog.getButton('save_read_button').disable();
-
-        $('.modal-dialog').find("#file").on("change", (function (event) {
-            dialog.getButton('upload_read_manifest_button').disable();
-            dialog.getButton('upload_read_manifest_button').spin();
+        dialog.open();   
+        dialog.getButton('save_taggedseq_button').disable();
+        
+        $('.modal-dialog').find("#file").on("change", (function(event) {
+            dialog.getButton('upload_taggedseq_manifest_button').disable();
+            dialog.getButton('upload_taggedseq_manifest_button').spin();
             dialog.setClosable(false);
             upload_spreadsheet($(this).prop('files')[0])
 
         }));
 
     });
+
+ 
+
+    $("#checklist_id").change(function(){
+
+        if ($.fn.dataTable.isDataTable('#' + componentMeta.tableID)) {
+            //if table instance already exists, then do refresh
+            table = $('#' + componentMeta.tableID).DataTable();
+            table.clear().destroy();
+            $('#' + componentMeta.tableID).empty();
+        }
+        $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+this.value).val())
+        args_dict["tagged_seq_checklist_id"] = this.value;
+        args_dict[""]
+        load_records(componentMeta, args_dict); // call to load component records
+    });
+
+
+
+ 
+
+    //******************************Event Handlers Block*************************//
+
 
     //details button hover
     /*
@@ -211,32 +242,35 @@ $(document).ready(function () {
         } else if (task == "edit") {
             url = "/copo/ena_annotation/" + uid + "/" + records[0].record_id
             handle_add_n_edit(url)
-        } else {
-            form_generic_task("sample", task, records);
+        }
+        else {    
+            var args_dict = {}
+            args_dict["tagged_seq_checklist_id"] = $("#checklist_id").find(":selected").val();            
+            form_generic_task("taggedseq", task, records, args_dict);
         }
 
     }
 
 
     $('body').on('posttablerefresh', function (event) {
-        table = $('#' + component + '_table').DataTable();
-        var numCols = $('#' + component + '_table thead th').length;
+        table = $('#'+ componentMeta.tableID ).DataTable();
+        var numCols = $('#' + componentMeta.tableID + ' thead th').length;
         table.rows()
             .nodes()
             .to$()
             .addClass('highlight_accession');
 
-        for (var i = 1; i <= numCols; i++) {
-            if ($(table.column(i).header()).text() == 'SUBMISSION STATUS') {
+        for (var i=1; i<=numCols; i++) {
+            if ( $(table.column(i).header()).text() == 'ACCESSION' ) {
 
-                var no_accessiion_indexes = table.rows().eq(0).filter(function (rowIdx) {
-                    return table.cell(rowIdx, i).data() != 'accepted' ? true : false;
-                });
-                table.rows(no_accessiion_indexes)
-                    .nodes()
-                    .to$()
-                    .addClass('highlight_no_accession');
-                break
+                var no_accessiion_indexes = table.rows().eq( 0 ).filter( function (rowIdx) {
+                    return table.cell( rowIdx, i ).data() == '' ? true : false;
+                } );
+                table.rows( no_accessiion_indexes )
+                .nodes()
+                .to$()
+                .addClass( 'highlight_no_accession' );
+                break  
             }
         }
     })
@@ -247,10 +281,11 @@ function upload_spreadsheet(file) {
     $("#warning_info2").fadeOut("fast")
     var csrftoken = $.cookie('csrftoken');
     form = new FormData()
+    form.append("checklist_id", $("#checklist_id").find(":selected").val())
     form.append("file", file)
     var percent = $(".percent")
     jQuery.ajax({
-        url: "/copo/parse_ena_spreadsheet/",
+        url: "/copo/parse_ena_taggedseq_spreadsheet/",
         data: form,
         cache: false,
         contentType: false,
@@ -272,33 +307,34 @@ function upload_spreadsheet(file) {
             return xhr;
         }
     }).error(function (data) {
-        dialog.getButton('upload_read_manifest_button').enable();
+        dialog.getButton('upload_taggedseq_manifest_button').enable();
         dialog.setClosable(true);
-        dialog.getButton('upload_read_manifest_button').stopSpin();
-        console.error(data)
-        /*
-        BootstrapDialog.show({
-            title: 'Error',
-            message: "Error " + data.status + ": " + data.responseText,
-            type: BootstrapDialog.TYPE_DANGER
-        });
-        */
+        dialog.getButton('upload_taggedseq_manifest_button').stopSpin();
+        //console.error(data)
+        responseText = data.responseText
+        if (responseText != "") {
+            BootstrapDialog.show({
+                title: 'Error',
+                message: "Error " + data.status + ": " + data.responseText
+            });
+        }
+       
     }).done(function (data) {
-        dialog.getButton('upload_read_manifest_button').enable();
-        dialog.getButton('save_read_button').enable();
+        dialog.getButton('upload_taggedseq_manifest_button').enable();
+        dialog.getButton('save_taggedseq_button').enable();
         dialog.setClosable(true);
-        dialog.getButton('upload_read_manifest_button').stopSpin();
+        dialog.getButton('upload_taggedseq_manifest_button').stopSpin();
 
     })
 }
 
-function save_read_data() {
+function save_taggedseq_data() {
     $.ajax({
-        url: "/copo/save_ena_records"
+        url: "/copo/save_ena_taggedseq_records"
     }).done(function (data) {
         result_dict = {}
         result_dict["status"] = "success"
-        result_dict["message"] = "Read records are saved"
+        result_dict["message"] = "Barcoding records are saved"
         do_crud_action_feedback(result_dict);
         dialog.close()
         globalDataBuffer = data;

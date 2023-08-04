@@ -23,10 +23,11 @@
         <!-- hidden attributes  -->
         <input type="hidden" id="nav_component_name" value="accessions"/>
         <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
+        <input type="hidden" id="profile_type" value="{{ profile.type | get_short_profile_type }}"/>
         <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
         <input type="hidden" value="{% url 'copo:copo_submissions' profile_id=profile_id %}" name="submission_url"
                id="submission_url"/>
-        <input type="hidden" value="{{ profile.type }}" id="profile_type"/>
+        <!--input type="hidden" value="{{ profile.type }}" id="profile_type"/-->
     </div>
 {% endblock browse_header_block %}
 
@@ -86,5 +87,8 @@
     {#    <script src="{% static 'copo_accessions/js/copo_accessions_dashboard.js' %}"></script>#}
     <script src="{% static 'copo_accessions/js/copo_accessions.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>    
+    <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
+    <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
+
 {% endblock %}

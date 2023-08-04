@@ -8,8 +8,7 @@ import pandas
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging import logger
 from api.utils import map_to_dict
-from dal.copo_da import Sample, DataFile, Profile, Source, Submission, EnaFileTransfer, SubmissionQueue, \
-    Sequnece_annotation
+from dal.copo_da import Sample, DataFile, Profile, Source, Submission, EnaFileTransfer, SubmissionQueue, Sequnece_annotation, EnaChecklist
 from submission.helpers.generic_helper import notify_read_status
 from web.apps.web_copo.schema_versions.lookup import dtol_lookups as lookup
 from web.apps.web_copo.lookup import lookup as lk
@@ -26,10 +25,12 @@ from pathlib import Path
 from bson import ObjectId
 import web.apps.web_copo.templatetags.html_tags as htags
 from dal import cursor_to_list
+from django.contrib.auth.decorators import login_required
+from web.apps.web_copo.utils.EnaChecklistHandler import EnaCheckListSpreedsheet
 
 l = logger.Logger("exceptions_and_logging/logs")
 
-
+@login_required()
 def parse_ena_spreadsheet(request):
     username = request.user.username
     profile_id = request.session["profile_id"]
@@ -38,8 +39,17 @@ def parse_ena_spreadsheet(request):
                        html_id="sample_info")
     # method called by rest
     file = request.FILES["file"]
+    checklist_id = request.POST["checklist_id"]
     name = file.name
-    ena = ENASpreadsheet(file=file)
+    
+    required_validators = []
+    required = dict(globals().items())["required_validators"]
+    for element_name in dir(required):
+        element = getattr(required, element_name)
+        if inspect.isclass(element) and issubclass(element, Validator) and not element.__name__ == "Validator":
+            required_validators.append(element)
+
+    ena = EnaCheckListSpreedsheet(file=file, checklist_id=checklist_id, component="sample", validators=required_validators)
     s3obj = s3()
     if name.endswith("xlsx") or name.endswith("xls"):
         fmt = 'xls'
@@ -68,17 +78,19 @@ def parse_ena_spreadsheet(request):
                                    html_id="sample_info")
                 s3obj.make_s3_bucket(bucket_name=bucket_name)
                 notify_read_status(data={"profile_id": profile_id},
-                                   msg='Files not found, please click "Upload Data into COPO" and follow the '
-                                       'instructions.', action="info",
-                                   html_id="sample_info")
+                                msg='Files not found, please click "Upload Data into COPO" and follow the '
+                                    'instructions.', action="error",
+                                html_id="sample_info")
                 return HttpResponse(status=400)
-
+            notify_read_status(data={"profile_id": profile_id},
+                            msg='Spreadsheet is valid', action="info",
+                            html_id="sample_info")
             ena.collect()
             return HttpResponse()
         return HttpResponse(status=400)
     return HttpResponse(status=400)
 
-
+@login_required()
 def save_ena_records(request):
     # create mongo sample objects from info parsed from manifest and saved to session variable
     sample_data = request.session.get("sample_data")
@@ -86,9 +98,13 @@ def save_ena_records(request):
     profile_name = Profile().get_name(profile_id)
     uid = str(request.user.id)
     username = request.user.username
-    alias = str(uuid.uuid4())
-    bundle = list()
-    bundle_meta = list()
+    checklist = EnaChecklist().get_collection_handle().find_one({"primary_id": request.session["checklist_id"]})
+    column_name_mapping = { field["name"].upper() : key  for key, field in checklist["fields"].items() if not field.get("read_field", False) }
+    #checklist_read = EnaChecklist().get_collection_handle().find_one({"primary_id": "read"})
+    column_name_mapping_read = { field["name"].upper() : key  for key, field in checklist["fields"].items() if field.get("read_field", False) }
+    #bundle = list()
+    #alias = str(uuid.uuid4())
+    #bundle_meta = list()
     pairing = list()
     datafile_list = list()
     existing_bundle = list()
@@ -102,12 +118,13 @@ def save_ena_records(request):
     dt = get_datetime()
     project_release_date = None
 
-    for p in range(1, len(sample_data)):
+    for line in range(1, len(sample_data)):
         # for each row in the manifest
 
-        s = (map_to_dict(sample_data[0], sample_data[p]))
+        s = (map_to_dict(sample_data[0], sample_data[line]))
 
-        project_release_date = s["release_date"]
+   
+        #project_release_date = s["release_date"]
         df = dict()
         p = Profile().get_record(profile_id)
         attributes = dict()
@@ -129,17 +146,19 @@ def save_ena_records(request):
             "library_description": s["library_description"]
         }
         '''
-        attributes["library_preparation"] = {key: s[key] for key in s.keys() if key.startswith("library_")}
 
-        attributes["nucleic_acid_sequencing"] = {"sequencing_instrument": s["sequencing_instrument"]}
 
         # check if sample already exists, if so, add new datafile
-        sample = Sample().get_collection_handle().find_one({"name": s["sample_name"], "profile_id": profile_id})
+        sample = Sample().get_collection_handle().find_one({"name": s["Sample"], "profile_id": profile_id})
+        insert_record = {}
 
-        if not sample:
+        if not sample or sample.get("organism","") != s["Organism"]:
+            if not sample:
+                sample = dict()
+
             source = dict()
             curl_cmd = "curl " + \
-                       "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["organism"].replace(" ", "%20")
+                       "https://www.ebi.ac.uk/ena/taxonomy/rest/scientific-name/" + s["Organism"].replace(" ", "%20")
             receipt = subprocess.check_output(curl_cmd, shell=True)
             # ToDo - exit if species not found
             print(receipt)
@@ -149,52 +168,64 @@ def save_ena_records(request):
             # create source from organism
             termAccession = "http://purl.obolibrary.org/obo/NCBITaxon_" + str(taxinfo[0]["taxId"])
             source["organism"] = \
-                {"annotationValue": s["organism"], "termSource": "NCBITAXON", "termAccession":
+                {"annotationValue": s["Organism"], "termSource": "NCBITAXON", "termAccession":
                     termAccession}
             # source["profile_id"] = request.session["profile_id"]
-            source["date_created"] = dt
+            source["date_modified"] = dt
             source["profile_id"] = profile_id
             source["deleted"] = "0"
-            source["name"] = s["sample_name"]
+            source["name"] = s["Sample"]
+            insert_record["created_by"] = uid
+            insert_record["time_created"] = get_datetime()
+            insert_record["date_created"] = dt
+
             source_id = str(
-                Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession},
-                                                                     {"$set": source},
-                                                                     upsert=True, return_document=ReturnDocument.AFTER)[
-                    "_id"])
-
-            sample = dict()
-            # create associated sample
-            sample["sample_type"] = "isasample"
-            # sample["profile_id"] = request.session["profile_id"]
+                Source().get_collection_handle().find_one_and_update({"organism.termAccession": termAccession, "profile_id": profile_id},
+                                                                     {"$set": source, "$setOnInsert": insert_record},
+                                                                     upsert=True, return_document=ReturnDocument.AFTER)["_id"])
             sample["derivesFrom"] = source_id
-            sample["date_created"] = dt
-            sample["profile_id"] = profile_id
-            sample["name"] = s["sample_name"]
-            sample["date_modified"] = dt
-            sample["deleted"] = "0"
-            sample["status"] = "pending"
-            sample["created_by"] = uid
-            # sample["read"] = {"file_name": [s["file_name"]] }
-            sample.update({key[len("SAMPLE_"):]: s[key] for key in s.keys() if key.startswith("SAMPLE_")})
+            insert_record["status"] = "pending"
 
-            # sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
-            # sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
 
-            sample = Sample().get_collection_handle().find_one_and_update(
-                {"name": sample["name"], "profile_id": sample["profile_id"]}, {"$set": sample},
-                upsert=True,
-                return_document=ReturnDocument.AFTER)
-        else:
-            sample_update_fields = ({key[len("SAMPLE_"):]: s[key] for key in s.keys() if key.startswith("SAMPLE_")})
-            sample_update_fields["date_modified"] = dt
-            sample_update_fields["updated_by"] = uid
-            # sample["DATE_OF_COLLECTION"] = s["DATE_OF_COLLECTION"]
-            # sample["COLLECTION_LOCATION"] = s["COLLECTION_LOCATION"]
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": sample["_id"]}, {
-                "$set": sample_update_fields})  # , "$addToSet": {"read.file_name" : s["file_name"] }
+        # create associated sample
+        sample["sample_type"] = "isasample"
+        #sample["derivesFrom"] = source_id
+        sample["profile_id"] = profile_id
+        sample["name"] = s["Sample"]
+        sample["date_modified"] = dt 
+        sample["deleted"] = get_not_deleted_flag()
+        #sample["read"] = {"file_name": [s["file_name"]] }
+        sample["checklist_id"] = request.session["checklist_id"]
+        sample["updated_by"] = uid
+        sample.pop("created_by", None)
+        sample.pop("time_created", None)
+        sample.pop("date_created", None)
+        sample.pop("status", None) 
+
+        for key, value in s.items():
+            header = key
+            header = header.replace(" (optional)", "", -1)
+            upper_key = header.upper()
+            if upper_key in column_name_mapping:
+                sample[column_name_mapping[upper_key]] = value
+
+        sample = Sample().get_collection_handle().find_one_and_update({"profile_id": profile_id, "name":s["Sample"]},
+                                                                    {"$set": sample, "$setOnInsert": insert_record},
+                                                                    upsert=True,  return_document=ReturnDocument.AFTER)
         sample_id = str(sample["_id"])
+       
 
-        attributes["attach_samples"] = {"study_samples": [sample_id]}
+        for key, value in s.items():
+            header = key
+            header = header.replace(" (optional)", "", -1)
+            upper_key = header.upper()
+            if upper_key in column_name_mapping_read:
+                attributes[column_name_mapping_read[upper_key]] = value
+
+        #attributes["library_preparation"] = {key: s[key] for key in s.keys() if key.startswith("library_")}
+        #attributes["nucleic_acid_sequencing"] = {"sequencing_instrument": s["sequencing_instrument"]}
+        attributes["study_samples"] = [sample_id] 
+
         df["description"] = {"attributes": attributes}
         df["title"] = p["title"]
         # df["date_created"] = dt
@@ -210,9 +241,9 @@ def save_ena_records(request):
         nserted = None
         f_meta = None
         # check if there are two files or one
-        if s["library_layout"] == "SINGLE":
+        if s["Library layout"] == "SINGLE":
             # create single record
-            f_name = s["file_name"]
+            f_name = s["File name"]
             df["ecs_location"] = uid + "_" + username + "/" + f_name
             # df["ecs_location"] = username + "/" + f_name   #temp-solution
             df["file_name"] = f_name
@@ -220,7 +251,7 @@ def save_ena_records(request):
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = s["md5"].strip()
+            df["file_hash"] = s["File checksum"].strip()
             df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
@@ -243,7 +274,7 @@ def save_ena_records(request):
             file_id2 = None
             # create record for left
             tmp_pairing = dict()
-            file_names = s["file_name"].split(",")
+            file_names = s["File name"].split(",")
             f_name = file_names[0].strip()
             df["file_name"] = f_name
             df["ecs_location"] = uid + "_" + username + "/" + f_name
@@ -252,7 +283,7 @@ def save_ena_records(request):
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = s["md5"].split(",")[0].strip()
+            df["file_hash"] = s["File checksum"].split(",")[0].strip()
             df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
@@ -281,7 +312,7 @@ def save_ena_records(request):
             df["file_location"] = file_location
             df["name"] = f_name
             df["file_id"] = "NA"
-            df["file_hash"] = s["md5"].split(",")[1].strip()
+            df["file_hash"] = s["File checksum"].split(",")[1].strip()
             df["deleted"] = get_not_deleted_flag()
             file_changed = True
             datafile = DataFile().get_collection_handle().find_one({"file_location": file_location})
@@ -298,7 +329,7 @@ def save_ena_records(request):
                 datafile_list.append(file_id)
 
             file_id2 = file_id
-            f_meta = {"file_id": f"{file_id1},{file_id2}", "file_name": s["file_name"], "status": "pending"}
+            f_meta = {"file_id": f"{file_id1},{file_id2}", "file_name": s["File name"], "status": "pending"}
             tmp_pairing["_id2"] = file_id
             pairing.append(tmp_pairing)
             # Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$addToSet": {"read": f_meta }} )
@@ -309,8 +340,8 @@ def save_ena_records(request):
                 is_found = True
                 break
         if not is_found:
-            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)},
-                                                                             {"$addToSet": {"read": f_meta}})
+            Sample(profile_id=profile_id).get_collection_handle().update_one({"_id": ObjectId(sample_id)}, {"$set": {"read": [f_meta] }} )
+
 
     # attributes["datafiles_pairing"] = pairing
 
@@ -348,12 +379,12 @@ def save_ena_records(request):
     for f in datafile_list:
         tx.make_transfer_record(file_id=str(f), submission_id=str(sub_id))
 
-    table_data = htags.generate_read_record(profile_id=profile_id)
+    table_data = htags.generate_read_record(profile_id=profile_id, checklist_id=request.session["checklist_id"])
     result = {"table_data": table_data, "component": "read"}
     return JsonResponse(status=200, data=result)
 
+def submit_read(profile_id,  target_ids=list(), target_id=None, checklist_id=None):
 
-def submit_read(profile_id, target_ids=list(), target_id=None):
     if target_id:
         target_ids = [target_id]
 
@@ -482,12 +513,38 @@ def delete_ena_records(profile_id, target_ids=list(), target_id=None):
     return dict(status='success', message="Read record/s have been deleted!")
 
 
-class ENASpreadsheet:
+@login_required()
+def get_read_accessions(request, sample_accession): 
+    samples = Sample().get_all_records_columns(filter_by={"sraAccession": sample_accession}, projection={"profile_id":1, "read":1})
+    run_accessions = []
+    experiment_accessions = []
+    if samples:
+        sample = samples[0]
+        submission = Submission().get_all_records_columns(filter_by={"profile_id": sample["profile_id"]}, projection={"accessions":1})
+        for read in sample.get("read", []):
+            file_id_str = read.get("file_id", str())
+            file_ids = file_id_str.split(",")
+            if file_ids:
+                if read.get("status", "pending") == "accepted":
+                        for accession in submission[0].get("accessions", {}).get("run", []):
+                            if set(accession.get("datafiles",[])) == set(file_ids):
+                                run_accessions.append(accession.get("accession", str()))
+                                alias = accession.get("alias", str())
+                                break
+                        for accession in submission[0].get("accessions", {}).get("experiment", []):
+                            if accession.get("alias",[]) == alias:
+                                experiment_accessions.append(accession.get("accession", str()))
+                                break       
+    result = dict(run_accessions=run_accessions, experiment_accessions=experiment_accessions)                                                     
+    return JsonResponse(status=200,  data=result)
+
+
+class ENASpreadsheet_old:
 
     def __init__(self, file):
         self.req = ThreadLocal.get_current_request()
         self.profile_id = self.req.session.get("profile_id", None)
-        self.channels_group_name = "s3_" + self.profile_id
+        #self.channels_group_name = "s3_" + self.profile_id
 
         self.data = None
         self.fields = None
@@ -530,12 +587,25 @@ class ENASpreadsheet:
                 elif m_format == "csv":
                     self.data = pandas.read_csv(self.file, keep_default_na=False,
                                                 na_values=lookup.NA_VALS)
+                else:
+                    raise Exception("Unknown manifest format")
                 self.data = self.data.loc[:, ~self.data.columns.str.contains('^Unnamed')]
                 self.data = self.data.apply(lambda x: x.astype(str))
                 self.data = self.data.apply(lambda x: x.str.strip())
                 self.data.columns = self.data.columns.str.replace(" ", "")
+
+                new_column_name = { name : name.replace(" (optional)", "",-1).upper() for name in self.data.columns.values.tolist() }
+                self.new_data = self.data.rename(columns=new_column_name)    
+
+                checklist = EnaChecklist().get_collection_handle().find_one({"primary_id": self.checklist_id})
+                if checklist:
+                   fields = checklist["fields"]
+                   new_column_name = { value["name"].upper() : key for key, value in fields.items() }
+                   self.new_data.rename(columns=new_column_name, inplace=True)    
+
             except Exception as e:
                 # if error notify via web socket
+                l.exception(e)
                 l.exception(e)
                 notify_read_status(data={"profile_id": self.profile_id}, msg="Unable to load file. " + str(e),
                                    action="info",
@@ -614,6 +684,8 @@ class ENASpreadsheet:
             sample_data.append(r)
         # store sample data in the session to be used to create mongo objects
         self.req.session["sample_data"] = sample_data
+        self.req.session["checklist_id"] = self.checklist_id
 
         notify_read_status(data={"profile_id": self.profile_id}, msg=sample_data, action="make_table",
-                           html_id="sample_table")
+                        html_id="sample_table")
+        

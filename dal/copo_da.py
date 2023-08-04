@@ -61,6 +61,11 @@ APIValidationReport = 'ApiValidationReport'
 TestCollection = 'TestCollection'
 AssemblyCollection = 'AssemblyCollection'
 AnnotationCollection = "SeqAnnotationCollection"
+TaggedSequenceChecklistCollection = "TagSequenceChecklistCollection"
+TaggedSequenceCollection = "TagSequenceCollection"
+EnaChecklistCollection ="EnaChecklistCollection"
+EnaObectCollection = "EnaObjectCollection"
+ReadObjectCollection = "SampleCollection"
 
 handle_dict = dict(publication=get_collection_ref(PubCollection),
                    person=get_collection_ref(PersonCollection),
@@ -85,6 +90,11 @@ handle_dict = dict(publication=get_collection_ref(PubCollection),
                    assembly=get_collection_ref(AssemblyCollection),
                    seqannotation=get_collection_ref(AnnotationCollection),
                    submissionQueue=get_collection_ref(SubmissionQueueCollection),
+                   taggedSequenceChecklist=get_collection_ref(TaggedSequenceChecklistCollection),
+                   taggedSequence=get_collection_ref(TaggedSequenceCollection),
+                   enaChecklist=get_collection_ref(EnaChecklistCollection),
+                   enaObject=get_collection_ref(EnaObectCollection),
+                   read=get_collection_ref(ReadObjectCollection)
                    )
 
 
@@ -214,7 +224,7 @@ class DAComponent:
     def get_qualified_field(self, elem=str()):
         return self.get_id_base() + "." + elem
 
-    def get_schema(self):
+    def get_schema(self, **kwargs):
         schema_base = DataSchemas("COPO").get_ui_template().get("copo")
         x = data_utils.json_to_object(schema_base.get(self.component, dict()))
 
@@ -910,16 +920,15 @@ class Sample(DAComponent):
         # Get manifest version based on profile type
         if "asg" in manifest_type:
             profile_type = "asg"
-            current_schema_version = settings.CURRENT_ASG_VERSION
         elif "dtolenv" in manifest_type:
             profile_type = "dtolenv"
-            current_schema_version = settings.CURRENT_DTOLENV_VERSION
         elif "dtol" in manifest_type:
             profile_type = "dtol"
-            current_schema_version = settings.CURRENT_DTOL_VERSION
         elif "erga" in manifest_type:
             profile_type = "erga"
-            current_schema_version = settings.CURRENT_ERGA_VERSION
+
+        current_schema_version = settings.MANIFEST_VERSION.get(profile_type.upper(),"")
+
 
         # extend system fields
         for k, v in kwargs.items():
@@ -1584,10 +1593,12 @@ class Sample(DAComponent):
 
     def update_datafile_status(self, datafile_ids, status):
         dt = data_utils.get_datetime()
-        for id in datafile_ids:
-            self.get_collection_handle().update_one(
-                {"profile_id": self.profile_id, "read.file_id": {"$regex": id}, "read.$.status": {"$ne": status}},
-                {"$set": {"read.$.status": status, "modifed_date": dt}})
+        for id in datafile_ids:            
+            self.get_collection_handle().update_one({"profile_id": self.profile_id, "read.file_id" : {"$regex": id}, "read.$.status": {"$ne": status}}, {"$set": {"read.$.status": status, "modifed_date":  dt}})
+
+
+
+
 
 
 class Submission(DAComponent):
@@ -2119,7 +2130,7 @@ class Submission(DAComponent):
             return self.get_collection_handle().update(
                 {'_id': ObjectId(submission_id)}, {'$set': {'destination_repo': 'default'}}
             )
-        r = Repository().get_record(ObjectId(repo_id))
+        r = Repository().get_record(repo_id)
         dest = {"url": r.get('url'), 'apikey': r.get('apikey', ""), "isCG": r.get('isCG', ""), "repo_id": repo_id,
                 "name": r.get('name', ""),
                 "type": r.get('type', ""), "username": r.get('username', ""), "password": r.get('password', "")}
@@ -2367,6 +2378,40 @@ class Submission(DAComponent):
         Sample().get_collection_handle().update_many({"_id": {"$in": object_samples_ids}},
                                                      {"$set": {"status": "processing"}})
 
+    def make_tagged_seq_submission_pending(self, sub_id, target_ids):
+        self.get_collection_handle().update_one({"_id": ObjectId(sub_id)},  {"$set": {"tagged_seq_status": "pending"}, "$addToSet" : {"tagged_seqs": {"$each": target_ids}}}) 
+
+    def get_tagged_seq_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        subs = self.get_collection_handle().find(
+            {"tagged_seq_status": {"$in": ["sending", "pending"]}},
+            {"tagged_seq_status": 1, "profile_id": 1, "date_modified": 1, "tagged_seqs": 1})
+        sub = cursor_to_list(subs)
+        out = list()
+        current_time = data_utils.get_datetime()
+        for s in sub:
+            # calculate whether a submission is an old one
+            if s.get("tagged_seq_status", "") == "sending":
+                recorded_time = s.get("date_modified", current_time)
+                time_difference = current_time - recorded_time
+                if time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                    # submission retry time has elapsed so re-add to list
+                    out.append(s)
+                    self.update_submission_modified_timestamp(s["_id"])
+                    lg.log("ADDING STALLED TAGGED SEQ SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da",
+                        level=Loglvl.ERROR, type=Logtype.FILE)
+                    # no need to change status
+            elif s.get("tagged_seq_status", "") == "pending":
+                out.append(s)
+                #self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
+                                                    {"$set": {"tagged_seq_status": "sending", "date_modified": current_time}})
+        return out
+
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -2585,17 +2630,17 @@ class Profile(DAComponent):
         handle_dict['profile'].update_one({'_id': ObjectId(profile_id)}, {'$set': {'dataverse': dataverse}})
 
     def check_for_dataverse_details(self, profile_id):
-        p = self.get_record(ObjectId(profile_id))
+        p = self.get_record(profile_id)
         if 'dataverse' in p:
             return p['dataverse']
 
     def add_dataverse_dataset_details(self, profile_id, dataset):
 
-        handle_dict['profile'].update_one({'_id': ObjectId(profile_id)}, {'$push': {'dataverse.datasets': dataset}})
+        handle_dict['profile'].update_one({'_id': profile_id}, {'$push': {'dataverse.datasets': dataset}})
         return [dataset]
 
     def check_for_dataset_details(self, profile_id):
-        p = self.get_record(ObjectId(profile_id))
+        p = self.get_record(profile_id)
         if 'dataverse' in p:
             if 'datasets' in p['dataverse']:
                 return p['dataverse']['datasets']
@@ -2643,8 +2688,11 @@ class Profile(DAComponent):
         return cursor_to_list_str(p)
 
     def get_name(self, profile_id):
-        p = self.get_record(ObjectId(profile_id))
-        return p["title"]
+        p = self.get_record(profile_id)
+        if type(p) != InvalidId:
+            return p.get("title","")
+        else:
+            return "profile not exists"
 
     def get_by_title(self, title):
         p = self.get_collection_handle().find({"title": title})
@@ -2704,7 +2752,7 @@ class CopoGroup(DAComponent):
 
     def get_profiles_for_group_info(self, group_id):
         p_list = cursor_to_list(Profile().get_for_user(data_utils.get_user_id()))
-        group = CopoGroup().get_record(ObjectId(group_id))
+        group = CopoGroup().get_record(group_id)
         for p in p_list:
             if p['_id'] in group['shared_profile_ids']:
                 p['selected'] = True
@@ -2713,7 +2761,7 @@ class CopoGroup(DAComponent):
         return p_list
 
     def get_repos_for_group_info(self, uid, group_id):
-        g = CopoGroup().get_record(ObjectId(group_id))
+        g = CopoGroup().get_record(group_id)
         docs = cursor_to_list(Repository().Repository.find({'users.uid': uid}))
         for d in docs:
             if d['_id'] in g['repo_ids']:
@@ -2723,7 +2771,7 @@ class CopoGroup(DAComponent):
         return list(docs)
 
     def get_users_for_group_info(self, group_id):
-        group = CopoGroup().get_record(ObjectId(group_id))
+        group = CopoGroup().get_record(group_id)
         member_ids = group['member_ids']
         user_list = list()
         for u in member_ids:
@@ -3166,8 +3214,12 @@ class Assembly(DAComponent):
                                                  {"$set": {"error": msg}})
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
-        assembly_obj_ids = [ObjectId(id) for id in target_ids]
-        result = self.execute_query({"_id": {"$in": assembly_obj_ids}, "accession": {"$exists": True, "$ne": ""}})
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+        assembly_obj_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": assembly_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
         if result:
             return dict(status='error', message="One or more assembly record/s have been accessed!")
 
@@ -3202,8 +3254,13 @@ class Sequnece_annotation(DAComponent):
                                                      {"$set": {"error": msg}})
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
-        seq_annotation_obj_ids = [ObjectId(id) for id in target_ids]
-        result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids}, "accession": {"$exists": True, "$ne": ""}})
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+        
+        seq_annotation_obj_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": seq_annotation_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
         if result:
             return dict(status='error', message="One or more sequence annotation record/s have been accessed!")
 
@@ -3214,6 +3271,161 @@ class Sequnece_annotation(DAComponent):
 class SubmissionQueue(DAComponent):
     def __init__(self, profile_id=None):
         super(SubmissionQueue, self).__init__(profile_id, "submissionQueue")
+
+class TaggedSequenceChecklist(DAComponent):
+    def __init__(self, profile_id=None):
+        super(TaggedSequenceChecklist, self).__init__(profile_id, "taggedSequenceChecklist")
+
+    def get_checklist(self, checklist_id):
+        return self.execute_query({"primary_id": checklist_id})
+    
+    def get_checklists(self):
+        return self.get_all_records_columns(projection={"primary_id": 1, "name": 1, "description": 1})
+    
+
+class TaggedSequence(DAComponent):
+    def __init__(self, profile_id=None):
+        super(TaggedSequence, self).__init__(profile_id, "taggedSequence")
+
+    def get_schema(self, target_id=str()):
+        if not target_id:
+            return dict(schema_dict=[],
+                        schema=[]
+                        )   
+        taggedSeq = TaggedSequence(self.profile_id).get_record(target_id)
+        fields = []
+        if taggedSeq:
+            checklist = TaggedSequenceChecklist().execute_query({"primary_id": taggedSeq["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if taggedSeq.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):        
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+
+        tagged_seq_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": tagged_seq_ids},  "$or": [ {"accession":{"$exists": True, "$ne": ""}}, {"status": {"$exists": True, "$ne": "pending" }}] } )
+        if result:
+           return dict(status='error', message="One or more tagged sequence record/s have been accessed or scheduled to submit!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   tagged_seq_ids}})
+        return dict(status='success', message="Tagged Sequence record/s have been deleted!")
+    
+    def update_tagged_seq_processing(self, profile_id=str(), tagged_seq_ids=list()):
+        tagged_seq_obj_ids = [ ObjectId(id) for id in tagged_seq_ids ]
+        self.get_collection_handle().update_many({"profile_id": profile_id,  "_id": {"$in":   tagged_seq_obj_ids},  "$or":[ {"status": {"$exists": False}}, {"status": "pending" }]},
+                                            {"$set": {"status":  "processing"}})
+
+
+class EnaChecklist(DAComponent):
+    def __init__(self, profile_id=None):
+        super(EnaChecklist, self).__init__(profile_id, "enaChecklist")
+
+    def get_checklist(self, checklist_id):
+        return self.execute_query({"primary_id": checklist_id})
+    
+    def get_barcoding_checklists_no_fields(self):
+        return self.get_all_records_columns(filter_by={"primary_id": {"$in" : settings.BARCODING_CHECKLIST}},  projection={"primary_id": 1, "name": 1, "description": 1})
+    
+    def get_sample_checklists_no_fields(self):
+        return self.get_all_records_columns(filter_by={"primary_id": { "$regex" : "^ERC" } },  projection={"primary_id": 1, "name": 1, "description": 1})
+    
+
+class EnaObject(DAComponent):
+    def __init__(self, profile_id=None):
+        super(EnaObject, self).__init__(profile_id, "enaObject")
+
+    def get_schema(self, target_id=str()):
+        if not target_id:
+            return dict(schema_dict=[],
+                        schema=[]
+                        )   
+        taggedSeq = EnaObject(self.profile_id).get_record(target_id)
+        fields = []
+        if taggedSeq:
+            checklist = EnaChecklist().execute_query({"primary_id": taggedSeq["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if taggedSeq.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
+
+    def validate_and_delete(self, target_id=str(), target_ids=list()):        
+        if not target_ids:
+            target_ids = []
+        if target_id:
+            target_ids.append(target_id)
+
+        tagged_seq_ids = [ ObjectId(id) for id in target_ids ]
+        result = self.execute_query({"_id": {"$in": tagged_seq_ids},  "$or": [ {"accession":{"$exists": True, "$ne": ""}}, {"status": {"$exists": True, "$ne": "pending" }}] } )
+        if result:
+           return dict(status='error', message="One or more Ena object/s have been accessed or scheduled to submit!")
+        
+        self.get_collection_handle().remove({"_id": {"$in":   tagged_seq_ids}})
+        return dict(status='success', message="Ena object/s have been deleted!")
+    
+    def update_ena_object_processing(self, profile_id=str(), tagged_seq_ids=list()):
+        tagged_seq_obj_ids = [ ObjectId(id) for id in tagged_seq_ids ]
+        self.get_collection_handle().update_many({"profile_id": profile_id,  "_id": {"$in":   tagged_seq_obj_ids},  "$or":[ {"status": {"$exists": False}}, {"status": "pending" }]},
+                                            {"$set": {"status":  "processing"}})
+
+
+class Read(DAComponent):
+    def __init__(self, profile_id=None):
+        super(Read, self).__init__(profile_id, "read")
+
+    def get_schema(self, target_id):
+
+        if not target_id:
+            return dict(schema_dict=[], schemas=[])
+        
+        read = Read(self.profile_id).get_record(target_id)
+        fields = []
+        if read:
+            checklist = EnaChecklist().execute_query({"primary_id": read["checklist_id"]})
+            if checklist:
+                for key, field  in checklist[0].get("fields", {}).items() :
+                    if read.get(key, ""):
+                        field["id"] = key
+                        field["show_as_attribute"] = True
+                        field["label"]=field["name"]
+                        field.pop("name")
+                        field["control"] = "text"
+                        if field["type"] == "TEXT_AREA_FIELD":
+                            field["control"] = "textarea"
+                    
+                    fields.append(field)
+
+            return dict(schema_dict=fields,
+                        schema=fields
+                        )
 
 
 def is_number(s):

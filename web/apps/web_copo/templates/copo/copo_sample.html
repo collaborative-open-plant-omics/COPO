@@ -81,6 +81,7 @@
         <input type="hidden" value="{% url 'copo:copo_submissions' profile_id=profile_id %}" name="submission_url"
                id="submission_url"/>
         <input type="hidden" value="{{ profile.type }}" id="profile_type"/>
+        <input type="hidden" id="blank_manifest_url" value="{{ profile.type | get_short_profile_type | get_blank_manifest_url  }}"/>  }}"        
     </div>
 {% endblock browse_header_block %}
 

@@ -2406,8 +2406,8 @@ function get_profile_components() {
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
-            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga", "accept_reject_samples"],
-            sidebarPanels: ["copo-sidebar-info"],
+            buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga","download-blank-manifest-template|href:#blank_manifest_url", "accept_reject_samples"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
             colorClass: "samples_color",
             color: "olive",
             profile_component: "dtol",
@@ -2436,7 +2436,7 @@ function get_profile_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["accept_reject_samples", "tol_inspect"],
+            buttons: [],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "accessions_color",
             color: "pink",
@@ -2448,10 +2448,11 @@ function get_profile_components() {
         {
             component: 'read',
             title: 'Reads',
+            subtitle: "#component_subtitle",
             iconClass: "fa fa-filter",
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_read",
-            buttons: ["new-reads-spreadsheet-template", "update-reads-template"],
+            buttons: ["new-reads-spreadsheet-template",  "download-blank-manifest-template|href:#blank_manifest_url"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "samples_color",
             color: "olive",
@@ -2535,21 +2536,7 @@ function get_profile_components() {
             recordActions: ["add_record_all", "edit_record_single"],
             visibleColumns: 5
         },
-        {
-            component: 'assembly',
-            title: 'Assembly',
-            iconClass: "fa fa-database",
-            semanticIcon: "database",
-            countsKey: "num_assembly",
-            buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info"],
-            colorClass: "assembly_color",
-            color: "violet",
-            tableID: 'assembly_table',
-            profile_component: "stand-alone",
-            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi, , "edit_record_single"
-            visibleColumns: 5
-        },
+
         {
             component: 'seqannotation',
             title: 'Sequence Annotations',
@@ -2565,51 +2552,53 @@ function get_profile_components() {
             recordActions: ["add_record_all", "edit_record_single", "delete_record_multi", "submit_annotation_multi"],
             visibleColumns: 5
         },
+
+        {
+            component: 'assembly',
+            title: 'Assembly',
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey: "num_assembly",
+            buttons: [ "new-component-template"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "assembly_color",
+            color: "violet",
+            tableID: 'assembly_table',
+            profile_component: "stand-alone",
+            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single" 
+            visibleColumns: 5
+        } ,
         {
             component: 'files',
             title: 'Files',
             iconClass: "fa fa-file",
             semanticIcon: "file",
-            countsKey1_deleted: "num_assembly",
-            buttons: ["new-local-file", "new-terminal-file"],
+            countsKey1: "num_assembly",
+            buttons: ["new-local-file","new-terminal-file"],
             sidebarPanels: ["copo-sidebar-info"],
             colorClass: "files_color",
             color: "blue",
             tableID: 'files_table',
             profile_component: "stand-alone",
-            recordActions: ["add_local_all", "add_terminal_all", "delete_record_multi"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single"
+            recordActions: [ "add_local_all", "add_terminal_all", "delete_record_multi"],   // , "delete_record_multi, submit_assembly_multi , "edit_record_single" 
             visibleColumns: 5
-        }
-
-        /*
+        },
         {
-            component: 'annotation',
-            title: 'Generic Annotations',
-            iconClass: "fa fa-pencil",
-            semanticIcon: "write",
-            countsKey: "num_annotation",
-            buttons: ["quick-tour-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-annotate"],
-            colorClass: "annotations_color",
-            color: "violet",
-            tableID: 'annotation_table',
-            recordActions: ["delete_record_multi"],
-            visibleColumns: 10000
-        }, TODO - these need to be reactivated in the future sometime
-        {
-            component: 'repository',
-            title: 'Repositories',
-            iconClass: "fa fa-pencil",
-            semanticIcon: "write",
-            countsKey: "num_annotation",
-            buttons: ["quick-tour-template", "new-component-template"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help", "copo-sidebar-annotate"],
-            colorClass: "annotations_color",
-            color: "violet",
-            tableID: 'repository_table',
-            recordActions: ["delete_record_multi"],
-            visibleColumns: 10000
-        }*/
+            component: 'taggedseq',
+            title: 'Barcoding Manifests',
+            subtitle: "#component_subtitle",
+            iconClass: "fa fa-database",
+            semanticIcon: "database",
+            countsKey1: "num_barcode_manifest",
+            buttons: ["new-taggedseq-spreadsheet-template", "download-blank-manifest-template|href:#blank_manifest_url"],
+            sidebarPanels: ["copo-sidebar-info"],
+            colorClass: "data_color",
+            color: "red",
+            tableID: 'tagged_seq_table',
+            profile_component: "dtol",
+            recordActions: ["delete_record_multi",  "submit_tagged_seq_multi"],
+            visibleColumns: 5
+        },        
     ];
 
     return componentProperties
@@ -2622,8 +2611,24 @@ function do_page_controls(componentName) {
 
     components.forEach(function (comp) {
         if (comp.component == componentName) {
-            component = comp;
-            return false;
+            profile_type = $("#profile_type").val() 
+            if (profile_type != undefined) {
+                if (profile_type.toLowerCase() == "stand-alone") {
+                  if (comp.profile_component == "stand-alone") {
+                        component = comp;
+                        return false 
+                  }     
+                 } else if (profile_type.toLowerCase() != "stand-alone") {
+                    if (comp.profile_component != "stand-alone") {
+                          component = comp;
+                          return false
+                    }       
+                }
+            }     
+            else {
+                component = comp;
+                return false
+            }       
         }
     });
 
@@ -2656,7 +2661,7 @@ function generate_component_control(component) {
     var PageTitle = $('<span/>', {
         class: "page-title-custom",
         style: "margin-right:10px;",
-        html: component.title
+        html: component.title + " " + (component.subtitle ? "<span style='color: #8c8c8c; font-size: 18px;'>(" + $(component.subtitle).val() + ")</span>" : "")
     });
 
     pageHeaders.append(PageTitle);
@@ -2686,13 +2691,20 @@ function generate_component_control(component) {
     //create buttons
     var buttonsSpan = $('<span/>', {style: "white-space:nowrap;"});
     pageHeaders.append(buttonsSpan);
-    component.buttons.forEach(function (item) {
+    //component.buttons.forEach(function (item) {
         if (component.buttons) {
             component.buttons.forEach(function (item) {
-                buttonsSpan.append($("." + item)).append("<span style='display: inline;'>&nbsp;</span>");
+                button = $("." + item.split("|")[0]).clone();
+                if (item.indexOf("|") > -1) {
+                    arg = item.split("|")[1];
+                    if (arg.indexOf(":") > -1) {
+                        button.attr(arg.split(":")[0], $(arg.split(":")[1]).val());
+                    }    
+                }    
+                buttonsSpan.append(button).append("<span style='display: inline;'>&nbsp;</span>");
             });
         }
-    });
+    //});
 
     //...and profile component buttons
     if (component.hasOwnProperty("profile_component")) {

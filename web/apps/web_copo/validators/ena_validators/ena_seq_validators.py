@@ -9,6 +9,7 @@ import pandas as pd
 from web.apps.web_copo.utils.dtol.Dtol_Helpers import validate_date
 from django_tools.middlewares import ThreadLocal
 
+'''
 class ColumnValidator(Validator):
     def validate(self):
         p_type = Profile().get_type(profile_id=self.profile_id)
@@ -54,7 +55,7 @@ class MissingValuesValidator(Validator):
                             )
                             self.flag = False
         return self.errors, self.warnings, self.flag, self.kwargs.get("isupdate")
-
+    '''
 
 class SinglePairedValuesValidator(Validator):
     def validate(self):
@@ -111,7 +112,7 @@ class GzipValidator(Validator):
 
 class ReadNotInSubmissionQueueValidator(Validator):
     def validate(self):
-        sample_names = list(self.data["sample_name"])
+        sample_names = list(self.data["sample"])
         samples = Sample(profile_id=self.profile_id).get_all_records_columns(projection=dict(read=1,name=1), filter_by=dict(profile_id=self.profile_id, name={"$in": sample_names}))
         sampleMap = {}
         for sample in samples:
@@ -119,7 +120,7 @@ class ReadNotInSubmissionQueueValidator(Validator):
             
         for index, row in self.data.iterrows():
             file_names = row["file_name"]
-            sample_name = row["sample_name"]
+            sample_name = row["sample"]
             reads = sampleMap.get(sample_name, None)
             if reads:
                 for read in reads:
@@ -149,7 +150,7 @@ class DuplicatedDataFile(Validator):
 
         for index, row in self.data.iterrows():
             file_names = row["file_name"]
-            sample_name = self.profile_id + " | " + row["sample_name"]
+            sample_name = self.profile_id + " | " + row["sample"]
             files = file_names.split(",")
             for f in files:
                 sample = fileMap.get(f, None)

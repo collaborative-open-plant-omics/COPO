@@ -17,14 +17,15 @@ import web.apps.web_copo.schemas.utils.data_utils as d_utils
 from web.apps.web_copo.lookup.copo_lookup_service import COPOLookup
 from dal.copo_base_da import DataSchemas
 from dal.copo_da import ProfileInfo, Repository, Description, Profile, Publication, Source, Person, Sample, \
-    Submission, EnaFileTransfer, \
-    DataFile, DAComponent, Annotation, CGCore, MetadataTemplate
+    Submission, EnaFileTransfer, EnaChecklist, TaggedSequence, \
+    DataFile, DAComponent, Annotation, CGCore, MetadataTemplate, Read
 from allauth.socialaccount import providers
 from hurry.filesize import size as hurrysize
 from django_tools.middlewares import ThreadLocal
 from exceptions_and_logging.logger import Logger
 from django.conf import settings
 from web.apps.web_copo.s3.s3Connection import S3Connection as s3
+import numpy as np
 
 register = template.Library()
 
@@ -47,7 +48,9 @@ da_dict = dict(
     submission=Submission,
     annotation=Annotation,
     cgcore=CGCore,
-    metadata_template=MetadataTemplate
+    metadata_template=MetadataTemplate,
+    taggedseq=TaggedSequence,
+    read=Read,
 )
 
 
@@ -165,7 +168,7 @@ def generate_copo_form(component=str(), target_id=str(), component_dict=dict(), 
 
             # resolve values for unique items...
             # if a list of unique items is provided with the schema, use it, else dynamically
-            # generate unique items based on the component records
+            # generatef unique items based on the component records
             if "unique" in f and not f.get("unique_items", list()):
                 f["unique_items"] = generate_unique_items(component=component, profile_id=profile_id,
                                                           elem_id=f["id"].split(".")[-1], record_id=target_id, **kwargs)
@@ -218,6 +221,7 @@ def get_labels():
                       datafile=dict(label="Datafile"),
                       metadata_template=dict(label="Metadata Template"),
                       repository=dict(label="Repository"),
+                      taggedseq=dict(label="Tagged Sequence"),
                       )
 
     return label_dict
@@ -420,12 +424,11 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
     return return_dict
 
 
-@register.filter("generate_read_record")
-def generate_read_record(profile_id=str()):
-    label = ['name', "biosampleAccession", "sraAccession", "ena_file_upload_status", "file_name", "file_md5",
-             "submission_status", "run_accession", "experiment_accession"]
-    # 'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
-
+@register.filter("generate_read_record_old")
+def generate_read_record_old(profile_id=str(), checklist_id=str()):
+    label = ['name', "study_accession", "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
+    #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
+    
     label_set = set()
     data_set = []
     columns = []
@@ -436,12 +439,21 @@ def generate_read_record(profile_id=str()):
                        title='', defaultContent='', width="5%")
 
     columns.insert(0, detail_dict)
-    samples = Sample().execute_query({"profile_id": profile_id})
-    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id},
-                                                      projection={"_id": 1, "name": 1, "accessions": 1})
+    samples = Sample().execute_query({"profile_id": profile_id, "checklist_id": checklist_id, 'deleted': data_utils.get_not_deleted_flag()})
+    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
+    if not submission:
+        return dict(dataSet=data_set,
+                columns=columns,
+                )
+        
+    project_accession = submission[0].get("accessions",dict()).get("project",[])
+    study_accession = ""
+    if project_accession:
+        study_accession = project_accession[0].get("accession","")
     for sample in samples:
         for read in sample.get("read", []):
             row_data = dict()
+            row_data["study_accession"] = study_accession
             row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
             row_data["name"] = sample["name"]
             row_data.update({key: sample[key] for key in sample.keys() if key[0].isupper()})
@@ -505,6 +517,100 @@ def generate_read_record(profile_id=str()):
     return return_dict
 
 
+@register.filter("generate_read_record")
+def generate_read_record(profile_id=str(), checklist_id=str()):
+    default_label = ["study_accession", "ena_file_upload_status", "biosampleAccession", "sraAccession", "status",  "run_accession", "experiment_accession", "error"]
+    checklist = EnaChecklist().execute_query({"primary_id" : checklist_id})
+    if not checklist:
+        return dict(dataSet=[],
+                    columns=[],
+                    )
+
+    fields = checklist[0]["fields"]
+    label =  [ x for x in fields.keys() if fields[x]["type"] != "TEXT_AREA_FIELD" ] 
+    read_label =  [ x for x in fields.keys() if fields[x]["type"] != "TEXT_AREA_FIELD" and fields[x].get("read_field", False) ] 
+
+    data_set = []
+    columns = []
+    label_set = set()
+
+    detail_dict = dict(className='summary-details-control detail-hover-message', orderable=False, data=None,
+                        title='', defaultContent='', width="5%")
+    columns.insert(0, detail_dict)
+    columns.append(dict(data="record_id", visible=False))
+    columns.append(dict(data="DT_RowId", visible=False))
+    columns.extend([dict(data=x, title=fields[x]["name"], defaultContent='') for x in label  ])
+    columns.extend([dict(data=x, title=x.upper().replace("_", " "), defaultContent='') for x in default_label ])  
+
+    label.extend(default_label)
+
+
+    submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
+    if not submission:
+        return dict(dataSet=data_set,
+                columns=columns,
+                )
+        
+    project_accession = submission[0].get("accessions",dict()).get("project",[])
+    study_accession = ""
+    if project_accession:
+        study_accession = project_accession[0].get("accession","")
+
+    samples = Sample(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+
+    for sample in samples:
+        for read in sample.get("read", []):
+            row_data = dict()
+            row_data.update({key : sample.get(key, str()) for key in label})
+            row_data["study_accession"] = study_accession
+            row_data["record_id"] = f'{str(sample["_id"])}_{read["file_id"]}'
+            row_data["file_name"] = read["file_name"]
+
+            file_id_str = read.get("file_id", str())
+            file_ids = file_id_str.split(",")
+            if file_ids:
+                row_data["DT_RowId"] = "row_" + read["file_id"].replace(",", "_")
+                row_data["status"] = read.get("status", "pending")
+
+                if submission and row_data["status"] == "accepted":
+                    for accession in submission[0].get("accessions", {}).get("run", []):
+                        if set(accession.get("datafiles",[])) == set(file_ids):
+                            row_data["run_accession"] = accession.get("accession", str())
+                            alias = accession.get("alias", str())
+                            break
+                    for accession in submission[0].get("accessions", {}).get("experiment", []):
+                        if accession.get("alias",[]) == alias:
+                            row_data["experiment_accession"] = accession.get("accession", str())
+                            break                        
+
+                row_data["ena_file_upload_status"] = "unknown"
+                ena_file_transfer = EnaFileTransfer(profile_id=profile_id).execute_query({
+                    "file_id": {"$in": file_ids}})
+                if ena_file_transfer:
+                    row_data["ena_file_upload_status"] = ena_file_transfer[0].get(
+                        "status", str())
+                    if len(ena_file_transfer) > 1:
+                        row_data["ena_file_upload_status"] = row_data["ena_file_upload_status"] + \
+                            " | " + \
+                            ena_file_transfer[1].get("status", str())
+                            
+                files = DataFile().get_records(file_ids)
+                if files:
+                    read_values = files[0].get("description", dict()).get("attributes",dict())
+                    row_data.update({key : read_values.get(key, str()) for key in read_label})
+
+
+
+            data_set.append(row_data)
+
+
+    return_dict = dict(dataSet=data_set,
+                    columns=columns,
+                    )
+
+    return return_dict
+
+
 @register.filter("generate_files_record")
 def generate_files_record(user_id=str()):
     label = ['file_name', "file_md5", "last_uploaded", "size"]
@@ -546,6 +652,58 @@ def generate_files_record(user_id=str()):
 
     return return_dict
 
+@register.filter("generate_taggedseq_record")
+def generate_taggedseq_record(profile_id=str(), checklist_id=str()):
+    checklist = EnaChecklist().execute_query({"primary_id" : checklist_id})
+    if not checklist:
+        return dict(dataSet=[],
+                    columns=[],
+                    )
+
+    fields = checklist[0]["fields"]
+    label = [ x for x in fields.keys() if fields[x]["type"] != "TEXT_AREA_FIELD"]
+    data_set = []
+    columns = []
+
+    detail_dict = dict(className='summary-details-control detail-hover-message', orderable=False, data=None,
+                        title='', defaultContent='', width="5%")
+    columns.insert(0, detail_dict)
+    columns.append(dict(data="record_id", visible=False))
+    columns.append(dict(data="DT_RowId", visible=False))
+
+    columns.extend([dict(data=x, title=fields[x]["name"], defaultContent='') for x in label  ])
+    columns.append(dict(data="status", title="STATUS", defaultContent=''))
+    columns.append(dict(data="accession", title="ACCESSION", defaultContent=''))
+    columns.append(dict(data="error", title="ERROR", defaultContent=''))
+
+
+    tag_sequences = TaggedSequence(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+
+    if len(tag_sequences):
+        df = pd.DataFrame(tag_sequences)
+        #df['s_n'] = df.index
+
+        df['record_id'] = df._id.astype(str)
+        df["DT_RowId"] = df.record_id
+        df.DT_RowId = 'row_' + df.DT_RowId
+        df = df.drop('_id', axis='columns')
+        df.replace(np.nan, '', regex=True, inplace=True)
+
+        for name in df.columns:
+            if name in ["record_id", "DT_RowId", "status", "accession", "error"]:
+                continue
+            if name not in label:
+                df.drop(name, axis='columns', inplace=True)
+
+        data_set = df.to_dict('records')
+
+    return_dict = dict(dataSet=data_set,
+                    columns=columns,
+                    )
+
+    return return_dict
+
+
 
 @register.filter("generate_table_records")
 def generate_table_records(profile_id=str(), component=str(), record_id=str()):
@@ -562,19 +720,17 @@ def generate_table_records(profile_id=str(), component=str(), record_id=str()):
     profile_type = type.lower()
     if "asg" in profile_type:
         profile_type = "asg"
-        current_schema_version = settings.CURRENT_ASG_VERSION
 
     elif "dtol_env" in profile_type:
         profile_type = "dotl_env"
-        current_schema_version = settings.CURRENT_DTOLENV_VERSION
 
     elif "dtol" in profile_type:
         profile_type = "dtol"
-        current_schema_version = settings.CURRENT_DTOL_VERSION
 
     elif "erga" in profile_type:
         profile_type = "erga"
-        current_schema_version = settings.CURRENT_ERGA_VERSION
+
+    current_schema_version = settings.MANIFEST_VERSION.get(profile_type.upper(), '')
 
     get_dtol_fields = type in ["Aquatic Symbiosis Genomics (ASG)", "Darwin Tree of Life (DTOL)",
                                "European Reference Genome Atlas (ERGA)",
@@ -1471,8 +1627,11 @@ def generate_attributes(component, target_id):
     if component in da_dict:
         da_object = da_dict[component]()
 
+    if component == "read":
+        target_id = target_id.split("_")[0]
+
     # get and filter schema elements based on displayable columns
-    schema = [x for x in da_object.get_schema().get(
+    schema = [x for x in da_object.get_schema(target_id=target_id).get(
         "schema_dict") if x.get("show_as_attribute", False)]
 
     # build db column projection
@@ -1481,7 +1640,7 @@ def generate_attributes(component, target_id):
     # account for description metadata in datafiles
     if component == "datafile":
         projection.append(('description', 1))
-
+      
     filter_by = dict(_id=ObjectId(target_id))
     record = da_object.get_all_records_columns(
         projection=dict(projection), filter_by=filter_by)

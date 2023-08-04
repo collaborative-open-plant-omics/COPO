@@ -718,26 +718,26 @@ function load_accessions_records(componentMeta, copoVisualsURL) {
                             accession_types.map(function (type) {
 
                                 let values_array = []
+                                if (data[index].accessions[type] != undefined) {
+                                    data[index].accessions[type].map(function (i) {
+                                        if (i.hasOwnProperty("accession")) {
+                                            values_array.push(i.accession)
+                                        }
+                                        if (i.hasOwnProperty("alias")) {
+                                            values_array.push(i.alias)
+                                        }
 
-                                data[index].accessions[type].map(function (i) {
-                                    if (i.hasOwnProperty("accession")) {
-                                        values_array.push(i.accession)
-                                    }
-                                    if (i.hasOwnProperty("alias")) {
-                                        values_array.push(i.alias)
-                                    }
-
-                                    if (i.hasOwnProperty("sample_accession")) {
-                                        values_array.push(i.sample_accession)
-                                    }
-                                    if (i.hasOwnProperty("sample_alias")) {
-                                        values_array.push(i.sample_alias)
-                                    }
-                                });
-
-                                // Append profile title to the end of the array
-                                values_array.push(data[index].profile_title)
-                                data_array[type] = values_array
+                                        if (i.hasOwnProperty("sample_accession")) {
+                                            values_array.push(i.sample_accession)
+                                        }
+                                        if (i.hasOwnProperty("sample_alias")) {
+                                            values_array.push(i.sample_alias)
+                                        }
+                                    });
+                                    // Append profile title to the end of the array
+                                    values_array.push(data[index].profile_title)
+                                    data_array[type] = values_array
+                                }    
 
                             });
 

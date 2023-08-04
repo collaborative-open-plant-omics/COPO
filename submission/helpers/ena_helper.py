@@ -152,10 +152,11 @@ class SubmissionHelper:
         df_attributes = []  # datafiles attributes
 
         for datafile in datafiles:
-            datafile_attributes = [v for k, v in datafile.get("description", dict()).get("attributes", dict()).items()]
+            #datafile_attributes = [v for k, v in datafile.get("description", dict()).get("attributes", dict()).items()]
             new_dict = dict()
-            for d in datafile_attributes:
-                new_dict.update(d)
+            #for d in datafile_attributes:
+            #    new_dict.update(d)
+            new_dict.update({k : v for (k, v) in  datafile.get("description", dict()).get("attributes", dict()).items() if type(v) is not dict } )
 
             new_dict['datafile_id'] = str(datafile['_id'])
             new_dict['datafile_name'] = datafile.get('name', str())

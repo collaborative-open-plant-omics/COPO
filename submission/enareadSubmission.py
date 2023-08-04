@@ -19,7 +19,7 @@ import dal.mongo_util as mutil
 from contextlib import closing
 from django.conf import settings
 from submission.helpers import generic_helper as ghlper
-from dal.copo_da import Submission, Sample
+from dal.copo_da import Submission, Sample, EnaChecklist
 from web.apps.web_copo.lookup.lookup import SRA_SETTINGS
 from submission.helpers.ena_helper import SubmissionHelper
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -33,6 +33,8 @@ from web.apps.web_copo.schema_versions.lookup import dtol_lookups
 import web.apps.web_copo.templatetags.html_tags as htags
 from exceptions_and_logging.logger import Logger
 from django.conf import settings
+
+
 
 REPOSITORIES = settings.REPOSITORIES
 BASE_DIR = settings.BASE_DIR
@@ -145,10 +147,9 @@ class EnaReads:
         # remove from queue - this supposes that submissions that returned error will have
         # to be re-scheduled for processing, upon addressing the error, by the user
         collection_handle.remove({"_id": queued_record_id})
-        table_data = htags.generate_read_record(profile_id=self.profile_id)
-        result = {"table_data": table_data, "component": "read"}
-        notify_read_status(data={"profile_id": self.profile_id, "table_data": table_data, "component": "read"},
-                           action="refresh_table", html_id="read_table")
+        #table_data = htags.generate_read_record(profile_id=self.profile_id, checklist_id=)
+        #result = {"table_data": table_data, "component": "read"}
+        #notify_read_status(data={"profile_id": self.profile_id, "table_data":table_data, "component": "read"}, action="refresh_table", html_id="read_table"  )
         return True
 
     def _submit(self):
@@ -269,7 +270,7 @@ class EnaReads:
         # todo branch here for manifest submissions, as we will be handling datafiles differently
 
         # process study release
-        self.process_study_release()
+        #self.process_study_release()
 
         # depending on the release status of the study, process emabargo message
         self.set_embargo_message()
@@ -535,7 +536,7 @@ class EnaReads:
 
         if converter_errors:
             result['status'] = False
-            result['message'] = converter_errors
+            result['message'] = "\n".join(converter_errors)
 
             return result
 
@@ -572,6 +573,23 @@ class EnaReads:
 
             # add sample attributes
             sample_attributes_node = etree.SubElement(sample_node, 'SAMPLE_ATTRIBUTES')
+
+            checklist_id = sample.get("checklist_id",str())
+            if checklist_id is not None:
+                sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
+                etree.SubElement(sample_attribute_node, 'TAG').text = "ENA-CHECKLIST"
+                etree.SubElement(sample_attribute_node, 'VALUE').text = checklist_id
+
+                checklist = EnaChecklist().get_collection_handle().find_one({"primary_id": checklist_id})
+                if checklist:
+                   fields = checklist["fields"]
+                   key_mapping = { key :  value["synonym"] if "synonym" in value.keys() else value["name"] for key, value in fields.items() }
+                   for key in sample.keys():
+                       if key in key_mapping and sample[key]:
+                            sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
+                            etree.SubElement(sample_attribute_node, 'TAG').text = key_mapping[key]
+                            etree.SubElement(sample_attribute_node, 'VALUE').text = sample[key]
+
             for atr in sample.get("attributes", list()):
                 sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
                 etree.SubElement(sample_attribute_node, 'TAG').text = atr.get("tag", str())
@@ -582,6 +600,7 @@ class EnaReads:
 
             # add sample collection date & collection location TODO
 
+            '''
             for key in sample.keys():
                 if key[0].isupper():
                     ena_names = [ena_key for ena_key in dtol_lookups.DTOL_ENA_MAPPINGS.keys() if ena_key == key or (
@@ -589,12 +608,10 @@ class EnaReads:
                                                                                                               ""))]
                     for ena_name in ena_names:
                         sample_attribute_node = etree.SubElement(sample_attributes_node, 'SAMPLE_ATTRIBUTE')
-                        etree.SubElement(sample_attribute_node, 'TAG').text = dtol_lookups.DTOL_ENA_MAPPINGS[ena_name][
-                            'ena']
-                        function = dtol_lookups.DTOL_ENA_MAPPINGS[ena_name].get('ena_data_function',
-                                                                                dtol_lookups.get_default_data_function)
-                        etree.SubElement(sample_attribute_node, 'VALUE').text = function(sample.get(key, str()))
-
+                        etree.SubElement(sample_attribute_node, 'TAG').text =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name]['ena']
+                        function =  dtol_lookups.DTOL_ENA_MAPPINGS[ena_name].get('ena_data_function', dtol_lookups.get_default_data_function)
+                        etree.SubElement(sample_attribute_node, 'VALUE').text =  function(sample.get(key, str()))
+            '''
         if not sra_samples:  # no samples to submit
             log_message = "No new samples to register!"
             ghlper.logging_info(log_message, self.submission_id)
@@ -1151,7 +1168,7 @@ class EnaReads:
 
             # get sequencing instrument
             sequencing_instrument = files_pair[
-                0].sequencing_instrument if 'sequencing_instrument' in datafile_columns else ''
+                0].instrument_model if 'instrument_model' in datafile_columns else ''
 
             # get library source
             library_source = files_pair[0].library_source if 'library_source' in datafile_columns else ''
@@ -2028,7 +2045,7 @@ class EnaReads:
 
         ghlper.update_submission_status(status='success', message=status_message, submission_id=self.submission_id)
         notify_read_status(data={"profile_id": self.profile_id},
-                           msg=status_message, action="info", html_id="sample_info")
+                        msg=status_message, action="refresh_table", html_id="sample_info")
 
         return dict(status=True, value='', message='')
 

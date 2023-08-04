@@ -114,7 +114,16 @@ $(document).ready(function () {
     $(document).on("click", "#process_urls_button", function (evt) {
         // get list of files output from ls -F1
         var data = $("#url_text_area").val()
-        file_names = JSON.stringify(data.split("\n"))
+        filenames = data.split("\n")
+        for (var i = 0; i < filenames.length; i++) {
+            filenames[i] = filenames[i].trim()
+            if (filenames[i].indexOf(" ") > -1) {
+                alert("File name cannot contain spaces")
+                return
+            }
+        }
+        file_names = JSON.stringify(filenames)
+        
         var csrftoken = $.cookie('csrftoken');
         $("#url_upload_controls").fadeOut()
         // pass to get pre-signed urls

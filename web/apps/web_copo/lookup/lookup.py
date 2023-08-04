@@ -903,7 +903,15 @@ BUTTON_TEMPLATES = {
             "btnAction": "dd_files_by_terminal",
             "iconClass": "fa fa-terminal",
             "btnType": "all"
-        },          
+        },   
+
+        "submit_tagged_seq_multi": {
+            "text": "Submit",
+            "className": "copo-dt btn btn-danger",
+            "iconClass": "fa fa-tags",
+            "btnAction": "submit_tagged_seq"
+        }, 
+               
     }
 }
 REPO_NAME_LOOKUP = {
