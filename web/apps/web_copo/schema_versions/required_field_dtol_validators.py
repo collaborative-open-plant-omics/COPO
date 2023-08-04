@@ -250,15 +250,20 @@ class PopGenomicsAssociatedTypeValidator(Validator):
         p_type = Profile().get_type(profile_id=self.profile_id)
         associated_p_type_lst = Profile().get_associated_type(self.profile_id, value=True, label=False)
 
+        # Copy all values from the "PURPOSE_OF_SPECIMEN" column into a new 
+        # column called, "NEW_PURPOSE_OF_SPECIMEN"
+        self.data["NEW_PURPOSE_OF_SPECIMEN"] = self.data["PURPOSE_OF_SPECIMEN"] 
+
         if "ERGA" in p_type:
             if "POP_GENOMICS" in associated_p_type_lst and 'SHORT_READ_SEQUENCING' in self.data[
                 'PURPOSE_OF_SPECIMEN'].unique():
                 if (self.data['PURPOSE_OF_SPECIMEN'] == 'SHORT_READ_SEQUENCING').all():
                     # Associated tol project (s) for the manifest includes "POP_GENOMICS"
                     for index, row in self.data.iterrows():
-                        # Update value of 'PURPOSE_OF_SPECIMEN' column to 'RESEQUENCING'
+                        # Update value of the created column, 'NEW_PURPOSE_OF_SPECIMEN' column to 'RESEQUENCING'
                         # because it is 'SHORT_READ_SEQUENCING' for all rows
-                        self.data.at[index, 'PURPOSE_OF_SPECIMEN'] = 'RESEQUENCING'
+                        self.data.at[index, 'NEW_PURPOSE_OF_SPECIMEN'] = 'RESEQUENCING'
+
                         # Set default value for the optional column if it was left blank
                         for optional_column in POP_GENOMICS_OPTIONAL_COLUMNS_DEFAULT_VALUES_MAPPING:
                             if not row.get(optional_column, "").strip():

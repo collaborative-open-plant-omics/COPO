@@ -192,7 +192,8 @@ class ProcessValidationQueue:
             try:
                 # get definitive list of mandatory DTOL fields from schema
                 s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
-
+                
+                # Required fields' validation
                 self.fields = jp.match(
                     '$.properties[?(@.specifications[*] == "' + self.type.lower() + '" & @.required=="true" & @.manifest_version[*]== "' + self.current_schema_version + '")].versions[0]',
                     s)
@@ -207,6 +208,7 @@ class ProcessValidationQueue:
                     if self.isupdate:
                         ValidationQueue().set_update_flag(qm["_id"])
 
+                # All fields' validation
                 # get list of all DTOL fields from schemas
                 self.fields = jp.match(
                     '$.properties[?(@.specifications[*] == "' + self.type.lower() + '"& @.manifest_version[*]=="' + self.current_schema_version + '")].versions[0]',
@@ -251,6 +253,14 @@ class ProcessValidationQueue:
 
             # if we get here we have a valid spreadsheet
             # so set validation queue taxon flag to complete
+
+            # Copy all values from the the created column, "NEW_PURPOSE_OF_SPECIMEN" column 
+            # back into the "PURPOSE_OF_SPECIMEN" column if that column exists
+            if 'NEW_PURPOSE_OF_SPECIMEN' in self.data.columns:
+                self.data["PURPOSE_OF_SPECIMEN"] = self.data["NEW_PURPOSE_OF_SPECIMEN"]
+                # Delete the created column
+                self.data.drop(columns=["NEW_PURPOSE_OF_SPECIMEN"], inplace=True)
+                
             ValidationQueue().set_schema_validation_complete(qm["_id"])
             if not qm["report_id"] == "":
                 APIValidationReport().setComplete(qm["report_id"])
