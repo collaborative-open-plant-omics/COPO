@@ -1535,11 +1535,10 @@ def add_sample_to_dtol_submission(request):
             notify_frontend(action="delete_row", html_id=sample_id, data={})
             if not sample_id in sub["dtol_samples"]:
                 sub["dtol_samples"].append(sample_id)
-                Sample().get_all_records_columns()
+                #Sample().get_all_records_columns()
 
-            Sample().mark_processing(sample_id)
-            Sample().timestamp_dtol_sample_updated(sample_id)
-
+        Sample().mark_processing(sample_ids=sample_ids)
+        Sample().timestamp_dtol_sample_updated(sample_ids=sample_ids)
         # sample_ids_bson = list(map(lambda id: ObjectId(id), sample_ids))
         # sepciment_ids = Sample().get_collection_handle().distinct( 'SPECIMEN_ID', {"_id": {"$in": sample_ids_bson}});
         # if "dtol_specimen" not in sub:

@@ -251,6 +251,7 @@ def process_pending_dtol_samples():
                     log_message("AssertionError: more than one source for SPECIMEN_ID " + sam[
                         "SPECIMEN_ID" + ". Please contact COPO"], Loglvl.ERROR, profile_id=profile_id)
                     # l.error("AssertionError: more than one source for SPECIMEN_ID " + sam["SPECIMEN_ID"])
+                    Sample().mark_processing(sample_ids = s_ids)
                     break
                 sour = sour[0]
                 if not sour['public_name']:
@@ -264,6 +265,7 @@ def process_pending_dtol_samples():
                     except AssertionError:
                         log_message("Cannot retrieve public name", Loglvl.ERROR, profile_id=profile_id)
                         # l.error("AssertionError: line 170 dtol submission")
+                        Sample().mark_processing(sample_ids = s_ids)
                         break
                     if not spec_tolid[0].get("tolId", ""):
                         # hadle failure to get public names and halt submission
@@ -282,7 +284,7 @@ def process_pending_dtol_samples():
                             log_message(msg, Loglvl.ERROR, profile_id=profile_id)
                             # notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                             #                html_id="dtol_sample_info")
-                            break
+                            continue
                         # change dtol_status to "awaiting_tolids"
                         msg = "We couldn't retrieve one or more public names, a request for a new tolId has been " \
                               "sent, COPO will try again in 24 hours"
@@ -290,6 +292,7 @@ def process_pending_dtol_samples():
                         # notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                         #                html_id="dtol_sample_info")
                         Submission().make_dtol_status_awaiting_tolids(submission['_id'])
+                        Sample().mark_processing(sample_ids = s_ids)
                         tolidflag = False
                         break
                     Source().update_public_name(spec_tolid[0])
@@ -332,6 +335,7 @@ def process_pending_dtol_samples():
                 # notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                 #                html_id="dtol_sample_info")
                 Submission().make_dtol_status_pending(submission['_id'])
+                Sample().mark_processing(sample_ids = s_ids)
                 break
 
             # Transfer permit files to b2drop
@@ -447,6 +451,7 @@ def process_pending_dtol_samples():
                     # notify_frontend(data={"profile_id": profile_id}, msg=msg, action="info",
                     #                html_id="dtol_sample_info")
                     Submission().make_dtol_status_awaiting_tolids(submission['_id'])
+                    Sample().mark_processing(sample_ids = s_ids)
                     tolidflag = False
 
             for name in public_names:

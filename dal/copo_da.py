@@ -1072,13 +1072,13 @@ class Sample(DAComponent):
             return out
         else:
             current_profile_sample_accessions = self.get_collection_handle().find(
-                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}, "sample_type": {"$ne": "isasample"}},
                 {"biosampleAccession": 1, "sraAccession": 1,
                  "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
                  "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
 
             all_profile_sample_accessions = self.get_collection_handle().find(
-                {"biosampleAccession": {"$exists": True, "$ne": ""}},
+                {"biosampleAccession": {"$exists": True, "$ne": ""},"sample_type": {"$ne": "isasample"}},
                 {"biosampleAccession": 1, "sraAccession": 1,
                  "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
                  "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
@@ -1102,13 +1102,18 @@ class Sample(DAComponent):
                                                      {"$set": {"time_created": datetime.now(timezone.utc).replace(
                                                          microsecond=0), "created_by": email}})
 
-    def timestamp_dtol_sample_updated(self, sample_id):
+    def timestamp_dtol_sample_updated(self, sample_id=str(), sample_ids=[]):
+        if not sample_ids:
+            sample_ids = list()
+        if sample_id:
+            sample_ids.append(sample_id)
+        sample_obj_ids = [ObjectId(x) for x in sample_ids]
 
         try:
             email = ThreadLocal.get_current_user().email
         except:
             email = "copo@earlham.ac.uk"
-        sample = self.get_collection_handle().update({"_id": ObjectId(sample_id)},
+        self.get_collection_handle().update_many({"_id": {"$in": sample_obj_ids}},
                                                      {"$set": {"time_updated": datetime.now(timezone.utc).replace(
                                                          microsecond=0),
                                                          "date_modified": datetime.now(timezone.utc).replace(
@@ -1403,8 +1408,13 @@ class Sample(DAComponent):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)},
                                                    {"$set": {"status": "rejected", "error": reason}})
 
-    def mark_processing(self, sample_id):
-        return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "processing"}})
+    def mark_processing(self, sample_id=str(), sample_ids=[]):
+        if not sample_ids:
+            sample_ids = list()
+        if sample_id:
+            sample_ids.append(sample_id)
+        sample_obj_ids = [ObjectId(x) for x in sample_ids]
+        return self.get_collection_handle().update_many({"_id": {"$in": sample_obj_ids}}, {"$set": {"status": "processing"}})
 
     def mark_pending(self, sample_id):
         return self.get_collection_handle().update({"_id": ObjectId(sample_id)}, {"$set": {"status": "pending"}})
