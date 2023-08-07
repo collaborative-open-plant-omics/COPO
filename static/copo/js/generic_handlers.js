@@ -2457,7 +2457,7 @@ function get_profile_components() {
             colorClass: "samples_color",
             color: "olive",
             profile_component: "stand-alone",
-            tableID: 'sample_table',
+            tableID: 'read_table',
             recordActions: ["delete_read_multi", "submit_read_multi"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
         },

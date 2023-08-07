@@ -179,11 +179,14 @@ $(document).ready(function () {
         dialog.open();   
         dialog.getButton('save_taggedseq_button').disable();
         
-        $('.modal-dialog').find("#file").on("change", (function(event) {
+        $('.modal-dialog').find("#file").off("change").on("change", (function(event) {
+            file = $(this).prop('files')[0]
+            if (file == undefined)
+                return
             dialog.getButton('upload_taggedseq_manifest_button').disable();
             dialog.getButton('upload_taggedseq_manifest_button').spin();
             dialog.setClosable(false);
-            upload_spreadsheet($(this).prop('files')[0])
+            upload_spreadsheet(file)
 
         }));
 
@@ -201,7 +204,6 @@ $(document).ready(function () {
         }
         $('.download-blank-manifest-template').attr("href",  $('#blank_manifest_url_'+this.value).val())
         args_dict["tagged_seq_checklist_id"] = this.value;
-        args_dict[""]
         load_records(componentMeta, args_dict); // call to load component records
     });
 

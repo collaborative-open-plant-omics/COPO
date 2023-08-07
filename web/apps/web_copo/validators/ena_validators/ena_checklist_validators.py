@@ -32,10 +32,10 @@ class IncorrectValueValidator(Validator):
     def validate(self):
         checklist = self.kwargs.get("checklist", {})
 
-        biosampleAccessions = Sample(profile_id=self.profile_id).get_all_records_columns(filter_by= {"biosampleAccession": {"$exists":True, "$ne": ""}}, projection={"biosampleAccession":1, "SPECIMEN_ID":1})
+        biosampleAccessions = Sample(profile_id=self.profile_id).get_all_records_columns(filter_by= {"biosampleAccession": {"$exists":True, "$ne": ""}}, projection={"biosampleAccession":1, "SPECIMEN_ID":1, "TAXON_ID":1})
         biosampleAccessionsMap = {}
         if biosampleAccessions:
-            biosampleAccessionsMap = {row["biosampleAccession"]:row.get("SPECIMEN_ID","") for row in biosampleAccessions} 
+            biosampleAccessionsMap = {row["biosampleAccession"]: row for row in biosampleAccessions} 
 
         for column in self.data.columns:
             if column in checklist["fields"].keys():
@@ -60,8 +60,15 @@ class IncorrectValueValidator(Validator):
                                 self.errors.append("Invalid value " + row + " in column:'" + field["name"] + "'")
                                 self.flag = False
                             else:
-                                if biosampleAccessionsMap[row] != self.data.iloc[i-2]["SPECIMEN_ID"]:
-                                    self.errors.append("Invalid value " + self.data.iloc[i-2]["SPECIMEN_ID"] + " not match with " + biosampleAccessionsMap[row] + " in column: 'SPECIMEN_ID' at row " + str(i)) 
+                      
+                                specimen_id = self.data.iloc[i-2].get("SPECIMEN_ID","")
+                                taxon_id = self.data.iloc[i-2].get("TAXON_ID","")
+                                sample = biosampleAccessionsMap.get(row)
+                                if sample.get("SPECIMEN_ID","") != specimen_id:
+                                    self.errors.append("Invalid value " + specimen_id + " not match with " + sample.get("SPECIMEN_ID","")+ " in column: 'SPECIMEN_ID' at row " + str(i)) 
+                                    self.flag = False
+                                if  sample.get("TAXON_ID","") != taxon_id:
+                                    self.errors.append("Invalid value " + taxon_id + " not match with " + sample.get("TAXON_ID","") + " in column: 'TAXON_ID' at row " + str(i)) 
                                     self.flag = False
 
             else:

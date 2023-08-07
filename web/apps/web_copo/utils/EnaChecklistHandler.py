@@ -145,6 +145,7 @@ class ChecklistHandler:
         #checklist_ids = settings.BARCODING_CHECKLIST
         for checklist_elm in root.findall("./CHECKLIST"):
             primary_id = checklist_elm.find("./IDENTIFIERS/PRIMARY_ID").text.strip() 
+            skip = settings.ENA_CHECKLIST_CONFIG.get(primary_id, dict()).get( "skip", list() )
             #if primary_id not in checklist_ids:
             #    continue
             #checklist_ids.remove(primary_id)
@@ -156,6 +157,8 @@ class ChecklistHandler:
             for field_elm in checklist_elm.findall("./DESCRIPTOR/FIELD_GROUP/FIELD"):
                 field = {}
                 key = field_elm.find("./LABEL").text.strip()
+                if key in skip:
+                    continue
                 field['name'] = field_elm.find("./NAME").text.strip()
                 desc = field_elm.find("./DESCRIPTION")
                 if desc is not None:
@@ -190,6 +193,14 @@ class ChecklistHandler:
                 field['multiplicity'] = "single"
                 field['type'] = "TEXT_FIELD"
                 checklist['fields']["SPECIMEN_ID"] = field
+                #add TAXON_ID
+                field = {}
+                field['name'] = "TAXON_ID"
+                field['description'] = "TAXON_ID"
+                field['mandatory'] = "mandatory"
+                field['multiplicity'] = "single"
+                field['type'] = "TEXT_FIELD"
+                checklist['fields']["TAXON_ID"] = field
 
             checklist["modified_date"] =  dt
             checklist["deleted"] = get_not_deleted_flag()
