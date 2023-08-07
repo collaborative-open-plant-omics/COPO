@@ -70,6 +70,24 @@ $(document).ready(function () {
 
     });
 
+    // Set piechart component to empty if no data is found in the 'gal_names' table
+    // Check if  'gal_names' table is empty
+    if (!$('#gal_names').DataTable().data().any()) {
+        let sample_panel_tol_inspect_gal = $("#sample_panel_tol_inspect_gal")
+        sample_panel_tol_inspect_gal.find('.labelling').text('Details Unavailable')
+        sample_panel_tol_inspect_gal.find('.tab').remove()
+
+        // Set no data to display if on the 'tol_dashboard' web page
+        if (window.location.href.includes('dashboard/tol')) {
+            let  piechart_component_loader = $('.piechart_component_loader')
+            $('#pieChartID').remove()
+            $('#taxonomyLevelsDivID').remove()
+            piechart_component_loader.find('.piechart_spinner').toggleClass('active').toggleClass('hidden')
+            $('<div class="emptyPiechartInfo">Details unavailable</div>').insertAfter(piechart_component_loader)
+            $('.gal_inspection_card').css('margin-top', '44%')
+        }
+    }
+
 });
 
 
@@ -149,7 +167,8 @@ function populate_pie_chart(el) {
                             backgroundColor: pie_chart_background_colours,
                             borderWidth: 5
                         }]
-                    }, options: {
+                    }, 
+                    options: {
                         maintainAspectRatio: false, // Remove extra padding around the pie chart
                         responsive: true,
                         plugins: {
@@ -168,7 +187,34 @@ function populate_pie_chart(el) {
                                 },
                             },
                         },
+                    },
+                    plugins:[
+                        {
+                            id: 'emptyPieGraph',
+                            afterDraw: function(chart) {
+                                // No data is present
+                                if (chart.data.datasets[0].data.every(item => item === 0)) {
+                                    let ctx = chart.$context.chart.ctx
+                                    let width = chart.$context.chart.width
+                                    let height = chart.$context.chart.height;
+                                    
+                                    chart.clear();
+                                    ctx.save();
+                                    ctx.textAlign = 'center';
+                                    ctx.fillStyle = '#344767';
+                                    ctx.strokeStyle = '#344767';
+                                    ctx.font = "bold 30px 'Helvetica Nueue'";
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText('No data to display', width / 2, height / 2);
+                                    ctx.restore();
+
+                                    $("#spinner").fadeOut("fast")
+                                    sample_panel_tol_inspect_gal.find(".labelling").empty().html(content)
+                                    $("#taxonomy_data_status").text("Idle")
+                                }
+                            }
                     }
+                    ]
                 });
                 // Set pie chart height and width on the 'tol_dashboard' web page
                 if (window.location.href.includes('dashboard/tol')) {
@@ -203,6 +249,8 @@ function populate_pie_chart(el) {
             }
             sample_panel_tol_inspect_gal.find(".labelling").empty().html(content)
             $("#taxonomy_data_status").text("Idle")
+            component_loader.find('.piechart_spinner').toggleClass('hidden').toggleClass('active')
+            component_loader.find('.piechart_spinner').find('.ui.text').text('No data available')
         }
     }).error(function (error) {
         console.error(`Error: ${error.message}`)
@@ -319,7 +367,7 @@ function get_gal_names() {
             .find(".dataTables_filter")
             .find("input[type='search']")
             .attr("placeholder", "Search GAL names")
-
+       
         // Select first gal name displayed by default
         // This will trigger the pie chart to be displayed
         table.row(':eq(0)', {page: 'current'}).select()

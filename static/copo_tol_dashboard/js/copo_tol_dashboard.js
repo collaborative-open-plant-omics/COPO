@@ -60,9 +60,8 @@ $(document).ready(function () {
             let lineGraphID = document.getElementById("lineGraphID")
 
             if (typeof lineGraphID !== 'undefined' && lineGraphID !== null) {
-                // new Date(Date.parse(title))
-
                 const lineGraphCtx = document.getElementById('lineGraphID').getContext("2d");
+                
                 new Chart(lineGraphCtx, {
                     type: "line",
                     data: {
@@ -120,6 +119,7 @@ $(document).ready(function () {
                                     },
                                 },
                             },
+                            
                         },
                         interaction: {
                             intersect: false,
@@ -168,6 +168,29 @@ $(document).ready(function () {
                             },
                         },
                     },
+                    plugins:[
+                        {
+                            id: 'emptyLineGraph',
+                            afterDraw: function(chart) {
+                                // No data is present
+                                if (chart.data.datasets[0].data.every(item => item === 0)) {
+                                    let ctx = chart.$context.chart.ctx
+                                    let width = chart.$context.chart.width
+                                    let height = chart.$context.chart.height;
+                                    
+                                    chart.clear();
+                                    ctx.save();
+                                    ctx.textAlign = 'center';
+                                    ctx.fillStyle = '#344767';
+                                    ctx.strokeStyle = '#344767';
+                                    ctx.font = "bold 30px 'Helvetica Nueue'";
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText('No data to display', width / 2, height / 2);
+                                    ctx.restore();
+                                }
+                            }
+                    }
+                    ]
                 });
             }
 
@@ -192,6 +215,10 @@ $(document).ready(function () {
 
     $.getJSON("tol/gal_and_partners")
         .done(function (data) {
+            if (data.length == 0){
+               $('#worldMapStatus').text('No data available')
+               return False;
+            }
             spinner.show();
             let map_locations = data.partner_locations_lst.concat(data.gal_locations_lst)
             let map_markers = []
@@ -287,4 +314,3 @@ function show_map_marker_popup_details(item) {
 
     dialogDiv.dialog({modal: true, title: "Details", show: 'clip', hide: 'clip'});
 }
-

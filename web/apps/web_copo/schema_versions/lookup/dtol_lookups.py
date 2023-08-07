@@ -552,7 +552,7 @@ DTOL_ENUMS = {
                 'UNIVERSITY OF BARI',
                 'UNIVERSITY OF FLORENCE',
                 'WEST GERMAN GENOME CENTRE',
-                'other ERGA associated GAL'
+                'Other_ERGA_Associated_GAL'
             ]
     },
     'HAZARD_GROUP': {

@@ -105,6 +105,25 @@ canvas {
     /*transform: translate(-50%, -50%);*/
 }
 
+.emptyPiechartInfo{
+    padding-top: 275px; 
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    font-size: 30px;
+    line-height: 1.375;
+    letter-spacing: -0.05rem;
+    font-weight: 600;
+    color: #344767;
+    font-family: 'Helvetica Nueue';
+}
+
+.noDataDiv{
+    text-align: center;
+    font: "30px 'Helvetica Nueue'";
+    vertical-align: middle;
+}
+
 .huge_loader:after,
 .huge_loader:before {
     width: 4.14285714rem;

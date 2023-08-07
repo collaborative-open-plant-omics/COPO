@@ -77,21 +77,14 @@ def samples_hist_json(request, metric):
     return HttpResponse(json_util.dumps(out))
 
 def get_tol_projects(request):
-    project_lst = list(da.handle_dict["profile"].find({},{"type":1,"_id":0}))
-       
-    # Remove duplicate tol_projects
-    result = [dict(tupleized) for tupleized in set(tuple(item.items()) for item in project_lst)]
-    lst = [i.get('type', '') for i in result] # Get values only
-    lst.sort() # Sort the list of tol projects
+    project_lst = da.handle_dict["profile"].distinct("type") # Get unique list of tol projects
+    project_lst.sort() # Sort the list of tol projects
 
-    return finish_request(lst)
+    return finish_request(project_lst)
 
 def get_associated_tol_projects(request):    
-    associated_project_lst = list(da.handle_dict["profile"].find({"associated_type": {"$exists": True, "$ne": []}},{"associated_type.label":1,"_id":0}))
-    associated_project_lst = [item.get('associated_type','') for item in associated_project_lst] # Get labels only
+    associated_project_lst = da.handle_dict["profile"].distinct("associated_type") # Get unique list of associated tol projects
+    associated_project_lst = [item.get('label','') for item in associated_project_lst] # Get labels only
+    associated_project_lst.sort() # Sort the list of associated tol projects
 
-    lst = [item[0].get('label') for index,item in enumerate(associated_project_lst)] # Get labels only of associated tol projects
-    lst = list(set(lst)) # Remove duplicate associated tol projects
-    lst.sort() # Sort the list of associated tol projects
-
-    return finish_request(lst)
+    return finish_request(associated_project_lst)

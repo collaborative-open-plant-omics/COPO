@@ -828,7 +828,9 @@ function get_samples(row, project) {
                 // Increase padding of the 'tol inspect" card if 'No Samples Found' message
                 // is shown on tol_dashboard web page
                 if (window.location.href.includes('dashboard/tol')) {
-                    sample_panel_tol_inspect.find(".h4").css("padding-top", "200px").css("text-align", "center");
+                    $('#sample_panel_tol_inspect').remove()
+                    sample_panel_tol_inspect.find(".h4").css("padding-top", "275px").css("text-align", "center");
+                    $('<div class="emptyPiechartInfo">No samples found</div>').insertAfter($('.sample_table_component_loader'))
                     tol_inspect_card.addClass("tol_inspect_card_padding")
                     tol_inspect_card.css("margin-top", "0") // Remove margin-top of the 'tol inspect' card
                     $(".tol_inspect_card > div").addClass("mb-3")

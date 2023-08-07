@@ -204,7 +204,7 @@ class ProcessValidationQueue:
                                                               data=self.data,
                                                               errors=errors, warnings=warnings, flag=flag,
                                                               isupdate=self.isupdate).validate()
-                    ValidationQueue().update_manifest_data(qm["_id"], pickle.dumps(self.data))
+                    
                     if self.isupdate:
                         ValidationQueue().set_update_flag(qm["_id"])
 
@@ -262,6 +262,9 @@ class ProcessValidationQueue:
                 self.data.drop(columns=["NEW_PURPOSE_OF_SPECIMEN"], inplace=True)
                 
             ValidationQueue().set_schema_validation_complete(qm["_id"])
+            # Update data in database
+            ValidationQueue().update_manifest_data(qm["_id"], pickle.dumps(self.data))
+
             if not qm["report_id"] == "":
                 APIValidationReport().setComplete(qm["report_id"])
             if self.isupdate:
