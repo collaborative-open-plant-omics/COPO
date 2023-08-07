@@ -56,6 +56,8 @@ dtol_api_patterns = [
     re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_study_from_sample_accession,
             name='get_study_from_sample_accession'),
     re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', s.get_project_samples, name='get_project_samples'),
+    re_path(r'sample/updatable_fields/(?P<project>[a-zA-Z, ]+)/', s.get_updatable_fields_by_project, name='get_updatable_fields_by_project'),
+    
     re_path(r'profile/make_profile/', profile.APICreateProfile.as_view(),
             name='make_profile'),
     re_path(r'profile/get_for_user/', profile.APIGetProfilesForUser.as_view(),
@@ -79,6 +81,9 @@ stats_api_patterns = [
             name='samples_stats_csv'),
     re_path(r'stats/histogram_metric/(?P<metric>[A-Za-z0-9_]+)', stats.samples_hist_json,
             name='samples_hist_json'),
+    re_path(r'stats/tol_projects', stats.get_tol_projects,
+            name='get_tol_projects'),
+    re_path(r'stats/associated_tol_projects', stats.get_associated_tol_projects, name='get_associated_tol_projects'),
 ]
 
 manifest_patterns = [

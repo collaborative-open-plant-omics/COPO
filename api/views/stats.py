@@ -9,7 +9,7 @@ import bson
 from bson import json_util
 import dal.copo_da as da
 from dal.copo_da import Sample, TestObjectType
-
+from api.utils import finish_request
 
 def get_number_of_users(request):
     users = User.objects.all()
@@ -75,3 +75,23 @@ def samples_hist_json(request, metric):
     for x in u.keys():
         out.append({"k": x, "v": int(u[x])})
     return HttpResponse(json_util.dumps(out))
+
+def get_tol_projects(request):
+    project_lst = list(da.handle_dict["profile"].find({},{"type":1,"_id":0}))
+       
+    # Remove duplicate tol_projects
+    result = [dict(tupleized) for tupleized in set(tuple(item.items()) for item in project_lst)]
+    lst = [i.get('type', '') for i in result] # Get values only
+    lst.sort() # Sort the list of tol projects
+
+    return finish_request(lst)
+
+def get_associated_tol_projects(request):    
+    associated_project_lst = list(da.handle_dict["profile"].find({"associated_type": {"$exists": True, "$ne": []}},{"associated_type.label":1,"_id":0}))
+    associated_project_lst = [item.get('associated_type','') for item in associated_project_lst] # Get labels only
+
+    lst = [item[0].get('label') for index,item in enumerate(associated_project_lst)] # Get labels only of associated tol projects
+    lst = list(set(lst)) # Remove duplicate associated tol projects
+    lst.sort() # Sort the list of associated tol projects
+
+    return finish_request(lst)

@@ -106,7 +106,7 @@ MESSAGES = {
                                                     '<strong>%s</strong>',
     'validation_msg_not_submittable_taxon': "TAXON_ID <strong>%s</strong> is not 'submittable' to ENA. Please see "
                                             "<a href='https://ena-docs.readthedocs.io/en/latest/faq/taxonomy_requests.html#creating-taxon-requests'>here</a> "
-                                            "and contact<a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
+                                            "and contact <a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
                                             "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> to request an "
                                             "informal placeholder species name. Please also refer to the DTOL/ASG SOP.",
     'validation_msg_original_field_missing': 'Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row '

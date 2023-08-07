@@ -257,6 +257,18 @@ def get_project_samples(request, project):
         out = filter_for_API(samples)
     return finish_request(out)
 
+def get_updatable_fields_by_project(request, project):
+    project_lst = project.split(",")
+    project_lst = list(map(lambda x: x.strip(), project_lst))
+    # remove any empty elements in the list (e.g. where 2 or more comas have been typed in error
+    project_lst[:] = [x.lower() for x in project_lst if x] # Convert all strings in the list to lowercase
+    out = list()
+    
+    for project in project_lst:
+        if project in lookup.DTOL_NO_COMPLIANCE_FIELDS:
+            out.append({project.upper(): lookup.DTOL_NO_COMPLIANCE_FIELDS[project]})
+    return finish_request(out)
+
 
 def get_project_samples_by_associated_project_type(request, values):
     associated_profile_types_List = values.split("&")
