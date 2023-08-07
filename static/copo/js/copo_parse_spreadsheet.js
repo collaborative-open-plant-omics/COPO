@@ -1,6 +1,7 @@
 var finishBtnStatus;
 var confirmBtnStatus;
 var permitBtnStatus;
+var isNew = true
 
 function upload_image_files(file) {
     var csrftoken = $.cookie('csrftoken');
@@ -518,9 +519,14 @@ $(document).ready(function () {
                     $('#permits_table_nav_tab').click();
                     if (d.data.hasOwnProperty('fail_flag') && d.data.fail_flag == true) {
                     } else {
-                        $('#finish_button').fadeIn();
+                        if (isNew) {
+                            $('#finish_button').fadeIn();
+                        } else {
+                            $('#confirm_button').fadeIn();
+                        }    
                     }
                 } else if (d.action === 'make_table') {
+                    isNew = true
                     // make table of metadata parsed from spreadsheet
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
                         $('#sample_parse_table').DataTable().clear().destroy();
@@ -586,6 +592,7 @@ $(document).ready(function () {
                     }
                 } else if (d.action === 'make_update') {
                     // make table of metadata parsed from spreadsheet
+                    isNew = false
                     if ($.fn.DataTable.isDataTable('#sample_parse_table')) {
                         $('#sample_parse_table').DataTable().clear().destroy();
                     }
@@ -638,6 +645,8 @@ $(document).ready(function () {
                         d.data.permits_required == true
                     ) {
                         $('#confirm_button').fadeOut();
+
+
                     } else {
                         $('#confirm_button').fadeIn();
                     }

@@ -260,10 +260,10 @@ class ProcessValidationQueue:
                 self.data["PURPOSE_OF_SPECIMEN"] = self.data["NEW_PURPOSE_OF_SPECIMEN"]
                 # Delete the created column
                 self.data.drop(columns=["NEW_PURPOSE_OF_SPECIMEN"], inplace=True)
-                
-            ValidationQueue().set_schema_validation_complete(qm["_id"])
-            # Update data in database
+
+            # Update data in database    
             ValidationQueue().update_manifest_data(qm["_id"], pickle.dumps(self.data))
+            ValidationQueue().set_schema_validation_complete(qm["_id"])
 
             if not qm["report_id"] == "":
                 APIValidationReport().setComplete(qm["report_id"])
@@ -329,9 +329,9 @@ class ProcessValidationQueue:
                             updates[rack_tube][field]["old_value"] = exsam["species_list"][0][field]
                             updates[rack_tube][field]["new_value"] = s[field]
                         else:
-                            if field in lookup.PERMIT_REQUIRED_COLUMN_NAMES:
-                                s[field] == "Y"
-                                permits_required = True
+ #                           if field in lookup.PERMIT_REQUIRED_COLUMN_NAMES:
+ #                               s[field] == "Y"
+ #                               permits_required = True
                             updates[rack_tube][field]["old_value"] = exsam[field]
                             updates[rack_tube][field]["new_value"] = s[field]
                     else:
@@ -367,9 +367,9 @@ class ProcessValidationQueue:
                             html_id="")
             notify_frontend(data={"profile_id": self.profile_id}, msg=msg, action="warning",
                             html_id="warning_info3")
-            notify_frontend(data={"profile_id": self.profile_id}, msg=out_data, action="make_update",
+            notify_frontend(data={"profile_id": self.profile_id, "permits_required": permits_required}, msg=out_data, action="make_update",
                             html_id="sample_table")
 
-        if permits_required:
-            notify_frontend(data={"profile_id": self.profile_id}, msg="", action="require_permits",
-                            html_id="")
+        #if permits_required:
+        #    notify_frontend(data={"profile_id": self.profile_id}, msg="", action="require_permits",
+        #                    html_id="")

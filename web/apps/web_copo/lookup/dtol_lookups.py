@@ -331,7 +331,7 @@ DTOL_ENUMS = {
             "HANSEN LAB, DENMARK",
             "INDUSTRY PARTNER",
             "LEIBNIZ INSTITUTE FOR THE ANALYSIS OF BIODIVERSITY CHANGE, MUSEUM KOENIG, BONN",
-            "other ERGA associated GAL"
+            "Other_ERGA_Associated_GAL"
         ]},
     "PARTNER": [
         "UNIVERSITY OF DERBY",
