@@ -113,10 +113,11 @@ def validate_assembly(form, profile_id, assembly_id):
                         html_id="assembly_info")
         output = subprocess.check_output(webin_cmd, shell=True)
         Logger().debug(output)
+        output = output.decode("ascii")
     except subprocess.CalledProcessError as cpe:
         return_code = cpe.returncode
         output = cpe.stdout
-    output = output.decode("ascii")
+        output = output.decode("ascii") + " ERROR CODE: " + str(return_code)
     Logger().debug(msg=output)
     #print(output)
     #todo decide if keeping or deleting these files

@@ -315,12 +315,13 @@ class ProcessValidationQueue:
             assert len(exsam) == 1
             exsam = exsam[0]
             updates[rack_tube] = {}
-            for field in s.keys():
-                # Always ask user to upload permit if it is required
-                if any(s[x] == "Y" for x in
-                       lookup.PERMIT_REQUIRED_COLUMN_NAMES):
-                    permits_required = True
 
+            # Always ask user to upload permit if it is required
+            if any(s.get(x,"") == "Y" for x in
+                    lookup.PERMIT_REQUIRED_COLUMN_NAMES):
+                permits_required = True
+
+            for field in s.keys():
                 if s[field].strip() != exsam.get(field, "") and s[field].strip() != exsam["species_list"][0].get(field,
                                                                                                                  ""):
                     if field in lookup.DTOL_NO_COMPLIANCE_FIELDS[self.type.lower()]:
