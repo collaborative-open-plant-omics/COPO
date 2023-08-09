@@ -233,7 +233,6 @@ def process_pending_dtol_samples():
                 # Add fields to the source/specimen
                 sour = Source().get_by_specimen(sam["SPECIMEN_ID"])[0]
                 Source().add_fields(specimen_obj_fields, str(sour['_id']))
-                Source().add_fields(permit_filename_field, str(sour['_id']))
 
                 log_message("Specimen level sample for " + sam["SPECIMEN_ID"] + " created", Loglvl.INFO,
                             profile_id=profile_id)
