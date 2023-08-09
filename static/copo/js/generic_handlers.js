@@ -2565,7 +2565,7 @@ function get_profile_components() {
             color: "violet",
             tableID: 'assembly_table',
             profile_component: "stand-alone",
-            recordActions: ["add_record_all"],   // "delete_record_multi, submit_assembly_multi , "edit_record_single" 
+            recordActions: ["add_record_all", "edit_record_single", "delete_record_multi", "submit_assembly_multi"],
             visibleColumns: 5
         } ,
         {

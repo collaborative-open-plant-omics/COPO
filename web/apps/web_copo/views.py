@@ -239,9 +239,19 @@ def ena_assembly(request, profile_id, assembly_id=None):
                 if sample.get("sample_accession", ""):
                     sample_accession.append(sample.get("sample_accession", ""))
 
+    ecs_files = []
+    s3obj = S3Connection()
+    bucket_name = str(request.user.id) + "_" + request.user.username
+    if s3obj.check_for_s3_bucket(bucket_name):
+        files = s3obj.list_objects(bucket_name)
+        if files:
+            for file in files:
+                ecs_files.append(file["Key"])
+
+
     if request.method == 'POST' or request.method == 'PUT':
         # return render(request, "copo/ena_assembly.html", {"profile_id": profile_id, "form": [], "hide_form": False})
-        form = AssemblyForm(request.POST, request.FILES, sample_accession=sample_accession, assembly=assembly)
+        form = AssemblyForm(request.POST, request.FILES, sample_accession=sample_accession, assembly=assembly, ecs_files=ecs_files)
         if form.is_valid():
             notify_frontend(data={"profile_id": profile_id},
                             msg="Intitialising Assembly Submission",
@@ -249,38 +259,30 @@ def ena_assembly(request, profile_id, assembly_id=None):
                             html_id="assembly_info")
             # this is a dict
             formdata = form.cleaned_data
-            files = request.FILES
-            if not files:
+            # uploading files to folder in COPO
+            notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
+                            html_id="loading_span")
+            #EnaAssembly.upload_assembly_files(files)
+            assembly_id = request.POST.get("assembly_id", "")
+
+            sub_result = EnaAssembly.validate_assembly(formdata, profile_id, assembly_id)
+            if sub_result.get("error", ""):
                 ghlper.notify_assembly_status(data={"profile_id": profile_id},
-                                              msg='At least one assembly file is required',
-                                              action="error",
-                                              html_id="assembly_info")
+                                                msg=sub_result.get("error", ""),
+                                                action="error",
+                                                html_id="assembly_info")
                 is_error = True
+                # messages.error(request,sub_result)
             else:
-                # uploading files to folder in COPO
-                notify_frontend(data={"profile_id": profile_id}, msg="", action="show",
-                                html_id="loading_span")
-                EnaAssembly.upload_assembly_files(files)
-                assembly_id = request.POST.get("assembly_id", "")
+                ghlper.notify_assembly_status(data={"profile_id": profile_id},
+                                                msg="The assembly has been created with accession: " + sub_result.get(
+                                                    "accession", "Success"),
+                                                action="info",
+                                                html_id="assembly_info")
 
-                sub_result = EnaAssembly.validate_assembly(formdata, profile_id, assembly_id)
-                if sub_result.get("error", ""):
-                    ghlper.notify_assembly_status(data={"profile_id": profile_id},
-                                                  msg=sub_result.get("error", ""),
-                                                  action="error",
-                                                  html_id="assembly_info")
-                    is_error = True
-                    # messages.error(request,sub_result)
-                else:
-                    ghlper.notify_assembly_status(data={"profile_id": profile_id},
-                                                  msg="The assembly has been created with accession: " + sub_result.get(
-                                                      "accession", "Success"),
-                                                  action="info",
-                                                  html_id="assembly_info")
-
-                    return JsonResponse(status=200, data=sub_result)
-                    # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
-                # return HttpResponse()
+                return JsonResponse(status=200, data=sub_result)
+                # form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession)
+            # return HttpResponse()
         else:
             ghlper.notify_assembly_status(data={"profile_id": profile_id},
                                           msg=str(form.errors),
@@ -300,7 +302,7 @@ def ena_assembly(request, profile_id, assembly_id=None):
         #
         # pass the accessions as "study_accession" and "sample_ccession" to the form so that they are
         # set authomatically and cannot be changed by the user
-        form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession, assembly=assembly
+        form = AssemblyForm(study_accession=study_accession, sample_accession=sample_accession, assembly=assembly, ecs_files=ecs_files
                             # initial={"assemblyname": "jdklsad", "coverage": 1, "program": "jiwjd", "platform": "kkfjoep", "mingaplength": 10,
                             #         "description": "jfksjkdlfs"}
                             )

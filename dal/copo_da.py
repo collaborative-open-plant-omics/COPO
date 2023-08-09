@@ -2422,6 +2422,77 @@ class Submission(DAComponent):
         return out
 
 
+    def make_assembly_submission_uploading(self, sub_id, assembly_ids):
+        sub_handle = self.get_collection_handle()
+        submission = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"assembly_status": 1})
+
+        if not submission:
+            return dict(status='error', message="System Error! Please contact the administrator.")
+
+        if submission.get("assembly_status", str()) == "pending":
+            return dict(status='error', message="Assembly submission is in process, please try again later!")
+
+        sub_handle.update_one({"_id": ObjectId(sub_id)},
+                              {"$set": {"assembly_status": "uploading", "date_modified":
+                                  data_utils.get_datetime()},
+                               "$addToSet": {"assemblies": {"$each": assembly_ids}}})
+        return dict(status='success', message="Assembly submission has been scheduled!")
+
+    def update_assembly_submission(self, sub_id, assembly_id=str()):
+        # when dtol sample has been processed, pull id from submission and check if there are remaining
+        # samples left to go. If not, make submission complete. This will stop celery processing the this submission.
+        sub_handle = self.get_collection_handle()
+        # for sam_id in sam_ids:
+        if assembly_id:
+            sub_handle.update({"_id": ObjectId(sub_id)}, {"$pull": {"assemblies": assembly_id}})
+
+        sub = sub_handle.find_one({"_id": ObjectId(sub_id)}, {"assemblies": 1})
+        if len(sub["assemblies"]) < 1:
+            sub_handle.update({"_id": ObjectId(sub_id)},
+                              {"$set": {"assembly_status": "complete",
+                                        "date_modified": data_utils.get_datetime()}})
+
+    def get_assembly_pending_submission(self):
+        REFRESH_THRESHOLD = 3600  # time in seconds to retry stuck submission
+        # called by celery to get samples the supeprvisor has set to be sent to ENA
+        # those not yet sent should be in pending state. Occasionally there will be
+        # stuck submissions in sending state, so get both types
+        subs = self.get_collection_handle().find(
+            {"assembly_status": {"$in": ["sending", "pending"]}},
+            {"assembly_status": 1, "profile_id": 1, "date_modified": 1, "assemblies": 1})
+        sub = cursor_to_list(subs)
+        out = list()
+        current_time = data_utils.get_datetime()
+        for s in sub:
+            # calculate whether a submission is an old one
+            if s.get("assembly_status", "") == "sending":
+                recorded_time = s.get("date_modified", current_time)
+                time_difference = current_time - recorded_time
+                if time_difference.total_seconds() > (REFRESH_THRESHOLD):
+                    # submission retry time has elapsed so re-add to list
+                    out.append(s)
+                    self.update_submission_modified_timestamp(s["_id"])
+                    lg.log("ADDING STALLED ASSEMBLY SUBMISSION " + str(s["_id"]) + "BACK INTO QUEUE - copo_da",
+                           level=Loglvl.ERROR, type=Logtype.FILE)
+                    # no need to change status
+            elif s.get("assembly_status", "") == "pending":
+                out.append(s)
+                # self.update_submission_modified_timestamp(s["_id"])
+                self.get_collection_handle().update({"_id": ObjectId(s["_id"])},
+                                                    {"$set": {"assembly_status": "sending",
+                                                              "date_modified": current_time}})
+        return out
+
+    def get_assembly_file_uploading(self):
+        subs = self.get_collection_handle().find(
+            {"assembly_status": "uploading"},
+            {"assemblies": 1, "profile_id": 1, "date_modified": 1})
+        return cursor_to_list(subs)
+
+    def update_assembly_submission_pending(self, sub_ids):
+            self.get_collection_handle().update_many({"_id": {"$in": sub_ids}},
+                                                    {"$set": {"assembly_status": "pending"}})
+
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):
@@ -3216,11 +3287,11 @@ class Assembly(DAComponent):
 
     def add_accession(self, id, accession):
         self.get_collection_handle().update({"_id": ObjectId(id)},
-                                            {"$set": {"accession": accession, "error": []}})
+                                            {"$set": {"accession": accession, "error": ""}})
 
     def update_assembly_error(self, assembly_ids, msg):
-        seq_annotation_obj_ids = [ObjectId(id) for id in assembly_ids]
-        self.get_collection_handle().update_many({"_id": {"$in": assembly_ids}},
+        assembly_obj_ids = [ObjectId(id) for id in assembly_ids]
+        self.get_collection_handle().update_many({"_id": {"$in": assembly_obj_ids}},
                                                  {"$set": {"error": msg}})
 
     def validate_and_delete(self, target_id=str(), target_ids=list()):
