@@ -64,7 +64,11 @@ $(document).ready(function () {
             // check info div is visible
             $(element).removeClass("alert-danger").addClass("alert-info")
             $(element).html(d.message)
-            //$("#spinner").fadeOut()
+            if ("table_data" in d.data) {
+                globalDataBuffer = d.data;
+                var event = jQuery.Event("refreshtable");
+                $('body').trigger(event);
+            } 
         } else if (d.action === "error") {
             // check info div is visible
             $(element).removeClass("alert-info").addClass("alert-danger")

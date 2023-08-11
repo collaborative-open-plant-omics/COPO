@@ -157,18 +157,22 @@ def validate_assembly(form, profile_id, assembly_id):
     form["files"] = file_ids
     form["profile_id"] = profile_id
     assembly_rec = Assembly().save_record(auto_fields={},**form, target_id=assembly_id)
-    Submission().make_assembly_submission_uploading(sub_id, [str(assembly_rec["_id"])])
     table_data = htags.generate_table_records(profile_id, "assembly", None)
-    return {"success": "Assembly has been created and waiting for submission", "table_data": table_data, "component": "assembly"}                 
+
+    if not assembly_id:
+        Submission().make_assembly_submission_uploading(sub_id, [str(assembly_rec["_id"])])
+        return {"success": "Assembly has been created and waiting for submission", "table_data": table_data, "component": "assembly"}                 
+    else:
+        return {"success": "Assembly has been updated but no submission", "table_data": table_data, "component": "assembly"}                 
 
 
 
-def submit_assembly(file_path, profile_id):
+def _submit_assembly(file_path, profile_id):
     test = ""
     if "dev" in ena_service:
         test = " -test "
     webin_cmd = "java -Xmx6144m -jar webin-cli.jar -username " + user_token + " -password '" + pass_word + "'" + test + " -context genome -manifest " + str(
-        file_path) + " -submit"
+        file_path) + " -submit -ascp"
     Logger().debug(msg=webin_cmd)
     # print(webin_cmd)
     # try/except as it turns out this can fail even if validate is successfull
@@ -287,7 +291,7 @@ def process_assembly_pending_submission():
             #todo decide if keeping or deleting these files
             #report is being stored in webin-cli.report and manifest.txt.report so we can get errors there
             if not "ERROR" in output:
-                output = submit_assembly(str(manifest_path), sub["profile_id"])
+                output = _submit_assembly(str(manifest_path), sub["profile_id"])
                 if "ERROR" in output:
                     #handle possibility submission is not successfull
                     #this may happen for instance if the same assembly has already been submitted, which would not get caught
@@ -315,3 +319,26 @@ def process_assembly_pending_submission():
                                 error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
                 Assembly().update_assembly_error( assembly_ids=[assembly_id], msg=error)                
                 ghlper.notify_assembly_status(data={"profile_id": sub["profile_id"]}, msg=error, action="error", html_id="assembly_info")
+
+
+def submit_assembly(profile_id, target_ids=list(),  target_id=str()):
+    sub_id = None
+    if profile_id:
+        submissions = Submission().get_records_by_field("profile_id", profile_id)
+        if submissions and len(submissions) > 0:
+            sub_id = str(submissions[0]["_id"])
+            if not target_ids:
+                target_ids = list()
+            if target_id:
+                target_ids.append(target_id)
+            target_obj_ids = [ObjectId(x) for x in target_ids]
+            count = Assembly().get_collection_handle().find({"profile_id": profile_id, "accession": "", "_id" : {"$in": target_obj_ids}}).count()
+            if count < len(target_ids):
+                return dict(status='error', message="One or more Assembly has been submitted! Cannot submitted again.")        
+            
+            if target_ids:
+                return Submission().make_assembly_submission_uploading(sub_id, target_ids)
+            
+    return dict(status='error', message="System error. Sequence annotation submission has not been scheduled! Please contact system administrator.")        
+
+    

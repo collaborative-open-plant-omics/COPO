@@ -3302,7 +3302,7 @@ class Assembly(DAComponent):
         assembly_obj_ids = [ ObjectId(id) for id in target_ids ]
         result = self.execute_query({"_id": {"$in": assembly_obj_ids},  "accession":{"$exists": True, "$ne": ""} })
         if result:
-            return dict(status='error', message="One or more assembly record/s have been accessed!")
+            return dict(status='error', message="One or more Assembly has been accessed!")
 
         self.get_collection_handle().remove({"_id": {"$in": assembly_obj_ids}})
         return dict(status='success', message="Assembly record/s have been deleted!")
