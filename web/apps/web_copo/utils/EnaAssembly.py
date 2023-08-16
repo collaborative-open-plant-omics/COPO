@@ -159,9 +159,12 @@ def validate_assembly(form, profile_id, assembly_id):
     assembly_rec = Assembly().save_record(auto_fields={},**form, target_id=assembly_id)
     table_data = htags.generate_table_records(profile_id, "assembly", None)
 
-    if not assembly_id:
-        Submission().make_assembly_submission_uploading(sub_id, [str(assembly_rec["_id"])])
-        return {"success": "Assembly has been created and waiting for submission", "table_data": table_data, "component": "assembly"}                 
+    if not assembly_id or not assembly_rec["accession"]:
+        result = Submission().make_assembly_submission_uploading(sub_id, [str(assembly_rec["_id"])])
+        if result["status"] == "error":
+            return {"success": "Assembly has been saved but not scheduled to submit as the submission is already in progress. <b>Please submit it later</b>", "table_data": table_data, "component": "assembly"}                 
+        else:
+            return {"success": "Assembly submission has been scheduled!", "table_data": table_data, "component": "assembly"}
     else:
         return {"success": "Assembly has been updated but no submission", "table_data": table_data, "component": "assembly"}                 
 
@@ -308,12 +311,12 @@ def process_assembly_pending_submission():
                 error = output
                 if return_code == 2:
                     with open(join(these_assemblies,"manifest.txt.report")) as report_file:
-                        error = report_file.read()
+                        error = output + " " + report_file.read()
                 elif return_code == 3:
-                    directories = glob.glob(f"{settings.MEDIA_ROOT}/ena_assembly_files/{sub['profile_id']}/genome/*")
-                    with open(f"{directories[0]}/validate/webin-cli.report") as report_file:
-                        error = report_file.read()
-                    for file in os.scandir(f"{directories[0]}/validate"):
+                    directories = sorted(glob.glob(f"{settings.MEDIA_ROOT}/ena_assembly_files/{sub['profile_id']}/genome/*"),key=os.path.getmtime)
+                    with open(f"{directories[-1]}/validate/webin-cli.report") as report_file:
+                        error = output + " " + report_file.read()
+                    for file in os.scandir(f"{directories[-1]}/validate"):
                         if file.name != "webin-cli.report":
                             with open(file) as report_file:
                                 error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
@@ -339,6 +342,6 @@ def submit_assembly(profile_id, target_ids=list(),  target_id=str()):
             if target_ids:
                 return Submission().make_assembly_submission_uploading(sub_id, target_ids)
             
-    return dict(status='error', message="System error. Sequence annotation submission has not been scheduled! Please contact system administrator.")        
+    return dict(status='error', message="System error. Assembly submission has not been scheduled! Please contact system administrator.")        
 
     

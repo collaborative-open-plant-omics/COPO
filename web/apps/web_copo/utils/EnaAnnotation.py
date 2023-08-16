@@ -143,8 +143,10 @@ def validate_annotation(form_data,formset, profile_id, seq_annotation_id=None):
     '''    
 
     #schedule annotation submission in SubmisisonCollection
-    Submission().make_seq_annotation_submission_uploading(sub_id, [str(annotation_rec["_id"])])
     table_data = htags.generate_table_records(profile_id, "seqannotation", None)
+    result = Submission().make_seq_annotation_submission_uploading(sub_id, [str(annotation_rec["_id"])])
+    if result["status"] == "error":
+        return {"success": "Annotation has been saved but not scheduled to submit as the submission is already in progress. Please submit it later", "table_data": table_data, "component": "seqannotation"}
     return {"success": "Annotation submission has been scheduled, you will be notified when it is complete", "table_data": table_data, "component": "seqannotation"}
 
 def build_submission_dom(is_new=True):

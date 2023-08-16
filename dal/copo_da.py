@@ -2259,7 +2259,7 @@ class Submission(DAComponent):
         if not submission:
             return dict(status='error', message="System Error! Please contact the administrator.")
 
-        if submission.get("seq_annotation_status", str()) == "pending":
+        if submission.get("seq_annotation_status", str()) in [ "pending", "sending"]:
             return dict(status='error', message="Sequence annotation submission is in process, please try again later!")
 
         sub_handle.update_one({"_id": ObjectId(sub_id)},
@@ -2429,7 +2429,7 @@ class Submission(DAComponent):
         if not submission:
             return dict(status='error', message="System Error! Please contact the administrator.")
 
-        if submission.get("assembly_status", str()) == "pending":
+        if submission.get("assembly_status", str()) in ["pending", "sending"]:
             return dict(status='error', message="Assembly submission is in process, please try again later!")
 
         sub_handle.update_one({"_id": ObjectId(sub_id)},
