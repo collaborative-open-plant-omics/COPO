@@ -282,10 +282,15 @@
                                 <div class="ui text loader">Loading...</div>
                             </div>
                         </div>
-                        <div class="card-body gal_inspection_card" style="margin-top: 29%;">
-                            <h6 class="mb-0 section_title gal_inspection_card_title"> Genome Acquisition Lab (GAL)
-                                Inspection </h6>
-                            <p class="text-sm "> View the metadata of GAL according to its taxonomy </p>
+                        <div class="card-body row gal_inspection_card" style="margin-top: 29%;">
+                            <div class="col-lg-8 mt-3">
+                                <h6 class="mb-0 section_title gal_inspection_card_title"> Genome Acquisition Lab (GAL)
+                                    Inspection </h6>
+                                <p class="text-sm "> View the metadata of GAL according to its taxonomy </p>
+                            </div>
+                            <div class="col-lg-4 mt-4 mb-3">
+                                <span id='current_gal_name' class="text-sm mb-0 pull-left ms-1"></span>
+                            </div>
                             <hr class="dark horizontal">
                         </div>
                     </div>
@@ -333,10 +338,13 @@
                             </div>
                         </div>
                         <div class="card-body row tol_inspect_card tol_inspect_card_padding" style="margin-top: 35%">
-                            <div class="col-lg-8 mt-3">
+                            <div class="col-lg-7 mt-3">
                                 <h6 class="mb-0 section_title tol_inspect_card_title"> Tree of Life (ToL)
                                     Inspection</h6>
                                 <p class="text-sm "> View sample details based on profile type</p>
+                            </div>
+                            <div class="col-lg-5 mt-4 mb-3">
+                                <span id='current_sample_profile' class="text-sm mb-0 pull-left ms-1"></span>
                             </div>
                             <hr class="dark horizontal">
                         </div>

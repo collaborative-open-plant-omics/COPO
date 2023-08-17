@@ -550,6 +550,8 @@ class BrokerVisuals:
 
     def do_table_data(self):
         table_data_dict = dict(
+            accessions=(htags.generate_accessions_record, dict(profile_id=self.profile_id, isUserProfileActive=self.request_dict.get("isUserProfileActive", str()), isSampleProfileTypeStandalone=self.request_dict.get("isSampleProfileTypeStandalone", str()))),
+            accessions_dashboard=(htags.generate_accessions_record, dict(profile_id=self.profile_id, isUserProfileActive=self.request_dict.get("isUserProfileActive", str()), isSampleProfileTypeStandalone=self.request_dict.get("isSampleProfileTypeStandalone", str()))),
             annotation=(htags.generate_copo_table_data, dict(profile_id=self.profile_id, component=self.component)),
             publication=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),
             person=(htags.generate_table_records, dict(profile_id=self.profile_id, component=self.component)),

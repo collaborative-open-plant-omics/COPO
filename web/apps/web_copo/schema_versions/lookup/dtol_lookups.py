@@ -1663,7 +1663,7 @@ GAL_MAP_LOCATION_COORDINATES = {
 }
 
 PARTNER_MAP_LOCATION_COORDINATES = {
-    "DALHOUSIE UNIVERSITY": {"latitude": 44.46022308740088, "longitude": -63.163682264115366},
+    "DALHOUSIE UNIVERSITY": {"latitude": 44.6356351, "longitude": -63.5977486},
     "GEOMAR HELMHOLTZ CENTRE": {"latitude": 54.31473535017579, "longitude": 10.202507477880662},
     "NOVA SOUTHEASTERN UNIVERSITY": {"latitude": 25.9036859889384, "longitude": -80.08505409832087},
     "PORTLAND STATE UNIVERSITY": {"latitude": 45.06625034918671, "longitude": -122.26178879087954},
@@ -1803,6 +1803,9 @@ NA_VALS = ['#N/A', '#N/A N/A', '#NA', '-1.#IND', '-1.#QNAN', '-NaN', '-nan', '1.
            'NaN', 'n/a', 'nan', 'NaT']
 
 NIH_API_KEY = resolve_env.get_env("NIH_API_KEY")
+
+REQUIRED_MEMBER_GROUPS = ['dtol_users', 'dtol_sample_managers', 'dtolenv_users', 'dtolenv_sample_managers',
+                          'erga_users', 'erga_sample_managers']
 
 SANGER_TOL_PROFILE_TYPES = ["asg", "dtol", "dtol_env", "erga"]
 

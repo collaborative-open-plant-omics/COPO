@@ -417,27 +417,10 @@
             <i class=" fa fa-info"></i>
             <span class="action-label" style="padding-left: 3px;">Submit</span>
         </div>
-
-    </div>
-
-    <div class="accessions-record-action-templates">
-        <div class="btn-group btn-toggle1">
-            <button class="btn btn-xs btn-success active "></button>
-            <button class="btn btn-xs btn-default">View All COPO Accessions</button>
-        </div>
-        {#        <div class="btn-group btn-toggle2">#}
-        {#            <button class="btn btn-xs btn-success active">Other Projects' Accessions</button>#}
-        {#            <button class="btn btn-xs btn-default">Stand-alone Projects' Accessions</button>#}
-        {##}
-        {#        </div>#}
-        <div class="groupBtn2 dt-buttons btn-group pull-right">
-            <span style="padding-left: 15px;" class="copo-table-cbuttons">
-                <div class="btn-group btn-toggle2">
-                    <button class="btn btn-xs btn-success active">Other Projects' Accessions</button>
-                    <button class="btn btn-xs btn-default">Stand-alone Projects' Accessions</button>
-               </div>
-            </span>
-        </div>
+        <div class="btn-group btn-toggle toggle-view">
+            <button class="btn btn-xs btn-success active">Other Projects' Accessions</button>
+            <button class="btn btn-xs btn-default">Stand-alone Projects' Accessions</button>
+       </div>
     </div>
 
 
@@ -776,16 +759,16 @@
             </div>
         </div>
         <!-- profiles legend -->
-        <div class="profiles-legend">
-            <h4 class="profiles-legend-title">Profile Types Legend</h4>
-            <ul class="profiles-legend-group">
-            </ul>
+        <div id="copo-sidebar-accessions" >
+            <div class="profiles-legend">
+                <h4 class="profiles-legend-title">Profile Types Legend</h4>
+                <ul class="profiles-legend-group">
+                </ul>
+            </div>
+            <div class="accessions-legend">
+                <h4 class="accessions-legend-title">Filter Accession Types</h4>
+                <div class="accessions-checkboxes"></div>
+            </div>
         </div>
-        <!-- Other projects' accessions filter checkboxes -->
-        <div class="accessions-legend">
-            <h4 class="accessions-legend-title">Filter Accession Types</h4>
-            <div class="accessions-checkboxes"></div>
-        </div>
-        <!-- Stand-alone projects' accessions filter checkboxes -->
     </div>
 </div>

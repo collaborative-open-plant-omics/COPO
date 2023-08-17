@@ -24,13 +24,13 @@ generic_api_patterns = [
 dtol_api_patterns = [
     path('', general.forward_to_swagger),
     path('apiKey/', csrf_exempt(general.CustomAuthToken.as_view())),
-    re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
-
+    
     # dates must be ISO 8601 formatted
     re_path(r'manifest/validations/', APIGetUserValidations.as_view(), name='/manifest/validate/report/'),
     re_path(r'manifest/validate/report/', APIGetManifestValidationReport.as_view(), name='/manifest/validate/report/'),
     re_path(r'manifest/validate/', APIValidateManifest.as_view(), name='manifest/validate'),
-
+    
+    re_path(r'manifest/current_version', s.get_current_manifest_version, name='get_current_manifest_version'),
     re_path(r'manifest/(?P<project>[a-zA-Z, ]+)/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
             s.get_project_manifests_between_dates, name='get_project_manifests_between_dates'),
     re_path(r'manifest/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
@@ -39,7 +39,8 @@ dtol_api_patterns = [
             name='get_sample_statuses_for_manifest'),
     re_path(r'manifest/(?P<manifest_id>[A-Z0-9a-f-]+)', s.get_samples_in_manifest, name='get_for_manifest'),
     re_path(r'manifest/', s.get_manifests, name='get_manifests'),
-
+   
+    re_path(r'sample/get/(?P<id>[A-Za-z0-9]+)', s.get, name='sample/get'),
     re_path(r'sample/biosample_id/(?P<biosample_ids>[A-Z0-9, ]+)', s.get_by_biosample_ids,
             name='get_by_biosample_ids'),
     re_path(r'sample/copo_id/(?P<copo_ids>[A-Za-z0-9, ]+)', s.get_by_copo_ids, name='get_by_biosample_ids'),
@@ -49,15 +50,16 @@ dtol_api_patterns = [
     re_path(r'sample/associated_tol_project/(?P<values>[a-zA-Z, ]+)',
             s.get_project_samples_by_associated_project_type,
             name='get_project_samples_by_associated_project_type'),
-    re_path(r'sample/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
-            s.get_all_samples_between_dates, name='get_all_samples_between_dates'),
+    re_path(r'sample/project/manifest_version/fields', s.get_fields_by_manifest_version, name='get_fields_by_manifest_version'),
     re_path(r'sample/SampleFromStudyAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_samples_from_study_accessions,
             name='get_samples_from_study_accession'),
     re_path(r'sample/StudyFromSampleAccession/(?P<accessions>[A-Za-z0-9, ]+)', s.get_study_from_sample_accession,
             name='get_study_from_sample_accession'),
-    re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', s.get_project_samples, name='get_project_samples'),
     re_path(r'sample/updatable_fields/(?P<project>[a-zA-Z, ]+)/', s.get_updatable_fields_by_project, name='get_updatable_fields_by_project'),
-    
+    re_path(r'sample/(?P<d_from>[A-Z0-9a-f- .:+]+)/(?P<d_to>[A-Z0-9a-f- .:+]+)',
+            s.get_all_samples_between_dates, name='get_all_samples_between_dates'),
+    re_path(r'sample/(?P<project>[a-zA-Z, ]+)/', s.get_project_samples, name='get_project_samples'),
+   
     re_path(r'profile/make_profile/', profile.APICreateProfile.as_view(),
             name='make_profile'),
     re_path(r'profile/get_for_user/', profile.APIGetProfilesForUser.as_view(),
@@ -87,8 +89,8 @@ stats_api_patterns = [
 ]
 
 manifest_patterns = [
-    re_path(r'get_current_manifest_version/', ajax_handlers.get_current_manifest_version,
-            name="get_current_manifest_version"),
+    re_path(r'get_latest_manifest_versions/', ajax_handlers.get_latest_manifest_versions,
+            name="get_latest_manifest_versions"),
     re_path(r'get_manifest_fields/', ajax_handlers.get_manifest_fields,
             name="get_manifest_fields"),
     re_path(r'get_common_value_dropdown_list/', ajax_handlers.get_common_value_dropdown_list,

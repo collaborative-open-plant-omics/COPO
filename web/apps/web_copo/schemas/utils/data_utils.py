@@ -36,7 +36,19 @@ def pretty_print(data, path=None):
                   indent=4, separators=(',', ': '))
         with open(path, 'w+') as file:
             file.write(s)
+            
+# Convert string boolean to boolean
+def convertStringToBoolean(string):
+    return str(string).lower() in ("yes", "true", "t", "1")
 
+# Convert given a string to title case/sentence case 
+def convertStringToTitleCase(str):
+    return str.title() \
+        .replace("_", " ") \
+        .replace("Id", "ID") \
+        .replace("accession", " Accession") \
+        .replace("Sra", "SRA") \
+        .replace("Seq", "Sequence")
 
 # converts a dictionary to object
 def json_to_object(data_object):
@@ -308,7 +320,6 @@ def get_samples_json(target_id=None):
             })
 
     return elem_json
-
 
 def get_datafiles_json(target_id=None):
     """

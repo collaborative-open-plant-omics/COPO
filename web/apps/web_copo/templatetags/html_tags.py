@@ -10,7 +10,6 @@ from django import template
 from dal import cursor_to_list
 from django.urls import reverse
 from django.contrib.auth.models import User
-from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.lookup.lookup import HTML_TAGS
 import web.apps.web_copo.lookup.lookup as lkup
 import web.apps.web_copo.schemas.utils.data_utils as d_utils
@@ -87,6 +86,92 @@ def trim_parameter_value_label(label):
         return str.capitalize(label[label.index('[') + 1:label.index(']')])
     else:
         return label
+
+@register.filter("generate_accessions_record")
+def generate_accessions_record(profile_id=str(), isUserProfileActive=str(), isSampleProfileTypeStandalone=str()):
+    isUserProfileActive = d_utils.convertStringToBoolean(isUserProfileActive)
+    isSampleProfileTypeStandalone = d_utils.convertStringToBoolean(isSampleProfileTypeStandalone)
+    records = None
+    data_set = list()
+    columns = list()
+
+    columns.append(dict(data="record_id", visible=False))
+    columns.append(dict(data="DT_RowId", visible=False))
+    columns.append(dict(data="accession_type", visible=False))
+
+    if isSampleProfileTypeStandalone:
+        if isUserProfileActive and profile_id:
+            records = Submission().get_standalone_project_accessions(filter_by={"profile_id": profile_id})
+        else:
+            records = Submission().get_standalone_project_accessions()
+        
+        # Add profile_id column
+        columns.append(dict(data="profile_id", visible=False))
+
+        # Set column names
+        labels = ["accession", "alias", "profile_title"]
+        for x in labels:
+            columns.append(dict(data=x, title=d_utils.convertStringToTitleCase(x)))
+
+        # Declare labels for 'sample' accession
+        sample_accession_labels = ['sample_accession','sample_alias']
+
+        if records:
+            # Records exist
+            for i in records:
+                for key, value in i.get('accessions','').items():
+                    row_data = dict()
+                    row_data["record_id"] = i.get('id','')
+                    row_data["DT_RowId"] = "row_" + i.get('id','')
+                    row_data["profile_id"] = i.get('profile_id','')
+                    row_data["accession_type"] = key
+                    
+                    # Filter value dictionary to get 'accession' and 'alias' key-value pair
+                    if key == 'sample':
+                        # Account for'sample' accession which has accession and alias in a different format 
+                        value_dict = {k.split("_")[1]: v for k, v in value[0].items() if k in sample_accession_labels}
+                    else:
+                        value_dict = {k: v for k, v in value[0].items() if k in labels}
+
+                    for k, v in value_dict.items():
+                        row_data.update({k: v})
+                    row_data.update({'profile_title': i.get('profile_title','')})
+                    data_set.append(row_data)
+                
+
+            return_dict = dict(dataSet=data_set, columns=columns)
+        else: 
+            # No records found
+            return_dict = dict(dataSet=data_set, columns=columns)
+            
+    else:
+        if isUserProfileActive and profile_id:
+            records = Sample().get_tol_project_accessions(filter_by={"profile_id": profile_id})
+        else:
+            records = Sample().get_tol_project_accessions()
+        
+        # Set column names
+        labels = ['biosampleAccession', 'sraAccession', 'submissionAccession', 'manifest_id', 'SCIENTIFIC_NAME', 'SPECIMEN_ID', 'TAXON_ID']
+        for x in labels:
+            columns.append(dict(data=x, title=d_utils.convertStringToTitleCase(x)))
+
+        if records:
+            # Records exist
+            for i in records:
+                row_data = dict()
+                row_data["record_id"] = i.get('_id','')
+                row_data["DT_RowId"] = "row_" + i.get('_id','')
+                row_data["accession_type"] = i.get('tol_project','')
+
+                row_data.update({key: i.get(key,'') for key in i.keys() if key in labels})
+                data_set.append(row_data)
+
+            return_dict = dict(dataSet=data_set, columns=columns)
+        else: 
+            # No records found
+            return_dict = dict(dataSet=data_set, columns=columns)
+
+    return return_dict
 
 
 @register.filter("generate_ui_labels")
@@ -349,7 +434,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
     return_dict = dict()
 
     records_total = da_object.get_collection_handle().count(
-        {'profile_id': profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+        {'profile_id': profile_id, 'deleted': d_utils.get_not_deleted_flag()})
 
     # retrieve and process records
     filter_by = dict()
@@ -361,7 +446,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
                                                                                 component=component))
         existing_bundles = [str(x["_id"]) for x in existing_bundles]
         records_total = da_object.get_collection_handle().count({"$and": [
-            {"profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()},
+            {"profile_id": profile_id, 'deleted': d_utils.get_not_deleted_flag()},
             {"$or": [
                 {"description_token": {"$in": [None, False, ""]}},
                 {"description_token": {"$nin": existing_bundles}}]}
@@ -398,7 +483,7 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
     if search_term:
         records_filtered = da_object.get_collection_handle().count(
-            {'profile_id': profile_id, 'deleted': data_utils.get_not_deleted_flag(),
+            {'profile_id': profile_id, 'deleted': d_utils.get_not_deleted_flag(),
              'name': {'$regex': search_term, "$options": 'i'}})
 
     if records:
@@ -426,6 +511,8 @@ def generate_server_side_table_records(profile_id=str(), component=str(), reques
 
 @register.filter("generate_read_record_old")
 def generate_read_record_old(profile_id=str(), checklist_id=str()):
+    samples = Sample().get_accessions(profile_id, isSampleProfileTypeStandalone, isUserProfileActive)
+
     label = ['name', "study_accession", "biosampleAccession", "sraAccession",  "ena_file_upload_status", "file_name", "file_md5", "submission_status", "run_accession", "experiment_accession"]
     #'sequencing_instrument', 'library_layout', 'library_strategy', 'library_source', 'library_selection', 'library_description',
     
@@ -439,7 +526,7 @@ def generate_read_record_old(profile_id=str(), checklist_id=str()):
                        title='', defaultContent='', width="5%")
 
     columns.insert(0, detail_dict)
-    samples = Sample().execute_query({"profile_id": profile_id, "checklist_id": checklist_id, 'deleted': data_utils.get_not_deleted_flag()})
+    samples = Sample().execute_query({"profile_id": profile_id, "checklist_id": checklist_id, 'deleted': d_utils.get_not_deleted_flag()})
     submission = Submission().get_all_records_columns(filter_by={"profile_id": profile_id}, projection={"_id": 1, "name": 1, "accessions": 1})
     if not submission:
         return dict(dataSet=data_set,
@@ -556,7 +643,7 @@ def generate_read_record(profile_id=str(), checklist_id=str()):
     if project_accession:
         study_accession = project_accession[0].get("accession","")
 
-    samples = Sample(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+    samples = Sample(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': d_utils.get_not_deleted_flag()})
 
     for sample in samples:
         for read in sample.get("read", []):
@@ -677,7 +764,7 @@ def generate_taggedseq_record(profile_id=str(), checklist_id=str()):
     columns.append(dict(data="error", title="ERROR", defaultContent=''))
 
 
-    tag_sequences = TaggedSequence(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': data_utils.get_not_deleted_flag()})
+    tag_sequences = TaggedSequence(profile_id=profile_id).execute_query({"checklist_id" : checklist_id, "profile_id": profile_id, 'deleted': d_utils.get_not_deleted_flag()})
 
     if len(tag_sequences):
         df = pd.DataFrame(tag_sequences)
@@ -820,7 +907,7 @@ def generate_submissions_records(profile_id=str(), component=str(), record_id=st
                          x["id"].split(".")[-1] in [y[0] for y in repository_projection]]
 
     # specify filtering
-    filter_conditions = [dict(deleted=data_utils.get_not_deleted_flag())]
+    filter_conditions = [dict(deleted=d_utils.get_not_deleted_flag())]
 
     # add profile
     if profile_id:
@@ -2153,10 +2240,10 @@ def generate_figshare_oauth_html():
 
 
 def get_ols_url():
-    req = data_utils.get_current_request()
+    req = d_utils.get_current_request()
     protocol = req.META['wsgi.url_scheme']
     r = req.build_absolute_uri()
-    ols_url = protocol + '://' + data_utils.get_current_request().META['HTTP_HOST'] + reverse(
+    ols_url = protocol + '://' + d_utils.get_current_request().META['HTTP_HOST'] + reverse(
         'copo:ajax_search_ontology')
 
     return ols_url

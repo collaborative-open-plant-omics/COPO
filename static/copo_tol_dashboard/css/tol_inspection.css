@@ -88,3 +88,15 @@ canvas {
     height: 4.14285714rem;
     font-size: 1.42857143em
 }
+
+#current_sample_profile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
+    color: #344767;
+    font-weight: bold;
+}

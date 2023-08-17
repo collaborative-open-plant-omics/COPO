@@ -62,6 +62,19 @@ th {
     padding: 0 2rem 0 2rem !important;
 }
 
+#current_gal_name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
+    color: #344767;
+    font-weight: bold;
+}
+
+
 .emptyPiechartInfo{
     padding-top: 275px; 
     text-align: center;
@@ -110,6 +123,18 @@ th {
 
 .tol_inspect_card_padding {
     padding: 17em 2rem 0 2rem !important;
+}
+
+#current_sample_profile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
+    color: #344767;
+    font-weight: bold;
 }
 
 /*Set cursor pointer to normal*/

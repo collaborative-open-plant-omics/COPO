@@ -69,25 +69,6 @@ $(document).ready(function () {
         }
 
     });
-
-    // Set piechart component to empty if no data is found in the 'gal_names' table
-    // Check if  'gal_names' table is empty
-    if (!$('#gal_names').DataTable().data().any()) {
-        let sample_panel_tol_inspect_gal = $("#sample_panel_tol_inspect_gal")
-        sample_panel_tol_inspect_gal.find('.labelling').text('Details Unavailable')
-        sample_panel_tol_inspect_gal.find('.tab').remove()
-
-        // Set no data to display if on the 'tol_dashboard' web page
-        if (window.location.href.includes('dashboard/tol')) {
-            let  piechart_component_loader = $('.piechart_component_loader')
-            $('#pieChartID').remove()
-            $('#taxonomyLevelsDivID').remove()
-            piechart_component_loader.find('.piechart_spinner').toggleClass('active').toggleClass('hidden')
-            $('<div class="emptyPiechartInfo">Details unavailable</div>').insertAfter(piechart_component_loader)
-            $('.gal_inspection_card').css('margin-top', '44%')
-        }
-    }
-
 });
 
 
@@ -230,6 +211,10 @@ function populate_pie_chart(el) {
             if (window.location.href.includes("dashboard/tol")) {
                 component_loader.find('.piechart_spinner').toggleClass('active').toggleClass('hidden')
                 $('.gal_inspection_card').css('margin-top', '0')
+
+                // Set GAL name that is currently being viewed
+                const current_gal_name = $("#gal_names").DataTable().data()[0][0]
+                if (current_gal_name) $('#current_gal_name').text(`GAL: ${current_gal_name}`)
             } else {
                 component_loader.find('.piechart_spinner').toggleClass('active').toggleClass('hidden')
             }
@@ -251,9 +236,15 @@ function populate_pie_chart(el) {
             $("#taxonomy_data_status").text("Idle")
             component_loader.find('.piechart_spinner').toggleClass('hidden').toggleClass('active')
             component_loader.find('.piechart_spinner').find('.ui.text').text('No data available')
+
+            if (window.location.href.includes("dashboard/tol")) {
+                // Set GAL name that is currently being viewed
+                const current_gal_name = $("#gal_names").DataTable().data()[0][0]
+                if (current_gal_name) $('#current_gal_name').text(`GAL: ${current_gal_name}`)
+            }
         }
     }).error(function (error) {
-        console.error(`Error: ${error.message}`)
+        console.log(`Error: ${error.message}`)
     })
 }
 
@@ -340,6 +331,26 @@ function get_gal_names() {
     $.ajax({
         url: "/copo/get_gal_names", method: "GET", dataType: "json", data: {}
     }).done(function (data) {
+        if (data.length == 0){
+            // Set piechart component to empty if no data is found in the 'gal_names' table
+            // !$('#gal_names').DataTable().data().any()
+            let sample_panel_tol_inspect_gal = $("#sample_panel_tol_inspect_gal")
+            sample_panel_tol_inspect_gal.find('.labelling').text('Details Unavailable')
+            sample_panel_tol_inspect_gal.find('.tab').remove()
+
+            // Set no data to display if on the 'tol_dashboard' web page
+            if (window.location.href.includes('dashboard/tol')) {
+                let  piechart_component_loader = $('.piechart_component_loader')
+                $('#pieChartID').remove()
+                $('#taxonomyLevelsDivID').remove()
+                piechart_component_loader.find('.piechart_spinner').toggleClass('active').toggleClass('hidden')
+                $('<div class="emptyPiechartInfo">Details unavailable</div>').insertAfter(piechart_component_loader)
+                $('.gal_inspection_card').css('margin-top', '44%')
+            }
+            
+            return False
+        }
+
         // Clear existing data in the gal names' table
         if ($.fn.DataTable.isDataTable(`#${tableID}`)) {
             gal_names_table.DataTable().clear().destroy();
@@ -374,7 +385,7 @@ function get_gal_names() {
 
         get_selected_gal_name_in_row(table)
     }).error(function (error) {
-        console.error(`Error: ${error.message}`)
+        console.log(`Error: ${error.message}`)
     })
 }
 

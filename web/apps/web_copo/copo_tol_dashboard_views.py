@@ -9,18 +9,15 @@ from itertools import groupby
 from operator import itemgetter
 from web.apps.web_copo.models import ViewLock
 from web.apps.web_copo.schema_versions.lookup.dtol_lookups import TOL_PROFILE_TYPES, DTOL_ENUMS, \
-    PARTNER_MAP_LOCATION_COORDINATES, GAL_MAP_LOCATION_COORDINATES
+    PARTNER_MAP_LOCATION_COORDINATES, GAL_MAP_LOCATION_COORDINATES, REQUIRED_MEMBER_GROUPS
 from web.apps.web_copo.schemas.utils import data_utils
 from web.apps.web_copo.utils import group_functions
-
+from web.apps.web_copo.views import goto_unauthorised_page
 import ast
 import json
 import re
 
 LOGGER = settings.LOGGER
-required_member_groups = ['dtol_users', 'dtol_sample_managers', 'dtolenv_users', 'dtolenv_sample_managers',
-                          'erga_users', 'erga_sample_managers']
-
 
 def convert_string_to_titlecase(txt):
     txt = txt.upper()  # Convert string word to uppercase
@@ -54,7 +51,7 @@ def copo_tol_dashboard(request):
     member_groups = group_functions.get_group_membership_asString()
 
     # Stand-alone users/annoymous users can only view certain aspects of the tol dashboard
-    if any(item in member_groups for item in required_member_groups):
+    if any(item in member_groups for item in REQUIRED_MEMBER_GROUPS):
         context = {'group_status': False}
     else:
         context = {'group_status': True}
@@ -67,7 +64,7 @@ def copo_tol_inspect(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
 
-    if any(item in member_groups for item in required_member_groups):
+    if any(item in member_groups for item in REQUIRED_MEMBER_GROUPS):
         return render(request, 'copo/tol_dashboard/copo_tol_inspect.html', {})
     else:
         return goto_unauthorised_page(request)
@@ -78,7 +75,7 @@ def copo_tol_inspect_gal(request):
     # Determine if users are in the appropriate membership group to view the web page
     member_groups = group_functions.get_group_membership_asString()
 
-    if any(item in member_groups for item in required_member_groups):
+    if any(item in member_groups for item in REQUIRED_MEMBER_GROUPS):
         return render(request, 'copo/tol_dashboard/copo_tol_inspect_gal.html', {})
     else:
         return goto_unauthorised_page(request)
@@ -86,7 +83,7 @@ def copo_tol_inspect_gal(request):
 
 def gal_and_partners(request):
     # Field name: "PARTNER"
-    partner_enums = DTOL_ENUMS["PARTNER"]
+    partner_enums = DTOL_ENUMS.get("PARTNER", str())
     partner_map_marker_colour = "#F8E23B"
     partner_lst = [convert_string_to_titlecase(item) for item in partner_enums]
 
@@ -97,7 +94,7 @@ def gal_and_partners(request):
         if key in partner_enums:
             partner_coordinates = PARTNER_MAP_LOCATION_COORDINATES.get(key, "")
             name = convert_string_to_titlecase(key)
-            location_details = get_location_details(partner_coordinates["latitude"], partner_coordinates["longitude"])
+            location_details = get_location_details(partner_coordinates.get("latitude", str()), partner_coordinates.get("longitude", str()))
             samples_count = get_number_of_samples_produced("PARTNER", key)
             style = {"r": 5, "fill": partner_map_marker_colour}
 
@@ -106,20 +103,12 @@ def gal_and_partners(request):
                 {**{"name": name}, **partner_coordinates, **location_details, **{"samples_count": samples_count},
                  **{"style": style}})
 
-    # partner_locations_lst = [
-    #     {**{"name": convert_string_to_titlecase(key)}, **PARTNER_MAP_LOCATION_COORDINATES.get(key, ""),
-    #      **get_location_details(PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-    #                             PARTNER_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-    #      **{"samples_count": get_number_of_samples_produced("PARTNER", key)},
-    #      **{"style": {"r": 5, "fill": partner_map_marker_colour}}} for
-    #     key, value in PARTNER_MAP_LOCATION_COORDINATES.items() if key in partner_enums]
-
     # Field name: "GAL"
     gal_map_marker_colour = "#3B7DDD"
 
     # Get list of GAL names based on manifest type and once GAL name begins with an uppercase letter
     gal_lst = [(convert_string_to_titlecase(item), manifest_type) for manifest_type, gal in
-               DTOL_ENUMS["GAL"].items() for item in gal if item[0].isupper()]
+               DTOL_ENUMS.get("GAL", str()).items() for item in gal if item[0].isupper()]
 
     gal_lst_sorted = sorted(gal_lst, key=itemgetter(0))  # Sort before grouping list
     gal_lst_grouped = groupby(gal_lst_sorted, key=itemgetter(0))  # Group list by GAL name
@@ -133,7 +122,7 @@ def gal_and_partners(request):
         if key.upper() in gal_lst_uppercase:
             gal_coordinates = GAL_MAP_LOCATION_COORDINATES.get(key, "")
             name = convert_string_to_titlecase(key)
-            location_details = get_location_details(gal_coordinates["latitude"], gal_coordinates["longitude"])
+            location_details = get_location_details(gal_coordinates.get("latitude", str()), gal_coordinates.get("longitude", str()))
             samples_count = get_number_of_samples_produced("GAL", key)
             style = {"r": 5, "fill": gal_map_marker_colour}
 
@@ -141,15 +130,6 @@ def gal_and_partners(request):
             gal_locations_lst.append(
                 {**{"name": name}, **gal_coordinates, **location_details, **{"samples_count": samples_count},
                  **{"style": style}})
-
-    # gal_locations_lst = [
-    #     {**{"name": convert_string_to_titlecase(key)}, **GAL_MAP_LOCATION_COORDINATES.get(key, ""),
-    #      **get_location_details(GAL_MAP_LOCATION_COORDINATES.get(key, "")["latitude"],
-    #                             GAL_MAP_LOCATION_COORDINATES.get(key, "")["longitude"]),
-    #      **{"samples_count": get_number_of_samples_produced("GAL", key)},
-    #      **{"style": {"r": 5, "fill": gal_map_marker_colour}}} for
-    #     key, value in GAL_MAP_LOCATION_COORDINATES.items() if
-    #     key.upper() in gal_lst_uppercase]
 
     out = {'gal_lst': gal_lst, 'gal_locations_lst': gal_locations_lst, 'partner_lst': partner_lst,
            'partner_locations_lst': partner_locations_lst}
@@ -268,12 +248,3 @@ def get_samples_by_search_faceting(request):
         return HttpResponse(json_util.dumps(samples))
     else:
         return HttpResponse(json_util.dumps({"locked": True}))
-
-
-@login_required
-def goto_unauthorised_page(request, message="Apologies, you do not have permission to view this web page"):
-    try:
-        LOGGER.log(message)
-    finally:
-        context = {'message': message}
-        return render(request, 'copo/unauthorised_page.html', context)

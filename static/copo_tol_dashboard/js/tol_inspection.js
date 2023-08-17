@@ -807,6 +807,10 @@ function get_samples(row, project) {
                 if (window.location.href.includes("dashboard/tol")) {
                     sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden').css("padding-top", 0)
                     $('.tol_inspect_card').css('margin-top', '0')
+
+                    // Set profile that is currently being viewed
+                    const current_sample_profile = $("#profile_titles").DataTable().data()[0][0]
+                    if (current_sample_profile) $('#current_sample_profile').text(`Profile: ${current_sample_profile}`)
                 } else {
                     sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden')
                 }
@@ -834,6 +838,10 @@ function get_samples(row, project) {
                     tol_inspect_card.addClass("tol_inspect_card_padding")
                     tol_inspect_card.css("margin-top", "0") // Remove margin-top of the 'tol inspect' card
                     $(".tol_inspect_card > div").addClass("mb-3")
+                    
+                    // Set profile that is currently being viewed
+                    const current_sample_profile = $("#profile_titles").DataTable().data()[0][0]
+                    if (current_sample_profile) $('#current_sample_profile').text(`Profile: ${current_sample_profile}`)
                 }
 
                 sample_table_component_loader.find('.sample_table_spinner').toggleClass('active').toggleClass('hidden')
@@ -847,7 +855,7 @@ function get_samples(row, project) {
             $("#spinner").fadeOut("fast")
         }
     ).error(function (error) {
-        console.error(`Error: ${error.message}`)
+        console.log(`Error: ${error.message}`)
     })
 }
 
@@ -908,7 +916,7 @@ function get_profile_titles(data) {
             "getProjectTitlesForUserOnly": getProjectTitlesForUserOnly
         }
     }).error(function (e) {
-        console.error(e)
+        console.log(`Error: ${e.message}`);
     }).done(function (data) {
         let profile_titlesID = $("#profile_titles")
         let profile_titles_liTag = $('#profile_types_filter li')

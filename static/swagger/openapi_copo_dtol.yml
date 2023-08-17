@@ -52,7 +52,7 @@ paths:
           schema:
             type: string
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         200:
           description: A JSON array sample objects
@@ -61,6 +61,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ManifestList'
 
+  /manifest/current_version:
+    get:
+      tags:
+        - Manifest
+      summary:
+        Get current manifest version
+      description: >
+        If no manifest type is provided, COPO will return a list of projects brokered with their latest manifest versions
+      parameters:
+        - in: query
+          name: manifest_type
+          schema:
+            $ref: '#/components/schemas/ManifestTypes'
+        - in: query
+          name: return_type
+          schema:
+            type: string
+            enum: [json, csv, rocrate]
+          description: Export data into selected format
+      responses:
+        200:
+          description: A JSON array of the latest manifest version for a given project type
 
   /manifest/{manifest_id}:
     get:
@@ -82,7 +104,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -120,7 +142,7 @@ paths:
           name: return_type
           schema:
             type: string
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -164,7 +186,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample manifest uuid objects
@@ -174,7 +196,6 @@ paths:
                 $ref: '#/components/schemas/ManifestList'
         "400":
           description: \'from\' must be earlier than \'to\ and project must be in the list of supported projects'
-
 
   /manifest/{manifest_id}/sample_statuses:
     get:
@@ -196,7 +217,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample status objects
@@ -219,7 +240,7 @@ paths:
         - name: project
           in: path
           required: true
-          description: comma separated list of supported projects
+          description: Format - a comma separated list of supported projects. Supported projects - ASG, DTOL, ERGA
           schema:
             type: string
             minimum: 1
@@ -227,7 +248,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample copo_ids
@@ -237,6 +258,9 @@ paths:
                 $ref: '#/components/schemas/SampleListShort'
         "400":
           description: InvalidId found in request
+
+        "404":
+          description: Invalid project found in request. No sample records exist for the given project.
 
   /sample/associated_tol_project/{values}:
     get:
@@ -258,7 +282,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -268,6 +292,50 @@ paths:
                 $ref: '#/components/schemas/SampleList'
         "400":
           description: Invalid associated profile type found in request
+        
+        "404":
+          description: Invalid associated project type found in request. No sample records exist for the given associated project.
+    
+  /sample/project/manifest_version/fields:
+    get:
+      tags:
+        - Sample
+      summary:
+        Fetch project fields by manifest version
+      description: >
+        Get a list of fields of a project for a given manifest version.</br></br>
+        If project type is provided and no manifest version is provided, COPO will return a list of fields for the given project type according to the latest manifest version for that project.</br></br>
+        If no project type is provided and manifest version is provided, COPO will return a list of fields for the given project type that matches the given manifest version.</br></br>
+        If no project type and no manifest version are provided, COPO will return a list of fields for all projects according to the latest manifest version for that project.
+      parameters:
+        - name: project
+          in: query
+          schema:
+            $ref: '#/components/schemas/ManifestTypes'
+        - name: manifest_version
+          in: query
+          schema:
+            $ref: '#/components/schemas/ManifestVersions'
+        - in: query
+          name: return_type
+          schema:
+            type: string
+            enum: [json, csv, rocrate]
+          description: Export data into selected format
+      responses:
+        "200": # status code
+          description: A JSON array of fields for a given manifest version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleListByManifestVersion'
+
+        "400":
+          description: Invalid manifest version found in request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleListByManifestVersionError'
 
   /sample/{from}/{to}:
     get:
@@ -296,7 +364,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array of sample objects
@@ -327,7 +395,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into csv format
+          description: Export data into csv format
       responses:
         "200": # status code
           description: A JSON array of updatable sample fields
@@ -340,7 +408,7 @@ paths:
 
         "500":
           description: No samples exist for given project(s)
-
+  
   /sample/copo_id/{copo_ids}:
     get:
       tags:
@@ -361,7 +429,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -392,7 +460,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -421,7 +489,7 @@ paths:
         - name: values
           in: path
           required: true
-          description: a comma separated list of values to look for
+          description: Format - a comma separated list of values to look for
           schema:
             type: string
             minimum: 1
@@ -429,7 +497,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -450,7 +518,7 @@ paths:
         - name: sample_ids
           in: path
           required: true
-          description: a comma separated list of biosample accessions or ENA/SRA accessions
+          description: Format - a comma separated list of biosample accessions or ENA/SRA accessions
           schema:
             type: string
             minimum: 1
@@ -459,7 +527,7 @@ paths:
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -480,14 +548,14 @@ paths:
         - name: biostudyAccessions
           in: path
           required: true
-          description: a comma separated list of biostudy accessions
+          description: Format - a comma separated list of biostudy accessions
           schema:
             type: string
         - in: query
           name: return_type
           schema:
             enum: [json, csv, rocrate]
-          description: export data into selected format
+          description: Export data into selected format
       responses:
         "200": # status code
           description: A JSON array sample objects
@@ -739,6 +807,35 @@ components:
           items:
             $ref: '#/components/schemas/Sample_long'
 
+    SampleListByManifestVersion:
+      type: object
+      properties:
+        project_type:
+          type: string
+        manifest_version:
+          type: string
+        number_of_fields:
+          type: string
+        fields:
+          type: array
+          items:
+            type: string
+
+    SampleListByManifestVersionError:
+      type: object
+      properties:
+        project_type:
+          type: string
+        manifest_version:
+          type: string
+        status:
+          type: object
+          properties:
+            error: 
+              type: string
+            error_details:
+              type: string
+
     SampleListShort:
       type: object
       properties:
@@ -867,6 +964,15 @@ components:
     ManifestId:
       type: string
       format: uuid
+    
+    ManifestTypes:
+      type: string
+      enum: [ASG, DTOL, DTOL_ENV, ERGA]
+      description: Projects or manifest types brokered through COPO
+
+    ManifestVersions:
+      type: string
+      enum: ["2.4","2.4.1", "2.4.2", "2.4.3"]
 
     SpeciesList:
       type: object

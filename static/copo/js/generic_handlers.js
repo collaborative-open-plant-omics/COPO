@@ -2421,8 +2421,8 @@ function get_profile_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: ["accept_reject_samples", "tol_inspect"],
-            sidebarPanels: ["copo-sidebar-info"],
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect", "tol_inspect_gal"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-accessions"],
             colorClass: "accessions_color",
             color: "pink",
             profile_component: "dtol",
@@ -2436,11 +2436,26 @@ function get_profile_components() {
             iconClass: "fa fa-barcode",
             semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
             countsKey: "num_accessions",
-            buttons: [],
-            sidebarPanels: ["copo-sidebar-info"],
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect", "tol_inspect_gal"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-accessions"],
             colorClass: "accessions_color",
             color: "pink",
             profile_component: "stand-alone",
+            tableID: 'accessions_table',
+            recordActions: ["btn-toggle"],
+            visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
+        },
+        {
+            component: 'accessions_dashboard',
+            title: 'Accessions',
+            iconClass: "fa fa-barcode",
+            semanticIcon: "barcode", //semantic UI equivalence of fontawesome icon
+            countsKey: "num_accessions",
+            buttons: ["copo_accessions", "accept_reject_samples", "tol_inspect", "tol_inspect_gal"],
+            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-accessions"],
+            colorClass: "accessions_color",
+            color: "pink",
+            profile_component: "",
             tableID: 'accessions_table',
             recordActions: ["btn-toggle"],
             visibleColumns: 3 //no of columns to be displayed, if tabular data is required. remaining columns will be displayed in a sub-table
@@ -2679,12 +2694,13 @@ function generate_component_control(component) {
         component.sidebarPanels.forEach(function (item) {
             sidebarPanels.find(".nav-tabs").append(sidebarPanels2.find(".nav-tabs").find("." + item));
             sidebarPanels.find(".tab-content").append(sidebarPanels2.find(".tab-content").find("." + item));
+            sidebarPanels.find(".accessions-legend").append(sidebarPanels2.find(".accessions-legend").find("." + item));
         });
 
         sideBar
             .append(sidebarPanels.find(".nav-tabs"))
-            .append(sidebarPanels.find(".tab-content"));
-
+            .append(sidebarPanels.find(".tab-content"))
+            .append(sidebarPanels.find(".accessions-legend"));
 
     }
 

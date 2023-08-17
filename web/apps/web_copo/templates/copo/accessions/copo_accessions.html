@@ -11,7 +11,7 @@
     <style></style>
 {% endblock %}
 
-{% block title_block %} Accessions{% endblock %}
+{% block title_block %} {% if showAllCOPOAccessions is True %} Accessions {% else %} Accessions Dashboard {% endif %} {% endblock %}
 
 {% block tagline_block %}
 
@@ -21,13 +21,18 @@
     {% csrf_token %}
     <div hidden id="hidden_attrs">
         <!-- hidden attributes  -->
-        <input type="hidden" id="nav_component_name" value="accessions"/>
-        <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
-        <input type="hidden" id="profile_type" value="{{ profile.type | get_short_profile_type }}"/>
-        <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
-        <input type="hidden" value="{% url 'copo:copo_submissions' profile_id=profile_id %}" name="submission_url"
-               id="submission_url"/>
-        <!--input type="hidden" value="{{ profile.type }}" id="profile_type"/-->
+        <input type="hidden" id="showAllCOPOAccessions" value="{{ showAllCOPOAccessions }}"/>
+
+        {% if showAllCOPOAccessions is True %}
+            <input type="hidden" id="nav_component_name" value="accessions_dashboard"/>
+        {% else %} 
+            <input type="hidden" id="nav_component_name" value="accessions"/>
+            <input type="hidden" id="profile_id" value="{{ profile_id }}"/>
+            <input type="hidden" id="profile_type" value="{{ profile.type | get_short_profile_type }}"/>
+            <input type="hidden" id="profile_title" value="{{ profile.title }}"/>
+            <input type="hidden" value="{% url 'copo:copo_submissions' profile_id=profile_id %}" name="submission_url"
+                id="submission_url"/>
+        {% endif %} 
     </div>
 {% endblock browse_header_block %}
 
@@ -36,10 +41,7 @@
 {% endblock page_tile %}
 
 {% block content %}
-    <script>
-        let groups =
-        {{ groups|safe }}
-    </script>
+    <script> let groups = {{ groups|safe }}</script>
     <input type="hidden" id="groups" value="{{ groups|safe }}"/>
 
     <!-- accessions table section -->
@@ -57,14 +59,17 @@
                                 biological samples that have biosample accession, SRA accession
                                 and submission accession associated with them as part of a project
                                 after the samples have been accepted.
-                                <br/><br/>
-                                <div><strong>All COPO accessions: </strong>To explore all accessions on COPO,
-                                    click the
-                                    <button class="circular tiny ui icon pink button">
-                                        <i class="icon barcode"></i>
-                                    </button>
-                                    icon.
-                                </div>
+                                
+                                {% if showAllCOPOAccessions is False %}
+                                    <br/><br/>
+                                    <div><strong>All COPO accessions: </strong>To explore all accessions on COPO,
+                                        click the
+                                        <button class="circular tiny ui icon pink button">
+                                            <i class="icon barcode"></i>
+                                        </button>
+                                        icon.
+                                    </div>
+                                {% endif %} 
                             </div>
                         </div>
                     </div>
@@ -74,8 +79,9 @@
 
         <!-- accessions table  -->
         <div id="component_table_loader" class="col-sm-5 col-md-5 col-lg-5 col-xs-offset-5"
-             data-copo-tour-id="accessions_table"></div> <!-- div used by the quick tour agent -->
-        <table id="accessions_table" class="ui celled table hover copo-noborders-table" style="width:100%"></table>
+             data-copo-tour-id="accessions_table"></div>
+        <table id="accessions_table" class="ui celled table hover copo-noborders-table" style="width:100%">
+        </table>
     </div>
 {% endblock %}
 
@@ -84,11 +90,9 @@
 {% endblock %}
 
 {% block js_block %}
-    {#    <script src="{% static 'copo_accessions/js/copo_accessions_dashboard.js' %}"></script>#}
     <script src="{% static 'copo_accessions/js/copo_accessions.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>    
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
     <script src="{% static 'copo/js/generic_handlers_ext2.js' %}"></script>
     <script src="{% static 'copo/js/generic_handlers.js' %}"></script>
-
 {% endblock %}

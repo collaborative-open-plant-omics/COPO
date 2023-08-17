@@ -118,6 +118,18 @@ canvas {
     font-family: 'Helvetica Nueue';
 }
 
+#current_gal_name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* number of lines to show */
+    line-height: 1.5em; /* fallback */
+    max-height: 1.5em; /*1.5em x 1 = 1.5em*/ /* fallback */
+    color: #344767;
+    font-weight: bold;
+}
+
 .noDataDiv{
     text-align: center;
     font: "30px 'Helvetica Nueue'";

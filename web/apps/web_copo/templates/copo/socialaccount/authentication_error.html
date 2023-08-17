@@ -3,26 +3,36 @@
 {% load static %}
 {% load web_tags %}
 
-{% block title %}Error{% endblock %}
+{% block title %}ORCID Authentication Error{% endblock %}
 
 {% block stylesheet_block %}
     <link rel="stylesheet" href="{% static 'copo/css/copo/browse_style.css' %}" xmlns="http://www.w3.org/1999/html">
     <style>
         body {
             background-image: none !important;
+        }
 
+        .error_message{
+            width: 750px;
+            word-break: break-all;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8em;
         }
     </style>
 {% endblock %}
 
-{% block title_block %} Something went wrong : {% endblock %}
+{% block title_block %} ORCID Authentication Error {% endblock %}
 
 {% block content %}
     <div class="wrapper">
         <div class="text-center">
-            <span class="lead">Unforseen Consequences</span>
-            <br/>{{ message }}
+            <span class="lead" style="font-weight: bold;">ORCID Authentication Error</span><br><br>
+            <p><span style="font-weight: bold;">Code: </span>{{ auth_error.code }}</p><br> 
+            <br><br>
+            <p class="error_message"><span style="font-weight: bold;">Error: </span>{{ auth_error.exception }}</p> 
         </div>
+
         <div class="row text-center">
             <img class="text-center" src="{% static 'copo/img/headcrab.gif' %}" height='50px'
                  style="margin:80px -30px 40px 0"
@@ -30,8 +40,8 @@
             <img class="text-center" src="{% static 'copo/img/freeman.gif' %}" height='100px'
                  style="margin:40px 0 40px 0"
                  alt="Gordon Freeman and His Crowbar"/>
-            <br/>
-            <a class="btn btn-default" style="width:200px" href="{% url 'copo:index' %}">Return Home</a>
+            <br>
+            <a class="btn btn-default" style="width:200px;" href="mailto:ei.copo@earlham.ac.uk?subject=ORCID%20Authentication%20Error&body=Error%20message:%20{{ auth_error.exception | urlencode }}">Contact COPO</a>
         </div>
     </div>
 {% endblock %}

@@ -1045,49 +1045,16 @@ class Sample(DAComponent):
 
     def get_number_of_samples(self):
         return self.get_collection_handle().count({})
+    
+    def get_tol_project_accessions(self, sort_by='_id', sort_direction=-1, projection=dict(), filter_by=dict()):
+        filter_by["biosampleAccession"] = {"$exists": True, "$ne": ""}
+        filter_by["sample_type"] = {"$in": TOL_PROFILE_TYPES}
 
-    def get_accessions(self, profile_id, isSampleProfileTypeStandalone, isUserProfileActive):
-        if isSampleProfileTypeStandalone:
-            current_profile_sample_accessions = Submission().get_collection_handle().find(
-                {"profile_id": profile_id, "repository": "ena", "accessions": {"$exists": True, "$ne": {}}},
-                {"accessions": 1, "profile_id": 1})
-
-            all_profile_sample_accessions = Submission().get_collection_handle().find(
-                {"repository": "ena", "accessions": {"$exists": True, "$ne": {}}}, {"accessions": 1, "profile_id": 1})
-
-            cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
-
-            out = []
-            for i in list(cursor):
-                # Get profile title
-                profile_title = Profile().get_name(i.get("profile_id", ""))  # Get profile title
-                i.update({'profile_title': profile_title})  # update list of dictionaries with profile title
-
-                # Reorder the list of accessions types
-                reordered_accessions_dict = {k: i.get("accessions", "").get(k, "") for k in
-                                             STANDALONE_ACCESSION_TYPES if i.get("accessions", "").get(k, "")}
-                i.update({'accessions': reordered_accessions_dict})
-                out.append(i)
-
-            return out
-        else:
-            current_profile_sample_accessions = self.get_collection_handle().find(
-                {"profile_id": profile_id, "biosampleAccession": {"$exists": True, "$ne": ""}, "sample_type": {"$ne": "isasample"}},
-                {"biosampleAccession": 1, "sraAccession": 1,
+        projection = {"biosampleAccession": 1, "sraAccession": 1,
                  "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
-                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
+                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1}
 
-            all_profile_sample_accessions = self.get_collection_handle().find(
-                {"biosampleAccession": {"$exists": True, "$ne": ""},"sample_type": {"$ne": "isasample"}},
-                {"biosampleAccession": 1, "sraAccession": 1,
-                 "submissionAccession": 1, "SCIENTIFIC_NAME": 1,
-                 "SPECIMEN_ID": 1, "TAXON_ID": 1, "tol_project": 1, "manifest_id": 1})
-
-            cursor = current_profile_sample_accessions if isUserProfileActive else all_profile_sample_accessions
-
-            accessions = list(cursor)
-
-            return accessions
+        return cursor_to_list_str(self.get_collection_handle().find(filter_by, projection).sort([[sort_by, sort_direction]]))
 
     def get_dtol_type(self, id):
         return self.get_collection_handle().find_one(
@@ -2421,7 +2388,26 @@ class Submission(DAComponent):
                                                     {"$set": {"tagged_seq_status": "sending", "date_modified": current_time}})
         return out
 
+    def get_standalone_project_accessions(self, sort_by='_id', sort_direction=-1, projection=dict(), filter_by=dict()):
+        filter_by["repository"] = "ena"
+        filter_by["accessions"] = {"$exists": True, "$ne": {}}
+        projection={"_id":1, "accessions": 1, "profile_id": 1}
 
+        records = cursor_to_list_str(self.get_collection_handle().find(filter_by, projection).sort([[sort_by, sort_direction]]), use_underscore_in_id=False)
+       
+        out = list()
+        for i in records:
+            # Get profile title
+            profile_title = Profile().get_name(i.get("profile_id", ""))  # Get profile title
+            i.update({'profile_title': profile_title})  # update list of dictionaries with profile title
+
+            # Reorder the list of accessions types
+            reordered_accessions_dict = {k: i.get("accessions", "").get(k, "") for k in
+                                            STANDALONE_ACCESSION_TYPES if i.get("accessions", "").get(k, "")}
+            i.update({'accessions': reordered_accessions_dict})
+            out.append(i)
+
+        return out
 
 class DataFile(DAComponent):
     def __init__(self, profile_id=None):

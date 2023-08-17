@@ -1828,7 +1828,7 @@ def is_number(s):
         return False
 
 
-def get_current_manifest_version(request):
+def get_latest_manifest_versions(request):
     return HttpResponse(json.dumps({'current_asg_manifest_version': settings.MANIFEST_VERSION.get("ASG", ""),
                                     'current_dtolenv_manifest_version': settings.MANIFEST_VERSION.get("DTOLENV", ""),
                                     'current_dtol_manifest_version': settings.MANIFEST_VERSION.get("DTOL", ""),
@@ -1839,16 +1839,8 @@ def get_manifest_fields(request):
     manifest_type = request.GET["manifest_type"]
     current_schema_version = ""
 
-    # Get manfiest version
-    if "asg" in manifest_type:
-        current_schema_version = settings.MANIFEST_VERSION.get("ASG", "")
-    elif "dtol_ei" in manifest_type or "dtol_env" in manifest_type:
-        current_schema_version = settings.MANIFEST_VERSION.get("DTOLENV", "")
-    elif "erga" in manifest_type:
-        current_schema_version = settings.MANIFEST_VERSION.get("ERGA", "")
-    else:
-        current_schema_version = settings.MANIFEST_VERSION.get("DTOL", "")
-
+    # Get manifest version
+    current_schema_version =  settings.MANIFEST_VERSION.get(manifest_type.upper(), str())
 
     # Get sample fields
     s = json_to_pytype(lk.WIZARD_FILES["sample_details"], compatibility_mode=False)
