@@ -142,3 +142,6 @@ bundle_*.xml
 
 # add ignore for VSCode configuration file
 .vscode/*
+static/assets/manifests/ERC*.xlsx
+static/assets/manifests/ERT*.xlsx
+selenium/*

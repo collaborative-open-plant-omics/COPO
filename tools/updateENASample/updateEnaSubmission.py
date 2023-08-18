@@ -6,8 +6,7 @@ import copy
 
 f = open("./data.json")
 config = json.load(f)
-session = requests.Session()
-session.auth = (config["username"], config["password"])
+session = None
 submit_url = config["submit_url"]
 retrive_url = config["retrive_url"]
 add_new_attribute = config.get("add_new_attribute",False)
@@ -58,5 +57,7 @@ def update_xml(data):
  else:
     print(response.status_code, response.text)
 
-for sample in config["data"]:
- update_xml(sample)
+with requests.Session() as session:
+  session.auth = (config["username"], config["password"])
+  for sample in config["data"]:
+     update_xml(sample)

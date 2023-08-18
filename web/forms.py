@@ -4,7 +4,7 @@ from crispy_forms.layout import Layout,  Row, Column
 
 class AssemblyForm(forms.Form):
 
-    def __init__(self, *args, sample_accession=None, study_accession=None, assembly=None, **kwargs):
+    def __init__(self, *args, sample_accession=None, study_accession=None, assembly=None, ecs_files=None, **kwargs):
         super(AssemblyForm, self).__init__(initial=assembly, *args, **kwargs)
 
         self.fields['study'].widget.attrs['readonly'] = True
@@ -32,6 +32,15 @@ class AssemblyForm(forms.Form):
             self.fields["sample"].disabled = True
             self.fields["id"].initial =  str(assembly["_id"])
 
+        files_choices = [("", 'None')]
+        if ecs_files:
+            files_choices.extend([(x,x) for x in ecs_files])
+        
+        file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
+        for field in file_fields:
+            self.fields[field].initial = None
+            self.fields[field].widget.attrs['readonly'] = True  
+            self.fields[field].choices = files_choices
 
 
     # fields from ENA assembly documentation
@@ -62,13 +71,15 @@ class AssemblyForm(forms.Form):
                                                                               'assembly'}))
     run_ref = forms.CharField(label="RUN_REF", required=False, widget=forms.TextInput(
         attrs={'placeholder': 'Comma separated list of run accession(s)'}))
-    fasta = forms.FileField(label="FASTA", required=False, widget=forms.FileInput(
-        #attrs={'accept': '.fasta.gz, .fas.gz, .fsa.gz, fna.gz, .fa.gz, .fasta.bz2, .fas.bz2, .fsa.bz2, .fna.bz2, .fa.bz2'}
-         ))
-    flatfile = forms.FileField(label="FLATFILE", required=False)
-    agp = forms.FileField(label="AGP", required=False)
-    chromosome_list = forms.FileField(label="CHROMOSOME_LIST", required=False)
-    unlocalised_list = forms.FileField(label="UNLOCALISED_LIST", required=False)
+    
+    fasta = forms.ChoiceField(label="FASTA", required=False )
+    flatfile = forms.ChoiceField(label="FLATFILE", required=False )
+    agp = forms.ChoiceField(label="AGP", required=False)
+    chromosome_list = forms.ChoiceField(label="CHROMOSOME_LIST", required=False)
+    unlocalised_list = forms.ChoiceField(label="UNLOCALISED_LIST", required=False)
+    #fasta = forms.FileField(label="FASTA", required=False, widget=forms.FileInput(
+    #    #attrs={'accept': '.fasta.gz, .fas.gz, .fsa.gz, fna.gz, .fa.gz, .fasta.bz2, .fas.bz2, .fsa.bz2, .fna.bz2, .fa.bz2'}
+    #     ))
     id = forms.CharField(label="ID", required=False, widget=forms.HiddenInput)
 
 
@@ -127,7 +138,9 @@ class AnnotationFilesForm(forms.Form):
         self.fields['file'].initial = None
         self.fields['file'].widget.attrs['readonly'] = True  
         files_choices = [("", 'None')]
-        files_choices.extend([(x,x) for x in ecs_files])
+
+        if ecs_files:
+            files_choices.extend([(x,x) for x in ecs_files])
         self.fields['file'].choices = files_choices
        
 

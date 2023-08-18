@@ -137,7 +137,7 @@ def process_pending_file_transfers():
                     reset_status_counter(tx)
             elif tx_status == 3:
                 increment_status_counter(tx)
-                pass
+                continue
                 '''
                 if check_gzip(tx):
                     increment_status_counter(tx)
@@ -153,6 +153,11 @@ def process_pending_file_transfers():
                     # Todo - need to do something cleverer here
                     reset_status_counter(tx)
             elif tx_status == 5:
+                if not tx["ecs_location"]:
+                    Logger().log("no ecs location, skipping transfer to ENA")
+                    mark_complete(tx)
+                    continue 
+
                 EnaFileTransfer().set_processing(tx["_id"])
                 insert_message(message="Transfering to ENA: " + tx["ecs_location"], user=user)
                 Logger().log("transfering to ENA: " + tx["local_path"])

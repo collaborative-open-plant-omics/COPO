@@ -98,7 +98,15 @@ app.conf.beat_schedule = {
     'update_ena_read_checklist': {
         'task': 'web.apps.web_copo.tasks.update_ena_read_checklist',
         'schedule': timedelta(days=1)
-    }, 
+    },
+    'update_assembly_submission_pending': {
+        'task': 'web.apps.web_copo.tasks.update_assembly_submission_pending',
+        'schedule': timedelta(seconds=10)
+    },     
+    'process_assembly_submission': {
+        'task': 'web.apps.web_copo.tasks.process_assembly_submission',
+        'schedule': timedelta(seconds=10)
+    },    
 }
 
 

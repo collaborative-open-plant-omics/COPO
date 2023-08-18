@@ -446,7 +446,7 @@ class BrokerDA:
         that have provided a way of first validating (dependencies checks etc.) this action
         :return:
         """
-
+        '''
         submit_assembly = getattr(self.da_object, "submit_assembly", None)
 
         if submit_assembly is None:
@@ -454,11 +454,18 @@ class BrokerDA:
 
         if not callable(submit_assembly):
             return self.context
-
+        '''
         target_id = self.param_dict.get("target_id", str())
         target_ids = self.param_dict.get("target_ids", [])
-        return EnaAssembly.submit_assembly(target_id=target_id, target_ids=target_ids)
+        result = EnaAssembly.submit_assembly(profile_id=self.profile_id,  target_id=target_id, target_ids=target_ids)
+    
+        report_metadata = dict()
+        report_metadata["status"] = result.get("status", "success")
+        report_metadata["message"] = result.get("message", "success")
+        self.context["action_feedback"] = report_metadata
 
+        return self.context
+    
     def do_submit_annotation(self):
         """
         function handles the delete of a record for those components

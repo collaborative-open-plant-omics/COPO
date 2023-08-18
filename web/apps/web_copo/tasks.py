@@ -2,6 +2,7 @@ import celery
 import web.apps.web_copo.utils.dtol.Dtol_Submission as dtol
 import web.apps.web_copo.utils.dtol.Dtol_Bioimage_Submission as dtol_bioimage
 import web.apps.web_copo.utils.EnaAnnotation as enaAnnotation
+import web.apps.web_copo.utils.EnaAssembly as enaAssembly
 from web.apps.web_copo.utils.dtol.Dtol_Tagged_Sequence import EnaTaggedSequence
 from web.apps.web_copo.utils.EnaChecklistHandler import ChecklistHandler, ReadChecklistHandler
 from dal.copo_da import Sample, Stats
@@ -165,9 +166,9 @@ def poll_asyn_seq_annotation_submission_receipt(self):
     return True
 
 @app.task(bind=True, base=CopoBaseClassForTask)
-@only_one(key="process_process_annotation_submission", timeout=5)
+@only_one(key="process_seq_annotation_submission", timeout=5)
 def process_seq_annotation_submission(self):
-    Logger().debug("Running process_annotation_submission")
+    Logger().debug("Running process_seq_annotation_submission")
     enaAnnotation.process_seq_annotation_pending_submission()
     return True
 
@@ -204,4 +205,18 @@ def update_ena_read_checklist(self):
 def processing_pending_tagged_seq_submission(self):
     Logger().debug("Running processing_pending_tagged_seq_submission")
     EnaTaggedSequence().processing_pending_tagged_seq_submission()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="process_assembly_submission", timeout=5)
+def process_assembly_submission(self):
+    Logger().debug("Running process_assembly_submission")
+    enaAssembly.process_assembly_pending_submission()
+    return True
+
+@app.task(bind=True, base=CopoBaseClassForTask)
+@only_one(key="process_update_assembly_submission_pending", timeout=5)
+def update_assembly_submission_pending(self):
+    Logger().debug("Running update_assembly_submission_pending")
+    enaAssembly.update_assembly_submission_pending()
     return True
