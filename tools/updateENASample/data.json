@@ -1,29 +1,10 @@
 {
 "submit_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit",
 "retrive_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/sample/",
-"username": "Webin-39233",
-"password": "J^&fFntoH8c5UTofa&Yd",
+"username": "",
+"password": "",
 "add_new_attribute": true,
 "data": [
-    {"sample_accession": "ERS12549500", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
-    {"sample_accession": "ERS12549501", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
-    {"sample_accession": "ERS12549502", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
-    {"sample_accession": "ERS12549503", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
-    {"sample_accession": "ERS12549297", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
-    {"sample_accession": "ERS8024565", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
-    {"sample_accession": "ERS8024566", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
-    {"sample_accession": "ERS8024547", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
-    {"sample_accession": "ERS12069240", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069241", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069242", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069243", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069244", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069245", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069246", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069247", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
-    {"sample_accession": "ERS12069196", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"}
-],
-"data1": [
 {
  "sample_accession": "ERS15590003",
  "bio_material": "Not_applicable",
