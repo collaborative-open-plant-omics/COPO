@@ -1,8 +1,8 @@
 {
 "submit_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit",
 "retrive_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/sample/",
-"username": "Webin-39233",
-"password": "J^&fFntoH8c5UTofa&Yd",
+"username": "",
+"password": "",
 "add_new_attribute": true,
 "data": [
     {"sample_accession": "ERS12549500", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
