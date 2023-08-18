@@ -1,22 +1,258 @@
 {
 "submit_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit",
 "retrive_url": "https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/sample/",
-"password": "",
-"username": "",
+"username": "Webin-39233",
+"password": "J^&fFntoH8c5UTofa&Yd",
+"add_new_attribute": true,
 "data": [
+    {"sample_accession": "ERS12549500", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
+    {"sample_accession": "ERS12549501", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
+    {"sample_accession": "ERS12549502", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
+    {"sample_accession": "ERS12549503", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
+    {"sample_accession": "ERS12549297", "TAXON_ID" : "1155254", "SCIENTIFIC_NAME" : "Bromus benekenii", "tolid" : "lpBroBenk1"},
+    {"sample_accession": "ERS8024565", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
+    {"sample_accession": "ERS8024566", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
+    {"sample_accession": "ERS8024547", "TAXON_ID" : "1734436", "SCIENTIFIC_NAME" : "Atriplex praecox", "tolid" : "dcAtrPrae7"},
+    {"sample_accession": "ERS12069240", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069241", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069242", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069243", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069244", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069245", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069246", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069247", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"},
+    {"sample_accession": "ERS12069196", "TAXON_ID" : "1452890", "SCIENTIFIC_NAME" : "Symphytum orientale", "tolid" : "daSymOrie1"}
+],
+"data1": [
 {
- "sample_accession": "ERS14884903",
- "TAXON_ID" : "130055",
- "SCIENTIFIC_NAME" : "Cladocora caespitosa",
- "collection date" : "2022-12-25"
+ "sample_accession": "ERS15590003",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
 },
 {
- "sample_accession": "ERS14884902",
- "TAXON_ID" : "1457099",
- "SCIENTIFIC_NAME" : "Astagobius angustatus",
- "sample coordinator ORCID ID" : "0000-0002-0867-7601",
- "sample coordinator affiliation": "INSTITUTE OF EVOLUTIONARY BIOLOGY"
+ "sample_accession": "ERS15590004",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590005",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590006",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590007",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590008",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590009",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590010",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590011",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590012",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590023",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590024",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590025",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590026",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590027",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-Voucher: 110998-110999",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590064",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-voucher: 110973",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+
+{
+ "sample_accession": "ERS15590065",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-voucher: 110973",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+
+{
+ "sample_accession": "ERS15590066",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-voucher: 110973",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590077",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-voucher: 110973",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+{
+ "sample_accession": "ERS15590078",
+ "bio_material": "Not_applicable",
+ "proxy voucher": "MNCN-voucher: 110973",
+ "bio_material": "Not_provided",
+ "specimen_voucher":"Not_applicable"
+},
+
+{
+    "sample_accession": "ERS15589834",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589835",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589836",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589837",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589838",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589839",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589840",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589841",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589842",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+},
+{
+    "sample_accession": "ERS15589843",
+    "bio_material": "Not_applicable",
+    "proxy voucher": "MNCN-voucher: 110973",
+    "bio_material": "Not_provided",
+    "specimen_voucher":"Not_applicable"   
+}   
+
+
+
+
+
+],
+"other_data" : [	
+{
+ "action" : "kill",
+ "sample_accession":  "ERS10976478",
+ "HoldUntilDate": "2023-05-17Z"
+},
+{
+ "action": "kill",
+ "sample_accession":  "ERS10976481",
+ "HoldUntilDate": "2023-05-17Z"
 }
 ]
 }
-
