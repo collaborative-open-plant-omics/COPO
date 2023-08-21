@@ -2407,7 +2407,7 @@ function get_profile_components() {
             semanticIcon: "filter", //semantic UI equivalence of fontawesome icon
             countsKey: "num_sample",
             buttons: ["quick-tour-template", "new-samples-template", "new-samples-spreadsheet-template", "new-samples-spreadsheet-template-erga","download-blank-manifest-template|href:#blank_manifest_url", "accept_reject_samples"],
-            sidebarPanels: ["copo-sidebar-info", "copo-sidebar-help"],
+            sidebarPanels: ["copo-sidebar-info"],
             colorClass: "samples_color",
             color: "olive",
             profile_component: "dtol",
@@ -2694,14 +2694,19 @@ function generate_component_control(component) {
         component.sidebarPanels.forEach(function (item) {
             sidebarPanels.find(".nav-tabs").append(sidebarPanels2.find(".nav-tabs").find("." + item));
             sidebarPanels.find(".tab-content").append(sidebarPanels2.find(".tab-content").find("." + item));
+            sidebarPanels.find(".profiles-legend").append(sidebarPanels2.find(".profiles-legend").find("." + item));
             sidebarPanels.find(".accessions-legend").append(sidebarPanels2.find(".accessions-legend").find("." + item));
         });
 
         sideBar
             .append(sidebarPanels.find(".nav-tabs"))
             .append(sidebarPanels.find(".tab-content"))
-            .append(sidebarPanels.find(".accessions-legend"));
 
+        // Add 'profile types' legend to profile web page only
+        if (component.component == "profile") sideBar.append(sidebarPanels.find(".profiles-legend"))
+
+        // Add 'accessions types' filter to accessions dashboard web page only
+        if (component.component == "accessions_dashboard") sideBar.append(sidebarPanels.find(".accessions-legend"));
     }
 
     //create buttons

@@ -55,6 +55,9 @@ MESSAGES = {
                                                      '<strong>SHORT_READ_SEQUENCING</strong>. Please update/edit the '
                                                      'associated profile type for the profile then, reupload the '
                                                      'manifest.',
+    'validation_msg_invalid_binomial_name': "For the TAXON_ID,  <strong>%s</strong>, the scientific name, <strong>%s</strong>, is not a valid binomial name. "
+                                            "Please contact <a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
+                                            "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> to request assistance for this taxonomy.",
     'validation_msg_invalid_data': 'Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row '
                                    '<strong>%s</strong>. Allowed values are <strong>%s</strong>',
     'validation_msg_invalid_date': 'Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row '

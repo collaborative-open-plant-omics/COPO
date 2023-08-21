@@ -11,7 +11,7 @@ $(document).ready(function () {
     const copoENAAnnotationURL = "/copo/copo_seq_annotation/"
     const copoVisualsURL = "/copo/copo_profile_visualise/";
     const tableLoader = $('<div class="copo-i-loader"></div>');
-    const componentMeta = get_profile_component_meta(component);
+    const componentMeta = get_component_meta(component);
     const tableID = componentMeta.tableID
 
     let page = 1;
@@ -59,7 +59,7 @@ $(document).ready(function () {
     }
 
     //display empty profile message for potential first time users
-    set_empty_profile_component_message(profiles_total);
+    set_empty_component_message(profiles_total);
 
     // No profile records exist
     if (profiles_visible_length === 0) {
@@ -250,7 +250,7 @@ $(document).ready(function () {
                     $(`#${tableID}`).append(content);
 
                     // Initialise functions for the profile grids beyond the 8 records that are shown by default
-                    refresh_profile_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
+                    refresh_tool_tips(); // Refreshes/reloades/reinitialises all popover and dropdown functions
                     initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID, copoSamplesURL, copoENAReadManifestValidateURL, copoENAAssemblyURL, copoENAAnnotationURL); // Initialise functions for the profile grids beyond the 8 records that are shown by default
 
                     set_profile_grid_heading(content) // Set profile grid heading
@@ -551,14 +551,15 @@ function update_counts(copoVisualsURL, csrftoken, component) {
 
 function append_component_buttons(record_id, profile_type) {
     //components row
-    const components = get_copo_profile_components();
+    const components = get_profile_components();
     const componentsDIV = $('<div/>', {
         class: "item"
     });
 
     components.forEach(function (item) {
-        //  skip profile entry metadata
-        if (item.component === "profile") {
+        // skip 'profile' entry metadata
+        // skip 'accessions_dashboard' entry metadata
+        if (item.component === "profile" || item.component === "accessions_dashboard") {
             return false;
         }
 
@@ -573,7 +574,7 @@ function append_component_buttons(record_id, profile_type) {
         try {
             component_link = $("#" + item.component + "_url").val().replace("999", record_id);
         } catch (err) {
-            console.log(item.title);
+            console.log(err.message);
         }
 
         // Create button html

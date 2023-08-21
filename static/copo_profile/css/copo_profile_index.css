@@ -699,47 +699,6 @@ study/profile has release details
 }
 
 /* Responsiveness */
-@media only screen and (max-width: 575px) {
-    .navigate-to-top {
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-    }
-
-    .navigate-to-top.show {
-        bottom: 10px;
-        right: 10px;
-    }
-
-    .navigate-to-top.show:hover {
-        bottom: 10px;
-    }
-
-    .navigate-to-bottom {
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-    }
-
-    .navigate-to-bottom.show {
-        bottom: 10px;
-        right: 10px;
-    }
-
-    .navigate-to-bottom.show:hover {
-        bottom: 10px;
-    }
-
-    .up-arrow {
-        top: 27%;
-        left: 37%;
-    }
-
-    .down-arrow {
-        top: 27%;
-        left: 37%;
-    }
-}
 @media only screen and (max-width: 2400px) {
     .no_associatedTypes_marginBottom {
         margin-bottom: 210px;
@@ -759,6 +718,20 @@ study/profile has release details
 
     .two_associatedTypes_marginBottom_2LineDescriptionText_release {
         margin-bottom: 85px;
+    }
+}
+
+@media only screen and (max-width: 1920px) {
+    .no_associatedTypes_marginBottom_2LineDescriptionText {
+        margin-bottom: 193px;
+    }
+
+    .no_associatedTypes_marginBottom_2LineDescriptionText_release {
+        margin-bottom: 130px;
+    }
+
+    .one_associatedType_marginBottom_2LineDescriptionText {
+        margin-bottom: 146px;
     }
 }
 
@@ -1002,4 +975,46 @@ study/profile has release details
         columns: 2;
     }
 
+}
+
+@media only screen and (max-width: 575px) {
+    .navigate-to-top {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+    }
+
+    .navigate-to-top.show {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .navigate-to-top.show:hover {
+        bottom: 10px;
+    }
+
+    .navigate-to-bottom {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+    }
+
+    .navigate-to-bottom.show {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .navigate-to-bottom.show:hover {
+        bottom: 10px;
+    }
+
+    .up-arrow {
+        top: 27%;
+        left: 37%;
+    }
+
+    .down-arrow {
+        top: 27%;
+        left: 37%;
+    }
 }

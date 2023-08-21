@@ -9,7 +9,7 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from web.apps.web_copo.lookup import lookup as lk
 from web.apps.web_copo.schemas.utils.data_utils import json_to_pytype
-from web.apps.web_copo.validators import validation_messages as msg
+from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from tools import resolve_env
 from exceptions_and_logging import logger
 from web.apps.web_copo.schema_versions.lookup.dtol_lookups import API_KEY
@@ -73,11 +73,17 @@ def check_taxon_ena_submittable(taxon, by="id"):
                 errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
             if taxinfo["rank"] not in ["species", "subspecies"]:
                 errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
+            if taxinfo["rank"] not in ["species", "subspecies"]:
+                errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
+            if taxinfo["binomial"] == "false":  
+                errors.append(msg['validation_msg_invalid_binomial_name'] % (taxon, taxinfo["scientificName"]))    
         elif by == "binomial":
             if taxinfo[0]["submittable"] != 'true':
                 errors.append("TAXON_ID " + taxon + " is not submittable to ENA")
             if taxinfo[0]["rank"] not in ["species", "subspecies"]:
                 errors.append("TAXON_ID " + taxon + " is not a 'species' or 'subspecies' level entity.")
+            if taxinfo["binomial"] == "false":
+                errors.append(msg['validation_msg_invalid_binomial_name'] % (taxon, taxinfo["scientificName"]))    
     except Exception as e:
         l.exception(e)
         if receipt:
