@@ -3290,10 +3290,10 @@ function quick_tour_messages() {
                 "title": "Profile Details",
                 "content": "View a profile details here having selected a profile record."
             },
-            "page_context_help_panel": {
-                "title": "Help",
-                "content": "Interact with the help pane to find help topics relevant to the page and/or current task."
-            },
+            // "page_context_help_panel": {
+            //     "title": "Help",
+            //     "content": "Interact with the help pane to find help topics relevant to the page and/or current task."
+            // },
             "profile_table": {
                 "title": "Profile Records",
                 "content": "Profile records list.<ol><li>Click on any component (e.g., Samples) within a profile to access any particular component's page</li><li>Use the action buttons (e.g., Select all, Add) to interact with profile records</li><li>Use the profile search control to display a filtered listing of records, based on matched terms</li></ol>"

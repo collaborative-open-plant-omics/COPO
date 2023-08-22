@@ -1,5 +1,6 @@
 $(document).ready(function () {
     const acceptRejectSampleURL = "/copo/accept_reject_sample"
+    const accessionsDashboardURL = "/copo/dashboard/accessions"
     const tolInspectURL = "/copo/tol_inspect"
     const tolInspectByGALURL = "/copo/tol_inspect/gal/"
     
@@ -28,6 +29,10 @@ $(document).ready(function () {
 
     $(document).on("click", ".tol_inspect_gal", function () {
         document.location = tolInspectByGALURL
+    })
+
+    $(document).on("click", ".copo_accessions", function () {
+        document.location = accessionsDashboardURL
     })
 
     $(document).on("click", ".toggle-view", toggle_accessions_view)
@@ -396,6 +401,12 @@ function render_accessions_table(data) {
         filterDataByAccessionType()
     }
 
+    // Show accessions legend if it was hidden and if table has data
+    if (table.data().any()){
+        $('.accessions-legend').show() 
+        $('.accessions-checkboxes').show()  // Show the filter accessions' legend
+    }
+
     let table_wrapper = $(tableID + '_wrapper')
     
     table_wrapper
@@ -426,8 +437,10 @@ function load_accessions_records() {
     const componentMeta = get_component_meta($("#nav_component_name").val());
     const component_table_loder = $("#component_table_loader")
     const csrftoken = $.cookie('csrftoken');
+    
     let post_data = {}
     let tableLoader = null; //loader
+    let accessions_checkboxes = $('.accessions-checkboxes')
 
     post_data['isUserProfileActive'] = $(document).data("isUserProfileActive") 
     post_data['isSampleProfileTypeStandalone'] = $(document).data("isSampleProfileTypeStandalone")
@@ -453,11 +466,35 @@ function load_accessions_records() {
         dataType: "json",
         success: function (data) {
             if (data.hasOwnProperty ("table_data") &&  data.table_data.dataSet.length == 0) {
-                set_empty_component_message(data.table_data.dataSet.length); //display empty component message when there's no record
-        
-                let accessions_checkboxes = $('.accessions-checkboxes')
-                if (accessions_checkboxes.find('.form-check').length) accessions_checkboxes.empty()
-                $('.accessions-legend').hide()  // Hide the filter accessions' legend
+                if($(document).data("showAllCOPOAccessions") && $(document).data("isSampleProfileTypeStandalone")){ 
+                    // Show empty table
+                    render_accessions_table(data)
+                    
+                    // Hide accessions legend if table is empty
+                    if (!$(`#${componentMeta.tableID}`).DataTable().data().any()){
+                        // if (accessions_checkboxes.find('.form-check').length) 
+                        accessions_checkboxes.empty()
+                        $('.accessions-legend').hide()  // Hide the filter accessions' legend
+                    }
+                }else if($(document).data("showAllCOPOAccessions") && !$(document).data("isSampleProfileTypeStandalone")){
+                     // Show empty table
+                    render_accessions_table(data)
+                  
+                    // Hide accessions legend if table is empty
+                    if (!$(`#${componentMeta.tableID}`).DataTable().data().any()){
+                        // if (accessions_checkboxes.find('.form-check').length) 
+                        accessions_checkboxes.empty()
+                        $('.accessions-legend').hide()  // Hide the filter accessions' legend
+                    }
+                } else{
+                    // Show empty component message for 'Other projects' accessions'
+                    set_empty_component_message(data.table_data.dataSet.length); //display empty component message when there's no record
+                    // if (accessions_checkboxes.find('.form-check').length) 
+                    accessions_checkboxes.empty()
+                    $('.accessions-legend').hide()  // Hide the filter accessions' legend
+                }
+               
+
                 if(!$(document).data("showAllCOPOAccessions")) $(".copo_accessions").show() // Show the accessions' button on accessions web page for a given profile
                 if (tableLoader) tableLoader.remove(); //remove loader
                 return false;
@@ -483,17 +520,6 @@ function load_accessions_records() {
         }
     });
 }
-
-// function refresh_accessions_tool_tips() {
-//     $("[data-toggle='tooltip']").tooltip();
-//     $("[data-toggle='popover']").popover();
-//     $('.ui.dropdown')
-//         .dropdown()
-//     ;
-//     $('.copo-tooltip')
-//         .popup()
-//     ;
-// } // End of func
 
 function toggle_accessions_view() {
     $(this).find('.btn').toggleClass('active');

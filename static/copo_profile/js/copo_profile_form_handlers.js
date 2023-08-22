@@ -444,7 +444,7 @@ function json2HtmlProfileForm(data) {
     //tidy up before closing the modal
     const doTidyClose = {
         closeIt: function (dialogRef) {
-            refresh_profile_tool_tips();
+            refresh_tool_tips();
 
             htmlForm.empty(); //clear form
             dialogRef.close();
@@ -461,7 +461,7 @@ function json2HtmlProfileForm(data) {
         animate: true,
         draggable: true,
         onhide: function (dialogRef) {
-            refresh_profile_tool_tips();
+            refresh_tool_tips();
         },
         onshown: function (dialogRef) {
             //prevent enter keypress from submitting form automatically
@@ -759,7 +759,7 @@ function set_up_form_body_div(data) {
 
 function refresh_form_aux_controls() {
     //refresh controls
-    refresh_profile_tool_tips();
+    refresh_tool_tips();
 
     //set up help tips
     set_up_help_ctrl('helptips-chk');
@@ -1011,7 +1011,7 @@ function get_element_clone(ctrlsDiv, counter) {
         get_element_clone(ctrlsDiv, counter).insertAfter(row);
 
         //refresh controls
-        refresh_profile_tool_tips();
+        refresh_tool_tips();
     });
 
     left.append(ctrlClone);
@@ -1214,7 +1214,7 @@ function get_form_ctrl(ctrlsDiv, formElem, elemValue) {
             get_element_clone(ctrlsDiv, counter).insertAfter(firstElement);
 
             //refresh controls
-            refresh_profile_tool_tips();
+            refresh_tool_tips();
         });
     }
 
@@ -1569,9 +1569,9 @@ function save_form(formJSON, dialogRef) {
                         dialog.close();
                     });
 
-                    refresh_profile_tool_tips();
+                    refresh_tool_tips();
 
-                    do_crud_profile_action_feedback(data.action_feedback);
+                    do_crud_action_feedback(data.action_feedback);
 
                     // Refresh web page to have change reflected after 3 seconds
                     setTimeout(function () {
@@ -1582,7 +1582,7 @@ function save_form(formJSON, dialogRef) {
             }
 
             dialogRef.close();
-            refresh_profile_tool_tips();
+            refresh_tool_tips();
         },
         error: function (data) {
             console.log(data.responseText);
