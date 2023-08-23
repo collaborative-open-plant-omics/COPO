@@ -94,7 +94,7 @@ var controlsMapping = {
 };
 
 function initiate_form_call(component) {
-    var errorMsg = "Couldn't build " + component + " form!";
+    const errorMsg = "Couldn't build " + component + " form!";
 
     $.ajax({
         url: copoFormsURL,
@@ -154,7 +154,6 @@ function initiate_annotation_call() {
 }
 
 function json2HtmlForm(data) {
-
     //tidy up before closing the modal
     const doTidyClose = {
         closeIt: function (dialogRef) {
@@ -164,7 +163,9 @@ function json2HtmlForm(data) {
             dialogRef.close();
         }
     };
+
     let dialog_title = get_form_title(data)
+
     const dialog = new BootstrapDialog({
         type: BootstrapDialog.TYPE_PRIMARY,
         size: BootstrapDialog.SIZE_WIDE,
@@ -179,86 +180,80 @@ function json2HtmlForm(data) {
         },
         onshown: function (dialogRef) {
             //prevent enter keypress from submitting form automatically
-            $("form").keypress(function (e) {
+            $('form').keypress(function (e) {
                 //Enter key
                 if (e.which === 13) {
                     return false;
                 }
             });
 
-            // In the 'Add Profile' dialog, remove selected profile from 'associated_type' dropdown menu options
-            if (dialog_title.includes("Add Profile")) {
-                document.getElementById(data.form.form_schema[2].id).addEventListener("change", function () {
-                    // Perform the following only if selected 'Profile Type' is not "Stand-alone"
-                    if (this.value !== "Stand-alone") {
-                        $('.row:nth-child(4) > .col-sm-12').show() // Show 'Associated Profile Type(s)' field
-                        // Retrieve the parentheses and the enclosed string from the selected profile type
-                        let selected_type;
-                        let multi_select_options = $('.copo-multi-select2')
-                        const pattern = /(([\s]+))/; // parentheses regex with string enclosed
+            // Add Profile form
+            if (dialog_title.includes('Add Profile')) {
+                // If a user is not added to a manifest group, display a message for the user to contact
+                // COPO via email dialog in order to be added to the manifest group
+                if (groups.length === 0) {
+                    contact_COPO_popup_dialog();
+                } else {
+                    // In the 'Add Profile' dialog, remove selected profile type from 'associated_type' dropdown menu
+                    // options if a user is added to a manifest group
+                    remove_selectedProfileType_from_associatedProfileTypeList(
+                        data.form.form_schema[2].id
+                    );
+                }
+            }
 
-                        if (!pattern.test(this.value))
-                            selected_type = this.value // Get selected value if no parentheses exist
-                        else {
-                            let associated_type_acronym_without_parentheses;
-                            associated_type_acronym_without_parentheses = this.value.substring(this.value.indexOf('(') + 1, this.value.indexOf(')'));
+            // Edit Profile form
+            if (dialog_title.includes('Edit Profile')) {
+                if (groups.length === 0) {
+                    // If a user is not added to a manifest group,do nothing
+                    // This is already handled by back-end functionality.
+                } else {
+                    // Filter 'associated_type' dropdown menu options based on
+                    // selected profile type after 2 seconds
+                    setTimeout(function () {
+                        // Do something after 1 second
+                        filter_associatedProfileTypeList_based_on_selectedProfileType(
+                            data.form.form_schema[2].id
+                        );
+                    }, 2000);
 
-                            // Get abbreviated associated type enclosed in parentheses
-                            selected_type = `(${associated_type_acronym_without_parentheses})`
-                            // If empty parentheses are returned, set the acronym as
-                            // the full string excluding the empty parentheses
-                            selected_type = selected_type === '()' ? this.value.replace(/\(\s*\)/g, "") : selected_type
-                        }
-
-                        let associated_type_option = multi_select_options.find("option[value*='" + selected_type + "']")
-                        if (associated_type_option.length) {
-                            // Exclude the selected profile from the associated profile type dropdown menu options
-                            multi_select_options.select2({
-                                templateResult: function (option) {
-
-                                    if (option.text.includes(selected_type)) {
-                                        return null;
-                                    }
-                                    return option.text;
-                                }
-                            });
-                            // Reinitialise/update the multi-select options
-                            multi_select_options.trigger('change');
-
-                        }
-                    } else {
-                        $('.row:nth-child(4) > .col-sm-12').hide() // Hide 'Associated Profile Type(s)' field
-                    }
-                });
-
+                    // remove selected profile profile from 'associated_type'
+                    // dropdown menu options if a user is added to a manifest group
+                    remove_selectedProfileType_from_associatedProfileTypeList(
+                        data.form.form_schema[2].id
+                    );
+                }
             }
 
             //custom validators
-            custom_validate(htmlForm.find("form"));
+            custom_validate(htmlForm.find('form'));
 
             refresh_form_aux_controls();
 
             //validate on submit event
-            htmlForm.find("form").validator().on('submit', function (e) {
-                if (e.isDefaultPrevented()) {
-                    return false;
-                } else {
-                    e.preventDefault();
-                    save_form(data.form, dialogRef);
-                }
-            });
+            htmlForm
+                .find('form')
+                .validator()
+                .on('submit', function (e) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    } else {
+                        e.preventDefault();
+                        save_form(data.form, dialogRef);
+                    }
+                });
 
-            const event = jQuery.Event("postformload"); //individual compnents can trap and handle this event as they so wish
+            const event = jQuery.Event('postformload'); //individual compnents can trap and handle this event as they so wish
             $('body').trigger(event);
 
-            if (!groups.includes("dtol_users")) {
+            if (!groups.includes('dtol_users')) {
                 $('select option[value *= "(DTOL)"]').hide();
                 $('select option[value *= "(ASG)"]').hide();
             }
-            if (!groups.includes("erga_users")) {
+            if (!groups.includes('erga_users')) {
                 $('select option[value *= "(ERGA)"]').hide();
             }
-            if (!groups.includes("dtolenv_users")) {
+            if (!groups.includes('dtolenv_users')) {
                 $('select option[value *= "(DTOL_ENV)"]').hide();
             }
         },
@@ -268,8 +263,12 @@ function json2HtmlForm(data) {
                 label: 'Cancel',
                 cssClass: 'tiny ui basic button',
                 action: function (dialogRef) {
-                    doTidyClose["closeIt"](dialogRef);
-                }
+                    doTidyClose['closeIt'](dialogRef);
+                    // Close any other dialog that might have been opened
+                    $.each(BootstrapDialog.dialogs, function (id, dialog) {
+                        dialog.close();
+                    });
+                },
             },
             {
                 id: 'btnFormSave',
@@ -286,13 +285,27 @@ function json2HtmlForm(data) {
 
     const form_help_div = set_up_form_help_div(data);
     const form_message_div = get_form_message(data);
-
     const form_body_div = set_up_form_body_div(data);
 
-    $dialogContent.append(form_help_div).append(form_message_div).append(form_body_div);
-    // Hide 'Associated profile type(s)' field on dialog launch
+    $dialogContent
+    .append(form_help_div)
+    .append(form_message_div)
+    .append(form_body_div);
+
+    // If user is in a manifest group, hide 'Associated profile type(s)' field on "Add Profile" dialog launch
     // because "Stand-alone" is the default value for 'Profile Type'
-    if (dialog_title.includes("Add Profile")) $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide()
+    if (dialog_title.includes('Add Profile') && groups.length >= 1) {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide();
+    }
+
+    // If user is in a manifest group, hide 'Associated profile type(s)' field on "Edit Profile" dialog launch
+    // if "Stand-alone" is the value shown for 'Profile Type'
+
+    if (dialog_title.includes('Edit Profile') && groups.length >= 1 &&
+        data.form.form_schema[2].data === 'Stand-alone') {
+        $dialogContent.find('.row:nth-child(4) > .col-sm-12').hide();
+    }
+
     dialog.realize();
     dialog.setMessage($dialogContent);
     dialog.open();
@@ -473,21 +486,21 @@ function set_up_help_ctrl(ctrlName) {
 }
 
 function set_up_form_help_div(data) {
-    var ctrlDiv = $('<div/>',
+    const ctrlDiv = $('<div/>',
         {
             class: "row helpDivRow",
             style: "margin-bottom:20px;"
         });
 
-    var cloneCol = $('<div/>',
+    const cloneCol = $('<div/>',
         {
             class: "col-sm-7 col-md-7 col-lg-7"
         });
 
-    var helpCtrl = $('<div/>',
-        {
-            class: "col-sm-5 col-md-5 col-lg-5"
-        }).append(get_help_ctrl());
+    // var helpCtrl = $('<div/>',
+    //     {
+    //         class: "col-sm-5 col-md-5 col-lg-5"
+    //     }).append(get_help_ctrl());
 
     return ctrlDiv.append(cloneCol);
 }
@@ -2565,7 +2578,7 @@ function do_array_ctrls(ctrlsDiv, counter, formElem) {
 }
 
 function get_element_clone(ctrlsDiv, counter) {
-    var ctrlClone = ctrlsDiv.clone();
+    const ctrlClone = ctrlsDiv.clone();
 
     ctrlClone.find(':input').each(function () {
         if (this.id) {
@@ -2576,31 +2589,29 @@ function get_element_clone(ctrlsDiv, counter) {
     });
 
 
-    var row = $('<div/>', {
+    const row = $('<div/>', {
         class: "row control-row"
     });
 
-    var left = $('<div/>', {
+    const left = $('<div/>', {
         class: "col-sm-9"
     });
 
-    var right = $('<div/>', {
+    const right = $('<div/>', {
         class: "col-sm-3",
         style: "padding-left: 5px;"
     });
 
-    row
-        .append(left)
-        .append(right);
+    row.append(left).append(right);
 
-    var delBtn = get_del_button();
+    const delBtn = get_del_button();
 
     delBtn.click(function (event) {
         event.preventDefault();
         row.remove();
     });
 
-    var addBtn = get_add_button();
+    const addBtn = get_add_button();
 
     addBtn.click(function (event) {
         event.preventDefault();
@@ -2621,8 +2632,8 @@ function get_element_clone(ctrlsDiv, counter) {
 }
 
 function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
-    var ctrlsWithValuesDiv = ctrlsDiv.clone();
-    var ctrlsWithValuesDivArray = '';
+    const ctrlsWithValuesDiv = ctrlsDiv.clone();
+    let ctrlsWithValuesDivArray = '';
 
     //validate elemValue
     if (Object.prototype.toString.call(elemValue) === '[object Object]') {
@@ -2632,39 +2643,56 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
     }
 
     if (elemValue) {
-        if (formElem.type == "array") {
+        if (formElem.type === 'array' && !formElem.id.includes('associated_type')) {
             if (elemValue.length > 0) {
-
                 //first element should not be open to deletion
-                ctrlsWithValuesDiv.find(":input").each(function () {
+                ctrlsWithValuesDiv.find(':input').each(function () {
                     if (this.id) {
-                        var sendOfValue = elemValue;
-                        if (Object.prototype.toString.call(elemValue) === '[object Array]') {
+                        let sendOfValue = elemValue;
+                        if (
+                            Object.prototype.toString.call(elemValue) === '[object Array]'
+                        ) {
                             sendOfValue = elemValue[0];
                         }
 
-                        var resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
+                        const resolvedValue = resolve_ctrl_values_aux_1(
+                            this.id,
+                            formElem,
+                            sendOfValue
+                        );
                         $(this).val(resolvedValue);
-                        this.setAttribute("value", resolvedValue);
+                        this.setAttribute('value', resolvedValue);
                     }
                 });
 
                 //sort other elements of the elemValue array
-                if (Object.prototype.toString.call(elemValue) === '[object Array]' && elemValue.length > 1) {
+                if (
+                    Object.prototype.toString.call(elemValue) === '[object Array]' &&
+                    elemValue.length > 1
+                ) {
                     ctrlsWithValuesDivArray = $('<div/>');
 
-                    for (var i = 1; i < elemValue.length; ++i) {
+                    for (let i = 1; i < elemValue.length; ++i) {
                         ++counter;
 
-                        var ctrlsWithValuesDivSiblings = get_element_clone(ctrlsDiv.clone(), counter);
-                        ctrlsWithValuesDivSiblings.find(":input").each(function () {
+                        const ctrlsWithValuesDivSiblings = get_element_clone(
+                            ctrlsDiv.clone(),
+                            counter
+                        );
+                        ctrlsWithValuesDivSiblings.find(':input').each(function () {
                             if (this.id) {
+                                const tId = this.id.substring(
+                                    0,
+                                    this.id.lastIndexOf(global_key_split)
+                                ); //strip off subscript
 
-                                var tId = this.id.substring(0, this.id.lastIndexOf(global_key_split)); //strip off subscript
-
-                                var resolvedValue = resolve_ctrl_values_aux_1(tId, formElem, elemValue[i]);
+                                const resolvedValue = resolve_ctrl_values_aux_1(
+                                    tId,
+                                    formElem,
+                                    elemValue[i]
+                                );
                                 $(this).val(resolvedValue);
-                                this.setAttribute("value", resolvedValue);
+                                this.setAttribute('value', resolvedValue);
                             }
                         });
 
@@ -2672,35 +2700,39 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
                     }
                 }
             }
-
-        } else {//not array type elemValue
-            ctrlsWithValuesDiv.find(":input").each(function () {
+        } else {
+            //not array type elemValue
+            ctrlsWithValuesDiv.find(':input').each(function () {
                 if (this.id) {
-                    var sendOfValue = elemValue;
+                    let sendOfValue = elemValue;
 
                     if (Object.prototype.toString.call(elemValue) === '[object Array]') {
                         sendOfValue = elemValue.join();
                     }
 
-                    var resolvedValue = resolve_ctrl_values_aux_1(this.id, formElem, sendOfValue);
+                    const resolvedValue = resolve_ctrl_values_aux_1(
+                        this.id,
+                        formElem,
+                        sendOfValue
+                    );
                     $(this).val(resolvedValue);
-                    this.setAttribute("value", resolvedValue);
+                    this.setAttribute('value', resolvedValue);
 
-                    if ($(this).prop("tagName") == "SELECT") {//this was what worked, as .val() failed to dance
+                    if ($(this).prop('tagName') === 'SELECT') {
+                        //this was what worked, as .val() failed to dance
                         for (var i = 0; i < this.length; ++i) {
-                            if (this.options[i].value == resolvedValue) {
-                                this.options[i].setAttribute("selected", "selected");
+                            if (this.options[i].value === resolvedValue) {
+                                this.options[i].setAttribute('selected', 'selected');
                                 break;
                             }
                         }
                     }
-
                 }
             });
         }
     }
 
-    var ctrlObjects = {};
+    const ctrlObjects = {};
     ctrlObjects['counter'] = counter;
     ctrlObjects['ctrlsWithValuesDivArray'] = ctrlsWithValuesDivArray;
     ctrlObjects['ctrlsWithValuesDiv'] = ctrlsWithValuesDiv;
@@ -2711,9 +2743,11 @@ function resolve_ctrl_values(ctrlsDiv, counter, formElem, elemValue) {
 function resolve_ctrl_values_aux_1(ctrlObjectID, formElem, elemValue) {
     var embedValue = null;
 
-    if (ctrlObjectID.length == formElem.id.length) { //likely end-point element
+    if (ctrlObjectID.length == formElem.id.length) { 
+        //likely end-point element
         embedValue = elemValue;
-    } else if (ctrlObjectID.length > formElem.id.length) { //likely a composite element
+    } else if (ctrlObjectID.length > formElem.id.length) { 
+        //likely a composite element
         var elemKeys = ctrlObjectID.split(formElem.id + ".").slice(-1)[0].split(".");
 
         embedValue = elemValue;
@@ -3329,31 +3363,57 @@ function custom_validate(formObject) {
 }
 
 function save_form(formJSON, dialogRef) {
-    var task = "save";
-    var error_msg = "Couldn't add " + formJSON.form_label + "!";
+    let task = "save";
+    let error_msg = "Couldn't add " + formJSON.form_label + "!";
+
     if (formJSON.target_id) {
         task = "edit";
         error_msg = "Couldn't edit " + formJSON.form_label + "!";
     }
 
     //manage auto-generated fields
-    var form_values = Object();
-    htmlForm.find("form").find(":input").each(function () {
-        form_values[this.id] = $(this).val();
+    let form_values = Object();
+    let a_type_lst = [];
+    let options_lst = [];
+
+    htmlForm
+        .find("form")
+        .find(":input")
+        .each(function () {
+            // Add the acronym and full word of the associated type
+            if (this.id.includes('associated_type')) {
+                options_lst = $(this).data('optionslist');
+
+                if ($(this).val()) {
+                    $.each($(this).val(), function (idx, acronym) {
+                        options_lst
+                            .filter((x) => x.id === acronym)
+                            .map((i) =>
+                                a_type_lst.push({
+                                    value: i.id,
+                                    label: i.text,
+                                })
+                            );
+                    });
+                }
+                form_values[this.id] = a_type_lst;
+            } else {
+                form_values[this.id] = $(this).val();
+            }
     });
 
-    var auto_fields = JSON.stringify(form_values);
+    const auto_fields = JSON.stringify(form_values);
 
     //get the visualisation context (i.e., what to be displayed after form save) and pass on
-    var visualize = "";
+    let visualize = "";
     if (formJSON.visualize) {
         visualize = formJSON.visualize;
     }
 
     csrftoken = $.cookie('csrftoken');
 
-    var btnSave = dialogRef.getButton('btnFormSave');
-    var btnCancel = dialogRef.getButton('btnFormCancel');
+    const btnSave = dialogRef.getButton('btnFormSave');
+    const btnCancel = dialogRef.getButton('btnFormCancel');
     btnSave.disable();
     btnCancel.disable();
     btnSave.spin();
@@ -3405,9 +3465,22 @@ function save_form(formJSON, dialogRef) {
                     return true;
                 } else {
                     dialogRef.close();
+
+                    // Close any other dialog that might be opened still if
+                    // the prior 'close dialog' action does not close the current dialog
+                    $.each(BootstrapDialog.dialogs, function (id, dialog) {
+                        dialog.close();
+                    });
+
                     refresh_tool_tips();
 
                     do_crud_action_feedback(data.action_feedback);
+
+                    // Refresh web page to have change reflected after 3 seconds
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 3000);
+
                     return true;
                 }
             }
@@ -3420,11 +3493,15 @@ function save_form(formJSON, dialogRef) {
 
             let feedbackControl = get_alert_control();
             let alertClass = "alert-danger";
+            let error_details = data.responseJSON.action_feedback.message || "Please check that you are connected to a network and try again"
 
             feedbackControl
                 .removeClass("alert-success")
                 .addClass(alertClass);
-            feedbackControl.find(".alert-message").html(error_msg + ". Please check that you are connected to a network and try again.");
+
+            feedbackControl
+                .find(".alert-message")
+                .html(`${error_msg} ${error_details}.`);
 
             dialogRef.getModalBody().find(".formMessageDiv").html(feedbackControl);
 
@@ -3441,21 +3518,19 @@ function save_form(formJSON, dialogRef) {
 } //end of function
 
 function get_del_button(theTitle) {
-    var title = theTitle || "Remove";
-    var delBtn = $('<button title="' + title + '"  class="ui negative icon button copo-tooltip">\n' +
+    const title = theTitle || "Remove";
+    return $('<button title="' + title + 
+        '"  class="ui negative icon button copo-tooltip">\n' +
         '  <i class="minus icon"></i>\n' +
         '</button>');
-
-    return delBtn;
 }
 
 function get_add_button(theTitle) {
-    var title = theTitle || "Add";
-    var addBtn = $('<button title="' + title + '" class="ui primary icon button copo-tooltip">\n' +
+    const title = theTitle || "Add";
+    return $('<button title="' + title + 
+        '" class="ui primary icon button copo-tooltip">\n' +
         '  <i class="plus icon"></i>\n' +
         '</button>');
-
-    return addBtn;
 }
 
 function form_generic_task(component_name, task, records, args_dict) {

@@ -133,7 +133,7 @@ class BrokerDA:
             else:
                 report_metadata["message"] = "New " + self.component + " record created!"
         elif action_type == "add" and status == "duplicated":
-            report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+            report_metadata["message"] = "Record already exist with title, " + self.auto_fields["copo.profile.title"]
             status = "error"
         elif action_type == "add" and status != "success":
             report_metadata["message"] = "There was a problem creating the " + self.component + " record!"
@@ -167,10 +167,10 @@ class BrokerDA:
                     "_id", "") and len(lst_of_profile_ids) == 1:
                 # if the target ID  does not match the ID in the list and the targeted profile title is not the
                 # same as the title in the editable field then, the title already exists
-                report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+                report_metadata["message"] = "Record already exist with title, " + self.auto_fields["copo.profile.title"]
                 status = "error"
             else:
-                report_metadata["message"] = "Record already exist with title " + self.auto_fields["copo.profile.title"]
+                report_metadata["message"] = "Record already exist with title, " + self.auto_fields["copo.profile.title"]
                 status = "error"
         elif action_type == "edit" and status == "forbidden action":
             report_metadata["message"] = "Forbidden action, it is not possible to modify the profile type"

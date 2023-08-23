@@ -15,6 +15,7 @@ $(document).ready(function () {
     const tableID = componentMeta.tableID
 
     let page = 1;
+    let contactCOPODialogCount = 1;
     let block_request = false;
     let end_pagination = false;
     let grid_count = $('#grid-count');
@@ -27,7 +28,7 @@ $(document).ready(function () {
 
     // Add new profile button
     $(document).on("click", ".new-component-template", function () {
-        initiate_profile_form_call(component);
+        initiate_form_call(component);
     });
 
     $(document).on("click", "#accept_reject_shortcut", function () {
@@ -117,6 +118,11 @@ $(document).ready(function () {
         const option_selected = this.value;
         sort_profile_records(option_selected)
 
+    });
+
+    // Add an event listener/bind the close button of the 'COPO contact dialog'
+    $('#contactCOPODialogBtnID').bind('click', function () {
+        contactCOPODialogCount++;
     });
 
     $(document).data("sortByDescendingOrder", true)
@@ -335,7 +341,6 @@ function appendRecordComponents(grids) {
 
 function editProfileRecord(profileRecordID) {
     const component = "profile";
-    let copoFormsURL = "/copo/copo_profile_forms/";
     let csrftoken = $.cookie('csrftoken');
 
     $('#ellipsisID[data-toggle="popover"]').popover('hide'); // Hides the popover
@@ -350,7 +355,7 @@ function editProfileRecord(profileRecordID) {
             'target_id': profileRecordID
         },
         success: function (data) {
-            json2HtmlProfileForm(data);
+            json2HtmlForm(data);
         },
         error: function () {
             alert("Couldn't build profile form!");
@@ -422,7 +427,7 @@ function deleteProfileRecord(profileRecordID) {
 
                         $content += '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' + message + '</div>';
                         $content += '<p style="margin-top:10px">Please contact '
-                        $content += '<a style="text-decoration: underline;" href="mailto:EI.COPO@earlham.ac.uk">EI.COPO@earlham.ac.uk</a> '
+                        $content += '<a style="text-decoration: underline;" href="mailto:ei.copo@earlham.ac.uk">ei.copo@earlham.ac.uk</a> '
                         $content += 'if you would like this profile to be deleted.</p>';
                         $content += '</div>';
 
@@ -859,4 +864,178 @@ function initialise_loaded_records(copoVisualsURL, csrftoken, component, tableID
     }).on('shown.bs.popover', function (e) {
         $('.row-ellipsis').attr('title', '') // Hide 'View profile options' title from appearing in the popover on hover
     });
+}
+
+function contact_COPO_popup_dialog() {
+    const message =
+        'If you would like to make manifest submissions to an ASG, ERGA or DToL manifest group';
+    let $content = '<div>';
+
+    $content +=
+        '<div style="margin-bottom: 10px; padding-bottom: 15px; font-weight: bold">' +
+        message +
+        '</div>';
+    $content +=
+        '<p style="margin-top:10px">Please contact <a style="text-decoration: underline;" href="mailto:ei.copo@earlham.ac.uk">ei.copo@earlham.ac.uk</a> in order to be added to the manifest group. We will grant you the permission to select the desired group, create a profile for the group and subsequently upload a manifest to the group.</p>';
+    $content += '</div>';
+
+    const dialog = new BootstrapDialog({
+        type: BootstrapDialog.TYPE_WARNING,
+        title: 'Contact COPO via email',
+        message: $content,
+        closable: false,
+        onshown: function (dialogRef) {
+            contactCOPODialogCount++; // Increment the number of times the dialog is shown
+        },
+        onhide: function (dialogRef) {
+        },
+        buttons: [
+            {
+                id: 'contactCOPODialogBtnID',
+                label: 'Okay',
+                cssClass: 'btn-custom3',
+                hotkey: 13,
+                action: function (dialogRef) {
+                    dialogRef.close(); // Close the 'Contact COPO' dialog
+                },
+            },
+        ],
+    });
+
+    dialog.realize();
+    dialog.getModalFooter().removeClass('modal-footer');
+    dialog.getModalFooter().css({padding: '15px', 'text-align': 'right'});
+
+    // Show the 'Contact COPO dialog' once
+    if (contactCOPODialogCount > 1) {
+        contactCOPODialogCount++;
+        return false;
+    } else {
+        dialog.open();
+    }
+} //end of contact_COPO_popup_dialog  **************
+
+function filter_associatedProfileTypeList_based_on_selectedProfileType(
+    profileTypeID
+) {
+    if (
+        !document.getElementById(profileTypeID).value ||
+        document.getElementById(profileTypeID).value != 'Stand-alone'
+    ) {
+        let selected_type = get_acronym(
+            document.getElementById(profileTypeID).value
+        );
+        let multi_select_options = $('.copo-multi-select2');
+        let associated_type_option = multi_select_options.find(
+            "option[value*='" + selected_type + "']"
+        );
+        let selected_associated_types = multi_select_options.find(':selected');
+
+        // Check any associated type (s) exists
+        if (selected_associated_types.length && associated_type_option.length) {
+            // Exclude the selected profile from the associated profile type dropdown menu options
+            multi_select_options.select2({
+                templateResult: function (option) {
+                    let option_value = get_acronym(option.text);
+
+                    if (option_value === selected_type) {
+                        return null;
+                    }
+                    // Exclude erga associated types from the associated profile type dropdown menu options
+                    // if "ERGA" is not selected as the profile type
+                    let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT'];
+                    if (!selected_type.includes('ERGA')) {
+                        if (
+                            erga_associated_types.some((erga_a_type) =>
+                                option.text.includes(erga_a_type)
+                            )
+                        ) {
+                            return null;
+                        }
+                    }
+                    return option.text;
+                },
+            });
+
+            // Reinitialise/update the multi-select options
+            multi_select_options.trigger('change');
+        }
+    }
+}
+
+function remove_selectedProfileType_from_associatedProfileTypeList(
+    profileTypeID
+) {
+    document
+        .getElementById(profileTypeID)
+        .addEventListener('change', function () {
+            // Perform the following only if selected 'Profile Type' is not "Stand-alone"
+            if (this.value !== 'Stand-alone') {
+                $('.row:nth-child(4) > .col-sm-12').show(); // Show 'Associated Profile Type(s)' field
+
+                let selected_type = get_acronym(this.value);
+                let multi_select_options = $('.copo-multi-select2');
+                let associated_type_option = multi_select_options.find(
+                    "option[value*='" + selected_type + "']"
+                );
+
+                // Clear associated type(s) options when profile type is changed
+                multi_select_options.val(null).trigger('change');
+
+                if (associated_type_option.length) {
+                    // Exclude the selected profile from the associated profile type dropdown menu options
+                    multi_select_options.select2({
+                        templateResult: function (option) {
+                            let option_value = get_acronym(option.text);
+
+                            if (option_value === selected_type) {
+                                return null;
+                            }
+                            // Exclude erga associated types from the associated profile type dropdown menu options
+                            // if "ERGA" is not selected as the profile type
+                            let erga_associated_types = ['BGE', 'POP_GENOMICS', 'ERGA_PILOT'];
+                            if (!selected_type.includes('ERGA')) {
+                                if (
+                                    erga_associated_types.some((erga_a_type) =>
+                                        option.text.includes(erga_a_type)
+                                    )
+                                ) {
+                                    return null;
+                                }
+                            }
+                            return option.text;
+                        },
+                    });
+                    // Reinitialise/update the multi-select options
+                    multi_select_options.trigger('change');
+                }
+            } else {
+                $('.row:nth-child(4) > .col-sm-12').hide(); // Hide 'Associated Profile Type(s)' field
+            }
+        });
+}
+
+function get_acronym(txt) {
+    // Retrieve the parentheses and the enclosed string from the
+    // selected profile type
+    const regex = /\(([^()]*)\)/g;
+    let select_value;
+
+    if (!regex.test(txt)) {
+        select_value = txt; // Get selected value if no parentheses exist
+    } else {
+        let associated_type_abbreviation_without_parentheses = txt.substring(
+            txt.indexOf('(') + 1,
+            txt.indexOf(')')
+        );
+
+        // Get associated type acronym that is enclosed in parentheses
+        // If empty an empty string is returned, set the acronym as the full string
+        select_value =
+            associated_type_abbreviation_without_parentheses === ''
+                ? txt.replace(/\(\s*\)/g, '')
+                : associated_type_abbreviation_without_parentheses.trim();
+    }
+
+    return select_value;
 }
