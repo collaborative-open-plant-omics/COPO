@@ -37,6 +37,8 @@ import os
 from PIL import Image
 import logging
 
+PIL.Image.MAX_IMAGE_PIXELS = None
+
 l = logger.Logger("exceptions_and_logging/logs")
 
 
