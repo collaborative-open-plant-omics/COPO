@@ -51,7 +51,7 @@ paths:
           name: return_type
           schema:
             type: string
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         200:
@@ -78,7 +78,7 @@ paths:
           name: return_type
           schema:
             type: string
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         200:
@@ -141,7 +141,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            type: string
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -185,7 +185,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -216,7 +216,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -247,7 +247,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -281,7 +281,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -319,8 +319,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            type: string
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -363,7 +362,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -394,7 +393,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into csv format
       responses:
         "200": # status code
@@ -428,7 +427,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -459,7 +458,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -496,7 +495,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -526,7 +525,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
@@ -554,7 +553,7 @@ paths:
         - in: query
           name: return_type
           schema:
-            enum: [json, csv, rocrate]
+            enum: [json, csv]
           description: Export data into selected format
       responses:
         "200": # status code
