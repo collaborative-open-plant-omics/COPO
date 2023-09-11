@@ -215,14 +215,14 @@ $(document).ready(function () {
                 "group_id": group_id
             }
         }).done(function (d) {
-            console.log(d.resp);
+            //console.log(d.resp);
         }).fail(function (e, d) {
             console.error(e.responseJSON.resp);
         });
     }
 
     function remove_repo_from_group(values) {
-        console.log(values)
+        //console.log(values)
         var group_id = $("#selected_group").data("selected_group_id");
         $.ajax({
             url: "/copo/remove_repo_from_group/",
@@ -230,7 +230,7 @@ $(document).ready(function () {
             dataType: "json",
             data: {"repo_id": values[0], "group_id": group_id}
         }).done(function (d) {
-            console.log(d.resp);
+            //console.log(d.resp);
         }).fail(function (e, d) {
             console.error(e.responseJSON.resp);
         });

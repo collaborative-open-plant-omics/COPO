@@ -54,6 +54,57 @@
             margin-right: 25px
         }
 
+        .alert {
+            padding: 15px;
+            padding-right: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            border-radius: 4px;
+        }
+
+        .alert-info {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+        .alert-dismissable, .alert-dismissible {
+            padding-right: 35px;
+        }
+
+        .alert-dismissable .close, .alert-dismissible .close {
+            position: relative;
+            top: -2px;
+            right: -21px;
+            color: inherit;
+        }
+
+        button.close {
+            padding: 0;
+            cursor: pointer;
+            background: 0 0;
+            border: 0;
+        }
+        
+        .close {
+            float: right;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1;
+            color: #000;
+            text-shadow: 0 1px 0 #fff;
+            filter: alpha(opacity=20);
+            opacity: .2;
+        }
+
+        .fade.in {
+            opacity: 1;
+        }
+
     </style>
 {% endblock %}
 
@@ -125,6 +176,13 @@
 
         <div class="col-lg-6 col-md-6 col-sm-6">
             <p class="lead">Users in Group</p>
+            <div class="alert alert-info alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                If you would like to share an {{ manifest_types }} profile with users, please confirm with the users that they 
+                have already been added to the particular manifest group.<br><br>
+                Please ask the users to contact <a style="text-decoration: underline; font-weight: bold;" href="mailto:ei.copo@earlham.ac.uk">ei.copo@earlham.ac.uk</a> 
+                in order to be added to the manifest group if they do not belong to it.
+            </div>
             <label for="basic-url">Search for User
                 <small>(Firstname, Lastname or Username)</small>
             </label>

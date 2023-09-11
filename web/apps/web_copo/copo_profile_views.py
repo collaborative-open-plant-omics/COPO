@@ -28,20 +28,33 @@ l = Logger()
 
 @login_required
 def copo_profile_index(request):
-    # Profiles
-    num_of_profiles_per_page = 8  # number of records to display by default on a single page
-    uid = request.user.id
-    page = int(request.GET.get('page', 1))  # current page
+    # Banner and groups
+    member_groups = group_functions.get_group_membership_asString()
+    banner = banner_view.objects.all()
+    
+    if len(banner) > 0:
+        context = {'user': request.user, "banner": banner[0]}
+    else:
+        context = {'user': request.user}
+    context['groups'] = member_groups
 
-    profiles_length = Profile().get_collection_handle().find({"user_id": uid}).count()
-    num_of_pages = profiles_length / num_of_profiles_per_page  # row count
+    # Profiles
+    uid = request.user.id
+    num_of_profiles_per_page = 8  # number of profile grids to display by default on a single page
+    page = int(request.GET.get('page', 1))  # current page
     db_skip_num = num_of_profiles_per_page * (page - 1)
 
+    profile_lst = Profile().get_all_profiles(user=None, id_only=True) # Retrieve shared profiles and user profiles
+    profiles_length = len(profile_lst)
+    
+    shared_profiles_mapping = { p.get("_id",""): p.get("shared", False) for p in profile_lst}
+    excluded_shared_profileIDs = list()
+    
     # Get/load 8 profiles on downwards scroll
     existing_profiles_paginated = Profile() \
         .get_collection_handle() \
         .aggregate([  
-            {"$match": {"user_id": uid}},
+            {"$match": {"_id": {"$in": list(shared_profiles_mapping.keys()) }}},
             {"$addFields": {
                 "submission_profile_id": {
                     "$convert": {
@@ -68,22 +81,36 @@ def copo_profile_index(request):
         ])  
          
     profile_page = cursor_to_list_str2(existing_profiles_paginated, use_underscore_in_id=False)
+    
+    # Validate user shared profiles if any exists
+    for index, item in enumerate(profile_page):
+        if(shared_profiles_mapping.get(ObjectId(item.get("id","")),"")):
+            is_parenthesis_in_word = re.search(r'\((.*?)\)', item.get("type",""))
+            type = is_parenthesis_in_word.group(1) if is_parenthesis_in_word else ""
 
-             
-    #    .find({"user_id": uid}) \
+            if(item.get("type","") == 'Stand-alone'):
+                # Remove 'type' key so that "Shared with me" profile grid 
+                # label is displayed on the profile grid
+                item['shared_type'] = item['type'] 
+                del item['type']
+            elif f'{type.lower()}_users' in member_groups:
+                # Remove 'type' key so that "Shared with me" profile grid 
+                # label is displayed on the profile grid
+                item['shared_type'] = item['type'] 
+                del item['type']
+            else:
+                # Obtain a list of the profile IDs for the shared profiles that users have been added to but 
+                # they do not belong to that profile group type
+                excluded_shared_profileIDs.append(item.get("id",""))
 
+    # Exclude a shared profile if a user does not belong to the shared profile group type 
+    if excluded_shared_profileIDs:
+        profile_page = [profile for profile in profile_page if profile.get("id","") not in excluded_shared_profileIDs]
+        profiles_length -= len(excluded_shared_profileIDs) # Reduce the total number of (owned and shared) profiles for the user
 
+    num_of_pages = profiles_length / num_of_profiles_per_page  # row count           
     profile_page_length = len(profile_page)
     profile_page_length += profile_page_length
-
-    # Banner and groups
-    banner = banner_view.objects.all()
-    if len(banner) > 0:
-        context = {'user': request.user, "banner": banner[0]}
-    else:
-        context = {'user': request.user}
-    groups = group_functions.get_group_membership_asString()
-    context['groups'] = groups
 
     if not request.is_ajax():
         # Set up the profile grids that are loaded by default when a user launches the web page

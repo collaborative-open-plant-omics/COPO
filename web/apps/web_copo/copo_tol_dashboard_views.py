@@ -180,10 +180,10 @@ def get_profile_titles_nav_tabs(request):
 
 def get_profiles_for_tol_inspection(request):
     data = request.POST["data"]  # "project" or "samples_data"
-    searchByFaceting = request.POST["searchByFaceting"]
-    getProjectTitlesForUserOnly = request.POST["getProjectTitlesForUserOnly"]
+    searchByFaceting = data_utils.convertStringToBoolean(request.POST["searchByFaceting"])
+    getProjectTitlesForUserOnly = data_utils.convertStringToBoolean(request.POST["getProjectTitlesForUserOnly"])
 
-    if searchByFaceting == "true":
+    if searchByFaceting:
         # Get profiles by project type with search faceting
         match_dict = ast.literal_eval(data)  # Convert string to dictionary
         samples = Sample().get_dtol_by_aggregation(match_dict)
@@ -199,7 +199,7 @@ def get_profiles_for_tol_inspection(request):
 
     else:
         # Get profiles by project type without search faceting
-        profiles = Profile().get_profiles_by_aggregation(data, currentUser=getProjectTitlesForUserOnly)
+        profiles = Profile().get_profile_records(data, currentUser=getProjectTitlesForUserOnly)
         samples = [Sample().get_dtol_from_profile_id_and_project(str(profile["_id"]), data) for profile in profiles]
         profile_samples_count = [len(sample) for sample in samples]
 

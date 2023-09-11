@@ -1,3 +1,5 @@
+let contactCOPODialogCount = 1;
+
 $(document).ready(function () {
     //****************************** Event handlers block *************************//
     const component = "profile";
@@ -15,7 +17,6 @@ $(document).ready(function () {
     const tableID = componentMeta.tableID
 
     let page = 1;
-    let contactCOPODialogCount = 1;
     let block_request = false;
     let end_pagination = false;
     let grid_count = $('#grid-count');
@@ -325,7 +326,10 @@ function appendRecordComponents(grids) {
     // loop through each grid
     grids.each(function () {
         let record_id = $(this).closest('.grid').find('.row-title span').attr('id');
-        let profile_type = $(this).closest('.grid').find('.copo-records-panel').attr('profile_type');
+        let profile_type = $(this).closest('.grid').find('.copo-records-panel').attr('profile_type') === '' 
+        ? $(this).closest('.grid').find('.copo-records-panel').attr('shared_profile_type')
+        : $(this).closest('.grid').find('.copo-records-panel').attr('profile_type');
+
         if (profile_type) {
             profile_type = profile_type.toLowerCase().trim();
         }
@@ -448,12 +452,12 @@ function deleteProfileRecord(profileRecordID) {
 
 function sort_profile_records(option) {
     // Determine the query selector
-    let selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime(); // 'date_created' selector
+    let selector = element => new Date(element.querySelector('.date_createdDiv').getAttribute('date_created')).getTime(); // 'date_created' selector
     let isValueNumeric = false
 
     switch (option) {
         case "date_created":
-            selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime();
+            selector = element => new Date(element.querySelector('.date_createdDiv').getAttribute('date_created')).getTime();
             isValueNumeric = true;
             break;
         case "title":
@@ -465,7 +469,7 @@ function sort_profile_records(option) {
             break;
         default:
             isValueNumeric = true;
-            selector = element => new Date(element.querySelector('.grid-panel-body div:nth-child(2)').innerText).getTime();// 'date_created' selector
+            selector = element => new Date(element.querySelector('.date_createdDiv').getAttribute('date_created')).getTime();// 'date_created' selector
     }
 
     // Choose the order method
@@ -511,8 +515,8 @@ function do_render_profile_counts(data) {
 
 function display_profiles_legend(legend_data) {
     $.each(legend_data, function (index, element) {
-        let type = element.profileType;
         let acronym = element.profileTypeAcronym;
+        let type = acronym === 'Shared' ? acronym : element.profileType;
         let colour = element.profileTypeColour;
 
         // Create profile type legend item
@@ -627,12 +631,24 @@ function append_component_buttons(record_id, profile_type) {
 
 function filter_action_menu() {
     $(".copo-records-panel").each(function (idx, el) {
-        const t = $(el).attr("profile_type")
+        let t = $(el).attr("profile_type")
+        let shared_t = $(el).attr("shared_profile_type")
         let s = $(el).attr("study_status")
         study_status = ""
+
         if (s != undefined) {
             study_status =  s.toUpperCase()
         }
+
+        if (shared_t && !t){
+            t = shared_t
+            //if($(el).attr("profile_type")) $(el).removeAttr("profile_type")
+        }
+        
+        if (t && !shared_t){
+            //if($(el).attr("shared_profile_type")) $(el).removeAttr("shared_profile_type")
+        }
+
         if (t.includes("ERGA")) {
             $(el).find("a[profile_component ='stand-alone']").hide()
             $(el).find("a[profile_component ='dtol']").hide()
@@ -684,36 +700,43 @@ function set_profile_grid_heading(grids) {
             let legend_data;
             let current_profile_legendData = $(".profiles-legend-group-item").text()
 
-            if (profile_type.includes("DTOL_ENV")) {
-                acronym = "DTOL-ENV"
-                colour = "#fb7d0d"
-                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL-ENV)</small>');
-                $(el).find(".panel-heading").css('background-color', colour)
-            } else if (profile_type.includes("DTOL")) {
-                acronym = "DTOL"
-                colour = "#16ab39"
-                $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL)</small>');
-                $(el).find(".panel-heading").css("background-color", colour)
-            } else if (profile_type.includes("ASG")) {
-                acronym = "ASG"
-                colour = "#5829bb"
-                $(el).find(".panel-heading").find(".row-title span").append('<small>(ASG)</small>');
-                $(el).find(".panel-heading").css("background-color", colour)
-            } else if (profile_type.includes("ERGA")) {
-                acronym = "ERGA"
-                colour = "#E61A8D"
-                $(el).find(".panel-heading").find(".row-title span").append('<small>(ERGA)</small>');
-                $(el).find(".panel-heading").css("background-color", colour)
-            } else if (profile_type.includes("Stand-alone")) {
-                acronym = "Standalone"
-                colour = "#009c95"
-                $(el).find(".panel-heading").find(".row-title span").append('<small>(Standalone)</small>');
-                $(el).find(".panel-heading").css("background-color", colour)
+            if (profile_type){
+                if($(el).attr("shared_profile_type") === '') $(el).removeAttr ("shared_profile_type"); // Remove 'shared_profile_type' attribute
+
+                if (profile_type.includes("DTOL_ENV")) {
+                    acronym = "DTOL-ENV"
+                    colour = "#fb7d0d"
+                    $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL-ENV)</small>');
+                    $(el).find(".panel-heading").css('background-color', colour)
+                } else if (profile_type.includes("DTOL")) {
+                    acronym = "DTOL"
+                    colour = "#16ab39"
+                    $(el).find(".panel-heading").find(".row-title span").append('<small>(DTOL)</small>');
+                    $(el).find(".panel-heading").css("background-color", colour)
+                } else if (profile_type.includes("ASG")) {
+                    acronym = "ASG"
+                    colour = "#5829bb"
+                    $(el).find(".panel-heading").find(".row-title span").append('<small>(ASG)</small>');
+                    $(el).find(".panel-heading").css("background-color", colour)
+                } else if (profile_type.includes("ERGA")) {
+                    acronym = "ERGA"
+                    colour = "#E61A8D"
+                    $(el).find(".panel-heading").find(".row-title span").append('<small>(ERGA)</small>');
+                    $(el).find(".panel-heading").css("background-color", colour)
+                } else if (profile_type.includes("Stand-alone")) {
+                    acronym = "Standalone"
+                    colour = "#009c95"
+                    $(el).find(".panel-heading").find(".row-title span").append('<small>(Standalone)</small>');
+                    $(el).find(".panel-heading").css("background-color", colour)
+                }
             } else {
                 acronym = "Shared"
                 colour = "#f26202"
                 $(el).find(".panel-heading").find(".row-title span").append('<small>(Shared With Me)</small>');
                 $(el).find(".panel-heading").css("background-color", colour)
+                
+                // Remove 'profile_type' attribute if it exists since 
+                if($(el).attr("profile_type") === '') $(el).removeAttr("profile_type")
             }
 
             // Add profile type legend data if it is not already in the list/displayed
@@ -932,7 +955,7 @@ function filter_associatedProfileTypeList_based_on_selectedProfileType(
         let selected_associated_types = multi_select_options.find(':selected');
 
         // Check any associated type (s) exists
-        if (selected_associated_types.length && associated_type_option.length) {
+        if (selected_associated_types.length || associated_type_option.length) {
             // Exclude the selected profile from the associated profile type dropdown menu options
             multi_select_options.select2({
                 templateResult: function (option) {

@@ -56,8 +56,9 @@ MESSAGES = {
                                                      'associated profile type for the profile then, reupload the '
                                                      'manifest.',
     'validation_msg_invalid_binomial_name': "For the TAXON_ID,  <strong>%s</strong>, the scientific name, <strong>%s</strong>, is not a valid binomial name. "
-                                            "Please contact <a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
-                                            "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> to request assistance for this taxonomy.",
+                                            "Please contact <a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> or "
+                                            "<a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
+                                            "<a href='mailto:ena-bge@ebi.ac.uk'>ena-bge@ebi.ac.uk</a> to request assistance for this taxonomy.",
     'validation_msg_invalid_data': 'Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row '
                                    '<strong>%s</strong>. Allowed values are <strong>%s</strong>',
     'validation_msg_invalid_date': 'Invalid date: <strong>%s</strong> in column <strong>%s</strong> at row '
@@ -80,9 +81,10 @@ MESSAGES = {
     'validation_msg_invalid_taxon': "TAXON_ID <strong>%s</strong> at row <strong>%s</strong> is invalid. Check "
                                     "SCIENTIFIC_NAME and TAXON_ID match at NCBI <a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi'>here</a> "
                                     "or <a href='https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi'>here</a>. "
-                                    "Please refer to the DTOL/ASG SOP. Contact "
+                                    "Please refer to the ASG/DTOL/ERGA SOP. Contact "
+                                    "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> or "
                                     "<a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
-                                    "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> for assistance.",
+                                    "<a href='mailto:ena-bge@ebi.ac.uk'>ena-bge@ebi.ac.uk</a> for assistance.",
     'validation_msg_invalid_taxonomy': 'Invalid data: <strong>%s</strong> in column <strong>%s</strong> at row '
                                        '<strong>%s</strong>. Expected value is <strong>%s</strong>',
     'validation_msg_isupdate': '<strong>UPDATE</strong>: <strong>%s</strong> has already been uploaded. COPO will '
@@ -109,9 +111,10 @@ MESSAGES = {
                                                     '<strong>%s</strong>',
     'validation_msg_not_submittable_taxon': "TAXON_ID <strong>%s</strong> is not 'submittable' to ENA. Please see "
                                             "<a href='https://ena-docs.readthedocs.io/en/latest/faq/taxonomy_requests.html#creating-taxon-requests'>here</a> "
-                                            "and contact <a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
-                                            "<a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> to request an "
-                                            "informal placeholder species name. Please also refer to the DTOL/ASG SOP.",
+                                            "and contact <a href='mailto:ena-asg@ebi.ac.uk'>ena-asg@ebi.ac.uk</a> or "
+                                            "<a href='mailto:ena-dtol@ebi.ac.uk'>ena-dtol@ebi.ac.uk</a> or "
+                                            "<a href='mailto:ena-bge@ebi.ac.uk'>ena-bge@ebi.ac.uk</a> to request an "
+                                            "informal placeholder species name. Please also refer to the ASG/DTOL/ERGA SOP.",
     'validation_msg_original_field_missing': 'Missing data: ORIGINAL_GEOGRAPHIC_LOCATION missing at row '
                                              '<strong>%s</strong>. If ORIGINAL_COLLECTION_DATE is provided, '
                                              'ORIGINAL_GEOGRAPHIC_LOCATION must also be provided.',

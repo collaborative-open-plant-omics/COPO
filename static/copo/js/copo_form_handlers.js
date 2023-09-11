@@ -1529,12 +1529,20 @@ var dispatchFormControl = {
         }
 
         //set current data
-        var currentValue = [];
+        let currentValue = [];
 
         if (elemValue) {
-            if (typeof elemValue === "string") {
-                currentValue = elemValue.split(",");
-            } else if (typeof elemValue === "object") {
+            if (typeof elemValue === 'string') {
+                currentValue = elemValue.split(',');
+            } else if (
+                formElem.id.includes('associated_type') &&
+                typeof elemValue === 'object'
+            ) {
+                let obj = JSON.parse(JSON.stringify(elemValue));
+                $.each(obj, function (index, item) {
+                    currentValue.push(item.value);
+                });
+            } else if (typeof elemValue === 'object') {
                 currentValue = elemValue;
             }
         }

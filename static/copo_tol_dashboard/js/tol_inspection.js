@@ -25,6 +25,7 @@ $(document).ready(function () {
     $(document).data("areAllSampleModalFieldsShown", false)
     $(document).data("showAllTableFieldsCheckBox", false);
     $(document).data("queryUserProfileRecordsCheckBox", true);
+    $(document).data("queryCOPORecordsCheckBox", false)
     $(document).data("searchByFaceting", false);
     $(document).data("selectedProfileID", "");
     $(document).data("navBarItems", [])
@@ -176,6 +177,7 @@ $(document).ready(function () {
         let project = $(e.target).attr("href")
         get_profile_titles(project)
     });
+
     get_profile_titles_nav_tabs() // Get profile types
     highlight_empty_cells_in_selected_row()
 });
@@ -551,27 +553,31 @@ function json2HtmlForm_SampleDetails(data) {
 } //end of json2HTMLForm
 
 function get_profile_titles_on_queryCOPORecordsCheckBoxID() {
-    if ($("#queryCOPORecordsCheckBoxID").is(":checked")) {
-        $(document).data("queryCOPORecordsCheckBox", true)
-        $(document).data("queryUserProfileRecordsCheckBox", false)
-        const project = $("#profile_types_filter").find(".active").find("a").attr("href");
-        get_profile_titles(project)
-
-        // Remove the 'selected' class from any previously selected profile listed
-        $("#profile_titles").find(".selected").removeClass("selected")
-        const profile_titles_row = $("#profile_titles tr")
-        $(profile_titles_row[1]).addClass("selected") // Add the selected class to the first profile displayed
-
-        // Clear/empty the 'profile_samples' table is any samples are displayed
-        if ($.fn.DataTable.isDataTable('#profile_samples')) {
-            $("#profile_samples").DataTable().clear().destroy();
-
-        }
-        get_samples(profile_titles_row[1], project) // Populate samples table with samples from the first profile displayed
-    } else {
-        $(document).data("queryCOPORecordsCheckBox", false)
+    const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+    
+    if($(document).data("queryCOPORecordsCheckBox")) {
+        $(document).data("queryUserProfileRecordsCheckBox", false)      
+    }else{
         $(document).data("queryUserProfileRecordsCheckBox", true)
     }
+
+    $(this).prop("checked", $(document).data("queryCOPORecordsCheckBox"))
+
+    $('#queryCOPORecordsCheckBoxID').val($(document).data("queryCOPORecordsCheckBox"));    
+    get_profile_titles(project)
+
+    // Remove the 'selected' class from any previously selected profile listed
+    $("#profile_titles").find(".selected").removeClass("selected")
+    const profile_titles_row = $("#profile_titles tr")
+    $(profile_titles_row[1]).addClass("selected") // Add the selected class to the first profile displayed
+
+    // Clear/empty the 'profile_samples' table if any samples are displayed
+    if ($.fn.DataTable.isDataTable('#profile_samples')) {
+        $("#profile_samples").DataTable().clear().destroy();
+
+    }
+
+    get_samples(profile_titles_row[1], project) // Populate samples table with samples from the first profile displayed
 }
 
 function get_samples(row, project) {
@@ -711,13 +717,14 @@ function get_samples(row, project) {
                 fastdom.mutate(() => {
                     let profile_samples = $("#profile_samples");
                     let showAllTableFieldsCheckBoxID = $("#showAllTableFieldsCheckBoxID")
-                    let queryCOPORecordsCheckBoxID = $("#queryCOPORecordsCheckBoxID")
-                    let queryUserProfileRecordsCheckBoxID = $("#queryUserProfileRecordsCheckBoxID")
+                    // let queryCOPORecordsCheckBoxID = $("#queryCOPORecordsCheckBoxID")
+                    // let queryUserProfileRecordsCheckBoxID = $("#queryUserProfileRecordsCheckBoxID")
                     const tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0];
 
                     rows.forEach(el => {
                         tbody.appendChild(el)
                     })
+
                     profile_samples.DataTable(profile_samples_dt_options);
 
                     // Re-configure 'profile_samples' table options if 'copo_tol_dashboard' is displayed
@@ -739,19 +746,15 @@ function get_samples(row, project) {
                     // Add checkbox to show all fields within the table beside the search box
                     // within the profile samples data table
                     let showAllTableFieldsCheckbox_html = '<label style="padding-right: 40px"> Show all fields: <input id="showAllTableFieldsCheckBoxID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>'
-                    let filterByCOPODatabaseIDCheckbox_html = '<label style="padding-right: 30px"> Query in<span class="font-weight-bold ms-1"> COPO </span>record:<input id="queryCOPORecordsCheckBoxID" onclick="get_profile_titles_on_queryCOPORecordsCheckBoxID(this)" style="padding-right:20px; margin-right:8px" type="checkbox"">' +
-                        '                                     </label>'
-
+                   
                     // Create a div that has checkboxes on the same row
                     let profileSamplesTable_checkBoxesDiv = $('<div id="profileSamplesTable_checkBoxesDiv" style="display: inline;"> </div>')
                     profileSamplesTable_checkBoxesDiv.append(showAllTableFieldsCheckbox_html)
-                    profileSamplesTable_checkBoxesDiv.append(filterByCOPODatabaseIDCheckbox_html)
-
-
+                   
                     $("#profile_samples_filter").prepend(profileSamplesTable_checkBoxesDiv)
 
                     showAllTableFieldsCheckBoxID.prop('checked', $(document).data("showAllTableFieldsCheckBox"));
-                    queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
+                    // queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
 
                     //Only show the checkboxes on tol_inspect web page
                     if (!window.location.href.includes('dashboard/tol')) {
@@ -761,38 +764,39 @@ function get_samples(row, project) {
                         }
 
 
-                        document.querySelector("#queryCOPORecordsCheckBoxID").onchange = (e) => {
-                            let checked = e.target.checked;
-                            if (checked) {
-                                $(document).data("queryUserProfileRecordsCheckBox", false)
-                                if (queryUserProfileRecordsCheckBoxID.is(":checked")) {
+                        // document.querySelector("#queryCOPORecordsCheckBoxID").onchange = (e) => {
+                        //     let checked = e.target.checked;
+                        //     if (checked) {
+                        //         $(document).data("queryUserProfileRecordsCheckBox", false)
+                        //         if (queryUserProfileRecordsCheckBoxID.is(":checked")) {
 
-                                    queryUserProfileRecordsCheckBoxID.prop('checked', $(document).data("queryUserProfileRecordsID"));
-                                    queryUserProfileRecordsCheckBoxID.prop("disabled", true);
-                                    queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
-                                } else {
-                                    queryUserProfileRecordsCheckBoxID.prop("disabled", true);
-                                    queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
-                                }
-                            }
-                            $(document).data("queryCOPORecordsCheckBox", checked);
-                        }
+                        //             queryUserProfileRecordsCheckBoxID.prop('checked', $(document).data("queryUserProfileRecordsID"));
+                        //             queryUserProfileRecordsCheckBoxID.prop("disabled", true);
+                        //             queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
+                        //         } else {
+                        //             queryUserProfileRecordsCheckBoxID.prop("disabled", true);
+                        //             queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
+                        //         }
+                        //     }
+                        //     $(document).data("queryCOPORecordsCheckBox", checked);
+                        // }
                     }
 
                     showAllTableFieldsCheckBoxID.prop('checked', $(document).data("showAllTableFieldsCheckBox"));
-                    queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
+                    //queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
 
                     // Hide 'profileSamplesTable_checkBoxesDiv' div and disable its child checkboxes
                     // 'Show all fields' checkbox and 'Query in COPO record' checkbox
                     // when on tol_dashboard web page
                     if (window.location.href.includes('dashboard/tol')) {
                         showAllTableFieldsCheckBoxID.prop("disabled", true);
-                        queryCOPORecordsCheckBoxID.prop("disabled", true);
+                        //queryCOPORecordsCheckBoxID.prop("disabled", true);
                         $("#profileSamplesTable_checkBoxesDiv").hide()
                         if (tol_inspect_card.hasClass("tol_inspect_card_padding")) tol_inspect_card.removeClass("tol_inspect_card_padding")
                     }
 
                 })
+
                 highlight_empty_cells_in_selected_row()
 
                 // Add a placeholder to the search box
@@ -884,13 +888,18 @@ function get_profile_titles(data) {
     // get profiles with samples needing looked at and populate left hand column
     let searchQueryDict = $(document).data("searchQuery")
     let match_items = JSON.stringify(data)
-    let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox")
-    let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox") ?? false
-    let getProjectTitlesForUserOnly = !!($.isEmptyObject(searchQueryDict) && queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox)
     let searchByFaceting = typeof (data) !== 'string'
     let profile_titles_nav_bar = $("#profile_types_filter")
     let profile_titles_table_component_loader = $('.profile_titles_table_component_loader')
 
+    // Checkboxes
+    let queryUserProfileRecordsCheckBox = $(document).data("queryUserProfileRecordsCheckBox")
+    let queryCOPORecordsCheckBox = $(document).data("queryCOPORecordsCheckBox") //?? false
+    let queryCOPORecordsCheckBoxID = $("#queryCOPORecordsCheckBoxID")
+    let queryUserProfileRecordsCheckBoxID = $("#queryUserProfileRecordsCheckBoxID")
+    let getProjectTitlesForUserOnly = !!(queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox) //!!($.isEmptyObject(searchQueryDict) && queryUserProfileRecordsCheckBox && !queryCOPORecordsCheckBox)
+    
+       
     $(document).data("searchByFaceting", searchByFaceting);
 
     // If data is of type 'string' i.e. the value of data is 'project type', search by faceting is not required
@@ -995,13 +1004,63 @@ function get_profile_titles(data) {
         } else {
             $(profile_titles_row[profile_title_row_index]).click()
         }
-        // Add a placeholder to the search box
-        let table_wrapper = $("#profile_titles_wrapper")
-        table_wrapper
-            .find(".dataTables_filter")
-            .find("input[type='search']")
-            .attr("placeholder", "Search profile titles")
 
+        fastdom.mutate(() => {
+            // Add a checkbox to query records in COPO beside the search box
+            // within the profile titles data table
+            let filterByCOPODatabaseIDCheckbox_html = '<label style="padding-right: 30px"> Query in<span class="font-weight-bold ms-1"> COPO </span>record:<input id="queryCOPORecordsCheckBoxID" style="padding-right:20px; margin-right:8px" type="checkbox"">' +
+            '                                     </label>'
+
+            // Create a div that has checkbox on the same row
+            let profileTitlesTable_checkBoxesDiv = $('<div id="profileTitlesTable_checkBoxesDiv" style="display: inline;"> </div>')
+            profileTitlesTable_checkBoxesDiv.append(filterByCOPODatabaseIDCheckbox_html)
+
+            $("#profile_titles_filter").prepend(profileTitlesTable_checkBoxesDiv)
+            queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
+
+            $('#queryCOPORecordsCheckBoxID').bind('click', function (e) {
+                $(document).data("queryCOPORecordsCheckBox", this.checked)
+                get_profile_titles_on_queryCOPORecordsCheckBoxID()                 
+            });
+
+            // Add a placeholder to the search box
+            let table_wrapper = $("#profile_titles_wrapper")
+            table_wrapper
+                .find(".dataTables_filter")
+                .find("input[type='search']")
+                .attr("placeholder", "Search profile titles")
+
+            if (!window.location.href.includes("dashboard/tol")) {
+                profile_titles_table_component_loader.find('.profile_titles_table_spinner')
+                    .toggleClass('active')
+                    .toggleClass('hidden')
+    
+                //Only show the checkboxes on tol_inspect web page    
+                document.querySelector("#queryCOPORecordsCheckBoxID").onchange = (e) => {
+                    let checked = e.target.checked;
+                    if (checked) {
+                        $(document).data("queryUserProfileRecordsCheckBox", false)
+                        if (queryUserProfileRecordsCheckBoxID.is(":checked")) {
+    
+                            queryUserProfileRecordsCheckBoxID.prop('checked', $(document).data("queryUserProfileRecordsID"));
+                            queryUserProfileRecordsCheckBoxID.prop("disabled", true);
+                            queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
+                        } else {
+                            queryUserProfileRecordsCheckBoxID.prop("disabled", true);
+                            queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
+                        }
+                    }
+                    $(document).data("queryCOPORecordsCheckBox", checked);
+                }
+            }else{
+                queryCOPORecordsCheckBoxID.prop("disabled", true);
+                $("#profileTitlesTable_checkBoxesDiv").hide()
+            }
+
+            // Set 'queryCOPORecordsCheckBox' value
+            $("#queryCOPORecordsCheckBoxID").prop('checked', $(document).data("queryCOPORecordsCheckBox"));  
+        });
+        
         $.fn.dataTable.moment('DD/MM/YYYY');
         profile_titlesID.DataTable({
             responsive: true,
@@ -1011,12 +1070,6 @@ function get_profile_titles(data) {
             "order": [[1, "desc"]],
 
         })
-
-        if (!window.location.href.includes("dashboard/tol")) {
-            profile_titles_table_component_loader.find('.profile_titles_table_spinner')
-                .toggleClass('active')
-                .toggleClass('hidden')
-        }
     })
 }
 
