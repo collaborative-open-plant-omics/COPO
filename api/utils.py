@@ -7,7 +7,7 @@ import pandas as pd
 from django_tools.middlewares import ThreadLocal
 
 from web.apps.web_copo.lookup.lookup import API_RETURN_TEMPLATES
-
+import uuid
 
 def get_return_template(type):
     """
@@ -106,6 +106,11 @@ def generate_rocrate_response(data):
                 manifest_map[manifest_id] = []
             manifest_map[manifest_id].append(samples)
 
+    if len(manifest_map.keys()) > 1:
+        result_list = ["Not Implemented"]
+        return result_list
+
+
     for key, samples in manifest_map.items():
         rocrate_json = {}
         
@@ -133,43 +138,59 @@ def generate_rocrate_response(data):
         perservedby = df["PERSERVED_BY"].unique() if "PERSERVED_BY" in df.columns else []
         identifiedby = df["IDENTIFIED_BY"].unique() if "IDENTIFIED_BY" in df.columns else []
 
-        rocrate_person = [] 
-        rocrate_person.extend(generate_rocrate_person_object(df, collectedby, "COLLECTED_BY", "COLLECTOR"))
-        rocrate_person.extend(generate_rocrate_person_object(df, coordinator, "SAMPLE_COORDINATOR", "SAMPLE_COORDINATOR"))
-        rocrate_person.extend(generate_rocrate_person_object(df, perservedby, "PERSERVED_BY", "PERSERVER"))
-        rocrate_person.extend(generate_rocrate_person_object(df, identifiedby, "IDENTIFIED_BY", "IDENTIFIER"))
-
+        rocrate_person = dict()
+        rocrate_person = generate_rocrate_person_object(df, collectedby, "COLLECTED_BY", "COLLECTOR",rocrate_person)
+        rocrate_person = generate_rocrate_person_object(df, coordinator, "SAMPLE_COORDINATOR", "SAMPLE_COORDINATOR",rocrate_person)
+        rocrate_person = generate_rocrate_person_object(df, perservedby, "PERSERVED_BY", "PERSERVER",rocrate_person)
+        rocrate_person = generate_rocrate_person_object(df, identifiedby, "IDENTIFIED_BY", "IDENTIFIER",rocrate_person)
        
         manifest_item = {"@id":f"https://copo-project.org/api/manifest/{key}", "@type":"Dataset", "dateCreated": dateCreated, "datedModified":dateModifed} 
         manifest_item["contributor"] = []
-        manifest_item["contributor"].extend( {"@id" :  p["@id"]} for p in rocrate_person  )
+        manifest_item["contributor"].extend( {"@id" :  p["@id"]} for p in rocrate_person.values()  )
         
         manifest_item["hasPart"] = [ { "@id": f"https://copo-project.org/api/sample/copo_id/{x['copo_id']}"} for x in samples ] 
         manifest_item["taxonomicRange"] = [ { "@id": f"https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={x}"} for x in df["TAXON_ID"].unique() ] 
         graph_list.append(manifest_item)       
-        graph_list.extend(rocrate_person)
+        graph_list.extend(rocrate_person.values())
 
 
         for x in df["TAXON_ID"].unique():
-             item = {"@id": f"https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={x}"}
+             item = {"@id": f"http://identifiers.org/taxonomy:{x}"}
              item["@type"] = "TAXON"
              item["name"] = df[df["TAXON_ID"]== x ]["SCIENTIFIC_NAME"].unique()[0] if "SCIENTIFIC_NAME" in df.columns else ""
              item["parentTaxon"] = {"@id": f"https://copo-project.org/api/sample_field/ORDER_OR_GROUP/{df[df['TAXON_ID']== x ]['ORDER_OR_GROUP'].unique()[0]}"}    
              graph_list.append(item)
 
         for x in samples:
-            sample_item = { "@id": f"https://copo-project.org/api/sample/copo_id/{x['copo_id']}", "@type":"Sample"  } 
+            sample_item = { "@id": f"https://copo-project.org/api/sample/copo_id/{x['copo_id']}", "@type":"BioSample" }
+            if "TAXON_ID" in x:
+              sample_item["taxonomicRange"] = {"@id": f"http://identifiers.org/taxonomy:{x['TAXON_ID']}"} 
+            biosampleAccession = x.get("biosampleAccession","")
+            if biosampleAccession:
+                sample_item["biosample_identifier"] = {"@id": f"http://identifiers.org/biosample:{biosampleAccession}"} 
+
+
+            for p in "COLLECTOR:COLLECTED_BY", "SAMPLE_COORDINATOR:SAMPLE_COORDINATOR", "PERSERVER:PERSERVED_BY", "IDENTIFIER:IDENTIFIED_BY":
+                pp = p.split(":")
+                collectors = x.get(pp[1],"")
+                if collectors:
+                    sample_item[pp[0].lower()] = []
+                    for c in collectors.split("|"):
+                        collector = rocrate_person.get(c.strip(), dict())
+                        if collector:
+                            sample_item[pp[0].lower()].append({"@id": collector["@id"]})
+        
             sample_item.update(x)
             graph_list.append(sample_item) 
 
         rocrate_json["@graph"] = graph_list
         result_list.append(rocrate_json)
-    return result_list
+    return rocrate_json
 
 
-def generate_rocrate_person_object(df, personList, person_field_name, prefix) :
-    items = []
-    for people in personList:
+def generate_rocrate_person_object(df, personlist, person_field_name, prefix, person_map) :
+    #items = []
+    for people in personlist:
         person_affiliations =  df[df[person_field_name]== people ][f"{prefix}_AFFILIATION"].unique()[0]  if f"{prefix}_AFFILIATION" in df.columns else str()   
         orcid_ids =  df[df[person_field_name]== people ][f"{prefix}_ORCID_ID"].unique()[0] if f"{prefix}_ORCID_ID" in df.columns else str()
         
@@ -177,28 +198,34 @@ def generate_rocrate_person_object(df, personList, person_field_name, prefix) :
         person_affiliation_list = person_affiliations.split("|")
         orcid_id_list = orcid_ids.split("|")
         affiliation = ""
-        
-        for index,  person in  enumerate(person_list):
-            item = {}
+
+        for index,  person in  enumerate(person_list):            
+            name = person.strip()
+            item =  person_map.get(name, dict())
+            person_map[name] = item
 
             if orcid_ids and len(orcid_id_list) > index:
                 item["@id"] = "http://orcid.org/" + orcid_id_list[index].strip()
-                item["name"] = person.strip()
-            else:
-                item["@id"] = person.strip()
-
+            else:  
+                item["@id"] =  uuid.uuid4().hex
+            item["name"] = name
             item["@type"] = "Person"
-            item["role"] = person_field_name
 
+            affiliation_list = item.get("affiliation", list())
+            item["affiliation"] = affiliation_list
+
+            #item["role"] = person_field_name
             if person_affiliation_list :
                 if len(person_affiliation_list) > index:
-                    item["affiliation"] = person_affiliation_list[index].strip()
-                    affiliation = item["affiliation"]
+                    affiliation = person_affiliation_list[index].strip()
+                    if affiliation not in item["affiliation"]:
+                        item["affiliation"].append(affiliation)                   
                 elif affiliation:
-                    item["affiliation"] = affiliation
-            items.append(item)    
-
-    return items
+                    if affiliation not in item["affiliation"]:
+                        item["affiliation"].append(affiliation)   
+            
+            #items.append(item)
+    return person_map
 
 '''
     response = """
