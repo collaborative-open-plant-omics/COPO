@@ -100,7 +100,13 @@ services:
       - copo_public_name_service_api_key
       - copo_mail_password
       - copo_bioimage_path
-      - ecs_secret_key  
+      - ecs_secret_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 30s 
   nginx:
     image: copo/copo-nginx:1.23.3
     networks:
