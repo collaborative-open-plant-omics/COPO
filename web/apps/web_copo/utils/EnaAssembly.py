@@ -319,7 +319,7 @@ def process_assembly_pending_submission():
                     for file in os.scandir(f"{directories[-1]}/validate"):
                         if file.name != "webin-cli.report":
                             with open(file) as report_file:
-                                error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}"/>{file.name}</a>'                    
+                                error = error + f'<br/><a href="{these_assemblies_url_path}/genome/{os.path.basename(directories[0])}/validate/{file.name}">{file.name}</a>'                    
                 Assembly().update_assembly_error( assembly_ids=[assembly_id], msg=error)                
                 ghlper.notify_assembly_status(data={"profile_id": sub["profile_id"]}, msg=error, action="error", html_id="assembly_info")
 
