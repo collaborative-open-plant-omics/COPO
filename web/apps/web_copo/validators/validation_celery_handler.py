@@ -243,7 +243,7 @@ class ProcessValidationQueue:
                 error_message = str(e).replace("<", "").replace(">", "")
                 msg = "Server Error - " + error_message,
                 notify_frontend(data={"profile_id": self.profile_id}, msg=msg,
-                                action="info",
+                                action="error",
                                 html_id="sample_info")
                 ValidationQueue().set_schema_validation_error(qm["_id"], err=msg)
                 Logger().exception(e)

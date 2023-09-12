@@ -260,7 +260,7 @@ class DtolSpreadsheet:
             Logger().exception(e)
             error_message = str(e).replace("<", "").replace(">", "")
             notify_frontend(data={"profile_id": self.profile_id}, msg="Server Error - " + error_message,
-                            action="info",
+                            action="error",
                             html_id="sample_info")
             raise
             return False

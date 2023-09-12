@@ -622,7 +622,7 @@ class EnaTaggedSequence:
 
         df = pd.DataFrame(tagged_seqs)      
 
-        df.drop(['SPECIMEN_ID'], axis=1, inplace=True)
+        df.drop(['SPECIMEN_ID', 'TAXON_ID'], axis=1, inplace=True)
         df.drop([x for x in df.columns if x not in fields.keys() or df[x][0].strip()==""], axis=1, inplace=True)
         df.rename(columns=new_column_name, inplace=True) 
 
@@ -694,7 +694,7 @@ class EnaTaggedSequence:
                 for file in os.scandir(f"{directories[-1]}/validate"):
                     if file.name != "webin-cli.report":
                         with open(file) as report_file:
-                            error = error + f'<br/><a href="{the_submission_url_path}/sequence/{os.path.basename(directories[-1])}/validate/{file.name}"/>{file.name}</a>'                    
+                            error = error + f'<br/><a href="{the_submission_url_path}/sequence/{os.path.basename(directories[-1])}/validate/{file.name}">{file.name}</a>'                    
                 return {"error": error}
             else:
                 return {"error": output}    
