@@ -171,11 +171,26 @@ $(document).ready(function () {
         }
     });
 
+    $(document).on("click", "#showAllTableFieldsCheckBoxID", function (e) {
+        $(this).val(this.checked);
+        $(document).data("showAllTableFieldsCheckBox",this.checked)
+
+        let selected_profile_row =  $(document).data("selected_profile_title_row")
+        const project = $("#profile_types_filter").find(".active").find("a").attr("href");
+        get_samples(selected_profile_row, project)
+        $("#showAllTableFieldsCheckBoxID").prop('checked', $(document).data("showAllTableFieldsCheckBox"))
+    });
+
     // Get active manifest type tab on tab change
     $('#profile_types_filter').bind('click', function (e) {
         $(document).data("selectedProfileID", "") //  Reset the selected profile ID
+        $(document).data("showAllTableFieldsCheckBox", false) // Reset the boolean value of the 'Show all fields' checkbox to 'false'
+        $(document).data("queryUserProfileRecordsCheckBox", true) // Reset the  value of the querying records by user profiles to 'true'
+        $(document).data("queryCOPORecordsCheckBox", false) // Reset the boolean value of the 'Query in COPO record' checkbox to 'false'
+
         let project = $(e.target).attr("href")
         get_profile_titles(project)
+        
     });
 
     get_profile_titles_nav_tabs() // Get profile types
@@ -555,6 +570,7 @@ function json2HtmlForm_SampleDetails(data) {
 function get_profile_titles_on_queryCOPORecordsCheckBoxID() {
     const project = $("#profile_types_filter").find(".active").find("a").attr("href");
     
+    // Set the boolean value of the "Query in COPO record" checkbox
     if($(document).data("queryCOPORecordsCheckBox")) {
         $(document).data("queryUserProfileRecordsCheckBox", false)      
     }else{
@@ -574,7 +590,6 @@ function get_profile_titles_on_queryCOPORecordsCheckBoxID() {
     // Clear/empty the 'profile_samples' table if any samples are displayed
     if ($.fn.DataTable.isDataTable('#profile_samples')) {
         $("#profile_samples").DataTable().clear().destroy();
-
     }
 
     get_samples(profile_titles_row[1], project) // Populate samples table with samples from the first profile displayed
@@ -645,7 +660,7 @@ function get_samples(row, project) {
 
                 const rows = [];
 
-                // Get the value of the showAllTableFields checkbox
+                // Get the value of the "Show all fields" checkbox
                 let areAllTableFieldsShown = $(document).data("showAllTableFieldsCheckBox");
 
                 $(data).each(function (idx, row) {
@@ -716,9 +731,6 @@ function get_samples(row, project) {
 
                 fastdom.mutate(() => {
                     let profile_samples = $("#profile_samples");
-                    let showAllTableFieldsCheckBoxID = $("#showAllTableFieldsCheckBoxID")
-                    // let queryCOPORecordsCheckBoxID = $("#queryCOPORecordsCheckBoxID")
-                    // let queryUserProfileRecordsCheckBoxID = $("#queryUserProfileRecordsCheckBoxID")
                     const tbody = document.getElementById("profile_samples").getElementsByTagName('tbody')[0];
 
                     rows.forEach(el => {
@@ -745,7 +757,7 @@ function get_samples(row, project) {
 
                     // Add checkbox to show all fields within the table beside the search box
                     // within the profile samples data table
-                    let showAllTableFieldsCheckbox_html = '<label style="padding-right: 40px"> Show all fields: <input id="showAllTableFieldsCheckBoxID" style="padding-right:20px" type="checkbox" onclick="populate_samples_table_based_on_profile_title(this)"></label>'
+                    let showAllTableFieldsCheckbox_html = '<label style="padding-right: 40px"> Show all fields: <input id="showAllTableFieldsCheckBoxID" style="padding-right:20px" type="checkbox"></label>'
                    
                     // Create a div that has checkboxes on the same row
                     let profileSamplesTable_checkBoxesDiv = $('<div id="profileSamplesTable_checkBoxesDiv" style="display: inline;"> </div>')
@@ -753,58 +765,25 @@ function get_samples(row, project) {
                    
                     $("#profile_samples_filter").prepend(profileSamplesTable_checkBoxesDiv)
 
-                    showAllTableFieldsCheckBoxID.prop('checked', $(document).data("showAllTableFieldsCheckBox"));
-                    // queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
-
-                    //Only show the checkboxes on tol_inspect web page
-                    if (!window.location.href.includes('dashboard/tol')) {
-                        document.querySelector("#showAllTableFieldsCheckBoxID").onchange = (e) => {
-                            let checked = e.target.checked;
-                            $(document).data("showAllTableFieldsCheckBox", checked);
-                        }
-
-
-                        // document.querySelector("#queryCOPORecordsCheckBoxID").onchange = (e) => {
-                        //     let checked = e.target.checked;
-                        //     if (checked) {
-                        //         $(document).data("queryUserProfileRecordsCheckBox", false)
-                        //         if (queryUserProfileRecordsCheckBoxID.is(":checked")) {
-
-                        //             queryUserProfileRecordsCheckBoxID.prop('checked', $(document).data("queryUserProfileRecordsID"));
-                        //             queryUserProfileRecordsCheckBoxID.prop("disabled", true);
-                        //             queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
-                        //         } else {
-                        //             queryUserProfileRecordsCheckBoxID.prop("disabled", true);
-                        //             queryUserProfileRecordsCheckBoxID.attr("title", "Search query within user profile records is enabled. Uncheck query in COPO profile records in prder tp query in user profile records")
-                        //         }
-                        //     }
-                        //     $(document).data("queryCOPORecordsCheckBox", checked);
-                        // }
-                    }
-
-                    showAllTableFieldsCheckBoxID.prop('checked', $(document).data("showAllTableFieldsCheckBox"));
-                    //queryCOPORecordsCheckBoxID.prop('checked', $(document).data("queryCOPORecordsCheckBox"));
-
-                    // Hide 'profileSamplesTable_checkBoxesDiv' div and disable its child checkboxes
-                    // 'Show all fields' checkbox and 'Query in COPO record' checkbox
-                    // when on tol_dashboard web page
+                    // Set checked/unchecked value of the 'Show all fields' checkbox
+                    $("#showAllTableFieldsCheckBoxID").prop('checked', $(document).data("showAllTableFieldsCheckBox"))
+                    
+                    // Add a placeholder to the search box
+                    let table_wrapper = $("#profile_samples_wrapper")
+                    table_wrapper
+                        .find(".dataTables_filter")
+                        .find("input[type='search']")
+                        .attr("placeholder", "Search samples")
+                        
                     if (window.location.href.includes('dashboard/tol')) {
-                        showAllTableFieldsCheckBoxID.prop("disabled", true);
-                        //queryCOPORecordsCheckBoxID.prop("disabled", true);
-                        $("#profileSamplesTable_checkBoxesDiv").hide()
+                        $("#showAllTableFieldsCheckBoxID").prop("disabled", true);
+         
+                        $("#profileSamplesTable_checkBoxesDiv").hide() // Hide 'profileSamplesTable_checkBoxesDiv' div and disable its child checkboxes
                         if (tol_inspect_card.hasClass("tol_inspect_card_padding")) tol_inspect_card.removeClass("tol_inspect_card_padding")
                     }
-
                 })
-
+                
                 highlight_empty_cells_in_selected_row()
-
-                // Add a placeholder to the search box
-                let table_wrapper = $("#profile_samples_wrapper")
-                table_wrapper
-                    .find(".dataTables_filter")
-                    .find("input[type='search']")
-                    .attr("placeholder", "Search samples")
 
                 $("#data_status").text("Idle")
 
@@ -854,7 +833,6 @@ function get_samples(row, project) {
                 $("#tolInspectNavBar").find(".breadcrumb").empty().html("").hide()
                 $(document).data("navBarItems", [])
             }
-
 
             $("#spinner").fadeOut("fast")
         }
