@@ -87,6 +87,7 @@ def validate_assembly(form, profile_id, assembly_id):
     bucket_name = str(request.user.id) + "_" + request.user.username
     these_assemblies = join(settings.MEDIA_ROOT, "ena_assembly_files", profile_id)
     these_assemblies_url_path = f"{settings.MEDIA_URL}ena_assembly_files/{profile_id}"
+    Path(these_assemblies).mkdir(parents=True,exist_ok=True)
     manifest_content =""
     file_fields = ["fasta", "flatfile", "agp", "chromosome_list", "unlocalised_list"]
     file_ids = []
