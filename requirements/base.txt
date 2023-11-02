@@ -160,7 +160,7 @@ supervisor==4.0.4
 tables
 terminado==0.8.2
 testpath==0.4.2
-tornado==6.0.3
+tornado==6.3.3
 traitlets==4.3.3
 Twisted==19.7.0
 txaio==18.8.1
