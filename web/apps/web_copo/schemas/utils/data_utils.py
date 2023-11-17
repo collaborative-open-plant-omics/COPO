@@ -123,7 +123,11 @@ def json_to_pytype(path_to_json, compatibility_mode=True):
             tmp = list()
             for idx, el in enumerate(data["properties"]):
                 if type(el) == jsonref.JsonRef:
-                    tmp = tmp + data["properties"][idx]
+                    try:
+                        tmp.extend(el) # tmp = tmp + data["properties"][idx]
+                    except TypeError as e:
+                        l.log("line 127: " + str(e))
+                        tmp.append(el)
                 else:
                     tmp.append(el)
                     # data["properties"] = data["properties"] + data["properties"][idx]
