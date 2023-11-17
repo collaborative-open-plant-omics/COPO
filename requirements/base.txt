@@ -148,7 +148,7 @@ requests-oauthlib==0.7.0
 rjsmin==1.1.0
 rsa==3.4.2
 s3transfer==0.1.9
-selenium==3.141.0
+selenium==4.15.1
 Send2Trash==1.5.0
 service-identity==18.1.0
 simplejson==3.16.0
