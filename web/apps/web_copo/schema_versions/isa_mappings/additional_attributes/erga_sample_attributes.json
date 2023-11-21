@@ -54,7 +54,7 @@
     "type": "string",
     "show_in_form": true,
     "id": "copo.sample.SPECIMEN_ID",
-    "label": "Specimen Id",
+    "label": "Specimen ID",
     "show_in_table": true,
     "dwc": "http://rs.tdwg.org/dwc/terms/recordNumber",
     "colour": "#badac5",
@@ -516,9 +516,14 @@
     "control": "select",
     "default_value": "Unknown",
     "option_values": [
-      "Male",
-      "Female",
-      "Unknown"
+      "FEMALE",
+      "MALE",
+      "HERMAPHRODITE_MONOECIOUS",
+      "ASEXUAL_MORPH",
+      "SEXUAL_MORPH",
+      "NOT_COLLECTED",
+      "NOT_APPLICABLE",
+      "NOT_PROVIDED"
     ],
     "colour": "#dad3ea",
     "excel_col": "Q",
@@ -867,7 +872,7 @@
     "order": 29
   },
   {
-    "help_tip": "The geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
+    "help_tip": "The geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -898,7 +903,7 @@
     "order": 30
   },
   {
-    "help_tip": "The geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
+    "help_tip": "The geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -929,7 +934,7 @@
     "order": 31
   },
   {
-    "help_tip": "The geographic latitude start (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
+    "help_tip": "The geographic latitude start (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -959,7 +964,7 @@
     "order": 32
   },
   {
-    "help_tip": "The geographic longitude start (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
+    "help_tip": "The geographic longitude start (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -989,7 +994,7 @@
     "order": 33
   },
   {
-    "help_tip": "The geographic latitude end (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
+    "help_tip": "The geographic latitude end (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -1019,7 +1024,7 @@
     "order": 34
   },
   {
-    "help_tip": "The geographic longitude end (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
+    "help_tip": "The geographic longitude end (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -1202,7 +1207,7 @@
     "order": 40
   },
   {
-    "help_tip": "The original geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
+    "help_tip": "The original geographic latitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are north of the Equator, negative values are south of it. Legal values lie between -90 and 90, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -1233,7 +1238,7 @@
     "order": 41
   },
   {
-    "help_tip": "The original geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic center of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
+    "help_tip": "The original geographic longitude (in decimal degrees, using the spatial reference system given in geodeticDatum) of the geographic centre of a Location. Positive values are east of the Greenwich Meridian, negative values are west of it. Legal values lie between -180 and 180, inclusive.",
     "required": "false",
     "default_value": "",
     "show_as_attribute": true,
@@ -2042,7 +2047,7 @@
       "erga"
     ],
     "show_in_form": true,
-    "label": "DNA Voucher ID For Biobanking",
+    "label": "DNA Voucher ID for Biobanking",
     "id": "copo.sample.DNA_VOUCHER_ID_FOR_BIOBANKING",
     "show_in_table": true,
     "control": "text",
@@ -2107,7 +2112,7 @@
     "type": "string",
     "show_in_form": true,
     "id": "copo.sample.PROXY_VOUCHER_ID",
-    "label": "proxyVoucherId",
+    "label": "Proxy Voucher ID",
     "show_in_table": true,
     "dwc": "",
     "colour": "#ebd2dd",
@@ -2138,7 +2143,7 @@
     "type": "string",
     "show_in_form": true,
     "id": "copo.sample.VOUCHER_LINK",
-    "label": "voucherLink",
+    "label": "Voucher Link",
     "show_in_table": true,
     "dwc": "",
     "colour": "#ebd2dd",
@@ -2660,6 +2665,10 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.3",
+      "2.4.2"
+    ],
     "versions": [
       "PRIMARY_BIOGENOME_PROJECT"
     ],
@@ -2686,6 +2695,9 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.3"
+    ],
     "versions": [
       "ASSOCIATED_BIOGENOME_PROJECTS"
     ],
@@ -2712,6 +2724,11 @@
     "show_as_attribute": true,
     "control_meta": {},
     "control": "text",
+    "manifest_version": [
+      "2.4.3",
+      "2.4.2",
+      "2.4.1"
+    ],
     "versions": [
       "OTHER_INFORMATION"
     ],
@@ -2721,7 +2738,7 @@
     ],
     "deprecated": false,
     "hidden": "false",
-    "type": "array",
+    "type": "string",
     "show_in_form": true,
     "id": "copo.sample.OTHER_INFORMATION",
     "label": "Other Information",
