@@ -280,7 +280,7 @@ $(document).ready(function () {
         }).done(function (data) {
             $("#users_table tbody").empty();
             $(data.resp).each(function (idx, item) {
-                console.log(item)
+                //console.log(item)
                 var tr = document.createElement("tr");
                 tr.innerHTML = "<td>" + item.first_name + " " + item.last_name + "</td><td class='delete_cell'>" +
                     "<i class='fa fa-minus-square delete-user-button minus-color'></i>" +
@@ -323,7 +323,7 @@ var user_lookup = function () {
     }
 
     function do_user_position(a, b, c) {
-        console.log(a, b, c)
+        // console.log(a, b, c)
     }
 
 
