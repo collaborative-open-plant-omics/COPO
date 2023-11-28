@@ -697,7 +697,7 @@ DTOL_ENUMS = {
             'UNIVERSITY OF VIENNA (MOLLUSC)'
         ],
     'PRIMARY_BIOGENOME_PROJECT': [
-        'ERGA-associated'
+        'ERGA-associated',
         'ERGA-BGE',
         'ERGA-Pilot',
     ],
