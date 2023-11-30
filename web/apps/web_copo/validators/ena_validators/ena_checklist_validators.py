@@ -1,3 +1,4 @@
+from datetime import datetime
 from web.apps.web_copo.validators.validator import Validator
 from web.apps.web_copo.validators.validation_messages import MESSAGES as msg
 from dal.copo_da import Sample 
@@ -53,8 +54,22 @@ class IncorrectValueValidator(Validator):
                             regex = field.get("regex","")
                             if regex:
                                 if not re.match(regex, row):
-                                    self.errors.append("Invalid value '" + row + "' in column : '" + field["name"] + "' at row " + str(i))
-                                    self.flag = False
+                                    if column == 'collection date':
+                                        # Remove the time part from the date string if it is present
+                                        try:
+                                            result = bool(datetime.strptime(row, "%Y-%m-%d %H:%M:%S"))
+                                        except ValueError:
+                                               result = False
+
+                                        if result:
+                                            row = row.split(' ')[0]
+                                            self.data.at[i-2, column] = row
+                                        else:
+                                            self.errors.append("Invalid value '" + row + "' in column : '" + field["name"] + "' at row " + str(i))
+                                            self.flag = False
+                                    else:
+                                        self.errors.append("Invalid value '" + row + "' in column : '" + field["name"] + "' at row " + str(i))
+                                        self.flag = False
                         elif type == "TAXON_FIELD":
                             if row not in biosampleAccessionsMap.keys():
                                 self.errors.append("Invalid value " + row + " in column:'" + field["name"] + "'")

@@ -787,7 +787,7 @@ def agave_oauth(request):
 
 def import_ena_accession(request):
     if request.method == 'GET':
-        profile_id = request.session['profile_id']
+        profile_id = request.session.get('profile_id','')
         return render(request, 'copo/import_ena_accession.html', {'profile_id': profile_id})
     else:
         accessions = request.POST['accessions']
