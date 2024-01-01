@@ -113,7 +113,7 @@ pickleshare==0.7.5
 ply==3.9
 progressbar2==3.34.3
 prometheus-client==0.7.1
-prompt-toolkit==2.0.10
+prompt-toolkit==3.0.13
 pronto==0.10.1
 psycopg2-binary
 ptyprocess==0.5.2
