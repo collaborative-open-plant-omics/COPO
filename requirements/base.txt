@@ -174,7 +174,7 @@ widgetsnbextension==3.5.1
 wrapt==1.10.10
 xlrd==1.2.0
 xmljson==0.1.9
-zipp==0.6.0
+zipp==3.19.1
 zope.interface==4.6.0
 jsonpath-rw==1.4.0
 jsonpath-rw-ext==1.2.2
